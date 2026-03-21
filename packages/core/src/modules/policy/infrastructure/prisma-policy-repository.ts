@@ -49,6 +49,7 @@ export class PrismaPolicyRepository implements PolicyRepository {
       deletedAt: null,
       ...(filters.status && { status: filters.status }),
       ...(filters.clientId && { clientId: filters.clientId }),
+      ...(filters.proposalId && { proposalId: filters.proposalId }),
       ...(filters.salespersonId && { salespersonId: filters.salespersonId }),
       ...(filters.branch && { branch: filters.branch }),
       ...(filters.search && {

@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs';
 
 import { DocumentList } from '@/features/documents/components/document-list';
 import { DocumentUpload } from '@/features/documents/components/document-upload';
+import { usePolicyByProposal } from '@/features/policies/hooks/use-policies';
 
 import { useAdvanceProposal, useProposal, useRevertProposal } from '../hooks/use-proposals';
 import { BOARD_TYPE_LABELS, BRANCH_LABELS, STAGE_BADGE_VARIANT, STAGE_LABELS } from '../types';
@@ -27,6 +28,7 @@ interface ProposalDetailProps {
 export function ProposalDetail({ proposalId }: ProposalDetailProps) {
   const router = useRouter();
   const { data, isLoading, isError } = useProposal(proposalId);
+  const { data: existingPolicy } = usePolicyByProposal(proposalId);
   const advanceMutation = useAdvanceProposal();
   const revertMutation = useRevertProposal();
   const [showLostDialog, setShowLostDialog] = useState(false);
@@ -148,7 +150,9 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
         )}
       </div>
 
-      {proposal.stage === 'POLICY_ISSUED' && <IssuePolicyCard proposalId={proposalId} />}
+      {proposal.stage === 'POLICY_ISSUED' && (
+        <IssuePolicyCard proposalId={proposalId} policyId={existingPolicy?.id} />
+      )}
 
       <Separator />
 

@@ -11,6 +11,7 @@ export const issuePolicyBodySchema = z.object({
 export const listPoliciesQuerySchema = z.object({
   status: z.enum(['ACTIVE', 'CANCELLED', 'EXPIRED']).optional(),
   clientId: z.string().optional(),
+  proposalId: z.string().optional(),
   branch: z.enum(['AUTO', 'RESIDENTIAL', 'CONDOMINIUM', 'BUSINESS', 'LIFE', 'OTHER']).optional(),
   search: z.string().optional(),
   cursor: z.string().optional(),

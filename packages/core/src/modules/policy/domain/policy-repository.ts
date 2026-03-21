@@ -33,6 +33,7 @@ export interface PolicyFilters {
   organizationId: string;
   status?: 'ACTIVE' | 'CANCELLED' | 'EXPIRED';
   clientId?: string;
+  proposalId?: string;
   salespersonId?: string;
   branch?: 'AUTO' | 'RESIDENTIAL' | 'CONDOMINIUM' | 'BUSINESS' | 'LIFE' | 'OTHER';
   search?: string;
