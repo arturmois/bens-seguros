@@ -1,0 +1,26 @@
+{
+  "name": "@repo/db",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tenant": "./src/tenant-client.ts"
+  },
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.0.0",
+    "@prisma/client": "^7.4.0",
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "@config/typescript-config": "workspace:*",
+    "prisma": "^7.4.0",
+    "typescript": "^5.9.0"
+  }
+}
