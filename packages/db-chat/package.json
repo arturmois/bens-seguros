@@ -1,0 +1,17 @@
+{
+  "name": "@repo/db-chat",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./connection": "./src/connection.ts"
+  },
+  "dependencies": {
+    "mongoose": "^8.10.0"
+  },
+  "devDependencies": {
+    "@config/typescript-config": "workspace:*",
+    "typescript": "^5.9.0"
+  }
+}
