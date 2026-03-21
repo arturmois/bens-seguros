@@ -2,41 +2,13 @@ import { randomUUID } from 'node:crypto';
 
 import { calculateCommissionValue } from './commission-calculator.js';
 import { CommissionErrors } from './commission-errors.js';
+import type {
+  CommissionProps,
+  CommissionStatus,
+  CreateCommissionInput,
+} from './commission-types.js';
 
-type CommissionStatus = 'PENDING_COMMERCIAL' | 'PENDING_ADMIN' | 'APPROVED' | 'PAID' | 'REJECTED';
-
-export interface CommissionProps {
-  readonly id: string;
-  readonly organizationId: string;
-  readonly policyId: string;
-  readonly salespersonId: string;
-  readonly premiumValueInCents: number;
-  readonly percentageInBasisPoints: number;
-  readonly splitPercentageInBasisPoints: number;
-  commissionValueInCents: number;
-  status: CommissionStatus;
-  approvedByCommercial: string | null;
-  approvedBy: string | null;
-  rejectedBy: string | null;
-  rejectionReason: string | null;
-  paidAt: Date | null;
-  readonly isReversal: boolean;
-  readonly originalCommissionId: string | null;
-  deletedAt: Date | null;
-  readonly createdAt: Date;
-  updatedAt: Date;
-}
-
-interface CreateCommissionInput {
-  organizationId: string;
-  policyId: string;
-  salespersonId: string;
-  premiumValueInCents: number;
-  percentageInBasisPoints: number;
-  splitPercentageInBasisPoints?: number;
-}
-
-export type { CommissionStatus };
+export type { CommissionProps, CommissionStatus, CreateCommissionInput };
 
 const REJECTABLE_STATUSES: ReadonlySet<CommissionStatus> = new Set([
   'PENDING_COMMERCIAL',
