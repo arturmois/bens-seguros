@@ -1,11 +1,28 @@
 import Fastify from 'fastify';
+import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import cors from '@fastify/cors';
 import { Server } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
-import IORedis from 'ioredis';
+import type IORedis from 'ioredis';
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
 
-export async function buildChatApp() {
+import { chatAuthMiddleware } from './infra/http/middleware/chat-auth-middleware.js';
+import { createSocketAuthMiddleware } from './infra/socket/socket-auth.js';
+import { setupSocketHandlers } from './infra/socket/socket-handler.js';
+import type { PresenceTracker } from './infra/socket/presence-tracker.js';
+
+interface BuildChatAppOptions {
+  readonly redisPub: IORedis;
+  readonly redisSub: IORedis;
+}
+
+interface ChatAppResult {
+  readonly app: FastifyInstance;
+  readonly io: Server;
+  readonly presence: PresenceTracker;
+}
+
+export async function buildChatApp(options: BuildChatAppOptions): Promise<ChatAppResult> {
   const app = Fastify({
     logger: {
       level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
@@ -20,21 +37,28 @@ export async function buildChatApp() {
     credentials: true,
   });
 
-  const redisUrl = process.env.REDIS_URL ?? 'redis://localhost:6379';
-  const pubClient = new IORedis(redisUrl);
-  const subClient = pubClient.duplicate();
-
   const io = new Server(app.server, {
     cors: {
       origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
       credentials: true,
     },
-    adapter: createAdapter(pubClient, subClient),
+    adapter: createAdapter(options.redisPub, options.redisSub),
   });
 
   app.decorate('io', io);
 
+  // Health check (no auth)
   app.get('/health', async () => ({ status: 'ok' }));
 
-  return { app, io };
+  // Auth middleware for all routes under /api
+  app.addHook('onRequest', async (request: FastifyRequest, reply: FastifyReply) => {
+    if (request.url === '/health') return;
+    await chatAuthMiddleware(request, reply);
+  });
+
+  // Socket.IO auth + handlers
+  io.use(createSocketAuthMiddleware(app.log));
+  const presence = setupSocketHandlers(io, app.log);
+
+  return { app, io, presence };
 }
