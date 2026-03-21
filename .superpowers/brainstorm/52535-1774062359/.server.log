@@ -1,0 +1,7 @@
+{"type":"server-started","port":54394,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:54394","screen_dir":"/home/artur/projects/.superpowers/brainstorm/52535-1774062359"}
+{"type":"screen-added","file":"/home/artur/projects/.superpowers/brainstorm/52535-1774062359/user-flow.html"}
+{"type":"screen-added","file":"/home/artur/projects/.superpowers/brainstorm/52535-1774062359/onboarding-page.html"}
+{"type":"screen-added","file":"/home/artur/projects/.superpowers/brainstorm/52535-1774062359/org-switcher.html"}
+{"type":"screen-added","file":"/home/artur/projects/.superpowers/brainstorm/52535-1774062359/select-org-page.html"}
+{"type":"screen-added","file":"/home/artur/projects/.superpowers/brainstorm/52535-1774062359/technical-summary.html"}
+{"type":"server-stopped","reason":"idle timeout"}

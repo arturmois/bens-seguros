@@ -5,6 +5,11 @@ import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
+import { createAuth } from '@repo/auth';
+import { env } from '@repo/env';
+import { registerAuthRoutes } from './routes/auth-routes.js';
+import { tenantRoutes } from './routes/v1/tenant-routes.js';
+import { createAuthMiddleware } from './middlewares/auth-middleware.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -39,6 +44,18 @@ export async function buildApp() {
   });
 
   app.get('/health', async () => ({ status: 'ok' }));
+
+  // Better Auth integration
+  const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
+  const auth = createAuth(env.AUTH_SECRET, env.API_URL, [frontendUrl]);
+  registerAuthRoutes(app, auth);
+
+  // API v1 routes (authenticated)
+  const authMiddleware = createAuthMiddleware(auth);
+  await app.register(async (authenticatedApp) => {
+    authenticatedApp.addHook('preHandler', authMiddleware);
+    await authenticatedApp.register(tenantRoutes);
+  });
 
   return app;
 }

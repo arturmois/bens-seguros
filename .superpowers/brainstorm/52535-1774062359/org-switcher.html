@@ -1,0 +1,134 @@
+<h2>Org Switcher - Sidebar Top</h2>
+<p class="subtitle">Componente no topo do sidebar para trocar de organização</p>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">Sidebar — Estado Normal (fechado)</div>
+    <div class="mockup-body" style="padding: 0; background: #fafafa; min-height: 520px; display: flex;">
+      <!-- Sidebar -->
+      <div style="width: 256px; background: white; border-right: 1px solid #e5e5e5; display: flex; flex-direction: column; min-height: 520px;">
+        <!-- Org Switcher -->
+        <div style="padding: 12px 16px; border-bottom: 1px solid #e5e5e5; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+          <div style="width: 32px; height: 32px; background: #0d4f4f; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px; flex-shrink: 0;">CA</div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-size: 14px; font-weight: 600; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Corretora ABC</div>
+            <div style="font-size: 12px; color: #a3a3a3;">Owner</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <!-- Nav items -->
+        <nav style="flex: 1; padding: 8px;">
+          <a style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 6px; background: rgba(13,79,79,0.08); color: #0d4f4f; text-decoration: none; font-size: 14px; font-weight: 500; margin-bottom: 2px;">
+            <span style="font-size: 16px;">⊞</span> Dashboard
+          </a>
+          <a style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 6px; color: #737373; text-decoration: none; font-size: 14px; margin-bottom: 2px;">
+            <span style="font-size: 16px;">⊟</span> Clientes
+          </a>
+          <a style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 6px; color: #737373; text-decoration: none; font-size: 14px; margin-bottom: 2px;">
+            <span style="font-size: 16px;">⊡</span> Propostas
+          </a>
+          <a style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 6px; color: #737373; text-decoration: none; font-size: 14px;">
+            <span style="font-size: 16px;">⊘</span> Apolices
+          </a>
+        </nav>
+      </div>
+      <!-- Main content hint -->
+      <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 14px;">
+        Conteúdo do dashboard
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">Sidebar — Dropdown Aberto</div>
+    <div class="mockup-body" style="padding: 0; background: #fafafa; min-height: 520px; display: flex;">
+      <!-- Sidebar -->
+      <div style="width: 256px; background: white; border-right: 1px solid #e5e5e5; display: flex; flex-direction: column; min-height: 520px; position: relative;">
+        <!-- Org Switcher Active -->
+        <div style="padding: 12px 16px; border-bottom: 1px solid #e5e5e5; cursor: pointer; display: flex; align-items: center; gap: 10px; background: #f5f5f4;">
+          <div style="width: 32px; height: 32px; background: #0d4f4f; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px; flex-shrink: 0;">CA</div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-size: 14px; font-weight: 600; color: #1a1a1a;">Corretora ABC</div>
+            <div style="font-size: 12px; color: #a3a3a3;">Owner</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><path d="M6 15l6-6 6 6"/></svg>
+        </div>
+
+        <!-- Dropdown -->
+        <div style="position: absolute; top: 60px; left: 8px; right: 8px; background: white; border: 1px solid #e5e5e5; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 10; overflow: hidden;">
+
+          <!-- Current org -->
+          <div style="padding: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; background: rgba(13,79,79,0.06);">
+              <div style="width: 28px; height: 28px; background: #0d4f4f; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px;">CA</div>
+              <div style="flex: 1;">
+                <div style="font-size: 13px; font-weight: 600; color: #1a1a1a;">Corretora ABC</div>
+                <div style="font-size: 11px; color: #a3a3a3;">Owner</div>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0d4f4f" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+            </div>
+          </div>
+
+          <div style="height: 1px; background: #e5e5e5; margin: 0 8px;"></div>
+
+          <!-- Other orgs -->
+          <div style="padding: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer;" onmouseover="this.style.background='#f5f5f4'" onmouseout="this.style.background='transparent'">
+              <div style="width: 28px; height: 28px; background: #6b5b95; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px;">SX</div>
+              <div style="flex: 1;">
+                <div style="font-size: 13px; font-weight: 500; color: #1a1a1a;">Seguros XYZ</div>
+                <div style="font-size: 11px; color: #a3a3a3;">Admin</div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer;" onmouseover="this.style.background='#f5f5f4'" onmouseout="this.style.background='transparent'">
+              <div style="width: 28px; height: 28px; background: #d4a843; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px;">NV</div>
+              <div style="flex: 1;">
+                <div style="font-size: 13px; font-weight: 500; color: #1a1a1a;">Nova Vida Seguros</div>
+                <div style="font-size: 11px; color: #a3a3a3;">Commercial</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="height: 1px; background: #e5e5e5; margin: 0 8px;"></div>
+
+          <!-- Create new -->
+          <div style="padding: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; color: #0d4f4f;" onmouseover="this.style.background='#f5f5f4'" onmouseout="this.style.background='transparent'">
+              <div style="width: 28px; height: 28px; border: 2px dashed #0d4f4f; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 300;">+</div>
+              <div style="font-size: 13px; font-weight: 500;">Criar nova organização</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Overlay hint -->
+      <div style="flex: 1; background: rgba(0,0,0,0.02); display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 14px;">
+        Overlay escurece o conteúdo
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 24px;">
+  <h3>Comportamento ao Trocar de Org</h3>
+  <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+    <div style="flex: 1; min-width: 250px; background: #f8f8f8; border-radius: 8px; padding: 16px; border-left: 4px solid #0d4f4f;">
+      <h4 style="margin: 0 0 8px; font-size: 14px;">1. Chama setActive</h4>
+      <code style="font-size: 12px; color: #555;">authClient.organization.setActive({ organizationId })</code>
+    </div>
+    <div style="flex: 1; min-width: 250px; background: #f8f8f8; border-radius: 8px; padding: 16px; border-left: 4px solid #d4a843;">
+      <h4 style="margin: 0 0 8px; font-size: 14px;">2. Limpa cache</h4>
+      <code style="font-size: 12px; color: #555;">queryClient.clear()</code>
+      <p style="font-size: 12px; color: #999; margin: 4px 0 0;">Previne data leakage entre orgs</p>
+    </div>
+    <div style="flex: 1; min-width: 250px; background: #f8f8f8; border-radius: 8px; padding: 16px; border-left: 4px solid #1a7a5a;">
+      <h4 style="margin: 0 0 8px; font-size: 14px;">3. Redireciona</h4>
+      <code style="font-size: 12px; color: #555;">router.push('/')</code>
+      <p style="font-size: 12px; color: #999; margin: 4px 0 0;">Volta pro dashboard da nova org</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 16px;">
+  <h3>Sidebar Colapsado</h3>
+  <p style="font-size: 14px; color: #555;">Quando o sidebar está colapsado (w-16), o org switcher mostra apenas o avatar com as iniciais. Ao clicar, abre o mesmo dropdown posicionado à direita do sidebar.</p>
+</div>
