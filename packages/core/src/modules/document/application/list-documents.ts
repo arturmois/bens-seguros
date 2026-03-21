@@ -9,7 +9,11 @@ import type {
 export class ListDocuments {
   constructor(@inject('DocumentRepository') private readonly documentRepo: DocumentRepository) {}
 
-  async execute(entityType: DocumentEntityType, entityId: string): Promise<DocumentData[]> {
-    return this.documentRepo.findByEntity(entityType, entityId);
+  async execute(
+    entityType: DocumentEntityType,
+    entityId: string,
+    organizationId: string,
+  ): Promise<DocumentData[]> {
+    return this.documentRepo.findByEntity(entityType, entityId, organizationId);
   }
 }

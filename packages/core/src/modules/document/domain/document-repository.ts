@@ -1,4 +1,4 @@
-export type DocumentEntityType = 'CLIENT' | 'PROPOSAL' | 'POLICY' | 'CLAIM';
+export type DocumentEntityType = 'CLIENT' | 'PROPOSAL' | 'POLICY' | 'CLAIM' | 'ASSISTANCE';
 
 export type DocumentType =
   | 'DRIVER_LICENSE'
@@ -49,6 +49,10 @@ export interface CreateDocumentInput {
 export interface DocumentRepository {
   create(data: CreateDocumentInput): Promise<DocumentData>;
   findById(id: string, organizationId: string): Promise<DocumentData | null>;
-  findByEntity(entityType: DocumentEntityType, entityId: string): Promise<DocumentData[]>;
+  findByEntity(
+    entityType: DocumentEntityType,
+    entityId: string,
+    organizationId: string,
+  ): Promise<DocumentData[]>;
   delete(id: string, organizationId: string): Promise<DocumentData | null>;
 }

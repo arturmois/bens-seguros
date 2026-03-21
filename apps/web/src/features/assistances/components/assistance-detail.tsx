@@ -74,8 +74,8 @@ export function AssistanceDetail({ assistanceId }: AssistanceDetailProps) {
           <TabsTab value="documents">Documentos</TabsTab>
         </TabsList>
         <TabsContent value="documents" className="mt-4 space-y-4">
-          <DocumentUpload entityType="CLAIM" entityId={assistanceId} />
-          <DocumentList entityType="CLAIM" entityId={assistanceId} />
+          <DocumentUpload entityType="ASSISTANCE" entityId={assistanceId} />
+          <DocumentList entityType="ASSISTANCE" entityId={assistanceId} />
         </TabsContent>
       </Tabs>
     </div>

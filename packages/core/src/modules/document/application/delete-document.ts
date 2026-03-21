@@ -16,7 +16,7 @@ export class DeleteDocument {
       throw DocumentErrors.notFound(id);
     }
 
-    await this.storage.delete(doc.storageKey);
     await this.documentRepo.delete(id, organizationId);
+    await this.storage.delete(doc.storageKey);
   }
 }

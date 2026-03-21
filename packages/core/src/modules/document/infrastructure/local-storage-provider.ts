@@ -1,4 +1,4 @@
-import { mkdir, writeFile, unlink, readFile } from 'node:fs/promises';
+import { mkdir, writeFile, unlink, access, constants } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import type { StorageProvider, UploadResult } from '../domain/storage-provider.js';
 
@@ -15,7 +15,7 @@ export class LocalStorageProvider implements StorageProvider {
 
   async getSignedUrl(key: string, _expiresIn?: number): Promise<string> {
     const filePath = join(UPLOADS_DIR, key);
-    await readFile(filePath);
+    await access(filePath, constants.R_OK);
     return `file://${filePath}`;
   }
 

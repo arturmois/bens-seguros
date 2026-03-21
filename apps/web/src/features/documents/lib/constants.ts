@@ -16,4 +16,5 @@ export const DOCUMENT_ENTITY_TYPE_LABELS: Record<DocumentEntityType, string> = {
   PROPOSAL: 'Proposta',
   POLICY: 'Apolice',
   CLAIM: 'Sinistro',
+  ASSISTANCE: 'Assistencia',
 };

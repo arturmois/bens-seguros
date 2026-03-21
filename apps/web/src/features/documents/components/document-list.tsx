@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ExternalLink, File, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -14,6 +15,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+
+import { api } from '@/lib/api-client';
 
 import type { DocumentData, DocumentEntityType } from '../types';
 import { useDeleteDocument, useDocuments } from '../hooks/use-documents';
@@ -127,14 +130,28 @@ function OpenDocumentButton({
   readonly documentId: string;
   readonly fileName: string;
 }) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+  const [isLoading, setIsLoading] = useState(false);
 
-  function handleOpen() {
-    window.open(`${API_URL}/api/v1/documents/${documentId}/url`, '_blank', 'noopener');
+  async function handleOpen() {
+    setIsLoading(true);
+    try {
+      const response = await api.get<{ url: string }>(`/api/v1/documents/${documentId}/url`);
+      window.open(response.data.url, '_blank', 'noopener');
+    } catch {
+      toast.error('Erro ao abrir documento');
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
-    <Button variant="ghost" size="sm" onClick={handleOpen} aria-label={`Abrir ${fileName}`}>
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={handleOpen}
+      disabled={isLoading}
+      aria-label={`Abrir ${fileName}`}
+    >
       <ExternalLink className="size-4" />
     </Button>
   );

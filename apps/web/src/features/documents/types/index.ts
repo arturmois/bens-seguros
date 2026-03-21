@@ -1,4 +1,4 @@
-export type DocumentEntityType = 'CLIENT' | 'PROPOSAL' | 'POLICY' | 'CLAIM';
+export type DocumentEntityType = 'CLIENT' | 'PROPOSAL' | 'POLICY' | 'CLAIM' | 'ASSISTANCE';
 
 export type DocumentType =
   | 'DRIVER_LICENSE'

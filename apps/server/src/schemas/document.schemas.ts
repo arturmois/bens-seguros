@@ -1,6 +1,12 @@
 import { z } from 'zod';
 
-const DOCUMENT_ENTITY_TYPE_VALUES = ['CLIENT', 'PROPOSAL', 'POLICY', 'CLAIM'] as const;
+const DOCUMENT_ENTITY_TYPE_VALUES = [
+  'CLIENT',
+  'PROPOSAL',
+  'POLICY',
+  'CLAIM',
+  'ASSISTANCE',
+] as const;
 
 const DOCUMENT_TYPE_VALUES = [
   'DRIVER_LICENSE',

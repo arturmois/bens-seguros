@@ -70,7 +70,11 @@ export async function documentRoutes(app: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       const query = listDocumentsQuerySchema.parse(request.query);
       const useCase = container.resolve(ListDocuments);
-      const documents = await useCase.execute(query.entityType, query.entityId);
+      const documents = await useCase.execute(
+        query.entityType,
+        query.entityId,
+        request.organizationId!,
+      );
       return reply.send({ success: true, data: documents });
     },
   );

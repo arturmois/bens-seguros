@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 
-import { FormField } from './form-field';
+import { FormField } from '@/components/shared/form-field';
 import { useCreateOccurrence } from '../hooks/use-claims';
 
 const OCCURRENCE_TYPE_OPTIONS = [

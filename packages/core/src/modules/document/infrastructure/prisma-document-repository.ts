@@ -1,5 +1,6 @@
 import { injectable, inject } from 'tsyringe';
 import type { PrismaClient } from '@repo/db';
+import { Prisma } from '@repo/db';
 import type {
   DocumentRepository,
   DocumentData,
@@ -39,9 +40,13 @@ export class PrismaDocumentRepository implements DocumentRepository {
     return row ? DocumentMapper.toDomain(row) : null;
   }
 
-  async findByEntity(entityType: DocumentEntityType, entityId: string): Promise<DocumentData[]> {
+  async findByEntity(
+    entityType: DocumentEntityType,
+    entityId: string,
+    organizationId: string,
+  ): Promise<DocumentData[]> {
     const rows = await this.prisma.document.findMany({
-      where: { entityType, entityId },
+      where: { entityType, entityId, organizationId },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -54,8 +59,11 @@ export class PrismaDocumentRepository implements DocumentRepository {
         where: { id, organizationId },
       });
       return DocumentMapper.toDomain(row);
-    } catch {
-      return null;
+    } catch (error: unknown) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+        return null;
+      }
+      throw error;
     }
   }
 }

@@ -18,7 +18,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 
-import { FormField } from './form-field';
+import { FormField } from '@/components/shared/form-field';
 import { CLAIM_PRIORITY_OPTIONS } from '../lib/constants';
 import { claimFormSchema, EMPTY_CLAIM_FORM_VALUES } from '../lib/schemas';
 import type { ClaimFormValues } from '../lib/schemas';
