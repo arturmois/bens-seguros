@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
 import type { InsuredObjectDetails } from './insured-object-details.js';
+import { ProposalErrors } from './proposal-errors.js';
 import { InvalidStageTransitionError } from './proposal-errors.js';
 
 const STAGES = ['CAPTURE', 'QUOTE', 'PROTOCOL', 'INSPECTION', 'PAYMENT', 'POLICY_ISSUED'] as const;
@@ -120,9 +121,7 @@ export class Proposal {
     commissionBasisPoints: number,
   ): void {
     if (details.branch !== this.props.branch) {
-      throw new Error(
-        `Details branch ${details.branch} does not match proposal branch ${this.props.branch}`,
-      );
+      throw ProposalErrors.branchMismatch(this.props.branch, details.branch);
     }
     this.props.details = details;
     this.props.premiumValueInCents = premiumValueInCents;

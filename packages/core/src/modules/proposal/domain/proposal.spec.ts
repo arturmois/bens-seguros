@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Proposal } from './proposal.js';
-import { InvalidStageTransitionError } from './proposal-errors.js';
+import { InvalidStageTransitionError, BranchMismatchError } from './proposal-errors.js';
 import type { AutoDetails } from './insured-object-details.js';
 
 describe('Proposal Entity', () => {
@@ -184,7 +184,9 @@ describe('Proposal Entity', () => {
         usoImovel: 'Habitual',
         cep: '01310100',
       };
-      expect(() => proposal.updateDetails(residentialDetails, 100000, 1000)).toThrow('branch');
+      expect(() => proposal.updateDetails(residentialDetails, 100000, 1000)).toThrow(
+        BranchMismatchError,
+      );
     });
   });
 });

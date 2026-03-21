@@ -83,7 +83,7 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
   );
 }
 
-export function CondominiumFields({ register }: FieldHelperProps) {
+export function CondominiumFields({ register, control }: FieldHelperProps) {
   return (
     <>
       <FieldWrapper label="Nome do Condominio" required>
@@ -97,7 +97,20 @@ export function CondominiumFields({ register }: FieldHelperProps) {
         />
       </FieldWrapper>
       <FieldWrapper label="CEP" required>
-        <Input placeholder="00000-000" {...register('cep')} />
+        <Controller
+          name="cep"
+          control={control}
+          render={({ field }) => (
+            <InputMask
+              component={Input}
+              mask={CEP_MASK.mask}
+              replacement={CEP_MASK.replacement}
+              placeholder="00000-000"
+              {...field}
+              value={String(field.value ?? '')}
+            />
+          )}
+        />
       </FieldWrapper>
       <FieldWrapper label="Endereco">
         <Input placeholder="Rua, numero, bairro" {...register('endereco')} />

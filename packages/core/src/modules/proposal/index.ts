@@ -15,6 +15,7 @@ export {
   ProposalNotFoundError,
   InvalidStageTransitionError,
   ProposalDetailsRequiredError,
+  BranchMismatchError,
   ProposalErrors,
 } from './domain/proposal-errors.js';
 export type {

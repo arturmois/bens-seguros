@@ -22,9 +22,19 @@ export class ProposalDetailsRequiredError extends Error {
   }
 }
 
+export class BranchMismatchError extends Error {
+  readonly code = 'BRANCH_MISMATCH' as const;
+  constructor(expected: string, received: string) {
+    super(`Ramo dos detalhes (${received}) não corresponde ao ramo da proposta (${expected})`);
+    this.name = 'BranchMismatchError';
+  }
+}
+
 export const ProposalErrors = {
   notFound: (id: string) => new ProposalNotFoundError(id),
   invalidTransition: (from: string, action: string) =>
     new InvalidStageTransitionError(from, action),
   detailsRequired: (id: string) => new ProposalDetailsRequiredError(id),
+  branchMismatch: (expected: string, received: string) =>
+    new BranchMismatchError(expected, received),
 };

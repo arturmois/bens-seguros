@@ -11,6 +11,7 @@ import {
   ProposalNotFoundError,
   InvalidStageTransitionError,
   ProposalDetailsRequiredError,
+  BranchMismatchError,
 } from '@repo/core';
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js';
 import { requireAbility } from '../../middlewares/ability-middleware.js';
@@ -36,6 +37,12 @@ function handleProposalError(error: unknown, reply: FastifyReply) {
     });
   }
   if (error instanceof ProposalDetailsRequiredError) {
+    return reply.status(422).send({
+      success: false,
+      error: { code: error.code, message: error.message },
+    });
+  }
+  if (error instanceof BranchMismatchError) {
     return reply.status(422).send({
       success: false,
       error: { code: error.code, message: error.message },
