@@ -8,3 +8,8 @@ export function setActiveOrgCookie(organizationId: string) {
 export function clearActiveOrgCookie() {
   document.cookie = `${COOKIE_NAME}=;path=/;max-age=0`;
 }
+
+export function getActiveOrgCookie(): string | undefined {
+  const match = document.cookie.match(new RegExp(`(?:^|; )${COOKIE_NAME}=([^;]*)`));
+  return match?.[1] || undefined;
+}

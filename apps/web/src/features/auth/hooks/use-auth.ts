@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
-import { setActiveOrgCookie, clearActiveOrgCookie } from '@/lib/org-cookie';
+import { setActiveOrgCookie, getActiveOrgCookie } from '@/lib/org-cookie';
 
 async function fetchSession() {
   const response = await authClient.getSession();
@@ -43,25 +43,22 @@ export function useAuth() {
         return;
       }
 
-      // Fetch fresh session to get activeOrganizationId (signIn response may not include it)
       queryClient.invalidateQueries({ queryKey: ['auth'] });
-      const freshSession = await authClient.getSession();
-      const activeOrgId =
-        freshSession.data &&
-        'session' in freshSession.data &&
-        typeof freshSession.data.session === 'object' &&
-        freshSession.data.session !== null &&
-        'activeOrganizationId' in freshSession.data.session &&
-        typeof freshSession.data.session.activeOrganizationId === 'string'
-          ? freshSession.data.session.activeOrganizationId
-          : undefined;
 
-      if (activeOrgId) {
-        setActiveOrgCookie(activeOrgId);
-        router.push('/');
-      } else {
-        router.push('/select-org');
+      // Try to restore last active org from cookie (survives logout)
+      const lastOrgId = getActiveOrgCookie();
+      if (lastOrgId) {
+        try {
+          await authClient.organization.setActive({ organizationId: lastOrgId });
+          setActiveOrgCookie(lastOrgId);
+          router.push('/');
+          return;
+        } catch {
+          // Org no longer valid (removed, deactivated) — fall through to select-org
+        }
       }
+
+      router.push('/select-org');
     },
   });
 
@@ -97,7 +94,8 @@ export function useAuth() {
   const logout = useMutation({
     mutationFn: () => authClient.signOut(),
     onSuccess: () => {
-      clearActiveOrgCookie();
+      // Keep bens-active-org cookie — it survives logout so next login
+      // can restore the last org without showing /select-org
       queryClient.clear();
       router.push('/login');
     },
