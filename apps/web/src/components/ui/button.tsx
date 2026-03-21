@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Slot } from 'radix-ui';
 
 import { cn } from '@/lib/utils';
 
@@ -36,6 +35,25 @@ const buttonVariants = cva(
   },
 );
 
+function Slot({
+  children,
+  ...props
+}: React.PropsWithChildren<React.ButtonHTMLAttributes<HTMLButtonElement>>) {
+  if (React.isValidElement<Record<string, unknown>>(children)) {
+    const childClassName =
+      typeof children.props.className === 'string' ? children.props.className : undefined;
+    return React.cloneElement(children, {
+      ...props,
+      ...children.props,
+      className: cn(
+        typeof props.className === 'string' ? props.className : undefined,
+        childClassName,
+      ),
+    });
+  }
+  return null;
+}
+
 function Button({
   className,
   variant = 'default',
@@ -46,17 +64,19 @@ function Button({
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
   }) {
-  const Comp = asChild ? Slot.Root : 'button';
+  const sharedProps = {
+    'data-slot': 'button' as const,
+    'data-variant': variant,
+    'data-size': size,
+    className: cn(buttonVariants({ variant, size, className })),
+    ...props,
+  };
 
-  return (
-    <Comp
-      data-slot="button"
-      data-variant={variant}
-      data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  );
+  if (asChild) {
+    return <Slot {...sharedProps} />;
+  }
+
+  return <button {...sharedProps} />;
 }
 
 export { Button, buttonVariants };
