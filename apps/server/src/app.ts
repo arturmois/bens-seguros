@@ -9,7 +9,11 @@ import { createAuth } from '@repo/auth';
 import { env } from '@repo/env';
 import { registerAuthRoutes } from './routes/auth-routes.js';
 import { tenantRoutes } from './routes/v1/tenant-routes.js';
+import { clientRoutes } from './routes/v1/client-routes.js';
+import { proposalRoutes } from './routes/v1/proposal-routes.js';
+import { policyRoutes } from './routes/v1/policy-routes.js';
 import { createAuthMiddleware } from './middlewares/auth-middleware.js';
+import { registerDependencies } from './container-registrations.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -43,6 +47,8 @@ export async function buildApp() {
     },
   });
 
+  registerDependencies();
+
   app.get('/health', async () => ({ status: 'ok' }));
 
   // Better Auth integration
@@ -55,6 +61,9 @@ export async function buildApp() {
   await app.register(async (authenticatedApp) => {
     authenticatedApp.addHook('preHandler', authMiddleware);
     await authenticatedApp.register(tenantRoutes);
+    await authenticatedApp.register(clientRoutes);
+    await authenticatedApp.register(proposalRoutes);
+    await authenticatedApp.register(policyRoutes);
   });
 
   return app;
