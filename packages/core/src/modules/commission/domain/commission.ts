@@ -19,7 +19,7 @@ export class Commission {
   private constructor(private readonly props: CommissionProps) {}
 
   static create(input: CreateCommissionInput): Commission {
-    const split = input.splitPercentageInBasisPoints ?? 10000;
+    const split = input.splitPercentage ?? 10000;
     const value = calculateCommissionValue(
       input.premiumValueInCents,
       input.percentageInBasisPoints,
@@ -32,10 +32,9 @@ export class Commission {
       salespersonId: input.salespersonId,
       premiumValueInCents: input.premiumValueInCents,
       percentageInBasisPoints: input.percentageInBasisPoints,
-      splitPercentageInBasisPoints: split,
+      splitPercentage: split,
       commissionValueInCents: value,
       status: 'PENDING_COMMERCIAL',
-      approvedByCommercial: null,
       approvedBy: null,
       rejectedBy: null,
       rejectionReason: null,
@@ -59,10 +58,9 @@ export class Commission {
       salespersonId: original.salespersonId,
       premiumValueInCents: original.premiumValueInCents,
       percentageInBasisPoints: original.percentageInBasisPoints,
-      splitPercentageInBasisPoints: original.splitPercentageInBasisPoints,
+      splitPercentage: original.splitPercentage,
       commissionValueInCents: -original.commissionValueInCents,
       status: 'PENDING_COMMERCIAL',
-      approvedByCommercial: null,
       approvedBy: null,
       rejectedBy: null,
       rejectionReason: null,
@@ -79,11 +77,10 @@ export class Commission {
     return new Commission(props);
   }
 
-  approveByCommercial(userId: string): void {
+  approveByCommercial(_userId: string): void {
     if (this.props.status !== 'PENDING_COMMERCIAL') {
       throw CommissionErrors.invalidTransition(this.props.status, 'aprovar comercialmente');
     }
-    this.props.approvedByCommercial = userId;
     this.props.status = 'PENDING_ADMIN';
     this.props.updatedAt = new Date();
   }
@@ -103,6 +100,14 @@ export class Commission {
     }
     this.props.status = 'PAID';
     this.props.paidAt = new Date();
+    this.props.updatedAt = new Date();
+  }
+
+  markAsReversed(): void {
+    if (this.props.status !== 'PAID') {
+      throw CommissionErrors.invalidTransition(this.props.status, 'marcar como estornada');
+    }
+    this.props.status = 'REVERSED';
     this.props.updatedAt = new Date();
   }
 
@@ -134,17 +139,14 @@ export class Commission {
   get percentageInBasisPoints(): number {
     return this.props.percentageInBasisPoints;
   }
-  get splitPercentageInBasisPoints(): number {
-    return this.props.splitPercentageInBasisPoints;
+  get splitPercentage(): number {
+    return this.props.splitPercentage;
   }
   get commissionValueInCents(): number {
     return this.props.commissionValueInCents;
   }
   get status(): CommissionStatus {
     return this.props.status;
-  }
-  get approvedByCommercial(): string | null {
-    return this.props.approvedByCommercial;
   }
   get approvedBy(): string | null {
     return this.props.approvedBy;

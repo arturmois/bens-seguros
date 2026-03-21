@@ -26,7 +26,6 @@ describe('Commission Entity', () => {
     const commission = Commission.create(validProps);
     commission.approveByCommercial('user-2');
     expect(commission.status).toBe('PENDING_ADMIN');
-    expect(commission.approvedByCommercial).toBe('user-2');
   });
 
   it('advances from PENDING_ADMIN to APPROVED', () => {
@@ -104,7 +103,7 @@ describe('Commission Entity', () => {
   it('calculates with split percentage', () => {
     const commission = Commission.create({
       ...validProps,
-      splitPercentageInBasisPoints: 5000, // 50%
+      splitPercentage: 5000, // 50%
     });
     expect(commission.commissionValueInCents).toBe(7500);
   });
@@ -118,10 +117,9 @@ describe('Commission Entity', () => {
       salespersonId: 'user-1',
       premiumValueInCents: 100000,
       percentageInBasisPoints: 1500,
-      splitPercentageInBasisPoints: 10000,
+      splitPercentage: 10000,
       commissionValueInCents: 15000,
       status: 'APPROVED',
-      approvedByCommercial: 'user-2',
       approvedBy: 'admin-1',
       rejectedBy: null,
       rejectionReason: null,
@@ -144,5 +142,19 @@ describe('Commission Entity', () => {
     expect(json.id).toBe(commission.id);
     expect(json.status).toBe('PENDING_COMMERCIAL');
     expect(json.commissionValueInCents).toBe(15000);
+  });
+
+  it('marks as reversed from PAID', () => {
+    const commission = Commission.create(validProps);
+    commission.approveByCommercial('u');
+    commission.approveByAdmin('a');
+    commission.markAsPaid();
+    commission.markAsReversed();
+    expect(commission.status).toBe('REVERSED');
+  });
+
+  it('cannot mark as reversed from non-PAID status', () => {
+    const commission = Commission.create(validProps);
+    expect(() => commission.markAsReversed()).toThrow();
   });
 });

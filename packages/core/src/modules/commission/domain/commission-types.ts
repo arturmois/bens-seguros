@@ -3,7 +3,8 @@ export type CommissionStatus =
   | 'PENDING_ADMIN'
   | 'APPROVED'
   | 'PAID'
-  | 'REJECTED';
+  | 'REJECTED'
+  | 'REVERSED';
 
 export interface CommissionProps {
   readonly id: string;
@@ -12,10 +13,9 @@ export interface CommissionProps {
   readonly salespersonId: string;
   readonly premiumValueInCents: number;
   readonly percentageInBasisPoints: number;
-  readonly splitPercentageInBasisPoints: number;
+  readonly splitPercentage: number;
   commissionValueInCents: number;
   status: CommissionStatus;
-  approvedByCommercial: string | null;
   approvedBy: string | null;
   rejectedBy: string | null;
   rejectionReason: string | null;
@@ -33,5 +33,5 @@ export interface CreateCommissionInput {
   salespersonId: string;
   premiumValueInCents: number;
   percentageInBasisPoints: number;
-  splitPercentageInBasisPoints?: number;
+  splitPercentage?: number;
 }
