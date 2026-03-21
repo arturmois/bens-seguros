@@ -75,7 +75,7 @@ export function Sidebar({ role, collapsed }: SidebarProps) {
 
         {secondaryItems.length > 0 && (
           <>
-            <div className="my-2 border-t" />
+            <div className="my-2" />
             <div className="space-y-1">
               {secondaryItems.map((item) => (
                 <NavItem

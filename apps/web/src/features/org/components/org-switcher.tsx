@@ -37,7 +37,7 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         className={cn(
-          'hover:bg-muted flex w-full items-center gap-3 border-b px-4 py-3 text-left transition-colors',
+          'hover:bg-muted flex w-full items-center gap-3 px-4 py-3 text-left transition-colors',
           collapsed && 'justify-center px-0',
         )}
       >
