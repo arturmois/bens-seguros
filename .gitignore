@@ -13,3 +13,6 @@ next-env.d.ts
 .playwright-mcp/
 qa-*.png
 task*.png
+
+# Local document uploads (dev)
+uploads/
