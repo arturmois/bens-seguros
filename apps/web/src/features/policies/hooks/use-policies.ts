@@ -73,6 +73,31 @@ export function usePolicy(id: string) {
   });
 }
 
+interface IssuePolicyInput {
+  proposalId: string;
+  policyNumber: string;
+  startDate: string;
+  endDate: string;
+}
+
+export function useIssuePolicy() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (values: IssuePolicyInput) => {
+      const response = await api.post<PolicyData>('/api/v1/policies', values);
+      return response.data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [POLICIES_KEY] });
+      toast.success('Apólice emitida com sucesso!');
+    },
+    onError: () => {
+      toast.error('Erro ao emitir apólice. Verifique os dados e tente novamente.');
+    },
+  });
+}
+
 export function useCancelPolicy() {
   const queryClient = useQueryClient();
 

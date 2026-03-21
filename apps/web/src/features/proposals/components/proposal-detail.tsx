@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs';
 
 import { DocumentList } from '@/features/documents/components/document-list';
@@ -17,7 +16,9 @@ import { useAdvanceProposal, useProposal, useRevertProposal } from '../hooks/use
 import { BOARD_TYPE_LABELS, BRANCH_LABELS, STAGE_BADGE_VARIANT, STAGE_LABELS } from '../types';
 import { formatCurrency, formatDate } from '@/lib/formatters';
 import { InsuredObjectSection } from './insured-object-section';
+import { IssuePolicyCard } from './issue-policy-card';
 import { LostReasonDialog } from './lost-reason-dialog';
+import { DetailSkeleton, InfoItem } from './proposal-detail-helpers';
 
 interface ProposalDetailProps {
   proposalId: string;
@@ -147,6 +148,8 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
         )}
       </div>
 
+      {proposal.stage === 'POLICY_ISSUED' && <IssuePolicyCard proposalId={proposalId} />}
+
       <Separator />
 
       <Tabs defaultValue="documents">
@@ -164,41 +167,6 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
         proposalId={showLostDialog ? proposalId : null}
         onClose={() => setShowLostDialog(false)}
       />
-    </div>
-  );
-}
-
-interface InfoItemProps {
-  label: string;
-  value: string;
-}
-
-function InfoItem({ label, value }: InfoItemProps) {
-  return (
-    <div>
-      <p className="text-muted-foreground text-xs">{label}</p>
-      <p className="text-sm font-medium">{value}</p>
-    </div>
-  );
-}
-
-function DetailSkeleton() {
-  return (
-    <div className="space-y-6">
-      <Skeleton className="h-8 w-48" />
-      <div className="flex gap-2">
-        <Skeleton className="h-6 w-24" />
-        <Skeleton className="h-6 w-20" />
-      </div>
-      <Skeleton className="h-px w-full" />
-      <div className="grid gap-4 sm:grid-cols-2">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={`detail-skel-${String(i)}`} className="space-y-1">
-            <Skeleton className="h-3 w-20" />
-            <Skeleton className="h-5 w-32" />
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
