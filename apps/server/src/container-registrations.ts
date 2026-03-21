@@ -50,6 +50,7 @@ import {
   DeleteDocument,
   CreateInsurer,
   ListInsurers,
+  OnPolicyIssued,
   CreateCommission,
   ApproveCommissionCommercial,
   ApproveCommissionAdmin,
@@ -114,8 +115,11 @@ export function registerDependencies() {
   });
 
   // Policy use cases
+  container.register(OnPolicyIssued, {
+    useFactory: () => new OnPolicyIssued(commissionRepo),
+  });
   container.register(IssuePolicy, {
-    useFactory: () => new IssuePolicy(policyRepo, proposalRepo),
+    useFactory: () => new IssuePolicy(policyRepo, proposalRepo, container.resolve(OnPolicyIssued)),
   });
   container.register(ListPolicies, { useFactory: () => new ListPolicies(policyRepo) });
   container.register(GetPolicy, { useFactory: () => new GetPolicy(policyRepo) });

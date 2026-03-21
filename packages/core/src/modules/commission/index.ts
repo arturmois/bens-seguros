@@ -29,6 +29,7 @@ export { ReverseCommission } from './application/reverse-commission.js';
 export { ListCommissions } from './application/list-commissions.js';
 export { GetCommission } from './application/get-commission.js';
 export { ExportCommissionsCsv } from './application/export-commissions-csv.js';
+export { OnPolicyIssued } from './application/on-policy-issued.js';
 
 // Infrastructure
 export { CommissionMapper } from './infrastructure/commission-mapper.js';
