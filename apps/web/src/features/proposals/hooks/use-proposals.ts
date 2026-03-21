@@ -67,6 +67,7 @@ export function useProposals(filters: ProposalFilters) {
         },
       };
     },
+    staleTime: 60_000,
   });
 }
 
@@ -77,6 +78,7 @@ export function useProposal(id: string) {
       const response = await api.get<ProposalData>(`/api/v1/proposals/${id}`);
       return { data: response.data };
     },
+    staleTime: 60_000,
     enabled: Boolean(id),
   });
 }

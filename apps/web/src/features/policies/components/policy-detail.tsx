@@ -17,16 +17,10 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 
+import { formatCurrency, formatDate } from '@/lib/formatters';
+
 import { useCancelPolicy, usePolicy } from '../hooks/use-policies';
 import { POLICY_BRANCH_LABELS, POLICY_STATUS_BADGE_VARIANT, POLICY_STATUS_LABELS } from '../types';
-
-const formatCurrency = (cents: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cents / 100);
-
-const formatDate = (dateStr: string) =>
-  new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeZone: 'America/Sao_Paulo' }).format(
-    new Date(dateStr),
-  );
 
 interface PolicyDetailProps {
   policyId: string;

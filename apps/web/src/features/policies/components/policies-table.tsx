@@ -6,14 +6,6 @@ import { Ban, ChevronLeft, ChevronRight, MoreHorizontal, Search } from 'lucide-r
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Menu, MenuPopup, MenuItem, MenuTrigger } from '@/components/ui/menu';
 import { Input } from '@/components/ui/input';
 import {
@@ -32,20 +24,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
 import { useDebounce } from '@/hooks/use-debounce';
+import { formatCurrency, formatDate } from '@/lib/formatters';
 
-import { useCancelPolicy, usePolicies } from '../hooks/use-policies';
+import { usePolicies } from '../hooks/use-policies';
 import type { PolicyData, PolicyStatus } from '../types';
 import { POLICY_BRANCH_LABELS, POLICY_STATUS_BADGE_VARIANT, POLICY_STATUS_LABELS } from '../types';
-
-const formatCurrency = (cents: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cents / 100);
-
-const formatDate = (dateStr: string) =>
-  new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeZone: 'America/Sao_Paulo' }).format(
-    new Date(dateStr),
-  );
+import { CancelPolicyDialog } from './cancel-policy-dialog';
 
 export function PoliciesTable() {
   const router = useRouter();
@@ -53,10 +38,8 @@ export function PoliciesTable() {
   const [statusFilter, setStatusFilter] = useState<PolicyStatus | 'ALL'>('ALL');
   const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [cancelTarget, setCancelTarget] = useState<PolicyData | null>(null);
-  const [cancelReason, setCancelReason] = useState('');
 
   const debouncedSearch = useDebounce(search, 300);
-  const cancelMutation = useCancelPolicy();
 
   const { data, isLoading, isError } = usePolicies({
     search: debouncedSearch || undefined,
@@ -66,19 +49,6 @@ export function PoliciesTable() {
 
   const policies = data?.data ?? [];
   const meta = data?.meta;
-
-  function handleCancelConfirm() {
-    if (!cancelTarget || !cancelReason.trim()) return;
-    cancelMutation.mutate(
-      { id: cancelTarget.id, reason: cancelReason.trim() },
-      {
-        onSuccess: () => {
-          setCancelTarget(null);
-          setCancelReason('');
-        },
-      },
-    );
-  }
 
   if (isError) {
     return <p className="text-destructive text-sm">Erro ao carregar apólices. Tente novamente.</p>;
@@ -212,48 +182,7 @@ export function PoliciesTable() {
         </>
       )}
 
-      <Dialog
-        open={Boolean(cancelTarget)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setCancelTarget(null);
-            setCancelReason('');
-          }
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Cancelar apólice</DialogTitle>
-            <DialogDescription>
-              Informe o motivo do cancelamento da apólice {cancelTarget?.policyNumber}.
-            </DialogDescription>
-          </DialogHeader>
-          <Textarea
-            placeholder="Motivo do cancelamento..."
-            value={cancelReason}
-            onChange={(e) => setCancelReason(e.target.value)}
-            rows={3}
-          />
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setCancelTarget(null);
-                setCancelReason('');
-              }}
-            >
-              Voltar
-            </Button>
-            <Button
-              variant="destructive"
-              disabled={!cancelReason.trim() || cancelMutation.isPending}
-              onClick={handleCancelConfirm}
-            >
-              {cancelMutation.isPending ? 'Cancelando...' : 'Confirmar cancelamento'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CancelPolicyDialog policy={cancelTarget} onClose={() => setCancelTarget(null)} />
     </>
   );
 }

@@ -20,10 +20,16 @@ import {
 import { idParamSchema } from '../../schemas/client.schemas.js';
 
 function handlePolicyError(error: unknown, reply: FastifyReply) {
-  if (error instanceof PolicyNotFoundError || error instanceof ProposalNotFoundError) {
+  if (error instanceof PolicyNotFoundError) {
     return reply.status(404).send({
       success: false,
-      error: { code: (error as PolicyNotFoundError).code, message: error.message },
+      error: { code: error.code, message: error.message },
+    });
+  }
+  if (error instanceof ProposalNotFoundError) {
+    return reply.status(404).send({
+      success: false,
+      error: { code: error.code, message: error.message },
     });
   }
   if (error instanceof PolicyAlreadyCancelledError) {

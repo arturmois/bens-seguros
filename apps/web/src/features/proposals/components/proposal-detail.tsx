@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 import { useAdvanceProposal, useProposal, useRevertProposal } from '../hooks/use-proposals';
 import { BOARD_TYPE_LABELS, BRANCH_LABELS, STAGE_BADGE_VARIANT, STAGE_LABELS } from '../types';
-import { formatCurrency, formatDate } from '../lib/formatters';
+import { formatCurrency, formatDate } from '@/lib/formatters';
 import { LostReasonDialog } from './lost-reason-dialog';
 
 interface ProposalDetailProps {

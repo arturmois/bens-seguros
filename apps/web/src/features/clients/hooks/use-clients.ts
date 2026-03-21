@@ -32,6 +32,7 @@ export function useClients(filters: ClientFilters) {
         meta: response.meta as ClientListMeta,
       };
     },
+    staleTime: 60_000,
   });
 }
 
@@ -42,6 +43,7 @@ export function useClient(id: string) {
       const response = await api.get<ClientData>(`/api/v1/clients/${id}`);
       return response.data;
     },
+    staleTime: 60_000,
     enabled: id.length > 0,
   });
 }

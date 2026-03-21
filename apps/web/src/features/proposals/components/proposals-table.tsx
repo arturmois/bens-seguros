@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Plus, Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -24,6 +23,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
+import { formatCurrency, formatDate } from '@/lib/formatters';
 
 import { useAdvanceProposal, useProposals, useRevertProposal } from '../hooks/use-proposals';
 import type { BoardType, ProposalData, ProposalStage } from '../types';
@@ -34,8 +34,9 @@ import {
   STAGE_LABELS,
   STAGES,
 } from '../types';
-import { formatCurrency, formatDate } from '../lib/formatters';
 import { LostReasonDialog } from './lost-reason-dialog';
+import { ProposalActionButtons } from './proposal-action-buttons';
+import { ProposalsEmptyState, ProposalsTableSkeleton } from './proposals-table-parts';
 
 const ALL_VALUE = '__all__';
 
@@ -137,11 +138,11 @@ export function ProposalsTable() {
       </div>
 
       {isLoading ? (
-        <TableSkeleton />
+        <ProposalsTableSkeleton />
       ) : (
         <>
           {!data?.data.length ? (
-            <EmptyState />
+            <ProposalsEmptyState />
           ) : (
             <div className="rounded-md border">
               <Table>
@@ -182,8 +183,7 @@ export function ProposalsTable() {
                           className="flex justify-end gap-1"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <ActionButtons
-                            proposalId={proposal.id}
+                          <ProposalActionButtons
                             stage={proposal.stage}
                             onAdvance={() => advanceMutation.mutate(proposal.id)}
                             onRevert={() => revertMutation.mutate(proposal.id)}
@@ -216,67 +216,6 @@ export function ProposalsTable() {
         proposalId={lostDialogProposalId}
         onClose={() => setLostDialogProposalId(null)}
       />
-    </div>
-  );
-}
-
-interface ActionButtonsProps {
-  proposalId: string;
-  stage: ProposalStage;
-  onAdvance: () => void;
-  onRevert: () => void;
-  onLost: () => void;
-  isAdvancing: boolean;
-  isReverting: boolean;
-}
-
-function ActionButtons({
-  stage,
-  onAdvance,
-  onRevert,
-  onLost,
-  isAdvancing,
-  isReverting,
-}: ActionButtonsProps) {
-  const canAdvance = stage !== 'POLICY_ISSUED' && stage !== 'LOST';
-  const canRevert = stage !== 'CAPTURE' && stage !== 'LOST' && stage !== 'POLICY_ISSUED';
-  const canMarkLost = stage !== 'LOST' && stage !== 'POLICY_ISSUED';
-
-  return (
-    <>
-      {canAdvance && (
-        <Button size="sm" variant="outline" onClick={onAdvance} disabled={isAdvancing}>
-          {isAdvancing ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Avançar'}
-        </Button>
-      )}
-      {canRevert && (
-        <Button size="sm" variant="outline" onClick={onRevert} disabled={isReverting}>
-          {isReverting ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Reverter'}
-        </Button>
-      )}
-      {canMarkLost && (
-        <Button size="sm" variant="destructive" onClick={onLost}>
-          Perda
-        </Button>
-      )}
-    </>
-  );
-}
-
-function TableSkeleton() {
-  return (
-    <div className="space-y-3">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Skeleton key={`skeleton-${String(i)}`} className="h-12 w-full" />
-      ))}
-    </div>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <p className="text-muted-foreground text-sm">Nenhuma proposta encontrada.</p>
     </div>
   );
 }

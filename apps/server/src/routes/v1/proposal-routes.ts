@@ -8,6 +8,7 @@ import {
   ListProposals,
   GetProposal,
   ProposalNotFoundError,
+  InvalidStageTransitionError,
 } from '@repo/core';
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js';
 import { requireAbility } from '../../middlewares/ability-middleware.js';
@@ -25,10 +26,10 @@ function handleProposalError(error: unknown, reply: FastifyReply) {
       error: { code: error.code, message: error.message },
     });
   }
-  if (error instanceof Error && error.message.startsWith('Cannot')) {
+  if (error instanceof InvalidStageTransitionError) {
     return reply.status(422).send({
       success: false,
-      error: { code: 'INVALID_STAGE_TRANSITION', message: error.message },
+      error: { code: error.code, message: error.message },
     });
   }
   throw error;

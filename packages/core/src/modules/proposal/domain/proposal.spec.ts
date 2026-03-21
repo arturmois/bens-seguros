@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Proposal } from './proposal.js';
+import { InvalidStageTransitionError } from './proposal-errors.js';
 
 describe('Proposal Entity', () => {
   const validProps = {
@@ -43,7 +44,7 @@ describe('Proposal Entity', () => {
   it('cannot advance beyond POLICY_ISSUED', () => {
     const proposal = Proposal.create(validProps);
     for (let i = 0; i < 5; i++) proposal.advance();
-    expect(() => proposal.advance()).toThrow('Cannot advance');
+    expect(() => proposal.advance()).toThrow(InvalidStageTransitionError);
   });
 
   it('reverts from QUOTE to CAPTURE', () => {
@@ -55,13 +56,13 @@ describe('Proposal Entity', () => {
 
   it('cannot revert from CAPTURE', () => {
     const proposal = Proposal.create(validProps);
-    expect(() => proposal.revert()).toThrow('Cannot revert');
+    expect(() => proposal.revert()).toThrow(InvalidStageTransitionError);
   });
 
   it('cannot revert from POLICY_ISSUED', () => {
     const proposal = Proposal.create(validProps);
     for (let i = 0; i < 5; i++) proposal.advance();
-    expect(() => proposal.revert()).toThrow('Cannot revert');
+    expect(() => proposal.revert()).toThrow(InvalidStageTransitionError);
   });
 
   it('marks as lost with reason', () => {
@@ -82,26 +83,26 @@ describe('Proposal Entity', () => {
   it('cannot mark as lost from POLICY_ISSUED', () => {
     const proposal = Proposal.create(validProps);
     for (let i = 0; i < 5; i++) proposal.advance();
-    expect(() => proposal.markAsLost('reason')).toThrow('Cannot mark as lost');
+    expect(() => proposal.markAsLost('reason')).toThrow(InvalidStageTransitionError);
   });
 
   it('cannot mark as lost from LOST', () => {
     const proposal = Proposal.create(validProps);
     proposal.markAsLost('reason');
-    expect(() => proposal.markAsLost('another')).toThrow('Cannot mark as lost');
+    expect(() => proposal.markAsLost('another')).toThrow(InvalidStageTransitionError);
   });
 
   it('cannot advance from LOST', () => {
     const proposal = Proposal.create(validProps);
     proposal.markAsLost('reason');
-    expect(() => proposal.advance()).toThrow('Cannot advance');
+    expect(() => proposal.advance()).toThrow(InvalidStageTransitionError);
   });
 
   it('cannot revert from LOST', () => {
     const proposal = Proposal.create(validProps);
     proposal.advance();
     proposal.markAsLost('reason');
-    expect(() => proposal.revert()).toThrow('Cannot revert');
+    expect(() => proposal.revert()).toThrow(InvalidStageTransitionError);
   });
 
   it('restores from persistence data', () => {

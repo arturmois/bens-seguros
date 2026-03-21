@@ -1,11 +1,17 @@
 import { randomUUID } from 'node:crypto';
 
+import { InvalidStageTransitionError } from './proposal-errors.js';
+
 const STAGES = ['CAPTURE', 'QUOTE', 'PROTOCOL', 'INSPECTION', 'PAYMENT', 'POLICY_ISSUED'] as const;
 
 type ActiveStage = (typeof STAGES)[number];
 type Stage = ActiveStage | 'LOST';
 type Branch = 'AUTO' | 'RESIDENTIAL' | 'CONDOMINIUM' | 'BUSINESS' | 'LIFE' | 'OTHER';
 type BoardType = 'NEW_INSURANCE' | 'RENEWAL';
+
+function isActiveStage(stage: Stage): stage is ActiveStage {
+  return stage !== 'LOST';
+}
 
 export interface ProposalProps {
   readonly id: string;
@@ -64,18 +70,18 @@ export class Proposal {
   }
 
   advance(): void {
-    if (this.props.stage === 'LOST') {
-      throw new Error('Cannot advance from LOST stage');
+    if (!isActiveStage(this.props.stage)) {
+      throw new InvalidStageTransitionError(this.props.stage, 'avançar');
     }
 
-    const currentIndex = STAGES.indexOf(this.props.stage as ActiveStage);
+    const currentIndex = STAGES.indexOf(this.props.stage);
     if (currentIndex === -1 || currentIndex >= STAGES.length - 1) {
-      throw new Error('Cannot advance beyond POLICY_ISSUED');
+      throw new InvalidStageTransitionError(this.props.stage, 'avançar');
     }
 
     const nextStage = STAGES[currentIndex + 1];
     if (!nextStage) {
-      throw new Error('Cannot advance beyond POLICY_ISSUED');
+      throw new InvalidStageTransitionError(this.props.stage, 'avançar');
     }
 
     this.props.stage = nextStage;
@@ -83,18 +89,22 @@ export class Proposal {
   }
 
   revert(): void {
-    if (this.props.stage === 'LOST' || this.props.stage === 'POLICY_ISSUED') {
-      throw new Error('Cannot revert from terminal stage');
+    if (!isActiveStage(this.props.stage)) {
+      throw new InvalidStageTransitionError(this.props.stage, 'reverter');
     }
 
-    const currentIndex = STAGES.indexOf(this.props.stage as ActiveStage);
+    if (this.props.stage === 'POLICY_ISSUED') {
+      throw new InvalidStageTransitionError(this.props.stage, 'reverter');
+    }
+
+    const currentIndex = STAGES.indexOf(this.props.stage);
     if (currentIndex <= 0) {
-      throw new Error('Cannot revert from CAPTURE');
+      throw new InvalidStageTransitionError(this.props.stage, 'reverter');
     }
 
     const prevStage = STAGES[currentIndex - 1];
     if (!prevStage) {
-      throw new Error('Cannot revert from CAPTURE');
+      throw new InvalidStageTransitionError(this.props.stage, 'reverter');
     }
 
     this.props.stage = prevStage;
@@ -103,7 +113,7 @@ export class Proposal {
 
   markAsLost(reason: string): void {
     if (this.props.stage === 'POLICY_ISSUED' || this.props.stage === 'LOST') {
-      throw new Error('Cannot mark as lost from terminal stage');
+      throw new InvalidStageTransitionError(this.props.stage, 'marcar como perda');
     }
 
     this.props.stage = 'LOST';
