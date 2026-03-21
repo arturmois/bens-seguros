@@ -1,7 +1,7 @@
 'use client';
 
-import { OrgSwitcher } from '@/features/org/components/org-switcher';
 import { UserMenu } from '@/components/layout/user-menu';
+import { OrgSwitcher } from '@/features/org/components/org-switcher';
 import { hasPermission } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
 import type { Role } from '@repo/auth/roles';
@@ -54,7 +54,7 @@ export function Sidebar({ role, collapsed }: SidebarProps) {
     <aside
       className={cn(
         'bg-card flex h-screen flex-col border-r transition-all',
-        collapsed ? 'w-16' : 'w-64',
+        collapsed ? 'w-16' : 'w-68',
       )}
     >
       <OrgSwitcher collapsed={collapsed} />
