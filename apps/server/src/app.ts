@@ -5,6 +5,10 @@ import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
+import { createAuth } from '@repo/auth';
+import { env } from '@repo/env';
+import { registerAuthRoutes } from './routes/auth-routes.js';
+import { tenantRoutes } from './routes/v1/tenant-routes.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -39,6 +43,13 @@ export async function buildApp() {
   });
 
   app.get('/health', async () => ({ status: 'ok' }));
+
+  // Better Auth integration
+  const auth = createAuth(env.AUTH_SECRET, env.API_URL);
+  registerAuthRoutes(app, auth);
+
+  // API v1 routes
+  await app.register(tenantRoutes);
 
   return app;
 }
