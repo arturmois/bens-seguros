@@ -7,8 +7,10 @@ import {
   MarkProposalLost,
   ListProposals,
   GetProposal,
+  UpdateProposalDetails,
   ProposalNotFoundError,
   InvalidStageTransitionError,
+  ProposalDetailsRequiredError,
 } from '@repo/core';
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js';
 import { requireAbility } from '../../middlewares/ability-middleware.js';
@@ -17,6 +19,7 @@ import {
   listProposalsQuerySchema,
   markLostBodySchema,
 } from '../../schemas/proposal.schemas.js';
+import { updateProposalDetailsBodySchema } from '../../schemas/proposal-details.schemas.js';
 import { idParamSchema } from '../../schemas/client.schemas.js';
 
 function handleProposalError(error: unknown, reply: FastifyReply) {
@@ -27,6 +30,12 @@ function handleProposalError(error: unknown, reply: FastifyReply) {
     });
   }
   if (error instanceof InvalidStageTransitionError) {
+    return reply.status(422).send({
+      success: false,
+      error: { code: error.code, message: error.message },
+    });
+  }
+  if (error instanceof ProposalDetailsRequiredError) {
     return reply.status(422).send({
       success: false,
       error: { code: error.code, message: error.message },
@@ -126,6 +135,22 @@ export async function proposalRoutes(app: FastifyInstance) {
       const useCase = container.resolve(MarkProposalLost);
       try {
         const proposal = await useCase.execute(id, request.organizationId!, reason);
+        return reply.send({ success: true, data: proposal.toJSON() });
+      } catch (error) {
+        return handleProposalError(error, reply);
+      }
+    },
+  );
+
+  app.put(
+    '/api/v1/proposals/:id/details',
+    { preHandler: [requireAbility('update', 'Proposal')] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { id } = idParamSchema.parse(request.params);
+      const body = updateProposalDetailsBodySchema.parse(request.body);
+      const useCase = container.resolve(UpdateProposalDetails);
+      try {
+        const proposal = await useCase.execute(id, request.organizationId!, body);
         return reply.send({ success: true, data: proposal.toJSON() });
       } catch (error) {
         return handleProposalError(error, reply);

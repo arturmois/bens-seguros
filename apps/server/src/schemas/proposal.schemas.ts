@@ -4,8 +4,6 @@ export const createProposalBodySchema = z.object({
   clientId: z.string().min(1),
   branch: z.enum(['AUTO', 'RESIDENTIAL', 'CONDOMINIUM', 'BUSINESS', 'LIFE', 'OTHER']),
   boardType: z.enum(['NEW_INSURANCE', 'RENEWAL']),
-  premiumValueInCents: z.number().int().min(0).optional(),
-  commissionPercentageInCents: z.number().int().min(0).optional(),
   renewalPolicyId: z.string().optional(),
 });
 
