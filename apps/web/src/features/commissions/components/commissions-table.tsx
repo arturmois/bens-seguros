@@ -16,7 +16,7 @@ import { CommissionsToolbar } from './commissions-toolbar';
 export function CommissionsTable() {
   const router = useRouter();
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState<CommissionStatus | 'ALL'>('ALL');
   const [cursors, setCursors] = useState<string[]>([]);
 
   const debouncedSearch = useDebounce(search, 300);
@@ -24,7 +24,7 @@ export function CommissionsTable() {
 
   const filters = {
     search: debouncedSearch || undefined,
-    status: statusFilter === 'ALL' ? undefined : (statusFilter as CommissionStatus),
+    status: statusFilter === 'ALL' ? undefined : statusFilter,
     cursor: currentCursor,
   };
 
@@ -34,7 +34,7 @@ export function CommissionsTable() {
     router.push(`/commissions/${id}`);
   }
 
-  function handleStatusFilterChange(value: string) {
+  function handleStatusFilterChange(value: CommissionStatus | 'ALL') {
     setStatusFilter(value);
     setCursors([]);
   }

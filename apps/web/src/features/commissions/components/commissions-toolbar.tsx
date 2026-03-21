@@ -11,20 +11,26 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-import type { CommissionFilters } from '../types';
+import type { CommissionFilters, CommissionStatus } from '../types';
 import { COMMISSION_STATUS_OPTIONS } from '../lib/constants';
 import { CommissionExportButton } from './commission-export-button';
 
 const STATUS_FILTER_OPTIONS = [
-  { value: 'ALL', label: 'Todos os status' },
+  { value: 'ALL' as const, label: 'Todos os status' },
   ...COMMISSION_STATUS_OPTIONS,
 ];
+
+const VALID_STATUS_FILTER_VALUES = STATUS_FILTER_OPTIONS.map((opt) => opt.value);
+
+function isValidStatusFilter(value: string): value is CommissionStatus | 'ALL' {
+  return VALID_STATUS_FILTER_VALUES.includes(value as CommissionStatus | 'ALL');
+}
 
 interface CommissionsToolbarProps {
   readonly search: string;
   readonly onSearchChange: (value: string) => void;
-  readonly statusFilter: string;
-  readonly onStatusFilterChange: (value: string) => void;
+  readonly statusFilter: CommissionStatus | 'ALL';
+  readonly onStatusFilterChange: (value: CommissionStatus | 'ALL') => void;
   readonly currentFilters: CommissionFilters;
 }
 
@@ -55,7 +61,7 @@ export function CommissionsToolbar({
         <Select
           value={statusFilter}
           onValueChange={(v) => {
-            if (v !== null) onStatusFilterChange(v);
+            if (isValidStatusFilter(v)) onStatusFilterChange(v);
           }}
           items={STATUS_FILTER_OPTIONS}
         >

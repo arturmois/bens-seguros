@@ -28,10 +28,8 @@ export class ReverseCommission {
     const reversal = Commission.createReversal(original);
     original.markAsReversed();
 
-    const [savedReversal, savedOriginal] = await Promise.all([
-      this.commissionRepo.save(reversal),
-      this.commissionRepo.update(original),
-    ]);
+    const savedOriginal = await this.commissionRepo.update(original);
+    const savedReversal = await this.commissionRepo.save(reversal);
 
     return { reversal: savedReversal, original: savedOriginal };
   }

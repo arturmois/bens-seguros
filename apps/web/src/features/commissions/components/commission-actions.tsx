@@ -61,12 +61,20 @@ export function CommissionActions({ commissionId, currentStatus }: CommissionAct
       <h3 className="text-sm font-medium">Acoes</h3>
       <div className="flex flex-wrap gap-2">
         {currentStatus === 'PENDING_COMMERCIAL' && (
-          <ActionButton
-            label="Aprovar Comercial"
-            variant="approve"
-            isPending={approveCommercial.isPending}
-            onClick={() => approveCommercial.mutate(commissionId)}
-          />
+          <>
+            <ActionButton
+              label="Aprovar Comercial"
+              variant="approve"
+              isPending={approveCommercial.isPending}
+              onClick={() => approveCommercial.mutate(commissionId)}
+            />
+            <ActionButton
+              label="Rejeitar"
+              variant="reject"
+              isPending={reject.isPending}
+              onClick={() => setRejectOpen(true)}
+            />
+          </>
         )}
 
         {currentStatus === 'PENDING_ADMIN' && (

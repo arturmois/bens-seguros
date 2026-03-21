@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowLeft, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -112,7 +113,7 @@ function DetailInfoGrid({ commission }: { readonly commission: CommissionData })
         value={formatCurrency(commission.commissionValueInCents)}
       />
       {commission.splitPercentage !== null && (
-        <InfoItem label="Split" value={`${commission.splitPercentage}%`} />
+        <InfoItem label="Split" value={`${(commission.splitPercentage / 100).toFixed(1)}%`} />
       )}
       <InfoItem label="Criada em" value={formatDate(commission.createdAt)} />
       <InfoItem
@@ -130,12 +131,12 @@ function ReversalInfo({ originalCommissionId }: { readonly originalCommissionId:
       <p className="text-sm font-medium">Esta comissao e um estorno</p>
       <p className="text-muted-foreground mt-1 text-sm">
         Comissao original:{' '}
-        <a
+        <Link
           href={`/commissions/${originalCommissionId}`}
           className="text-primary underline underline-offset-4"
         >
           Ver comissao original
-        </a>
+        </Link>
       </p>
     </div>
   );
