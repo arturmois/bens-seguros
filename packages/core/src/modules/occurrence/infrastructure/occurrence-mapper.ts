@@ -1,7 +1,7 @@
 import type { Occurrence as PrismaOccurrenceRecord } from '@repo/db';
-import type { OccurrenceData } from '../domain/occurrence-repository.js';
+import type { OccurrenceData, JsonObject } from '../domain/occurrence-repository.js';
 
-function isJsonObject(value: unknown): value is Record<string, unknown> {
+function isJsonObject(value: unknown): value is JsonObject {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 

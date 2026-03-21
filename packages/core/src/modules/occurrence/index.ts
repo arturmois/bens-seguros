@@ -1,5 +1,6 @@
 // Domain
 export type {
+  JsonObject,
   OccurrenceData,
   CreateOccurrenceInput,
   OccurrenceRepository,

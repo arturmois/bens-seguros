@@ -1,9 +1,13 @@
+import type { JsonValue } from '../../policy/domain/policy-repository.js';
+
+export type JsonObject = { [key: string]: JsonValue };
+
 export interface OccurrenceData {
   id: string;
   claimId: string;
   type: string;
   description: string;
-  metadata: Record<string, unknown> | null;
+  metadata: JsonObject | null;
   createdBy: string | null;
   createdAt: Date;
 }
@@ -12,7 +16,7 @@ export interface CreateOccurrenceInput {
   claimId: string;
   type: string;
   description: string;
-  metadata?: Record<string, unknown>;
+  metadata?: JsonObject;
   createdBy?: string;
 }
 

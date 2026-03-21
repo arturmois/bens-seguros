@@ -1,7 +1,8 @@
 import type { Endorsement as PrismaEndorsementRecord } from '@repo/db';
 import type { EndorsementData } from '../domain/endorsement-repository.js';
+import type { JsonObject } from '../../occurrence/domain/occurrence-repository.js';
 
-function isJsonObject(value: unknown): value is Record<string, unknown> {
+function isJsonObject(value: unknown): value is JsonObject {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 

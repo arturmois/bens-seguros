@@ -1,4 +1,5 @@
 import type { CursorPage, Page } from '../../client/domain/client-repository.js';
+import type { JsonObject } from '../../occurrence/domain/occurrence-repository.js';
 
 export interface EndorsementData {
   id: string;
@@ -7,8 +8,8 @@ export interface EndorsementData {
   type: string;
   description: string;
   effectiveDate: Date;
-  previousVersionSnapshot: Record<string, unknown>;
-  changes: Record<string, unknown>;
+  previousVersionSnapshot: JsonObject;
+  changes: JsonObject;
   createdBy: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -26,8 +27,8 @@ export interface CreateEndorsementInput {
   type: string;
   description: string;
   effectiveDate: Date;
-  previousVersionSnapshot: Record<string, unknown>;
-  changes: Record<string, unknown>;
+  previousVersionSnapshot: JsonObject;
+  changes: JsonObject;
   createdBy?: string;
 }
 
