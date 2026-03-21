@@ -47,8 +47,8 @@ export function CommissionsToolbar({
         <div className="relative max-w-sm flex-1">
           <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
           <Input
-            aria-label="Buscar comissoes por vendedor, apolice ou cliente"
-            placeholder="Buscar comissao..."
+            aria-label="Buscar comissões por vendedor, apólice ou cliente"
+            placeholder="Buscar comissão..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-9"
@@ -59,6 +59,7 @@ export function CommissionsToolbar({
 
       <div className="flex flex-wrap gap-2">
         <Select
+          aria-label="Filtrar por status"
           value={statusFilter}
           onValueChange={(v: string | null) => {
             if (v && isValidStatusFilter(v)) onStatusFilterChange(v);

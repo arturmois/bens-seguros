@@ -70,10 +70,10 @@ export function useApproveCommercial() {
     onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: [COMMISSIONS_KEY] });
       queryClient.invalidateQueries({ queryKey: [COMMISSION_KEY, id] });
-      toast.success('Aprovacao comercial realizada com sucesso');
+      toast.success('Aprovação comercial realizada com sucesso');
     },
     onError: () => {
-      toast.error('Erro ao aprovar comissao');
+      toast.error('Erro ao aprovar comissão');
     },
   });
 }
@@ -92,10 +92,10 @@ export function useApproveAdmin() {
     onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: [COMMISSIONS_KEY] });
       queryClient.invalidateQueries({ queryKey: [COMMISSION_KEY, id] });
-      toast.success('Aprovacao administrativa realizada com sucesso');
+      toast.success('Aprovação administrativa realizada com sucesso');
     },
     onError: () => {
-      toast.error('Erro ao aprovar comissao');
+      toast.error('Erro ao aprovar comissão');
     },
   });
 }
@@ -113,10 +113,10 @@ export function useRejectCommission() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: [COMMISSIONS_KEY] });
       queryClient.invalidateQueries({ queryKey: [COMMISSION_KEY, variables.id] });
-      toast.success('Comissao rejeitada');
+      toast.success('Comissão rejeitada');
     },
     onError: () => {
-      toast.error('Erro ao rejeitar comissao');
+      toast.error('Erro ao rejeitar comissão');
     },
   });
 }
@@ -132,10 +132,10 @@ export function usePayCommission() {
     onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: [COMMISSIONS_KEY] });
       queryClient.invalidateQueries({ queryKey: [COMMISSION_KEY, id] });
-      toast.success('Comissao marcada como paga');
+      toast.success('Comissão marcada como paga');
     },
     onError: () => {
-      toast.error('Erro ao marcar comissao como paga');
+      toast.error('Erro ao marcar comissão como paga');
     },
   });
 }
@@ -151,10 +151,10 @@ export function useReverseCommission() {
     onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: [COMMISSIONS_KEY] });
       queryClient.invalidateQueries({ queryKey: [COMMISSION_KEY, id] });
-      toast.success('Comissao estornada com sucesso');
+      toast.success('Comissão estornada com sucesso');
     },
     onError: () => {
-      toast.error('Erro ao estornar comissao');
+      toast.error('Erro ao estornar comissão');
     },
   });
 }
@@ -168,7 +168,7 @@ export function useExportCommissionsCsv() {
       });
 
       if (!response.ok) {
-        throw new Error('Falha ao exportar comissoes');
+        throw new Error('Falha ao exportar comissões');
       }
 
       const blob = await response.blob();
@@ -180,10 +180,10 @@ export function useExportCommissionsCsv() {
       URL.revokeObjectURL(url);
     },
     onSuccess: () => {
-      toast.success('Exportacao concluida');
+      toast.success('Exportação concluída');
     },
     onError: () => {
-      toast.error('Erro ao exportar comissoes');
+      toast.error('Erro ao exportar comissões');
     },
   });
 }

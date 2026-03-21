@@ -29,7 +29,7 @@ export function CommissionDetail({ commissionId }: CommissionDetailProps) {
   if (isError || !data) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-        <p className="text-destructive text-sm">Erro ao carregar comissao.</p>
+        <p className="text-destructive text-sm">Erro ao carregar comissão.</p>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => router.push('/commissions')}>
             <ArrowLeft className="mr-1 h-4 w-4" />
@@ -54,7 +54,7 @@ export function CommissionDetail({ commissionId }: CommissionDetailProps) {
           className="gap-1"
         >
           <ArrowLeft className="h-4 w-4" />
-          Comissoes
+          Comissões
         </Button>
         <span className="text-muted-foreground">/</span>
         <span className="text-muted-foreground">Detalhes</span>
@@ -104,12 +104,12 @@ function DetailInfoGrid({ commission }: { readonly commission: CommissionData })
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <InfoItem label="Vendedor" value={commission.salespersonName ?? commission.salespersonId} />
-      <InfoItem label="Apolice" value={commission.policyNumber ?? commission.policyId} />
+      <InfoItem label="Apólice" value={commission.policyNumber ?? commission.policyId} />
       <InfoItem label="Cliente" value={commission.clientName ?? '-'} />
-      <InfoItem label="Premio" value={formatCurrency(commission.premiumValueInCents)} />
+      <InfoItem label="Prêmio" value={formatCurrency(commission.premiumValueInCents)} />
       <InfoItem label="Percentual" value={percentageDisplay} />
       <InfoItem
-        label="Valor da Comissao"
+        label="Valor da Comissão"
         value={formatCurrency(commission.commissionValueInCents)}
       />
       {commission.splitPercentage !== null && (
@@ -128,14 +128,14 @@ function DetailInfoGrid({ commission }: { readonly commission: CommissionData })
 function ReversalInfo({ originalCommissionId }: { readonly originalCommissionId: string }) {
   return (
     <div className="rounded-md border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
-      <p className="text-sm font-medium">Esta comissao e um estorno</p>
+      <p className="text-sm font-medium">Esta comissão é um estorno</p>
       <p className="text-muted-foreground mt-1 text-sm">
-        Comissao original:{' '}
+        Comissão original:{' '}
         <Link
           href={`/commissions/${originalCommissionId}`}
           className="text-primary underline underline-offset-4"
         >
-          Ver comissao original
+          Ver comissão original
         </Link>
       </p>
     </div>
@@ -145,7 +145,7 @@ function ReversalInfo({ originalCommissionId }: { readonly originalCommissionId:
 function RejectionInfo({ commission }: { readonly commission: CommissionData }) {
   return (
     <div className="rounded-md border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950">
-      <p className="text-sm font-medium text-red-700 dark:text-red-300">Comissao rejeitada</p>
+      <p className="text-sm font-medium text-red-700 dark:text-red-300">Comissão rejeitada</p>
       <p className="mt-1 text-sm text-red-600 dark:text-red-400">
         Motivo: {commission.rejectionReason}
       </p>

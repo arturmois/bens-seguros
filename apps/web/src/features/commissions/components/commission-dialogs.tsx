@@ -35,14 +35,15 @@ export function RejectDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Rejeitar comissao</AlertDialogTitle>
+          <AlertDialogTitle>Rejeitar comissão</AlertDialogTitle>
           <AlertDialogDescription>
-            Informe o motivo da rejeicao. Esta acao nao pode ser desfeita.
+            Informe o motivo da rejeição. Esta ação não pode ser desfeita.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="px-6 pb-4">
           <Textarea
-            placeholder="Motivo da rejeicao..."
+            aria-label="Motivo da rejeição"
+            placeholder="Motivo da rejeição..."
             value={reason}
             onChange={(e) => onReasonChange(e.target.value)}
             rows={3}
@@ -82,9 +83,9 @@ export function ReverseDialog({ open, onOpenChange, onConfirm, isPending }: Reve
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Estornar comissao</AlertDialogTitle>
+          <AlertDialogTitle>Estornar comissão</AlertDialogTitle>
           <AlertDialogDescription>
-            Tem certeza que deseja estornar esta comissao? Uma comissao de estorno sera criada
+            Tem certeza que deseja estornar esta comissão? Uma comissão de estorno será criada
             automaticamente.
           </AlertDialogDescription>
         </AlertDialogHeader>

@@ -58,7 +58,7 @@ export function CommissionActions({ commissionId, currentStatus }: CommissionAct
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-medium">Acoes</h3>
+      <h3 className="text-sm font-medium">Ações</h3>
       <div className="flex flex-wrap gap-2">
         {currentStatus === 'PENDING_COMMERCIAL' && (
           <>

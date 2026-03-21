@@ -16,11 +16,11 @@ export function CommissionsTableHeader() {
     <TableHeader>
       <TableRow>
         <TableHead>Vendedor</TableHead>
-        <TableHead className="hidden md:table-cell">Apolice</TableHead>
+        <TableHead className="hidden md:table-cell">Apólice</TableHead>
         <TableHead className="hidden lg:table-cell">Cliente</TableHead>
-        <TableHead className="hidden text-right sm:table-cell">Premio</TableHead>
+        <TableHead className="hidden text-right sm:table-cell">Prêmio</TableHead>
         <TableHead className="text-right">%</TableHead>
-        <TableHead className="text-right">Valor</TableHead>
+        <TableHead className="text-right">Valor (R$)</TableHead>
         <TableHead>Status</TableHead>
         <TableHead className="hidden lg:table-cell">Data</TableHead>
       </TableRow>
@@ -66,6 +66,7 @@ function CommissionRow({
     <TableRow
       className="cursor-pointer"
       tabIndex={0}
+      aria-label={`Ver comissão de ${commission.salespersonName ?? commission.salespersonId}`}
       onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -113,11 +114,11 @@ function EmptyRow() {
     <TableRow>
       <TableCell colSpan={COLUMN_COUNT} className="h-48 text-center">
         <div className="flex flex-col items-center justify-center gap-3">
-          <DollarSign className="text-muted-foreground size-10" />
+          <DollarSign aria-hidden="true" className="text-muted-foreground size-10" />
           <div>
-            <p className="font-medium">Nenhuma comissao encontrada</p>
+            <p className="font-medium">Nenhuma comissão encontrada</p>
             <p className="text-muted-foreground mt-1 text-sm">
-              As comissoes serao criadas automaticamente ao emitir apolices.
+              As comissões serão criadas automaticamente ao emitir apólices.
             </p>
           </div>
         </div>

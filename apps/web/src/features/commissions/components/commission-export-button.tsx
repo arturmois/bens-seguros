@@ -20,7 +20,7 @@ export function CommissionExportButton({ filters }: CommissionExportButtonProps)
       size="sm"
       onClick={() => exportCsv.mutate(filters)}
       disabled={exportCsv.isPending}
-      aria-label="Exportar comissoes em CSV"
+      aria-label="Exportar comissões em CSV"
     >
       {exportCsv.isPending ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
