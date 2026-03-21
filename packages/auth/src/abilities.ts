@@ -56,7 +56,8 @@ export function defineAbilitiesFor(role: Role): AppAbility {
 
     case 'COMMERCIAL':
       can(['create', 'read', 'update'], ['Client', 'Proposal']);
-      can('read', ['Policy', 'Commission', 'Claim', 'Document']);
+      can('read', ['Policy', 'Commission', 'Claim']);
+      can(['read', 'create'], 'Document');
       can('read', 'Notification');
       break;
 
