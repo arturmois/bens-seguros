@@ -29,9 +29,7 @@ export class ProposalMapper {
     });
   }
 
-  static toPersistence(
-    proposal: Proposal,
-  ): Omit<ProposalProps, 'deletedAt' | 'details'> & {
+  static toPersistence(proposal: Proposal): Omit<ProposalProps, 'deletedAt' | 'details'> & {
     details: Prisma.InputJsonValue | typeof Prisma.DbNull;
   } {
     const json = proposal.toJSON();
