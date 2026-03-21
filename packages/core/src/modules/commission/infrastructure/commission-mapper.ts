@@ -1,4 +1,4 @@
-import type { Commission as PrismaCommissionRecord } from '@repo/db';
+import type { Commission as PrismaCommissionRecord, CommissionStatus } from '@repo/db';
 import type { CommissionData } from '../domain/commission-repository.js';
 import type { CommissionProps } from '../domain/commission-types.js';
 
@@ -43,7 +43,7 @@ export class CommissionMapper {
     organizationId: string;
     policyId: string;
     salespersonId: string;
-    status: string;
+    status: CommissionStatus;
     commissionValueInCents: number;
     premiumValueInCents: number;
     percentageInBasisPoints: number;
