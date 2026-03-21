@@ -1,0 +1,14 @@
+{
+  "name": "@repo/auth",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@config/typescript-config": "workspace:*",
+    "typescript": "^5.9.0"
+  }
+}
