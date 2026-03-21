@@ -10,3 +10,6 @@ generated/
 .DS_Store
 _reference/
 next-env.d.ts
+.playwright-mcp/
+qa-*.png
+task*.png
