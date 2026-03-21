@@ -1,4 +1,5 @@
 import { prisma } from './index.js';
+import type { PrismaClient } from '../generated/client/index.js';
 
 export function createTenantClient(organizationId: string) {
   return prisma.$extends({
