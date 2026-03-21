@@ -10,7 +10,7 @@ interface HeaderProps {
 
 export function Header({ collapsed, onToggleSidebar }: HeaderProps) {
   return (
-    <header className="flex h-14 items-center border-b px-4">
+    <header className="flex h-14 items-center px-4">
       <Button variant="ghost" size="icon" onClick={onToggleSidebar}>
         {collapsed ? <PanelLeft className="size-4" /> : <PanelLeftClose className="size-4" />}
       </Button>
