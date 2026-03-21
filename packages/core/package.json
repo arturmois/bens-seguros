@@ -1,0 +1,25 @@
+{
+  "name": "@repo/core",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./container": "./src/container.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest watch"
+  },
+  "dependencies": {
+    "@repo/db": "workspace:*",
+    "reflect-metadata": "^0.2.0",
+    "tsyringe": "^4.8.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@config/typescript-config": "workspace:*",
+    "typescript": "^5.9.0",
+    "vitest": "^3.0.0"
+  }
+}
