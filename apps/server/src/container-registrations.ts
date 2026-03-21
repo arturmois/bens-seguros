@@ -11,6 +11,7 @@ import {
   PrismaAssistanceRepository,
   PrismaDocumentRepository,
   PrismaInsurerRepository,
+  PrismaCommissionRepository,
   LocalStorageProvider,
   R2StorageProvider,
   CreateClient,
@@ -49,6 +50,15 @@ import {
   DeleteDocument,
   CreateInsurer,
   ListInsurers,
+  CreateCommission,
+  ApproveCommissionCommercial,
+  ApproveCommissionAdmin,
+  RejectCommission,
+  PayCommission,
+  ReverseCommission,
+  ListCommissions,
+  GetCommission,
+  ExportCommissionsCsv,
 } from '@repo/core';
 
 export function registerDependencies() {
@@ -61,6 +71,7 @@ export function registerDependencies() {
   const assistanceRepo = new PrismaAssistanceRepository(prisma);
   const documentRepo = new PrismaDocumentRepository(prisma);
   const insurerRepo = new PrismaInsurerRepository(prisma);
+  const commissionRepo = new PrismaCommissionRepository(prisma);
 
   const storageProvider =
     env.STORAGE_PROVIDER === 'r2' ? new R2StorageProvider() : new LocalStorageProvider();
@@ -75,6 +86,7 @@ export function registerDependencies() {
   container.register('AssistanceRepository', { useValue: assistanceRepo });
   container.register('DocumentRepository', { useValue: documentRepo });
   container.register('InsurerRepository', { useValue: insurerRepo });
+  container.register('CommissionRepository', { useValue: commissionRepo });
   container.register('StorageProvider', { useValue: storageProvider });
 
   // Client use cases
@@ -154,4 +166,23 @@ export function registerDependencies() {
   // Insurer use cases
   container.register(CreateInsurer, { useFactory: () => new CreateInsurer(insurerRepo) });
   container.register(ListInsurers, { useFactory: () => new ListInsurers(insurerRepo) });
+
+  // Commission use cases
+  container.register(CreateCommission, { useFactory: () => new CreateCommission(commissionRepo) });
+  container.register(ApproveCommissionCommercial, {
+    useFactory: () => new ApproveCommissionCommercial(commissionRepo),
+  });
+  container.register(ApproveCommissionAdmin, {
+    useFactory: () => new ApproveCommissionAdmin(commissionRepo),
+  });
+  container.register(RejectCommission, { useFactory: () => new RejectCommission(commissionRepo) });
+  container.register(PayCommission, { useFactory: () => new PayCommission(commissionRepo) });
+  container.register(ReverseCommission, {
+    useFactory: () => new ReverseCommission(commissionRepo),
+  });
+  container.register(ListCommissions, { useFactory: () => new ListCommissions(commissionRepo) });
+  container.register(GetCommission, { useFactory: () => new GetCommission(commissionRepo) });
+  container.register(ExportCommissionsCsv, {
+    useFactory: () => new ExportCommissionsCsv(commissionRepo),
+  });
 }
