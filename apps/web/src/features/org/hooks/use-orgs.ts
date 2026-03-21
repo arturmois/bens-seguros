@@ -2,6 +2,7 @@
 
 import { useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { setActiveOrgCookie } from '@/lib/org-cookie';
@@ -37,6 +38,7 @@ function isTenantApiResponse(body: unknown): body is TenantApiResponse {
 }
 
 export function useOrgs() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { session, isAuthenticated } = useAuth();
 
@@ -75,10 +77,10 @@ export function useOrgs() {
     async (organizationId: string) => {
       await authClient.organization.setActive({ organizationId });
       setActiveOrgCookie(organizationId);
-      queryClient.clear();
-      window.location.href = '/';
+      await queryClient.invalidateQueries();
+      router.refresh();
     },
-    [queryClient],
+    [queryClient, router],
   );
 
   return {
