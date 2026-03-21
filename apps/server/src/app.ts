@@ -45,7 +45,8 @@ export async function buildApp() {
   app.get('/health', async () => ({ status: 'ok' }));
 
   // Better Auth integration
-  const auth = createAuth(env.AUTH_SECRET, env.API_URL);
+  const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
+  const auth = createAuth(env.AUTH_SECRET, env.API_URL, [frontendUrl]);
   registerAuthRoutes(app, auth);
 
   // API v1 routes

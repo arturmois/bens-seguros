@@ -3,11 +3,12 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { organization } from 'better-auth/plugins';
 import { prisma } from '@repo/db';
 
-export function createAuth(secret: string, baseURL: string) {
+export function createAuth(secret: string, baseURL: string, trustedOrigins: string[]) {
   return betterAuth({
     database: prismaAdapter(prisma, { provider: 'postgresql' }),
     secret,
     baseURL,
+    trustedOrigins,
     emailAndPassword: {
       enabled: true,
       minPasswordLength: 8,
