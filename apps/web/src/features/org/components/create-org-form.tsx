@@ -37,6 +37,7 @@ export function CreateOrgForm() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [slugError, setSlugError] = useState('');
 
   const form = useForm<CreateOrgFormData>({
     resolver: zodResolver(createOrgSchema),
@@ -53,6 +54,7 @@ export function CreateOrgForm() {
 
   const onSubmit = async (data: CreateOrgFormData) => {
     setIsSubmitting(true);
+    setSlugError('');
     try {
       const createRes = await authClient.organization.create({
         name: data.name,
@@ -60,7 +62,18 @@ export function CreateOrgForm() {
       });
 
       if (createRes.error) {
-        toast.error(createRes.error.message ?? 'Erro ao criar organização');
+        const message = createRes.error.message ?? 'Erro ao criar organização';
+        const isSlugTaken =
+          message.toLowerCase().includes('slug') ||
+          message.toLowerCase().includes('already') ||
+          message.toLowerCase().includes('existe');
+
+        if (isSlugTaken) {
+          setSlugError('Este slug já está em uso. Escolha outro.');
+          return;
+        }
+
+        toast.error(message);
         return;
       }
 
@@ -105,12 +118,19 @@ export function CreateOrgForm() {
             <span className="bg-muted text-muted-foreground border-r px-3 py-2 text-sm">
               bens.app/
             </span>
-            <Input {...form.register('slug')} id="slug" className="rounded-none border-0" />
+            <Input
+              {...form.register('slug', {
+                onChange: () => setSlugError(''),
+              })}
+              id="slug"
+              className="rounded-none border-0"
+            />
           </div>
           <p className="text-muted-foreground text-xs">Gerado automaticamente. Pode ser editado.</p>
           {form.formState.errors.slug && (
             <p className="text-destructive text-sm">{form.formState.errors.slug.message}</p>
           )}
+          {slugError && <p className="text-destructive text-sm">{slugError}</p>}
         </div>
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>

@@ -51,6 +51,9 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
           <>
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-semibold">{activeOrg.name}</div>
+              {activeOrg.role && (
+                <div className="text-muted-foreground truncate text-xs">{activeOrg.role}</div>
+              )}
             </div>
             <ChevronsUpDown className="text-muted-foreground size-4 shrink-0" />
           </>
@@ -80,6 +83,9 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium">{org.name}</div>
+                {org.role && (
+                  <div className="text-muted-foreground truncate text-xs">{org.role}</div>
+                )}
               </div>
               {org.id === activeOrg.id && <Check className="text-primary size-4 shrink-0" />}
             </button>

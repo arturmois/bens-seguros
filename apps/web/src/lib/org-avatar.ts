@@ -14,6 +14,7 @@ const COLORS = [
 export function getOrgInitials(name: string): string {
   return name
     .split(' ')
+    .filter((word) => word.length > 0)
     .slice(0, 2)
     .map((word) => word[0])
     .join('')

@@ -23,14 +23,14 @@ export function AcceptInvitationContent() {
   useEffect(() => {
     if (authLoading) return;
 
-    if (!isAuthenticated) {
-      router.replace(`/login?invitationId=${invitationId}`);
-      return;
-    }
-
     if (!invitationId) {
       setStatus('error');
       setErrorMessage('Link de convite inválido');
+      return;
+    }
+
+    if (!isAuthenticated) {
+      router.replace(`/login?invitationId=${invitationId}`);
       return;
     }
 
@@ -49,8 +49,14 @@ export function AcceptInvitationContent() {
         return;
       }
 
-      const member = res.data as Record<string, unknown> | undefined;
-      const orgId = typeof member?.organizationId === 'string' ? member.organizationId : null;
+      const member = res.data;
+      const orgId =
+        typeof member === 'object' &&
+        member !== null &&
+        'organizationId' in member &&
+        typeof member.organizationId === 'string'
+          ? member.organizationId
+          : null;
 
       if (orgId) {
         await authClient.organization.setActive({ organizationId: orgId });

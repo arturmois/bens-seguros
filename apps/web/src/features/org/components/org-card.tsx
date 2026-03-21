@@ -2,6 +2,7 @@
 
 import { getOrgInitials, getOrgColor } from '@/lib/org-avatar';
 import { ChevronRight } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import type { Org } from '@/features/org/hooks/use-orgs';
 
 interface OrgCardProps {
@@ -26,6 +27,11 @@ export function OrgCard({ org, onClick }: OrgCardProps) {
         <div className="truncate text-sm font-semibold">{org.name}</div>
         <div className="text-muted-foreground text-xs">{org.slug}</div>
       </div>
+      {org.role && (
+        <Badge variant="outline" size="sm">
+          {org.role}
+        </Badge>
+      )}
       <ChevronRight className="text-muted-foreground size-4 shrink-0" />
     </button>
   );

@@ -1,10 +1,17 @@
 'use client';
 
+import { type Role, ROLES } from '@repo/auth/roles';
 import { AppShell } from '@/components/layout/app-shell';
 import { useOrgs } from '@/features/org/hooks/use-orgs';
 
+const DEFAULT_ROLE: Role = 'VIEWER';
+
+function isRole(value: string): value is Role {
+  return Object.values(ROLES).some((role) => role === value);
+}
+
 export function DashboardShell({ children }: { children: React.ReactNode }) {
-  const { isLoading } = useOrgs();
+  const { activeOrg, isLoading } = useOrgs();
 
   if (isLoading) {
     return (
@@ -14,8 +21,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // TODO: Fetch real role from server when useOrgs includes role data.
-  // The actual role enforcement happens server-side via CASL middleware.
-  // The frontend role is only used for UI filtering of nav items.
-  return <AppShell role="MANAGER">{children}</AppShell>;
+  const rawRole = activeOrg?.role ?? '';
+  const role: Role = isRole(rawRole) ? rawRole : DEFAULT_ROLE;
+
+  return <AppShell role={role}>{children}</AppShell>;
 }

@@ -43,17 +43,25 @@ export function useAuth() {
         return;
       }
 
+      const sessionData =
+        response.data && 'session' in response.data ? response.data.session : null;
+
       const activeOrgId =
-        response.data && 'session' in response.data
-          ? (response.data.session as Record<string, unknown>)?.activeOrganizationId
+        typeof sessionData === 'object' &&
+        sessionData !== null &&
+        'activeOrganizationId' in sessionData &&
+        typeof sessionData.activeOrganizationId === 'string'
+          ? sessionData.activeOrganizationId
           : undefined;
+
+      queryClient.invalidateQueries({ queryKey: ['auth'] });
 
       if (typeof activeOrgId === 'string') {
         setActiveOrgCookie(activeOrgId);
+        router.push('/');
+      } else {
+        router.push('/select-org');
       }
-
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
-      router.push('/');
     },
   });
 
@@ -78,6 +86,9 @@ export function useAuth() {
         return;
       }
 
+      // Better Auth's organizationClient does not expose listUserInvitations()
+      // on the client SDK. Pending invitations are handled via the
+      // /accept-invitation?id=... flow with an email link instead.
       queryClient.invalidateQueries({ queryKey: ['auth'] });
       router.push('/onboarding');
     },
@@ -99,8 +110,14 @@ export function useAuth() {
       });
 
       if (!res.error) {
-        const member = res.data as Record<string, unknown> | undefined;
-        const orgId = typeof member?.organizationId === 'string' ? member.organizationId : null;
+        const member = res.data;
+        const orgId =
+          typeof member === 'object' &&
+          member !== null &&
+          'organizationId' in member &&
+          typeof member.organizationId === 'string'
+            ? member.organizationId
+            : null;
 
         if (orgId) {
           await authClient.organization.setActive({ organizationId: orgId });
