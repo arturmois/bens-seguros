@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
+import type { InsuredObjectDetails } from './insured-object-details.js';
 import { InvalidStageTransitionError } from './proposal-errors.js';
 
 const STAGES = ['CAPTURE', 'QUOTE', 'PROTOCOL', 'INSPECTION', 'PAYMENT', 'POLICY_ISSUED'] as const;
@@ -23,6 +24,7 @@ export interface ProposalProps {
   branch: Branch;
   premiumValueInCents: number;
   commissionPercentageInCents: number;
+  details: InsuredObjectDetails | null;
   lostReason: string | null;
   renewalPolicyId: string | null;
   deletedAt: Date | null;
@@ -57,6 +59,7 @@ export class Proposal {
       branch: input.branch,
       premiumValueInCents: input.premiumValueInCents ?? 0,
       commissionPercentageInCents: input.commissionPercentageInCents ?? 0,
+      details: null,
       lostReason: null,
       renewalPolicyId: input.renewalPolicyId ?? null,
       deletedAt: null,
@@ -111,6 +114,22 @@ export class Proposal {
     this.props.updatedAt = new Date();
   }
 
+  updateDetails(
+    details: InsuredObjectDetails,
+    premiumValueInCents: number,
+    commissionBasisPoints: number,
+  ): void {
+    if (details.branch !== this.props.branch) {
+      throw new Error(
+        `Details branch ${details.branch} does not match proposal branch ${this.props.branch}`,
+      );
+    }
+    this.props.details = details;
+    this.props.premiumValueInCents = premiumValueInCents;
+    this.props.commissionPercentageInCents = commissionBasisPoints;
+    this.props.updatedAt = new Date();
+  }
+
   markAsLost(reason: string): void {
     if (this.props.stage === 'POLICY_ISSUED' || this.props.stage === 'LOST') {
       throw new InvalidStageTransitionError(this.props.stage, 'marcar como perda');
@@ -141,6 +160,9 @@ export class Proposal {
   }
   get branch(): Branch {
     return this.props.branch;
+  }
+  get details(): InsuredObjectDetails | null {
+    return this.props.details;
   }
   get premiumValueInCents(): number {
     return this.props.premiumValueInCents;

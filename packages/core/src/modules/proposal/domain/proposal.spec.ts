@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { Proposal } from './proposal.js';
 import { InvalidStageTransitionError } from './proposal-errors.js';
+import type { AutoDetails } from './insured-object-details.js';
 
 describe('Proposal Entity', () => {
   const validProps = {
@@ -117,6 +118,7 @@ describe('Proposal Entity', () => {
       branch: 'AUTO',
       premiumValueInCents: 50000,
       commissionPercentageInCents: 1500,
+      details: null,
       lostReason: null,
       renewalPolicyId: null,
       deletedAt: null,
@@ -155,5 +157,34 @@ describe('Proposal Entity', () => {
     expect(json.id).toBe(proposal.id);
     expect(json.stage).toBe('CAPTURE');
     expect(json.organizationId).toBe('org-1');
+  });
+
+  describe('updateDetails', () => {
+    const autoDetails: AutoDetails = {
+      branch: 'AUTO',
+      marca: 'Toyota',
+      modelo: 'Corolla',
+      anoFabricacao: 2024,
+      anoModelo: 2025,
+    };
+
+    it('updates details with matching branch', () => {
+      const proposal = Proposal.create(validProps);
+      proposal.updateDetails(autoDetails, 150000, 1500);
+      expect(proposal.details).toEqual(autoDetails);
+      expect(proposal.premiumValueInCents).toBe(150000);
+      expect(proposal.commissionPercentageInCents).toBe(1500);
+    });
+
+    it('rejects details with mismatched branch', () => {
+      const proposal = Proposal.create(validProps); // branch: AUTO
+      const residentialDetails = {
+        branch: 'RESIDENTIAL' as const,
+        tipoImovel: 'Casa',
+        usoImovel: 'Habitual',
+        cep: '01310100',
+      };
+      expect(() => proposal.updateDetails(residentialDetails, 100000, 1000)).toThrow('branch');
+    });
   });
 });

@@ -14,6 +14,7 @@ export { isInsuredObjectDetails } from './domain/insured-object-details.js';
 export {
   ProposalNotFoundError,
   InvalidStageTransitionError,
+  ProposalDetailsRequiredError,
   ProposalErrors,
 } from './domain/proposal-errors.js';
 export type {

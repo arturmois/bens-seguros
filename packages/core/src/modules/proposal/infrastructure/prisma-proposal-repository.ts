@@ -23,6 +23,7 @@ export class PrismaProposalRepository implements ProposalRepository {
         stage: data.stage,
         premiumValueInCents: data.premiumValueInCents,
         commissionPercentageInCents: data.commissionPercentageInCents,
+        details: data.details,
         lostReason: data.lostReason,
         updatedAt: data.updatedAt,
       },

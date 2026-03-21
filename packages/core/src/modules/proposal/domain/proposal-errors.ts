@@ -14,8 +14,17 @@ export class InvalidStageTransitionError extends Error {
   }
 }
 
+export class ProposalDetailsRequiredError extends Error {
+  readonly code = 'PROPOSAL_DETAILS_REQUIRED' as const;
+  constructor(id: string) {
+    super(`Preencha os dados do objeto segurado antes de avançar (proposta ${id})`);
+    this.name = 'ProposalDetailsRequiredError';
+  }
+}
+
 export const ProposalErrors = {
   notFound: (id: string) => new ProposalNotFoundError(id),
   invalidTransition: (from: string, action: string) =>
     new InvalidStageTransitionError(from, action),
+  detailsRequired: (id: string) => new ProposalDetailsRequiredError(id),
 };
