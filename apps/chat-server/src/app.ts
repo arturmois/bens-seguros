@@ -10,6 +10,11 @@ import { chatAuthMiddleware } from './infra/http/middleware/chat-auth-middleware
 import { createSocketAuthMiddleware } from './infra/socket/socket-auth.js';
 import { setupSocketHandlers } from './infra/socket/socket-handler.js';
 import type { PresenceTracker } from './infra/socket/presence-tracker.js';
+import { conversationRoutes } from './infra/http/routes/conversation-routes.js';
+import { channelRoutes } from './infra/http/routes/channel-routes.js';
+import { webhookRoutes } from './infra/http/routes/webhook-routes.js';
+
+const UNAUTHENTICATED_PATHS = new Set(['/health', '/chat/webhook/meta']);
 
 interface BuildChatAppOptions {
   readonly redisPub: IORedis;
@@ -50,11 +55,19 @@ export async function buildChatApp(options: BuildChatAppOptions): Promise<ChatAp
   // Health check (no auth)
   app.get('/health', async () => ({ status: 'ok' }));
 
-  // Auth middleware for all routes under /api
+  // Unauthenticated routes (Meta webhook)
+  await app.register(webhookRoutes);
+
+  // Auth middleware for authenticated routes
   app.addHook('onRequest', async (request: FastifyRequest, reply: FastifyReply) => {
-    if (request.url === '/health') return;
+    const path = request.url.split('?').at(0) ?? '';
+    if (UNAUTHENTICATED_PATHS.has(path)) return;
     await chatAuthMiddleware(request, reply);
   });
+
+  // Authenticated routes
+  await app.register(conversationRoutes);
+  await app.register(channelRoutes);
 
   // Socket.IO auth + handlers
   io.use(createSocketAuthMiddleware(app.log));
