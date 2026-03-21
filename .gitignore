@@ -9,3 +9,4 @@ generated/
 .env.*.local
 .DS_Store
 _reference/
+next-env.d.ts
