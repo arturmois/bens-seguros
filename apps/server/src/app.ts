@@ -9,6 +9,7 @@ import { createAuth } from '@repo/auth';
 import { env } from '@repo/env';
 import { registerAuthRoutes } from './routes/auth-routes.js';
 import { tenantRoutes } from './routes/v1/tenant-routes.js';
+import { createAuthMiddleware } from './middlewares/auth-middleware.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -49,8 +50,12 @@ export async function buildApp() {
   const auth = createAuth(env.AUTH_SECRET, env.API_URL, [frontendUrl]);
   registerAuthRoutes(app, auth);
 
-  // API v1 routes
-  await app.register(tenantRoutes);
+  // API v1 routes (authenticated)
+  const authMiddleware = createAuthMiddleware(auth);
+  await app.register(async (authenticatedApp) => {
+    authenticatedApp.addHook('preHandler', authMiddleware);
+    await authenticatedApp.register(tenantRoutes);
+  });
 
   return app;
 }
