@@ -2,18 +2,12 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
+import { Loader2 } from 'lucide-react';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { NativeSelect } from '@/components/ui/native-select';
 import {
   Sheet,
   SheetContent,
@@ -24,16 +18,18 @@ import {
 
 import { useCreateProposal } from '../hooks/use-proposals';
 import { BOARD_TYPE_LABELS, BOARD_TYPES, BRANCH_LABELS, BRANCHES } from '../types';
+import { ClientSearch } from './client-search';
 
 const proposalFormSchema = z.object({
   clientId: z.string().min(1, 'Cliente é obrigatório'),
   branch: z.string().min(1, 'Ramo é obrigatório'),
   boardType: z.string().min(1, 'Tipo é obrigatório'),
-  premiumValueInCents: z.coerce.number().int().min(0).optional(),
-  commissionPercentageInCents: z.coerce.number().int().min(0).max(10000).optional(),
 });
 
 type ProposalFormValues = z.infer<typeof proposalFormSchema>;
+
+const BRANCH_OPTIONS = BRANCHES.map((b) => ({ value: b, label: BRANCH_LABELS[b] }));
+const BOARD_TYPE_OPTIONS = BOARD_TYPES.map((bt) => ({ value: bt, label: BOARD_TYPE_LABELS[bt] }));
 
 interface ProposalFormProps {
   open: boolean;
@@ -49,8 +45,6 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
       clientId: '',
       branch: '',
       boardType: '',
-      premiumValueInCents: undefined,
-      commissionPercentageInCents: undefined,
     },
   });
 
@@ -75,13 +69,16 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
             control={form.control}
             name="clientId"
             render={({ field, fieldState }) => (
-              <Field invalid={Boolean(fieldState.error)}>
-                <FieldLabel>Cliente</FieldLabel>
-                <Input placeholder="ID do cliente" {...field} />
+              <div className="space-y-2">
+                <Label>
+                  Cliente
+                  <span className="text-destructive ml-1">*</span>
+                </Label>
+                <ClientSearch value={field.value} onChange={field.onChange} />
                 {fieldState.error?.message ? (
-                  <FieldError>{fieldState.error.message}</FieldError>
+                  <p className="text-destructive text-sm">{fieldState.error.message}</p>
                 ) : null}
-              </Field>
+              </div>
             )}
           />
 
@@ -89,29 +86,21 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
             control={form.control}
             name="branch"
             render={({ field, fieldState }) => (
-              <Field invalid={Boolean(fieldState.error)}>
-                <FieldLabel>Ramo</FieldLabel>
-                <Select
-                  onValueChange={(v) => {
-                    if (v !== null) field.onChange(v);
-                  }}
+              <div className="space-y-2">
+                <Label>
+                  Ramo
+                  <span className="text-destructive ml-1">*</span>
+                </Label>
+                <NativeSelect
+                  options={BRANCH_OPTIONS}
+                  placeholder="Selecione o ramo"
                   value={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o ramo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {BRANCHES.map((b) => (
-                      <SelectItem key={b} value={b}>
-                        {BRANCH_LABELS[b]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
                 {fieldState.error?.message ? (
-                  <FieldError>{fieldState.error.message}</FieldError>
+                  <p className="text-destructive text-sm">{fieldState.error.message}</p>
                 ) : null}
-              </Field>
+              </div>
             )}
           />
 
@@ -119,73 +108,21 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
             control={form.control}
             name="boardType"
             render={({ field, fieldState }) => (
-              <Field invalid={Boolean(fieldState.error)}>
-                <FieldLabel>Tipo</FieldLabel>
-                <Select
-                  onValueChange={(v) => {
-                    if (v !== null) field.onChange(v);
-                  }}
+              <div className="space-y-2">
+                <Label>
+                  Tipo
+                  <span className="text-destructive ml-1">*</span>
+                </Label>
+                <NativeSelect
+                  options={BOARD_TYPE_OPTIONS}
+                  placeholder="Selecione o tipo"
                   value={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {BOARD_TYPES.map((bt) => (
-                      <SelectItem key={bt} value={bt}>
-                        {BOARD_TYPE_LABELS[bt]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {fieldState.error?.message ? (
-                  <FieldError>{fieldState.error.message}</FieldError>
-                ) : null}
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={form.control}
-            name="premiumValueInCents"
-            render={({ field, fieldState }) => (
-              <Field invalid={Boolean(fieldState.error)}>
-                <FieldLabel>Valor do Prêmio (centavos)</FieldLabel>
-                <Input
-                  type="number"
-                  placeholder="Ex: 150000"
-                  value={field.value ?? ''}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                  name={field.name}
-                  ref={field.ref}
+                  onChange={(e) => field.onChange(e.target.value)}
                 />
                 {fieldState.error?.message ? (
-                  <FieldError>{fieldState.error.message}</FieldError>
+                  <p className="text-destructive text-sm">{fieldState.error.message}</p>
                 ) : null}
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={form.control}
-            name="commissionPercentageInCents"
-            render={({ field, fieldState }) => (
-              <Field invalid={Boolean(fieldState.error)}>
-                <FieldLabel>Comissão (pontos base, 0-10000)</FieldLabel>
-                <Input
-                  type="number"
-                  placeholder="Ex: 1500 = 15%"
-                  value={field.value ?? ''}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                  name={field.name}
-                  ref={field.ref}
-                />
-                {fieldState.error?.message ? (
-                  <FieldError>{fieldState.error.message}</FieldError>
-                ) : null}
-              </Field>
+              </div>
             )}
           />
 
@@ -194,6 +131,7 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
               Cancelar
             </Button>
             <Button type="submit" disabled={createMutation.isPending}>
+              {createMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {createMutation.isPending ? 'Criando...' : 'Criar Proposta'}
             </Button>
           </div>

@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 
 import { api } from '@/lib/api-client';
 
-import type { BoardType, ProposalData, ProposalStage } from '../types';
+import type { BoardType, InsuredObjectDetails, ProposalData, ProposalStage } from '../types';
 
 interface ProposalFilters {
   stage?: ProposalStage;
@@ -32,8 +32,6 @@ interface CreateProposalInput {
   clientId: string;
   branch: string;
   boardType: string;
-  premiumValueInCents?: number;
-  commissionPercentageInCents?: number;
 }
 
 const PROPOSALS_KEY = ['proposals'] as const;
@@ -148,6 +146,30 @@ export function useMarkProposalLost() {
     },
     onError: () => {
       toast.error('Erro ao marcar proposta como perda');
+    },
+  });
+}
+
+interface UpdateProposalDetailsInput {
+  id: string;
+  details: InsuredObjectDetails;
+  premiumValueInCents: number;
+  commissionBasisPoints: number;
+}
+
+export function useUpdateProposalDetails() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, ...data }: UpdateProposalDetailsInput) =>
+      api.put<ProposalData>(`/api/v1/proposals/${id}/details`, data),
+    onSuccess: (_data, variables) => {
+      toast.success('Dados do objeto segurado salvos');
+      void queryClient.invalidateQueries({ queryKey: PROPOSALS_KEY });
+      void queryClient.invalidateQueries({ queryKey: proposalKey(variables.id) });
+    },
+    onError: () => {
+      toast.error('Erro ao salvar dados');
     },
   });
 }
