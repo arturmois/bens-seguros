@@ -32,6 +32,9 @@ model User {
   sessions Session[]
   accounts Account[]
   members  Member[]
+
+  proposalsAsSalesperson Proposal[] @relation("ProposalSalesperson")
+  policiesAsSalesperson  Policy[]   @relation("PolicySalesperson")
 }
 
 model Session {
@@ -131,4 +134,148 @@ model Invitation {
   @@index([email])
 }
 
-// ERP models will be added in Fase 2+
+// === ERP ENUMS ===
+
+enum ClientType {
+  LEAD
+  CLIENT
+  FORMER_CLIENT
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+  OTHER
+}
+
+enum ProposalStage {
+  CAPTURE
+  QUOTE
+  PROTOCOL
+  INSPECTION
+  PAYMENT
+  POLICY_ISSUED
+  LOST
+}
+
+enum ProposalBoardType {
+  NEW_INSURANCE
+  RENEWAL
+}
+
+enum InsuranceBranch {
+  AUTO
+  RESIDENTIAL
+  CONDOMINIUM
+  BUSINESS
+  LIFE
+  OTHER
+}
+
+enum PolicyStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+// === ERP MODELS ===
+
+model Client {
+  id             String         @id @default(cuid())
+  organizationId String
+  name           String
+  document       String
+  type           ClientType     @default(LEAD)
+  email          String?
+  phone          String?
+  birthDate      DateTime?
+  profession     String?
+  maritalStatus  MaritalStatus?
+  address        Json?
+  tags           String[]       @default([])
+  consentLgpd    Boolean        @default(false)
+  deletedAt      DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  proposals Proposal[]
+  policies  Policy[]
+
+  @@unique([organizationId, document])
+  @@index([organizationId, type])
+  @@index([organizationId, createdAt(sort: Desc)])
+}
+
+model Proposal {
+  id                          String            @id @default(cuid())
+  organizationId              String
+  clientId                    String
+  salespersonId               String
+  stage                       ProposalStage     @default(CAPTURE)
+  boardType                   ProposalBoardType @default(NEW_INSURANCE)
+  branch                      InsuranceBranch   @default(OTHER)
+  premiumValueInCents         Int               @default(0)
+  commissionPercentageInCents Int               @default(0)
+  lostReason                  String?
+  renewalPolicyId             String?
+  deletedAt                   DateTime?
+  createdAt                   DateTime          @default(now())
+  updatedAt                   DateTime          @updatedAt
+
+  client        Client                @relation(fields: [clientId], references: [id])
+  salesperson   User                  @relation("ProposalSalesperson", fields: [salespersonId], references: [id])
+  renewalPolicy Policy?               @relation("ProposalRenewal", fields: [renewalPolicyId], references: [id])
+  policy        Policy?               @relation("ProposalPolicy")
+  checklistItems ProposalChecklistItem[]
+
+  @@index([organizationId, stage])
+  @@index([organizationId, clientId])
+  @@index([organizationId, salespersonId])
+  @@index([organizationId, createdAt(sort: Desc)])
+}
+
+model ProposalChecklistItem {
+  id          String    @id @default(cuid())
+  proposalId  String
+  label       String
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+  completedBy String?
+  createdAt   DateTime  @default(now())
+
+  proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@index([proposalId])
+}
+
+model Policy {
+  id                  String          @id @default(cuid())
+  organizationId      String
+  proposalId          String          @unique
+  clientId            String
+  salespersonId       String
+  policyNumber        String
+  status              PolicyStatus    @default(ACTIVE)
+  branch              InsuranceBranch
+  premiumValueInCents Int
+  coverageDetails     Json?
+  startDate           DateTime
+  endDate             DateTime
+  cancelledAt         DateTime?
+  cancelReason        String?
+  deletedAt           DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  proposal         Proposal   @relation("ProposalPolicy", fields: [proposalId], references: [id])
+  client           Client     @relation(fields: [clientId], references: [id])
+  salesperson      User       @relation("PolicySalesperson", fields: [salespersonId], references: [id])
+  renewalProposals Proposal[] @relation("ProposalRenewal")
+
+  @@unique([organizationId, policyNumber])
+  @@index([organizationId, status])
+  @@index([organizationId, endDate])
+  @@index([organizationId, createdAt(sort: Desc)])
+}
