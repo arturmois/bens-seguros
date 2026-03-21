@@ -1,8 +1,0 @@
-[     375ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/favicon.ico:0
-[   98966ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/api/v1/clients:0
-[  142508ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/api/v1/clients:0
-[  152146ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=GkJaSfUdpiqwI2F2XotOy' failed:  @ http://localhost:3000/_next/static/chunks/03nd_next_dist_client_06gpsa.._.js:13299
-[  199767ms] [ERROR] Access to fetch at 'http://localhost:3001/api/v1/clients/cmn09wgbz000061gnlgqlvzos' from origin 'http://localhost:3000' has been blocked by CORS policy: Method PUT is not allowed by Access-Control-Allow-Methods in preflight response. @ http://localhost:3000/clients:0
-[  199767ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://localhost:3001/api/v1/clients/cmn09wgbz000061gnlgqlvzos:0
-[  245148ms] [ERROR] WebSocket connection to 'ws://localhost:3000/_next/webpack-hmr?id=GkJaSfUdpiqwI2F2XotOy' failed:  @ http://localhost:3000/_next/static/chunks/03nd_next_dist_client_06gpsa.._.js:13299
-[  276189ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3001/api/v1/clients/cmn09wgbz000061gnlgqlvzos:0
