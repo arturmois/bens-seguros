@@ -34,6 +34,7 @@ describe('Commission Entity', () => {
     commission.approveByAdmin('admin-1');
     expect(commission.status).toBe('APPROVED');
     expect(commission.approvedBy).toBe('admin-1');
+    expect(commission.approvedAt).toBeInstanceOf(Date);
   });
 
   it('advances from APPROVED to PAID', () => {
@@ -43,6 +44,7 @@ describe('Commission Entity', () => {
     commission.markAsPaid();
     expect(commission.status).toBe('PAID');
     expect(commission.paidAt).toBeInstanceOf(Date);
+    expect(commission.approvedAt).toBeInstanceOf(Date);
   });
 
   it('rejects from PENDING_COMMERCIAL', () => {
@@ -51,6 +53,7 @@ describe('Commission Entity', () => {
     expect(commission.status).toBe('REJECTED');
     expect(commission.rejectionReason).toBe('Valores incorretos');
     expect(commission.rejectedBy).toBe('admin-1');
+    expect(commission.rejectedAt).toBeInstanceOf(Date);
   });
 
   it('rejects from PENDING_ADMIN', () => {
@@ -121,7 +124,9 @@ describe('Commission Entity', () => {
       commissionValueInCents: 15000,
       status: 'APPROVED',
       approvedBy: 'admin-1',
+      approvedAt: now,
       rejectedBy: null,
+      rejectedAt: null,
       rejectionReason: null,
       paidAt: null,
       isReversal: false,

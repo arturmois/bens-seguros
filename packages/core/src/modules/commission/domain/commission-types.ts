@@ -17,7 +17,9 @@ export interface CommissionProps {
   commissionValueInCents: number;
   status: CommissionStatus;
   approvedBy: string | null;
+  approvedAt: Date | null;
   rejectedBy: string | null;
+  rejectedAt: Date | null;
   rejectionReason: string | null;
   paidAt: Date | null;
   readonly isReversal: boolean;

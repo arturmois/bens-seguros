@@ -36,7 +36,9 @@ export class Commission {
       commissionValueInCents: value,
       status: 'PENDING_COMMERCIAL',
       approvedBy: null,
+      approvedAt: null,
       rejectedBy: null,
+      rejectedAt: null,
       rejectionReason: null,
       paidAt: null,
       isReversal: false,
@@ -62,7 +64,9 @@ export class Commission {
       commissionValueInCents: -original.commissionValueInCents,
       status: 'PENDING_COMMERCIAL',
       approvedBy: null,
+      approvedAt: null,
       rejectedBy: null,
+      rejectedAt: null,
       rejectionReason: null,
       paidAt: null,
       isReversal: true,
@@ -90,6 +94,7 @@ export class Commission {
       throw CommissionErrors.invalidTransition(this.props.status, 'aprovar administrativamente');
     }
     this.props.approvedBy = userId;
+    this.props.approvedAt = new Date();
     this.props.status = 'APPROVED';
     this.props.updatedAt = new Date();
   }
@@ -116,6 +121,7 @@ export class Commission {
       throw CommissionErrors.invalidTransition(this.props.status, 'rejeitar');
     }
     this.props.rejectedBy = userId;
+    this.props.rejectedAt = new Date();
     this.props.rejectionReason = reason;
     this.props.status = 'REJECTED';
     this.props.updatedAt = new Date();
@@ -151,8 +157,14 @@ export class Commission {
   get approvedBy(): string | null {
     return this.props.approvedBy;
   }
+  get approvedAt(): Date | null {
+    return this.props.approvedAt;
+  }
   get rejectedBy(): string | null {
     return this.props.rejectedBy;
+  }
+  get rejectedAt(): Date | null {
+    return this.props.rejectedAt;
   }
   get rejectionReason(): string | null {
     return this.props.rejectionReason;
