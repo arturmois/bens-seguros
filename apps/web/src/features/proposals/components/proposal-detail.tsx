@@ -8,6 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs';
+
+import { DocumentList } from '@/features/documents/components/document-list';
+import { DocumentUpload } from '@/features/documents/components/document-upload';
 
 import { useAdvanceProposal, useProposal, useRevertProposal } from '../hooks/use-proposals';
 import { BOARD_TYPE_LABELS, BRANCH_LABELS, STAGE_BADGE_VARIANT, STAGE_LABELS } from '../types';
@@ -142,6 +146,19 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
           </Button>
         )}
       </div>
+
+      <Separator />
+
+      <Tabs defaultValue="documents">
+        <TabsList>
+          <TabsTab value="documents">Documentos</TabsTab>
+        </TabsList>
+
+        <TabsContent value="documents" className="mt-4 space-y-4">
+          <DocumentUpload entityType="PROPOSAL" entityId={proposalId} />
+          <DocumentList entityType="PROPOSAL" entityId={proposalId} />
+        </TabsContent>
+      </Tabs>
 
       <LostReasonDialog
         proposalId={showLostDialog ? proposalId : null}

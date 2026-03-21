@@ -8,6 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs';
+
+import { DocumentList } from '@/features/documents/components/document-list';
+import { DocumentUpload } from '@/features/documents/components/document-upload';
 
 import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants';
 import { useClient, useDeleteClient } from '../hooks/use-clients';
@@ -109,6 +113,17 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
           />
         </div>
       </div>
+
+      <Tabs defaultValue="documents">
+        <TabsList>
+          <TabsTab value="documents">Documentos</TabsTab>
+        </TabsList>
+
+        <TabsContent value="documents" className="mt-4 space-y-4">
+          <DocumentUpload entityType="CLIENT" entityId={clientId} />
+          <DocumentList entityType="CLIENT" entityId={clientId} />
+        </TabsContent>
+      </Tabs>
 
       <ClientForm
         open={formOpen}

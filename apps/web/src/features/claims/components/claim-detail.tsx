@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, FileText, Plus, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Plus, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,8 @@ import { useClaim } from '../hooks/use-claims';
 import { formatClaimNumber } from '../lib/constants';
 import { formatDate } from '@/lib/formatters';
 import { ClaimPriorityBadge } from './claim-priority-badge';
+import { DocumentList } from '@/features/documents/components/document-list';
+import { DocumentUpload } from '@/features/documents/components/document-upload';
 import { ClaimStatusActions } from './claim-status-actions';
 import { ClaimStatusBadge } from './claim-status-badge';
 import { OccurrenceForm } from './occurrence-form';
@@ -105,13 +107,9 @@ export function ClaimDetail({ claimId }: ClaimDetailProps) {
           <OccurrenceList claimId={claimId} />
         </TabsContent>
 
-        <TabsContent value="documents" className="mt-4">
-          <div className="flex flex-col items-center justify-center gap-3 py-8">
-            <FileText className="text-muted-foreground size-10" />
-            <p className="text-muted-foreground text-sm">
-              Documentos serao implementados na proxima etapa.
-            </p>
-          </div>
+        <TabsContent value="documents" className="mt-4 space-y-4">
+          <DocumentUpload entityType="CLAIM" entityId={claimId} />
+          <DocumentList entityType="CLAIM" entityId={claimId} />
         </TabsContent>
       </Tabs>
 
