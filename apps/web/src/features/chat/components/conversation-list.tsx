@@ -1,12 +1,12 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { AlertCircle, MessageCircle, RefreshCw, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 import type { ConversationData, ConversationFilters, ConversationStatus } from '../types';
 import { ConversationStatusBadge } from './conversation-status-badge';
@@ -40,7 +40,7 @@ function ConversationListSkeleton() {
     <div className="space-y-1 p-3">
       {Array.from({ length: 6 }, (_, i) => (
         <div key={i} className="flex items-center gap-3 px-3 py-3">
-          <Skeleton className="h-12 w-12 flex-shrink-0 rounded-full" />
+          <Skeleton className="h-12 w-12 shrink-0 rounded-full" />
           <div className="flex-1 space-y-2">
             <Skeleton className="h-4 w-3/4" />
             <Skeleton className="h-3 w-1/2" />
@@ -95,7 +95,7 @@ function ConversationItem({
         isWaiting && 'border-chat-waiting border-l-4',
       )}
     >
-      <div className="relative flex-shrink-0">
+      <div className="relative shrink-0">
         <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-full">
           <span className="text-primary text-base font-semibold">
             {displayName.charAt(0).toUpperCase()}
@@ -110,7 +110,7 @@ function ConversationItem({
             <ConversationStatusBadge status={conversation.status} />
           </div>
           {conversation.lastMessageAt && (
-            <span className="text-muted-foreground flex-shrink-0 text-xs">
+            <span className="text-muted-foreground shrink-0 text-xs">
               {formatDistanceToNow(new Date(conversation.lastMessageAt), {
                 addSuffix: false,
                 locale: ptBR,
@@ -123,7 +123,7 @@ function ConversationItem({
             {conversation.lastMessageText ?? 'Sem mensagens'}
           </p>
           {conversation.status === 'HUMAN_ACTIVE' && conversation.assignedToName && (
-            <span className="text-muted-foreground flex-shrink-0 text-xs">
+            <span className="text-muted-foreground shrink-0 text-xs">
               {conversation.assignedToName}
             </span>
           )}

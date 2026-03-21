@@ -1,8 +1,8 @@
 'use client';
 
+import { useAuth } from '@/features/auth/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import { useCallback, useState } from 'react';
-import { useAuth } from '@/features/auth/hooks/use-auth';
 
 import { useConversations } from '../hooks/use-conversations';
 import { useMessages } from '../hooks/use-messages';
@@ -108,7 +108,7 @@ export function ChatLayout() {
 
       {/* Desktop Layout */}
       <div className="hidden w-full md:flex">
-        <div className="border-border w-80 flex-shrink-0 border-r lg:w-96">
+        <div className="border-border w-80 shrink-0 border-r lg:w-96">
           <ConversationList
             conversations={conversations}
             activeConversationId={selectedConversationId}

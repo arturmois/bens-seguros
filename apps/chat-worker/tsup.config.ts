@@ -9,5 +9,5 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   noExternal: ['@repo/db-chat', '@repo/env', '@repo/shared', '@repo/ai'],
-  external: ['bullmq', 'ioredis', 'mongoose', 'baileys', 'pino', 'zod'],
+  external: ['bullmq', 'ioredis', 'mongoose', 'baileys', 'pino', 'zod', 'reflect-metadata'],
 });

@@ -96,7 +96,7 @@ function MessageInput({
           type="button"
           variant="ghost"
           size="icon"
-          className="text-muted-foreground hover:text-foreground hidden h-9 w-9 flex-shrink-0 md:flex"
+          className="text-muted-foreground hover:text-foreground hidden h-9 w-9 shrink-0 md:flex"
           disabled={disabled}
         >
           <Smile className="h-5 w-5" />
@@ -105,7 +105,7 @@ function MessageInput({
           type="button"
           variant="ghost"
           size="icon"
-          className="text-muted-foreground hover:text-foreground hidden h-9 w-9 flex-shrink-0 md:flex"
+          className="text-muted-foreground hover:text-foreground hidden h-9 w-9 shrink-0 md:flex"
           disabled={disabled}
         >
           <Paperclip className="h-5 w-5" />
@@ -121,7 +121,7 @@ function MessageInput({
           type="submit"
           size="icon"
           disabled={!inputValue.trim() || disabled}
-          className="bg-primary hover:bg-primary/90 h-9 w-9 flex-shrink-0"
+          className="bg-primary hover:bg-primary/90 h-9 w-9 shrink-0"
         >
           <Send className="h-4 w-4" />
         </Button>

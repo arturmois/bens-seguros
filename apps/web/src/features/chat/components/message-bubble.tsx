@@ -55,7 +55,7 @@ export function MessageBubble({ message, isFromCurrentUser }: MessageBubbleProps
         {!isSent && message.senderName && (
           <p className="text-primary mb-0.5 text-xs font-medium">{message.senderName}</p>
         )}
-        <p className="break-words text-sm md:text-base">{message.text}</p>
+        <p className="wrap-break-word text-sm md:text-base">{message.text}</p>
         <div
           className={cn(
             'mt-1 flex items-center justify-end gap-1',
