@@ -63,7 +63,8 @@ export function Toggle({
   const resolvedSize = context.size || size;
   const resolvedClassName = typeof className === 'function' ? undefined : className;
   const handlePressedChange = onPressedChange
-    ? (pressed: boolean) => onPressedChange(pressed, undefined as never)
+    ? (pressed: boolean) =>
+        onPressedChange(pressed, { reason: 'none' } as TogglePrimitive.ChangeEventDetails)
     : undefined;
 
   return (
@@ -71,9 +72,9 @@ export function Toggle({
       className={resolvedClassName}
       data-size={resolvedSize}
       data-variant={resolvedVariant}
+      onPressedChange={handlePressedChange}
       size={resolvedSize}
       variant={resolvedVariant}
-      onPressedChange={handlePressedChange}
       {...props}
     >
       {children}

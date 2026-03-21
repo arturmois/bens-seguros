@@ -217,4 +217,10 @@ body {
   pre {
     font-family: var(--font-mono);
   }
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
+  }
 }
