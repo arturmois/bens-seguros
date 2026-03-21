@@ -1,0 +1,27 @@
+// Domain
+export type {
+  ClientData,
+  ClientAddress,
+  ClientFilters,
+  ClientRepository,
+  CursorPage,
+  Page,
+  CreateClientInput,
+  UpdateClientInput,
+} from './domain/client-repository.js';
+export {
+  ClientNotFoundError,
+  ClientAlreadyExistsError,
+  ClientErrors,
+} from './domain/client-errors.js';
+
+// Application
+export { CreateClient } from './application/create-client.js';
+export { ListClients } from './application/list-clients.js';
+export { GetClient } from './application/get-client.js';
+export { UpdateClient } from './application/update-client.js';
+export { DeleteClient } from './application/delete-client.js';
+
+// Infrastructure
+export { ClientMapper } from './infrastructure/client-mapper.js';
+export { PrismaClientRepository } from './infrastructure/prisma-client-repository.js';
