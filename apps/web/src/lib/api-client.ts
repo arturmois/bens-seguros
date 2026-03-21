@@ -80,5 +80,11 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
+  patch: <TData>(path: string, data: unknown) =>
+    request<TData>(path, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
   delete: (path: string) => request(path, { method: 'DELETE' }),
 };
