@@ -1,0 +1,18 @@
+{
+  "name": "@repo/shared",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./api-types": "./src/api-types.ts",
+    "./socket-events": "./src/socket-events.ts"
+  },
+  "dependencies": {
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@config/typescript-config": "workspace:*",
+    "typescript": "^5.9.0"
+  }
+}
