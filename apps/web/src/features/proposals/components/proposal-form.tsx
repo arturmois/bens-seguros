@@ -7,7 +7,13 @@ import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { NativeSelect } from '@/components/ui/native-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Sheet,
   SheetContent,
@@ -91,12 +97,18 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
                   Ramo
                   <span className="text-destructive ml-1">*</span>
                 </Label>
-                <NativeSelect
-                  options={BRANCH_OPTIONS}
-                  placeholder="Selecione o ramo"
-                  value={field.value}
-                  onChange={(e) => field.onChange(e.target.value)}
-                />
+                <Select value={field.value} onValueChange={field.onChange} items={BRANCH_OPTIONS}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o ramo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {BRANCH_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {fieldState.error?.message ? (
                   <p className="text-destructive text-sm">{fieldState.error.message}</p>
                 ) : null}
@@ -113,12 +125,22 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
                   Tipo
                   <span className="text-destructive ml-1">*</span>
                 </Label>
-                <NativeSelect
-                  options={BOARD_TYPE_OPTIONS}
-                  placeholder="Selecione o tipo"
+                <Select
                   value={field.value}
-                  onChange={(e) => field.onChange(e.target.value)}
-                />
+                  onValueChange={field.onChange}
+                  items={BOARD_TYPE_OPTIONS}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {BOARD_TYPE_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {fieldState.error?.message ? (
                   <p className="text-destructive text-sm">{fieldState.error.message}</p>
                 ) : null}

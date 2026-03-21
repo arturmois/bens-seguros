@@ -9,7 +9,13 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
-import { NativeSelect } from '@/components/ui/native-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Sheet,
   SheetContent,
@@ -115,16 +121,24 @@ export function ClientForm({ open, onOpenChange, defaultValues, clientId }: Clie
               name="type"
               control={form.control}
               render={({ field }) => (
-                <NativeSelect
-                  options={TYPE_OPTIONS}
+                <Select
                   value={field.value ?? ''}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val) {
-                      field.onChange(val);
-                    }
+                  onValueChange={(v) => {
+                    if (v !== null) field.onChange(v);
                   }}
-                />
+                  items={TYPE_OPTIONS}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TYPE_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             />
           </FormField>
@@ -172,18 +186,28 @@ export function ClientForm({ open, onOpenChange, defaultValues, clientId }: Clie
               name="maritalStatus"
               control={form.control}
               render={({ field }) => (
-                <NativeSelect
-                  options={MARITAL_SELECT_OPTIONS}
+                <Select
                   value={field.value ?? ''}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val) {
-                      field.onChange(val);
+                  onValueChange={(v) => {
+                    if (v) {
+                      field.onChange(v);
                       return;
                     }
                     field.onChange(undefined);
                   }}
-                />
+                  items={MARITAL_SELECT_OPTIONS}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MARITAL_SELECT_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             />
           </FormField>

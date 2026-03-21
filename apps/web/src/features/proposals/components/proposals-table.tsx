@@ -7,7 +7,13 @@ import { Plus, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { NativeSelect } from '@/components/ui/native-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -87,30 +93,52 @@ export function ProposalsTable() {
             className="pl-9"
           />
         </div>
-        <NativeSelect
-          className="w-[160px]"
+        <Select
           value={stageFilter}
-          onChange={(e) => {
-            setStageFilter(e.target.value);
+          onValueChange={(v) => {
+            if (v !== null) setStageFilter(v);
             setCursor(undefined);
           }}
-          options={[
+          items={[
             { value: ALL_VALUE, label: 'Todos' },
             ...STAGES.map((s) => ({ value: s, label: STAGE_LABELS[s] })),
           ]}
-        />
-        <NativeSelect
-          className="w-[160px]"
+        >
+          <SelectTrigger className="w-[160px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_VALUE}>Todos</SelectItem>
+            {STAGES.map((s) => (
+              <SelectItem key={s} value={s}>
+                {STAGE_LABELS[s]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
           value={boardTypeFilter}
-          onChange={(e) => {
-            setBoardTypeFilter(e.target.value);
+          onValueChange={(v) => {
+            if (v !== null) setBoardTypeFilter(v);
             setCursor(undefined);
           }}
-          options={[
+          items={[
             { value: ALL_VALUE, label: 'Todos' },
             ...BOARD_TYPES.map((bt) => ({ value: bt, label: BOARD_TYPE_LABELS[bt] })),
           ]}
-        />
+        >
+          <SelectTrigger className="w-[160px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_VALUE}>Todos</SelectItem>
+            {BOARD_TYPES.map((bt) => (
+              <SelectItem key={bt} value={bt}>
+                {BOARD_TYPE_LABELS[bt]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Button onClick={() => router.push('/proposals/new')}>
           <Plus className="mr-2 h-4 w-4" />
           Nova Proposta

@@ -4,7 +4,13 @@ import { Controller } from 'react-hook-form';
 import { InputMask } from '@react-input/mask';
 
 import { Input } from '@/components/ui/input';
-import { NativeSelect } from '@/components/ui/native-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { CEP_MASK, CNPJ_MASK } from '@/lib/masks';
 
 import { CONSTRUCAO_OPTIONS, TIPO_IMOVEL_OPTIONS, USO_IMOVEL_OPTIONS } from '../lib/branch-options';
@@ -19,11 +25,22 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
           name="tipoImovel"
           control={control}
           render={({ field }) => (
-            <NativeSelect
-              options={TIPO_IMOVEL_OPTIONS}
+            <Select
               value={String(field.value ?? '')}
-              onChange={field.onChange}
-            />
+              onValueChange={field.onChange}
+              items={TIPO_IMOVEL_OPTIONS}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                {TIPO_IMOVEL_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
         />
       </FieldWrapper>
@@ -32,11 +49,22 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
           name="usoImovel"
           control={control}
           render={({ field }) => (
-            <NativeSelect
-              options={USO_IMOVEL_OPTIONS}
+            <Select
               value={String(field.value ?? '')}
-              onChange={field.onChange}
-            />
+              onValueChange={field.onChange}
+              items={USO_IMOVEL_OPTIONS}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                {USO_IMOVEL_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
         />
       </FieldWrapper>
@@ -64,11 +92,22 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
           name="construcao"
           control={control}
           render={({ field }) => (
-            <NativeSelect
-              options={CONSTRUCAO_OPTIONS}
+            <Select
               value={String(field.value ?? '')}
-              onChange={field.onChange}
-            />
+              onValueChange={field.onChange}
+              items={CONSTRUCAO_OPTIONS}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                {CONSTRUCAO_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
         />
       </FieldWrapper>

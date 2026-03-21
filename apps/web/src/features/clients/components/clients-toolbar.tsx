@@ -4,7 +4,13 @@ import { Plus, Search } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { NativeSelect } from '@/components/ui/native-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 import { TYPE_OPTIONS } from '../lib/constants';
 
@@ -37,12 +43,24 @@ export function ClientsToolbar({
             className="pl-9"
           />
         </div>
-        <NativeSelect
-          className="w-40"
-          options={TYPE_FILTER_OPTIONS}
+        <Select
           value={typeFilter}
-          onChange={(e) => onTypeFilterChange(e.target.value)}
-        />
+          onValueChange={(v) => {
+            if (v !== null) onTypeFilterChange(v);
+          }}
+          items={TYPE_FILTER_OPTIONS}
+        >
+          <SelectTrigger className="w-40">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {TYPE_FILTER_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <Button onClick={onNewClient}>
         <Plus className="mr-2 h-4 w-4" />

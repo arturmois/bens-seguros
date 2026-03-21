@@ -5,7 +5,13 @@ import { Controller } from 'react-hook-form';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { NativeSelect } from '@/components/ui/native-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -71,11 +77,22 @@ export function AutoFields({ register, control }: FieldHelperProps) {
           name="combustivel"
           control={control}
           render={({ field }) => (
-            <NativeSelect
-              options={COMBUSTIVEL_OPTIONS}
+            <Select
               value={String(field.value ?? '')}
-              onChange={field.onChange}
-            />
+              onValueChange={field.onChange}
+              items={COMBUSTIVEL_OPTIONS}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                {COMBUSTIVEL_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
         />
       </FieldWrapper>
@@ -84,11 +101,22 @@ export function AutoFields({ register, control }: FieldHelperProps) {
           name="usoVeiculo"
           control={control}
           render={({ field }) => (
-            <NativeSelect
-              options={USO_VEICULO_OPTIONS}
+            <Select
               value={String(field.value ?? '')}
-              onChange={field.onChange}
-            />
+              onValueChange={field.onChange}
+              items={USO_VEICULO_OPTIONS}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                {USO_VEICULO_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
         />
       </FieldWrapper>
