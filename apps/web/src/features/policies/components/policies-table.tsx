@@ -29,7 +29,12 @@ import { formatCurrency, formatDate } from '@/lib/formatters';
 
 import { usePolicies } from '../hooks/use-policies';
 import type { PolicyData, PolicyStatus } from '../types';
-import { POLICY_BRANCH_LABELS, POLICY_STATUS_BADGE_VARIANT, POLICY_STATUS_LABELS } from '../types';
+import {
+  POLICY_BRANCH_LABELS,
+  POLICY_STATUS_BADGE_VARIANT,
+  POLICY_STATUS_LABELS,
+  POLICY_STATUSES,
+} from '../types';
 import { CancelPolicyDialog } from './cancel-policy-dialog';
 
 export function PoliciesTable() {
@@ -83,9 +88,11 @@ export function PoliciesTable() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL">Todos</SelectItem>
-            <SelectItem value="ACTIVE">Ativa</SelectItem>
-            <SelectItem value="CANCELLED">Cancelada</SelectItem>
-            <SelectItem value="EXPIRED">Expirada</SelectItem>
+            {POLICY_STATUSES.map((s) => (
+              <SelectItem key={s} value={s}>
+                {POLICY_STATUS_LABELS[s]}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

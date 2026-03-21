@@ -19,6 +19,8 @@ export interface PolicyData {
 
 export type PolicyStatus = 'ACTIVE' | 'CANCELLED' | 'EXPIRED';
 
+export const POLICY_STATUSES: readonly PolicyStatus[] = ['ACTIVE', 'CANCELLED', 'EXPIRED'] as const;
+
 export type PolicyBranch = 'AUTO' | 'RESIDENTIAL' | 'CONDOMINIUM' | 'BUSINESS' | 'LIFE' | 'OTHER';
 
 export const POLICY_STATUS_LABELS: Record<PolicyStatus, string> = {

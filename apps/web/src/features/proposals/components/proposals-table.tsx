@@ -29,6 +29,7 @@ import { useAdvanceProposal, useProposals, useRevertProposal } from '../hooks/us
 import type { BoardType, ProposalData, ProposalStage } from '../types';
 import {
   BOARD_TYPE_LABELS,
+  BOARD_TYPES,
   BRANCH_LABELS,
   STAGE_BADGE_VARIANT,
   STAGE_LABELS,
@@ -127,8 +128,11 @@ export function ProposalsTable() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={ALL_VALUE}>Todos</SelectItem>
-            <SelectItem value="NEW_INSURANCE">Novo Seguro</SelectItem>
-            <SelectItem value="RENEWAL">Renovação</SelectItem>
+            {BOARD_TYPES.map((bt) => (
+              <SelectItem key={bt} value={bt}>
+                {BOARD_TYPE_LABELS[bt]}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Button onClick={() => router.push('/proposals/new')}>

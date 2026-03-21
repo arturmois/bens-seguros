@@ -12,12 +12,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-const TYPE_FILTER_OPTIONS = [
-  { value: 'ALL', label: 'Todos' },
-  { value: 'LEAD', label: 'Lead' },
-  { value: 'CLIENT', label: 'Cliente' },
-  { value: 'FORMER_CLIENT', label: 'Ex-Cliente' },
-] as const;
+import { TYPE_OPTIONS } from '../lib/constants';
+
+const TYPE_FILTER_OPTIONS = [{ value: 'ALL', label: 'Todos' }, ...TYPE_OPTIONS] as const;
 
 interface ClientsToolbarProps {
   readonly search: string;
