@@ -1,5 +1,6 @@
 'use client';
 
+import { OrgSwitcher } from '@/features/org/components/org-switcher';
 import { hasPermission } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
 import type { Role } from '@repo/auth/roles';
@@ -53,9 +54,7 @@ export function Sidebar({ role, collapsed }: SidebarProps) {
         collapsed ? 'w-16' : 'w-64',
       )}
     >
-      <div className="flex h-14 items-center border-b px-4">
-        {!collapsed && <span className="text-primary text-lg font-semibold">Bens</span>}
-      </div>
+      <OrgSwitcher collapsed={collapsed} />
 
       <nav className="flex-1 space-y-1 p-2">
         {visibleItems.map((item) => {
