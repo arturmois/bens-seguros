@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import { useAuth } from '@/features/auth/hooks/use-auth';
-import { setActiveOrgCookie } from '@/lib/org-cookie';
+import { setActiveOrgCookie, getActiveOrgCookie } from '@/lib/org-cookie';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -70,7 +70,8 @@ export function useOrgs() {
     enabled: isAuthenticated,
   });
 
-  const activeOrgId = session?.activeOrganizationId;
+  // Use session activeOrganizationId, fallback to cookie (session may be stale after login)
+  const activeOrgId = session?.activeOrganizationId ?? getActiveOrgCookie();
   const activeOrg = orgsQuery.data?.find((org) => org.id === activeOrgId) ?? null;
 
   const switchOrg = useCallback(
