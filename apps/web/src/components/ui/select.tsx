@@ -5,6 +5,7 @@ import { Select as SelectPrimitive } from '@base-ui/react/select';
 import { useRender } from '@base-ui/react/use-render';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { ChevronDownIcon, ChevronsUpDownIcon, ChevronUpIcon } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import type * as React from 'react';
 import { cn } from '@/lib/utils';
 
@@ -97,6 +98,31 @@ export function SelectValue({
   );
 }
 
+/**
+ * Auto-detects the closest Radix Dialog/Sheet content element and portals
+ * the Select popup inside it. This prevents the Radix `pointer-events: none`
+ * modality layer on `<body>` from blocking clicks on the Select popup.
+ * See: https://github.com/mui/base-ui/issues/3725
+ */
+function useModalContainer(
+  ref: React.RefObject<HTMLElement | null>,
+  explicit?: HTMLElement | null,
+): HTMLElement | undefined {
+  const [container, setContainer] = useState<HTMLElement | undefined>(undefined);
+
+  useEffect(() => {
+    if (explicit) {
+      setContainer(explicit);
+      return;
+    }
+    if (!ref.current) return;
+    const modal = ref.current.closest<HTMLElement>('[data-slot="sheet-content"], [role="dialog"]');
+    setContainer(modal ?? undefined);
+  }, [explicit, ref]);
+
+  return container;
+}
+
 export function SelectPopup({
   className,
   children,
@@ -106,6 +132,7 @@ export function SelectPopup({
   alignOffset = 0,
   alignItemWithTrigger = true,
   anchor,
+  container: containerProp,
   ...props
 }: SelectPrimitive.Popup.Props & {
   side?: SelectPrimitive.Positioner.Props['side'];
@@ -114,47 +141,53 @@ export function SelectPopup({
   alignOffset?: SelectPrimitive.Positioner.Props['alignOffset'];
   alignItemWithTrigger?: SelectPrimitive.Positioner.Props['alignItemWithTrigger'];
   anchor?: SelectPrimitive.Positioner.Props['anchor'];
+  container?: SelectPrimitive.Portal.Props['container'];
 }): React.ReactElement {
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const resolvedContainer = useModalContainer(anchorRef, containerProp as HTMLElement | null);
+
   return (
-    <SelectPrimitive.Portal>
-      <SelectPrimitive.Positioner
-        align={align}
-        alignItemWithTrigger={alignItemWithTrigger}
-        alignOffset={alignOffset}
-        anchor={anchor}
-        className="z-50 select-none"
-        data-slot="select-positioner"
-        side={side}
-        sideOffset={sideOffset}
-      >
-        <SelectPrimitive.Popup
-          className="origin-(--transform-origin) text-foreground outline-none"
-          data-slot="select-popup"
-          {...props}
+    <div ref={anchorRef} style={{ display: 'contents' }}>
+      <SelectPrimitive.Portal container={resolvedContainer}>
+        <SelectPrimitive.Positioner
+          align={align}
+          alignItemWithTrigger={alignItemWithTrigger}
+          alignOffset={alignOffset}
+          anchor={anchor}
+          className="z-50 select-none"
+          data-slot="select-positioner"
+          side={side}
+          sideOffset={sideOffset}
         >
-          <SelectPrimitive.ScrollUpArrow
-            className="before:bg-linear-to-b before:from-popover top-0 z-50 flex h-6 w-full cursor-default items-center justify-center before:pointer-events-none before:absolute before:inset-x-px before:top-px before:h-[200%] before:rounded-t-[calc(var(--radius-lg)-1px)] before:from-50%"
-            data-slot="select-scroll-up-arrow"
+          <SelectPrimitive.Popup
+            className="origin-(--transform-origin) text-foreground outline-none"
+            data-slot="select-popup"
+            {...props}
           >
-            <ChevronUpIcon className="size-4.5 relative sm:size-4" />
-          </SelectPrimitive.ScrollUpArrow>
-          <div className="min-w-(--anchor-width) bg-popover not-dark:bg-clip-padding shadow-lg/5 relative h-full rounded-lg border before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]">
-            <SelectPrimitive.List
-              className={cn('max-h-(--available-height) overflow-y-auto p-1', className)}
-              data-slot="select-list"
+            <SelectPrimitive.ScrollUpArrow
+              className="before:bg-linear-to-b before:from-popover top-0 z-50 flex h-6 w-full cursor-default items-center justify-center before:pointer-events-none before:absolute before:inset-x-px before:top-px before:h-[200%] before:rounded-t-[calc(var(--radius-lg)-1px)] before:from-50%"
+              data-slot="select-scroll-up-arrow"
             >
-              {children}
-            </SelectPrimitive.List>
-          </div>
-          <SelectPrimitive.ScrollDownArrow
-            className="before:bg-linear-to-t before:from-popover bottom-0 z-50 flex h-6 w-full cursor-default items-center justify-center before:pointer-events-none before:absolute before:inset-x-px before:bottom-px before:h-[200%] before:rounded-b-[calc(var(--radius-lg)-1px)] before:from-50%"
-            data-slot="select-scroll-down-arrow"
-          >
-            <ChevronDownIcon className="size-4.5 relative sm:size-4" />
-          </SelectPrimitive.ScrollDownArrow>
-        </SelectPrimitive.Popup>
-      </SelectPrimitive.Positioner>
-    </SelectPrimitive.Portal>
+              <ChevronUpIcon className="size-4.5 relative sm:size-4" />
+            </SelectPrimitive.ScrollUpArrow>
+            <div className="min-w-(--anchor-width) bg-popover not-dark:bg-clip-padding shadow-lg/5 relative h-full rounded-lg border before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]">
+              <SelectPrimitive.List
+                className={cn('max-h-(--available-height) overflow-y-auto p-1', className)}
+                data-slot="select-list"
+              >
+                {children}
+              </SelectPrimitive.List>
+            </div>
+            <SelectPrimitive.ScrollDownArrow
+              className="before:bg-linear-to-t before:from-popover bottom-0 z-50 flex h-6 w-full cursor-default items-center justify-center before:pointer-events-none before:absolute before:inset-x-px before:bottom-px before:h-[200%] before:rounded-b-[calc(var(--radius-lg)-1px)] before:from-50%"
+              data-slot="select-scroll-down-arrow"
+            >
+              <ChevronDownIcon className="size-4.5 relative sm:size-4" />
+            </SelectPrimitive.ScrollDownArrow>
+          </SelectPrimitive.Popup>
+        </SelectPrimitive.Positioner>
+      </SelectPrimitive.Portal>
+    </div>
   );
 }
 
