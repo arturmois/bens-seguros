@@ -84,7 +84,7 @@ export function ClientForm({ open, onOpenChange, defaultValues, clientId }: Clie
           </SheetDescription>
         </SheetHeader>
 
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-6 space-y-4">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-6 space-y-4 px-6">
           <FormField label="Nome" error={form.formState.errors.name?.message} required>
             <Input placeholder="Nome completo" {...form.register('name')} />
           </FormField>

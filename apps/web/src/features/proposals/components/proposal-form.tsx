@@ -64,7 +64,7 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
           <SheetTitle>Nova Proposta</SheetTitle>
           <SheetDescription>Preencha os dados para criar uma nova proposta.</SheetDescription>
         </SheetHeader>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 pt-4">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 px-6 pt-4">
           <Controller
             control={form.control}
             name="clientId"
