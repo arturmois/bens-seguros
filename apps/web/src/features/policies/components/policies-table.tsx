@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Ban, ChevronLeft, ChevronRight, MoreHorizontal, Search } from 'lucide-react';
+import { Ban, ChevronLeft, ChevronRight, MoreHorizontal, Search, Shield } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -46,7 +46,7 @@ export function PoliciesTable() {
 
   const debouncedSearch = useDebounce(search, 300);
 
-  const { data, isLoading, isError } = usePolicies({
+  const { data, isLoading, isError, refetch } = usePolicies({
     search: debouncedSearch || undefined,
     status: statusFilter === 'ALL' ? undefined : statusFilter,
     cursor,
@@ -56,7 +56,14 @@ export function PoliciesTable() {
   const meta = data?.meta;
 
   if (isError) {
-    return <p className="text-destructive text-sm">Erro ao carregar apólices. Tente novamente.</p>;
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+        <p className="text-destructive text-sm">Erro ao carregar apólices.</p>
+        <Button variant="outline" size="sm" onClick={() => refetch()}>
+          Tentar novamente
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -65,6 +72,7 @@ export function PoliciesTable() {
         <div className="relative flex-1">
           <Search className="text-muted-foreground absolute left-3 top-2.5 size-4" />
           <Input
+            aria-label="Buscar apólices por número ou cliente"
             placeholder="Buscar por número ou cliente..."
             value={search}
             onChange={(e) => {
@@ -102,15 +110,40 @@ export function PoliciesTable() {
       </div>
 
       {isLoading ? (
-        <div className="space-y-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={`skeleton-${String(i)}`} className="h-12 w-full" />
-          ))}
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nº Apólice</TableHead>
+              <TableHead>Ramo</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Valor</TableHead>
+              <TableHead>Vigência</TableHead>
+              <TableHead>Criado em</TableHead>
+              <TableHead className="w-10" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <TableRow key={`skeleton-${String(i)}`}>
+                {Array.from({ length: 7 }).map((_, j) => (
+                  <TableCell key={`skeleton-${String(i)}-${String(j)}`}>
+                    <Skeleton className="h-4 w-full" />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       ) : policies.length === 0 ? (
-        <p className="text-muted-foreground py-12 text-center text-sm">
-          Nenhuma apólice encontrada.
-        </p>
+        <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+          <Shield className="text-muted-foreground size-10" />
+          <div>
+            <p className="font-medium">Nenhuma apólice encontrada</p>
+            <p className="text-muted-foreground mt-1 text-sm">
+              As apólices serão criadas a partir de propostas aprovadas.
+            </p>
+          </div>
+        </div>
       ) : (
         <>
           <Table>
@@ -130,7 +163,14 @@ export function PoliciesTable() {
                 <TableRow
                   key={policy.id}
                   className="cursor-pointer"
+                  tabIndex={0}
                   onClick={() => router.push(`/policies/${policy.id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      router.push(`/policies/${policy.id}`);
+                    }
+                  }}
                 >
                   <TableCell className="font-medium">{policy.policyNumber}</TableCell>
                   <TableCell>
@@ -152,7 +192,12 @@ export function PoliciesTable() {
                     {policy.status === 'ACTIVE' && (
                       <Menu>
                         <MenuTrigger>
-                          <Button variant="ghost" size="icon" className="size-8">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-10"
+                            aria-label={`Ações da apólice ${policy.policyNumber}`}
+                          >
                             <MoreHorizontal className="size-4" />
                           </Button>
                         </MenuTrigger>

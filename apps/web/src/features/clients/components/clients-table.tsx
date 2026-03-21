@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { Button } from '@/components/ui/button';
 import { Table } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 
@@ -26,7 +27,7 @@ export function ClientsContent() {
   const debouncedSearch = useDebounce(search, 300);
   const currentCursor = cursors.at(-1);
 
-  const { data, isLoading, isError } = useClients({
+  const { data, isLoading, isError, refetch } = useClients({
     search: debouncedSearch || undefined,
     type: typeFilter === 'ALL' ? undefined : (typeFilter as ClientType),
     cursor: currentCursor,
@@ -68,8 +69,11 @@ export function ClientsContent() {
 
   if (isError) {
     return (
-      <div className="flex h-48 items-center justify-center rounded-md border">
-        <p className="text-muted-foreground text-sm">Erro ao carregar clientes. Tente novamente.</p>
+      <div className="flex h-48 flex-col items-center justify-center gap-3 rounded-md border">
+        <p className="text-destructive text-sm">Erro ao carregar clientes.</p>
+        <Button variant="outline" size="sm" onClick={() => refetch()}>
+          Tentar novamente
+        </Button>
       </div>
     );
   }

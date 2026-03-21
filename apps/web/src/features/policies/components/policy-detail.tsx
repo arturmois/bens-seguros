@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Ban } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, Ban, RefreshCw } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -27,6 +29,7 @@ interface PolicyDetailProps {
 }
 
 export function PolicyDetail({ policyId }: PolicyDetailProps) {
+  const router = useRouter();
   const { data, isLoading, isError } = usePolicy(policyId);
   const cancelMutation = useCancelPolicy();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -48,6 +51,7 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
   if (isLoading) {
     return (
       <div className="space-y-4">
+        <Skeleton className="h-8 w-20" />
         <Skeleton className="h-10 w-64" />
         <Skeleton className="h-48 w-full" />
       </div>
@@ -55,13 +59,41 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
   }
 
   if (isError || !data?.data) {
-    return <p className="text-destructive text-sm">Erro ao carregar apólice. Tente novamente.</p>;
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+        <p className="text-destructive text-sm">Erro ao carregar apólice.</p>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => router.push('/policies')}>
+            <ArrowLeft className="mr-1 h-4 w-4" />
+            Voltar
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+            <RefreshCw className="mr-1 h-4 w-4" />
+            Tentar novamente
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   const policy = data.data;
 
   return (
     <>
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push('/policies')}
+          className="gap-1"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Apólices
+        </Button>
+        <span className="text-muted-foreground">/</span>
+        <span className="text-muted-foreground">{policy.policyNumber}</span>
+      </nav>
+
       <div className="flex items-start justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">Apólice {policy.policyNumber}</h1>
@@ -132,12 +164,16 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
               Informe o motivo do cancelamento da apólice {policy.policyNumber}.
             </DialogDescription>
           </DialogHeader>
-          <Textarea
-            placeholder="Motivo do cancelamento..."
-            value={cancelReason}
-            onChange={(e) => setCancelReason(e.target.value)}
-            rows={3}
-          />
+          <div className="space-y-2">
+            <Label htmlFor="cancel-reason-detail">Motivo do cancelamento</Label>
+            <Textarea
+              id="cancel-reason-detail"
+              placeholder="Descreva o motivo..."
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              rows={3}
+            />
+          </div>
           <DialogFooter>
             <Button
               variant="outline"

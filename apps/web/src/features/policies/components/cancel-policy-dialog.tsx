@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 import { useCancelPolicy } from '../hooks/use-policies';
@@ -54,12 +55,16 @@ export function CancelPolicyDialog({ policy, onClose }: CancelPolicyDialogProps)
             Informe o motivo do cancelamento da apólice {policy?.policyNumber}.
           </DialogDescription>
         </DialogHeader>
-        <Textarea
-          placeholder="Motivo do cancelamento..."
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          rows={3}
-        />
+        <div className="space-y-2">
+          <Label htmlFor="cancel-reason">Motivo do cancelamento</Label>
+          <Textarea
+            id="cancel-reason"
+            placeholder="Descreva o motivo..."
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            rows={3}
+          />
+        </div>
         <DialogFooter>
           <Button
             variant="outline"

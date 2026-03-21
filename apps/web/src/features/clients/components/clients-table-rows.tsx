@@ -1,6 +1,6 @@
 'use client';
 
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, Users } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -74,7 +74,17 @@ function ClientRow({
   readonly onDelete: () => void;
 }) {
   return (
-    <TableRow className="cursor-pointer" onClick={onClick}>
+    <TableRow
+      className="cursor-pointer"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+    >
       <TableCell className="font-medium">{client.name}</TableCell>
       <TableCell>{client.document}</TableCell>
       <TableCell>
@@ -86,11 +96,12 @@ function ClientRow({
       <TableCell>
         <DropdownMenu>
           <DropdownMenuTrigger
-            className="hover:bg-accent inline-flex h-8 w-8 items-center justify-center rounded-md"
+            className="hover:bg-accent inline-flex h-10 w-10 items-center justify-center rounded-md"
+            aria-haspopup="menu"
             onClick={(e) => e.stopPropagation()}
           >
             <MoreHorizontal className="h-4 w-4" />
-            <span className="sr-only">Acoes</span>
+            <span className="sr-only">Ações do cliente {client.name}</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
@@ -137,7 +148,15 @@ function EmptyRow() {
   return (
     <TableRow>
       <TableCell colSpan={7} className="h-48 text-center">
-        <p className="text-muted-foreground text-sm">Nenhum cliente encontrado.</p>
+        <div className="flex flex-col items-center justify-center gap-3">
+          <Users className="text-muted-foreground size-10" />
+          <div>
+            <p className="font-medium">Nenhum cliente encontrado</p>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Cadastre seu primeiro cliente para começar.
+            </p>
+          </div>
+        </div>
       </TableCell>
     </TableRow>
   );

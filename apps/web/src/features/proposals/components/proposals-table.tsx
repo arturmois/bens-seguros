@@ -59,7 +59,7 @@ export function ProposalsTable() {
     limit: 20,
   };
 
-  const { data, isLoading, isError } = useProposals(filters);
+  const { data, isLoading, isError, refetch } = useProposals(filters);
   const advanceMutation = useAdvanceProposal();
   const revertMutation = useRevertProposal();
 
@@ -72,8 +72,11 @@ export function ProposalsTable() {
 
   if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <p className="text-destructive text-sm">Erro ao carregar propostas. Tente novamente.</p>
+      <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+        <p className="text-destructive text-sm">Erro ao carregar propostas.</p>
+        <Button variant="outline" size="sm" onClick={() => refetch()}>
+          Tentar novamente
+        </Button>
       </div>
     );
   }
@@ -84,6 +87,7 @@ export function ProposalsTable() {
         <div className="relative min-w-[200px] flex-1">
           <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
           <Input
+            aria-label="Buscar propostas por cliente"
             placeholder="Buscar propostas..."
             value={search}
             onChange={(e) => {
@@ -170,7 +174,14 @@ export function ProposalsTable() {
                     <TableRow
                       key={proposal.id}
                       className="cursor-pointer"
+                      tabIndex={0}
                       onClick={() => handleRowClick(proposal.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleRowClick(proposal.id);
+                        }
+                      }}
                     >
                       <TableCell className="font-medium">{proposal.clientId}</TableCell>
                       <TableCell>

@@ -59,7 +59,7 @@ export function Sidebar({ role, collapsed }: SidebarProps) {
     >
       <OrgSwitcher collapsed={collapsed} />
 
-      <nav className="flex-1 overflow-y-auto p-2">
+      <nav aria-label="Menu principal" className="flex-1 overflow-y-auto p-2">
         <div className="space-y-1">
           {mainItems.map((item) => (
             <NavItem
@@ -113,8 +113,10 @@ function NavItem({
   return (
     <Link
       href={href}
+      aria-current={isActive ? 'page' : undefined}
+      aria-label={collapsed ? label : undefined}
       className={cn(
-        'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
+        'flex min-h-10 items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
         isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted',
         collapsed && 'justify-center px-0',
       )}

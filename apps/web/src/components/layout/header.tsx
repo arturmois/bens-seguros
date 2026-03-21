@@ -11,7 +11,13 @@ interface HeaderProps {
 export function Header({ collapsed, onToggleSidebar }: HeaderProps) {
   return (
     <header className="flex h-14 items-center px-4">
-      <Button variant="ghost" size="icon" onClick={onToggleSidebar}>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onToggleSidebar}
+        aria-label={collapsed ? 'Abrir menu lateral' : 'Fechar menu lateral'}
+        aria-expanded={!collapsed}
+      >
         {collapsed ? <PanelLeft className="size-4" /> : <PanelLeftClose className="size-4" />}
       </Button>
     </header>

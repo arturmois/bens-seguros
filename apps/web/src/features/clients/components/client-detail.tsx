@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Mail, Phone, Pencil, Trash2, Calendar } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, Pencil, Trash2, Calendar, RefreshCw } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -41,18 +41,32 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
 
   if (isError || !client) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <p className="text-muted-foreground text-sm">Erro ao carregar os dados do cliente.</p>
+      <div className="flex h-64 flex-col items-center justify-center gap-3">
+        <p className="text-destructive text-sm">Erro ao carregar os dados do cliente.</p>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => router.push('/clients')}>
+            <ArrowLeft className="mr-1 h-4 w-4" />
+            Voltar
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+            <RefreshCw className="mr-1 h-4 w-4" />
+            Tentar novamente
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <Button variant="ghost" size="sm" onClick={() => router.push('/clients')} className="gap-1">
-        <ArrowLeft className="h-4 w-4" />
-        Voltar
-      </Button>
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
+        <Button variant="ghost" size="sm" onClick={() => router.push('/clients')} className="gap-1">
+          <ArrowLeft className="h-4 w-4" />
+          Clientes
+        </Button>
+        <span className="text-muted-foreground">/</span>
+        <span className="text-muted-foreground">{client.name}</span>
+      </nav>
 
       <div className="rounded-lg border p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

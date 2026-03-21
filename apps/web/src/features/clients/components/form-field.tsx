@@ -16,8 +16,12 @@ export function FormField({ label, error, required, children }: FormFieldProps) 
         {label}
         {required && <span className="text-destructive ml-1">*</span>}
       </Label>
-      {children}
-      {error && <p className="text-destructive text-sm">{error}</p>}
+      <div aria-required={required || undefined}>{children}</div>
+      {error && (
+        <p role="alert" className="text-destructive text-sm">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

@@ -37,6 +37,7 @@ export function ClientsToolbar({
         <div className="relative max-w-sm flex-1">
           <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
           <Input
+            aria-label="Buscar clientes por nome ou documento"
             placeholder="Buscar por nome ou documento..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}

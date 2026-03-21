@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, ChevronRight, Loader2, RotateCcw, XCircle } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Loader2, RefreshCw, RotateCcw, XCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { Badge } from '@/components/ui/badge';
@@ -32,11 +32,18 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
 
   if (isError || !data?.data) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
+      <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
         <p className="text-destructive text-sm">Erro ao carregar proposta.</p>
-        <Button variant="outline" className="mt-4" onClick={() => router.back()}>
-          Voltar
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => router.push('/proposals')}>
+            <ArrowLeft className="mr-1 h-4 w-4" />
+            Voltar
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+            <RefreshCw className="mr-1 h-4 w-4" />
+            Tentar novamente
+          </Button>
+        </div>
       </div>
     );
   }
@@ -49,12 +56,19 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="sm" onClick={() => router.push('/proposals')}>
-          <ArrowLeft className="mr-1 h-4 w-4" />
-          Voltar
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push('/proposals')}
+          className="gap-1"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Propostas
         </Button>
-      </div>
+        <span className="text-muted-foreground">/</span>
+        <span className="text-muted-foreground">Proposta</span>
+      </nav>
 
       <div className="flex flex-wrap items-center gap-3">
         <Badge variant={STAGE_BADGE_VARIANT[proposal.stage]} className="px-3 py-1 text-sm">
@@ -97,7 +111,7 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
           <Button
             onClick={() => advanceMutation.mutate(proposalId)}
             disabled={advanceMutation.isPending}
-            className="bg-green-600 hover:bg-green-700"
+            variant="default"
           >
             {advanceMutation.isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

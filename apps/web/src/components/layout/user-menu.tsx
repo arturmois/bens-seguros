@@ -1,15 +1,22 @@
 'use client';
 
 import { useState } from 'react';
+import { useTheme } from 'next-themes';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { cn } from '@/lib/utils';
-import { LogOut, Settings, ChevronsUpDown } from 'lucide-react';
+import { LogOut, Monitor, Moon, Settings, Sun, ChevronsUpDown } from 'lucide-react';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import Link from 'next/link';
 
 interface UserMenuProps {
   collapsed: boolean;
 }
+
+const THEME_OPTIONS = [
+  { value: 'light', label: 'Claro', icon: Sun },
+  { value: 'dark', label: 'Escuro', icon: Moon },
+  { value: 'system', label: 'Sistema', icon: Monitor },
+] as const;
 
 function getUserInitials(name: string): string {
   return name
@@ -23,6 +30,7 @@ function getUserInitials(name: string): string {
 
 export function UserMenu({ collapsed }: UserMenuProps) {
   const { user, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
 
   if (!user) return null;
@@ -30,6 +38,7 @@ export function UserMenu({ collapsed }: UserMenuProps) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
+        aria-label="Menu do usuário"
         className={cn(
           'hover:bg-muted flex w-full items-center gap-3 border-t px-4 py-3 text-left transition-colors',
           collapsed && 'justify-center px-0',
@@ -68,6 +77,31 @@ export function UserMenu({ collapsed }: UserMenuProps) {
             <Settings className="size-4" />
             <span>Configurações</span>
           </Link>
+        </div>
+
+        <div className="border-t px-4 py-3">
+          <p className="text-muted-foreground mb-2 text-xs font-medium">Tema</p>
+          <div className="flex gap-1" role="radiogroup" aria-label="Selecionar tema">
+            {THEME_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                role="radio"
+                aria-checked={theme === option.value}
+                aria-label={option.label}
+                onClick={() => setTheme(option.value)}
+                className={cn(
+                  'flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs transition-colors',
+                  theme === option.value
+                    ? 'bg-primary text-primary-foreground'
+                    : 'hover:bg-muted text-muted-foreground',
+                )}
+              >
+                <option.icon className="size-3.5" />
+                <span>{option.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="border-t p-1">
