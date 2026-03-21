@@ -1,13 +1,21 @@
 import { z } from 'zod';
 
+const emptyToUndefined = z.literal('').transform(() => undefined);
+
+const optionalDate = z.union([emptyToUndefined, z.coerce.date()]).optional();
+
+const optionalEmail = z.union([emptyToUndefined, z.string().email()]).optional();
+
+const optionalString = z.union([emptyToUndefined, z.string()]).optional();
+
 export const createClientBodySchema = z.object({
   name: z.string().min(2),
   document: z.string().min(11).max(14),
   type: z.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']).optional(),
-  email: z.string().email().optional(),
-  phone: z.string().optional(),
-  birthDate: z.coerce.date().optional(),
-  profession: z.string().optional(),
+  email: optionalEmail,
+  phone: optionalString,
+  birthDate: optionalDate,
+  profession: optionalString,
   maritalStatus: z.enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER']).optional(),
   address: z.record(z.string()).optional(),
   tags: z.array(z.string()).optional(),

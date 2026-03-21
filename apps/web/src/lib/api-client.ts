@@ -36,13 +36,17 @@ async function request<TData>(
   path: string,
   options: RequestInit = {},
 ): Promise<ApiResponse<TData>> {
+  const headers: Record<string, string> = {
+    ...Object.fromEntries(Object.entries(options.headers ?? {}).filter(([, v]) => v !== '')),
+  };
+  if (options.body) {
+    headers['Content-Type'] = 'application/json';
+  }
+
   const res = await fetch(`${API_URL}${path}`, {
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
     ...options,
+    headers,
   });
 
   if (res.status === 204) {
