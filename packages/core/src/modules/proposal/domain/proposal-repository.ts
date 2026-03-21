@@ -1,11 +1,11 @@
-import type { Proposal } from './proposal.js';
+import type { Proposal, Stage, BoardType } from './proposal.js';
 
 export interface ProposalFilters {
   organizationId: string;
-  stage?: string;
+  stage?: Stage;
   clientId?: string;
   salespersonId?: string;
-  boardType?: string;
+  boardType?: BoardType;
   search?: string;
 }
 
