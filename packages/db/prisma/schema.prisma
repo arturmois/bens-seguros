@@ -220,6 +220,7 @@ model Proposal {
   commissionPercentageInCents Int               @default(0)
   lostReason                  String?
   renewalPolicyId             String?
+  details                     Json?
   deletedAt                   DateTime?
   createdAt                   DateTime          @default(now())
   updatedAt                   DateTime          @updatedAt

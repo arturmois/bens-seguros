@@ -1,6 +1,16 @@
 // Domain
 export { Proposal } from './domain/proposal.js';
 export type { ProposalProps, Stage, ActiveStage, Branch, BoardType } from './domain/proposal.js';
+export type {
+  InsuredObjectDetails,
+  AutoDetails,
+  ResidentialDetails,
+  CondominiumDetails,
+  BusinessDetails,
+  LifeDetails,
+  OtherDetails,
+} from './domain/insured-object-details.js';
+export { isInsuredObjectDetails } from './domain/insured-object-details.js';
 export {
   ProposalNotFoundError,
   InvalidStageTransitionError,
