@@ -1,0 +1,49 @@
+import { injectable, inject } from 'tsyringe';
+import { randomUUID } from 'node:crypto';
+import type { PolicyRepository, PolicyData, CoverageDetails } from '../domain/policy-repository.js';
+import type { ProposalRepository } from '../../proposal/domain/proposal-repository.js';
+import { ProposalErrors } from '../../proposal/domain/proposal-errors.js';
+import { PolicyErrors } from '../domain/policy-errors.js';
+
+interface IssuePolicyDTO {
+  organizationId: string;
+  proposalId: string;
+  policyNumber: string;
+  startDate: Date;
+  endDate: Date;
+  coverageDetails?: CoverageDetails;
+}
+
+@injectable()
+export class IssuePolicy {
+  constructor(
+    @inject('PolicyRepository') private readonly policyRepo: PolicyRepository,
+    @inject('ProposalRepository') private readonly proposalRepo: ProposalRepository,
+  ) {}
+
+  async execute(dto: IssuePolicyDTO): Promise<PolicyData> {
+    const proposal = await this.proposalRepo.findById(dto.proposalId, dto.organizationId);
+    if (!proposal) {
+      throw ProposalErrors.notFound(dto.proposalId);
+    }
+
+    if (proposal.stage !== 'POLICY_ISSUED') {
+      throw PolicyErrors.notIssuable(dto.proposalId);
+    }
+
+    return this.policyRepo.create({
+      id: randomUUID(),
+      organizationId: dto.organizationId,
+      proposalId: dto.proposalId,
+      clientId: proposal.clientId,
+      salespersonId: proposal.salespersonId,
+      policyNumber: dto.policyNumber,
+      status: 'ACTIVE',
+      branch: proposal.branch,
+      premiumValueInCents: proposal.premiumValueInCents,
+      coverageDetails: dto.coverageDetails ?? null,
+      startDate: dto.startDate,
+      endDate: dto.endDate,
+    });
+  }
+}
