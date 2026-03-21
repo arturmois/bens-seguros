@@ -60,8 +60,8 @@ export function CommissionsToolbar({
       <div className="flex flex-wrap gap-2">
         <Select
           value={statusFilter}
-          onValueChange={(v) => {
-            if (isValidStatusFilter(v)) onStatusFilterChange(v);
+          onValueChange={(v: string | null) => {
+            if (v && isValidStatusFilter(v)) onStatusFilterChange(v);
           }}
           items={STATUS_FILTER_OPTIONS}
         >
