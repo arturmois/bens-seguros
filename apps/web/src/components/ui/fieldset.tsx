@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { Fieldset as FieldsetPrimitive } from "@base-ui/react/fieldset";
-import type React from "react";
-import { cn } from "@/lib/utils";
+import { Fieldset as FieldsetPrimitive } from '@base-ui/react/fieldset';
+import type React from 'react';
+import { cn } from '@/lib/utils';
 
 export function Fieldset({
   className,
@@ -10,7 +10,7 @@ export function Fieldset({
 }: FieldsetPrimitive.Root.Props): React.ReactElement {
   return (
     <FieldsetPrimitive.Root
-      className={cn("flex w-full max-w-64 flex-col gap-6", className)}
+      className={cn('flex w-full max-w-64 flex-col gap-6', className)}
       data-slot="fieldset"
       {...props}
     />
@@ -22,7 +22,7 @@ export function FieldsetLegend({
 }: FieldsetPrimitive.Legend.Props): React.ReactElement {
   return (
     <FieldsetPrimitive.Legend
-      className={cn("font-semibold text-foreground", className)}
+      className={cn('text-foreground font-semibold', className)}
       data-slot="fieldset-legend"
       {...props}
     />

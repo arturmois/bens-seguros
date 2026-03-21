@@ -1,14 +1,11 @@
-import type * as React from "react";
-import { cn } from "@/lib/utils";
+import type * as React from 'react';
+import { cn } from '@/lib/utils';
 
-export function Kbd({
-  className,
-  ...props
-}: React.ComponentProps<"kbd">): React.ReactElement {
+export function Kbd({ className, ...props }: React.ComponentProps<'kbd'>): React.ReactElement {
   return (
     <kbd
       className={cn(
-        "pointer-events-none inline-flex h-5 min-w-5 select-none items-center justify-center gap-1 rounded bg-muted px-1 font-medium font-sans text-muted-foreground text-xs [&_svg:not([class*='size-'])]:size-3",
+        "bg-muted text-muted-foreground pointer-events-none inline-flex h-5 min-w-5 select-none items-center justify-center gap-1 rounded px-1 font-sans text-xs font-medium [&_svg:not([class*='size-'])]:size-3",
         className,
       )}
       data-slot="kbd"
@@ -17,13 +14,10 @@ export function Kbd({
   );
 }
 
-export function KbdGroup({
-  className,
-  ...props
-}: React.ComponentProps<"kbd">): React.ReactElement {
+export function KbdGroup({ className, ...props }: React.ComponentProps<'kbd'>): React.ReactElement {
   return (
     <kbd
-      className={cn("inline-flex items-center gap-1", className)}
+      className={cn('inline-flex items-center gap-1', className)}
       data-slot="kbd-group"
       {...props}
     />

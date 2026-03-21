@@ -9,5 +9,15 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   noExternal: ['@repo/db-chat', '@repo/env', '@repo/shared'],
-  external: ['fastify', '@fastify/*', 'mongoose', 'bullmq', 'ioredis', 'socket.io', '@socket.io/*', 'pino', 'zod'],
+  external: [
+    'fastify',
+    '@fastify/*',
+    'mongoose',
+    'bullmq',
+    'ioredis',
+    'socket.io',
+    '@socket.io/*',
+    'pino',
+    'zod',
+  ],
 });

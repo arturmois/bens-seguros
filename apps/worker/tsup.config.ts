@@ -9,5 +9,14 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   noExternal: ['@repo/core', '@repo/db', '@repo/env'],
-  external: ['bullmq', 'ioredis', '@prisma/client', 'prisma', 'pino', 'tsyringe', 'reflect-metadata', 'zod'],
+  external: [
+    'bullmq',
+    'ioredis',
+    '@prisma/client',
+    'prisma',
+    'pino',
+    'tsyringe',
+    'reflect-metadata',
+    'zod',
+  ],
 });

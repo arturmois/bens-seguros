@@ -3,10 +3,7 @@ import cors from '@fastify/cors';
 import { Server } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
 import IORedis from 'ioredis';
-import {
-  serializerCompiler,
-  validatorCompiler,
-} from 'fastify-type-provider-zod';
+import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
 
 export async function buildChatApp() {
   const app = Fastify({

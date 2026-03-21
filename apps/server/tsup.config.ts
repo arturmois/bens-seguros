@@ -10,13 +10,7 @@ export default defineConfig({
   clean: true,
   splitting: false,
   sourcemap: true,
-  noExternal: [
-    '@repo/core',
-    '@repo/db',
-    '@repo/env',
-    '@repo/shared',
-    '@repo/auth',
-  ],
+  noExternal: ['@repo/core', '@repo/db', '@repo/env', '@repo/shared', '@repo/auth'],
   external: [
     'fastify',
     '@fastify/*',
