@@ -98,7 +98,7 @@ export function useDeleteClaim() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CLAIMS_KEY] });
-      toast.success('Sinistro excluido com sucesso');
+      toast.success('Sinistro excluído com sucesso');
     },
     onError: () => {
       toast.error('Erro ao excluir sinistro');
@@ -142,10 +142,10 @@ export function useCreateOccurrence() {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: [OCCURRENCES_KEY, variables.claimId] });
-      toast.success('Ocorrencia registrada com sucesso');
+      toast.success('Ocorrência registrada com sucesso');
     },
     onError: () => {
-      toast.error('Erro ao registrar ocorrencia');
+      toast.error('Erro ao registrar ocorrência');
     },
   });
 }

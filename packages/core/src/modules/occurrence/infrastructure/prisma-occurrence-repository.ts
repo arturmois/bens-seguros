@@ -24,7 +24,8 @@ export class PrismaOccurrenceRepository implements OccurrenceRepository {
       },
     });
 
-    return OccurrenceMapper.toDomain(row);
+    const createdByName = await this.resolveUserName(row.createdBy);
+    return OccurrenceMapper.toDomain(row, createdByName);
   }
 
   async findByClaimId(claimId: string): Promise<OccurrenceData[]> {
@@ -33,6 +34,36 @@ export class PrismaOccurrenceRepository implements OccurrenceRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return rows.map(OccurrenceMapper.toDomain);
+    const userIds = rows.map((r) => r.createdBy).filter((id): id is string => id !== null);
+
+    const userNameMap = await this.resolveUserNames(userIds);
+    return rows.map((row) =>
+      OccurrenceMapper.toDomain(row, row.createdBy ? userNameMap.get(row.createdBy) : undefined),
+    );
+  }
+
+  private async resolveUserName(userId: string | null): Promise<string | undefined> {
+    if (!userId) {
+      return undefined;
+    }
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true },
+    });
+    return user?.name;
+  }
+
+  private async resolveUserNames(userIds: string[]): Promise<Map<string, string>> {
+    if (userIds.length === 0) {
+      return new Map();
+    }
+
+    const uniqueIds = [...new Set(userIds)];
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: uniqueIds } },
+      select: { id: true, name: true },
+    });
+
+    return new Map(users.map((u) => [u.id, u.name]));
   }
 }

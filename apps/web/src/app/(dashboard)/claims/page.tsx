@@ -6,7 +6,7 @@ export default function ClaimsPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Sinistros</h1>
         <p className="text-muted-foreground text-sm">
-          Gerenciamento de sinistros e acompanhamento de ocorrencias.
+          Gerenciamento de sinistros e acompanhamento de ocorrências.
         </p>
       </div>
       <ClaimsContent />

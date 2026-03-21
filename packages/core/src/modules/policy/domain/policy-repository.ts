@@ -27,6 +27,9 @@ export interface PolicyData {
   cancelReason: string | null;
   createdAt: Date;
   updatedAt: Date;
+  clientName?: string;
+  salespersonName?: string;
+  proposalIdentifier?: string;
 }
 
 export interface PolicyFilters {

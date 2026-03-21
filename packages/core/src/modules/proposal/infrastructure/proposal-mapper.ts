@@ -4,12 +4,19 @@ import { Proposal } from '../domain/proposal.js';
 import type { ProposalProps } from '../domain/proposal.js';
 import { isInsuredObjectDetails } from '../domain/insured-object-details.js';
 
+interface ProposalRelations {
+  client?: { name: string } | null;
+  salesperson?: { name: string } | null;
+}
+
+type ProposalWithRelations = PrismaProposalRecord & ProposalRelations;
+
 function toJsonValue(value: unknown): Prisma.InputJsonValue {
   return JSON.parse(JSON.stringify(value));
 }
 
 export class ProposalMapper {
-  static toDomain(row: PrismaProposalRecord): Proposal {
+  static toDomain(row: ProposalWithRelations): Proposal {
     return Proposal.restore({
       id: row.id,
       organizationId: row.organizationId,
@@ -26,6 +33,8 @@ export class ProposalMapper {
       deletedAt: row.deletedAt,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
+      clientName: row.client?.name,
+      salespersonName: row.salesperson?.name,
     });
   }
 

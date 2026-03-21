@@ -53,7 +53,7 @@ export function EndorsementList({ policyId }: EndorsementListProps) {
         <TableHeader>
           <TableRow>
             <TableHead>Tipo</TableHead>
-            <TableHead>Descricao</TableHead>
+            <TableHead>Descrição</TableHead>
             <TableHead className="hidden sm:table-cell">Data Efetiva</TableHead>
             <TableHead className="hidden md:table-cell">Criado em</TableHead>
           </TableRow>
@@ -92,7 +92,7 @@ function EndorsementListSkeleton() {
         <TableHeader>
           <TableRow>
             <TableHead>Tipo</TableHead>
-            <TableHead>Descricao</TableHead>
+            <TableHead>Descrição</TableHead>
             <TableHead className="hidden sm:table-cell">Data Efetiva</TableHead>
             <TableHead className="hidden md:table-cell">Criado em</TableHead>
           </TableRow>

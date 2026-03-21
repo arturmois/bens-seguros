@@ -20,9 +20,9 @@ export function AssistancesPagination({
   onPrevious,
 }: AssistancesPaginationProps) {
   return (
-    <nav aria-label="Paginacao de assistencias" className="flex items-center justify-between">
+    <nav aria-label="Paginação de assistências" className="flex items-center justify-between">
       <p className="text-muted-foreground text-sm">
-        {total} {total === 1 ? 'assistencia' : 'assistencias'} no total
+        {total} {total === 1 ? 'assistência' : 'assistências'} no total
       </p>
       <div className="flex items-center gap-2">
         <Button variant="outline" size="sm" onClick={onPrevious} disabled={!hasPreviousPage}>
@@ -30,7 +30,7 @@ export function AssistancesPagination({
           Anterior
         </Button>
         <Button variant="outline" size="sm" onClick={onNext} disabled={!hasNextPage}>
-          Proximo
+          Próximo
           <ChevronRight className="ml-1 h-4 w-4" />
         </Button>
       </div>

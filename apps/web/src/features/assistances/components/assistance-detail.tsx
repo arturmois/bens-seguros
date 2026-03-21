@@ -31,7 +31,7 @@ export function AssistanceDetail({ assistanceId }: AssistanceDetailProps) {
   if (isError || !data) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-        <p className="text-destructive text-sm">Erro ao carregar assistencia.</p>
+        <p className="text-destructive text-sm">Erro ao carregar assistência.</p>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => router.push('/assistances')}>
             <ArrowLeft className="mr-1 h-4 w-4" />
@@ -56,7 +56,7 @@ export function AssistanceDetail({ assistanceId }: AssistanceDetailProps) {
           className="gap-1"
         >
           <ArrowLeft className="h-4 w-4" />
-          Assistencias
+          Assistências
         </Button>
         <span className="text-muted-foreground">/</span>
         <span className="text-muted-foreground">{ASSISTANCE_TYPE_LABELS[data.type]}</span>
@@ -105,7 +105,7 @@ function DetailInfoGrid({ assistance }: { readonly assistance: AssistanceData })
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <InfoItem label="Endereco">
+      <InfoItem label="Endereço">
         {assistance.address ? (
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">{assistance.address}</span>
@@ -133,7 +133,7 @@ function DetailInfoGrid({ assistance }: { readonly assistance: AssistanceData })
         value={assistance.scheduledAt ? formatDate(assistance.scheduledAt) : '-'}
       />
       <InfoItem
-        label="Concluido em"
+        label="Concluído em"
         value={assistance.completedAt ? formatDate(assistance.completedAt) : '-'}
       />
     </div>

@@ -86,7 +86,9 @@ export interface ProposalData {
   id: string;
   organizationId: string;
   clientId: string;
+  clientName?: string;
   salespersonId: string;
+  salespersonName?: string;
   stage: ProposalStage;
   boardType: BoardType;
   branch: InsuranceBranch;

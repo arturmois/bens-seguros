@@ -36,10 +36,10 @@ const OCCURRENCE_TYPE_OPTIONS = [
 ] as const;
 
 const occurrenceFormSchema = z.object({
-  type: z.string({ required_error: 'Tipo e obrigatorio' }).min(1, 'Tipo e obrigatorio'),
+  type: z.string({ required_error: 'Tipo é obrigatório' }).min(1, 'Tipo é obrigatório'),
   description: z
-    .string({ required_error: 'Descricao e obrigatoria' })
-    .min(1, 'Descricao e obrigatoria'),
+    .string({ required_error: 'Descrição é obrigatória' })
+    .min(1, 'Descrição é obrigatória'),
 });
 
 type OccurrenceFormValues = z.infer<typeof occurrenceFormSchema>;
@@ -79,8 +79,8 @@ export function OccurrenceForm({ claimId, open, onOpenChange }: OccurrenceFormPr
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="overflow-y-auto sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>Nova Ocorrencia</SheetTitle>
-          <SheetDescription>Registre uma nova ocorrencia para este sinistro.</SheetDescription>
+          <SheetTitle>Nova Ocorrência</SheetTitle>
+          <SheetDescription>Registre uma nova ocorrência para este sinistro.</SheetDescription>
         </SheetHeader>
 
         <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-6 space-y-4 px-6">
@@ -111,9 +111,9 @@ export function OccurrenceForm({ claimId, open, onOpenChange }: OccurrenceFormPr
             />
           </FormField>
 
-          <FormField label="Descricao" error={form.formState.errors.description?.message} required>
+          <FormField label="Descrição" error={form.formState.errors.description?.message} required>
             <Textarea
-              placeholder="Descreva a ocorrencia..."
+              placeholder="Descreva a ocorrência..."
               rows={4}
               {...form.register('description')}
             />

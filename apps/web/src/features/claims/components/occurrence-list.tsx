@@ -38,7 +38,7 @@ export function OccurrenceList({ claimId }: OccurrenceListProps) {
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-8">
-        <p className="text-destructive text-sm">Erro ao carregar ocorrencias.</p>
+        <p className="text-destructive text-sm">Erro ao carregar ocorrências.</p>
         <Button variant="outline" size="sm" onClick={() => refetch()}>
           Tentar novamente
         </Button>
@@ -50,7 +50,7 @@ export function OccurrenceList({ claimId }: OccurrenceListProps) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-8">
         <MessageSquare className="text-muted-foreground size-10" />
-        <p className="text-muted-foreground text-sm">Nenhuma ocorrencia registrada</p>
+        <p className="text-muted-foreground text-sm">Nenhuma ocorrência registrada</p>
       </div>
     );
   }
@@ -75,8 +75,10 @@ export function OccurrenceList({ claimId }: OccurrenceListProps) {
               <span className="text-muted-foreground text-xs">
                 {formatDateTime(occurrence.createdAt)}
               </span>
-              {occurrence.createdBy && (
-                <span className="text-muted-foreground text-xs">por {occurrence.createdBy}</span>
+              {(occurrence.createdByName ?? occurrence.createdBy) && (
+                <span className="text-muted-foreground text-xs">
+                  por {occurrence.createdByName ?? occurrence.createdBy}
+                </span>
               )}
             </div>
             <p className="mt-1 text-sm">{occurrence.description}</p>

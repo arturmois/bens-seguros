@@ -134,17 +134,21 @@ export function BranchFields({
 
       <div className="border-border border-t pt-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <FieldWrapper label="Valor do Premio (centavos)" required>
+          <FieldWrapper
+            label="Valor do Prêmio"
+            required
+            hint="Em centavos (ex: 150000 = R$ 1.500,00)"
+          >
             <Input
               type="number"
-              placeholder="Ex: 150000 = R$ 1.500"
+              placeholder="150000"
               {...form.register('premiumValueInCents', { valueAsNumber: true })}
             />
           </FieldWrapper>
-          <FieldWrapper label="Comissao (pontos base)" required>
+          <FieldWrapper label="Comissão (%)" required hint="Em pontos base (ex: 1500 = 15%)">
             <Input
               type="number"
-              placeholder="Ex: 1500 = 15%"
+              placeholder="1500"
               {...form.register('commissionBasisPoints', { valueAsNumber: true })}
             />
           </FieldWrapper>

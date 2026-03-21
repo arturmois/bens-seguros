@@ -24,7 +24,7 @@ export function ClaimsTableHeader() {
       <TableRow>
         <TableHead>Sinistro</TableHead>
         <TableHead>Cliente</TableHead>
-        <TableHead className="hidden md:table-cell">Apolice</TableHead>
+        <TableHead className="hidden md:table-cell">Apólice</TableHead>
         <TableHead>Status</TableHead>
         <TableHead className="hidden sm:table-cell">Prioridade</TableHead>
         <TableHead className="hidden lg:table-cell">Data Registro</TableHead>
@@ -107,7 +107,7 @@ function ClaimRow({
             onClick={(e) => e.stopPropagation()}
           >
             <MoreHorizontal className="h-4 w-4" />
-            <span className="sr-only">Acoes do sinistro {formattedNumber}</span>
+            <span className="sr-only">Ações do sinistro {formattedNumber}</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
@@ -159,7 +159,7 @@ function EmptyRow() {
           <div>
             <p className="font-medium">Nenhum sinistro encontrado</p>
             <p className="text-muted-foreground mt-1 text-sm">
-              Registre seu primeiro sinistro para comecar.
+              Registre seu primeiro sinistro para começar.
             </p>
           </div>
         </div>

@@ -29,13 +29,13 @@ import { ENDORSEMENT_TYPE_OPTIONS } from '../lib/constants';
 import { useCreateEndorsement } from '../hooks/use-endorsements';
 
 const endorsementFormSchema = z.object({
-  type: z.string({ required_error: 'Tipo e obrigatorio' }).min(1, 'Tipo e obrigatorio'),
+  type: z.string({ required_error: 'Tipo é obrigatório' }).min(1, 'Tipo é obrigatório'),
   description: z
-    .string({ required_error: 'Descricao e obrigatoria' })
-    .min(1, 'Descricao e obrigatoria'),
+    .string({ required_error: 'Descrição é obrigatória' })
+    .min(1, 'Descrição é obrigatória'),
   effectiveDate: z
-    .string({ required_error: 'Data efetiva e obrigatoria' })
-    .min(1, 'Data efetiva e obrigatoria'),
+    .string({ required_error: 'Data efetiva é obrigatória' })
+    .min(1, 'Data efetiva é obrigatória'),
   previousVersionSnapshot: z.string().optional().or(z.literal('')),
   changes: z.string().optional().or(z.literal('')),
 });
@@ -112,7 +112,7 @@ export function EndorsementForm({ policyId, open, onOpenChange }: EndorsementFor
       <SheetContent className="overflow-y-auto sm:max-w-lg">
         <SheetHeader>
           <SheetTitle>Novo Endosso</SheetTitle>
-          <SheetDescription>Registre um novo endosso para esta apolice.</SheetDescription>
+          <SheetDescription>Registre um novo endosso para esta apólice.</SheetDescription>
         </SheetHeader>
 
         <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-6 space-y-4 px-6">
@@ -143,7 +143,7 @@ export function EndorsementForm({ policyId, open, onOpenChange }: EndorsementFor
             />
           </FormField>
 
-          <FormField label="Descricao" error={form.formState.errors.description?.message} required>
+          <FormField label="Descrição" error={form.formState.errors.description?.message} required>
             <Textarea
               placeholder="Descreva o endosso..."
               rows={3}
@@ -176,7 +176,7 @@ export function EndorsementForm({ policyId, open, onOpenChange }: EndorsementFor
             />
           </FormField>
 
-          <FormField label="Alteracoes (JSON)">
+          <FormField label="Alterações (JSON)">
             <Textarea
               placeholder='{"campo": "novo_valor"}'
               rows={3}

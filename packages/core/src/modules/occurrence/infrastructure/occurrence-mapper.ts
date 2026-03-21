@@ -6,7 +6,7 @@ function isJsonObject(value: unknown): value is JsonObject {
 }
 
 export class OccurrenceMapper {
-  static toDomain(row: PrismaOccurrenceRecord): OccurrenceData {
+  static toDomain(row: PrismaOccurrenceRecord, createdByName?: string): OccurrenceData {
     return {
       id: row.id,
       claimId: row.claimId,
@@ -15,6 +15,7 @@ export class OccurrenceMapper {
       metadata: isJsonObject(row.metadata) ? row.metadata : null,
       createdBy: row.createdBy,
       createdAt: row.createdAt,
+      createdByName,
     };
   }
 }

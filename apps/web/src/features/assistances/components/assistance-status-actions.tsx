@@ -16,7 +16,7 @@ import {
 
 import type { AssistanceStatus } from '../types';
 import {
-  ASSISTANCE_STATUS_COLORS,
+  ASSISTANCE_STATUS_BUTTON_STYLES,
   ASSISTANCE_STATUS_LABELS,
   VALID_ASSISTANCE_TRANSITIONS,
 } from '../lib/constants';
@@ -54,10 +54,10 @@ export function AssistanceStatusActions({
           <Button
             key={targetStatus}
             type="button"
-            variant="outline"
+            variant={ASSISTANCE_STATUS_BUTTON_STYLES[targetStatus].variant}
             size="sm"
             onClick={() => setConfirmingStatus(targetStatus)}
-            className={ASSISTANCE_STATUS_COLORS[targetStatus]}
+            className={ASSISTANCE_STATUS_BUTTON_STYLES[targetStatus].className}
           >
             {ASSISTANCE_STATUS_LABELS[targetStatus]}
           </Button>
@@ -72,9 +72,9 @@ export function AssistanceStatusActions({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar alteracao de status</AlertDialogTitle>
+            <AlertDialogTitle>Confirmar alteração de status</AlertDialogTitle>
             <AlertDialogDescription>
-              Deseja alterar o status da assistencia para{' '}
+              Deseja alterar o status da assistência para{' '}
               <strong>{confirmingStatus ? ASSISTANCE_STATUS_LABELS[confirmingStatus] : ''}</strong>?
             </AlertDialogDescription>
           </AlertDialogHeader>

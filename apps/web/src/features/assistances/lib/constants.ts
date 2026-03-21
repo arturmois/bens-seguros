@@ -11,7 +11,7 @@ export const ASSISTANCE_STATUS_LABELS: Record<AssistanceStatus, string> = {
   PENDING_INSPECTION: 'Pendente Vistoria',
   DISPATCHED: 'Despachada',
   IN_PROGRESS: 'Em Andamento',
-  COMPLETED: 'Concluida',
+  COMPLETED: 'Concluída',
 };
 
 export const ASSISTANCE_STATUS_COLORS: Record<AssistanceStatus, string> = {
@@ -23,9 +23,25 @@ export const ASSISTANCE_STATUS_COLORS: Record<AssistanceStatus, string> = {
   COMPLETED: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
 };
 
+export const ASSISTANCE_STATUS_BUTTON_STYLES: Record<
+  AssistanceStatus,
+  { variant: 'outline' | 'destructive' | 'default'; className: string }
+> = {
+  REQUESTED: { variant: 'outline', className: '' },
+  AWAITING_DOCUMENT: { variant: 'outline', className: '' },
+  PENDING_INSPECTION: { variant: 'outline', className: '' },
+  DISPATCHED: { variant: 'outline', className: '' },
+  IN_PROGRESS: { variant: 'outline', className: '' },
+  COMPLETED: {
+    variant: 'default',
+    className:
+      'bg-green-600 text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600',
+  },
+};
+
 export const ASSISTANCE_TYPE_LABELS: Record<AssistanceType, string> = {
   TOW_TRUCK: 'Guincho',
-  MECHANIC: 'Mecanico',
+  MECHANIC: 'Mecânico',
   LOCKSMITH: 'Chaveiro',
   GLASS: 'Vidros',
   OTHER: 'Outro',
@@ -37,12 +53,12 @@ export const ASSISTANCE_STATUS_OPTIONS: readonly SelectOption<AssistanceStatus>[
   { value: 'PENDING_INSPECTION', label: 'Pendente Vistoria' },
   { value: 'DISPATCHED', label: 'Despachada' },
   { value: 'IN_PROGRESS', label: 'Em Andamento' },
-  { value: 'COMPLETED', label: 'Concluida' },
+  { value: 'COMPLETED', label: 'Concluída' },
 ] as const;
 
 export const ASSISTANCE_TYPE_OPTIONS: readonly SelectOption<AssistanceType>[] = [
   { value: 'TOW_TRUCK', label: 'Guincho' },
-  { value: 'MECHANIC', label: 'Mecanico' },
+  { value: 'MECHANIC', label: 'Mecânico' },
   { value: 'LOCKSMITH', label: 'Chaveiro' },
   { value: 'GLASS', label: 'Vidros' },
   { value: 'OTHER', label: 'Outro' },

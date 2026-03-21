@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
@@ -19,6 +20,7 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 
 import { FormField } from '@/components/shared/form-field';
+import { PolicySearch } from '@/components/shared/policy-search';
 import { CLAIM_PRIORITY_OPTIONS } from '../lib/constants';
 import { claimFormSchema, EMPTY_CLAIM_FORM_VALUES } from '../lib/schemas';
 import type { ClaimFormValues } from '../lib/schemas';
@@ -50,6 +52,17 @@ export function ClaimForm() {
     defaultValues: EMPTY_CLAIM_FORM_VALUES,
   });
 
+  const [clientDisplayName, setClientDisplayName] = useState('');
+
+  const handlePolicySelect = useCallback(
+    (selection: { policyId: string; clientId: string; clientName: string }) => {
+      form.setValue('policyId', selection.policyId, { shouldValidate: true });
+      form.setValue('clientId', selection.clientId, { shouldValidate: true });
+      setClientDisplayName(selection.clientName);
+    },
+    [form],
+  );
+
   function handleSubmit(values: ClaimFormValues) {
     createClaim.mutate(values, {
       onSuccess: () => router.push('/claims'),
@@ -60,20 +73,25 @@ export function ClaimForm() {
     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
       <div>
         <h3 className="text-base font-medium">Dados do Sinistro</h3>
-        <p className="text-muted-foreground text-sm">Informacoes basicas sobre o sinistro.</p>
+        <p className="text-muted-foreground text-sm">Informações básicas sobre o sinistro.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField label="Apolice" error={form.formState.errors.policyId?.message} required>
-          <Input placeholder="ID da apolice" {...form.register('policyId')} />
+        <FormField label="Apólice" error={form.formState.errors.policyId?.message} required>
+          <PolicySearch value={form.watch('policyId')} onChange={handlePolicySelect} />
         </FormField>
 
         <FormField label="Cliente" error={form.formState.errors.clientId?.message} required>
-          <Input placeholder="ID do cliente" {...form.register('clientId')} />
+          <Input
+            placeholder="Preenchido automaticamente pela apólice"
+            value={clientDisplayName}
+            readOnly
+            disabled
+          />
         </FormField>
       </div>
 
-      <FormField label="Descricao" error={form.formState.errors.description?.message} required>
+      <FormField label="Descrição" error={form.formState.errors.description?.message} required>
         <Textarea
           placeholder="Descreva o sinistro ocorrido..."
           rows={4}
@@ -85,7 +103,7 @@ export function ClaimForm() {
 
       <div>
         <h3 className="text-base font-medium">Detalhes</h3>
-        <p className="text-muted-foreground text-sm">Informacoes adicionais sobre o incidente.</p>
+        <p className="text-muted-foreground text-sm">Informações adicionais sobre o incidente.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -136,7 +154,7 @@ export function ClaimForm() {
 
       <FormField label="Local do Incidente" error={form.formState.errors.incidentLocation?.message}>
         <Input
-          placeholder="Endereco ou descricao do local"
+          placeholder="Endereço ou descrição do local"
           {...form.register('incidentLocation')}
         />
       </FormField>

@@ -56,5 +56,6 @@ export interface OccurrenceData {
   readonly description: string;
   readonly metadata: Record<string, unknown> | null;
   readonly createdBy: string | null;
+  readonly createdByName?: string;
   readonly createdAt: string;
 }

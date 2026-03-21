@@ -23,15 +23,15 @@ export function IssuePolicyCard({ proposalId, policyId }: IssuePolicyCardProps) 
           <FileCheck className="text-success h-5 w-5" />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-semibold">Apolice Emitida</p>
+          <p className="text-sm font-semibold">Apólice Emitida</p>
           <p className="text-muted-foreground text-sm">
-            Esta proposta ja possui uma apolice vinculada.
+            Esta proposta já possui uma apólice vinculada.
           </p>
         </div>
         <Button asChild variant="outline">
           <Link href={`/policies/${policyId}`}>
             <ExternalLink className="mr-2 h-4 w-4" />
-            Ver Apolice
+            Ver Apólice
           </Link>
         </Button>
       </div>
@@ -45,13 +45,13 @@ export function IssuePolicyCard({ proposalId, policyId }: IssuePolicyCardProps) 
           <FileCheck className="text-primary h-5 w-5" />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-semibold">Pronta para Emissao</p>
+          <p className="text-sm font-semibold">Pronta para Emissão</p>
           <p className="text-muted-foreground text-sm">
-            Esta proposta atingiu o estagio final. Emita a apolice para ativar a cobertura do
+            Esta proposta atingiu o estágio final. Emita a apólice para ativar a cobertura do
             segurado.
           </p>
         </div>
-        <Button onClick={() => setSheetOpen(true)}>Emitir Apolice</Button>
+        <Button onClick={() => setSheetOpen(true)}>Emitir Apólice</Button>
       </div>
 
       <IssuePolicySheet proposalId={proposalId} open={sheetOpen} onOpenChange={setSheetOpen} />

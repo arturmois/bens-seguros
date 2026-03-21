@@ -39,8 +39,8 @@ export function AssistancesToolbar({
         <div className="relative max-w-sm flex-1">
           <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
           <Input
-            aria-label="Buscar assistencias por tipo, cliente ou apolice"
-            placeholder="Buscar assistencia..."
+            aria-label="Buscar assistências por tipo, cliente ou apólice"
+            placeholder="Buscar assistência..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-9"
@@ -49,7 +49,7 @@ export function AssistancesToolbar({
         <Button asChild>
           <Link href="/assistances/new">
             <Plus className="mr-2 h-4 w-4" />
-            Nova Assistencia
+            Nova Assistência
           </Link>
         </Button>
       </div>

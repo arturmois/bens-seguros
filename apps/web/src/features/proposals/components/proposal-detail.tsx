@@ -74,7 +74,11 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
           Propostas
         </Button>
         <span className="text-muted-foreground">/</span>
-        <span className="text-muted-foreground">Proposta</span>
+        <span className="text-muted-foreground">
+          {proposal.clientName
+            ? `${BRANCH_LABELS[proposal.branch]} — ${proposal.clientName}`
+            : `Proposta`}
+        </span>
       </nav>
 
       <div className="flex flex-wrap items-center gap-3">
@@ -88,8 +92,8 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
       <Separator />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <InfoItem label="Cliente" value={proposal.clientId} />
-        <InfoItem label="Vendedor" value={proposal.salespersonId} />
+        <InfoItem label="Cliente" value={proposal.clientName ?? proposal.clientId} />
+        <InfoItem label="Vendedor" value={proposal.salespersonName ?? proposal.salespersonId} />
         <InfoItem label="Valor do Prêmio" value={formatCurrency(proposal.premiumValueInCents)} />
         <InfoItem
           label="Comissão"

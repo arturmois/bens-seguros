@@ -47,7 +47,7 @@ export function AssistancesTable() {
   if (isError) {
     return (
       <div className="flex h-48 flex-col items-center justify-center gap-3 rounded-md border">
-        <p className="text-destructive text-sm">Erro ao carregar assistencias.</p>
+        <p className="text-destructive text-sm">Erro ao carregar assistências.</p>
         <Button variant="outline" size="sm" onClick={() => refetch()}>
           Tentar novamente
         </Button>

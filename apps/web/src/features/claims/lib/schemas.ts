@@ -1,18 +1,18 @@
 import { z } from 'zod';
 
 export const claimFormSchema = z.object({
-  policyId: z.string({ required_error: 'Apolice e obrigatoria' }).min(1, 'Apolice e obrigatoria'),
-  clientId: z.string({ required_error: 'Cliente e obrigatorio' }).min(1, 'Cliente e obrigatorio'),
+  policyId: z.string({ required_error: 'Apólice é obrigatória' }).min(1, 'Apólice é obrigatória'),
+  clientId: z.string({ required_error: 'Cliente é obrigatório' }).min(1, 'Cliente é obrigatório'),
   insurerId: z.string().optional().or(z.literal('')),
   assignedToId: z.string().optional().or(z.literal('')),
   priority: z.enum(['NORMAL', 'HIGH', 'URGENT']).optional(),
   description: z
-    .string({ required_error: 'Descricao e obrigatoria' })
-    .min(1, 'Descricao e obrigatoria'),
+    .string({ required_error: 'Descrição é obrigatória' })
+    .min(1, 'Descrição é obrigatória'),
   incidentDate: z.string().optional().or(z.literal('')),
   incidentLocation: z
     .string()
-    .max(500, 'Local deve ter no maximo 500 caracteres')
+    .max(500, 'Local deve ter no máximo 500 caracteres')
     .optional()
     .or(z.literal('')),
 });

@@ -79,7 +79,7 @@ export function ClaimDetail({ claimId }: ClaimDetailProps) {
         <>
           <Separator />
           <div>
-            <p className="text-muted-foreground text-xs">Descricao</p>
+            <p className="text-muted-foreground text-xs">Descrição</p>
             <p className="mt-1 text-sm">{claim.description}</p>
           </div>
         </>
@@ -94,12 +94,12 @@ export function ClaimDetail({ claimId }: ClaimDetailProps) {
       <Tabs defaultValue="occurrences">
         <div className="flex items-center justify-between">
           <TabsList>
-            <TabsTab value="occurrences">Ocorrencias</TabsTab>
+            <TabsTab value="occurrences">Ocorrências</TabsTab>
             <TabsTab value="documents">Documentos</TabsTab>
           </TabsList>
           <Button size="sm" onClick={() => setOccurrenceFormOpen(true)}>
             <Plus className="mr-1 h-4 w-4" />
-            Nova Ocorrencia
+            Nova Ocorrência
           </Button>
         </div>
 
@@ -144,9 +144,9 @@ function ClaimInfoGrid({ claim }: { readonly claim: import('../types').ClaimData
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <InfoItem label="Cliente" value={claim.clientName ?? claim.clientId} />
-      <InfoItem label="Apolice" value={claim.policyNumber ?? claim.policyId} />
+      <InfoItem label="Apólice" value={claim.policyNumber ?? claim.policyId} />
       <InfoItem label="Seguradora" value={claim.insurerName ?? claim.insurerId ?? '-'} />
-      <InfoItem label="Responsavel" value={claim.assignedToName ?? claim.assignedToId ?? '-'} />
+      <InfoItem label="Responsável" value={claim.assignedToName ?? claim.assignedToId ?? '-'} />
       <InfoItem label="Data de Registro" value={formatDate(claim.reportedAt)} />
       <InfoItem
         label="Data do Incidente"

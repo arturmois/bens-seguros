@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
@@ -18,6 +19,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { FormField } from '@/components/shared/form-field';
+import { PolicySearch } from '@/components/shared/policy-search';
 
 import { ASSISTANCE_TYPE_OPTIONS } from '../lib/constants';
 import { assistanceFormSchema, EMPTY_ASSISTANCE_FORM_VALUES } from '../lib/schemas';
@@ -45,6 +47,17 @@ export function AssistanceForm() {
     defaultValues: EMPTY_ASSISTANCE_FORM_VALUES,
   });
 
+  const [clientDisplayName, setClientDisplayName] = useState('');
+
+  const handlePolicySelect = useCallback(
+    (selection: { policyId: string; clientId: string; clientName: string }) => {
+      form.setValue('policyId', selection.policyId, { shouldValidate: true });
+      form.setValue('clientId', selection.clientId, { shouldValidate: true });
+      setClientDisplayName(selection.clientName);
+    },
+    [form],
+  );
+
   function handleSubmit(values: AssistanceFormValues) {
     createAssistance.mutate(values, {
       onSuccess: () => router.push('/assistances'),
@@ -53,14 +66,19 @@ export function AssistanceForm() {
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-      <SectionHeader title="Dados" subtitle="Informacoes basicas da assistencia." />
+      <SectionHeader title="Dados" subtitle="Informações básicas da assistência." />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField label="Apolice" error={form.formState.errors.policyId?.message} required>
-          <Input placeholder="ID da apolice" {...form.register('policyId')} />
+        <FormField label="Apólice" error={form.formState.errors.policyId?.message} required>
+          <PolicySearch value={form.watch('policyId')} onChange={handlePolicySelect} />
         </FormField>
         <FormField label="Cliente" error={form.formState.errors.clientId?.message} required>
-          <Input placeholder="ID do cliente" {...form.register('clientId')} />
+          <Input
+            placeholder="Preenchido automaticamente pela apólice"
+            value={clientDisplayName}
+            readOnly
+            disabled
+          />
         </FormField>
       </div>
 
@@ -97,19 +115,19 @@ export function AssistanceForm() {
       </div>
 
       <Separator />
-      <SectionHeader title="Detalhes" subtitle="Descricao e localizacao." />
+      <SectionHeader title="Detalhes" subtitle="Descrição e localização." />
 
-      <FormField label="Descricao" error={form.formState.errors.description?.message}>
+      <FormField label="Descrição" error={form.formState.errors.description?.message}>
         <Textarea
-          placeholder="Descreva a assistencia..."
+          placeholder="Descreva a assistência..."
           rows={4}
           {...form.register('description')}
         />
       </FormField>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField label="Endereco" error={form.formState.errors.address?.message}>
-          <Input placeholder="Endereco do local" {...form.register('address')} />
+        <FormField label="Endereço" error={form.formState.errors.address?.message}>
+          <Input placeholder="Endereço do local" {...form.register('address')} />
         </FormField>
         <FormField label="Prestador" error={form.formState.errors.providerName?.message}>
           <Input placeholder="Nome do prestador" {...form.register('providerName')} />
@@ -121,7 +139,7 @@ export function AssistanceForm() {
       </FormField>
 
       <Separator />
-      <SectionHeader title="Agendamento" subtitle="Data programada para a assistencia." />
+      <SectionHeader title="Agendamento" subtitle="Data programada para a assistência." />
 
       <FormField label="Data Agendada" error={form.formState.errors.scheduledAt?.message}>
         <Controller
@@ -144,7 +162,7 @@ export function AssistanceForm() {
         </Button>
         <Button type="submit" disabled={createAssistance.isPending}>
           {createAssistance.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Registrar Assistencia
+          Registrar Assistência
         </Button>
       </div>
     </form>

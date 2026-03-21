@@ -23,10 +23,10 @@ export function AssistancesTableHeader() {
       <TableRow>
         <TableHead>Tipo</TableHead>
         <TableHead>Cliente</TableHead>
-        <TableHead className="hidden md:table-cell">Apolice</TableHead>
+        <TableHead className="hidden md:table-cell">Apólice</TableHead>
         <TableHead>Status</TableHead>
-        <TableHead className="hidden sm:table-cell">Data Solicitacao</TableHead>
-        <TableHead className="hidden lg:table-cell">Endereco</TableHead>
+        <TableHead className="hidden sm:table-cell">Data Solicitação</TableHead>
+        <TableHead className="hidden lg:table-cell">Endereço</TableHead>
         <TableHead className="w-12" />
       </TableRow>
     </TableHeader>
@@ -100,7 +100,7 @@ function AssistanceRow({
             onClick={(e) => e.stopPropagation()}
           >
             <MoreHorizontal className="h-4 w-4" />
-            <span className="sr-only">Acoes da assistencia</span>
+            <span className="sr-only">Ações da assistência</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
@@ -141,9 +141,9 @@ function EmptyRow() {
         <div className="flex flex-col items-center justify-center gap-3">
           <LifeBuoy className="text-muted-foreground size-10" />
           <div>
-            <p className="font-medium">Nenhuma assistencia encontrada</p>
+            <p className="font-medium">Nenhuma assistência encontrada</p>
             <p className="text-muted-foreground mt-1 text-sm">
-              Registre sua primeira assistencia para comecar.
+              Registre sua primeira assistência para começar.
             </p>
           </div>
         </div>

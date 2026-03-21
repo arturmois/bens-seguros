@@ -61,7 +61,7 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
   if (isError || !data?.data) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-        <p className="text-destructive text-sm">Erro ao carregar apolice.</p>
+        <p className="text-destructive text-sm">Erro ao carregar apólice.</p>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => router.push('/policies')}>
             <ArrowLeft className="mr-1 h-4 w-4" />
@@ -88,7 +88,7 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
           className="gap-1"
         >
           <ArrowLeft className="h-4 w-4" />
-          Apolices
+          Apólices
         </Button>
         <span className="text-muted-foreground">/</span>
         <span className="text-muted-foreground">{policy.policyNumber}</span>
@@ -96,7 +96,7 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
 
       <div className="flex items-start justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">Apolice {policy.policyNumber}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Apólice {policy.policyNumber}</h1>
           <div className="flex items-center gap-2">
             <Badge variant={POLICY_STATUS_BADGE_VARIANT[policy.status]}>
               {POLICY_STATUS_LABELS[policy.status]}
@@ -107,15 +107,17 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
         {policy.status === 'ACTIVE' && (
           <Button variant="destructive" size="sm" onClick={() => setShowCancelDialog(true)}>
             <Ban className="mr-2 size-4" />
-            Cancelar apolice
+            Cancelar apólice
           </Button>
         )}
       </div>
 
       <PolicyInfoCard
         clientId={policy.clientId}
+        clientName={policy.clientName}
         proposalId={policy.proposalId}
         salespersonId={policy.salespersonId}
+        salespersonName={policy.salespersonName}
         premiumValueInCents={policy.premiumValueInCents}
         startDate={policy.startDate}
         endDate={policy.endDate}
@@ -144,9 +146,9 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Cancelar apolice</DialogTitle>
+            <DialogTitle>Cancelar apólice</DialogTitle>
             <DialogDescription>
-              Informe o motivo do cancelamento da apolice {policy.policyNumber}.
+              Informe o motivo do cancelamento da apólice {policy.policyNumber}.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">

@@ -3,7 +3,7 @@ import type { DocumentEntityType, DocumentType } from '../types';
 export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
   DRIVER_LICENSE: 'CNH',
   VEHICLE_REGISTRATION: 'CRLV',
-  POLICY_PDF: 'Apolice PDF',
+  POLICY_PDF: 'Apólice PDF',
   CLAIM_PHOTO: 'Foto Sinistro',
   CLAIM_REPORT: 'Laudo Sinistro',
   PROOF_OF_PAYMENT: 'Comprovante Pagamento',
@@ -14,7 +14,7 @@ export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
 export const DOCUMENT_ENTITY_TYPE_LABELS: Record<DocumentEntityType, string> = {
   CLIENT: 'Cliente',
   PROPOSAL: 'Proposta',
-  POLICY: 'Apolice',
+  POLICY: 'Apólice',
   CLAIM: 'Sinistro',
-  ASSISTANCE: 'Assistencia',
+  ASSISTANCE: 'Assistência',
 };

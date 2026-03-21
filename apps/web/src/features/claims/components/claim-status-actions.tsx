@@ -16,7 +16,7 @@ import {
 
 import type { ClaimStatus } from '../types';
 import {
-  CLAIM_STATUS_COLORS,
+  CLAIM_STATUS_BUTTON_STYLES,
   CLAIM_STATUS_LABELS,
   VALID_CLAIM_TRANSITIONS,
 } from '../lib/constants';
@@ -67,7 +67,7 @@ export function ClaimStatusActions({ claimId, currentStatus }: ClaimStatusAction
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar alteracao de status</AlertDialogTitle>
+            <AlertDialogTitle>Confirmar alteração de status</AlertDialogTitle>
             <AlertDialogDescription>
               Deseja alterar o status do sinistro para{' '}
               <strong>{confirmingStatus ? CLAIM_STATUS_LABELS[confirmingStatus] : ''}</strong>?
@@ -99,10 +99,10 @@ function StatusTransitionButton({
   readonly targetStatus: ClaimStatus;
   readonly onClick: () => void;
 }) {
-  const colorClasses = CLAIM_STATUS_COLORS[targetStatus];
+  const { variant, className } = CLAIM_STATUS_BUTTON_STYLES[targetStatus];
 
   return (
-    <Button type="button" variant="outline" size="sm" onClick={onClick} className={colorClasses}>
+    <Button type="button" variant={variant} size="sm" onClick={onClick} className={className}>
       {CLAIM_STATUS_LABELS[targetStatus]}
     </Button>
   );

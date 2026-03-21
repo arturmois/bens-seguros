@@ -1,28 +1,28 @@
 import { z } from 'zod';
 
 export const assistanceFormSchema = z.object({
-  policyId: z.string({ required_error: 'Apolice e obrigatoria' }).min(1, 'Apolice e obrigatoria'),
-  clientId: z.string({ required_error: 'Cliente e obrigatorio' }).min(1, 'Cliente e obrigatorio'),
+  policyId: z.string({ required_error: 'Apólice é obrigatória' }).min(1, 'Apólice é obrigatória'),
+  clientId: z.string({ required_error: 'Cliente é obrigatório' }).min(1, 'Cliente é obrigatório'),
   claimId: z.string().optional().or(z.literal('')),
-  type: z.string({ required_error: 'Tipo e obrigatorio' }).min(1, 'Tipo e obrigatorio'),
+  type: z.string({ required_error: 'Tipo é obrigatório' }).min(1, 'Tipo é obrigatório'),
   description: z
     .string()
-    .max(2000, 'Descricao deve ter no maximo 2000 caracteres')
+    .max(2000, 'Descrição deve ter no máximo 2000 caracteres')
     .optional()
     .or(z.literal('')),
   address: z
     .string()
-    .max(500, 'Endereco deve ter no maximo 500 caracteres')
+    .max(500, 'Endereço deve ter no máximo 500 caracteres')
     .optional()
     .or(z.literal('')),
   providerName: z
     .string()
-    .max(200, 'Nome do prestador deve ter no maximo 200 caracteres')
+    .max(200, 'Nome do prestador deve ter no máximo 200 caracteres')
     .optional()
     .or(z.literal('')),
   providerPhone: z
     .string()
-    .max(20, 'Telefone deve ter no maximo 20 caracteres')
+    .max(20, 'Telefone deve ter no máximo 20 caracteres')
     .optional()
     .or(z.literal('')),
   scheduledAt: z.string().optional().or(z.literal('')),

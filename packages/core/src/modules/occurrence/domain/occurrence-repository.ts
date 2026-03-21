@@ -10,6 +10,7 @@ export interface OccurrenceData {
   metadata: JsonObject | null;
   createdBy: string | null;
   createdAt: Date;
+  createdByName?: string;
 }
 
 export interface CreateOccurrenceInput {

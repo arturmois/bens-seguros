@@ -10,6 +10,11 @@ import type {
 } from '../domain/proposal-repository.js';
 import { ProposalMapper } from './proposal-mapper.js';
 
+const PROPOSAL_INCLUDE = {
+  client: { select: { name: true } },
+  salesperson: { select: { name: true } },
+} satisfies Prisma.ProposalInclude;
+
 @injectable()
 export class PrismaProposalRepository implements ProposalRepository {
   constructor(@inject('PrismaClient') private readonly prisma: PrismaClient) {}
@@ -33,6 +38,7 @@ export class PrismaProposalRepository implements ProposalRepository {
   async findById(id: string, organizationId: string): Promise<Proposal | null> {
     const row = await this.prisma.proposal.findFirst({
       where: { id, organizationId, deletedAt: null },
+      include: PROPOSAL_INCLUDE,
     });
     return row ? ProposalMapper.toDomain(row) : null;
   }
@@ -55,6 +61,7 @@ export class PrismaProposalRepository implements ProposalRepository {
     const [rows, total] = await Promise.all([
       this.prisma.proposal.findMany({
         where,
+        include: PROPOSAL_INCLUDE,
         take: page.limit + 1,
         ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
         orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],

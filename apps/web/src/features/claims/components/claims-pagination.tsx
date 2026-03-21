@@ -20,7 +20,7 @@ export function ClaimsPagination({
   onPrevious,
 }: ClaimsPaginationProps) {
   return (
-    <nav aria-label="Paginacao de sinistros" className="flex items-center justify-between">
+    <nav aria-label="Paginação de sinistros" className="flex items-center justify-between">
       <p className="text-muted-foreground text-sm">
         {total} {total === 1 ? 'sinistro' : 'sinistros'} no total
       </p>
@@ -30,7 +30,7 @@ export function ClaimsPagination({
           Anterior
         </Button>
         <Button variant="outline" size="sm" onClick={onNext} disabled={!hasNextPage}>
-          Proximo
+          Próximo
           <ChevronRight className="ml-1 h-4 w-4" />
         </Button>
       </div>

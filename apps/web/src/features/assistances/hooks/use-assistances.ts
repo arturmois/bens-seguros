@@ -65,10 +65,10 @@ export function useCreateAssistance() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [ASSISTANCES_KEY] });
-      toast.success('Assistencia registrada com sucesso');
+      toast.success('Assistência registrada com sucesso');
     },
     onError: () => {
-      toast.error('Erro ao registrar assistencia');
+      toast.error('Erro ao registrar assistência');
     },
   });
 }
@@ -86,10 +86,10 @@ export function useUpdateAssistanceStatus() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: [ASSISTANCES_KEY] });
       queryClient.invalidateQueries({ queryKey: [ASSISTANCE_KEY, variables.id] });
-      toast.success('Status da assistencia atualizado com sucesso');
+      toast.success('Status da assistência atualizado com sucesso');
     },
     onError: () => {
-      toast.error('Erro ao atualizar status da assistencia');
+      toast.error('Erro ao atualizar status da assistência');
     },
   });
 }
