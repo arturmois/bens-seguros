@@ -1,0 +1,56 @@
+FROM node:22-alpine AS base
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+
+# --- DEPS ---
+FROM base AS deps
+WORKDIR /app
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/server/package.json apps/server/
+COPY apps/worker/package.json apps/worker/
+COPY packages/core/package.json packages/core/
+COPY packages/db/package.json packages/db/
+COPY packages/env/package.json packages/env/
+COPY packages/shared/package.json packages/shared/
+COPY packages/auth/package.json packages/auth/
+COPY config/typescript-config/package.json config/typescript-config/
+RUN pnpm install --frozen-lockfile
+
+# --- BUILD ---
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/server/node_modules ./apps/server/node_modules
+COPY . .
+
+# Prisma generate (cria client no node_modules)
+RUN cd packages/db && pnpm exec prisma generate
+
+# tsup bundla app + packages internos
+RUN cd apps/server && pnpm build
+
+# --- PRODUCTION DEPS ---
+FROM base AS prod-deps
+WORKDIR /app
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/server/package.json apps/server/
+COPY packages/db/package.json packages/db/
+RUN pnpm install --frozen-lockfile --prod
+
+# --- RUNNER ---
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+
+# Apenas deps externas de producao
+COPY --from=prod-deps /app/node_modules ./node_modules
+COPY --from=prod-deps /app/apps/server/node_modules ./apps/server/node_modules
+
+# Prisma client gerado
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/packages/db/prisma ./prisma
+
+# dist/ bundlado (contem app + packages internos)
+COPY --from=builder /app/apps/server/dist ./dist
+
+EXPOSE 3001
+CMD ["node", "dist/server.js"]
