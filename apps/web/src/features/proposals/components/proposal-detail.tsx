@@ -1,0 +1,170 @@
+'use client';
+
+import { useState } from 'react';
+import { ArrowLeft, ChevronRight, Loader2, RotateCcw, XCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
+
+import { useAdvanceProposal, useProposal, useRevertProposal } from '../hooks/use-proposals';
+import { BOARD_TYPE_LABELS, BRANCH_LABELS, STAGE_BADGE_VARIANT, STAGE_LABELS } from '../types';
+import { formatCurrency, formatDate } from '../lib/formatters';
+import { LostReasonDialog } from './lost-reason-dialog';
+
+interface ProposalDetailProps {
+  proposalId: string;
+}
+
+export function ProposalDetail({ proposalId }: ProposalDetailProps) {
+  const router = useRouter();
+  const { data, isLoading, isError } = useProposal(proposalId);
+  const advanceMutation = useAdvanceProposal();
+  const revertMutation = useRevertProposal();
+  const [showLostDialog, setShowLostDialog] = useState(false);
+
+  if (isLoading) {
+    return <DetailSkeleton />;
+  }
+
+  if (isError || !data?.data) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <p className="text-destructive text-sm">Erro ao carregar proposta.</p>
+        <Button variant="outline" className="mt-4" onClick={() => router.back()}>
+          Voltar
+        </Button>
+      </div>
+    );
+  }
+
+  const proposal = data.data;
+  const canAdvance = proposal.stage !== 'POLICY_ISSUED' && proposal.stage !== 'LOST';
+  const canRevert =
+    proposal.stage !== 'CAPTURE' && proposal.stage !== 'LOST' && proposal.stage !== 'POLICY_ISSUED';
+  const canMarkLost = proposal.stage !== 'LOST' && proposal.stage !== 'POLICY_ISSUED';
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="sm" onClick={() => router.push('/proposals')}>
+          <ArrowLeft className="mr-1 h-4 w-4" />
+          Voltar
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3">
+        <Badge variant={STAGE_BADGE_VARIANT[proposal.stage]} className="px-3 py-1 text-sm">
+          {STAGE_LABELS[proposal.stage]}
+        </Badge>
+        <Badge variant="outline">{BRANCH_LABELS[proposal.branch]}</Badge>
+        <Badge variant="secondary">{BOARD_TYPE_LABELS[proposal.boardType]}</Badge>
+      </div>
+
+      <Separator />
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <InfoItem label="Cliente" value={proposal.clientId} />
+        <InfoItem label="Vendedor" value={proposal.salespersonId} />
+        <InfoItem label="Valor do Prêmio" value={formatCurrency(proposal.premiumValueInCents)} />
+        <InfoItem
+          label="Comissão"
+          value={`${(proposal.commissionPercentageInCents / 100).toFixed(2)}%`}
+        />
+        <InfoItem label="Criado em" value={formatDate(proposal.createdAt)} />
+        <InfoItem label="Atualizado em" value={formatDate(proposal.updatedAt)} />
+      </div>
+
+      {proposal.stage === 'LOST' && proposal.lostReason && (
+        <>
+          <Separator />
+          <div className="bg-destructive/10 rounded-md p-4">
+            <p className="text-destructive text-sm font-medium">Motivo da Perda</p>
+            <p className="mt-1 text-sm">{proposal.lostReason}</p>
+          </div>
+        </>
+      )}
+
+      <Separator />
+
+      <div className="flex flex-wrap gap-3">
+        {canAdvance && (
+          <Button
+            onClick={() => advanceMutation.mutate(proposalId)}
+            disabled={advanceMutation.isPending}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            {advanceMutation.isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <ChevronRight className="mr-2 h-4 w-4" />
+            )}
+            Avançar Estágio
+          </Button>
+        )}
+        {canRevert && (
+          <Button
+            variant="outline"
+            onClick={() => revertMutation.mutate(proposalId)}
+            disabled={revertMutation.isPending}
+          >
+            {revertMutation.isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <RotateCcw className="mr-2 h-4 w-4" />
+            )}
+            Reverter
+          </Button>
+        )}
+        {canMarkLost && (
+          <Button variant="destructive" onClick={() => setShowLostDialog(true)}>
+            <XCircle className="mr-2 h-4 w-4" />
+            Marcar como Perda
+          </Button>
+        )}
+      </div>
+
+      <LostReasonDialog
+        proposalId={showLostDialog ? proposalId : null}
+        onClose={() => setShowLostDialog(false)}
+      />
+    </div>
+  );
+}
+
+interface InfoItemProps {
+  label: string;
+  value: string;
+}
+
+function InfoItem({ label, value }: InfoItemProps) {
+  return (
+    <div>
+      <p className="text-muted-foreground text-xs">{label}</p>
+      <p className="text-sm font-medium">{value}</p>
+    </div>
+  );
+}
+
+function DetailSkeleton() {
+  return (
+    <div className="space-y-6">
+      <Skeleton className="h-8 w-48" />
+      <div className="flex gap-2">
+        <Skeleton className="h-6 w-24" />
+        <Skeleton className="h-6 w-20" />
+      </div>
+      <Skeleton className="h-px w-full" />
+      <div className="grid gap-4 sm:grid-cols-2">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={`detail-skel-${String(i)}`} className="space-y-1">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-5 w-32" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

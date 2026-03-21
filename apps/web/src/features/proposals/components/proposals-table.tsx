@@ -1,0 +1,282 @@
+'use client';
+
+import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Loader2, Plus, Search } from 'lucide-react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { useDebounce } from '@/hooks/use-debounce';
+
+import { useAdvanceProposal, useProposals, useRevertProposal } from '../hooks/use-proposals';
+import type { BoardType, ProposalData, ProposalStage } from '../types';
+import {
+  BOARD_TYPE_LABELS,
+  BRANCH_LABELS,
+  STAGE_BADGE_VARIANT,
+  STAGE_LABELS,
+  STAGES,
+} from '../types';
+import { formatCurrency, formatDate } from '../lib/formatters';
+import { LostReasonDialog } from './lost-reason-dialog';
+
+const ALL_VALUE = '__all__';
+
+export function ProposalsTable() {
+  const router = useRouter();
+  const [search, setSearch] = useState('');
+  const [stageFilter, setStageFilter] = useState<string>(ALL_VALUE);
+  const [boardTypeFilter, setBoardTypeFilter] = useState<string>(ALL_VALUE);
+  const [cursor, setCursor] = useState<string | undefined>(undefined);
+  const [lostDialogProposalId, setLostDialogProposalId] = useState<string | null>(null);
+
+  const debouncedSearch = useDebounce(search, 300);
+
+  const filters = {
+    search: debouncedSearch || undefined,
+    stage: stageFilter !== ALL_VALUE ? (stageFilter as ProposalStage) : undefined,
+    boardType: boardTypeFilter !== ALL_VALUE ? (boardTypeFilter as BoardType) : undefined,
+    cursor,
+    limit: 20,
+  };
+
+  const { data, isLoading, isError } = useProposals(filters);
+  const advanceMutation = useAdvanceProposal();
+  const revertMutation = useRevertProposal();
+
+  const handleRowClick = useCallback(
+    (id: string) => {
+      router.push(`/proposals/${id}`);
+    },
+    [router],
+  );
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <p className="text-destructive text-sm">Erro ao carregar propostas. Tente novamente.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative min-w-[200px] flex-1">
+          <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+          <Input
+            placeholder="Buscar propostas..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCursor(undefined);
+            }}
+            className="pl-9"
+          />
+        </div>
+        <Select
+          value={stageFilter}
+          onValueChange={(v) => {
+            if (v !== null) {
+              setStageFilter(v);
+              setCursor(undefined);
+            }
+          }}
+        >
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Estágio" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_VALUE}>Todos</SelectItem>
+            {STAGES.map((s) => (
+              <SelectItem key={s} value={s}>
+                {STAGE_LABELS[s]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          value={boardTypeFilter}
+          onValueChange={(v) => {
+            if (v !== null) {
+              setBoardTypeFilter(v);
+              setCursor(undefined);
+            }
+          }}
+        >
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Tipo" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_VALUE}>Todos</SelectItem>
+            <SelectItem value="NEW_INSURANCE">Novo Seguro</SelectItem>
+            <SelectItem value="RENEWAL">Renovação</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button onClick={() => router.push('/proposals/new')}>
+          <Plus className="mr-2 h-4 w-4" />
+          Nova Proposta
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <TableSkeleton />
+      ) : (
+        <>
+          {!data?.data.length ? (
+            <EmptyState />
+          ) : (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Cliente</TableHead>
+                    <TableHead>Ramo</TableHead>
+                    <TableHead>Estágio</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead className="text-right">Valor</TableHead>
+                    <TableHead>Criado em</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.data.map((proposal: ProposalData) => (
+                    <TableRow
+                      key={proposal.id}
+                      className="cursor-pointer"
+                      onClick={() => handleRowClick(proposal.id)}
+                    >
+                      <TableCell className="font-medium">{proposal.clientId}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{BRANCH_LABELS[proposal.branch]}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={STAGE_BADGE_VARIANT[proposal.stage]}>
+                          {STAGE_LABELS[proposal.stage]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{BOARD_TYPE_LABELS[proposal.boardType]}</TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(proposal.premiumValueInCents)}
+                      </TableCell>
+                      <TableCell>{formatDate(proposal.createdAt)}</TableCell>
+                      <TableCell className="text-right">
+                        <div
+                          className="flex justify-end gap-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <ActionButtons
+                            proposalId={proposal.id}
+                            stage={proposal.stage}
+                            onAdvance={() => advanceMutation.mutate(proposal.id)}
+                            onRevert={() => revertMutation.mutate(proposal.id)}
+                            onLost={() => setLostDialogProposalId(proposal.id)}
+                            isAdvancing={advanceMutation.isPending}
+                            isReverting={revertMutation.isPending}
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+          {data?.meta.hasMore && (
+            <div className="flex justify-center">
+              <Button
+                variant="outline"
+                onClick={() => setCursor(data.meta.nextCursor ?? undefined)}
+              >
+                Carregar mais
+              </Button>
+            </div>
+          )}
+        </>
+      )}
+
+      <LostReasonDialog
+        proposalId={lostDialogProposalId}
+        onClose={() => setLostDialogProposalId(null)}
+      />
+    </div>
+  );
+}
+
+interface ActionButtonsProps {
+  proposalId: string;
+  stage: ProposalStage;
+  onAdvance: () => void;
+  onRevert: () => void;
+  onLost: () => void;
+  isAdvancing: boolean;
+  isReverting: boolean;
+}
+
+function ActionButtons({
+  stage,
+  onAdvance,
+  onRevert,
+  onLost,
+  isAdvancing,
+  isReverting,
+}: ActionButtonsProps) {
+  const canAdvance = stage !== 'POLICY_ISSUED' && stage !== 'LOST';
+  const canRevert = stage !== 'CAPTURE' && stage !== 'LOST' && stage !== 'POLICY_ISSUED';
+  const canMarkLost = stage !== 'LOST' && stage !== 'POLICY_ISSUED';
+
+  return (
+    <>
+      {canAdvance && (
+        <Button size="sm" variant="outline" onClick={onAdvance} disabled={isAdvancing}>
+          {isAdvancing ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Avançar'}
+        </Button>
+      )}
+      {canRevert && (
+        <Button size="sm" variant="outline" onClick={onRevert} disabled={isReverting}>
+          {isReverting ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Reverter'}
+        </Button>
+      )}
+      {canMarkLost && (
+        <Button size="sm" variant="destructive" onClick={onLost}>
+          Perda
+        </Button>
+      )}
+    </>
+  );
+}
+
+function TableSkeleton() {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Skeleton key={`skeleton-${String(i)}`} className="h-12 w-full" />
+      ))}
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <p className="text-muted-foreground text-sm">Nenhuma proposta encontrada.</p>
+    </div>
+  );
+}
