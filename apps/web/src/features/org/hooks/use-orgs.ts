@@ -6,15 +6,22 @@ import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { setActiveOrgCookie, getActiveOrgCookie } from '@/lib/org-cookie';
+import type { Role } from '@repo/auth/roles';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+
+const VALID_ROLES = new Set<string>(['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER']);
+
+function isRole(value: unknown): value is Role {
+  return typeof value === 'string' && VALID_ROLES.has(value);
+}
 
 export interface Org {
   id: string;
   name: string;
   slug: string;
   logo: string | null;
-  role: string;
+  role: Role;
 }
 
 interface TenantResponseData {
@@ -59,13 +66,18 @@ export function useOrgs() {
         return [];
       }
 
-      return body.data.map((org) => ({
-        id: org.id,
-        name: org.name,
-        slug: org.slug,
-        logo: org.logo ?? null,
-        role: org.role,
-      }));
+      const orgs: Org[] = [];
+      for (const item of body.data) {
+        if (!isRole(item.role)) continue;
+        orgs.push({
+          id: item.id,
+          name: item.name,
+          slug: item.slug,
+          logo: item.logo ?? null,
+          role: item.role,
+        });
+      }
+      return orgs;
     },
     enabled: isAuthenticated,
   });

@@ -3,9 +3,9 @@ import type { Role } from '@repo/auth/roles';
 
 declare module 'fastify' {
   interface FastifyRequest {
-    user: AuthUser;
-    session: AuthSession;
-    organizationId: string;
-    role: Role;
+    user?: AuthUser;
+    session?: AuthSession;
+    organizationId?: string;
+    role?: Role;
   }
 }

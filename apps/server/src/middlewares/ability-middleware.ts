@@ -1,7 +1,12 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import { defineAbilitiesFor, type AppAbility } from '@repo/auth/abilities';
+import {
+  defineAbilitiesFor,
+  type AppAbility,
+  type Action,
+  type Subject,
+} from '@repo/auth/abilities';
 
-export function requireAbility(action: string, subject: string) {
+export function requireAbility(action: Action, subject: Subject) {
   return async function abilityGuard(request: FastifyRequest, reply: FastifyReply) {
     const { role } = request;
 
@@ -14,7 +19,7 @@ export function requireAbility(action: string, subject: string) {
 
     const ability: AppAbility = defineAbilitiesFor(role);
 
-    if (!ability.can(action as never, subject as never)) {
+    if (!ability.can(action, subject)) {
       return reply.status(403).send({
         success: false,
         error: {

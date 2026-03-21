@@ -8,8 +8,17 @@ function isSuperAdmin(user: object): boolean {
 
 export function createAuthMiddleware(auth: Auth) {
   return async function authMiddleware(request: FastifyRequest, reply: FastifyReply) {
+    const headers: Record<string, string> = {};
+    for (const [key, value] of Object.entries(request.headers)) {
+      if (typeof value === 'string') {
+        headers[key] = value;
+      } else if (Array.isArray(value)) {
+        headers[key] = value.join(', ');
+      }
+    }
+
     const session = await auth.api.getSession({
-      headers: request.headers as Record<string, string>,
+      headers,
     });
 
     if (!session) {

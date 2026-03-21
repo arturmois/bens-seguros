@@ -11,6 +11,13 @@ export async function tenantMiddleware(request: FastifyRequest, reply: FastifyRe
     });
   }
 
+  if (!request.user) {
+    return reply.status(401).send({
+      success: false,
+      error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
+    });
+  }
+
   const member = await prisma.member.findUnique({
     where: {
       organizationId_userId: {

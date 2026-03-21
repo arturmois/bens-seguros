@@ -1,8 +1,8 @@
 import { AbilityBuilder, createMongoAbility, type MongoAbility } from '@casl/ability';
 import type { Role } from './roles.js';
 
-type Action = 'manage' | 'create' | 'read' | 'update' | 'delete' | 'approve';
-type Subject =
+export type Action = 'manage' | 'create' | 'read' | 'update' | 'delete' | 'approve';
+export type Subject =
   | 'all'
   | 'User'
   | 'Organization'

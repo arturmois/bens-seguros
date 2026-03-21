@@ -22,9 +22,17 @@ const tenantResponseSchema = z.object({
       name: z.string(),
       slug: z.string(),
       logo: z.string().nullable(),
-      role: z.string(),
+      role: z.enum(['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER']),
     }),
   ),
+});
+
+const errorResponseSchema = z.object({
+  success: z.literal(false),
+  error: z.object({
+    code: z.string(),
+    message: z.string(),
+  }),
 });
 
 export async function tenantRoutes(app: FastifyInstance) {
@@ -34,10 +42,18 @@ export async function tenantRoutes(app: FastifyInstance) {
       schema: {
         response: {
           200: tenantResponseSchema,
+          401: errorResponseSchema,
         },
       },
     },
-    async (request) => {
+    async (request, reply) => {
+      if (!request.user) {
+        return reply.status(401).send({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
+        });
+      }
+
       const members: MemberWithOrganization[] = await prisma.member.findMany({
         where: { userId: request.user.id, active: true },
         include: { organization: true },
