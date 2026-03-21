@@ -102,12 +102,8 @@ function StatusTransitionButton({
   const colorClasses = CLAIM_STATUS_COLORS[targetStatus];
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`cursor-pointer rounded-md px-3 py-2 text-sm font-medium transition-opacity duration-200 hover:opacity-80 ${colorClasses}`}
-    >
+    <Button type="button" variant="outline" size="sm" onClick={onClick} className={colorClasses}>
       {CLAIM_STATUS_LABELS[targetStatus]}
-    </button>
+    </Button>
   );
 }

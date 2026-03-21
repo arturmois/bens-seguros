@@ -51,14 +51,16 @@ export function AssistanceStatusActions({
       <h3 className="text-sm font-medium">Alterar Status</h3>
       <div className="flex flex-wrap gap-2">
         {allowedTransitions.map((targetStatus) => (
-          <button
+          <Button
             key={targetStatus}
             type="button"
+            variant="outline"
+            size="sm"
             onClick={() => setConfirmingStatus(targetStatus)}
-            className={`cursor-pointer rounded-md px-3 py-2 text-sm font-medium transition-opacity duration-200 hover:opacity-80 ${ASSISTANCE_STATUS_COLORS[targetStatus]}`}
+            className={ASSISTANCE_STATUS_COLORS[targetStatus]}
           >
             {ASSISTANCE_STATUS_LABELS[targetStatus]}
-          </button>
+          </Button>
         ))}
       </div>
 
