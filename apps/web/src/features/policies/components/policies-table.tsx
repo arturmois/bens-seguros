@@ -8,13 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Menu, MenuPopup, MenuItem, MenuTrigger } from '@/components/ui/menu';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { NativeSelect } from '@/components/ui/native-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -74,27 +68,20 @@ export function PoliciesTable() {
             className="pl-9"
           />
         </div>
-        <Select
+        <NativeSelect
+          className="w-40"
           value={statusFilter}
-          onValueChange={(v) => {
-            if (v !== null) {
-              setStatusFilter(v as PolicyStatus | 'ALL');
-              setCursor(undefined);
-            }
+          onChange={(e) => {
+            const val = e.target.value;
+            const validStatuses: readonly string[] = POLICY_STATUSES;
+            setStatusFilter(validStatuses.includes(val) ? (val as PolicyStatus) : 'ALL');
+            setCursor(undefined);
           }}
-        >
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">Todos</SelectItem>
-            {POLICY_STATUSES.map((s) => (
-              <SelectItem key={s} value={s}>
-                {POLICY_STATUS_LABELS[s]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          options={[
+            { value: 'ALL', label: 'Todos' },
+            ...POLICY_STATUSES.map((s) => ({ value: s, label: POLICY_STATUS_LABELS[s] })),
+          ]}
+        />
       </div>
 
       {isLoading ? (

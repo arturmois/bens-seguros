@@ -4,17 +4,11 @@ import { Plus, Search } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { NativeSelect } from '@/components/ui/native-select';
 
 import { TYPE_OPTIONS } from '../lib/constants';
 
-const TYPE_FILTER_OPTIONS = [{ value: 'ALL', label: 'Todos' }, ...TYPE_OPTIONS] as const;
+const TYPE_FILTER_OPTIONS = [{ value: 'ALL', label: 'Todos' }, ...TYPE_OPTIONS];
 
 interface ClientsToolbarProps {
   readonly search: string;
@@ -43,23 +37,12 @@ export function ClientsToolbar({
             className="pl-9"
           />
         </div>
-        <Select
+        <NativeSelect
+          className="w-40"
+          options={TYPE_FILTER_OPTIONS}
           value={typeFilter}
-          onValueChange={(v) => {
-            if (v !== null) onTypeFilterChange(v);
-          }}
-        >
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {TYPE_FILTER_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          onChange={(e) => onTypeFilterChange(e.target.value)}
+        />
       </div>
       <Button onClick={onNewClient}>
         <Plus className="mr-2 h-4 w-4" />

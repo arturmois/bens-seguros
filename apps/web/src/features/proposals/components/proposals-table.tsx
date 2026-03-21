@@ -7,13 +7,7 @@ import { Plus, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { NativeSelect } from '@/components/ui/native-select';
 import {
   Table,
   TableBody,
@@ -93,48 +87,30 @@ export function ProposalsTable() {
             className="pl-9"
           />
         </div>
-        <Select
+        <NativeSelect
+          className="w-[160px]"
           value={stageFilter}
-          onValueChange={(v) => {
-            if (v !== null) {
-              setStageFilter(v);
-              setCursor(undefined);
-            }
+          onChange={(e) => {
+            setStageFilter(e.target.value);
+            setCursor(undefined);
           }}
-        >
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="Estágio" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL_VALUE}>Todos</SelectItem>
-            {STAGES.map((s) => (
-              <SelectItem key={s} value={s}>
-                {STAGE_LABELS[s]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
+          options={[
+            { value: ALL_VALUE, label: 'Todos' },
+            ...STAGES.map((s) => ({ value: s, label: STAGE_LABELS[s] })),
+          ]}
+        />
+        <NativeSelect
+          className="w-[160px]"
           value={boardTypeFilter}
-          onValueChange={(v) => {
-            if (v !== null) {
-              setBoardTypeFilter(v);
-              setCursor(undefined);
-            }
+          onChange={(e) => {
+            setBoardTypeFilter(e.target.value);
+            setCursor(undefined);
           }}
-        >
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="Tipo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL_VALUE}>Todos</SelectItem>
-            {BOARD_TYPES.map((bt) => (
-              <SelectItem key={bt} value={bt}>
-                {BOARD_TYPE_LABELS[bt]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          options={[
+            { value: ALL_VALUE, label: 'Todos' },
+            ...BOARD_TYPES.map((bt) => ({ value: bt, label: BOARD_TYPE_LABELS[bt] })),
+          ]}
+        />
         <Button onClick={() => router.push('/proposals/new')}>
           <Plus className="mr-2 h-4 w-4" />
           Nova Proposta
