@@ -10,3 +10,4 @@ export * from './modules/occurrence/index.js';
 export * from './modules/endorsement/index.js';
 export * from './modules/assistance/index.js';
 export * from './modules/document/index.js';
+export * from './modules/commission/index.js';

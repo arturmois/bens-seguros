@@ -1,6 +1,8 @@
 import { injectable, inject } from 'tsyringe';
 import { randomUUID } from 'node:crypto';
-import type { PolicyRepository, PolicyData, CoverageDetails } from '../domain/policy-repository.js';
+
+import type { OnPolicyIssued } from '../../commission/application/on-policy-issued.js';
+import type { CoverageDetails, PolicyData, PolicyRepository } from '../domain/policy-repository.js';
 import type { ProposalRepository } from '../../proposal/domain/proposal-repository.js';
 import { ProposalErrors } from '../../proposal/domain/proposal-errors.js';
 import { PolicyErrors } from '../domain/policy-errors.js';
@@ -19,6 +21,7 @@ export class IssuePolicy {
   constructor(
     @inject('PolicyRepository') private readonly policyRepo: PolicyRepository,
     @inject('ProposalRepository') private readonly proposalRepo: ProposalRepository,
+    @inject('OnPolicyIssued') private readonly onPolicyIssued: OnPolicyIssued,
   ) {}
 
   async execute(dto: IssuePolicyDTO): Promise<PolicyData> {
@@ -31,7 +34,7 @@ export class IssuePolicy {
       throw PolicyErrors.notIssuable(dto.proposalId);
     }
 
-    return this.policyRepo.create({
+    const policy = await this.policyRepo.create({
       id: randomUUID(),
       organizationId: dto.organizationId,
       proposalId: dto.proposalId,
@@ -45,5 +48,15 @@ export class IssuePolicy {
       startDate: dto.startDate,
       endDate: dto.endDate,
     });
+
+    await this.onPolicyIssued.execute({
+      organizationId: dto.organizationId,
+      policyId: policy.id,
+      salespersonId: proposal.salespersonId,
+      premiumValueInCents: proposal.premiumValueInCents,
+      commissionPercentageInBasisPoints: proposal.commissionPercentageInCents,
+    });
+
+    return policy;
   }
 }
