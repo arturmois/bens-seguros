@@ -33,6 +33,7 @@ export { RevertProposalStage } from './application/revert-proposal-stage.js';
 export { MarkProposalLost } from './application/mark-proposal-lost.js';
 export { ListProposals } from './application/list-proposals.js';
 export { GetProposal } from './application/get-proposal.js';
+export { UpdateProposalDetails } from './application/update-proposal-details.js';
 
 // Infrastructure
 export { ProposalMapper } from './infrastructure/proposal-mapper.js';

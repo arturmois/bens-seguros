@@ -13,6 +13,10 @@ export class AdvanceProposalStage {
       throw ProposalErrors.notFound(proposalId);
     }
 
+    if (proposal.stage === 'QUOTE' && !proposal.details) {
+      throw ProposalErrors.detailsRequired(proposalId);
+    }
+
     proposal.advance();
     await this.proposalRepo.save(proposal);
 

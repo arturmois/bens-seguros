@@ -15,6 +15,7 @@ import {
   MarkProposalLost,
   ListProposals,
   GetProposal,
+  UpdateProposalDetails,
   IssuePolicy,
   ListPolicies,
   GetPolicy,
@@ -49,6 +50,9 @@ export function registerDependencies() {
   });
   container.register(ListProposals, { useFactory: () => new ListProposals(proposalRepo) });
   container.register(GetProposal, { useFactory: () => new GetProposal(proposalRepo) });
+  container.register(UpdateProposalDetails, {
+    useFactory: () => new UpdateProposalDetails(proposalRepo),
+  });
 
   container.register(IssuePolicy, {
     useFactory: () => new IssuePolicy(policyRepo, proposalRepo),
