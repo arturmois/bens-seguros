@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import { setActiveOrgCookie, clearActiveOrgCookie } from '@/lib/org-cookie';
 
@@ -17,7 +17,6 @@ async function fetchSession() {
 
 export function useAuth() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
 
   const session = useQuery({
@@ -27,10 +26,17 @@ export function useAuth() {
   });
 
   const login = useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) =>
-      authClient.signIn.email({ email, password }),
+    mutationFn: ({
+      email,
+      password,
+      invitationId,
+    }: {
+      email: string;
+      password: string;
+      invitationId?: string;
+    }) => authClient.signIn.email({ email, password }).then((res) => ({ ...res, invitationId })),
     onSuccess: async (response) => {
-      const invitationId = searchParams.get('invitationId');
+      const invitationId = response.invitationId;
 
       if (invitationId) {
         await handleInvitationAfterLogin(invitationId);
@@ -52,10 +58,20 @@ export function useAuth() {
   });
 
   const register = useMutation({
-    mutationFn: ({ email, password, name }: { email: string; password: string; name: string }) =>
-      authClient.signUp.email({ email, password, name }),
-    onSuccess: async () => {
-      const invitationId = searchParams.get('invitationId');
+    mutationFn: ({
+      email,
+      password,
+      name,
+      invitationId,
+    }: {
+      email: string;
+      password: string;
+      name: string;
+      invitationId?: string;
+    }) =>
+      authClient.signUp.email({ email, password, name }).then((res) => ({ ...res, invitationId })),
+    onSuccess: async (response) => {
+      const invitationId = response.invitationId;
 
       if (invitationId) {
         await handleInvitationAfterLogin(invitationId);

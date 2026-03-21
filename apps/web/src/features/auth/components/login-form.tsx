@@ -8,6 +8,7 @@ import { useAuth } from '@/features/auth/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useSearchParams } from 'next/navigation';
 
 const loginSchema = z.object({
   email: z.string().email('Email invalido'),
@@ -18,14 +19,19 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
   const { login } = useAuth();
+  const searchParams = useSearchParams();
+  const invitationId = searchParams.get('invitationId') ?? undefined;
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
   const onSubmit = (data: LoginFormData) => {
-    login.mutate(data, {
-      onError: () => toast.error('Email ou senha incorretos'),
-    });
+    login.mutate(
+      { ...data, invitationId },
+      {
+        onError: () => toast.error('Email ou senha incorretos'),
+      },
+    );
   };
 
   return (

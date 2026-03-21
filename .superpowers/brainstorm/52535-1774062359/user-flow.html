@@ -1,0 +1,106 @@
+<h2>Fluxo do Usuário - Organização</h2>
+<p class="subtitle">Arquitetura dos fluxos de entrada no sistema</p>
+
+<div class="section">
+  <h3>Fluxo 1: Novo Usuário (sem convite)</h3>
+  <div class="mockup">
+    <div class="mockup-header">Registro → Onboarding → Dashboard</div>
+    <div class="mockup-body" style="padding: 24px; font-family: system-ui;">
+      <div style="display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap;">
+        <div style="background: #0d4f4f; color: white; border-radius: 8px; padding: 16px 20px; text-align: center; min-width: 140px;">
+          <div style="font-size: 13px; opacity: 0.7;">Passo 1</div>
+          <div style="font-weight: 600; margin-top: 4px;">/register</div>
+          <div style="font-size: 12px; margin-top: 6px;">Nome, Email, Senha</div>
+        </div>
+        <div style="font-size: 24px; color: #999;">→</div>
+        <div style="background: #0d4f4f; color: white; border-radius: 8px; padding: 16px 20px; text-align: center; min-width: 140px;">
+          <div style="font-size: 13px; opacity: 0.7;">Passo 2</div>
+          <div style="font-weight: 600; margin-top: 4px;">/onboarding</div>
+          <div style="font-size: 12px; margin-top: 6px;">Nome da Org, Slug</div>
+        </div>
+        <div style="font-size: 24px; color: #999;">→</div>
+        <div style="background: #1a7a5a; color: white; border-radius: 8px; padding: 16px 20px; text-align: center; min-width: 140px;">
+          <div style="font-size: 13px; opacity: 0.7;">Pronto</div>
+          <div style="font-weight: 600; margin-top: 4px;">/dashboard</div>
+          <div style="font-size: 12px; margin-top: 6px;">Org ativa, role OWNER</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Fluxo 2: Usuário Convidado</h3>
+  <div class="mockup">
+    <div class="mockup-header">Email → Registro/Login → Aceitar → Dashboard</div>
+    <div class="mockup-body" style="padding: 24px; font-family: system-ui;">
+      <div style="display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap;">
+        <div style="background: #6b5b95; color: white; border-radius: 8px; padding: 16px 20px; text-align: center; min-width: 140px;">
+          <div style="font-size: 13px; opacity: 0.7;">Email</div>
+          <div style="font-weight: 600; margin-top: 4px;">Convite</div>
+          <div style="font-size: 12px; margin-top: 6px;">Link com invitationId</div>
+        </div>
+        <div style="font-size: 24px; color: #999;">→</div>
+        <div style="background: #0d4f4f; color: white; border-radius: 8px; padding: 16px 20px; text-align: center; min-width: 140px;">
+          <div style="font-size: 13px; opacity: 0.7;">Se não tem conta</div>
+          <div style="font-weight: 600; margin-top: 4px;">/register</div>
+          <div style="font-size: 12px; margin-top: 6px;">Ou /login se já tem</div>
+        </div>
+        <div style="font-size: 24px; color: #999;">→</div>
+        <div style="background: #6b5b95; color: white; border-radius: 8px; padding: 16px 20px; text-align: center; min-width: 140px;">
+          <div style="font-size: 13px; opacity: 0.7;">Auto</div>
+          <div style="font-weight: 600; margin-top: 4px;">Aceita invite</div>
+          <div style="font-size: 12px; margin-top: 6px;">Member criado</div>
+        </div>
+        <div style="font-size: 24px; color: #999;">→</div>
+        <div style="background: #1a7a5a; color: white; border-radius: 8px; padding: 16px 20px; text-align: center; min-width: 140px;">
+          <div style="font-size: 13px; opacity: 0.7;">Pronto</div>
+          <div style="font-weight: 600; margin-top: 4px;">/dashboard</div>
+          <div style="font-size: 12px; margin-top: 6px;">Org do convite ativa</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Fluxo 3: Login com Múltiplas Orgs</h3>
+  <div class="mockup">
+    <div class="mockup-header">Login → Verificação → Dashboard ou Seleção</div>
+    <div class="mockup-body" style="padding: 24px; font-family: system-ui;">
+      <div style="display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap;">
+        <div style="background: #0d4f4f; color: white; border-radius: 8px; padding: 16px 20px; text-align: center; min-width: 140px;">
+          <div style="font-size: 13px; opacity: 0.7;">Passo 1</div>
+          <div style="font-weight: 600; margin-top: 4px;">/login</div>
+          <div style="font-size: 12px; margin-top: 6px;">Email + Senha</div>
+        </div>
+        <div style="font-size: 24px; color: #999;">→</div>
+        <div style="background: #d4a843; color: #333; border-radius: 8px; padding: 16px 20px; text-align: center; min-width: 180px;">
+          <div style="font-size: 13px; opacity: 0.7;">Decisão</div>
+          <div style="font-weight: 600; margin-top: 4px;">Última org válida?</div>
+          <div style="font-size: 12px; margin-top: 6px;">Checa session anterior</div>
+        </div>
+        <div style="font-size: 24px; color: #999;">→</div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="background: #1a7a5a; color: white; border-radius: 8px; padding: 10px 16px; text-align: center; font-size: 13px;">
+            <strong>SIM:</strong> / (dashboard direto)
+          </div>
+          <div style="background: #c0392b; color: white; border-radius: 8px; padding: 10px 16px; text-align: center; font-size: 13px;">
+            <strong>NÃO:</strong> /select-org
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 24px; padding: 16px; background: #f8f8f8; border-radius: 8px; border-left: 4px solid #0d4f4f;">
+  <h3 style="margin-top: 0;">Regras de Redirecionamento (proxy.ts)</h3>
+  <ul style="font-size: 14px; line-height: 1.8;">
+    <li><strong>Sem sessão</strong> → /login (já implementado)</li>
+    <li><strong>Com sessão, sem org ativa, sem orgs</strong> → /onboarding</li>
+    <li><strong>Com sessão, sem org ativa, com orgs</strong> → /select-org</li>
+    <li><strong>Com sessão, org ativa válida</strong> → acesso normal</li>
+    <li><strong>/onboarding e /select-org</strong> → rotas protegidas (requer sessão)</li>
+  </ul>
+</div>

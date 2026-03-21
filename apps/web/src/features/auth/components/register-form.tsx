@@ -8,6 +8,7 @@ import { useAuth } from '@/features/auth/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useSearchParams } from 'next/navigation';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Minimo 2 caracteres'),
@@ -19,14 +20,19 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export function RegisterForm() {
   const { register: registerMutation } = useAuth();
+  const searchParams = useSearchParams();
+  const invitationId = searchParams.get('invitationId') ?? undefined;
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
 
   const onSubmit = (data: RegisterFormData) => {
-    registerMutation.mutate(data, {
-      onError: () => toast.error('Erro ao criar conta'),
-    });
+    registerMutation.mutate(
+      { ...data, invitationId },
+      {
+        onError: () => toast.error('Erro ao criar conta'),
+      },
+    );
   };
 
   return (
