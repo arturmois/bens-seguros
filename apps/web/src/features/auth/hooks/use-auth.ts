@@ -43,20 +43,20 @@ export function useAuth() {
         return;
       }
 
-      const sessionData =
-        response.data && 'session' in response.data ? response.data.session : null;
-
+      // Fetch fresh session to get activeOrganizationId (signIn response may not include it)
+      queryClient.invalidateQueries({ queryKey: ['auth'] });
+      const freshSession = await authClient.getSession();
       const activeOrgId =
-        typeof sessionData === 'object' &&
-        sessionData !== null &&
-        'activeOrganizationId' in sessionData &&
-        typeof sessionData.activeOrganizationId === 'string'
-          ? sessionData.activeOrganizationId
+        freshSession.data &&
+        'session' in freshSession.data &&
+        typeof freshSession.data.session === 'object' &&
+        freshSession.data.session !== null &&
+        'activeOrganizationId' in freshSession.data.session &&
+        typeof freshSession.data.session.activeOrganizationId === 'string'
+          ? freshSession.data.session.activeOrganizationId
           : undefined;
 
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
-
-      if (typeof activeOrgId === 'string') {
+      if (activeOrgId) {
         setActiveOrgCookie(activeOrgId);
         router.push('/');
       } else {
