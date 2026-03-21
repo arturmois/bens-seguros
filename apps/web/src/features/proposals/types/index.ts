@@ -17,6 +17,71 @@ export type InsuranceBranch =
 
 export type BoardType = 'NEW_INSURANCE' | 'RENEWAL';
 
+export interface AutoDetails {
+  branch: 'AUTO';
+  marca: string;
+  modelo: string;
+  anoFabricacao: number;
+  anoModelo: number;
+  placa?: string;
+  chassi?: string;
+  cor?: string;
+  combustivel?: string;
+  usoVeiculo?: string;
+}
+
+export interface ResidentialDetails {
+  branch: 'RESIDENTIAL';
+  tipoImovel: string;
+  usoImovel: string;
+  cep: string;
+  endereco?: string;
+  construcao?: string;
+  areaM2?: number;
+}
+
+export interface CondominiumDetails {
+  branch: 'CONDOMINIUM';
+  nomeCondominio: string;
+  numeroUnidades: number;
+  cep: string;
+  endereco?: string;
+  anoConstrucao?: number;
+  numeroAndares?: number;
+}
+
+export interface BusinessDetails {
+  branch: 'BUSINESS';
+  razaoSocial: string;
+  cnpj: string;
+  atividade: string;
+  cep?: string;
+  endereco?: string;
+  areaM2?: number;
+}
+
+export interface LifeDetails {
+  branch: 'LIFE';
+  profissao: string;
+  rendaMensalCentavos?: number;
+  fumante?: boolean;
+  esportesRadicais?: boolean;
+  beneficiarios?: string;
+}
+
+export interface OtherDetails {
+  branch: 'OTHER';
+  descricao: string;
+}
+
+export type InsuredObjectDetails =
+  | AutoDetails
+  | ResidentialDetails
+  | CondominiumDetails
+  | BusinessDetails
+  | LifeDetails
+  | OtherDetails;
+
 export interface ProposalData {
   id: string;
   organizationId: string;
@@ -27,6 +92,7 @@ export interface ProposalData {
   branch: InsuranceBranch;
   premiumValueInCents: number;
   commissionPercentageInCents: number;
+  details: InsuredObjectDetails | null;
   lostReason: string | null;
   renewalPolicyId: string | null;
   deletedAt: string | null;
