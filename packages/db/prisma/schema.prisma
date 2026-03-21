@@ -35,7 +35,8 @@ model User {
 
   proposalsAsSalesperson Proposal[] @relation("ProposalSalesperson")
   policiesAsSalesperson  Policy[]   @relation("PolicySalesperson")
-  claimsAssigned         Claim[]    @relation("ClaimAssignee")
+  claimsAssigned              Claim[]      @relation("ClaimAssignee")
+  commissionsAsSalesperson    Commission[] @relation("CommissionSalesperson")
 }
 
 model Session {
@@ -226,6 +227,15 @@ enum DocumentType {
   OTHER
 }
 
+enum CommissionStatus {
+  PENDING_COMMERCIAL
+  PENDING_ADMIN
+  APPROVED
+  PAID
+  REJECTED
+  REVERSED
+}
+
 // === ERP MODELS ===
 
 model Client {
@@ -330,6 +340,7 @@ model Policy {
   claims           Claim[]
   endorsements     Endorsement[]
   assistances      Assistance[]
+  commissions      Commission[]
 
   @@unique([organizationId, policyNumber])
   @@index([organizationId, insurerId])
@@ -466,5 +477,38 @@ model Document {
   createdAt       DateTime           @default(now())
 
   @@index([organizationId, entityType, entityId])
+  @@index([organizationId, createdAt(sort: Desc)])
+}
+
+model Commission {
+  id                      String           @id @default(cuid())
+  organizationId          String
+  policyId                String
+  salespersonId           String
+  status                  CommissionStatus @default(PENDING_COMMERCIAL)
+  commissionValueInCents  Int
+  premiumValueInCents     Int
+  percentageInBasisPoints Int
+  splitPercentage         Int?             @default(10000)
+  approvedBy              String?
+  approvedAt              DateTime?
+  paidAt                  DateTime?
+  rejectedBy              String?
+  rejectedAt              DateTime?
+  rejectionReason         String?
+  isReversal              Boolean          @default(false)
+  originalCommissionId    String?
+  deletedAt               DateTime?
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+
+  policy             Policy       @relation(fields: [policyId], references: [id])
+  salesperson        User         @relation("CommissionSalesperson", fields: [salespersonId], references: [id])
+  originalCommission Commission?  @relation("CommissionReversal", fields: [originalCommissionId], references: [id])
+  reversals          Commission[] @relation("CommissionReversal")
+
+  @@index([organizationId, status])
+  @@index([organizationId, salespersonId])
+  @@index([organizationId, policyId])
   @@index([organizationId, createdAt(sort: Desc)])
 }
