@@ -191,15 +191,17 @@ export function PoliciesTable() {
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     {policy.status === 'ACTIVE' && (
                       <Menu>
-                        <MenuTrigger>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-10"
-                            aria-label={`Ações da apólice ${policy.policyNumber}`}
-                          >
-                            <MoreHorizontal className="size-4" />
-                          </Button>
+                        <MenuTrigger
+                          render={
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-10"
+                              aria-label={`Ações da apólice ${policy.policyNumber}`}
+                            />
+                          }
+                        >
+                          <MoreHorizontal className="size-4" />
                         </MenuTrigger>
                         <MenuPopup align="end">
                           <MenuItem onClick={() => setCancelTarget(policy)}>

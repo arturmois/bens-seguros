@@ -10,6 +10,7 @@ import type { PolicyData, PolicyStatus } from '../types';
 interface PoliciesFilters {
   status?: PolicyStatus;
   clientId?: string;
+  proposalId?: string;
   branch?: string;
   search?: string;
   cursor?: string;
@@ -37,6 +38,7 @@ export function usePolicies(filters: PoliciesFilters = {}) {
 
   if (filters.status) params.set('status', filters.status);
   if (filters.clientId) params.set('clientId', filters.clientId);
+  if (filters.proposalId) params.set('proposalId', filters.proposalId);
   if (filters.branch) params.set('branch', filters.branch);
   if (filters.search) params.set('search', filters.search);
   if (filters.cursor) params.set('cursor', filters.cursor);
@@ -69,6 +71,46 @@ export function usePolicy(id: string) {
       return { data: response.data };
     },
     enabled: Boolean(id),
+    staleTime: 60_000,
+  });
+}
+
+interface IssuePolicyInput {
+  proposalId: string;
+  policyNumber: string;
+  startDate: string;
+  endDate: string;
+}
+
+export function useIssuePolicy() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (values: IssuePolicyInput) => {
+      const response = await api.post<PolicyData>('/api/v1/policies', values);
+      return response.data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [POLICIES_KEY] });
+      toast.success('Apólice emitida com sucesso!');
+    },
+    onError: () => {
+      toast.error('Erro ao emitir apólice. Verifique os dados e tente novamente.');
+    },
+  });
+}
+
+export function usePolicyByProposal(proposalId: string) {
+  return useQuery<PolicyData | null>({
+    queryKey: [POLICIES_KEY, 'by-proposal', proposalId],
+    queryFn: async () => {
+      const response = await api.get<PolicyData[]>(
+        `/api/v1/policies?proposalId=${encodeURIComponent(proposalId)}&limit=1`,
+      );
+      const firstPolicy = response.data[0];
+      return firstPolicy ?? null;
+    },
+    enabled: Boolean(proposalId),
     staleTime: 60_000,
   });
 }

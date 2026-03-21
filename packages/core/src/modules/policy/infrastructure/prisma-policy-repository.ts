@@ -11,6 +11,12 @@ import type {
 } from '../domain/policy-repository.js';
 import { PolicyMapper } from './policy-mapper.js';
 
+const POLICY_INCLUDE = {
+  client: { select: { name: true } },
+  salesperson: { select: { name: true } },
+  proposal: { select: { id: true } },
+} satisfies Prisma.PolicyInclude;
+
 @injectable()
 export class PrismaPolicyRepository implements PolicyRepository {
   constructor(@inject('PrismaClient') private readonly prisma: PrismaClient) {}
@@ -31,6 +37,7 @@ export class PrismaPolicyRepository implements PolicyRepository {
         startDate: data.startDate,
         endDate: data.endDate,
       },
+      include: POLICY_INCLUDE,
     });
 
     return PolicyMapper.toDomain(row);
@@ -39,6 +46,7 @@ export class PrismaPolicyRepository implements PolicyRepository {
   async findById(id: string, organizationId: string): Promise<PolicyData | null> {
     const row = await this.prisma.policy.findFirst({
       where: { id, organizationId, deletedAt: null },
+      include: POLICY_INCLUDE,
     });
     return row ? PolicyMapper.toDomain(row) : null;
   }
@@ -49,18 +57,33 @@ export class PrismaPolicyRepository implements PolicyRepository {
       deletedAt: null,
       ...(filters.status && { status: filters.status }),
       ...(filters.clientId && { clientId: filters.clientId }),
+      ...(filters.proposalId && { proposalId: filters.proposalId }),
       ...(filters.salespersonId && { salespersonId: filters.salespersonId }),
       ...(filters.branch && { branch: filters.branch }),
       ...(filters.search && {
-        client: {
-          name: { contains: filters.search, mode: 'insensitive' },
-        },
+        OR: [
+          {
+            policyNumber: {
+              contains: filters.search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            client: {
+              name: {
+                contains: filters.search,
+                mode: 'insensitive',
+              },
+            },
+          },
+        ],
       }),
     };
 
     const [rows, total] = await Promise.all([
       this.prisma.policy.findMany({
         where,
+        include: POLICY_INCLUDE,
         take: page.limit + 1,
         ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
         orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
@@ -86,6 +109,7 @@ export class PrismaPolicyRepository implements PolicyRepository {
         cancelledAt: new Date(),
         cancelReason: reason,
       },
+      include: POLICY_INCLUDE,
     });
 
     return PolicyMapper.toDomain(row);

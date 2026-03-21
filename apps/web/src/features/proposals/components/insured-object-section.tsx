@@ -7,9 +7,9 @@ import type { InsuranceBranch, InsuredObjectDetails, ProposalData } from '../typ
 import { BranchFields } from './branch-fields';
 
 const BRANCH_SECTION_TITLES: Record<InsuranceBranch, string> = {
-  AUTO: 'Dados do Veiculo',
-  RESIDENTIAL: 'Dados do Imovel',
-  CONDOMINIUM: 'Dados do Condominio',
+  AUTO: 'Dados do Veículo',
+  RESIDENTIAL: 'Dados do Imóvel',
+  CONDOMINIUM: 'Dados do Condomínio',
   BUSINESS: 'Dados do Estabelecimento',
   LIFE: 'Dados do Segurado',
   OTHER: 'Dados Gerais',

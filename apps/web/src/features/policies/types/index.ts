@@ -3,7 +3,9 @@ export interface PolicyData {
   organizationId: string;
   proposalId: string;
   clientId: string;
+  clientName?: string;
   salespersonId: string;
+  salespersonName?: string;
   policyNumber: string;
   status: PolicyStatus;
   branch: PolicyBranch;

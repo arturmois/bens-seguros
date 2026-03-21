@@ -35,6 +35,7 @@ model User {
 
   proposalsAsSalesperson Proposal[] @relation("ProposalSalesperson")
   policiesAsSalesperson  Policy[]   @relation("PolicySalesperson")
+  claimsAssigned         Claim[]    @relation("ClaimAssignee")
 }
 
 model Session {
@@ -180,6 +181,51 @@ enum PolicyStatus {
   EXPIRED
 }
 
+enum ClaimStatus {
+  REGISTERED
+  IN_ANALYSIS
+  AWAITING_DOCUMENT
+  PENDING_INSPECTION
+  APPROVED
+  REJECTED
+  PAID
+  COMPLETED
+}
+
+enum ClaimPriority {
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum AssistanceStatus {
+  REQUESTED
+  AWAITING_DOCUMENT
+  PENDING_INSPECTION
+  DISPATCHED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum DocumentEntityType {
+  CLIENT
+  PROPOSAL
+  POLICY
+  CLAIM
+  ASSISTANCE
+}
+
+enum DocumentType {
+  DRIVER_LICENSE
+  VEHICLE_REGISTRATION
+  POLICY_PDF
+  CLAIM_PHOTO
+  CLAIM_REPORT
+  PROOF_OF_PAYMENT
+  CONTRACT
+  OTHER
+}
+
 // === ERP MODELS ===
 
 model Client {
@@ -200,8 +246,10 @@ model Client {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
-  proposals Proposal[]
-  policies  Policy[]
+  proposals   Proposal[]
+  policies    Policy[]
+  claims      Claim[]
+  assistances Assistance[]
 
   @@unique([organizationId, document])
   @@index([organizationId, type])
@@ -220,6 +268,7 @@ model Proposal {
   commissionPercentageInCents Int               @default(0)
   lostReason                  String?
   renewalPolicyId             String?
+  insurerId                   String?
   details                     Json?
   deletedAt                   DateTime?
   createdAt                   DateTime          @default(now())
@@ -228,12 +277,14 @@ model Proposal {
   client        Client                @relation(fields: [clientId], references: [id])
   salesperson   User                  @relation("ProposalSalesperson", fields: [salespersonId], references: [id])
   renewalPolicy Policy?               @relation("ProposalRenewal", fields: [renewalPolicyId], references: [id])
+  insurer       Insurer?              @relation(fields: [insurerId], references: [id])
   policy        Policy?               @relation("ProposalPolicy")
   checklistItems ProposalChecklistItem[]
 
   @@index([organizationId, stage])
   @@index([organizationId, clientId])
   @@index([organizationId, salespersonId])
+  @@index([organizationId, insurerId])
   @@index([organizationId, createdAt(sort: Desc)])
 }
 
@@ -257,6 +308,7 @@ model Policy {
   proposalId          String          @unique
   clientId            String
   salespersonId       String
+  insurerId           String?
   policyNumber        String
   status              PolicyStatus    @default(ACTIVE)
   branch              InsuranceBranch
@@ -272,11 +324,147 @@ model Policy {
 
   proposal         Proposal   @relation("ProposalPolicy", fields: [proposalId], references: [id])
   client           Client     @relation(fields: [clientId], references: [id])
-  salesperson      User       @relation("PolicySalesperson", fields: [salespersonId], references: [id])
-  renewalProposals Proposal[] @relation("ProposalRenewal")
+  salesperson      User          @relation("PolicySalesperson", fields: [salespersonId], references: [id])
+  insurer          Insurer?      @relation(fields: [insurerId], references: [id])
+  renewalProposals Proposal[]    @relation("ProposalRenewal")
+  claims           Claim[]
+  endorsements     Endorsement[]
+  assistances      Assistance[]
 
   @@unique([organizationId, policyNumber])
+  @@index([organizationId, insurerId])
   @@index([organizationId, status])
   @@index([organizationId, endDate])
+  @@index([organizationId, createdAt(sort: Desc)])
+}
+
+model Insurer {
+  id              String    @id @default(cuid())
+  organizationId  String
+  name            String
+  code            String?
+  active          Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  claims          Claim[]
+  proposals       Proposal[]
+  policies        Policy[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+}
+
+model Claim {
+  id               String        @id @default(cuid())
+  organizationId   String
+  claimNumber      Int
+  policyId         String
+  clientId         String
+  insurerId        String?
+  assignedToId     String?
+  status           ClaimStatus   @default(REGISTERED)
+  priority         ClaimPriority @default(NORMAL)
+  description      String
+  incidentDate     DateTime?
+  incidentLocation String?
+  reportedAt       DateTime      @default(now())
+  resolvedAt       DateTime?
+  closedAt         DateTime?
+  deletedAt        DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  policy           Policy        @relation(fields: [policyId], references: [id])
+  client           Client        @relation(fields: [clientId], references: [id])
+  insurer          Insurer?      @relation(fields: [insurerId], references: [id])
+  assignedTo       User?         @relation("ClaimAssignee", fields: [assignedToId], references: [id])
+  occurrences      Occurrence[]
+  assistances      Assistance[]
+
+  @@unique([organizationId, claimNumber])
+  @@index([organizationId, status])
+  @@index([organizationId, policyId])
+  @@index([organizationId, priority])
+  @@index([organizationId, createdAt(sort: Desc)])
+}
+
+model Occurrence {
+  id          String   @id @default(cuid())
+  claimId     String
+  type        String
+  description String
+  metadata    Json?
+  createdBy   String?
+  createdAt   DateTime @default(now())
+
+  claim       Claim    @relation(fields: [claimId], references: [id], onDelete: Cascade)
+
+  @@index([claimId])
+}
+
+model Endorsement {
+  id                      String   @id @default(cuid())
+  organizationId          String
+  policyId                String
+  type                    String
+  description             String
+  effectiveDate           DateTime
+  previousVersionSnapshot Json
+  changes                 Json
+  createdBy               String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  policy                  Policy   @relation(fields: [policyId], references: [id])
+
+  @@index([organizationId, policyId])
+  @@index([organizationId, createdAt(sort: Desc)])
+}
+
+model Assistance {
+  id              String           @id @default(cuid())
+  organizationId  String
+  policyId        String
+  clientId        String
+  claimId         String?
+  type            String
+  status          AssistanceStatus @default(REQUESTED)
+  description     String?
+  address         String?
+  latitude        Float?
+  longitude       Float?
+  providerName    String?
+  providerPhone   String?
+  requestedAt     DateTime         @default(now())
+  scheduledAt     DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  policy          Policy           @relation(fields: [policyId], references: [id])
+  client          Client           @relation(fields: [clientId], references: [id])
+  claim           Claim?           @relation(fields: [claimId], references: [id])
+
+  @@index([organizationId, status])
+  @@index([organizationId, createdAt(sort: Desc)])
+}
+
+model Document {
+  id              String             @id @default(cuid())
+  organizationId  String
+  entityType      DocumentEntityType
+  entityId        String
+  clientId        String?
+  type            DocumentType       @default(OTHER)
+  fileName        String
+  mimeType        String
+  sizeBytes       Int
+  storageKey      String             @unique
+  url             String?
+  createdBy       String?
+  createdAt       DateTime           @default(now())
+
+  @@index([organizationId, entityType, entityId])
   @@index([organizationId, createdAt(sort: Desc)])
 }

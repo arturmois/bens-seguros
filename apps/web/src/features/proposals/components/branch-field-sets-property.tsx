@@ -20,7 +20,7 @@ import type { FieldHelperProps } from './branch-field-sets';
 export function ResidentialFields({ register, control }: FieldHelperProps) {
   return (
     <>
-      <FieldWrapper label="Tipo de Imovel" required>
+      <FieldWrapper label="Tipo de Imóvel" required>
         <Controller
           name="tipoImovel"
           control={control}
@@ -44,7 +44,7 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
           )}
         />
       </FieldWrapper>
-      <FieldWrapper label="Uso do Imovel" required>
+      <FieldWrapper label="Uso do Imóvel" required>
         <Controller
           name="usoImovel"
           control={control}
@@ -84,10 +84,10 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
           )}
         />
       </FieldWrapper>
-      <FieldWrapper label="Endereco">
-        <Input placeholder="Rua, numero, bairro" {...register('endereco')} />
+      <FieldWrapper label="Endereço">
+        <Input placeholder="Rua, número, bairro" {...register('endereco')} />
       </FieldWrapper>
-      <FieldWrapper label="Construcao">
+      <FieldWrapper label="Construção">
         <Controller
           name="construcao"
           control={control}
@@ -111,7 +111,7 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
           )}
         />
       </FieldWrapper>
-      <FieldWrapper label="Area (m2)">
+      <FieldWrapper label="Área (m²)">
         <Input
           type="number"
           placeholder="Ex: 120"
@@ -125,10 +125,10 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
 export function CondominiumFields({ register, control }: FieldHelperProps) {
   return (
     <>
-      <FieldWrapper label="Nome do Condominio" required>
-        <Input placeholder="Nome do condominio" {...register('nomeCondominio')} />
+      <FieldWrapper label="Nome do Condomínio" required>
+        <Input placeholder="Nome do condomínio" {...register('nomeCondominio')} />
       </FieldWrapper>
-      <FieldWrapper label="Numero de Unidades" required>
+      <FieldWrapper label="Número de Unidades" required>
         <Input
           type="number"
           placeholder="Ex: 48"
@@ -151,17 +151,17 @@ export function CondominiumFields({ register, control }: FieldHelperProps) {
           )}
         />
       </FieldWrapper>
-      <FieldWrapper label="Endereco">
-        <Input placeholder="Rua, numero, bairro" {...register('endereco')} />
+      <FieldWrapper label="Endereço">
+        <Input placeholder="Rua, número, bairro" {...register('endereco')} />
       </FieldWrapper>
-      <FieldWrapper label="Ano de Construcao">
+      <FieldWrapper label="Ano de Construção">
         <Input
           type="number"
           placeholder="Ex: 2010"
           {...register('anoConstrucao', { valueAsNumber: true })}
         />
       </FieldWrapper>
-      <FieldWrapper label="Numero de Andares">
+      <FieldWrapper label="Número de Andares">
         <Input
           type="number"
           placeholder="Ex: 12"
@@ -175,8 +175,8 @@ export function CondominiumFields({ register, control }: FieldHelperProps) {
 export function BusinessFields({ register, control }: FieldHelperProps) {
   return (
     <>
-      <FieldWrapper label="Razao Social" required>
-        <Input placeholder="Razao social da empresa" {...register('razaoSocial')} />
+      <FieldWrapper label="Razão Social" required>
+        <Input placeholder="Razão social da empresa" {...register('razaoSocial')} />
       </FieldWrapper>
       <FieldWrapper label="CNPJ" required>
         <Controller
@@ -213,10 +213,10 @@ export function BusinessFields({ register, control }: FieldHelperProps) {
           )}
         />
       </FieldWrapper>
-      <FieldWrapper label="Endereco">
-        <Input placeholder="Rua, numero, bairro" {...register('endereco')} />
+      <FieldWrapper label="Endereço">
+        <Input placeholder="Rua, número, bairro" {...register('endereco')} />
       </FieldWrapper>
-      <FieldWrapper label="Area (m2)">
+      <FieldWrapper label="Área (m²)">
         <Input
           type="number"
           placeholder="Ex: 200"

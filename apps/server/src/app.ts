@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
+import multipart from '@fastify/multipart';
 import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
@@ -12,6 +13,11 @@ import { tenantRoutes } from './routes/v1/tenant-routes.js';
 import { clientRoutes } from './routes/v1/client-routes.js';
 import { proposalRoutes } from './routes/v1/proposal-routes.js';
 import { policyRoutes } from './routes/v1/policy-routes.js';
+import { claimRoutes } from './routes/v1/claim-routes.js';
+import { endorsementRoutes } from './routes/v1/endorsement-routes.js';
+import { assistanceRoutes } from './routes/v1/assistance-routes.js';
+import { documentRoutes } from './routes/v1/document-routes.js';
+import { insurerRoutes } from './routes/v1/insurer-routes.js';
 import { createAuthMiddleware } from './middlewares/auth-middleware.js';
 import { registerDependencies } from './container-registrations.js';
 
@@ -48,6 +54,8 @@ export async function buildApp() {
     },
   });
 
+  await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } });
+
   registerDependencies();
 
   app.get('/health', async () => ({ status: 'ok' }));
@@ -65,6 +73,11 @@ export async function buildApp() {
     await authenticatedApp.register(clientRoutes);
     await authenticatedApp.register(proposalRoutes);
     await authenticatedApp.register(policyRoutes);
+    await authenticatedApp.register(claimRoutes);
+    await authenticatedApp.register(endorsementRoutes);
+    await authenticatedApp.register(assistanceRoutes);
+    await authenticatedApp.register(documentRoutes);
+    await authenticatedApp.register(insurerRoutes);
   });
 
   return app;

@@ -27,12 +27,16 @@ export interface PolicyData {
   cancelReason: string | null;
   createdAt: Date;
   updatedAt: Date;
+  clientName?: string;
+  salespersonName?: string;
+  proposalIdentifier?: string;
 }
 
 export interface PolicyFilters {
   organizationId: string;
   status?: 'ACTIVE' | 'CANCELLED' | 'EXPIRED';
   clientId?: string;
+  proposalId?: string;
   salespersonId?: string;
   branch?: 'AUTO' | 'RESIDENTIAL' | 'CONDOMINIUM' | 'BUSINESS' | 'LIFE' | 'OTHER';
   search?: string;

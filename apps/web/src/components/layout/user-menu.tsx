@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { useTheme } from 'next-themes';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { cn } from '@/lib/utils';
-import { LogOut, Monitor, Moon, Settings, Sun, ChevronsUpDown } from 'lucide-react';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { ChevronsUpDown, LogOut, Monitor, Moon, Settings, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import Link from 'next/link';
+import { useState } from 'react';
 
 interface UserMenuProps {
   collapsed: boolean;
@@ -98,7 +98,6 @@ export function UserMenu({ collapsed }: UserMenuProps) {
                 )}
               >
                 <option.icon className="size-3.5" />
-                <span>{option.label}</span>
               </button>
             ))}
           </div>

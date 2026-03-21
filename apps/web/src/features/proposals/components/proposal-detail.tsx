@@ -7,13 +7,19 @@ import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs';
+
+import { DocumentList } from '@/features/documents/components/document-list';
+import { DocumentUpload } from '@/features/documents/components/document-upload';
+import { usePolicyByProposal } from '@/features/policies/hooks/use-policies';
 
 import { useAdvanceProposal, useProposal, useRevertProposal } from '../hooks/use-proposals';
 import { BOARD_TYPE_LABELS, BRANCH_LABELS, STAGE_BADGE_VARIANT, STAGE_LABELS } from '../types';
 import { formatCurrency, formatDate } from '@/lib/formatters';
 import { InsuredObjectSection } from './insured-object-section';
+import { IssuePolicyCard } from './issue-policy-card';
 import { LostReasonDialog } from './lost-reason-dialog';
+import { DetailSkeleton, InfoItem } from './proposal-detail-helpers';
 
 interface ProposalDetailProps {
   proposalId: string;
@@ -22,6 +28,7 @@ interface ProposalDetailProps {
 export function ProposalDetail({ proposalId }: ProposalDetailProps) {
   const router = useRouter();
   const { data, isLoading, isError } = useProposal(proposalId);
+  const { data: existingPolicy } = usePolicyByProposal(proposalId);
   const advanceMutation = useAdvanceProposal();
   const revertMutation = useRevertProposal();
   const [showLostDialog, setShowLostDialog] = useState(false);
@@ -67,7 +74,11 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
           Propostas
         </Button>
         <span className="text-muted-foreground">/</span>
-        <span className="text-muted-foreground">Proposta</span>
+        <span className="text-muted-foreground">
+          {proposal.clientName
+            ? `${BRANCH_LABELS[proposal.branch]} — ${proposal.clientName}`
+            : `Proposta`}
+        </span>
       </nav>
 
       <div className="flex flex-wrap items-center gap-3">
@@ -81,8 +92,8 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
       <Separator />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <InfoItem label="Cliente" value={proposal.clientId} />
-        <InfoItem label="Vendedor" value={proposal.salespersonId} />
+        <InfoItem label="Cliente" value={proposal.clientName ?? proposal.clientId} />
+        <InfoItem label="Vendedor" value={proposal.salespersonName ?? proposal.salespersonId} />
         <InfoItem label="Valor do Prêmio" value={formatCurrency(proposal.premiumValueInCents)} />
         <InfoItem
           label="Comissão"
@@ -143,45 +154,27 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
         )}
       </div>
 
+      {proposal.stage === 'POLICY_ISSUED' && (
+        <IssuePolicyCard proposalId={proposalId} policyId={existingPolicy?.id} />
+      )}
+
+      <Separator />
+
+      <Tabs defaultValue="documents">
+        <TabsList>
+          <TabsTab value="documents">Documentos</TabsTab>
+        </TabsList>
+
+        <TabsContent value="documents" className="mt-4 space-y-4">
+          <DocumentUpload entityType="PROPOSAL" entityId={proposalId} />
+          <DocumentList entityType="PROPOSAL" entityId={proposalId} />
+        </TabsContent>
+      </Tabs>
+
       <LostReasonDialog
         proposalId={showLostDialog ? proposalId : null}
         onClose={() => setShowLostDialog(false)}
       />
-    </div>
-  );
-}
-
-interface InfoItemProps {
-  label: string;
-  value: string;
-}
-
-function InfoItem({ label, value }: InfoItemProps) {
-  return (
-    <div>
-      <p className="text-muted-foreground text-xs">{label}</p>
-      <p className="text-sm font-medium">{value}</p>
-    </div>
-  );
-}
-
-function DetailSkeleton() {
-  return (
-    <div className="space-y-6">
-      <Skeleton className="h-8 w-48" />
-      <div className="flex gap-2">
-        <Skeleton className="h-6 w-24" />
-        <Skeleton className="h-6 w-20" />
-      </div>
-      <Skeleton className="h-px w-full" />
-      <div className="grid gap-4 sm:grid-cols-2">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={`detail-skel-${String(i)}`} className="space-y-1">
-            <Skeleton className="h-3 w-20" />
-            <Skeleton className="h-5 w-32" />
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

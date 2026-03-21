@@ -25,10 +25,11 @@ export interface FieldHelperProps {
 interface FormFieldProps {
   readonly label: string;
   readonly required?: boolean;
+  readonly hint?: string;
   readonly children: React.ReactNode;
 }
 
-export function FieldWrapper({ label, required, children }: FormFieldProps) {
+export function FieldWrapper({ label, required, hint, children }: FormFieldProps) {
   return (
     <div className="space-y-2">
       <Label>
@@ -36,6 +37,7 @@ export function FieldWrapper({ label, required, children }: FormFieldProps) {
         {required && <span className="text-destructive ml-1">*</span>}
       </Label>
       {children}
+      {hint && <p className="text-muted-foreground text-xs">{hint}</p>}
     </div>
   );
 }
@@ -49,7 +51,7 @@ export function AutoFields({ register, control }: FieldHelperProps) {
       <FieldWrapper label="Modelo" required>
         <Input placeholder="Ex: Gol 1.6" {...register('modelo')} />
       </FieldWrapper>
-      <FieldWrapper label="Ano Fabricacao" required>
+      <FieldWrapper label="Ano Fabricação" required>
         <Input
           type="number"
           placeholder="Ex: 2024"
@@ -67,12 +69,12 @@ export function AutoFields({ register, control }: FieldHelperProps) {
         <Input placeholder="Ex: ABC1D23" {...register('placa')} />
       </FieldWrapper>
       <FieldWrapper label="Chassi">
-        <Input placeholder="Chassi do veiculo" {...register('chassi')} />
+        <Input placeholder="Chassi do veículo" {...register('chassi')} />
       </FieldWrapper>
       <FieldWrapper label="Cor">
         <Input placeholder="Ex: Prata" {...register('cor')} />
       </FieldWrapper>
-      <FieldWrapper label="Combustivel">
+      <FieldWrapper label="Combustível">
         <Controller
           name="combustivel"
           control={control}
@@ -96,7 +98,7 @@ export function AutoFields({ register, control }: FieldHelperProps) {
           )}
         />
       </FieldWrapper>
-      <FieldWrapper label="Uso do Veiculo">
+      <FieldWrapper label="Uso do Veículo">
         <Controller
           name="usoVeiculo"
           control={control}
@@ -127,8 +129,8 @@ export function AutoFields({ register, control }: FieldHelperProps) {
 export function LifeFields({ register, control }: FieldHelperProps) {
   return (
     <>
-      <FieldWrapper label="Profissao" required>
-        <Input placeholder="Profissao do segurado" {...register('profissao')} />
+      <FieldWrapper label="Profissão" required>
+        <Input placeholder="Profissão do segurado" {...register('profissao')} />
       </FieldWrapper>
       <FieldWrapper label="Renda Mensal (centavos)">
         <Input
@@ -155,9 +157,9 @@ export function LifeFields({ register, control }: FieldHelperProps) {
           )}
         />
       </FieldWrapper>
-      <FieldWrapper label="Beneficiarios">
+      <FieldWrapper label="Beneficiários">
         <Textarea
-          placeholder="Nomes e parentesco dos beneficiarios"
+          placeholder="Nomes e parentesco dos beneficiários"
           {...register('beneficiarios')}
         />
       </FieldWrapper>
@@ -167,7 +169,7 @@ export function LifeFields({ register, control }: FieldHelperProps) {
 
 export function OtherFields({ register }: FieldHelperProps) {
   return (
-    <FieldWrapper label="Descricao" required>
+    <FieldWrapper label="Descrição" required>
       <Textarea placeholder="Descreva o objeto segurado" {...register('descricao')} />
     </FieldWrapper>
   );

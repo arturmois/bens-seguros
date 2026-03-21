@@ -6,7 +6,6 @@ import { ArrowLeft, Ban, RefreshCw } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -16,13 +15,14 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 
-import { formatCurrency, formatDate } from '@/lib/formatters';
-
 import { useCancelPolicy, usePolicy } from '../hooks/use-policies';
 import { POLICY_BRANCH_LABELS, POLICY_STATUS_BADGE_VARIANT, POLICY_STATUS_LABELS } from '../types';
+import { PolicyCancellationCard, PolicyInfoCard } from './policy-info-cards';
+import { PolicyTabs } from './policy-tabs';
 
 interface PolicyDetailProps {
   policyId: string;
@@ -79,7 +79,7 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
   const policy = data.data;
 
   return (
-    <>
+    <div className="space-y-6">
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
         <Button
           variant="ghost"
@@ -112,41 +112,28 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
         )}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Informações gerais</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <InfoItem label="Cliente" value={policy.clientId} />
-            <InfoItem label="Proposta" value={policy.proposalId} />
-            <InfoItem label="Vendedor" value={policy.salespersonId} />
-            <InfoItem label="Prêmio" value={formatCurrency(policy.premiumValueInCents)} />
-            <InfoItem
-              label="Vigência"
-              value={`${formatDate(policy.startDate)} → ${formatDate(policy.endDate)}`}
-            />
-            <InfoItem label="Criado em" value={formatDate(policy.createdAt)} />
-          </dl>
-        </CardContent>
-      </Card>
+      <PolicyInfoCard
+        clientId={policy.clientId}
+        clientName={policy.clientName}
+        proposalId={policy.proposalId}
+        salespersonId={policy.salespersonId}
+        salespersonName={policy.salespersonName}
+        premiumValueInCents={policy.premiumValueInCents}
+        startDate={policy.startDate}
+        endDate={policy.endDate}
+        createdAt={policy.createdAt}
+      />
 
       {policy.status === 'CANCELLED' && (
-        <Card className="border-destructive/50">
-          <CardHeader>
-            <CardTitle className="text-destructive">Cancelamento</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <InfoItem
-                label="Cancelado em"
-                value={policy.cancelledAt ? formatDate(policy.cancelledAt) : '—'}
-              />
-              <InfoItem label="Motivo" value={policy.cancelReason ?? '—'} />
-            </dl>
-          </CardContent>
-        </Card>
+        <PolicyCancellationCard
+          cancelledAt={policy.cancelledAt}
+          cancelReason={policy.cancelReason}
+        />
       )}
+
+      <Separator />
+
+      <PolicyTabs policyId={policyId} />
 
       <Dialog
         open={showCancelDialog}
@@ -194,15 +181,6 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
-  );
-}
-
-function InfoItem({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="text-muted-foreground text-sm">{label}</dt>
-      <dd className="mt-0.5 text-sm font-medium">{value}</dd>
     </div>
   );
 }

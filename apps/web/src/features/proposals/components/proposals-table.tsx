@@ -183,7 +183,9 @@ export function ProposalsTable() {
                         }
                       }}
                     >
-                      <TableCell className="font-medium">{proposal.clientId}</TableCell>
+                      <TableCell className="font-medium">
+                        {proposal.clientName ?? proposal.clientId}
+                      </TableCell>
                       <TableCell>
                         <Badge variant="outline">{BRANCH_LABELS[proposal.branch]}</Badge>
                       </TableCell>

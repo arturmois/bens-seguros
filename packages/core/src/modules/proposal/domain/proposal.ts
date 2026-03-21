@@ -31,6 +31,8 @@ export interface ProposalProps {
   deletedAt: Date | null;
   readonly createdAt: Date;
   updatedAt: Date;
+  clientName?: string;
+  salespersonName?: string;
 }
 
 interface CreateProposalInput {

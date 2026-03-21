@@ -11,6 +11,7 @@ import {
   DollarSign,
   FileText,
   LayoutDashboard,
+  LifeBuoy,
   MessageSquare,
   Settings,
   Shield,
@@ -30,6 +31,7 @@ const MAIN_NAV = [
   { href: '/proposals', label: 'Propostas', icon: FileText, permission: 'proposals:read' },
   { href: '/policies', label: 'Apólices', icon: Shield, permission: 'policies:read' },
   { href: '/claims', label: 'Sinistros', icon: AlertTriangle, permission: 'claims:read' },
+  { href: '/assistances', label: 'Assistências', icon: LifeBuoy, permission: 'assistances:read' },
   { href: '/commissions', label: 'Comissões', icon: DollarSign, permission: 'commissions:read' },
 ] as const;
 

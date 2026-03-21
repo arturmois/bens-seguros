@@ -24,6 +24,7 @@ export const env = createEnv({
     META_WHATSAPP_TOKEN: z.string().optional(),
     META_WHATSAPP_VERIFY_TOKEN: z.string().optional(),
     META_WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
+    STORAGE_PROVIDER: z.enum(['local', 'r2']).default('local'),
     // SEC-1: PII encryption key (see SECURITY-SPEC.md)
     ENCRYPTION_KEY: z.string().min(32).optional(),
   },
