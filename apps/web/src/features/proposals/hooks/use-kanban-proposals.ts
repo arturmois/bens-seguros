@@ -7,7 +7,7 @@ import { api } from '@/lib/api-client'
 import type { BoardType, ProposalData, ProposalStage } from '../types'
 import { STAGES } from '../types'
 
-const KANBAN_LIMIT = 500
+const KANBAN_LIMIT = 100
 
 interface KanbanFilters {
   boardType: BoardType

@@ -23,13 +23,11 @@ import {
   DeleteClient,
   CreateProposal,
   AdvanceProposalStage,
-  RevertProposalStage,
   MarkProposalLost,
   ListProposals,
   GetProposal,
   UpdateProposalDetails,
   ListChecklistItems,
-  ToggleChecklistItem,
   CompleteChecklistByAttachment,
   IssuePolicy,
   ListPolicies,
@@ -130,9 +128,6 @@ export function registerDependencies() {
     useFactory: () =>
       new AdvanceProposalStage(proposalRepo, checklistRepo, checklistConfig),
   })
-  container.register(RevertProposalStage, {
-    useFactory: () => new RevertProposalStage(proposalRepo),
-  })
   container.register(MarkProposalLost, {
     useFactory: () => new MarkProposalLost(proposalRepo),
   })
@@ -147,9 +142,6 @@ export function registerDependencies() {
   })
   container.register(ListChecklistItems, {
     useFactory: () => new ListChecklistItems(checklistRepo),
-  })
-  container.register(ToggleChecklistItem, {
-    useFactory: () => new ToggleChecklistItem(checklistRepo),
   })
   container.register(CompleteChecklistByAttachment, {
     useFactory: () => new CompleteChecklistByAttachment(checklistRepo),

@@ -3,13 +3,11 @@ import { container } from '@repo/core'
 import {
   CreateProposal,
   AdvanceProposalStage,
-  RevertProposalStage,
   MarkProposalLost,
   ListProposals,
   GetProposal,
   UpdateProposalDetails,
   ListChecklistItems,
-  ToggleChecklistItem,
   CompleteChecklistByAttachment,
   ProposalNotFoundError,
   InvalidStageTransitionError,
@@ -143,27 +141,6 @@ export async function proposalRoutes(app: FastifyInstance) {
   )
 
   app.post(
-    '/api/v1/proposals/:id/revert',
-    { preHandler: [requireAbility('update', 'Proposal')] },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const { id } = idParamSchema.parse(request.params)
-      const useCase = container.resolve(RevertProposalStage)
-      try {
-        const result = await useCase.execute(id, request.organizationId!)
-        auditUpdate({
-          request,
-          entityType: 'Proposal',
-          entityId: id,
-          after: { stage: result.stage },
-        })
-        return reply.send({ success: true, data: result.toJSON() })
-      } catch (error) {
-        return handleProposalError(error, reply)
-      }
-    }
-  )
-
-  app.post(
     '/api/v1/proposals/:id/lost',
     { preHandler: [requireAbility('update', 'Proposal')] },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -220,21 +197,6 @@ export async function proposalRoutes(app: FastifyInstance) {
       try {
         const result = await useCase.execute(id)
         return reply.send({ success: true, data: result })
-      } catch (error) {
-        return handleProposalError(error, reply)
-      }
-    }
-  )
-
-  app.post(
-    '/api/v1/proposals/:id/checklist/:itemId/toggle',
-    { preHandler: [requireAbility('update', 'Proposal')] },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const { id, itemId } = checklistItemIdParamSchema.parse(request.params)
-      const useCase = container.resolve(ToggleChecklistItem)
-      try {
-        const item = await useCase.execute(itemId, id, request.user!.id)
-        return reply.send({ success: true, data: item })
       } catch (error) {
         return handleProposalError(error, reply)
       }

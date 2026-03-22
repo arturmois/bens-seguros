@@ -7,6 +7,7 @@ import { createAuth } from '@repo/auth'
 import { env } from '@repo/env'
 import * as Sentry from '@sentry/node'
 import type { FastifyError } from 'fastify'
+import { ZodError } from 'zod'
 import Fastify from 'fastify'
 import {
   serializerCompiler,
@@ -104,6 +105,18 @@ export async function buildApp() {
 
   // Sentry error handler
   app.setErrorHandler((error: FastifyError, request, reply) => {
+    if (error instanceof ZodError) {
+      const firstIssue = error.issues[0]
+      const field = firstIssue?.path.join('.') ?? 'input'
+      return reply.status(400).send({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: `Validação falhou no campo '${field}': ${firstIssue?.message ?? 'valor inválido'}`,
+        },
+      })
+    }
+
     if (process.env.SENTRY_DSN) {
       Sentry.captureException(error, {
         extra: { url: request.url, method: request.method },

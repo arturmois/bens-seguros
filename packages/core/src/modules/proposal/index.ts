@@ -47,14 +47,12 @@ export type {
 // Application
 export { CreateProposal } from './application/create-proposal.js'
 export { AdvanceProposalStage } from './application/advance-proposal-stage.js'
-export { RevertProposalStage } from './application/revert-proposal-stage.js'
 export { MarkProposalLost } from './application/mark-proposal-lost.js'
 export { ListProposals } from './application/list-proposals.js'
 export { GetProposal } from './application/get-proposal.js'
 export { UpdateProposalDetails } from './application/update-proposal-details.js'
 export { InitializeChecklist } from './application/initialize-checklist.js'
 export { ListChecklistItems } from './application/list-checklist-items.js'
-export { ToggleChecklistItem } from './application/toggle-checklist-item.js'
 export { CompleteChecklistByAttachment } from './application/complete-checklist-by-attachment.js'
 
 // Infrastructure

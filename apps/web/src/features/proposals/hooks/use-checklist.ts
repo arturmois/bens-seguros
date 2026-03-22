@@ -22,25 +22,6 @@ export function useChecklist(proposalId: string) {
   })
 }
 
-export function useToggleChecklistItem(proposalId: string) {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (itemId: string) => {
-      const res = await api.post<ChecklistItem>(
-        `/api/v1/proposals/${proposalId}/checklist/${itemId}/toggle`,
-        {}
-      )
-      return res.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['proposal-checklist', proposalId],
-      })
-    },
-  })
-}
-
 export function useCompleteChecklistItem(proposalId: string) {
   const queryClient = useQueryClient()
 

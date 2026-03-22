@@ -1,7 +1,5 @@
 'use client'
 
-import { useDroppable } from '@dnd-kit/react'
-
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
@@ -30,20 +28,8 @@ export function KanbanColumn({
   proposals,
   onCardClick,
 }: KanbanColumnProps) {
-  const { ref, isDropTarget } = useDroppable({
-    id: stage,
-    type: 'column',
-    accept: 'card',
-  })
-
   return (
-    <div
-      ref={ref}
-      className={cn(
-        'bg-muted/30 flex h-full w-[280px] shrink-0 flex-col rounded-xl border',
-        isDropTarget && 'ring-primary/50 ring-2'
-      )}
-    >
+    <div className="bg-muted/30 flex h-full w-[280px] shrink-0 flex-col rounded-xl border">
       <div className="flex items-center gap-2 border-b px-3 py-2.5">
         <span
           className={cn(
@@ -66,12 +52,10 @@ export function KanbanColumn({
             Nenhuma proposta
           </p>
         )}
-        {proposals.map((proposal, index) => (
+        {proposals.map((proposal) => (
           <KanbanCard
             key={proposal.id}
             proposal={proposal}
-            index={index}
-            column={stage}
             onClick={() => onCardClick(proposal)}
           />
         ))}

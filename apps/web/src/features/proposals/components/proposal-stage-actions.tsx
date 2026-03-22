@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronRight, Loader2, RotateCcw, XCircle } from 'lucide-react'
+import { ChevronRight, Loader2, XCircle } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -12,25 +12,19 @@ import {
 
 interface ProposalStageActionsProps {
   canAdvance: boolean
-  canRevert: boolean
   canMarkLost: boolean
   checklistBlocking: boolean
   advancePending: boolean
-  revertPending: boolean
   onAdvance: () => void
-  onRevert: () => void
   onMarkLost: () => void
 }
 
 export function ProposalStageActions({
   canAdvance,
-  canRevert,
   canMarkLost,
   checklistBlocking,
   advancePending,
-  revertPending,
   onAdvance,
-  onRevert,
   onMarkLost,
 }: ProposalStageActionsProps) {
   return (
@@ -61,16 +55,6 @@ export function ProposalStageActions({
             )}
           </Tooltip>
         </TooltipProvider>
-      )}
-      {canRevert && (
-        <Button variant="outline" onClick={onRevert} disabled={revertPending}>
-          {revertPending ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <RotateCcw className="mr-2 h-4 w-4" />
-          )}
-          Reverter
-        </Button>
       )}
       {canMarkLost && (
         <Button variant="destructive" onClick={onMarkLost}>

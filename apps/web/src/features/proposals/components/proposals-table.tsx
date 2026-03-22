@@ -25,11 +25,7 @@ import {
 import { useDebounce } from '@/hooks/use-debounce'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 
-import {
-  useAdvanceProposal,
-  useProposals,
-  useRevertProposal,
-} from '../hooks/use-proposals'
+import { useAdvanceProposal, useProposals } from '../hooks/use-proposals'
 import type { BoardType, ProposalData, ProposalStage } from '../types'
 import {
   BOARD_TYPE_LABELS,
@@ -74,7 +70,6 @@ export function ProposalsTable() {
 
   const { data, isLoading, isError, refetch } = useProposals(filters)
   const advanceMutation = useAdvanceProposal()
-  const revertMutation = useRevertProposal()
 
   const handleRowClick = useCallback(
     (id: string) => {
@@ -229,10 +224,8 @@ export function ProposalsTable() {
                             onAdvance={() =>
                               advanceMutation.mutate(proposal.id)
                             }
-                            onRevert={() => revertMutation.mutate(proposal.id)}
                             onLost={() => setLostDialogProposalId(proposal.id)}
                             isAdvancing={advanceMutation.isPending}
-                            isReverting={revertMutation.isPending}
                           />
                         </div>
                       </TableCell>
