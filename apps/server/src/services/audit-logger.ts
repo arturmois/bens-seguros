@@ -1,9 +1,9 @@
 import {
-  logCreate,
-  logUpdate,
-  logDelete,
   logApprove,
+  logCreate,
+  logDelete,
   logReject,
+  logUpdate,
 } from '@repo/core'
 import type { Prisma } from '@repo/db'
 import type { FastifyRequest } from 'fastify'
@@ -45,7 +45,9 @@ export function auditCreate(ctx: AuditContext): void {
     entityType: ctx.entityType,
     entityId: ctx.entityId,
     after: toJson(ctx.after),
-  }).catch(() => {})
+  }).catch((err: unknown) => {
+    ctx.request.log.warn({ err }, 'Audit logging failed (non-critical)')
+  })
 }
 
 export function auditUpdate(ctx: AuditContext): void {
@@ -55,7 +57,9 @@ export function auditUpdate(ctx: AuditContext): void {
     entityId: ctx.entityId,
     before: toJson(ctx.before),
     after: toJson(ctx.after),
-  }).catch(() => {})
+  }).catch((err: unknown) => {
+    ctx.request.log.warn({ err }, 'Audit logging failed (non-critical)')
+  })
 }
 
 export function auditDelete(ctx: AuditContext): void {
@@ -64,7 +68,9 @@ export function auditDelete(ctx: AuditContext): void {
     entityType: ctx.entityType,
     entityId: ctx.entityId,
     before: toJson(ctx.before),
-  }).catch(() => {})
+  }).catch((err: unknown) => {
+    ctx.request.log.warn({ err }, 'Audit logging failed (non-critical)')
+  })
 }
 
 export function auditApprove(ctx: AuditContext): void {
@@ -73,7 +79,9 @@ export function auditApprove(ctx: AuditContext): void {
     entityType: ctx.entityType,
     entityId: ctx.entityId,
     after: toJson(ctx.after),
-  }).catch(() => {})
+  }).catch((err: unknown) => {
+    ctx.request.log.warn({ err }, 'Audit logging failed (non-critical)')
+  })
 }
 
 export function auditReject(ctx: AuditContext): void {
@@ -82,5 +90,7 @@ export function auditReject(ctx: AuditContext): void {
     entityType: ctx.entityType,
     entityId: ctx.entityId,
     after: toJson(ctx.after),
-  }).catch(() => {})
+  }).catch((err: unknown) => {
+    ctx.request.log.warn({ err }, 'Audit logging failed (non-critical)')
+  })
 }

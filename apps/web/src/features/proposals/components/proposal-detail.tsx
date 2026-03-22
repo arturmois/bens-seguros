@@ -15,11 +15,7 @@ import { usePolicyByProposal } from '@/features/policies/hooks/use-policies'
 
 import { useChecklist } from '../hooks/use-checklist'
 import { ProposalStageActions } from './proposal-stage-actions'
-import {
-  useAdvanceProposal,
-  useProposal,
-  useRevertProposal,
-} from '../hooks/use-proposals'
+import { useAdvanceProposal, useProposal } from '../hooks/use-proposals'
 import {
   BOARD_TYPE_LABELS,
   BRANCH_LABELS,
@@ -43,7 +39,6 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
   const { data: existingPolicy } = usePolicyByProposal(proposalId)
   const { data: checklistData } = useChecklist(proposalId)
   const advanceMutation = useAdvanceProposal()
-  const revertMutation = useRevertProposal()
   const [showLostDialog, setShowLostDialog] = useState(false)
 
   if (isLoading) {
@@ -84,10 +79,6 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
     !isTerminalStage &&
     proposal.stage !== 'CAPTURE' &&
     checklistData?.summary.canAdvance === false
-  const canRevert =
-    proposal.stage !== 'CAPTURE' &&
-    proposal.stage !== 'LOST' &&
-    proposal.stage !== 'POLICY_ISSUED'
   const canMarkLost =
     proposal.stage !== 'LOST' && proposal.stage !== 'POLICY_ISSUED'
 
@@ -168,13 +159,10 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
 
       <ProposalStageActions
         canAdvance={canAdvance}
-        canRevert={canRevert}
         canMarkLost={canMarkLost}
         checklistBlocking={checklistBlocking}
         advancePending={advanceMutation.isPending}
-        revertPending={revertMutation.isPending}
         onAdvance={() => advanceMutation.mutate(proposalId)}
-        onRevert={() => revertMutation.mutate(proposalId)}
         onMarkLost={() => setShowLostDialog(true)}
       />
 

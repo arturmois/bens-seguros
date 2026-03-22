@@ -22,6 +22,9 @@ export const env = createEnv({
     ANTHROPIC_API_KEY: z.string().optional(),
     OPENAI_API_KEY: z.string().optional(),
     RESEND_API_KEY: z.string().optional(),
+    RESEND_FROM_ADDRESS: z
+      .string()
+      .default('Bens Seguros <noreply@bens.com.br>'),
     SENTRY_DSN: z.string().url().optional(),
     META_WHATSAPP_TOKEN: z.string().optional(),
     META_WHATSAPP_VERIFY_TOKEN: z.string().optional(),

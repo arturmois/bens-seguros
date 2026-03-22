@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-import { api } from '@/lib/api-client'
+import { api, ApiError } from '@/lib/api-client'
 
 import type {
   BoardType,
@@ -106,6 +106,8 @@ export function useCreateProposal() {
   })
 }
 
+const CHECKLIST_KEY_PREFIX = 'proposal-checklist' as const
+
 export function useAdvanceProposal() {
   const queryClient = useQueryClient()
 
@@ -116,26 +118,14 @@ export function useAdvanceProposal() {
       toast.success('Estágio avançado com sucesso')
       void queryClient.invalidateQueries({ queryKey: PROPOSALS_KEY })
       void queryClient.invalidateQueries({ queryKey: proposalKey(id) })
+      void queryClient.invalidateQueries({
+        queryKey: [CHECKLIST_KEY_PREFIX, id],
+      })
     },
-    onError: () => {
-      toast.error('Erro ao avançar estágio')
-    },
-  })
-}
-
-export function useRevertProposal() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (id: string) =>
-      api.post<ProposalData>(`/api/v1/proposals/${id}/revert`, {}),
-    onSuccess: (_data, id) => {
-      toast.success('Estágio revertido com sucesso')
-      void queryClient.invalidateQueries({ queryKey: PROPOSALS_KEY })
-      void queryClient.invalidateQueries({ queryKey: proposalKey(id) })
-    },
-    onError: () => {
-      toast.error('Erro ao reverter estágio')
+    onError: (error: Error) => {
+      const message =
+        error instanceof ApiError ? error.message : 'Erro ao avançar estágio'
+      toast.error(message)
     },
   })
 }

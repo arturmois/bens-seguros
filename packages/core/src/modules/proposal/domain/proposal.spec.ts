@@ -51,24 +51,6 @@ describe('Proposal Entity', () => {
     expect(() => proposal.advance()).toThrow(InvalidStageTransitionError)
   })
 
-  it('reverts from QUOTE to CAPTURE', () => {
-    const proposal = Proposal.create(validProps)
-    proposal.advance() // QUOTE
-    proposal.revert()
-    expect(proposal.stage).toBe('CAPTURE')
-  })
-
-  it('cannot revert from CAPTURE', () => {
-    const proposal = Proposal.create(validProps)
-    expect(() => proposal.revert()).toThrow(InvalidStageTransitionError)
-  })
-
-  it('cannot revert from POLICY_ISSUED', () => {
-    const proposal = Proposal.create(validProps)
-    for (let i = 0; i < 5; i++) proposal.advance()
-    expect(() => proposal.revert()).toThrow(InvalidStageTransitionError)
-  })
-
   it('marks as lost with reason', () => {
     const proposal = Proposal.create(validProps)
     proposal.advance() // QUOTE
@@ -104,13 +86,6 @@ describe('Proposal Entity', () => {
     const proposal = Proposal.create(validProps)
     proposal.markAsLost('reason')
     expect(() => proposal.advance()).toThrow(InvalidStageTransitionError)
-  })
-
-  it('cannot revert from LOST', () => {
-    const proposal = Proposal.create(validProps)
-    proposal.advance()
-    proposal.markAsLost('reason')
-    expect(() => proposal.revert()).toThrow(InvalidStageTransitionError)
   })
 
   it('restores from persistence data', () => {

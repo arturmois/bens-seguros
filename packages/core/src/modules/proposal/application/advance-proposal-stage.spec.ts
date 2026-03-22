@@ -32,10 +32,8 @@ function createMockChecklistRepo(canAdvance = true): ChecklistRepository {
     createMany: vi.fn().mockResolvedValue(undefined),
     findByProposal: vi.fn().mockResolvedValue([]),
     findById: vi.fn().mockResolvedValue(null),
-    toggle: vi.fn(),
     complete: vi.fn(),
     getSummary: vi.fn().mockResolvedValue(summary),
-    getSummaryForStage: vi.fn().mockResolvedValue(summary),
   }
 }
 
@@ -117,13 +115,17 @@ describe('AdvanceProposalStage', () => {
     })
     proposal.advance() // CAPTURE -> QUOTE
     // Manually set details so the details guard passes
-    proposal.updateDetails({
-      branch: 'AUTO',
-      marca: 'Toyota',
-      modelo: 'Corolla',
-      anoFabricacao: 2020,
-      anoModelo: 2021,
-    })
+    proposal.updateDetails(
+      {
+        branch: 'AUTO',
+        marca: 'Toyota',
+        modelo: 'Corolla',
+        anoFabricacao: 2020,
+        anoModelo: 2021,
+      },
+      150000,
+      1500
+    )
     const repo = createMockRepo(proposal)
     const checklistRepo = createMockChecklistRepo(false)
     const checklistConfig = createMockChecklistConfig()

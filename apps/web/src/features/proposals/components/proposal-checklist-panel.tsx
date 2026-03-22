@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/progress'
 import { Spinner } from '@/components/ui/spinner'
 
-import { useChecklist, useToggleChecklistItem } from '../hooks/use-checklist'
+import { useChecklist, useCompleteChecklistItem } from '../hooks/use-checklist'
 import type { ChecklistItem } from '../types'
 
 interface ProposalChecklistPanelProps {
@@ -20,13 +20,13 @@ interface ProposalChecklistPanelProps {
 
 interface ChecklistItemRowProps {
   item: ChecklistItem
-  onToggle: (id: string) => void
+  onComplete: (id: string) => void
   isPending: boolean
 }
 
 function ChecklistItemRow({
   item,
-  onToggle,
+  onComplete,
   isPending,
 }: ChecklistItemRowProps) {
   return (
@@ -34,13 +34,15 @@ function ChecklistItemRow({
       <Checkbox
         id={item.id}
         checked={item.isCompleted}
-        disabled={isPending}
-        onCheckedChange={() => onToggle(item.id)}
+        disabled={item.isCompleted || isPending}
+        onCheckedChange={() => {
+          if (!item.isCompleted) onComplete(item.id)
+        }}
         className="mt-0.5"
       />
       <label
         htmlFor={item.id}
-        className="flex flex-1 cursor-pointer items-center gap-2 text-sm leading-tight"
+        className={`flex flex-1 items-center gap-2 text-sm leading-tight ${item.isCompleted ? 'cursor-default' : 'cursor-pointer'}`}
       >
         <span
           className={
@@ -63,7 +65,7 @@ export function ProposalChecklistPanel({
   proposalId,
 }: ProposalChecklistPanelProps) {
   const { data, isLoading, isError } = useChecklist(proposalId)
-  const toggleMutation = useToggleChecklistItem(proposalId)
+  const completeMutation = useCompleteChecklistItem(proposalId)
 
   if (isLoading) {
     return (
@@ -138,8 +140,8 @@ export function ProposalChecklistPanel({
               <ChecklistItemRow
                 key={item.id}
                 item={item}
-                onToggle={toggleMutation.mutate}
-                isPending={toggleMutation.isPending}
+                onComplete={completeMutation.mutate}
+                isPending={completeMutation.isPending}
               />
             ))}
           </div>
@@ -156,8 +158,8 @@ export function ProposalChecklistPanel({
               <ChecklistItemRow
                 key={item.id}
                 item={item}
-                onToggle={toggleMutation.mutate}
-                isPending={toggleMutation.isPending}
+                onComplete={completeMutation.mutate}
+                isPending={completeMutation.isPending}
               />
             ))}
           </div>

@@ -12,12 +12,16 @@ export type {
   CreateNotificationInput,
   NotificationData,
   NotificationFilters,
+  NotificationJobData,
 } from './domain/notification-types.js'
 
 export { PrismaNotificationRepository } from './infrastructure/prisma-notification-repository.js'
 
 export type { EmailPayload, EmailProvider } from './domain/email-provider.js'
-export { ResendEmailProvider } from './infrastructure/resend-email-provider.js'
+export {
+  DEFAULT_FROM_ADDRESS,
+  ResendEmailProvider,
+} from './infrastructure/resend-email-provider.js'
 
 export { claimOpenedEmail } from './infrastructure/email-templates/claim-opened.js'
 export { commissionApprovedEmail } from './infrastructure/email-templates/commission-approved.js'

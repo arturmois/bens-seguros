@@ -1,8 +1,8 @@
 'use client'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api-client'
-import type { NotificationData, NotificationListMeta } from '../types/index'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { NotificationData } from '../types/index'
 
 export function useNotifications(limit = 10) {
   return useQuery({
@@ -13,7 +13,7 @@ export function useNotifications(limit = 10) {
       )
       return {
         data: res.data,
-        meta: res.meta as NotificationListMeta | undefined,
+        meta: res.meta,
       }
     },
     staleTime: 30_000,

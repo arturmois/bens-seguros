@@ -5,9 +5,8 @@ import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api-client'
 
 import type { BoardType, ProposalData, ProposalStage } from '../types'
-import { STAGES } from '../types'
 
-const KANBAN_LIMIT = 500
+const KANBAN_LIMIT = 100
 
 interface KanbanFilters {
   boardType: BoardType
@@ -34,18 +33,19 @@ export function useKanbanProposals(filters: KanbanFilters) {
 export function groupByStage(
   proposals: ProposalData[]
 ): Record<ProposalStage, ProposalData[]> {
-  const grouped: Record<string, ProposalData[]> = {}
-
-  for (const stage of STAGES) {
-    grouped[stage] = []
+  const grouped: Record<ProposalStage, ProposalData[]> = {
+    CAPTURE: [],
+    QUOTE: [],
+    PROTOCOL: [],
+    INSPECTION: [],
+    PAYMENT: [],
+    POLICY_ISSUED: [],
+    LOST: [],
   }
 
   for (const proposal of proposals) {
-    const stageGroup = grouped[proposal.stage]
-    if (stageGroup) {
-      stageGroup.push(proposal)
-    }
+    grouped[proposal.stage].push(proposal)
   }
 
-  return grouped as Record<ProposalStage, ProposalData[]>
+  return grouped
 }

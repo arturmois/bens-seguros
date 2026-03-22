@@ -13,9 +13,12 @@ import {
   validatorCompiler,
 } from 'fastify-type-provider-zod'
 import 'reflect-metadata'
+import { ZodError } from 'zod'
 import { setupBullBoard } from './bull-board.js'
 import { registerDependencies } from './container-registrations.js'
+import { requireAbility } from './middlewares/ability-middleware.js'
 import { createAuthMiddleware } from './middlewares/auth-middleware.js'
+import { tenantMiddleware } from './middlewares/tenant-middleware.js'
 import { registerAuthRoutes } from './routes/auth-routes.js'
 import { assistanceRoutes } from './routes/v1/assistance-routes.js'
 import { auditLogRoutes } from './routes/v1/audit-log-routes.js'
@@ -96,14 +99,28 @@ export async function buildApp() {
     await authenticatedApp.register(notificationRoutes)
   })
 
-  // Bull Board (admin-only, inside authenticated scope)
+  // Bull Board (owner-only, inside authenticated + tenant scope)
   await app.register(async (adminApp) => {
     adminApp.addHook('preHandler', authMiddleware)
+    adminApp.addHook('preHandler', tenantMiddleware)
+    adminApp.addHook('preHandler', requireAbility('manage', 'all'))
     setupBullBoard(adminApp)
   })
 
   // Sentry error handler
   app.setErrorHandler((error: FastifyError, request, reply) => {
+    if (error instanceof ZodError) {
+      const firstIssue = error.issues[0]
+      const field = firstIssue?.path.join('.') ?? 'input'
+      return reply.status(400).send({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: `Validação falhou no campo '${field}': ${firstIssue?.message ?? 'valor inválido'}`,
+        },
+      })
+    }
+
     if (process.env.SENTRY_DSN) {
       Sentry.captureException(error, {
         extra: { url: request.url, method: request.method },

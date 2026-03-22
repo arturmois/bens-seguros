@@ -1,10 +1,12 @@
-import { policyExpiringEmail } from '@repo/core/notification'
+import {
+  policyExpiringEmail,
+  type NotificationJobData,
+} from '@repo/core/notification'
 import { prisma } from '@repo/db'
 import { env } from '@repo/env'
 import type { ConnectionOptions } from 'bullmq'
 import { Queue, Worker } from 'bullmq'
 import pino from 'pino'
-import type { NotificationJobData } from './notification-processor.js'
 
 const logger = pino({ name: 'policy-expiry-processor' })
 

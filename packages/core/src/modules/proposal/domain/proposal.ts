@@ -107,29 +107,6 @@ export class Proposal {
     this.props.updatedAt = new Date()
   }
 
-  revert(): void {
-    if (!isActiveStage(this.props.stage)) {
-      throw new InvalidStageTransitionError(this.props.stage, 'reverter')
-    }
-
-    if (this.props.stage === 'POLICY_ISSUED') {
-      throw new InvalidStageTransitionError(this.props.stage, 'reverter')
-    }
-
-    const currentIndex = STAGES.indexOf(this.props.stage)
-    if (currentIndex <= 0) {
-      throw new InvalidStageTransitionError(this.props.stage, 'reverter')
-    }
-
-    const prevStage = STAGES[currentIndex - 1]
-    if (!prevStage) {
-      throw new InvalidStageTransitionError(this.props.stage, 'reverter')
-    }
-
-    this.props.stage = prevStage
-    this.props.updatedAt = new Date()
-  }
-
   updateDetails(
     details: InsuredObjectDetails,
     premiumValueInCents: number,

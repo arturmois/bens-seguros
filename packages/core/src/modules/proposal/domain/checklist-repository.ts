@@ -25,11 +25,6 @@ export interface ChecklistRepository {
   ): Promise<void>
   findByProposal(proposalId: string): Promise<ChecklistItemData[]>
   findById(id: string, proposalId: string): Promise<ChecklistItemData | null>
-  toggle(
-    id: string,
-    proposalId: string,
-    userId: string
-  ): Promise<ChecklistItemData>
   complete(
     id: string,
     proposalId: string,

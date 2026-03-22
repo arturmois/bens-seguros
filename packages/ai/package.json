@@ -7,9 +7,9 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "ai": "^4.0.0",
     "@ai-sdk/anthropic": "^1.0.0",
-    "@ai-sdk/openai": "^1.0.0"
+    "@ai-sdk/openai": "^1.0.0",
+    "ai": "^4.3.19"
   },
   "devDependencies": {
     "@config/typescript-config": "workspace:*",

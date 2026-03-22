@@ -1,4 +1,5 @@
-import type { PrismaClient } from '@repo/db'
+import type { PrismaClient, Notification } from '@repo/db'
+import { Prisma } from '@repo/db'
 import type { NotificationRepository } from '../domain/notification-repository.js'
 import type {
   CreateNotificationInput,
@@ -6,20 +7,20 @@ import type {
   NotificationFilters,
 } from '../domain/notification-types.js'
 
-function toData(row: Record<string, unknown>): NotificationData {
+function toData(row: Notification): NotificationData {
   return {
-    id: row.id as string,
-    organizationId: row.organizationId as string,
-    userId: row.userId as string,
-    type: row.type as string,
-    title: row.title as string,
-    body: row.body as string,
-    entityType: (row.entityType as string | null) ?? null,
-    entityId: (row.entityId as string | null) ?? null,
-    read: row.read as boolean,
-    readAt: (row.readAt as Date | null) ?? null,
-    emailSent: row.emailSent as boolean,
-    createdAt: row.createdAt as Date,
+    id: row.id,
+    organizationId: row.organizationId,
+    userId: row.userId,
+    type: row.type,
+    title: row.title,
+    body: row.body,
+    entityType: row.entityType,
+    entityId: row.entityId,
+    read: row.read,
+    readAt: row.readAt,
+    emailSent: row.emailSent,
+    createdAt: row.createdAt,
   }
 }
 
@@ -38,7 +39,7 @@ export class PrismaNotificationRepository implements NotificationRepository {
         entityId: input.entityId ?? null,
       },
     })
-    return toData(row as unknown as Record<string, unknown>)
+    return toData(row)
   }
 
   async findById(
@@ -49,7 +50,7 @@ export class PrismaNotificationRepository implements NotificationRepository {
       where: { id, organizationId },
     })
     if (!row) return null
-    return toData(row as unknown as Record<string, unknown>)
+    return toData(row)
   }
 
   async findMany(filters: NotificationFilters): Promise<{
@@ -58,12 +59,10 @@ export class PrismaNotificationRepository implements NotificationRepository {
     nextCursor: string | null
   }> {
     const limit = filters.limit ?? 20
-    const where: Record<string, unknown> = {
+    const where: Prisma.NotificationWhereInput = {
       organizationId: filters.organizationId,
       userId: filters.userId,
-    }
-    if (filters.read !== undefined) {
-      where.read = filters.read
+      ...(filters.read !== undefined && { read: filters.read }),
     }
 
     const [rows, total] = await Promise.all([
@@ -77,9 +76,7 @@ export class PrismaNotificationRepository implements NotificationRepository {
     ])
 
     const hasMore = rows.length > limit
-    const data = (hasMore ? rows.slice(0, limit) : rows).map((r) =>
-      toData(r as unknown as Record<string, unknown>)
-    )
+    const data = (hasMore ? rows.slice(0, limit) : rows).map(toData)
     const nextCursor = hasMore ? (data.at(-1)?.id ?? null) : null
 
     return { data, total, nextCursor }
