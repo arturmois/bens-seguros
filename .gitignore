@@ -3,6 +3,7 @@ node_modules/
 dist/
 generated/
 uploads/
+_reference/
 .turbo/
 *.tsbuildinfo
 .env

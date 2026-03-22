@@ -1,32 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  ArrowLeft,
-  ChevronRight,
-  Loader2,
-  RefreshCw,
-  RotateCcw,
-  XCircle,
-} from 'lucide-react'
+import { ArrowLeft, RefreshCw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 
 import { DocumentList } from '@/features/documents/components/document-list'
 import { DocumentUpload } from '@/features/documents/components/document-upload'
 import { usePolicyByProposal } from '@/features/policies/hooks/use-policies'
 
 import { useChecklist } from '../hooks/use-checklist'
+import { ProposalStageActions } from './proposal-stage-actions'
 import {
   useAdvanceProposal,
   useProposal,
@@ -178,55 +166,17 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
 
       <Separator />
 
-      <div className="flex flex-wrap gap-3">
-        {canAdvance && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span>
-                  <Button
-                    onClick={() => advanceMutation.mutate(proposalId)}
-                    disabled={advanceMutation.isPending || checklistBlocking}
-                    variant="default"
-                  >
-                    {advanceMutation.isPending ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <ChevronRight className="mr-2 h-4 w-4" />
-                    )}
-                    Avançar Estágio
-                  </Button>
-                </span>
-              </TooltipTrigger>
-              {checklistBlocking && (
-                <TooltipContent side="top">
-                  Complete os itens obrigatórios do checklist
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
-        )}
-        {canRevert && (
-          <Button
-            variant="outline"
-            onClick={() => revertMutation.mutate(proposalId)}
-            disabled={revertMutation.isPending}
-          >
-            {revertMutation.isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <RotateCcw className="mr-2 h-4 w-4" />
-            )}
-            Reverter
-          </Button>
-        )}
-        {canMarkLost && (
-          <Button variant="destructive" onClick={() => setShowLostDialog(true)}>
-            <XCircle className="mr-2 h-4 w-4" />
-            Marcar como Perda
-          </Button>
-        )}
-      </div>
+      <ProposalStageActions
+        canAdvance={canAdvance}
+        canRevert={canRevert}
+        canMarkLost={canMarkLost}
+        checklistBlocking={checklistBlocking}
+        advancePending={advanceMutation.isPending}
+        revertPending={revertMutation.isPending}
+        onAdvance={() => advanceMutation.mutate(proposalId)}
+        onRevert={() => revertMutation.mutate(proposalId)}
+        onMarkLost={() => setShowLostDialog(true)}
+      />
 
       {proposal.stage === 'POLICY_ISSUED' && (
         <IssuePolicyCard

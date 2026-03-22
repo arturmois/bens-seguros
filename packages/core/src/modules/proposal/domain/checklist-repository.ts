@@ -36,8 +36,4 @@ export interface ChecklistRepository {
     userId: string
   ): Promise<ChecklistItemData>
   getSummary(proposalId: string): Promise<ChecklistSummary>
-  getSummaryForStage(
-    proposalId: string,
-    stage: string
-  ): Promise<ChecklistSummary>
 }

@@ -4,6 +4,7 @@ import { env } from '@repo/env'
 import {
   PrismaClientRepository,
   PrismaProposalRepository,
+  PrismaChecklistRepository,
   PrismaPolicyRepository,
   PrismaClaimRepository,
   PrismaOccurrenceRepository,
@@ -14,6 +15,7 @@ import {
   PrismaCommissionRepository,
   LocalStorageProvider,
   R2StorageProvider,
+  StaticChecklistConfig,
   CreateClient,
   ListClients,
   GetClient,
@@ -26,6 +28,9 @@ import {
   ListProposals,
   GetProposal,
   UpdateProposalDetails,
+  ListChecklistItems,
+  ToggleChecklistItem,
+  CompleteChecklistByAttachment,
   IssuePolicy,
   ListPolicies,
   GetPolicy,
@@ -70,6 +75,8 @@ import {
 export function registerDependencies() {
   const clientRepo = new PrismaClientRepository(prisma)
   const proposalRepo = new PrismaProposalRepository(prisma)
+  const checklistRepo = new PrismaChecklistRepository(prisma)
+  const checklistConfig = new StaticChecklistConfig()
   const policyRepo = new PrismaPolicyRepository(prisma)
   const claimRepo = new PrismaClaimRepository(prisma)
   const occurrenceRepo = new PrismaOccurrenceRepository(prisma)
@@ -87,6 +94,8 @@ export function registerDependencies() {
   container.register('PrismaClient', { useValue: prisma })
   container.register('ClientRepository', { useValue: clientRepo })
   container.register('ProposalRepository', { useValue: proposalRepo })
+  container.register('ChecklistRepository', { useValue: checklistRepo })
+  container.register('ChecklistConfigProvider', { useValue: checklistConfig })
   container.register('PolicyRepository', { useValue: policyRepo })
   container.register('ClaimRepository', { useValue: claimRepo })
   container.register('OccurrenceRepository', { useValue: occurrenceRepo })
@@ -114,10 +123,12 @@ export function registerDependencies() {
 
   // Proposal use cases
   container.register(CreateProposal, {
-    useFactory: () => new CreateProposal(proposalRepo),
+    useFactory: () =>
+      new CreateProposal(proposalRepo, checklistRepo, checklistConfig),
   })
   container.register(AdvanceProposalStage, {
-    useFactory: () => new AdvanceProposalStage(proposalRepo),
+    useFactory: () =>
+      new AdvanceProposalStage(proposalRepo, checklistRepo, checklistConfig),
   })
   container.register(RevertProposalStage, {
     useFactory: () => new RevertProposalStage(proposalRepo),
@@ -133,6 +144,15 @@ export function registerDependencies() {
   })
   container.register(UpdateProposalDetails, {
     useFactory: () => new UpdateProposalDetails(proposalRepo),
+  })
+  container.register(ListChecklistItems, {
+    useFactory: () => new ListChecklistItems(checklistRepo),
+  })
+  container.register(ToggleChecklistItem, {
+    useFactory: () => new ToggleChecklistItem(checklistRepo),
+  })
+  container.register(CompleteChecklistByAttachment, {
+    useFactory: () => new CompleteChecklistByAttachment(checklistRepo),
   })
 
   // Policy use cases
