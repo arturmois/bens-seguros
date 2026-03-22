@@ -1,0 +1,93 @@
+'use client'
+
+import { cn } from '@/lib/utils'
+import {
+  Bell,
+  FileWarning,
+  CheckCircle,
+  XCircle,
+  Clock,
+  UserCheck,
+} from 'lucide-react'
+import type { NotificationData } from '../types/index'
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  CLAIM_OPENED: FileWarning,
+  COMMISSION_APPROVED: CheckCircle,
+  COMMISSION_REJECTED: XCircle,
+  POLICY_EXPIRING: Clock,
+  INVITATION_ACCEPTED: UserCheck,
+}
+
+const COLOR_MAP: Record<string, string> = {
+  CLAIM_OPENED: 'text-amber-500',
+  COMMISSION_APPROVED: 'text-emerald-500',
+  COMMISSION_REJECTED: 'text-red-500',
+  POLICY_EXPIRING: 'text-orange-500',
+  INVITATION_ACCEPTED: 'text-blue-500',
+}
+
+function formatRelativeTime(dateStr: string): string {
+  const now = Date.now()
+  const date = new Date(dateStr).getTime()
+  const diff = now - date
+  const minutes = Math.floor(diff / 60000)
+  if (minutes < 1) return 'agora'
+  if (minutes < 60) return `${minutes}min`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h`
+  const days = Math.floor(hours / 24)
+  return `${days}d`
+}
+
+interface NotificationItemProps {
+  notification: NotificationData
+  onMarkAsRead: (id: string) => void
+}
+
+export function NotificationItem({
+  notification,
+  onMarkAsRead,
+}: NotificationItemProps) {
+  const Icon = ICON_MAP[notification.type] ?? Bell
+  const iconColor = COLOR_MAP[notification.type] ?? 'text-muted-foreground'
+
+  return (
+    <button
+      type="button"
+      className={cn(
+        'hover:bg-muted/50 flex w-full items-start gap-3 px-4 py-3 text-left transition-colors',
+        !notification.read && 'bg-primary/5'
+      )}
+      onClick={() => {
+        if (!notification.read) {
+          onMarkAsRead(notification.id)
+        }
+      }}
+      aria-label={`${notification.read ? '' : 'Nova '}notificacao: ${notification.title}`}
+    >
+      <Icon className={cn('mt-0.5 size-4 shrink-0', iconColor)} />
+      <div className="min-w-0 flex-1">
+        <p
+          className={cn(
+            'truncate text-sm',
+            notification.read
+              ? 'text-muted-foreground'
+              : 'text-foreground font-medium'
+          )}
+        >
+          {notification.title}
+        </p>
+        <p className="text-muted-foreground mt-0.5 truncate text-xs">
+          {notification.body}
+        </p>
+      </div>
+      <span className="text-muted-foreground shrink-0 text-xs">
+        {formatRelativeTime(notification.createdAt)}
+      </span>
+      {!notification.read && (
+        <span className="bg-primary mt-1.5 size-2 shrink-0 rounded-full" />
+      )}
+    </button>
+  )
+}

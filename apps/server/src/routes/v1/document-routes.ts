@@ -14,6 +14,7 @@ import {
   listDocumentsQuerySchema,
 } from '../../schemas/document.schemas.js'
 import { idParamSchema } from '../../schemas/client.schemas.js'
+import { auditCreate, auditDelete } from '../../services/audit-logger.js'
 
 function handleDocumentError(error: unknown, reply: FastifyReply) {
   if (error instanceof DocumentNotFoundError) {
@@ -60,6 +61,7 @@ export async function documentRoutes(app: FastifyInstance) {
           buffer,
           createdBy: request.user!.id,
         })
+        auditCreate({ request, entityType: 'Document', entityId: document.id })
         return reply.status(201).send({ success: true, data: document })
       } catch (error) {
         return handleDocumentError(error, reply)
@@ -105,6 +107,7 @@ export async function documentRoutes(app: FastifyInstance) {
       const useCase = container.resolve(DeleteDocument)
       try {
         await useCase.execute(id, request.organizationId!)
+        auditDelete({ request, entityType: 'Document', entityId: id })
         return reply.status(204).send()
       } catch (error) {
         return handleDocumentError(error, reply)

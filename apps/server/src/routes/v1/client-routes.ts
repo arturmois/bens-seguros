@@ -9,6 +9,11 @@ import {
   ClientAlreadyExistsError,
   ClientNotFoundError,
 } from '@repo/core'
+import {
+  auditCreate,
+  auditUpdate,
+  auditDelete,
+} from '../../services/audit-logger.js'
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
 import {
@@ -47,6 +52,12 @@ export async function clientRoutes(app: FastifyInstance) {
         const client = await useCase.execute({
           organizationId: request.organizationId!,
           ...body,
+        })
+        auditCreate({
+          request,
+          entityType: 'Client',
+          entityId: client.id,
+          after: client,
         })
         return reply.status(201).send({ success: true, data: client })
       } catch (error) {
@@ -97,8 +108,14 @@ export async function clientRoutes(app: FastifyInstance) {
       const body = updateClientBodySchema.parse(request.body)
       const useCase = container.resolve(UpdateClient)
       try {
-        const client = await useCase.execute(id, request.organizationId!, body)
-        return reply.send({ success: true, data: client })
+        const updated = await useCase.execute(id, request.organizationId!, body)
+        auditUpdate({
+          request,
+          entityType: 'Client',
+          entityId: id,
+          after: updated,
+        })
+        return reply.send({ success: true, data: updated })
       } catch (error) {
         return handleClientError(error, reply)
       }
@@ -113,6 +130,7 @@ export async function clientRoutes(app: FastifyInstance) {
       const useCase = container.resolve(DeleteClient)
       try {
         await useCase.execute(id, request.organizationId!)
+        auditDelete({ request, entityType: 'Client', entityId: id })
         return reply.status(204).send()
       } catch (error) {
         return handleClientError(error, reply)

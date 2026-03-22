@@ -34,6 +34,16 @@ export class BranchMismatchError extends Error {
   }
 }
 
+export class ChecklistIncompleteError extends Error {
+  readonly code = 'CHECKLIST_INCOMPLETE' as const
+  constructor(proposalId: string, pendingCount: number) {
+    super(
+      `Checklist incompleto: ${pendingCount} itens obrigatorios pendentes (proposta ${proposalId})`
+    )
+    this.name = 'ChecklistIncompleteError'
+  }
+}
+
 export const ProposalErrors = {
   notFound: (id: string) => new ProposalNotFoundError(id),
   invalidTransition: (from: string, action: string) =>
@@ -41,4 +51,6 @@ export const ProposalErrors = {
   detailsRequired: (id: string) => new ProposalDetailsRequiredError(id),
   branchMismatch: (expected: string, received: string) =>
     new BranchMismatchError(expected, received),
+  checklistIncomplete: (id: string, pending: number) =>
+    new ChecklistIncompleteError(id, pending),
 }

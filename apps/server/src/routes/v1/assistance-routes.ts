@@ -16,6 +16,7 @@ import {
   listAssistancesQuerySchema,
 } from '../../schemas/assistance.schemas.js'
 import { idParamSchema } from '../../schemas/client.schemas.js'
+import { auditCreate, auditUpdate } from '../../services/audit-logger.js'
 
 function handleAssistanceError(error: unknown, reply: FastifyReply) {
   if (error instanceof AssistanceNotFoundError) {
@@ -46,6 +47,11 @@ export async function assistanceRoutes(app: FastifyInstance) {
         const assistance = await useCase.execute({
           organizationId: request.organizationId!,
           ...body,
+        })
+        auditCreate({
+          request,
+          entityType: 'Assistance',
+          entityId: assistance.id,
         })
         return reply.status(201).send({ success: true, data: assistance })
       } catch (error) {
@@ -101,6 +107,12 @@ export async function assistanceRoutes(app: FastifyInstance) {
           request.organizationId!,
           status
         )
+        auditUpdate({
+          request,
+          entityType: 'Assistance',
+          entityId: id,
+          after: { status },
+        })
         return reply.send({ success: true, data: assistance })
       } catch (error) {
         return handleAssistanceError(error, reply)

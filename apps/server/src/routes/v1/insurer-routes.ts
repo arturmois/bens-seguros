@@ -11,6 +11,7 @@ import {
   createInsurerBodySchema,
   listInsurersQuerySchema,
 } from '../../schemas/insurer.schemas.js'
+import { auditCreate } from '../../services/audit-logger.js'
 
 function handleInsurerError(error: unknown, reply: FastifyReply) {
   if (error instanceof InsurerAlreadyExistsError) {
@@ -36,6 +37,7 @@ export async function insurerRoutes(app: FastifyInstance) {
           organizationId: request.organizationId!,
           ...body,
         })
+        auditCreate({ request, entityType: 'Insurer', entityId: insurer.id })
         return reply.status(201).send({ success: true, data: insurer })
       } catch (error) {
         return handleInsurerError(error, reply)

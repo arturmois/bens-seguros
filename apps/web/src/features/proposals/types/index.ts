@@ -162,3 +162,23 @@ export const BOARD_TYPES: readonly BoardType[] = [
   'NEW_INSURANCE',
   'RENEWAL',
 ] as const
+
+export interface ChecklistItem {
+  readonly id: string
+  readonly proposalId: string
+  readonly itemKey: string
+  readonly label: string
+  readonly isRequired: boolean
+  readonly isCompleted: boolean
+  readonly completedAt: string | null
+  readonly completedBy: string | null
+  readonly createdAt: string
+}
+
+export interface ChecklistSummary {
+  readonly total: number
+  readonly completed: number
+  readonly required: number
+  readonly requiredCompleted: number
+  readonly canAdvance: boolean
+}

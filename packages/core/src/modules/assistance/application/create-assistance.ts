@@ -1,7 +1,7 @@
-import { injectable, inject } from 'tsyringe'
+import { inject, injectable } from 'tsyringe'
 import type {
-  AssistanceRepository,
   AssistanceData,
+  AssistanceRepository,
   CreateAssistanceInput,
 } from '../domain/assistance-repository.js'
 

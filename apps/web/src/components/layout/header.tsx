@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { NotificationBell } from '@/features/notifications/components/notification-bell'
 import { PanelLeftClose, PanelLeft } from 'lucide-react'
 
 interface HeaderProps {
@@ -10,7 +11,7 @@ interface HeaderProps {
 
 export function Header({ collapsed, onToggleSidebar }: HeaderProps) {
   return (
-    <header className="flex h-14 items-center px-4">
+    <header className="flex h-14 items-center justify-between px-4">
       <Button
         variant="ghost"
         size="icon"
@@ -24,6 +25,10 @@ export function Header({ collapsed, onToggleSidebar }: HeaderProps) {
           <PanelLeftClose className="size-4" />
         )}
       </Button>
+
+      <div className="flex items-center gap-2">
+        <NotificationBell />
+      </div>
     </header>
   )
 }
