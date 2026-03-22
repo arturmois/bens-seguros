@@ -17,6 +17,7 @@
     "@repo/db": "workspace:*",
     "@repo/env": "workspace:^",
     "reflect-metadata": "^0.2.0",
+    "resend": "^6.9.4",
     "tsyringe": "^4.8.0",
     "zod": "^3.24.0"
   },
