@@ -37,6 +37,7 @@ model User {
   policiesAsSalesperson  Policy[]   @relation("PolicySalesperson")
   claimsAssigned              Claim[]      @relation("ClaimAssignee")
   commissionsAsSalesperson    Commission[] @relation("CommissionSalesperson")
+  notifications               Notification[]
 }
 
 model Session {
@@ -510,6 +511,28 @@ model Commission {
   @@index([organizationId, status])
   @@index([organizationId, salespersonId])
   @@index([organizationId, policyId])
+  @@index([organizationId, createdAt(sort: Desc)])
+}
+
+// === NOTIFICATIONS ===
+
+model Notification {
+  id             String    @id @default(cuid())
+  organizationId String
+  userId         String
+  type           String // CLAIM_OPENED, COMMISSION_APPROVED, COMMISSION_REJECTED, POLICY_EXPIRING, INVITATION_ACCEPTED
+  title          String
+  body           String
+  entityType     String? // Claim, Commission, Policy
+  entityId       String?
+  read           Boolean   @default(false)
+  readAt         DateTime?
+  emailSent      Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([organizationId, userId, read])
   @@index([organizationId, createdAt(sort: Desc)])
 }
 
