@@ -1,5 +1,7 @@
 import 'reflect-metadata';
+import * as Sentry from '@sentry/node';
 import Fastify from 'fastify';
+import type { FastifyError } from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import multipart from '@fastify/multipart';
@@ -20,8 +22,11 @@ import { documentRoutes } from './routes/v1/document-routes.js';
 import { insurerRoutes } from './routes/v1/insurer-routes.js';
 import { commissionRoutes } from './routes/v1/commission-routes.js';
 import { chatTokenRoute } from './routes/v1/chat-token-route.js';
+import { statsRoutes } from './routes/v1/stats-routes.js';
+import { auditLogRoutes } from './routes/v1/audit-log-routes.js';
 import { createAuthMiddleware } from './middlewares/auth-middleware.js';
 import { registerDependencies } from './container-registrations.js';
+import { setupBullBoard } from './bull-board.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -82,6 +87,32 @@ export async function buildApp() {
     await authenticatedApp.register(insurerRoutes);
     await authenticatedApp.register(commissionRoutes);
     await authenticatedApp.register(chatTokenRoute);
+    await authenticatedApp.register(statsRoutes);
+    await authenticatedApp.register(auditLogRoutes);
+  });
+
+  // Bull Board (admin-only, inside authenticated scope)
+  await app.register(async (adminApp) => {
+    adminApp.addHook('preHandler', authMiddleware);
+    setupBullBoard(adminApp);
+  });
+
+  // Sentry error handler
+  app.setErrorHandler((error: FastifyError, request, reply) => {
+    if (process.env.SENTRY_DSN) {
+      Sentry.captureException(error, {
+        extra: { url: request.url, method: request.method },
+      });
+    }
+    request.log.error(error);
+    const statusCode = error.statusCode ?? 500;
+    return reply.status(statusCode).send({
+      success: false,
+      error: {
+        code: error.code ?? 'INTERNAL_ERROR',
+        message: statusCode === 500 ? 'Erro interno do servidor' : error.message,
+      },
+    });
   });
 
   return app;

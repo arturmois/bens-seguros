@@ -12,6 +12,7 @@ import { createAutoCloseProcessor } from './processors/auto-close-processor.js';
 import { createAiBotProcessor } from './processors/ai-bot-processor.js';
 import { createConnectChannelProcessor } from './processors/connect-channel-processor.js';
 import { createPairChannelProcessor } from './processors/pair-channel-processor.js';
+import { processMediaMigration } from './processors/media-migration-processor.js';
 import { QrStateManager } from './whatsapp/qr-state-manager.js';
 import type { IncomingMessage } from './messaging/broker.js';
 
@@ -174,6 +175,19 @@ async function bootstrap(): Promise<void> {
   attachWorkerErrorLogger(connectChannelWorker, CHAT_QUEUES.CONNECT_CHANNEL);
   attachWorkerErrorLogger(pairChannelWorker, CHAT_QUEUES.PAIR_CHANNEL);
 
+  // Media migration: weekly cron to move old media to R2
+  const mediaMigrationQueue = new Queue('chat-media-migration', { connection: bullmqConnection });
+  await mediaMigrationQueue.upsertJobScheduler(
+    'media-migration-weekly',
+    { pattern: '0 2 * * 0' },
+    { name: 'migrate-old-media' },
+  );
+  const mediaMigrationWorker = new Worker('chat-media-migration', processMediaMigration, {
+    connection: bullmqConnection,
+    concurrency: 1,
+  });
+  attachWorkerErrorLogger(mediaMigrationWorker, 'chat-media-migration');
+
   logger.info('Loading active Baileys channels...');
   await BaileysManager.loadActiveChannels((channelId, tenantId) =>
     buildChannelEvents(channelId, tenantId, incomingQueue, qrStateManager),
@@ -193,11 +207,13 @@ async function bootstrap(): Promise<void> {
       autoCloseWorker.close(),
       connectChannelWorker.close(),
       pairChannelWorker.close(),
+      mediaMigrationWorker.close(),
     ]);
 
     await aiBotQueue.close();
     await incomingQueue.close();
     await autoCloseQueue.close();
+    await mediaMigrationQueue.close();
 
     await disconnectMongoDB();
     await pubsubRedis.quit();

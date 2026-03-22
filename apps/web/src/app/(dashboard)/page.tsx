@@ -1,7 +1,10 @@
-export default function Home() {
+import { DashboardContent } from '@/features/dashboard/components/dashboard-content';
+
+export default function DashboardPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-primary-600 text-3xl font-semibold">Bens Seguros</h1>
-    </main>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-semibold">Dashboard</h1>
+      <DashboardContent />
+    </div>
   );
 }

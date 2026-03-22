@@ -512,3 +512,40 @@ model Commission {
   @@index([organizationId, policyId])
   @@index([organizationId, createdAt(sort: Desc)])
 }
+
+// === AUDIT LOG ===
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String?
+  action         String
+  entityType     String
+  entityId       String?
+  before         Json?
+  after          Json?
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, entityType, createdAt(sort: Desc)])
+  @@index([organizationId, action])
+  @@index([organizationId, userId])
+}
+
+model AuditLogArchive {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String?
+  action         String
+  entityType     String
+  entityId       String?
+  before         Json?
+  after          Json?
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime
+  archivedAt     DateTime @default(now())
+
+  @@index([organizationId, createdAt(sort: Desc)])
+}

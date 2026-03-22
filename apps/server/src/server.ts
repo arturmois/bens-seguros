@@ -1,4 +1,13 @@
+import * as Sentry from '@sentry/node';
 import { buildApp } from './app.js';
+
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV,
+    tracesSampleRate: 0.2,
+  });
+}
 
 const start = async () => {
   const app = await buildApp();
@@ -11,6 +20,9 @@ const start = async () => {
 };
 
 start().catch((err) => {
-  console.error(err);
-  process.exit(1);
+  if (process.env.SENTRY_DSN) {
+    Sentry.captureException(err);
+  }
+  process.exitCode = 1;
+  throw err;
 });

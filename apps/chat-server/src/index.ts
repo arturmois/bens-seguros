@@ -1,8 +1,17 @@
 import 'reflect-metadata';
+import * as Sentry from '@sentry/node';
 import IORedis from 'ioredis';
 import pino from 'pino';
 import { connectMongoDB } from '@repo/db-chat';
 import { env } from '@repo/env';
+
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV,
+    tracesSampleRate: 0.2,
+  });
+}
 
 import { buildChatApp } from './app.js';
 import { registerDependencies } from './infra/di/registry.js';
