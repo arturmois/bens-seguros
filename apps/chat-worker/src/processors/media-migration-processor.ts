@@ -30,7 +30,12 @@ export async function processMediaMigration(_job: Job): Promise<void> {
 
   for (const msg of messages) {
     try {
-      const response = await fetch(msg.mediaUrl);
+      const mediaUrl = msg.mediaUrl as string | undefined;
+      if (!mediaUrl) {
+        failed++;
+        continue;
+      }
+      const response = await fetch(mediaUrl);
       if (!response.ok) {
         logger.warn(
           { messageId: String(msg._id), status: response.status },

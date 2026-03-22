@@ -1,4 +1,4 @@
-import { prisma } from '@repo/db';
+import { prisma, Prisma } from '@repo/db';
 
 interface AuditEntry {
   organizationId: string;
@@ -6,8 +6,8 @@ interface AuditEntry {
   action: string;
   entityType: string;
   entityId?: string;
-  before?: Record<string, unknown>;
-  after?: Record<string, unknown>;
+  before?: Prisma.InputJsonValue;
+  after?: Prisma.InputJsonValue;
   ipAddress?: string;
   userAgent?: string;
 }

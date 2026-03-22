@@ -1,6 +1,6 @@
 import { Worker, Queue } from 'bullmq';
-import type IORedis from 'ioredis';
-import { prisma } from '@repo/db';
+import type { ConnectionOptions } from 'bullmq';
+import { prisma, Prisma } from '@repo/db';
 import pino from 'pino';
 
 const logger = pino({ name: 'audit-archive-processor' });
@@ -8,7 +8,7 @@ const logger = pino({ name: 'audit-archive-processor' });
 const BATCH_SIZE = 10_000;
 const QUEUE_NAME = 'erp-audit-archive';
 
-export function setupAuditArchiveProcessor(connection: IORedis) {
+export function setupAuditArchiveProcessor(connection: ConnectionOptions) {
   const queue = new Queue(QUEUE_NAME, { connection });
 
   queue.upsertJobScheduler(
@@ -37,13 +37,23 @@ export function setupAuditArchiveProcessor(connection: IORedis) {
           break;
         }
 
+        const archiveData: Prisma.AuditLogArchiveCreateManyInput[] = logs.map((log) => ({
+          id: log.id,
+          organizationId: log.organizationId,
+          userId: log.userId,
+          action: log.action,
+          entityType: log.entityType,
+          entityId: log.entityId,
+          before: log.before ?? Prisma.JsonNull,
+          after: log.after ?? Prisma.JsonNull,
+          ipAddress: log.ipAddress,
+          userAgent: log.userAgent,
+          createdAt: log.createdAt,
+          archivedAt: new Date(),
+        }));
+
         await prisma.$transaction([
-          prisma.auditLogArchive.createMany({
-            data: logs.map((log) => ({
-              ...log,
-              archivedAt: new Date(),
-            })),
-          }),
+          prisma.auditLogArchive.createMany({ data: archiveData }),
           prisma.auditLog.deleteMany({
             where: { id: { in: logs.map((l) => l.id) } },
           }),

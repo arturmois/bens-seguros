@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import * as Sentry from '@sentry/node';
 import Fastify from 'fastify';
+import type { FastifyError } from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import multipart from '@fastify/multipart';
@@ -94,7 +95,7 @@ export async function buildApp() {
   setupBullBoard(app);
 
   // Sentry error handler
-  app.setErrorHandler((error, request, reply) => {
+  app.setErrorHandler((error: FastifyError, request, reply) => {
     if (process.env.SENTRY_DSN) {
       Sentry.captureException(error, {
         extra: { url: request.url, method: request.method },

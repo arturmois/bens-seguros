@@ -2,7 +2,6 @@ import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { FastifyAdapter } from '@bull-board/fastify';
 import { Queue } from 'bullmq';
-import IORedis from 'ioredis';
 import type { FastifyInstance } from 'fastify';
 
 const QUEUE_NAMES = [
@@ -14,10 +13,26 @@ const QUEUE_NAMES = [
   'chat-ai-bot',
 ];
 
+function parseRedisUrl(url: string): {
+  host: string;
+  port: number;
+  password?: string;
+} {
+  const parsed = new URL(url);
+  return {
+    host: parsed.hostname || 'localhost',
+    port: Number(parsed.port) || 6379,
+    ...(parsed.password ? { password: decodeURIComponent(parsed.password) } : {}),
+  };
+}
+
 export function setupBullBoard(app: FastifyInstance) {
-  const connection = new IORedis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
-    maxRetriesPerRequest: null,
-  });
+  const redisInfo = parseRedisUrl(process.env.REDIS_URL ?? 'redis://localhost:6379');
+  const connection = {
+    host: redisInfo.host,
+    port: redisInfo.port,
+    ...(redisInfo.password ? { password: redisInfo.password } : {}),
+  };
 
   const queues = QUEUE_NAMES.map((name) => new BullMQAdapter(new Queue(name, { connection })));
 
@@ -27,7 +42,6 @@ export function setupBullBoard(app: FastifyInstance) {
   createBullBoard({ queues, serverAdapter });
 
   app.register(serverAdapter.registerPlugin(), {
-    basePath: '/admin/queues',
     prefix: '/admin/queues',
   });
 }

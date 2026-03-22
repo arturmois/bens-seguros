@@ -1,13 +1,29 @@
 import 'reflect-metadata';
 import pino from 'pino';
-import IORedis from 'ioredis';
 import { setupAuditArchiveProcessor } from './processors/audit-archive-processor.js';
 
 const logger = pino({ level: process.env.NODE_ENV === 'production' ? 'info' : 'debug' });
 
-const connection = new IORedis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
-  maxRetriesPerRequest: null,
-});
+function parseRedisUrl(url: string): {
+  host: string;
+  port: number;
+  password?: string;
+} {
+  const parsed = new URL(url);
+  return {
+    host: parsed.hostname || 'localhost',
+    port: Number(parsed.port) || 6379,
+    ...(parsed.password ? { password: decodeURIComponent(parsed.password) } : {}),
+  };
+}
+
+const redisInfo = parseRedisUrl(process.env.REDIS_URL ?? 'redis://localhost:6379');
+const connection = {
+  host: redisInfo.host,
+  port: redisInfo.port,
+  ...(redisInfo.password ? { password: redisInfo.password } : {}),
+  maxRetriesPerRequest: null as null,
+};
 
 const auditArchive = setupAuditArchiveProcessor(connection);
 
@@ -17,7 +33,6 @@ const gracefulShutdown = async () => {
   logger.info('Shutting down worker...');
   await auditArchive.worker.close();
   await auditArchive.queue.close();
-  await connection.quit();
   process.exit(0);
 };
 

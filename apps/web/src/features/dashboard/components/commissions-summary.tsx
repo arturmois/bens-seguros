@@ -85,7 +85,7 @@ export function CommissionsSummary({ data, isLoading }: CommissionsSummaryProps)
                 backgroundColor: 'var(--color-card)',
                 fontSize: '0.875rem',
               }}
-              formatter={(value: number) => [formatCurrency(value * 100), 'Valor']}
+              formatter={(value) => [formatCurrency(Number(value) * 100), 'Valor']}
             />
             <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
             <Bar dataKey="value" name="Valor" fill="var(--color-success)" radius={[4, 4, 0, 0]} />
