@@ -2,6 +2,8 @@ node_modules/
 .next/
 dist/
 generated/
+baileys-sessions/
+uploads/
 .turbo/
 *.tsbuildinfo
 .env
