@@ -2,7 +2,9 @@
 
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { cn } from '@/lib/utils'
 import { ExternalLink, Phone, X } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 
 import type { ContactData, ConversationData } from '../types'
@@ -50,12 +52,19 @@ export function ContactProfile({
         {/* Avatar & Name */}
         <div className="flex flex-col items-center px-4 py-8">
           <div className="relative mb-4">
-            <div className="bg-primary/10 flex h-28 w-28 items-center justify-center rounded-full shadow-lg">
+            <div
+              className={cn(
+                'bg-primary/10 flex h-28 w-28 items-center justify-center overflow-hidden rounded-full shadow-lg',
+                contact?.profilePicUrl && 'relative'
+              )}
+            >
               {contact?.profilePicUrl ? (
-                <img
+                <Image
                   src={contact.profilePicUrl}
                   alt={displayName}
-                  className="h-full w-full rounded-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="112px"
                 />
               ) : (
                 <span className="text-primary text-3xl font-semibold">

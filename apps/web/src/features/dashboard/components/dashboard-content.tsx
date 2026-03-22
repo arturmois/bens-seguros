@@ -1,18 +1,57 @@
 'use client'
 
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Loader2 } from 'lucide-react'
+import dynamic from 'next/dynamic'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardPanel } from '@/components/ui/card'
 
-import { StatsCards } from './stats-cards'
-import { ProposalsByStage } from './proposals-by-stage'
-import { CommissionsSummary } from './commissions-summary'
-import { ConversionRate } from './conversion-rate'
-import { ClaimsByPriority } from './claims-by-priority'
-import { PoliciesExpiring } from './policies-expiring'
-import { TrendChart } from './trend-chart'
 import { useDashboardStats } from '../hooks/use-dashboard-stats'
+import { ConversionRate } from './conversion-rate'
+import { PoliciesExpiring } from './policies-expiring'
+import { StatsCards } from './stats-cards'
+
+function ChartSkeleton() {
+  return (
+    <Card>
+      <CardPanel className="flex h-64 items-center justify-center">
+        <Loader2 className="text-muted-foreground size-6 animate-spin" />
+      </CardPanel>
+    </Card>
+  )
+}
+
+const ProposalsByStage = dynamic(
+  () => import('./proposals-by-stage').then((m) => m.ProposalsByStage),
+  {
+    loading: () => <ChartSkeleton />,
+    ssr: false,
+  }
+)
+
+const CommissionsSummary = dynamic(
+  () => import('./commissions-summary').then((m) => m.CommissionsSummary),
+  {
+    loading: () => <ChartSkeleton />,
+    ssr: false,
+  }
+)
+
+const ClaimsByPriority = dynamic(
+  () => import('./claims-by-priority').then((m) => m.ClaimsByPriority),
+  {
+    loading: () => <ChartSkeleton />,
+    ssr: false,
+  }
+)
+
+const TrendChart = dynamic(
+  () => import('./trend-chart').then((m) => m.TrendChart),
+  {
+    loading: () => <ChartSkeleton />,
+    ssr: false,
+  }
+)
 
 export function DashboardContent() {
   const { data, isLoading, isError, refetch } = useDashboardStats()

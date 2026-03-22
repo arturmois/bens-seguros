@@ -1,20 +1,20 @@
-import 'reflect-metadata'
-import pino from 'pino'
-import IORedis from 'ioredis'
-import { Worker, Queue } from 'bullmq'
 import { connectMongoDB, disconnectMongoDB } from '@repo/db-chat'
-import { CHAT_QUEUES, CHAT_PUBSUB_CHANNELS } from '@repo/shared'
 import { env } from '@repo/env'
+import { CHAT_PUBSUB_CHANNELS, CHAT_QUEUES } from '@repo/shared'
+import { Queue, Worker } from 'bullmq'
+import IORedis from 'ioredis'
+import pino from 'pino'
+import 'reflect-metadata'
 import * as BaileysManager from './messaging/baileys-manager.js'
-import { createSendMessageProcessor } from './processors/send-message-processor.js'
-import { createIncomingMessageProcessor } from './processors/incoming-message-processor.js'
-import { createAutoCloseProcessor } from './processors/auto-close-processor.js'
-import { createAiBotProcessor } from './processors/ai-bot-processor.js'
-import { createConnectChannelProcessor } from './processors/connect-channel-processor.js'
-import { createPairChannelProcessor } from './processors/pair-channel-processor.js'
-import { processMediaMigration } from './processors/media-migration-processor.js'
-import { QrStateManager } from './whatsapp/qr-state-manager.js'
 import type { IncomingMessage } from './messaging/broker.js'
+import { createAiBotProcessor } from './processors/ai-bot-processor.js'
+import { createAutoCloseProcessor } from './processors/auto-close-processor.js'
+import { createConnectChannelProcessor } from './processors/connect-channel-processor.js'
+import { createIncomingMessageProcessor } from './processors/incoming-message-processor.js'
+import { processMediaMigration } from './processors/media-migration-processor.js'
+import { createPairChannelProcessor } from './processors/pair-channel-processor.js'
+import { createSendMessageProcessor } from './processors/send-message-processor.js'
+import { QrStateManager } from './whatsapp/qr-state-manager.js'
 
 const logger = pino({
   level: env.NODE_ENV === 'production' ? 'info' : 'debug',
@@ -150,16 +150,25 @@ async function bootstrap(): Promise<void> {
     { repeat: { pattern: '0 * * * *' }, jobId: 'auto-close-repeatable' }
   )
 
+  const workerDefaults = {
+    connection: bullmqConnection,
+    lockDuration: 30_000,
+    maxStalledCount: 2,
+    stalledInterval: 5_000,
+    removeOnComplete: { age: 3600 },
+    removeOnFail: { age: 86_400 },
+  }
+
   const sendWorker = new Worker(
     CHAT_QUEUES.SEND_MESSAGE,
     createSendMessageProcessor(BaileysManager, pubsubRedis),
-    { connection: bullmqConnection, concurrency: 5 }
+    { ...workerDefaults, concurrency: 5 }
   )
 
   const incomingWorker = new Worker(
     CHAT_QUEUES.PROCESS_INCOMING,
     createIncomingMessageProcessor(pubsubRedis, aiBotQueue),
-    { connection: bullmqConnection, concurrency: 3 }
+    { ...workerDefaults, concurrency: 3 }
   )
 
   const sendMessageQueue = new Queue(CHAT_QUEUES.SEND_MESSAGE, {
@@ -169,16 +178,13 @@ async function bootstrap(): Promise<void> {
   const aiBotWorker = new Worker(
     CHAT_QUEUES.AI_BOT,
     createAiBotProcessor(pubsubRedis, sendMessageQueue),
-    {
-      connection: bullmqConnection,
-      concurrency: 5,
-    }
+    { ...workerDefaults, concurrency: 5 }
   )
 
   const autoCloseWorker = new Worker(
     CHAT_QUEUES.AUTO_CLOSE,
     createAutoCloseProcessor(pubsubRedis),
-    { connection: bullmqConnection, concurrency: 1 }
+    { ...workerDefaults, concurrency: 1 }
   )
 
   const connectChannelWorker = new Worker(
@@ -186,7 +192,7 @@ async function bootstrap(): Promise<void> {
     createConnectChannelProcessor(BaileysManager, qrStateManager, (chId, tId) =>
       buildChannelEvents(chId, tId, incomingQueue, qrStateManager)
     ),
-    { connection: bullmqConnection, concurrency: 2 }
+    { ...workerDefaults, concurrency: 2 }
   )
 
   const pairChannelWorker = new Worker(
@@ -198,7 +204,7 @@ async function bootstrap(): Promise<void> {
       (chId, tId) =>
         buildChannelEvents(chId, tId, incomingQueue, qrStateManager)
     ),
-    { connection: bullmqConnection, concurrency: 1 }
+    { ...workerDefaults, concurrency: 1 }
   )
 
   attachWorkerErrorLogger(sendWorker, CHAT_QUEUES.SEND_MESSAGE)
@@ -220,10 +226,7 @@ async function bootstrap(): Promise<void> {
   const mediaMigrationWorker = new Worker(
     'chat-media-migration',
     processMediaMigration,
-    {
-      connection: bullmqConnection,
-      concurrency: 1,
-    }
+    { ...workerDefaults, concurrency: 1 }
   )
   attachWorkerErrorLogger(mediaMigrationWorker, 'chat-media-migration')
 

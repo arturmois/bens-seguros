@@ -125,7 +125,14 @@ export function setupPolicyExpiryProcessor(
         'Policy expiry notifications enqueued'
       )
     },
-    { connection, concurrency: 1 }
+    {
+      connection,
+      concurrency: 1,
+      maxStalledCount: 2,
+      stalledInterval: 5_000,
+      removeOnComplete: { age: 3600 },
+      removeOnFail: { age: 86_400 },
+    }
   )
 
   worker.on('failed', (job, err) => {

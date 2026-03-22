@@ -60,7 +60,14 @@ export function setupNotificationProcessor(connection: ConnectionOptions) {
         'Notification processed'
       )
     },
-    { connection, concurrency: 5 }
+    {
+      connection,
+      concurrency: 5,
+      maxStalledCount: 2,
+      stalledInterval: 5_000,
+      removeOnComplete: { age: 3600 },
+      removeOnFail: { age: 86_400 },
+    }
   )
 
   worker.on('failed', (job, err) => {

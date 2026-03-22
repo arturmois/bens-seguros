@@ -1,7 +1,7 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { prisma } from '@repo/db'
-import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
+import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
 import { dashboardStatsQuerySchema } from '../../schemas/stats.schemas.js'
 
 export async function statsRoutes(app: FastifyInstance) {
@@ -99,8 +99,8 @@ export async function statsRoutes(app: FastifyInstance) {
         prisma.$queryRaw`
           SELECT
             TO_CHAR(DATE_TRUNC('month', "createdAt"), 'YYYY-MM') as month,
-            COUNT(*) FILTER (WHERE "stage" != 'LOST') as proposals,
-            COUNT(*) FILTER (WHERE "stage" = 'POLICY_ISSUED') as issued
+            COUNT(*) FILTER (WHERE "stage" != 'LOST')::int as proposals,
+            COUNT(*) FILTER (WHERE "stage" = 'POLICY_ISSUED')::int as issued
           FROM "Proposal"
           WHERE "organizationId" = ${orgId}
             AND "createdAt" >= ${cutoffDate}

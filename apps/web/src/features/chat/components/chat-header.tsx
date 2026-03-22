@@ -16,6 +16,7 @@ import {
   UserCheck,
   UserPlus,
 } from 'lucide-react'
+import Image from 'next/image'
 
 import type { ContactData, ConversationData } from '../types'
 import { ConversationStatusBadge } from './conversation-status-badge'
@@ -138,15 +139,17 @@ export function ChatHeader({
             <div className="relative">
               <div
                 className={cn(
-                  'bg-primary/10 flex h-9 w-9 items-center justify-center rounded-full md:h-10 md:w-10',
-                  contact?.profilePicUrl && 'bg-muted'
+                  'bg-primary/10 flex h-9 w-9 items-center justify-center overflow-hidden rounded-full md:h-10 md:w-10',
+                  contact?.profilePicUrl && 'bg-muted relative'
                 )}
               >
                 {contact?.profilePicUrl ? (
-                  <img
+                  <Image
                     src={contact.profilePicUrl}
                     alt={displayName}
-                    className="h-full w-full rounded-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="40px"
                   />
                 ) : (
                   <span className="text-primary text-sm font-semibold md:text-base">

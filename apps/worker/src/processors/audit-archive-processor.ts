@@ -1,6 +1,6 @@
-import { Worker, Queue } from 'bullmq'
-import type { ConnectionOptions } from 'bullmq'
 import { prisma, Prisma } from '@repo/db'
+import type { ConnectionOptions } from 'bullmq'
+import { Queue, Worker } from 'bullmq'
 import pino from 'pino'
 
 const logger = pino({ name: 'audit-archive-processor' })
@@ -67,7 +67,14 @@ export function setupAuditArchiveProcessor(connection: ConnectionOptions) {
 
       logger.info({ archived }, 'Audit log archive completed')
     },
-    { connection }
+    {
+      connection,
+      concurrency: 1,
+      maxStalledCount: 2,
+      stalledInterval: 5_000,
+      removeOnComplete: { age: 3600 },
+      removeOnFail: { age: 86_400 },
+    }
   )
 
   worker.on('failed', (job, err) => {

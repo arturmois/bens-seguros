@@ -1,9 +1,17 @@
-import type { NextConfig } from 'next'
 import { withSentryConfig } from '@sentry/nextjs'
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
   transpilePackages: ['@repo/shared', '@repo/env', '@repo/auth'],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'pps.whatsapp.net',
+      },
+    ],
+  },
   headers: async () => [
     {
       source: '/:path*',

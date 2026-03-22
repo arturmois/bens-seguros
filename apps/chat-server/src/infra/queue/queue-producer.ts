@@ -41,6 +41,8 @@ export class QueueProducer {
     await queue.add(queueName, data, {
       attempts: DEFAULT_RETRY_OPTIONS.attempts,
       backoff: DEFAULT_RETRY_OPTIONS.backoff,
+      removeOnComplete: { age: 3600 },
+      removeOnFail: { age: 86_400 },
     })
 
     this.logger.debug({ queueName }, 'Job enqueued')
