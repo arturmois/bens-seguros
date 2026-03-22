@@ -101,7 +101,7 @@ export function ChatLayout() {
   }, [setFilters]);
 
   return (
-    <div className="bg-background flex h-screen w-full overflow-hidden">
+    <div className="bg-background flex h-full w-full overflow-hidden">
       {/* Connection status indicator */}
       <div className="fixed left-1/2 top-2 z-50 -translate-x-1/2">
         <WhatsappStatus isConnected={isConnected} />
