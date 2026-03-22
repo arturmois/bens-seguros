@@ -117,6 +117,7 @@ model Member {
 
   @@unique([organizationId, userId])
   @@index([organizationId])
+  @@index([organizationId, role])
   @@index([userId])
 }
 
