@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { useSocket } from '@/features/chat/hooks/use-socket';
 import { isRecord } from '@/features/chat/lib/type-guards';
+import { chatApi } from '@/features/chat/lib/chat-api';
 
 import type { ChannelData, ChannelStatusEvent } from '../types';
 
@@ -87,6 +88,14 @@ export function ChannelQrDialog({ open, onOpenChange, channel }: ChannelQrDialog
       clearAutoCloseTimer();
     };
   }, [open, socket, handleChannelStatus, clearAutoCloseTimer]);
+
+  useEffect(() => {
+    if (!open || !channel) return;
+
+    chatApi.post(`/chat/channels/${channel.id}/connect`, {}).catch(() => {
+      toast.error('Erro ao iniciar conexao do canal');
+    });
+  }, [open, channel]);
 
   useEffect(() => {
     if (!open) {

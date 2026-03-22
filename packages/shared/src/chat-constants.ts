@@ -3,6 +3,7 @@ export const CHAT_QUEUES = {
   PROCESS_INCOMING: 'chat-process-incoming',
   AI_BOT: 'chat-ai-bot',
   AUTO_CLOSE: 'chat-auto-close',
+  CONNECT_CHANNEL: 'chat-connect-channel',
   DEAD_LETTER: 'chat-dead-letter',
 } as const;
 

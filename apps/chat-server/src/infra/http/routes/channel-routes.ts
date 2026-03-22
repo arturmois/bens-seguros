@@ -1,8 +1,11 @@
 import { z } from 'zod';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { container } from 'tsyringe';
 
 import { Channel } from '@repo/db-chat';
+import { CHAT_QUEUES } from '@repo/shared';
 import { ChannelNotFoundError } from '../../../domain/errors.js';
+import type { QueueProducer } from '../../queue/queue-producer.js';
 
 const channelIdSchema = z.object({ id: z.string().min(1) });
 
@@ -61,12 +64,10 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
         phoneNumber: body.phoneNumber ?? null,
       });
 
-      return reply
-        .status(201)
-        .send({
-          success: true,
-          data: mapChannel(channel.toObject() as unknown as Record<string, unknown>),
-        });
+      return reply.status(201).send({
+        success: true,
+        data: mapChannel(channel.toObject() as unknown as Record<string, unknown>),
+      });
     },
   );
 
@@ -123,6 +124,41 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
         success: true,
         data: mapChannel(channel as unknown as Record<string, unknown>),
       });
+    },
+  );
+
+  app.post(
+    '/chat/channels/:id/connect',
+    async (
+      request: FastifyRequest<{ Params: z.infer<typeof channelIdSchema> }>,
+      reply: FastifyReply,
+    ) => {
+      const { id } = channelIdSchema.parse(request.params);
+      const tenantId = request.organizationId;
+
+      const channel = await Channel.findOne({ _id: id, tenantId }).lean().exec();
+
+      if (!channel) {
+        return reply.status(404).send(buildChannelNotFoundResponse(id));
+      }
+
+      if (channel.brokerType !== 'BAILEYS') {
+        return reply.status(400).send({
+          success: false,
+          error: {
+            code: 'INVALID_BROKER_TYPE',
+            message: 'Somente canais Baileys suportam conexao via QR Code',
+          },
+        });
+      }
+
+      const queueProducer = container.resolve<QueueProducer>('QueueProducer');
+      await queueProducer.enqueue(CHAT_QUEUES.CONNECT_CHANNEL, {
+        channelId: id,
+        tenantId,
+      });
+
+      return reply.send({ success: true, data: { status: 'connecting' } });
     },
   );
 }

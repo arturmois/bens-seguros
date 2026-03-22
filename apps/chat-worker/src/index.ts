@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import pino from 'pino';
 import IORedis from 'ioredis';
+import QRCode from 'qrcode';
 import { Worker, Queue } from 'bullmq';
 import { connectMongoDB, disconnectMongoDB } from '@repo/db-chat';
 import { CHAT_QUEUES, CHAT_PUBSUB_CHANNELS } from '@repo/shared';
@@ -10,6 +11,7 @@ import { createSendMessageProcessor } from './processors/send-message-processor.
 import { createIncomingMessageProcessor } from './processors/incoming-message-processor.js';
 import { createAutoCloseProcessor } from './processors/auto-close-processor.js';
 import { createAiBotProcessor } from './processors/ai-bot-processor.js';
+import { createConnectChannelProcessor } from './processors/connect-channel-processor.js';
 import type { IncomingMessage } from './messaging/broker.js';
 
 const logger = pino({
@@ -70,14 +72,31 @@ function buildChannelEvents(channelId: string, tenantId: string, incomingQueue: 
     },
     onConnectionUpdate: (status: string, qr?: string) => {
       logger.info({ channelId, tenantId, status }, 'Channel connection update');
-      pubsubRedis
-        .publish(
-          CHAT_PUBSUB_CHANNELS.CHANNEL_STATUS,
-          JSON.stringify({ channelId, tenantId, status, qr }),
-        )
-        .catch((err: unknown) => {
-          logger.error({ err, channelId }, 'Failed to publish connection update');
-        });
+
+      const publishStatus = (qrDataUrl?: string): void => {
+        pubsubRedis
+          .publish(
+            CHAT_PUBSUB_CHANNELS.CHANNEL_STATUS,
+            JSON.stringify({ channelId, tenantId, status, qr: qrDataUrl }),
+          )
+          .catch((err: unknown) => {
+            logger.error({ err, channelId }, 'Failed to publish connection update');
+          });
+      };
+
+      if (status === 'QR_PENDING' && qr) {
+        QRCode.toDataURL(qr, { width: 256, margin: 2 })
+          .then((dataUrl: string) => {
+            publishStatus(dataUrl);
+          })
+          .catch((err: unknown) => {
+            logger.error({ err, channelId }, 'Failed to convert QR to data URL');
+            publishStatus(undefined);
+          });
+        return;
+      }
+
+      publishStatus(undefined);
     },
   };
 }
@@ -125,10 +144,19 @@ async function bootstrap(): Promise<void> {
     { connection: bullmqConnection, concurrency: 1 },
   );
 
+  const connectChannelWorker = new Worker(
+    CHAT_QUEUES.CONNECT_CHANNEL,
+    createConnectChannelProcessor(BaileysManager, pubsubRedis, (chId, tId) =>
+      buildChannelEvents(chId, tId, incomingQueue),
+    ),
+    { connection: bullmqConnection, concurrency: 2 },
+  );
+
   attachWorkerErrorLogger(sendWorker, CHAT_QUEUES.SEND_MESSAGE);
   attachWorkerErrorLogger(incomingWorker, CHAT_QUEUES.PROCESS_INCOMING);
   attachWorkerErrorLogger(aiBotWorker, CHAT_QUEUES.AI_BOT);
   attachWorkerErrorLogger(autoCloseWorker, CHAT_QUEUES.AUTO_CLOSE);
+  attachWorkerErrorLogger(connectChannelWorker, CHAT_QUEUES.CONNECT_CHANNEL);
 
   logger.info('Loading active Baileys channels...');
   await BaileysManager.loadActiveChannels((channelId, tenantId) =>
@@ -147,6 +175,7 @@ async function bootstrap(): Promise<void> {
       incomingWorker.close(),
       aiBotWorker.close(),
       autoCloseWorker.close(),
+      connectChannelWorker.close(),
     ]);
 
     await aiBotQueue.close();
