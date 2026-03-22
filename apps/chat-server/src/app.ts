@@ -41,6 +41,7 @@ export async function buildChatApp(options: BuildChatAppOptions): Promise<ChatAp
   await app.register(cors, {
     origin: env.FRONTEND_URL,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   });
 
   const io = new Server(app.server, {
