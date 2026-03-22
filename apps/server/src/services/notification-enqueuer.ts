@@ -1,18 +1,9 @@
-import type { CreateNotificationInput } from '@repo/core'
+import type { NotificationJobData } from '@repo/core'
 import { env } from '@repo/env'
 import { Queue } from 'bullmq'
 import pino from 'pino'
 
 const logger = pino({ name: 'notification-enqueuer' })
-
-export interface NotificationJobData {
-  readonly notification: CreateNotificationInput
-  readonly email?: {
-    readonly to: string
-    readonly subject: string
-    readonly html: string
-  }
-}
 
 let notificationQueue: Queue<NotificationJobData> | null = null
 

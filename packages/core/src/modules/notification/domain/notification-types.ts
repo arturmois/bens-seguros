@@ -30,3 +30,12 @@ export interface NotificationFilters {
   readonly cursor?: string
   readonly limit?: number
 }
+
+export interface NotificationJobData {
+  readonly notification: CreateNotificationInput
+  readonly email?: {
+    readonly to: string
+    readonly subject: string
+    readonly html: string
+  }
+}

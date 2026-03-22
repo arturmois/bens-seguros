@@ -1,8 +1,8 @@
 import {
   PrismaNotificationRepository,
   ResendEmailProvider,
-  type CreateNotificationInput,
   type EmailProvider,
+  type NotificationJobData,
 } from '@repo/core/notification'
 import { prisma } from '@repo/db'
 import { env } from '@repo/env'
@@ -14,22 +14,16 @@ const logger = pino({ name: 'notification-processor' })
 
 const QUEUE_NAME = 'erp-notifications'
 
-export interface NotificationJobData {
-  readonly notification: CreateNotificationInput
-  readonly email?: {
-    readonly to: string
-    readonly subject: string
-    readonly html: string
-  }
-}
-
 export function setupNotificationProcessor(connection: ConnectionOptions) {
   const queue = new Queue<NotificationJobData>(QUEUE_NAME, { connection })
   const repo = new PrismaNotificationRepository(prisma)
 
   let emailProvider: EmailProvider | null = null
   if (env.RESEND_API_KEY) {
-    emailProvider = new ResendEmailProvider(env.RESEND_API_KEY)
+    emailProvider = new ResendEmailProvider({
+      apiKey: env.RESEND_API_KEY,
+      fromAddress: env.RESEND_FROM_ADDRESS,
+    })
   }
 
   const worker = new Worker<NotificationJobData>(

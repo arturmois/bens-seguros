@@ -1,31 +1,31 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import { container } from '@repo/core'
 import {
-  CreateProposal,
   AdvanceProposalStage,
-  MarkProposalLost,
-  ListProposals,
-  GetProposal,
-  UpdateProposalDetails,
-  ListChecklistItems,
-  CompleteChecklistByAttachment,
-  ProposalNotFoundError,
-  InvalidStageTransitionError,
-  ProposalDetailsRequiredError,
   BranchMismatchError,
   ChecklistIncompleteError,
+  CompleteChecklistByAttachment,
+  container,
+  CreateProposal,
+  GetProposal,
+  InvalidStageTransitionError,
+  ListChecklistItems,
+  ListProposals,
+  MarkProposalLost,
+  ProposalDetailsRequiredError,
+  ProposalNotFoundError,
+  UpdateProposalDetails,
 } from '@repo/core'
-import { auditCreate, auditUpdate } from '../../services/audit-logger.js'
-import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
+import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
+import { idParamSchema } from '../../schemas/client.schemas.js'
+import { updateProposalDetailsBodySchema } from '../../schemas/proposal-details.schemas.js'
 import {
+  checklistItemIdParamSchema,
   createProposalBodySchema,
   listProposalsQuerySchema,
   markLostBodySchema,
-  checklistItemIdParamSchema,
 } from '../../schemas/proposal.schemas.js'
-import { updateProposalDetailsBodySchema } from '../../schemas/proposal-details.schemas.js'
-import { idParamSchema } from '../../schemas/client.schemas.js'
+import { auditCreate, auditUpdate } from '../../services/audit-logger.js'
 
 function handleProposalError(error: unknown, reply: FastifyReply) {
   if (error instanceof ProposalNotFoundError) {
@@ -195,7 +195,7 @@ export async function proposalRoutes(app: FastifyInstance) {
       const { id } = idParamSchema.parse(request.params)
       const useCase = container.resolve(ListChecklistItems)
       try {
-        const result = await useCase.execute(id)
+        const result = await useCase.execute(id, request.organizationId!)
         return reply.send({ success: true, data: result })
       } catch (error) {
         return handleProposalError(error, reply)
@@ -210,7 +210,12 @@ export async function proposalRoutes(app: FastifyInstance) {
       const { id, itemId } = checklistItemIdParamSchema.parse(request.params)
       const useCase = container.resolve(CompleteChecklistByAttachment)
       try {
-        const item = await useCase.execute(itemId, id, request.user!.id)
+        const item = await useCase.execute(
+          itemId,
+          id,
+          request.organizationId!,
+          request.user!.id
+        )
         return reply.send({ success: true, data: item })
       } catch (error) {
         return handleProposalError(error, reply)
