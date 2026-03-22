@@ -3,7 +3,7 @@ import {
   ResendEmailProvider,
   type CreateNotificationInput,
   type EmailProvider,
-} from '@repo/core'
+} from '@repo/core/notification'
 import { prisma } from '@repo/db'
 import { env } from '@repo/env'
 import type { ConnectionOptions, Job } from 'bullmq'

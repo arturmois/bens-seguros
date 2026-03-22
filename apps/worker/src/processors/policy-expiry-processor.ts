@@ -1,4 +1,4 @@
-import { policyExpiringEmail } from '@repo/core'
+import { policyExpiringEmail } from '@repo/core/notification'
 import { prisma } from '@repo/db'
 import { env } from '@repo/env'
 import type { ConnectionOptions } from 'bullmq'
