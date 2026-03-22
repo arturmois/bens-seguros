@@ -21,11 +21,16 @@ const logger = pino({
 
 const REDIS_URL = env.REDIS_URL;
 
-function parseRedisUrl(url: string): { host: string; port: number } {
+function parseRedisUrl(url: string): {
+  host: string;
+  port: number;
+  password?: string;
+} {
   const parsed = new URL(url);
   return {
     host: parsed.hostname || 'localhost',
     port: Number(parsed.port) || 6379,
+    ...(parsed.password ? { password: decodeURIComponent(parsed.password) } : {}),
   };
 }
 
@@ -35,6 +40,7 @@ const redisInfo = parseRedisUrl(REDIS_URL);
 const bullmqConnection = {
   host: redisInfo.host,
   port: redisInfo.port,
+  ...(redisInfo.password ? { password: redisInfo.password } : {}),
   maxRetriesPerRequest: null as null,
 };
 

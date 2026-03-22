@@ -120,6 +120,12 @@ importers:
       qrcode:
         specifier: ^1.5.4
         version: 1.5.4
+      reflect-metadata:
+        specifier: ^0.2.0
+        version: 0.2.2
+      tsyringe:
+        specifier: ^4.8.0
+        version: 4.10.0
     devDependencies:
       '@config/typescript-config':
         specifier: workspace:*

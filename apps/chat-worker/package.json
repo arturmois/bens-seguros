@@ -18,7 +18,9 @@
     "bullmq": "^5.70.0",
     "ioredis": "^5.4.0",
     "pino": "^9.0.0",
-    "qrcode": "^1.5.4"
+    "qrcode": "^1.5.4",
+    "reflect-metadata": "^0.2.0",
+    "tsyringe": "^4.8.0"
   },
   "devDependencies": {
     "@config/typescript-config": "workspace:*",
