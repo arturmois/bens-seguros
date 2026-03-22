@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import * as Sentry from '@sentry/node';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
@@ -91,6 +92,24 @@ export async function buildApp() {
 
   // Bull Board (admin-only, behind auth middleware)
   setupBullBoard(app);
+
+  // Sentry error handler
+  app.setErrorHandler((error, request, reply) => {
+    if (process.env.SENTRY_DSN) {
+      Sentry.captureException(error, {
+        extra: { url: request.url, method: request.method },
+      });
+    }
+    request.log.error(error);
+    const statusCode = error.statusCode ?? 500;
+    return reply.status(statusCode).send({
+      success: false,
+      error: {
+        code: error.code ?? 'INTERNAL_ERROR',
+        message: statusCode === 500 ? 'Erro interno do servidor' : error.message,
+      },
+    });
+  });
 
   return app;
 }
