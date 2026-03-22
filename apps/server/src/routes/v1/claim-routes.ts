@@ -13,6 +13,7 @@ import {
   container,
 } from '@repo/core'
 import { prisma } from '@repo/db'
+import { env } from '@repo/env'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
@@ -70,7 +71,7 @@ export async function claimRoutes(app: FastifyInstance) {
           },
           include: { user: true },
         })
-        const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000'
+        const frontendUrl = env.FRONTEND_URL
         const notifItems = managers
           .filter((m) => m.userId !== request.user!.id)
           .map((m) => ({
@@ -98,7 +99,9 @@ export async function claimRoutes(app: FastifyInstance) {
               : undefined,
           }))
         if (notifItems.length > 0) {
-          enqueueNotifications(notifItems).catch(() => {})
+          enqueueNotifications(notifItems).catch((err: unknown) => {
+            request.log.error({ err }, 'Failed to enqueue claim notifications')
+          })
         }
 
         return reply.status(201).send({ success: true, data: claim })

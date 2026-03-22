@@ -60,6 +60,11 @@ import {
   ListCommissions,
   GetCommission,
   ExportCommissionsCsv,
+  PrismaNotificationRepository,
+  ListNotifications,
+  MarkNotificationAsRead,
+  MarkAllNotificationsAsRead,
+  CountUnreadNotifications,
 } from '@repo/core'
 
 export function registerDependencies() {
@@ -247,5 +252,21 @@ export function registerDependencies() {
   })
   container.register(ExportCommissionsCsv, {
     useFactory: () => new ExportCommissionsCsv(commissionRepo),
+  })
+
+  // Notification use cases
+  const notificationRepo = new PrismaNotificationRepository(prisma)
+  container.register('NotificationRepository', { useValue: notificationRepo })
+  container.register(ListNotifications, {
+    useFactory: () => new ListNotifications(notificationRepo),
+  })
+  container.register(MarkNotificationAsRead, {
+    useFactory: () => new MarkNotificationAsRead(notificationRepo),
+  })
+  container.register(MarkAllNotificationsAsRead, {
+    useFactory: () => new MarkAllNotificationsAsRead(notificationRepo),
+  })
+  container.register(CountUnreadNotifications, {
+    useFactory: () => new CountUnreadNotifications(notificationRepo),
   })
 }

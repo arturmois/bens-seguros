@@ -3,9 +3,8 @@ import {
   ListNotifications,
   MarkAllNotificationsAsRead,
   MarkNotificationAsRead,
-  PrismaNotificationRepository,
+  container,
 } from '@repo/core'
-import { prisma } from '@repo/db'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
@@ -17,12 +16,6 @@ import {
 export async function notificationRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
 
-  const repo = new PrismaNotificationRepository(prisma)
-  const listNotifications = new ListNotifications(repo)
-  const markAsRead = new MarkNotificationAsRead(repo)
-  const markAllAsRead = new MarkAllNotificationsAsRead(repo)
-  const countUnread = new CountUnreadNotifications(repo)
-
   // GET /api/v1/notifications
   app.get(
     '/api/v1/notifications',
@@ -31,12 +24,10 @@ export async function notificationRoutes(app: FastifyInstance) {
       const { read, cursor, limit } = listNotificationsQuerySchema.parse(
         request.query
       )
-      const orgId = request.organizationId!
-      const userId = request.user!.id
-
-      const result = await listNotifications.execute({
-        organizationId: orgId,
-        userId,
+      const useCase = container.resolve(ListNotifications)
+      const result = await useCase.execute({
+        organizationId: request.organizationId!,
+        userId: request.user!.id,
         read,
         cursor,
         limit,
@@ -55,9 +46,11 @@ export async function notificationRoutes(app: FastifyInstance) {
     '/api/v1/notifications/unread-count',
     { preHandler: [requireAbility('read', 'Notification')] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const orgId = request.organizationId!
-      const userId = request.user!.id
-      const result = await countUnread.execute(orgId, userId)
+      const useCase = container.resolve(CountUnreadNotifications)
+      const result = await useCase.execute(
+        request.organizationId!,
+        request.user!.id
+      )
       return reply.send({ success: true, data: result })
     }
   )
@@ -68,9 +61,8 @@ export async function notificationRoutes(app: FastifyInstance) {
     { preHandler: [requireAbility('read', 'Notification')] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = notificationIdParamSchema.parse(request.params)
-      const orgId = request.organizationId!
-      const userId = request.user!.id
-      await markAsRead.execute(id, orgId, userId)
+      const useCase = container.resolve(MarkNotificationAsRead)
+      await useCase.execute(id, request.organizationId!, request.user!.id)
       return reply.send({ success: true, data: null })
     }
   )
@@ -80,9 +72,11 @@ export async function notificationRoutes(app: FastifyInstance) {
     '/api/v1/notifications/read-all',
     { preHandler: [requireAbility('read', 'Notification')] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const orgId = request.organizationId!
-      const userId = request.user!.id
-      const result = await markAllAsRead.execute(orgId, userId)
+      const useCase = container.resolve(MarkAllNotificationsAsRead)
+      const result = await useCase.execute(
+        request.organizationId!,
+        request.user!.id
+      )
       return reply.send({ success: true, data: result })
     }
   )

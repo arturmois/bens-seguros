@@ -1,5 +1,6 @@
 import { policyExpiringEmail } from '@repo/core'
 import { prisma } from '@repo/db'
+import { env } from '@repo/env'
 import type { ConnectionOptions } from 'bullmq'
 import { Queue, Worker } from 'bullmq'
 import pino from 'pino'
@@ -53,7 +54,7 @@ export function setupPolicyExpiryProcessor(
         return
       }
 
-      const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000'
+      const frontendUrl = env.FRONTEND_URL
 
       for (const policy of expiringPolicies) {
         const daysUntilExpiry = Math.ceil(

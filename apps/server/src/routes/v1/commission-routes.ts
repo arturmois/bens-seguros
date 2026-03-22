@@ -16,6 +16,7 @@ import {
   ReverseCommission,
 } from '@repo/core'
 import { prisma } from '@repo/db'
+import { env } from '@repo/env'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
@@ -156,8 +157,7 @@ export async function commissionRoutes(app: FastifyInstance) {
             where: { id: commission.salespersonId },
           })
           if (salesperson) {
-            const frontendUrl =
-              process.env.FRONTEND_URL ?? 'http://localhost:3000'
+            const frontendUrl = env.FRONTEND_URL
             const valueFormatted = (
               commission.commissionValueInCents / 100
             ).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -184,7 +184,12 @@ export async function commissionRoutes(app: FastifyInstance) {
                     }),
                   }
                 : undefined,
-            }).catch(() => {})
+            }).catch((err: unknown) => {
+              request.log.error(
+                { err },
+                'Failed to enqueue commission notification'
+              )
+            })
           }
         }
 
@@ -216,8 +221,7 @@ export async function commissionRoutes(app: FastifyInstance) {
             where: { id: commission.salespersonId },
           })
           if (salesperson) {
-            const frontendUrl =
-              process.env.FRONTEND_URL ?? 'http://localhost:3000'
+            const frontendUrl = env.FRONTEND_URL
             enqueueNotification({
               notification: {
                 organizationId: request.organizationId!,
@@ -241,7 +245,12 @@ export async function commissionRoutes(app: FastifyInstance) {
                     }),
                   }
                 : undefined,
-            }).catch(() => {})
+            }).catch((err: unknown) => {
+              request.log.error(
+                { err },
+                'Failed to enqueue commission notification'
+              )
+            })
           }
         }
 

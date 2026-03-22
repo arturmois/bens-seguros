@@ -1,4 +1,5 @@
 import type { CreateNotificationInput } from '@repo/core'
+import { env } from '@repo/env'
 import { Queue } from 'bullmq'
 import pino from 'pino'
 
@@ -32,9 +33,7 @@ function parseRedisUrl(url: string): {
 
 function getQueue(): Queue<NotificationJobData> {
   if (!notificationQueue) {
-    const redisInfo = parseRedisUrl(
-      process.env.REDIS_URL ?? 'redis://localhost:6379'
-    )
+    const redisInfo = parseRedisUrl(env.REDIS_URL)
     notificationQueue = new Queue<NotificationJobData>('erp-notifications', {
       connection: {
         host: redisInfo.host,

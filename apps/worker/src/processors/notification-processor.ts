@@ -5,6 +5,7 @@ import {
   type EmailProvider,
 } from '@repo/core'
 import { prisma } from '@repo/db'
+import { env } from '@repo/env'
 import type { ConnectionOptions, Job } from 'bullmq'
 import { Queue, Worker } from 'bullmq'
 import pino from 'pino'
@@ -27,8 +28,8 @@ export function setupNotificationProcessor(connection: ConnectionOptions) {
   const repo = new PrismaNotificationRepository(prisma)
 
   let emailProvider: EmailProvider | null = null
-  if (process.env.RESEND_API_KEY) {
-    emailProvider = new ResendEmailProvider(process.env.RESEND_API_KEY)
+  if (env.RESEND_API_KEY) {
+    emailProvider = new ResendEmailProvider(env.RESEND_API_KEY)
   }
 
   const worker = new Worker<NotificationJobData>(
