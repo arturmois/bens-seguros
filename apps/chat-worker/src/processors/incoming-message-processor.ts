@@ -116,15 +116,17 @@ export function createIncomingMessageProcessor(pubsubClient: PubsubClient, aiBot
     ).exec();
 
     const messagePayload = JSON.stringify({
-      messageId: String(savedMessage._id),
+      id: String(savedMessage._id),
       conversationId,
       tenantId,
-      channelId,
-      from,
-      text,
-      type,
-      externalId,
-      timestamp,
+      senderType: 'CLIENT',
+      senderName: pushName ?? from,
+      senderId: null,
+      text: text ?? null,
+      type: type ?? 'TEXT',
+      status: 'DELIVERED',
+      externalId: externalId ?? null,
+      createdAt: savedMessage.createdAt?.toISOString() ?? new Date().toISOString(),
     });
 
     await pubsubClient.publish(CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE, messagePayload);
