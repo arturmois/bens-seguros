@@ -24,6 +24,11 @@ import {
 } from '../../schemas/claim.schemas.js'
 import { idParamSchema } from '../../schemas/client.schemas.js'
 import { createOccurrenceBodySchema } from '../../schemas/occurrence.schemas.js'
+import {
+  auditCreate,
+  auditUpdate,
+  auditDelete,
+} from '../../services/audit-logger.js'
 import { enqueueNotifications } from '../../services/notification-enqueuer.js'
 
 function handleClaimError(error: unknown, reply: FastifyReply) {
@@ -104,6 +109,12 @@ export async function claimRoutes(app: FastifyInstance) {
           })
         }
 
+        auditCreate({
+          request,
+          entityType: 'Claim',
+          entityId: claim.id,
+          after: claim as unknown as Record<string, unknown>,
+        })
         return reply.status(201).send({ success: true, data: claim })
       } catch (error) {
         return handleClaimError(error, reply)
@@ -154,6 +165,12 @@ export async function claimRoutes(app: FastifyInstance) {
       const useCase = container.resolve(UpdateClaimStatus)
       try {
         const claim = await useCase.execute(id, request.organizationId!, status)
+        auditUpdate({
+          request,
+          entityType: 'Claim',
+          entityId: id,
+          after: { status: claim.status },
+        })
         return reply.send({ success: true, data: claim })
       } catch (error) {
         return handleClaimError(error, reply)
@@ -169,6 +186,7 @@ export async function claimRoutes(app: FastifyInstance) {
       const useCase = container.resolve(DeleteClaim)
       try {
         await useCase.execute(id, request.organizationId!)
+        auditDelete({ request, entityType: 'Claim', entityId: id })
         return reply.status(204).send()
       } catch (error) {
         return handleClaimError(error, reply)

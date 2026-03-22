@@ -25,6 +25,11 @@ import {
   listCommissionsQuerySchema,
   rejectCommissionBodySchema,
 } from '../../schemas/commission.schemas.js'
+import {
+  auditApprove,
+  auditReject,
+  auditUpdate,
+} from '../../services/audit-logger.js'
 import { enqueueNotification } from '../../services/notification-enqueuer.js'
 
 function handleCommissionError(
@@ -131,6 +136,12 @@ export async function commissionRoutes(app: FastifyInstance) {
           request.organizationId!,
           request.user!.id
         )
+        auditApprove({
+          request,
+          entityType: 'Commission',
+          entityId: id,
+          after: { status: commission.status },
+        })
         return reply.send({ success: true, data: commission })
       } catch (error) {
         return handleCommissionError(error, reply)
@@ -150,6 +161,12 @@ export async function commissionRoutes(app: FastifyInstance) {
           request.organizationId!,
           request.user!.id
         )
+        auditApprove({
+          request,
+          entityType: 'Commission',
+          entityId: id,
+          after: { status: commission.status },
+        })
 
         // Notify salesperson about approval
         if (commission.salespersonId) {
@@ -214,6 +231,12 @@ export async function commissionRoutes(app: FastifyInstance) {
           userId: request.user!.id,
           reason,
         })
+        auditReject({
+          request,
+          entityType: 'Commission',
+          entityId: id,
+          after: { status: commission.status, rejectionReason: reason },
+        })
 
         // Notify salesperson about rejection
         if (commission.salespersonId) {
@@ -269,6 +292,12 @@ export async function commissionRoutes(app: FastifyInstance) {
       const useCase = container.resolve(PayCommission)
       try {
         const commission = await useCase.execute(id, request.organizationId!)
+        auditUpdate({
+          request,
+          entityType: 'Commission',
+          entityId: id,
+          after: { status: 'PAID' },
+        })
         return reply.send({ success: true, data: commission })
       } catch (error) {
         return handleCommissionError(error, reply)
@@ -284,6 +313,12 @@ export async function commissionRoutes(app: FastifyInstance) {
       const useCase = container.resolve(ReverseCommission)
       try {
         const result = await useCase.execute(id, request.organizationId!)
+        auditUpdate({
+          request,
+          entityType: 'Commission',
+          entityId: id,
+          after: { status: 'REVERSED' },
+        })
         return reply.status(201).send({ success: true, data: result })
       } catch (error) {
         return handleCommissionError(error, reply)

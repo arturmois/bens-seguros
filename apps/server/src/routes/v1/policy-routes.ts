@@ -10,6 +10,7 @@ import {
   PolicyNotIssuableError,
 } from '@repo/core'
 import { ProposalNotFoundError } from '@repo/core'
+import { auditCreate, auditUpdate } from '../../services/audit-logger.js'
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
 import {
@@ -65,6 +66,12 @@ export async function policyRoutes(app: FastifyInstance) {
             ? JSON.parse(JSON.stringify(coverageDetails))
             : undefined,
         })
+        auditCreate({
+          request,
+          entityType: 'Policy',
+          entityId: policy.id,
+          after: policy as unknown as Record<string, unknown>,
+        })
         return reply.status(201).send({ success: true, data: policy })
       } catch (error) {
         return handlePolicyError(error, reply)
@@ -119,6 +126,12 @@ export async function policyRoutes(app: FastifyInstance) {
           request.organizationId!,
           reason
         )
+        auditUpdate({
+          request,
+          entityType: 'Policy',
+          entityId: id,
+          after: { status: 'CANCELLED' },
+        })
         return reply.send({ success: true, data: policy })
       } catch (error) {
         return handlePolicyError(error, reply)

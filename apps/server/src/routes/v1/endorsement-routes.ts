@@ -13,6 +13,7 @@ import {
   listEndorsementsQuerySchema,
 } from '../../schemas/endorsement.schemas.js'
 import { idParamSchema } from '../../schemas/client.schemas.js'
+import { auditCreate } from '../../services/audit-logger.js'
 
 function handleEndorsementError(error: unknown, reply: FastifyReply) {
   if (error instanceof EndorsementNotFoundError) {
@@ -38,6 +39,11 @@ export async function endorsementRoutes(app: FastifyInstance) {
           organizationId: request.organizationId!,
           createdBy: request.user!.id,
           ...body,
+        })
+        auditCreate({
+          request,
+          entityType: 'Endorsement',
+          entityId: endorsement.id,
         })
         return reply.status(201).send({ success: true, data: endorsement })
       } catch (error) {
