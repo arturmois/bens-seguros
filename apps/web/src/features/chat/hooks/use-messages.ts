@@ -25,6 +25,7 @@ interface UseMessagesReturn {
 export function useMessages(
   conversationId: string | null,
   socket: Socket | null,
+  currentUserId?: string,
 ): UseMessagesReturn {
   const queryClient = useQueryClient();
   const lastTypingEmitRef = useRef<number>(0);
@@ -66,7 +67,7 @@ export function useMessages(
         tenantId: '',
         senderType: 'AGENT',
         senderName: null,
-        senderId: null,
+        senderId: currentUserId ?? null,
         text: text.trim(),
         type: 'TEXT',
         status: 'PENDING',

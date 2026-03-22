@@ -64,8 +64,9 @@ export class SendMessage {
       conversationId: conversation.id,
       channelId: conversation.channelId,
       tenantId: input.tenantId,
+      to: conversation.whatsappPhone,
       text: input.text,
-      whatsappPhone: conversation.whatsappPhone,
+      type: 'TEXT',
     });
 
     await this.conversationRepo.updateLastMessage(conversation.id, input.tenantId, input.text, now);

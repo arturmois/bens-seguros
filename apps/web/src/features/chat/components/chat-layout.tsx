@@ -43,7 +43,7 @@ export function ChatLayout() {
     sendMessage,
     emitTyping,
     typingUser,
-  } = useMessages(selectedConversationId, socket);
+  } = useMessages(selectedConversationId, socket, user?.id);
 
   const currentUserId = user?.id ?? '';
 
