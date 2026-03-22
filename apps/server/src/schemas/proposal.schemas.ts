@@ -36,3 +36,8 @@ export const listProposalsQuerySchema = z.object({
 export const markLostBodySchema = z.object({
   reason: z.string().min(1),
 })
+
+export const checklistItemIdParamSchema = z.object({
+  id: z.string().min(1),
+  itemId: z.string().min(1),
+})
