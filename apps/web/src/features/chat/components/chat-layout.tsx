@@ -75,8 +75,9 @@ export function ChatLayout() {
   }, [selectedConversationId, assignConversation]);
 
   const handleTransfer = useCallback(() => {
-    // Transfer requires selecting a target agent.
-    // For now this is a placeholder -- a modal to pick an agent would be added in a future iteration.
+    // TODO: Implement agent selection modal before calling transfer.
+    // The backend validates that toUserId/toUserName are non-empty,
+    // so this will correctly fail until the modal is implemented.
     if (!selectedConversationId) return;
     transferConversation.mutate({
       id: selectedConversationId,

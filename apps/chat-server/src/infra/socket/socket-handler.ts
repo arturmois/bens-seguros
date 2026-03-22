@@ -1,7 +1,7 @@
 import type { Server, Socket } from 'socket.io';
 import type { AppLogger } from '../logger.js';
 import { container } from 'tsyringe';
-import { SOCKET_EVENTS, CHAT_LIMITS } from '@repo/shared';
+import { SOCKET_EVENTS, CHAT_LIMITS, isRecord } from '@repo/shared';
 
 import { SendMessage } from '../../application/send-message.js';
 import { AssignConversation } from '../../application/assign-conversation.js';
@@ -17,10 +17,6 @@ import {
   parseCatchUpData,
   formatError,
 } from './socket-parsers.js';
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 function getUserData(socket: Socket): SocketUserData {
   const user: unknown = socket.data['user'];
@@ -41,7 +37,7 @@ export function setupSocketHandlers(io: Server, logger: AppLogger): PresenceTrac
 
   io.on('connection', (socket: Socket) => {
     const user = getUserData(socket);
-    const lobbyRoom = `lobby:${user.organizationId}`;
+    const lobbyRoom = `tenant:${user.organizationId}:lobby`;
 
     void socket.join(lobbyRoom);
     presence.heartbeat(user.organizationId, user.userId, user.name);
@@ -69,14 +65,14 @@ function registerConversationEvents(socket: Socket, user: SocketUserData, logger
   socket.on(SOCKET_EVENTS.SUBSCRIBE_CONVERSATION, (data: unknown) => {
     const parsed = parseConversationId(data);
     if (!parsed) return;
-    void socket.join(`conv:${user.organizationId}:${parsed}`);
+    void socket.join(`tenant:${user.organizationId}:conversation:${parsed}`);
     logger.debug({ userId: user.userId, conversationId: parsed }, 'Subscribed to conversation');
   });
 
   socket.on(SOCKET_EVENTS.UNSUBSCRIBE_CONVERSATION, (data: unknown) => {
     const parsed = parseConversationId(data);
     if (!parsed) return;
-    void socket.leave(`conv:${user.organizationId}:${parsed}`);
+    void socket.leave(`tenant:${user.organizationId}:conversation:${parsed}`);
   });
 
   socket.on(SOCKET_EVENTS.ASSIGN_CONVERSATION, async (data: unknown, ack?: unknown) => {
@@ -159,7 +155,7 @@ function registerMessageEvents(socket: Socket, user: SocketUserData, logger: App
     const parsed = parseConversationId(data);
     if (!parsed) return;
     socket
-      .to(`conv:${user.organizationId}:${parsed}`)
+      .to(`tenant:${user.organizationId}:conversation:${parsed}`)
       .emit(SOCKET_EVENTS.TYPING, { conversationId: parsed, userId: user.userId, name: user.name });
   });
 }

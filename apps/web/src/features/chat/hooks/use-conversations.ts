@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 
 import { chatApi } from '../lib/chat-api';
 import { CONVERSATIONS_KEY } from '../lib/constants';
+import { isRecord } from '../lib/type-guards';
 import type { ConversationData, ConversationFilters, ListMeta } from '../types';
 
 interface ConversationListResponse {
@@ -166,10 +167,6 @@ interface IncomingMessagePayload {
   conversationId: string;
   text: string | null;
   createdAt: string | null;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function isIncomingMessagePayload(data: unknown): data is IncomingMessagePayload {

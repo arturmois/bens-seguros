@@ -25,6 +25,10 @@ export class TransferConversation {
   ) {}
 
   async execute(input: TransferConversationInput): Promise<ConversationData> {
+    if (!input.targetAgentId || !input.targetAgentName) {
+      throw ChatErrors.invalidTransition('HUMAN_ACTIVE', 'transferir sem agente destino');
+    }
+
     const existing = await this.conversationRepo.findById(input.conversationId, input.tenantId);
 
     if (!existing) {
@@ -44,6 +48,10 @@ export class TransferConversation {
       },
     );
 
+    if (!updated) {
+      throw ChatErrors.conversationNotFound(input.conversationId);
+    }
+
     await this.messageRepo.create({
       id: randomUUID(),
       conversationId: input.conversationId,
@@ -61,6 +69,6 @@ export class TransferConversation {
       createdAt: new Date(),
     });
 
-    return updated!;
+    return updated;
   }
 }

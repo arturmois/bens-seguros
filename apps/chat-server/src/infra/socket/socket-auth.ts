@@ -1,10 +1,11 @@
 import type { Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
+import { env } from '@repo/env';
 import type { AppLogger } from '../logger.js';
 
 const socketJwtPayloadSchema = z.object({
-  sub: z.string(),
+  userId: z.string(),
   organizationId: z.string(),
   role: z.string(),
   name: z.string(),
@@ -15,14 +16,6 @@ export interface SocketUserData {
   organizationId: string;
   role: string;
   name: string;
-}
-
-function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error('JWT_SECRET environment variable is not set');
-  }
-  return secret;
 }
 
 export function createSocketAuthMiddleware(logger: AppLogger) {
@@ -36,7 +29,7 @@ export function createSocketAuthMiddleware(logger: AppLogger) {
     }
 
     try {
-      const decoded: unknown = jwt.verify(token, getJwtSecret());
+      const decoded: unknown = jwt.verify(token, env.SOCKET_JWT_SECRET);
       const parsed = socketJwtPayloadSchema.safeParse(decoded);
 
       if (!parsed.success) {
@@ -46,7 +39,7 @@ export function createSocketAuthMiddleware(logger: AppLogger) {
       }
 
       const userData: SocketUserData = {
-        userId: parsed.data.sub,
+        userId: parsed.data.userId,
         organizationId: parsed.data.organizationId,
         role: parsed.data.role,
         name: parsed.data.name,

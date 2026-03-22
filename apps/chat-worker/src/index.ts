@@ -4,6 +4,7 @@ import IORedis from 'ioredis';
 import { Worker, Queue } from 'bullmq';
 import { connectMongoDB, disconnectMongoDB } from '@repo/db-chat';
 import { CHAT_QUEUES, CHAT_PUBSUB_CHANNELS } from '@repo/shared';
+import { env } from '@repo/env';
 import * as BaileysManager from './messaging/baileys-manager.js';
 import { createSendMessageProcessor } from './processors/send-message-processor.js';
 import { createIncomingMessageProcessor } from './processors/incoming-message-processor.js';
@@ -12,11 +13,11 @@ import { createAiBotProcessor } from './processors/ai-bot-processor.js';
 import type { IncomingMessage } from './messaging/broker.js';
 
 const logger = pino({
-  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+  level: env.NODE_ENV === 'production' ? 'info' : 'debug',
   name: 'chat-worker',
 });
 
-const REDIS_URL = process.env.REDIS_URL ?? 'redis://localhost:6379';
+const REDIS_URL = env.REDIS_URL;
 
 function parseRedisUrl(url: string): { host: string; port: number } {
   const parsed = new URL(url);
@@ -89,7 +90,7 @@ function attachWorkerErrorLogger(worker: Worker, queue: string): void {
 
 async function bootstrap(): Promise<void> {
   logger.info('Connecting to MongoDB...');
-  await connectMongoDB(process.env.MONGODB_URI ?? 'mongodb://localhost:27017/bens-seguros-chat');
+  await connectMongoDB(env.MONGODB_URL);
 
   const aiBotQueue = new Queue(CHAT_QUEUES.AI_BOT, { connection: bullmqConnection });
   const incomingQueue = new Queue(CHAT_QUEUES.PROCESS_INCOMING, { connection: bullmqConnection });

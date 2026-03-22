@@ -41,7 +41,7 @@ export class SaveIncomingMessage {
 
   async execute(input: SaveIncomingMessageInput): Promise<SaveIncomingMessageResult> {
     if (input.externalId) {
-      const existing = await this.messageRepo.findByExternalId(input.externalId);
+      const existing = await this.messageRepo.findByExternalId(input.externalId, input.tenantId);
       if (existing) {
         const conversation = await this.conversationRepo.findById(
           existing.conversationId,

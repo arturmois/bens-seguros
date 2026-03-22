@@ -84,8 +84,8 @@ export class MongooseMessageRepository implements MessageRepository {
     };
   }
 
-  async findByExternalId(externalId: string): Promise<MessageData | null> {
-    const doc = await Message.findOne({ externalId }).lean();
+  async findByExternalId(externalId: string, tenantId: string): Promise<MessageData | null> {
+    const doc = await Message.findOne({ externalId, tenantId }).lean();
     if (!doc) return null;
     return toMessageData(doc as unknown as MongooseMessageDoc);
   }

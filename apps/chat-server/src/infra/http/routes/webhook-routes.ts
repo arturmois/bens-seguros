@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import { container } from 'tsyringe';
 import { z } from 'zod';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { env } from '@repo/env';
 
 import { CHAT_QUEUES } from '@repo/shared';
 import type { QueueProducer } from '../../../application/send-message.js';
@@ -32,7 +33,7 @@ interface RawBodyRequest extends FastifyRequest {
 }
 
 function getVerifyToken(): string {
-  const token = process.env.META_WHATSAPP_VERIFY_TOKEN;
+  const token = env.META_WHATSAPP_VERIFY_TOKEN;
   if (!token) {
     throw new Error('META_WHATSAPP_VERIFY_TOKEN is not configured');
   }
@@ -40,7 +41,7 @@ function getVerifyToken(): string {
 }
 
 function getAppSecret(): string {
-  const secret = process.env.META_WHATSAPP_TOKEN;
+  const secret = env.META_WHATSAPP_TOKEN;
   if (!secret) {
     throw new Error('META_WHATSAPP_TOKEN is not configured');
   }

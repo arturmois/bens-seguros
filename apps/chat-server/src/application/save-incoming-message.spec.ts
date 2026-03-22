@@ -167,6 +167,7 @@ describe('SaveIncomingMessage', () => {
     expect(result.isDuplicate).toBe(true);
     expect(result.isNewConversation).toBe(false);
     expect(result.message.id).toBe('msg-1');
+    expect(messageRepo.findByExternalId).toHaveBeenCalledWith('ext-123', 'tenant-1');
     expect(contactRepo.upsertByPhone).not.toHaveBeenCalled();
     expect(vi.mocked(messageRepo.create)).not.toHaveBeenCalled();
   });

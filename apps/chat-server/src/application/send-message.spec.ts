@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { CHAT_QUEUES } from '@repo/shared';
+
 import { ConversationNotFoundError } from '../domain/errors.js';
 import type { ConversationRepository } from '../domain/ports/conversation-repository.js';
 import type { MessageRepository } from '../domain/ports/message-repository.js';
@@ -91,7 +93,7 @@ describe('SendMessage', () => {
     expect(result.senderType).toBe('AGENT');
     expect(messageRepo.create).toHaveBeenCalledTimes(1);
     expect(queueProducer.enqueue).toHaveBeenCalledWith(
-      'chat:send',
+      CHAT_QUEUES.SEND_MESSAGE,
       expect.objectContaining({
         messageId: result.id,
         conversationId: 'conv-1',

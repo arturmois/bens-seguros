@@ -1,21 +1,14 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
+import { env } from '@repo/env';
 
 const jwtPayloadSchema = z.object({
-  sub: z.string(),
+  userId: z.string(),
   organizationId: z.string(),
   role: z.string(),
   name: z.string(),
 });
-
-function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error('JWT_SECRET environment variable is not set');
-  }
-  return secret;
-}
 
 export async function chatAuthMiddleware(
   request: FastifyRequest,
@@ -34,7 +27,7 @@ export async function chatAuthMiddleware(
   const token = authHeader.slice(7);
 
   try {
-    const decoded: unknown = jwt.verify(token, getJwtSecret());
+    const decoded: unknown = jwt.verify(token, env.SOCKET_JWT_SECRET);
     const parsed = jwtPayloadSchema.safeParse(decoded);
 
     if (!parsed.success) {
@@ -46,7 +39,7 @@ export async function chatAuthMiddleware(
     }
 
     request.user = {
-      userId: parsed.data.sub,
+      userId: parsed.data.userId,
       organizationId: parsed.data.organizationId,
       role: parsed.data.role,
       name: parsed.data.name,

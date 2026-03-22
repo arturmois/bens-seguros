@@ -6,6 +6,7 @@ import { SOCKET_EVENTS, CHAT_LIMITS } from '@repo/shared';
 
 import { getChatToken } from '../lib/chat-api';
 import { disconnectSocket, getSocket } from '../lib/socket-client';
+import { isRecord } from '../lib/type-guards';
 import type { AgentPresence } from '../types';
 
 interface UseSocketReturn {
@@ -103,10 +104,6 @@ export function useSocket(): UseSocketReturn {
 
 interface AgentStatusPayload {
   agents: ReadonlyArray<{ userId: string; name: string }>;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function isAgentStatusPayload(data: unknown): data is AgentStatusPayload {

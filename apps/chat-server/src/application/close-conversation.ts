@@ -43,6 +43,10 @@ export class CloseConversation {
       { closedAt: now, closedBy: input.closedBy },
     );
 
+    if (!updated) {
+      throw ChatErrors.conversationNotFound(input.conversationId);
+    }
+
     await this.messageRepo.create({
       id: randomUUID(),
       conversationId: input.conversationId,
@@ -60,6 +64,6 @@ export class CloseConversation {
       createdAt: now,
     });
 
-    return updated!;
+    return updated;
   }
 }

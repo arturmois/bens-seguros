@@ -1,7 +1,7 @@
 import type IORedis from 'ioredis';
 import type { Server } from 'socket.io';
 import type { AppLogger } from '../logger.js';
-import { CHAT_PUBSUB_CHANNELS, SOCKET_EVENTS } from '@repo/shared';
+import { CHAT_PUBSUB_CHANNELS, SOCKET_EVENTS, isRecord } from '@repo/shared';
 
 export class RedisSubscriber {
   constructor(
@@ -21,15 +21,11 @@ export class RedisSubscriber {
     });
   }
 
-  private isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
-  }
-
   private handleMessage(channel: string, rawMessage: string): void {
     let payload: Record<string, unknown>;
     try {
       const parsed: unknown = JSON.parse(rawMessage);
-      if (!this.isRecord(parsed)) {
+      if (!isRecord(parsed)) {
         this.logger.warn({ channel }, 'Invalid pub/sub message format');
         return;
       }
@@ -50,14 +46,16 @@ export class RedisSubscriber {
   }
 
   private routeMessage(channel: string, tenantId: string, payload: Record<string, unknown>): void {
-    const lobbyRoom = `lobby:${tenantId}`;
+    const lobbyRoom = `tenant:${tenantId}:lobby`;
 
     switch (channel) {
       case CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE: {
         const convId =
           typeof payload['conversationId'] === 'string' ? payload['conversationId'] : null;
         if (convId) {
-          this.io.to(`conv:${tenantId}:${convId}`).emit(SOCKET_EVENTS.INCOMING_MESSAGE, payload);
+          this.io
+            .to(`tenant:${tenantId}:conversation:${convId}`)
+            .emit(SOCKET_EVENTS.INCOMING_MESSAGE, payload);
         }
         this.io.to(lobbyRoom).emit(SOCKET_EVENTS.INCOMING_MESSAGE, payload);
         break;
@@ -67,7 +65,9 @@ export class RedisSubscriber {
         const convId =
           typeof payload['conversationId'] === 'string' ? payload['conversationId'] : null;
         if (convId) {
-          this.io.to(`conv:${tenantId}:${convId}`).emit(SOCKET_EVENTS.MESSAGE_STATUS, payload);
+          this.io
+            .to(`tenant:${tenantId}:conversation:${convId}`)
+            .emit(SOCKET_EVENTS.MESSAGE_STATUS, payload);
         }
         break;
       }
@@ -85,7 +85,9 @@ export class RedisSubscriber {
       case CHAT_PUBSUB_CHANNELS.UNREAD_UPDATE: {
         const userId = typeof payload['userId'] === 'string' ? payload['userId'] : null;
         if (userId) {
-          this.io.to(`user:${tenantId}:${userId}`).emit(SOCKET_EVENTS.UNREAD_UPDATE, payload);
+          this.io
+            .to(`tenant:${tenantId}:user:${userId}`)
+            .emit(SOCKET_EVENTS.UNREAD_UPDATE, payload);
         }
         break;
       }

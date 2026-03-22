@@ -55,10 +55,15 @@ export interface ChannelData {
   readonly status: ChannelStatus;
 }
 
+export interface MessagePage {
+  readonly data: MessageData[];
+  readonly meta: ListMeta;
+}
+
 export interface ConversationWithDetails {
   readonly conversation: ConversationData;
-  readonly messages: MessageData[];
-  readonly contact: ContactData;
+  readonly messages: MessagePage;
+  readonly contact: ContactData | null;
 }
 
 export interface AgentPresence {

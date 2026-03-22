@@ -5,7 +5,7 @@ export interface MessageRepository {
 
   findByConversation(conversationId: string, page: CursorPage): Promise<Page<MessageData>>;
 
-  findByExternalId(externalId: string): Promise<MessageData | null>;
+  findByExternalId(externalId: string, tenantId: string): Promise<MessageData | null>;
 
   updateStatus(id: string, status: MessageStatus): Promise<void>;
 

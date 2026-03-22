@@ -39,6 +39,10 @@ export class ReturnToQueue {
       { assignedTo: null, assignedToName: null },
     );
 
+    if (!updated) {
+      throw ChatErrors.conversationNotFound(input.conversationId);
+    }
+
     await this.messageRepo.create({
       id: randomUUID(),
       conversationId: input.conversationId,
@@ -56,6 +60,6 @@ export class ReturnToQueue {
       createdAt: new Date(),
     });
 
-    return updated!;
+    return updated;
   }
 }

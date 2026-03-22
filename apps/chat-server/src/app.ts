@@ -5,6 +5,7 @@ import { Server } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
 import type IORedis from 'ioredis';
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
+import { env } from '@repo/env';
 
 import { chatAuthMiddleware } from './infra/http/middleware/chat-auth-middleware.js';
 import { createSocketAuthMiddleware } from './infra/socket/socket-auth.js';
@@ -30,7 +31,7 @@ interface ChatAppResult {
 export async function buildChatApp(options: BuildChatAppOptions): Promise<ChatAppResult> {
   const app = Fastify({
     logger: {
-      level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+      level: env.NODE_ENV === 'production' ? 'info' : 'debug',
     },
   });
 
@@ -38,13 +39,13 @@ export async function buildChatApp(options: BuildChatAppOptions): Promise<ChatAp
   app.setSerializerCompiler(serializerCompiler);
 
   await app.register(cors, {
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
+    origin: env.FRONTEND_URL,
     credentials: true,
   });
 
   const io = new Server(app.server, {
     cors: {
-      origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
+      origin: env.FRONTEND_URL,
       credentials: true,
     },
     adapter: createAdapter(options.redisPub, options.redisSub),

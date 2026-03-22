@@ -2,6 +2,8 @@ import 'reflect-metadata';
 import { randomUUID } from 'node:crypto';
 import { injectable, inject } from 'tsyringe';
 
+import { CHAT_QUEUES } from '@repo/shared';
+
 import { ChatErrors } from '../domain/errors.js';
 import type { ConversationRepository } from '../domain/ports/conversation-repository.js';
 import type { MessageRepository } from '../domain/ports/message-repository.js';
@@ -57,7 +59,7 @@ export class SendMessage {
       createdAt: now,
     });
 
-    await this.queueProducer.enqueue('chat:send', {
+    await this.queueProducer.enqueue(CHAT_QUEUES.SEND_MESSAGE, {
       messageId: message.id,
       conversationId: conversation.id,
       channelId: conversation.channelId,

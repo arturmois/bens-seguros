@@ -1,8 +1,5 @@
 /** Type-safe parsers for Socket.IO event payloads */
-
-function isRecord(data: unknown): data is Record<string, unknown> {
-  return typeof data === 'object' && data !== null && !Array.isArray(data);
-}
+import { isRecord } from '@repo/shared';
 
 export function parseConversationId(data: unknown): string | null {
   if (!isRecord(data)) return null;
