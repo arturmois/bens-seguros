@@ -73,14 +73,8 @@ function HeaderActions({
 
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground hover:text-foreground h-8 w-8 md:h-9 md:w-9"
-          >
-            <MoreVertical className="h-4 w-4 md:h-5 md:w-5" />
-          </Button>
+        <DropdownMenuTrigger className="text-muted-foreground hover:text-foreground hover:bg-accent inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors md:h-9 md:w-9">
+          <MoreVertical className="h-4 w-4 md:h-5 md:w-5" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={onTransfer}>
