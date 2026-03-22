@@ -11,6 +11,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@bull-board/api": "^6.20.6",
+    "@bull-board/fastify": "^6.20.6",
     "@fastify/cors": "^11.0.0",
     "@fastify/helmet": "^13.0.0",
     "@fastify/multipart": "^9.4.0",
@@ -32,7 +34,7 @@
     "zod": "^3.24.0"
   },
   "devDependencies": {
-    "@config/typescript-config": "workspace:*",
+    "@config/typescript-config": "workspace:^",
     "@types/jsonwebtoken": "^9.0.10",
     "tsup": "^8.4.0",
     "tsx": "^4.19.0",

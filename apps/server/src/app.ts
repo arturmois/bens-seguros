@@ -24,6 +24,7 @@ import { statsRoutes } from './routes/v1/stats-routes.js';
 import { auditLogRoutes } from './routes/v1/audit-log-routes.js';
 import { createAuthMiddleware } from './middlewares/auth-middleware.js';
 import { registerDependencies } from './container-registrations.js';
+import { setupBullBoard } from './bull-board.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -87,6 +88,9 @@ export async function buildApp() {
     await authenticatedApp.register(statsRoutes);
     await authenticatedApp.register(auditLogRoutes);
   });
+
+  // Bull Board (admin-only, behind auth middleware)
+  setupBullBoard(app);
 
   return app;
 }
