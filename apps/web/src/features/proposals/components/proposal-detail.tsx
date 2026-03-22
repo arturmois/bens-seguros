@@ -15,11 +15,18 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 import { DocumentList } from '@/features/documents/components/document-list'
 import { DocumentUpload } from '@/features/documents/components/document-upload'
 import { usePolicyByProposal } from '@/features/policies/hooks/use-policies'
 
+import { useChecklist } from '../hooks/use-checklist'
 import {
   useAdvanceProposal,
   useProposal,
@@ -36,6 +43,7 @@ import { InsuredObjectSection } from './insured-object-section'
 import { IssuePolicyCard } from './issue-policy-card'
 import { LostReasonDialog } from './lost-reason-dialog'
 import { DetailSkeleton, InfoItem } from './proposal-detail-helpers'
+import { ProposalChecklistPanel } from './proposal-checklist-panel'
 
 interface ProposalDetailProps {
   proposalId: string
@@ -45,6 +53,7 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
   const router = useRouter()
   const { data, isLoading, isError } = useProposal(proposalId)
   const { data: existingPolicy } = usePolicyByProposal(proposalId)
+  const { data: checklistData } = useChecklist(proposalId)
   const advanceMutation = useAdvanceProposal()
   const revertMutation = useRevertProposal()
   const [showLostDialog, setShowLostDialog] = useState(false)
@@ -80,8 +89,13 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
   }
 
   const proposal = data.data
-  const canAdvance =
-    proposal.stage !== 'POLICY_ISSUED' && proposal.stage !== 'LOST'
+  const isTerminalStage =
+    proposal.stage === 'POLICY_ISSUED' || proposal.stage === 'LOST'
+  const canAdvance = !isTerminalStage
+  const checklistBlocking =
+    !isTerminalStage &&
+    proposal.stage !== 'CAPTURE' &&
+    checklistData?.summary.canAdvance === false
   const canRevert =
     proposal.stage !== 'CAPTURE' &&
     proposal.stage !== 'LOST' &&
@@ -166,18 +180,31 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
 
       <div className="flex flex-wrap gap-3">
         {canAdvance && (
-          <Button
-            onClick={() => advanceMutation.mutate(proposalId)}
-            disabled={advanceMutation.isPending}
-            variant="default"
-          >
-            {advanceMutation.isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <ChevronRight className="mr-2 h-4 w-4" />
-            )}
-            Avançar Estágio
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <Button
+                    onClick={() => advanceMutation.mutate(proposalId)}
+                    disabled={advanceMutation.isPending || checklistBlocking}
+                    variant="default"
+                  >
+                    {advanceMutation.isPending ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <ChevronRight className="mr-2 h-4 w-4" />
+                    )}
+                    Avançar Estágio
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {checklistBlocking && (
+                <TooltipContent side="top">
+                  Complete os itens obrigatórios do checklist
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
         )}
         {canRevert && (
           <Button
@@ -210,10 +237,15 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
 
       <Separator />
 
-      <Tabs defaultValue="documents">
+      <Tabs defaultValue="checklist">
         <TabsList>
+          <TabsTab value="checklist">Checklist</TabsTab>
           <TabsTab value="documents">Documentos</TabsTab>
         </TabsList>
+
+        <TabsContent value="checklist" className="mt-4">
+          <ProposalChecklistPanel proposalId={proposalId} />
+        </TabsContent>
 
         <TabsContent value="documents" className="mt-4 space-y-4">
           <DocumentUpload entityType="PROPOSAL" entityId={proposalId} />
