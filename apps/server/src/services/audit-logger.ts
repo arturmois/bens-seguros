@@ -7,6 +7,7 @@ import {
 } from '@repo/core'
 import type { Prisma } from '@repo/db'
 import type { FastifyRequest } from 'fastify'
+
 interface AuditContext {
   readonly request: FastifyRequest
   readonly entityType: string
@@ -17,10 +18,15 @@ interface AuditContext {
 
 function toJson(value: unknown): Prisma.InputJsonValue | undefined {
   if (value === undefined || value === null) return undefined
-  return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue
+  try {
+    return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue
+  } catch {
+    return { _error: 'Could not serialize audit data' }
+  }
 }
 
 function extractMeta(request: FastifyRequest) {
+  // organizationId guaranteed by tenantMiddleware preHandler
   return {
     organizationId: request.organizationId!,
     userId: request.user?.id,
@@ -30,8 +36,8 @@ function extractMeta(request: FastifyRequest) {
 }
 
 // logAudit already has its own try/catch with Pino logging.
-// The fire-and-forget pattern here is intentional — audit
-// failures must never break the main request flow.
+// The .catch() safety net prevents unhandled rejections if
+// toJson or extractMeta throw before reaching logAudit.
 
 export function auditCreate(ctx: AuditContext): void {
   logCreate({
@@ -39,7 +45,7 @@ export function auditCreate(ctx: AuditContext): void {
     entityType: ctx.entityType,
     entityId: ctx.entityId,
     after: toJson(ctx.after),
-  })
+  }).catch(() => {})
 }
 
 export function auditUpdate(ctx: AuditContext): void {
@@ -49,7 +55,7 @@ export function auditUpdate(ctx: AuditContext): void {
     entityId: ctx.entityId,
     before: toJson(ctx.before),
     after: toJson(ctx.after),
-  })
+  }).catch(() => {})
 }
 
 export function auditDelete(ctx: AuditContext): void {
@@ -58,7 +64,7 @@ export function auditDelete(ctx: AuditContext): void {
     entityType: ctx.entityType,
     entityId: ctx.entityId,
     before: toJson(ctx.before),
-  })
+  }).catch(() => {})
 }
 
 export function auditApprove(ctx: AuditContext): void {
@@ -67,7 +73,7 @@ export function auditApprove(ctx: AuditContext): void {
     entityType: ctx.entityType,
     entityId: ctx.entityId,
     after: toJson(ctx.after),
-  })
+  }).catch(() => {})
 }
 
 export function auditReject(ctx: AuditContext): void {
@@ -76,5 +82,5 @@ export function auditReject(ctx: AuditContext): void {
     entityType: ctx.entityType,
     entityId: ctx.entityId,
     after: toJson(ctx.after),
-  })
+  }).catch(() => {})
 }
