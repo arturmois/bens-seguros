@@ -1,35 +1,36 @@
-import 'reflect-metadata'
-import * as Sentry from '@sentry/node'
-import Fastify from 'fastify'
-import type { FastifyError } from 'fastify'
 import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
 import multipart from '@fastify/multipart'
 import rateLimit from '@fastify/rate-limit'
 import swagger from '@fastify/swagger'
+import { createAuth } from '@repo/auth'
+import { env } from '@repo/env'
+import * as Sentry from '@sentry/node'
+import type { FastifyError } from 'fastify'
+import Fastify from 'fastify'
 import {
   serializerCompiler,
   validatorCompiler,
 } from 'fastify-type-provider-zod'
-import { createAuth } from '@repo/auth'
-import { env } from '@repo/env'
-import { registerAuthRoutes } from './routes/auth-routes.js'
-import { tenantRoutes } from './routes/v1/tenant-routes.js'
-import { clientRoutes } from './routes/v1/client-routes.js'
-import { proposalRoutes } from './routes/v1/proposal-routes.js'
-import { policyRoutes } from './routes/v1/policy-routes.js'
-import { claimRoutes } from './routes/v1/claim-routes.js'
-import { endorsementRoutes } from './routes/v1/endorsement-routes.js'
-import { assistanceRoutes } from './routes/v1/assistance-routes.js'
-import { documentRoutes } from './routes/v1/document-routes.js'
-import { insurerRoutes } from './routes/v1/insurer-routes.js'
-import { commissionRoutes } from './routes/v1/commission-routes.js'
-import { chatTokenRoute } from './routes/v1/chat-token-route.js'
-import { statsRoutes } from './routes/v1/stats-routes.js'
-import { auditLogRoutes } from './routes/v1/audit-log-routes.js'
-import { createAuthMiddleware } from './middlewares/auth-middleware.js'
-import { registerDependencies } from './container-registrations.js'
+import 'reflect-metadata'
 import { setupBullBoard } from './bull-board.js'
+import { registerDependencies } from './container-registrations.js'
+import { createAuthMiddleware } from './middlewares/auth-middleware.js'
+import { registerAuthRoutes } from './routes/auth-routes.js'
+import { assistanceRoutes } from './routes/v1/assistance-routes.js'
+import { auditLogRoutes } from './routes/v1/audit-log-routes.js'
+import { chatTokenRoute } from './routes/v1/chat-token-route.js'
+import { claimRoutes } from './routes/v1/claim-routes.js'
+import { clientRoutes } from './routes/v1/client-routes.js'
+import { commissionRoutes } from './routes/v1/commission-routes.js'
+import { documentRoutes } from './routes/v1/document-routes.js'
+import { endorsementRoutes } from './routes/v1/endorsement-routes.js'
+import { insurerRoutes } from './routes/v1/insurer-routes.js'
+import { notificationRoutes } from './routes/v1/notification-routes.js'
+import { policyRoutes } from './routes/v1/policy-routes.js'
+import { proposalRoutes } from './routes/v1/proposal-routes.js'
+import { statsRoutes } from './routes/v1/stats-routes.js'
+import { tenantRoutes } from './routes/v1/tenant-routes.js'
 
 export async function buildApp() {
   const app = Fastify({
@@ -92,6 +93,7 @@ export async function buildApp() {
     await authenticatedApp.register(chatTokenRoute)
     await authenticatedApp.register(statsRoutes)
     await authenticatedApp.register(auditLogRoutes)
+    await authenticatedApp.register(notificationRoutes)
   })
 
   // Bull Board (admin-only, inside authenticated scope)
