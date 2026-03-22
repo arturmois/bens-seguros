@@ -1,6 +1,6 @@
+import { CHAT_QUEUES } from '@repo/shared'
 import { Queue } from 'bullmq'
 import type { AppLogger } from '../logger.js'
-import { CHAT_QUEUES } from '@repo/shared'
 
 const DEFAULT_RETRY_OPTIONS = {
   attempts: 3,

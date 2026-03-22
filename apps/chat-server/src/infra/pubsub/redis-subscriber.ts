@@ -1,7 +1,7 @@
+import { CHAT_PUBSUB_CHANNELS, SOCKET_EVENTS, isRecord } from '@repo/shared'
 import type IORedis from 'ioredis'
 import type { Server } from 'socket.io'
 import type { AppLogger } from '../logger.js'
-import { CHAT_PUBSUB_CHANNELS, SOCKET_EVENTS, isRecord } from '@repo/shared'
 
 export class RedisSubscriber {
   constructor(

@@ -1,28 +1,28 @@
-import type { Server, Socket } from 'socket.io'
-import type IORedis from 'ioredis'
-import type { AppLogger } from '../logger.js'
-import { container } from 'tsyringe'
 import {
-  SOCKET_EVENTS,
   CHAT_LIMITS,
+  SOCKET_EVENTS,
   WHATSAPP_STATE_KEYS,
   isRecord,
 } from '@repo/shared'
+import type IORedis from 'ioredis'
+import type { Server, Socket } from 'socket.io'
+import { container } from 'tsyringe'
+import type { AppLogger } from '../logger.js'
 
-import { SendMessage } from '../../application/send-message.js'
 import { AssignConversation } from '../../application/assign-conversation.js'
 import { CloseConversation } from '../../application/close-conversation.js'
+import { SendMessage } from '../../application/send-message.js'
 import { TransferConversation } from '../../application/transfer-conversation.js'
 import type { MessageRepository } from '../../domain/ports/message-repository.js'
-import type { SocketUserData } from './socket-auth.js'
 import { PresenceTracker } from './presence-tracker.js'
+import type { SocketUserData } from './socket-auth.js'
 import {
-  parseConversationId,
-  parseChannelId,
-  parseTransferData,
-  parseSendMessageData,
-  parseCatchUpData,
   formatError,
+  parseCatchUpData,
+  parseChannelId,
+  parseConversationId,
+  parseSendMessageData,
+  parseTransferData,
 } from './socket-parsers.js'
 
 function getUserData(socket: Socket): SocketUserData {

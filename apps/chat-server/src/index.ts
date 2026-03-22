@@ -1,9 +1,9 @@
-import 'reflect-metadata'
+import { connectMongoDB } from '@repo/db-chat'
+import { env } from '@repo/env'
 import * as Sentry from '@sentry/node'
 import IORedis from 'ioredis'
 import pino from 'pino'
-import { connectMongoDB } from '@repo/db-chat'
-import { env } from '@repo/env'
+import 'reflect-metadata'
 
 if (process.env.SENTRY_DSN) {
   Sentry.init({

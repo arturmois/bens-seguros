@@ -1,8 +1,8 @@
+import { env } from '@repo/env'
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { container } from 'tsyringe'
 import { z } from 'zod'
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
-import { env } from '@repo/env'
 
 import { CHAT_QUEUES } from '@repo/shared'
 import type { QueueProducer } from '../../../application/send-message.js'

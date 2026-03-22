@@ -1,11 +1,11 @@
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { container } from 'tsyringe'
 import { z } from 'zod'
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 
-import { ListConversations } from '../../../application/list-conversations.js'
 import { GetConversation } from '../../../application/get-conversation.js'
-import { handleDomainError } from './conversation-error-handler.js'
+import { ListConversations } from '../../../application/list-conversations.js'
 import { conversationActionRoutes } from './conversation-action-routes.js'
+import { handleDomainError } from './conversation-error-handler.js'
 
 const conversationIdSchema = z.object({ id: z.string().min(1) })
 

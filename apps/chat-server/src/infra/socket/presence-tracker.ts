@@ -1,6 +1,6 @@
+import { CHAT_LIMITS, SOCKET_EVENTS } from '@repo/shared'
 import type { Server } from 'socket.io'
 import type { AppLogger } from '../logger.js'
-import { CHAT_LIMITS, SOCKET_EVENTS } from '@repo/shared'
 
 interface AgentPresence {
   readonly name: string

@@ -1,6 +1,6 @@
-import { z } from 'zod'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { container } from 'tsyringe'
+import { z } from 'zod'
 
 import { Channel } from '@repo/db-chat'
 import { CHAT_QUEUES } from '@repo/shared'

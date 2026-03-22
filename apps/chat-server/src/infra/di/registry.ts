@@ -1,11 +1,11 @@
 import { container } from 'tsyringe'
 import type { AppLogger } from '../logger.js'
 
+import { QueueProducer } from '../queue/queue-producer.js'
+import { MongooseContactRepository } from '../repository/mongoose-contact-repository.js'
 import { MongooseConversationRepository } from '../repository/mongoose-conversation-repository.js'
 import { MongooseMessageRepository } from '../repository/mongoose-message-repository.js'
-import { MongooseContactRepository } from '../repository/mongoose-contact-repository.js'
 import { MongooseUnreadRepository } from '../repository/mongoose-unread-repository.js'
-import { QueueProducer } from '../queue/queue-producer.js'
 
 interface QueueConnectionOptions {
   readonly host: string

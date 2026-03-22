@@ -1,7 +1,7 @@
-import type { Socket } from 'socket.io'
-import jwt from 'jsonwebtoken'
-import { z } from 'zod'
 import { env } from '@repo/env'
+import jwt from 'jsonwebtoken'
+import type { Socket } from 'socket.io'
+import { z } from 'zod'
 import type { AppLogger } from '../logger.js'
 
 const socketJwtPayloadSchema = z.object({

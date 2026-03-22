@@ -1,7 +1,7 @@
+import { env } from '@repo/env'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import jwt from 'jsonwebtoken'
 import { z } from 'zod'
-import { env } from '@repo/env'
 
 const jwtPayloadSchema = z.object({
   userId: z.string(),

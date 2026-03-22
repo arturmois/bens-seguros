@@ -1,22 +1,22 @@
-import Fastify from 'fastify'
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import cors from '@fastify/cors'
-import { Server } from 'socket.io'
+import { env } from '@repo/env'
 import { createAdapter } from '@socket.io/redis-adapter'
-import type IORedis from 'ioredis'
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import Fastify from 'fastify'
 import {
   serializerCompiler,
   validatorCompiler,
 } from 'fastify-type-provider-zod'
-import { env } from '@repo/env'
+import type IORedis from 'ioredis'
+import { Server } from 'socket.io'
 
 import { chatAuthMiddleware } from './infra/http/middleware/chat-auth-middleware.js'
+import { channelRoutes } from './infra/http/routes/channel-routes.js'
+import { conversationRoutes } from './infra/http/routes/conversation-routes.js'
+import { webhookRoutes } from './infra/http/routes/webhook-routes.js'
+import type { PresenceTracker } from './infra/socket/presence-tracker.js'
 import { createSocketAuthMiddleware } from './infra/socket/socket-auth.js'
 import { setupSocketHandlers } from './infra/socket/socket-handler.js'
-import type { PresenceTracker } from './infra/socket/presence-tracker.js'
-import { conversationRoutes } from './infra/http/routes/conversation-routes.js'
-import { channelRoutes } from './infra/http/routes/channel-routes.js'
-import { webhookRoutes } from './infra/http/routes/webhook-routes.js'
 
 const UNAUTHENTICATED_PATHS = new Set(['/health', '/chat/webhook/meta'])
 

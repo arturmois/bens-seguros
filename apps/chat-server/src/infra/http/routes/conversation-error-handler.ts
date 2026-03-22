@@ -1,9 +1,9 @@
 import type { FastifyReply } from 'fastify'
 
 import {
+  ConversationAlreadyAssignedError,
   ConversationNotFoundError,
   InvalidConversationTransitionError,
-  ConversationAlreadyAssignedError,
 } from '../../../domain/errors.js'
 
 export function handleDomainError(error: unknown, reply: FastifyReply): void {

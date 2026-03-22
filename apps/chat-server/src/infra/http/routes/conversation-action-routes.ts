@@ -1,13 +1,13 @@
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { container } from 'tsyringe'
 import { z } from 'zod'
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 
 import { AssignConversation } from '../../../application/assign-conversation.js'
-import { TransferConversation } from '../../../application/transfer-conversation.js'
-import { ReturnToQueue } from '../../../application/return-to-queue.js'
 import { CloseConversation } from '../../../application/close-conversation.js'
-import { SendMessage } from '../../../application/send-message.js'
 import { MarkAsRead } from '../../../application/mark-as-read.js'
+import { ReturnToQueue } from '../../../application/return-to-queue.js'
+import { SendMessage } from '../../../application/send-message.js'
+import { TransferConversation } from '../../../application/transfer-conversation.js'
 import { handleDomainError } from './conversation-error-handler.js'
 
 const conversationIdSchema = z.object({ id: z.string().min(1) })
