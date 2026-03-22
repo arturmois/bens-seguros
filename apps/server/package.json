@@ -25,6 +25,7 @@
     "better-auth": "^1.0.0",
     "fastify": "^5.7.0",
     "fastify-type-provider-zod": "^4.0.0",
+    "jsonwebtoken": "^9.0.3",
     "pino": "^9.0.0",
     "reflect-metadata": "^0.2.0",
     "tsyringe": "^4.8.0",
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "@config/typescript-config": "workspace:*",
+    "@types/jsonwebtoken": "^9.0.10",
     "tsup": "^8.4.0",
     "tsx": "^4.19.0",
     "typescript": "^5.9.0"

@@ -1,19 +1,37 @@
 export const SOCKET_EVENTS = {
-  // Chat
-  SEND_MESSAGE: 'send_message',
-  RECEIVE_MESSAGE: 'receive_message',
-  MESSAGE_STATUS: 'message_status',
-  CONVERSATION_OPENED: 'conversation_opened',
-  CONVERSATION_CLOSED: 'conversation_closed',
-  CONVERSATION_ASSIGNED: 'conversation_assigned',
+  // Chat messages
+  INCOMING_MESSAGE: 'chat:incoming-message',
+  MESSAGE_STATUS: 'chat:message-status',
+  SEND_MESSAGE: 'chat:send-message',
+
+  // Conversations
+  SUBSCRIBE_CONVERSATION: 'chat:subscribe-conversation',
+  UNSUBSCRIBE_CONVERSATION: 'chat:unsubscribe-conversation',
+  ASSIGN_CONVERSATION: 'chat:assign-conversation',
+  CLOSE_CONVERSATION: 'chat:close-conversation',
+  TRANSFER_CONVERSATION: 'chat:transfer-conversation',
+  CONVERSATION_UPDATED: 'chat:conversation-updated',
+
+  // Unread
+  UNREAD_UPDATE: 'chat:unread-update',
+
   // Presence
-  USER_ONLINE: 'user_online',
-  USER_OFFLINE: 'user_offline',
-  USER_TYPING: 'user_typing',
-  // WhatsApp
-  WHATSAPP_STATUS: 'whatsapp_status',
-  WHATSAPP_QR: 'whatsapp_qr',
-  // Notifications
+  AGENT_HEARTBEAT: 'agent:heartbeat',
+  AGENT_STATUS_UPDATE: 'agent:status-update',
+
+  // Typing
+  TYPING_START: 'conversation:typing-start',
+  TYPING: 'conversation:typing',
+
+  // Channel
+  CHANNEL_STATUS: 'channel:status',
+  CHANNEL_STATUS_GET: 'channel:status:get',
+  PAIRING_CODE_RESULT: 'channel:pairing-code-result',
+
+  // Catch-up
+  CATCH_UP: 'chat:catch-up',
+
+  // Notifications (Fase 6)
   NOTIFICATION: 'notification',
 } as const;
 
