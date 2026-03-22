@@ -3,6 +3,7 @@ node_modules/
 dist/
 generated/
 uploads/
+baileys-sessions/
 _reference/
 .turbo/
 *.tsbuildinfo
