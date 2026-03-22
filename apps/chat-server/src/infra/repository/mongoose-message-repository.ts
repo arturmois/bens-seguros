@@ -74,6 +74,9 @@ export class MongooseMessageRepository implements MessageRepository {
     const items = (docs as unknown as MongooseMessageDoc[]).map(toMessageData);
     const lastItem = items.at(-1);
 
+    // Query fetches newest-first for cursor pagination, but UI needs oldest-first (chronological)
+    items.reverse();
+
     return {
       data: items,
       meta: {
