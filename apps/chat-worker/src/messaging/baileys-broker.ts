@@ -172,19 +172,16 @@ export class BaileysBroker implements Broker {
     }
 
     if (update.connection === 'close') {
-      const wasConnected = this.connected;
-      this.connected = false;
-
       if (shouldReconnect(update)) {
         // Transient disconnect (restartRequired 515, timeout, etc.) — reconnect silently
+        // Keep this.connected = true so we don't re-emit CONNECTED on next open
         globalThis.setTimeout(() => {
           void this.connect({ ...events });
         }, RECONNECT_DELAY_MS);
       } else {
-        // Permanent disconnect (loggedOut) — notify frontend only if was connected
-        if (wasConnected) {
-          events.onConnectionUpdate('DISCONNECTED');
-        }
+        // Permanent disconnect (loggedOut) — notify frontend
+        this.connected = false;
+        events.onConnectionUpdate('DISCONNECTED');
       }
     }
   }
