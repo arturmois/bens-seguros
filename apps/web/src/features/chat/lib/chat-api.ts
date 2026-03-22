@@ -93,4 +93,15 @@ export const chatApi = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  put: <TData>(path: string, data: unknown) =>
+    chatFetch<TData>(path, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  delete: <TData>(path: string) =>
+    chatFetch<TData>(path, {
+      method: 'DELETE',
+    }),
 };
