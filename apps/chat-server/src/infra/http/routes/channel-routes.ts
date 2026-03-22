@@ -28,11 +28,18 @@ function buildChannelNotFoundResponse(id: string): {
   return { success: false, error: { code: err.code, message: err.message } };
 }
 
+function mapChannel(doc: Record<string, unknown>): Record<string, unknown> {
+  const { _id, ...rest } = doc;
+  delete rest['__v'];
+  return { id: String(_id), ...rest };
+}
+
 export async function channelRoutes(app: FastifyInstance): Promise<void> {
   app.get('/chat/channels', async (request: FastifyRequest, reply: FastifyReply) => {
     const tenantId = request.organizationId;
 
-    const channels = await Channel.find({ tenantId }).sort({ createdAt: -1 }).lean();
+    const docs = await Channel.find({ tenantId }).sort({ createdAt: -1 }).lean();
+    const channels = docs.map((doc) => mapChannel(doc as unknown as Record<string, unknown>));
 
     return reply.send({ success: true, data: channels });
   });
@@ -54,7 +61,12 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
         phoneNumber: body.phoneNumber ?? null,
       });
 
-      return reply.status(201).send({ success: true, data: channel.toObject() });
+      return reply
+        .status(201)
+        .send({
+          success: true,
+          data: mapChannel(channel.toObject() as unknown as Record<string, unknown>),
+        });
     },
   );
 
@@ -81,7 +93,10 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
         return reply.status(404).send(buildChannelNotFoundResponse(id));
       }
 
-      return reply.send({ success: true, data: channel });
+      return reply.send({
+        success: true,
+        data: mapChannel(channel as unknown as Record<string, unknown>),
+      });
     },
   );
 
@@ -104,7 +119,10 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
         return reply.status(404).send(buildChannelNotFoundResponse(id));
       }
 
-      return reply.send({ success: true, data: channel });
+      return reply.send({
+        success: true,
+        data: mapChannel(channel as unknown as Record<string, unknown>),
+      });
     },
   );
 }
