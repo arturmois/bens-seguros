@@ -204,25 +204,25 @@ body {
   }
 }
 
-/* Chat theme tokens */
-@theme inline {
-  --color-chat-bg: oklch(0.985 0.002 247.858);
-  --color-chat-bubble-sent: oklch(0.35 0.05 200);
-  --color-chat-bubble-sent-foreground: oklch(0.98 0 0);
-  --color-chat-bubble-received: oklch(0.97 0.005 247.858);
-  --color-chat-bubble-received-foreground: oklch(0.2 0 0);
-  --color-chat-online: oklch(0.65 0.2 145);
-  --color-chat-unread: oklch(0.55 0.15 200);
-  --color-chat-timestamp: oklch(0.55 0.01 247.858);
-  --color-chat-waiting: oklch(0.75 0.15 85);
+/* Chat theme tokens — light mode values + dark overrides via CSS variables */
+:root {
+  --chat-bg: oklch(0.985 0.002 247.858);
+  --chat-bubble-sent: oklch(0.35 0.05 200);
+  --chat-bubble-sent-fg: oklch(0.98 0 0);
+  --chat-bubble-received: oklch(0.97 0.005 247.858);
+  --chat-bubble-received-fg: oklch(0.2 0 0);
+  --chat-online: oklch(0.65 0.2 145);
+  --chat-unread: oklch(0.55 0.15 200);
+  --chat-timestamp: oklch(0.55 0.01 247.858);
+  --chat-waiting: oklch(0.75 0.15 85);
 }
 
 .dark {
-  --color-chat-bg: oklch(0.15 0.005 247.858);
-  --color-chat-bubble-sent: oklch(0.3 0.04 200);
-  --color-chat-bubble-received: oklch(0.22 0.008 247.858);
-  --color-chat-bubble-received-foreground: oklch(0.9 0 0);
-  --color-chat-timestamp: oklch(0.6 0.01 247.858);
+  --chat-bg: oklch(0.15 0.005 247.858);
+  --chat-bubble-sent: oklch(0.3 0.04 200);
+  --chat-bubble-received: oklch(0.22 0.008 247.858);
+  --chat-bubble-received-fg: oklch(0.9 0 0);
+  --chat-timestamp: oklch(0.6 0.01 247.858);
 }
 
 .chat-scrollbar::-webkit-scrollbar {

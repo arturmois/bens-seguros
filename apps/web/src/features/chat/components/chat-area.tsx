@@ -51,7 +51,7 @@ function MessagesError() {
 
 function EmptyState() {
   return (
-    <div className="bg-chat-bg flex h-full flex-col items-center justify-center">
+    <div className="flex h-full flex-col items-center justify-center bg-[var(--chat-bg)]">
       <div className="text-center">
         <div className="bg-primary/10 mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full">
           <Send className="text-primary h-10 w-10" />
@@ -163,7 +163,7 @@ export function ChatArea({
     conversation.status === 'HUMAN_ACTIVE' && conversation.assignedTo === currentUserId;
 
   return (
-    <div className="bg-chat-bg flex h-full flex-col">
+    <div className="flex h-full flex-col bg-[var(--chat-bg)]">
       <ChatHeader
         conversation={conversation}
         contact={contact}

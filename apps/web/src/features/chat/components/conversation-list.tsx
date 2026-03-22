@@ -92,7 +92,7 @@ function ConversationItem({
         'flex w-full items-center gap-3 px-3 py-3 text-left transition-colors',
         'hover:bg-sidebar-hover',
         isActive && 'bg-sidebar-accent',
-        isWaiting && 'border-chat-waiting border-l-4',
+        isWaiting && 'border-l-4 border-[var(--chat-waiting)]',
       )}
     >
       <div className="relative shrink-0">
