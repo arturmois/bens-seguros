@@ -144,12 +144,18 @@ baileys-sessions
 .turbo
 ```
 
-**Fix 4: Add health checks**
+**Fix 4: Add health checks with start_period**
 
 ```dockerfile
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD wget -qO- http://localhost:3001/health || exit 1
 ```
+
+Note: `start-period=30s` gives the app time to initialize (Prisma client, DI container, DB connections) before Docker starts counting failures.
+
+**Fix 5: Prisma engine binaries path**
+
+Since `@repo/db` uses custom output (`../generated/client`), the Prisma engine binaries live in `packages/db/generated/client/` — not in `node_modules/.prisma`. The Dockerfile must copy the correct generated output path. During implementation, verify which path contains the engine binaries (`.so` / `.node` files) and ensure it's copied to the runner stage.
 
 ### Package Bundling Strategy
 
@@ -183,7 +189,7 @@ Dockerfile.server (2 apps, 1 image)
 ├── builder:    prisma generate + build server + build worker
 ├── prod-deps:  pnpm install --frozen-lockfile --prod
 └── runner:     server/dist/ + worker/dist/ + node_modules + prisma client
-    ├── HEALTHCHECK: wget localhost:3001/health
+    ├── HEALTHCHECK: wget localhost:3001/health (start-period=30s)
     ├── CMD default: node server/dist/server.js
     └── CMD worker:  node worker/dist/worker.js (via compose override)
 
@@ -193,7 +199,7 @@ Dockerfile.chat (2 apps, 1 image)
 ├── builder:    build chat-server + build chat-worker
 ├── prod-deps:  pnpm install --frozen-lockfile --prod
 └── runner:     chat-server/dist/ + chat-worker/dist/ + node_modules
-    ├── HEALTHCHECK: wget localhost:3002/health
+    ├── HEALTHCHECK: wget localhost:3002/health (start-period=30s)
     ├── CMD default: node chat-server/dist/index.js
     └── CMD worker:  node chat-worker/dist/worker.js (via compose override)
     └── VOLUME: /app/baileys-sessions (WhatsApp auth persistence)
@@ -231,11 +237,17 @@ services:
       test: ['CMD', 'wget', '-qO-', 'http://localhost:3001/health']
       interval: 30s
       timeout: 5s
+      start_period: 30s
       retries: 3
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
     deploy:
       resources:
         limits: { memory: 512M }
@@ -249,6 +261,11 @@ services:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
     deploy:
       resources:
         limits: { memory: 512M }
@@ -262,11 +279,17 @@ services:
       test: ['CMD', 'wget', '-qO-', 'http://localhost:3002/health']
       interval: 30s
       timeout: 5s
+      start_period: 30s
       retries: 3
     depends_on:
       mongodb: { condition: service_healthy }
       redis: { condition: service_healthy }
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
     deploy:
       resources:
         limits: { memory: 512M }
@@ -282,6 +305,11 @@ services:
       mongodb: { condition: service_healthy }
       redis: { condition: service_healthy }
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
     deploy:
       resources:
         limits: { memory: 512M }
@@ -307,12 +335,25 @@ services:
 
   mongodb:
     image: mongo:8
-    command: ['--replSet', 'rs0', '--bind_ip_all']
+    command: ['--replSet', 'rs0', '--bind_ip_all', '--auth']
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
     volumes:
       - mongodata:/data/db
       - ./scripts/mongo-init-replica.sh:/docker-entrypoint-initdb.d/init.sh:ro
     healthcheck:
-      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
+      test:
+        [
+          'CMD',
+          'mongosh',
+          '-u',
+          '${MONGO_USER}',
+          '-p',
+          '${MONGO_PASSWORD}',
+          '--eval',
+          "db.adminCommand('ping')",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -331,12 +372,12 @@ services:
         '--maxmemory',
         '256mb',
         '--maxmemory-policy',
-        'allkeys-lru',
+        'noeviction',
       ]
     volumes:
       - redisdata:/data
     healthcheck:
-      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', 'ping']
+      test: ['CMD-SHELL', 'REDISCLI_AUTH=$$REDIS_PASSWORD redis-cli ping']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -416,6 +457,11 @@ server {
 
     location /bull-board {
         proxy_pass http://server:3001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # Bull Board is RBAC-protected at app level (owner-only + requireAbility('manage', 'all'))
     }
 }
 
@@ -501,9 +547,8 @@ server {
 
 1. SSL/TLS → Edge Certificates → "Always Use HTTPS" ON
 2. SSL/TLS → Edge Certificates → "Minimum TLS Version" → TLS 1.2
-3. Speed → Optimization → "Auto Minify" → check JS, CSS, HTML
-4. Security → Settings → "Security Level" → Medium
-5. Caching → Configuration → "Browser Cache TTL" → 4 hours
+3. Security → Settings → "Security Level" → Medium
+4. Caching → Configuration → "Browser Cache TTL" → 4 hours
 
 ---
 
@@ -545,7 +590,24 @@ on:
       - 'Dockerfile.server'
 
 jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+
   build-and-push:
+    needs: quality-gates
     runs-on: ubuntu-latest
     outputs:
       sha_short: ${{ steps.vars.outputs.sha_short }}
@@ -578,10 +640,16 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          envs: sha_short
           script: |
             cd /opt/bens-seguros
+            SHA_SHORT=${{ needs.build-and-push.outputs.sha_short }}
 
-            # Pull new images
+            # Save current running tag for rollback
+            PREV_TAG=$(cat .current-tag 2>/dev/null || echo "none")
+
+            # Pull new images using SHA tag (not latest)
+            export TAG=${SHA_SHORT}
             docker compose -f docker-compose.prod.yml pull server worker
 
             # Run database migrations
@@ -591,19 +659,23 @@ jobs:
             # Deploy with new images
             docker compose -f docker-compose.prod.yml up -d server worker
 
-            # Wait for health checks
-            sleep 15
+            # Wait for health checks (start_period=30s + margin)
+            sleep 40
 
             # Verify containers are healthy
-            HEALTHY=$(docker compose -f docker-compose.prod.yml ps --format json | grep -c '"healthy"')
+            HEALTHY=$(docker compose -f docker-compose.prod.yml ps server --format json | grep -c '"healthy"')
             if [ "$HEALTHY" -lt 1 ]; then
-              echo "Health check failed! Rolling back..."
-              docker compose -f docker-compose.prod.yml up -d \
-                --pull=never server worker
+              echo "Health check failed! Rolling back to ${PREV_TAG}..."
+              if [ "$PREV_TAG" != "none" ]; then
+                export TAG=${PREV_TAG}
+                docker compose -f docker-compose.prod.yml up -d server worker
+              fi
               exit 1
             fi
 
-            echo "Deploy successful!"
+            # Save successful tag for future rollbacks
+            echo "${SHA_SHORT}" > .current-tag
+            echo "Deploy successful! Tag: ${SHA_SHORT}"
 ```
 
 ### deploy-chat.yml
@@ -675,17 +747,32 @@ docker compose -f /opt/bens-seguros/docker-compose.prod.yml \
   exec -T postgres pg_dump -U "$DB_USER" "$DB_NAME" \
   | gzip > "$BACKUP_DIR/postgres_${DATE}.sql.gz"
 
+# Verify PostgreSQL backup is not empty
+if [ ! -s "$BACKUP_DIR/postgres_${DATE}.sql.gz" ]; then
+  echo "ERROR: PostgreSQL backup is empty!" >&2
+  exit 1
+fi
+
 # MongoDB
 docker compose -f /opt/bens-seguros/docker-compose.prod.yml \
   exec -T mongodb mongodump --archive \
+  -u "$MONGO_USER" -p "$MONGO_PASSWORD" --authenticationDatabase admin \
   | gzip > "$BACKUP_DIR/mongo_${DATE}.archive.gz"
+
+# Verify MongoDB backup is not empty
+if [ ! -s "$BACKUP_DIR/mongo_${DATE}.archive.gz" ]; then
+  echo "ERROR: MongoDB backup is empty!" >&2
+  exit 1
+fi
 
 # Upload to Cloudflare R2
 if command -v rclone &> /dev/null; then
-  rclone copy "$BACKUP_DIR" r2:bens-backups/${DATE}/
+  rclone copy "$BACKUP_DIR" r2:bens-backups/${DATE}/ || {
+    echo "WARNING: R2 upload failed!" >&2
+  }
 fi
 
-# Clean old local backups
+# Clean old local backups (only after successful backup)
 find "$BACKUP_DIR" -type f -mtime +${RETENTION_DAYS} -delete
 
 echo "[$(date)] Backup completed: postgres + mongo"
@@ -731,19 +818,20 @@ CHAT_SERVER_URL=https://chat.bensseg.com
 
 # === DATABASES ===
 DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
-MONGODB_URL=mongodb://mongodb:27017/bens-chat?replicaSet=rs0
+MONGODB_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:27017/bens-chat?replicaSet=rs0&authSource=admin
 REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
 
 # === DATABASE CREDENTIALS ===
 DB_USER=bens_prod
 DB_PASSWORD=<generated-strong-password>
 DB_NAME=bens_seguros
+MONGO_USER=bens_mongo
+MONGO_PASSWORD=<generated-strong-password>
 REDIS_PASSWORD=<generated-strong-password>
 
 # === AUTH ===
 AUTH_SECRET=<min-32-chars-generated>
 SOCKET_JWT_SECRET=<min-16-chars-generated>
-BETTER_AUTH_URL=https://api.bensseg.com
 
 # === STORAGE (Cloudflare R2) ===
 STORAGE_PROVIDER=r2
@@ -763,6 +851,9 @@ TAG=latest
 # RESEND_API_KEY=re_...
 # SENTRY_DSN=https://...@sentry.io/...
 # ENCRYPTION_KEY=<min-32-chars>
+# META_WHATSAPP_TOKEN=...
+# META_WHATSAPP_VERIFY_TOKEN=...
+# META_WHATSAPP_PHONE_NUMBER_ID=...
 ```
 
 **Security:**
@@ -877,11 +968,19 @@ Free tier — set up monitors for:
 ssh root@<VPS_IP>
 ```
 
-### Step 2: System update and Docker installation
+### Step 2: System update, firewall, and Docker installation
 
 ```bash
 # Update system
 apt update && apt upgrade -y
+
+# Configure firewall (only SSH, HTTP, HTTPS)
+apt install ufw -y
+ufw allow OpenSSH
+ufw allow 80/tcp
+ufw allow 443/tcp
+ufw --force enable
+ufw status
 
 # Install Docker
 curl -fsSL https://get.docker.com | sh
@@ -946,6 +1045,7 @@ cd /opt/bens-seguros
 
 # Generate passwords
 echo "DB_PASSWORD: $(openssl rand -base64 32)"
+echo "MONGO_PASSWORD: $(openssl rand -base64 32)"
 echo "REDIS_PASSWORD: $(openssl rand -base64 32)"
 echo "AUTH_SECRET: $(openssl rand -base64 32)"
 echo "SOCKET_JWT_SECRET: $(openssl rand -base64 24)"
@@ -966,8 +1066,9 @@ docker compose -f docker-compose.prod.yml up -d mongodb
 # Wait for it to be ready
 sleep 10
 
-# Initialize replica set
-docker compose -f docker-compose.prod.yml exec mongodb mongosh --eval '
+# Initialize replica set (authenticate with root user)
+docker compose -f docker-compose.prod.yml exec mongodb mongosh \
+  -u "$MONGO_USER" -p "$MONGO_PASSWORD" --authenticationDatabase admin --eval '
   rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "mongodb:27017" }] })
 '
 ```
@@ -1065,15 +1166,22 @@ In GitHub repo → Settings → Secrets and variables → Actions:
 
 ## 13. Structural Code Changes Required
 
-| Change                        | File                              | Risk   | Impact                        |
-| ----------------------------- | --------------------------------- | ------ | ----------------------------- |
-| Rename worker tsup entry      | `apps/worker/tsup.config.ts`      | Low    | Fixes entry mismatch          |
-| Rename chat-worker tsup entry | `apps/chat-worker/tsup.config.ts` | Low    | Fixes entry mismatch          |
-| Build both apps in Dockerfile | `Dockerfile.server`               | Low    | Worker exists in image        |
-| Build both apps in Dockerfile | `Dockerfile.chat`                 | Low    | Chat-worker exists in image   |
-| Add .dockerignore             | `.dockerignore` (new)             | None   | Faster builds                 |
-| Add health checks             | Both Dockerfiles                  | None   | Auto-restart on failure       |
-| Update compose commands       | `docker-compose.prod.yml`         | Low    | Correct paths                 |
-| Baseline Prisma migrations    | `packages/db/prisma/migrations/`  | Medium | Production migration strategy |
-| Add backup script             | `scripts/backup.sh` (new)         | None   | Automated backups             |
-| Update Nginx config           | `nginx/default.conf`              | Low    | Subdomain routing + SSL       |
+| Change                        | File                              | Risk   | Impact                               |
+| ----------------------------- | --------------------------------- | ------ | ------------------------------------ |
+| Rename worker tsup entry      | `apps/worker/tsup.config.ts`      | Low    | Fixes entry mismatch                 |
+| Rename chat-worker tsup entry | `apps/chat-worker/tsup.config.ts` | Low    | Fixes entry mismatch                 |
+| Build both apps in Dockerfile | `Dockerfile.server`               | Low    | Worker exists in image               |
+| Build both apps in Dockerfile | `Dockerfile.chat`                 | Low    | Chat-worker exists in image          |
+| Add .dockerignore             | `.dockerignore` (new)             | None   | Faster builds                        |
+| Add health checks             | Both Dockerfiles                  | None   | Auto-restart on failure              |
+| Update compose commands       | `docker-compose.prod.yml`         | Low    | Correct paths                        |
+| Baseline Prisma migrations    | `packages/db/prisma/migrations/`  | Medium | Production migration strategy        |
+| Add backup script             | `scripts/backup.sh` (new)         | None   | Automated backups                    |
+| Update Nginx config           | `nginx/default.conf`              | Low    | Subdomain routing + SSL              |
+| Add MongoDB authentication    | `docker-compose.prod.yml`, `.env` | Low    | Secure MongoDB access                |
+| Add firewall (UFW)            | VPS setup                         | Low    | Only expose 22/80/443                |
+| Add log rotation              | `docker-compose.prod.yml`         | None   | Prevent disk exhaustion              |
+| Add CI quality gates          | `.github/workflows/deploy-*.yml`  | None   | Enforce lint/type/test before deploy |
+| Fix Redis eviction policy     | `docker-compose.prod.yml`         | Low    | Prevent BullMQ job loss              |
+| SHA-based rollback            | `.github/workflows/deploy-*.yml`  | Low    | Reliable rollback mechanism          |
+| Verify Prisma engine paths    | `Dockerfile.server`               | Medium | Ensure runtime engine binaries exist |
