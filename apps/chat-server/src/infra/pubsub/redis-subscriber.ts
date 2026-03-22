@@ -77,6 +77,11 @@ export class RedisSubscriber {
         break;
       }
 
+      case CHAT_PUBSUB_CHANNELS.PAIRING_CODE_RESULT: {
+        this.io.to(lobbyRoom).emit(SOCKET_EVENTS.PAIRING_CODE_RESULT, payload);
+        break;
+      }
+
       case CHAT_PUBSUB_CHANNELS.CONVERSATION_UPDATE: {
         this.io.to(lobbyRoom).emit(SOCKET_EVENTS.CONVERSATION_UPDATED, payload);
         break;

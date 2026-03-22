@@ -26,6 +26,7 @@ export const SOCKET_EVENTS = {
   // Channel
   CHANNEL_STATUS: 'channel:status',
   CHANNEL_STATUS_GET: 'channel:status:get',
+  PAIRING_CODE_RESULT: 'channel:pairing-code-result',
 
   // Catch-up
   CATCH_UP: 'chat:catch-up',

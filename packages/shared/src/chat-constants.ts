@@ -4,6 +4,7 @@ export const CHAT_QUEUES = {
   AI_BOT: 'chat-ai-bot',
   AUTO_CLOSE: 'chat-auto-close',
   CONNECT_CHANNEL: 'chat-connect-channel',
+  PAIR_CHANNEL: 'chat-pair-channel',
   DEAD_LETTER: 'chat-dead-letter',
 } as const;
 
@@ -30,6 +31,7 @@ export const CHAT_PUBSUB_CHANNELS = {
   CHANNEL_STATUS: 'chat:pub:channel-status',
   CONVERSATION_UPDATE: 'chat:pub:conversation-update',
   UNREAD_UPDATE: 'chat:pub:unread-update',
+  PAIRING_CODE_RESULT: 'chat:pub:pairing-code-result',
 } as const;
 
 /** Redis key helpers for WhatsApp channel state (shared between worker and server) */

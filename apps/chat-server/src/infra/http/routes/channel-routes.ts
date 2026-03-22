@@ -23,6 +23,14 @@ const updateChannelBodySchema = z.object({
   aiUserId: z.string().optional(),
 });
 
+const pairChannelBodySchema = z.object({
+  phoneNumber: z
+    .string()
+    .min(10)
+    .max(20)
+    .regex(/^\+?\d+$/, 'Formato E.164 esperado (ex: +5511999998888)'),
+});
+
 function buildChannelNotFoundResponse(id: string): {
   success: false;
   error: { code: string; message: string };
@@ -159,6 +167,46 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
       });
 
       return reply.send({ success: true, data: { status: 'connecting' } });
+    },
+  );
+
+  app.post(
+    '/chat/channels/:id/pair',
+    async (
+      request: FastifyRequest<{
+        Params: z.infer<typeof channelIdSchema>;
+        Body: z.infer<typeof pairChannelBodySchema>;
+      }>,
+      reply: FastifyReply,
+    ) => {
+      const { id } = channelIdSchema.parse(request.params);
+      const { phoneNumber } = pairChannelBodySchema.parse(request.body);
+      const tenantId = request.organizationId;
+
+      const channel = await Channel.findOne({ _id: id, tenantId }).lean().exec();
+
+      if (!channel) {
+        return reply.status(404).send(buildChannelNotFoundResponse(id));
+      }
+
+      if (channel.brokerType !== 'BAILEYS') {
+        return reply.status(400).send({
+          success: false,
+          error: {
+            code: 'INVALID_BROKER_TYPE',
+            message: 'Somente canais Baileys suportam pareamento por codigo',
+          },
+        });
+      }
+
+      const queueProducer = container.resolve<QueueProducer>('QueueProducer');
+      await queueProducer.enqueue(CHAT_QUEUES.PAIR_CHANNEL, {
+        channelId: id,
+        tenantId,
+        phoneNumber,
+      });
+
+      return reply.send({ success: true, data: { status: 'pairing' } });
     },
   );
 }

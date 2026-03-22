@@ -1,11 +1,15 @@
 import makeWASocket, {
   type WASocket,
   type ConnectionState,
+  type WAMessageKey,
+  type CacheStore,
   makeCacheableSignalKeyStore,
 } from 'baileys';
 import pino from 'pino';
+import { Message } from '@repo/db-chat';
 
 import { useMongoDBAuthState } from '../baileys/baileys-auth-store.js';
+import { createBaileysCacheStore } from '../baileys/baileys-cache-store.js';
 import {
   phoneToJid,
   buildMessageContent,
@@ -16,6 +20,8 @@ import {
 } from '../baileys/baileys-message-utils.js';
 import type { Broker, BrokerEvents, MessagePayload, MessageResult } from './broker.js';
 
+const RECONNECT_DELAY_MS = 3_000;
+
 export class BaileysBroker implements Broker {
   private socket: WASocket | null = null;
   private connected = false;
@@ -24,9 +30,16 @@ export class BaileysBroker implements Broker {
   private events: BrokerEvents | null = null;
   private readonly logger = pino({ level: 'silent' });
 
+  /**
+   * Retry counter cache MUST live outside the socket lifecycle.
+   * It tracks failed message retry counts across reconnections.
+   */
+  private readonly msgRetryCounterCache: CacheStore;
+
   constructor(tenantId: string, channelId: string) {
     this.tenantId = tenantId;
     this.channelId = channelId;
+    this.msgRetryCounterCache = createBaileysCacheStore();
   }
 
   async connect(events: BrokerEvents): Promise<void> {
@@ -40,12 +53,44 @@ export class BaileysBroker implements Broker {
         keys: makeCacheableSignalKeyStore(state.keys, this.logger),
       },
       logger: this.logger,
+      msgRetryCounterCache: this.msgRetryCounterCache,
       generateHighQualityLinkPreview: false,
-      getMessage: async () => undefined,
+      syncFullHistory: false,
+      getMessage: (key: WAMessageKey) => this.getMessageForRetry(key),
     });
 
     this.socket = socket;
     this.setupEventListeners(socket, events, saveCreds);
+  }
+
+  /**
+   * Connect using pairing code instead of QR.
+   * Returns the 8-digit code the user enters on their phone.
+   */
+  async connectWithPairingCode(phoneNumber: string, events: BrokerEvents): Promise<string> {
+    this.events = events;
+
+    const { state, saveCreds } = await useMongoDBAuthState(this.tenantId, this.channelId);
+
+    const socket = makeWASocket({
+      auth: {
+        creds: state.creds,
+        keys: makeCacheableSignalKeyStore(state.keys, this.logger),
+      },
+      logger: this.logger,
+      msgRetryCounterCache: this.msgRetryCounterCache,
+      generateHighQualityLinkPreview: false,
+      syncFullHistory: false,
+      getMessage: (key: WAMessageKey) => this.getMessageForRetry(key),
+    });
+
+    this.socket = socket;
+    this.setupEventListeners(socket, events, saveCreds);
+
+    const sanitizedPhone = phoneNumber.replace(/\D/g, '');
+    const code = await socket.requestPairingCode(sanitizedPhone);
+
+    return code;
   }
 
   async disconnect(): Promise<void> {
@@ -79,6 +124,27 @@ export class BaileysBroker implements Broker {
 
   isConnected(): boolean {
     return this.connected;
+  }
+
+  /**
+   * Retrieve a stored message for Baileys retry/resend mechanism.
+   * Without this, messages that need retransmission fail silently.
+   */
+  private async getMessageForRetry(
+    key: WAMessageKey,
+  ): Promise<Record<string, unknown> | undefined> {
+    if (!key.id) {
+      return undefined;
+    }
+
+    const msg = await Message.findOne({ externalId: key.id }).lean().exec();
+
+    if (!msg?.metadata || typeof msg.metadata !== 'object') {
+      return undefined;
+    }
+
+    // metadata stores the raw WAMessage content for retry purposes
+    return msg.metadata as Record<string, unknown>;
   }
 
   private setupEventListeners(
@@ -128,7 +194,12 @@ export class BaileysBroker implements Broker {
     }
 
     if (update.connection === 'close' && shouldReconnect(update)) {
-      void this.connect({ ...events });
+      // restartRequired (515) is normal after first QR scan — must reconnect.
+      // All non-loggedOut disconnects get a delayed reconnect.
+      globalThis.setTimeout(() => {
+        void this.connect({ ...events });
+      }, RECONNECT_DELAY_MS);
+      return;
     }
 
     if (update.connection === 'open') {

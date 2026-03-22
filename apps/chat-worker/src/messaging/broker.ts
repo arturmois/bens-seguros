@@ -34,6 +34,7 @@ export interface BrokerEvents {
 
 export interface Broker {
   connect(events: BrokerEvents): Promise<void>;
+  connectWithPairingCode?(phoneNumber: string, events: BrokerEvents): Promise<string>;
   disconnect(): Promise<void>;
   sendMessage(payload: MessagePayload): Promise<MessageResult>;
   isConnected(): boolean;

@@ -20,3 +20,11 @@ export interface ChannelStatusEvent {
   readonly status: 'CONNECTED' | 'DISCONNECTED' | 'QR_PENDING';
   readonly qr?: string;
 }
+
+export interface PairingCodeResultEvent {
+  readonly channelId: string;
+  readonly tenantId: string;
+  readonly success: boolean;
+  readonly code?: string;
+  readonly error?: string;
+}

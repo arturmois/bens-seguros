@@ -53,6 +53,40 @@ export async function connectChannel(
   await broker.connect(events);
 }
 
+export async function connectChannelWithPairingCode(
+  channelId: string,
+  tenantId: string,
+  phoneNumber: string,
+  events: BrokerEvents,
+): Promise<string> {
+  if (connections.has(channelId)) {
+    const existing = connections.get(channelId);
+    if (existing) {
+      await existing.broker.disconnect();
+      connections.delete(channelId);
+    }
+  }
+
+  const currentCount = countChannelsForTenant(tenantId);
+  if (currentCount >= CHAT_LIMITS.MAX_BAILEYS_CHANNELS_PER_ORG) {
+    logger.warn(
+      { tenantId, currentCount, limit: CHAT_LIMITS.MAX_BAILEYS_CHANNELS_PER_ORG },
+      'Baileys channel limit reached for tenant',
+    );
+    throw new Error(
+      `Tenant ${tenantId} has reached the max of ${String(CHAT_LIMITS.MAX_BAILEYS_CHANNELS_PER_ORG)} Baileys channels`,
+    );
+  }
+
+  const broker = new BaileysBroker(tenantId, channelId);
+  connections.set(channelId, { broker, tenantId });
+
+  logger.info({ channelId, tenantId }, 'Connecting Baileys channel with pairing code');
+  const code = await broker.connectWithPairingCode(phoneNumber, events);
+
+  return code;
+}
+
 export async function disconnectChannel(channelId: string): Promise<void> {
   const conn = connections.get(channelId);
   if (!conn) {

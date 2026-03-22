@@ -11,6 +11,7 @@ import { createIncomingMessageProcessor } from './processors/incoming-message-pr
 import { createAutoCloseProcessor } from './processors/auto-close-processor.js';
 import { createAiBotProcessor } from './processors/ai-bot-processor.js';
 import { createConnectChannelProcessor } from './processors/connect-channel-processor.js';
+import { createPairChannelProcessor } from './processors/pair-channel-processor.js';
 import { QrStateManager } from './whatsapp/qr-state-manager.js';
 import type { IncomingMessage } from './messaging/broker.js';
 
@@ -158,11 +159,20 @@ async function bootstrap(): Promise<void> {
     { connection: bullmqConnection, concurrency: 2 },
   );
 
+  const pairChannelWorker = new Worker(
+    CHAT_QUEUES.PAIR_CHANNEL,
+    createPairChannelProcessor(BaileysManager, qrStateManager, pubsubRedis, (chId, tId) =>
+      buildChannelEvents(chId, tId, incomingQueue, qrStateManager),
+    ),
+    { connection: bullmqConnection, concurrency: 1 },
+  );
+
   attachWorkerErrorLogger(sendWorker, CHAT_QUEUES.SEND_MESSAGE);
   attachWorkerErrorLogger(incomingWorker, CHAT_QUEUES.PROCESS_INCOMING);
   attachWorkerErrorLogger(aiBotWorker, CHAT_QUEUES.AI_BOT);
   attachWorkerErrorLogger(autoCloseWorker, CHAT_QUEUES.AUTO_CLOSE);
   attachWorkerErrorLogger(connectChannelWorker, CHAT_QUEUES.CONNECT_CHANNEL);
+  attachWorkerErrorLogger(pairChannelWorker, CHAT_QUEUES.PAIR_CHANNEL);
 
   logger.info('Loading active Baileys channels...');
   await BaileysManager.loadActiveChannels((channelId, tenantId) =>
@@ -182,6 +192,7 @@ async function bootstrap(): Promise<void> {
       aiBotWorker.close(),
       autoCloseWorker.close(),
       connectChannelWorker.close(),
+      pairChannelWorker.close(),
     ]);
 
     await aiBotQueue.close();
