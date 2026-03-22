@@ -1,7 +1,7 @@
 'use client'
 
 import type { Role } from '@repo/auth/roles'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Header } from './header'
 import { Sidebar } from './sidebar'
 
@@ -12,6 +12,10 @@ interface AppShellProps {
 
 export function AppShell({ role, children }: AppShellProps) {
   const [collapsed, setCollapsed] = useState(false)
+
+  useEffect(() => {
+    if (window.innerWidth < 768) setCollapsed(true)
+  }, [])
 
   return (
     <div className="flex h-screen overflow-hidden">

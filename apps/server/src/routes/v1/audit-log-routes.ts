@@ -1,8 +1,8 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import { prisma } from '@repo/db'
 import type { Prisma } from '@repo/db'
-import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
+import { prisma } from '@repo/db'
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
+import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
 import { listAuditLogsQuerySchema } from '../../schemas/audit-log.schemas.js'
 
 export async function auditLogRoutes(app: FastifyInstance) {
@@ -39,7 +39,7 @@ export async function auditLogRoutes(app: FastifyInstance) {
           take: limit + 1,
           ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
         }),
-        prisma.auditLog.count({ where: { organizationId: orgId } }),
+        prisma.auditLog.count({ where }),
       ])
 
       const hasMore = items.length > limit
