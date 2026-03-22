@@ -15,7 +15,6 @@ import {
   buildMessageContent,
   toIncomingMessage,
   mapWAStatusUpdate,
-  mapConnectionState,
   shouldReconnect,
 } from '../baileys/baileys-message-utils.js';
 import type { Broker, BrokerEvents, MessagePayload, MessageResult } from './broker.js';
@@ -158,16 +157,30 @@ export class BaileysBroker implements Broker {
   }
 
   private handleConnectionUpdate(update: Partial<ConnectionState>, events: BrokerEvents): void {
-    const mapped = mapConnectionState(update);
-    if (mapped) {
-      this.connected = mapped.status === 'CONNECTED';
-      events.onConnectionUpdate(mapped.status, mapped.qr);
+    // Handle QR and open states normally
+    if (update.qr) {
+      events.onConnectionUpdate('QR_PENDING', update.qr);
+      return;
     }
 
-    if (update.connection === 'close' && shouldReconnect(update)) {
-      globalThis.setTimeout(() => {
-        void this.connect({ ...events });
-      }, RECONNECT_DELAY_MS);
+    if (update.connection === 'open') {
+      this.connected = true;
+      events.onConnectionUpdate('CONNECTED');
+      return;
+    }
+
+    if (update.connection === 'close') {
+      this.connected = false;
+
+      if (shouldReconnect(update)) {
+        // Transient disconnect (restartRequired 515, timeout, etc.) — reconnect silently
+        globalThis.setTimeout(() => {
+          void this.connect({ ...events });
+        }, RECONNECT_DELAY_MS);
+      } else {
+        // Permanent disconnect (loggedOut) — notify frontend
+        events.onConnectionUpdate('DISCONNECTED');
+      }
     }
   }
 }
