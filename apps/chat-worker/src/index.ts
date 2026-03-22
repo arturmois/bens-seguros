@@ -162,12 +162,16 @@ async function bootstrap(): Promise<void> {
     { connection: bullmqConnection, concurrency: 3 }
   )
 
+  const sendMessageQueue = new Queue(CHAT_QUEUES.SEND_MESSAGE, {
+    connection: bullmqConnection,
+  })
+
   const aiBotWorker = new Worker(
     CHAT_QUEUES.AI_BOT,
-    createAiBotProcessor(pubsubRedis),
+    createAiBotProcessor(pubsubRedis, sendMessageQueue),
     {
       connection: bullmqConnection,
-      concurrency: 3,
+      concurrency: 5,
     }
   )
 
@@ -246,6 +250,7 @@ async function bootstrap(): Promise<void> {
     ])
 
     await aiBotQueue.close()
+    await sendMessageQueue.close()
     await incomingQueue.close()
     await autoCloseQueue.close()
     await mediaMigrationQueue.close()
