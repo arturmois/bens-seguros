@@ -1,4 +1,7 @@
 import { prisma, Prisma } from '@repo/db';
+import pino from 'pino';
+
+const logger = pino({ name: 'audit' });
 
 interface AuditEntry {
   organizationId: string;
@@ -13,7 +16,11 @@ interface AuditEntry {
 }
 
 export async function logAudit(entry: AuditEntry): Promise<void> {
-  await prisma.auditLog.create({ data: entry });
+  try {
+    await prisma.auditLog.create({ data: entry });
+  } catch (err: unknown) {
+    logger.error({ err, entry }, 'Failed to write audit log');
+  }
 }
 
 export function logCreate(base: Omit<AuditEntry, 'action'>): Promise<void> {

@@ -30,14 +30,14 @@ export async function auditLogRoutes(app: FastifyInstance) {
               },
             }
           : {}),
-        ...(cursor ? { id: { lt: cursor } } : {}),
       };
 
       const [items, total] = await Promise.all([
         prisma.auditLog.findMany({
           where,
-          orderBy: { createdAt: 'desc' },
+          orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
           take: limit + 1,
+          ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
         }),
         prisma.auditLog.count({ where: { organizationId: orgId } }),
       ]);

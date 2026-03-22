@@ -91,8 +91,11 @@ export async function buildApp() {
     await authenticatedApp.register(auditLogRoutes);
   });
 
-  // Bull Board (admin-only, behind auth middleware)
-  setupBullBoard(app);
+  // Bull Board (admin-only, inside authenticated scope)
+  await app.register(async (adminApp) => {
+    adminApp.addHook('preHandler', authMiddleware);
+    setupBullBoard(adminApp);
+  });
 
   // Sentry error handler
   app.setErrorHandler((error: FastifyError, request, reply) => {
