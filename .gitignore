@@ -2,7 +2,6 @@ node_modules/
 .next/
 dist/
 generated/
-baileys-sessions/
 uploads/
 .turbo/
 *.tsbuildinfo
@@ -10,11 +9,8 @@ uploads/
 .env.local
 .env.*.local
 .DS_Store
-_reference/
 next-env.d.ts
 .playwright-mcp/
+.superpowers/
 qa-*.png
 task*.png
-
-# Local document uploads (dev)
-uploads/baileys-sessions/
