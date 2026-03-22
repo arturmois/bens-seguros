@@ -48,8 +48,8 @@ export function MessageBubble({ message, isFromCurrentUser }: MessageBubbleProps
         className={cn(
           'max-w-[85%] rounded-2xl px-3 py-2 shadow-sm md:max-w-[70%] md:px-4 md:py-2.5',
           isSent
-            ? 'rounded-br-md bg-[var(--chat-bubble-sent)] text-[var(--chat-bubble-sent-fg)]'
-            : 'rounded-bl-md bg-[var(--chat-bubble-received)] text-[var(--chat-bubble-received-fg)]',
+            ? 'bg-(--chat-bubble-sent) text-(--chat-bubble-sent-fg) rounded-br-md'
+            : 'bg-(--chat-bubble-received) text-(--chat-bubble-received-fg) rounded-bl-md',
         )}
       >
         {!isSent && message.senderName && (
@@ -59,7 +59,7 @@ export function MessageBubble({ message, isFromCurrentUser }: MessageBubbleProps
         <div
           className={cn(
             'mt-1 flex items-center justify-end gap-1',
-            isSent ? 'text-[var(--chat-bubble-sent-fg)]/70' : 'text-[var(--chat-timestamp)]',
+            isSent ? 'text-(--chat-bubble-sent-fg)/70' : 'text-(--chat-timestamp)',
           )}
         >
           <span className="text-[10px] md:text-xs">
