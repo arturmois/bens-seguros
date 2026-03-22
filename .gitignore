@@ -12,5 +12,6 @@ uploads/
 next-env.d.ts
 .playwright-mcp/
 .superpowers/
+.code-review-graph/
 qa-*.png
 task*.png
