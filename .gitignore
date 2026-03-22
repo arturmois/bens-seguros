@@ -15,4 +15,4 @@ qa-*.png
 task*.png
 
 # Local document uploads (dev)
-uploads/
+uploads/baileys-sessions/

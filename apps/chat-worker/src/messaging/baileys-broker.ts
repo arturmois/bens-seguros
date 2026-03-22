@@ -4,11 +4,12 @@ import makeWASocket, {
   type WAMessageKey,
   type CacheStore,
   makeCacheableSignalKeyStore,
+  fetchLatestBaileysVersion,
+  useMultiFileAuthState,
 } from 'baileys';
 import pino from 'pino';
 import { Message } from '@repo/db-chat';
 
-import { useMongoDBAuthState } from '../baileys/baileys-auth-store.js';
 import { createBaileysCacheStore } from '../baileys/baileys-cache-store.js';
 import {
   phoneToJid,
@@ -45,9 +46,14 @@ export class BaileysBroker implements Broker {
   async connect(events: BrokerEvents): Promise<void> {
     this.events = events;
 
-    const { state, saveCreds } = await useMongoDBAuthState(this.tenantId, this.channelId);
+    // TEMP: file auth to debug MongoDB auth serialization
+    const { state, saveCreds } = await useMultiFileAuthState(
+      `./baileys-sessions/${this.channelId}`,
+    );
+    const { version } = await fetchLatestBaileysVersion();
 
     const socket = makeWASocket({
+      version,
       auth: {
         creds: state.creds,
         keys: makeCacheableSignalKeyStore(state.keys, this.logger),
@@ -70,9 +76,14 @@ export class BaileysBroker implements Broker {
   async connectWithPairingCode(phoneNumber: string, events: BrokerEvents): Promise<string> {
     this.events = events;
 
-    const { state, saveCreds } = await useMongoDBAuthState(this.tenantId, this.channelId);
+    // TEMP: file auth to debug MongoDB auth serialization
+    const { state, saveCreds } = await useMultiFileAuthState(
+      `./baileys-sessions/${this.channelId}`,
+    );
+    const { version } = await fetchLatestBaileysVersion();
 
     const socket = makeWASocket({
+      version,
       auth: {
         creds: state.creds,
         keys: makeCacheableSignalKeyStore(state.keys, this.logger),
