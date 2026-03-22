@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { useState } from 'react'
+import { Loader2 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
   AlertDialogClose,
@@ -12,38 +12,43 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from '@/components/ui/alert-dialog'
 
-import type { ClaimStatus } from '../types';
+import type { ClaimStatus } from '../types'
 import {
   CLAIM_STATUS_BUTTON_STYLES,
   CLAIM_STATUS_LABELS,
   VALID_CLAIM_TRANSITIONS,
-} from '../lib/constants';
-import { useUpdateClaimStatus } from '../hooks/use-claims';
+} from '../lib/constants'
+import { useUpdateClaimStatus } from '../hooks/use-claims'
 
 interface ClaimStatusActionsProps {
-  readonly claimId: string;
-  readonly currentStatus: ClaimStatus;
+  readonly claimId: string
+  readonly currentStatus: ClaimStatus
 }
 
-export function ClaimStatusActions({ claimId, currentStatus }: ClaimStatusActionsProps) {
-  const [confirmingStatus, setConfirmingStatus] = useState<ClaimStatus | null>(null);
-  const updateStatus = useUpdateClaimStatus();
+export function ClaimStatusActions({
+  claimId,
+  currentStatus,
+}: ClaimStatusActionsProps) {
+  const [confirmingStatus, setConfirmingStatus] = useState<ClaimStatus | null>(
+    null
+  )
+  const updateStatus = useUpdateClaimStatus()
 
-  const allowedTransitions = VALID_CLAIM_TRANSITIONS[currentStatus];
+  const allowedTransitions = VALID_CLAIM_TRANSITIONS[currentStatus]
 
   if (allowedTransitions.length === 0) {
-    return null;
+    return null
   }
 
   function handleConfirm() {
-    if (!confirmingStatus) return;
+    if (!confirmingStatus) return
 
     updateStatus.mutate(
       { id: claimId, status: confirmingStatus },
-      { onSuccess: () => setConfirmingStatus(null) },
-    );
+      { onSuccess: () => setConfirmingStatus(null) }
+    )
   }
 
   return (
@@ -62,7 +67,7 @@ export function ClaimStatusActions({ claimId, currentStatus }: ClaimStatusAction
       <AlertDialog
         open={confirmingStatus !== null}
         onOpenChange={(open) => {
-          if (!open) setConfirmingStatus(null);
+          if (!open) setConfirmingStatus(null)
         }}
       >
         <AlertDialogContent>
@@ -70,7 +75,10 @@ export function ClaimStatusActions({ claimId, currentStatus }: ClaimStatusAction
             <AlertDialogTitle>Confirmar alteração de status</AlertDialogTitle>
             <AlertDialogDescription>
               Deseja alterar o status do sinistro para{' '}
-              <strong>{confirmingStatus ? CLAIM_STATUS_LABELS[confirmingStatus] : ''}</strong>?
+              <strong>
+                {confirmingStatus ? CLAIM_STATUS_LABELS[confirmingStatus] : ''}
+              </strong>
+              ?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -82,28 +90,36 @@ export function ClaimStatusActions({ claimId, currentStatus }: ClaimStatusAction
               }
             />
             <Button onClick={handleConfirm} disabled={updateStatus.isPending}>
-              {updateStatus.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {updateStatus.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Confirmar
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  );
+  )
 }
 
 function StatusTransitionButton({
   targetStatus,
   onClick,
 }: {
-  readonly targetStatus: ClaimStatus;
-  readonly onClick: () => void;
+  readonly targetStatus: ClaimStatus
+  readonly onClick: () => void
 }) {
-  const { variant, className } = CLAIM_STATUS_BUTTON_STYLES[targetStatus];
+  const { variant, className } = CLAIM_STATUS_BUTTON_STYLES[targetStatus]
 
   return (
-    <Button type="button" variant={variant} size="sm" onClick={onClick} className={className}>
+    <Button
+      type="button"
+      variant={variant}
+      size="sm"
+      onClick={onClick}
+      className={className}
+    >
       {CLAIM_STATUS_LABELS[targetStatus]}
     </Button>
-  );
+  )
 }

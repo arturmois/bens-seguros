@@ -1,8 +1,8 @@
-import mongoose, { type InferSchemaType, Schema } from 'mongoose';
+import mongoose, { type InferSchemaType, Schema } from 'mongoose'
 
-const CHANNEL_TYPES = ['WHATSAPP', 'WEB'] as const;
-const BROKER_TYPES = ['BAILEYS', 'META'] as const;
-const CHANNEL_STATUSES = ['CONNECTED', 'DISCONNECTED', 'QR_PENDING'] as const;
+const CHANNEL_TYPES = ['WHATSAPP', 'WEB'] as const
+const BROKER_TYPES = ['BAILEYS', 'META'] as const
+const CHANNEL_STATUSES = ['CONNECTED', 'DISCONNECTED', 'QR_PENDING'] as const
 
 const channelSchema = new Schema(
   {
@@ -17,10 +17,12 @@ const channelSchema = new Schema(
     aiUserId: String,
     config: { type: Schema.Types.Mixed, default: {} },
   },
-  { timestamps: true },
-);
+  { timestamps: true }
+)
 
-channelSchema.index({ tenantId: 1, type: 1 });
+channelSchema.index({ tenantId: 1, type: 1 })
 
-export type ChannelDocument = InferSchemaType<typeof channelSchema> & { _id: string };
-export const Channel = mongoose.model('Channel', channelSchema);
+export type ChannelDocument = InferSchemaType<typeof channelSchema> & {
+  _id: string
+}
+export const Channel = mongoose.model('Channel', channelSchema)

@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import { cn } from '@/lib/utils';
-import { Wifi, WifiOff } from 'lucide-react';
+import { cn } from '@/lib/utils'
+import { Wifi, WifiOff } from 'lucide-react'
 
 interface WhatsappStatusProps {
-  readonly isConnected: boolean;
+  readonly isConnected: boolean
 }
 
 export function WhatsappStatus({ isConnected }: WhatsappStatusProps) {
@@ -14,7 +14,7 @@ export function WhatsappStatus({ isConnected }: WhatsappStatusProps) {
         'flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors',
         isConnected
           ? 'bg-(--chat-online)/15 text-(--chat-online)'
-          : 'bg-destructive/10 text-destructive-foreground',
+          : 'bg-destructive/10 text-destructive-foreground'
       )}
     >
       {isConnected ? (
@@ -29,5 +29,5 @@ export function WhatsappStatus({ isConnected }: WhatsappStatusProps) {
         </>
       )}
     </div>
-  );
+  )
 }

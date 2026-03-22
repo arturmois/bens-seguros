@@ -1,49 +1,59 @@
-'use client';
+'use client'
 
-import { ArrowLeft, ExternalLink, RefreshCw } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { ArrowLeft, ExternalLink, RefreshCw } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs'
 
-import { DocumentList } from '@/features/documents/components/document-list';
-import { DocumentUpload } from '@/features/documents/components/document-upload';
-import { formatDate } from '@/lib/formatters';
+import { DocumentList } from '@/features/documents/components/document-list'
+import { DocumentUpload } from '@/features/documents/components/document-upload'
+import { formatDate } from '@/lib/formatters'
 
-import type { AssistanceData } from '../types';
-import { ASSISTANCE_TYPE_LABELS } from '../lib/constants';
-import { useAssistance } from '../hooks/use-assistances';
-import { AssistanceStatusActions } from './assistance-status-actions';
-import { AssistanceStatusBadge } from './assistance-status-badge';
+import type { AssistanceData } from '../types'
+import { ASSISTANCE_TYPE_LABELS } from '../lib/constants'
+import { useAssistance } from '../hooks/use-assistances'
+import { AssistanceStatusActions } from './assistance-status-actions'
+import { AssistanceStatusBadge } from './assistance-status-badge'
 
 interface AssistanceDetailProps {
-  readonly assistanceId: string;
+  readonly assistanceId: string
 }
 
 export function AssistanceDetail({ assistanceId }: AssistanceDetailProps) {
-  const router = useRouter();
-  const { data, isLoading, isError } = useAssistance(assistanceId);
+  const router = useRouter()
+  const { data, isLoading, isError } = useAssistance(assistanceId)
 
-  if (isLoading) return <DetailSkeleton />;
+  if (isLoading) return <DetailSkeleton />
 
   if (isError || !data) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-        <p className="text-destructive text-sm">Erro ao carregar assistência.</p>
+        <p className="text-destructive text-sm">
+          Erro ao carregar assistência.
+        </p>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => router.push('/assistances')}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push('/assistances')}
+          >
             <ArrowLeft className="mr-1 h-4 w-4" />
             Voltar
           </Button>
-          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.location.reload()}
+          >
             <RefreshCw className="mr-1 h-4 w-4" />
             Tentar novamente
           </Button>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -59,14 +69,19 @@ export function AssistanceDetail({ assistanceId }: AssistanceDetailProps) {
           Assistências
         </Button>
         <span className="text-muted-foreground">/</span>
-        <span className="text-muted-foreground">{ASSISTANCE_TYPE_LABELS[data.type]}</span>
+        <span className="text-muted-foreground">
+          {ASSISTANCE_TYPE_LABELS[data.type]}
+        </span>
       </nav>
 
       <DetailHeader assistance={data} />
       <Separator />
       <DetailInfoGrid assistance={data} />
       <Separator />
-      <AssistanceStatusActions assistanceId={assistanceId} currentStatus={data.status} />
+      <AssistanceStatusActions
+        assistanceId={assistanceId}
+        currentStatus={data.status}
+      />
       <Separator />
 
       <Tabs defaultValue="documents">
@@ -79,13 +94,15 @@ export function AssistanceDetail({ assistanceId }: AssistanceDetailProps) {
         </TabsContent>
       </Tabs>
     </div>
-  );
+  )
 }
 
 function DetailHeader({ assistance }: { readonly assistance: AssistanceData }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <h2 className="text-xl font-semibold">{ASSISTANCE_TYPE_LABELS[assistance.type]}</h2>
+      <h2 className="text-xl font-semibold">
+        {ASSISTANCE_TYPE_LABELS[assistance.type]}
+      </h2>
       <AssistanceStatusBadge status={assistance.status} />
       <span className="text-muted-foreground text-sm">
         {assistance.clientName ?? assistance.clientId}
@@ -94,14 +111,18 @@ function DetailHeader({ assistance }: { readonly assistance: AssistanceData }) {
         {assistance.policyNumber ?? assistance.policyId}
       </span>
     </div>
-  );
+  )
 }
 
-function DetailInfoGrid({ assistance }: { readonly assistance: AssistanceData }) {
+function DetailInfoGrid({
+  assistance,
+}: {
+  readonly assistance: AssistanceData
+}) {
   const mapsUrl =
     assistance.latitude && assistance.longitude
       ? `https://www.google.com/maps?q=${String(assistance.latitude)},${String(assistance.longitude)}`
-      : null;
+      : null
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -126,18 +147,28 @@ function DetailInfoGrid({ assistance }: { readonly assistance: AssistanceData })
         )}
       </InfoItem>
       <InfoItem label="Prestador" value={assistance.providerName ?? '-'} />
-      <InfoItem label="Telefone Prestador" value={assistance.providerPhone ?? '-'} />
-      <InfoItem label="Solicitado em" value={formatDate(assistance.requestedAt)} />
+      <InfoItem
+        label="Telefone Prestador"
+        value={assistance.providerPhone ?? '-'}
+      />
+      <InfoItem
+        label="Solicitado em"
+        value={formatDate(assistance.requestedAt)}
+      />
       <InfoItem
         label="Agendado para"
-        value={assistance.scheduledAt ? formatDate(assistance.scheduledAt) : '-'}
+        value={
+          assistance.scheduledAt ? formatDate(assistance.scheduledAt) : '-'
+        }
       />
       <InfoItem
         label="Concluído em"
-        value={assistance.completedAt ? formatDate(assistance.completedAt) : '-'}
+        value={
+          assistance.completedAt ? formatDate(assistance.completedAt) : '-'
+        }
       />
     </div>
-  );
+  )
 }
 
 function InfoItem({
@@ -145,16 +176,16 @@ function InfoItem({
   value,
   children,
 }: {
-  readonly label: string;
-  readonly value?: string;
-  readonly children?: React.ReactNode;
+  readonly label: string
+  readonly value?: string
+  readonly children?: React.ReactNode
 }) {
   return (
     <div>
       <p className="text-muted-foreground text-xs">{label}</p>
       {children ?? <p className="text-sm font-medium">{value}</p>}
     </div>
-  );
+  )
 }
 
 function DetailSkeleton() {
@@ -175,5 +206,5 @@ function DetailSkeleton() {
         ))}
       </div>
     </div>
-  );
+  )
 }

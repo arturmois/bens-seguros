@@ -1,4 +1,4 @@
-import { AuditContent } from '@/features/audit/components/audit-content';
+import { AuditContent } from '@/features/audit/components/audit-content'
 
 export default function AuditPage() {
   return (
@@ -6,5 +6,5 @@ export default function AuditPage() {
       <h1 className="text-2xl font-semibold">Auditoria</h1>
       <AuditContent />
     </div>
-  );
+  )
 }

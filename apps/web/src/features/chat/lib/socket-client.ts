@@ -1,11 +1,12 @@
-import { io, type Socket } from 'socket.io-client';
+import { io, type Socket } from 'socket.io-client'
 
-const CHAT_SERVER_URL = process.env.NEXT_PUBLIC_CHAT_SERVER_URL ?? 'http://localhost:3002';
+const CHAT_SERVER_URL =
+  process.env.NEXT_PUBLIC_CHAT_SERVER_URL ?? 'http://localhost:3002'
 
-let socket: Socket | null = null;
+let socket: Socket | null = null
 
 export function getSocket(token: string): Socket {
-  if (socket?.connected) return socket;
+  if (socket?.connected) return socket
 
   socket = io(CHAT_SERVER_URL, {
     auth: { token },
@@ -13,12 +14,12 @@ export function getSocket(token: string): Socket {
     reconnection: true,
     reconnectionDelay: 1_000,
     reconnectionAttempts: 10,
-  });
+  })
 
-  return socket;
+  return socket
 }
 
 export function disconnectSocket(): void {
-  socket?.disconnect();
-  socket = null;
+  socket?.disconnect()
+  socket = null
 }

@@ -343,40 +343,49 @@ git commit -m "feat: add client, proposal, policy models to prisma schema"
 
 ```ts
 export interface ClientFilters {
-  organizationId: string;
-  type?: string;
-  search?: string;
-  cursor?: string;
-  limit?: number;
+  organizationId: string
+  type?: string
+  search?: string
+  cursor?: string
+  limit?: number
 }
 
 export interface ClientData {
-  id: string;
-  organizationId: string;
-  name: string;
-  document: string;
-  type: string;
-  email?: string | null;
-  phone?: string | null;
-  birthDate?: Date | null;
-  profession?: string | null;
-  maritalStatus?: string | null;
-  address?: Record<string, unknown> | null;
-  tags: string[];
-  consentLgpd: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  id: string
+  organizationId: string
+  name: string
+  document: string
+  type: string
+  email?: string | null
+  phone?: string | null
+  birthDate?: Date | null
+  profession?: string | null
+  maritalStatus?: string | null
+  address?: Record<string, unknown> | null
+  tags: string[]
+  consentLgpd: boolean
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface ClientRepository {
-  create(data: Omit<ClientData, 'id' | 'createdAt' | 'updatedAt'>): Promise<ClientData>;
-  findById(id: string, organizationId: string): Promise<ClientData | null>;
-  findByDocument(document: string, organizationId: string): Promise<ClientData | null>;
+  create(
+    data: Omit<ClientData, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<ClientData>
+  findById(id: string, organizationId: string): Promise<ClientData | null>
+  findByDocument(
+    document: string,
+    organizationId: string
+  ): Promise<ClientData | null>
   findMany(
-    filters: ClientFilters,
-  ): Promise<{ items: ClientData[]; total: number; nextCursor?: string }>;
-  update(id: string, organizationId: string, data: Partial<ClientData>): Promise<ClientData>;
-  softDelete(id: string, organizationId: string): Promise<void>;
+    filters: ClientFilters
+  ): Promise<{ items: ClientData[]; total: number; nextCursor?: string }>
+  update(
+    id: string,
+    organizationId: string,
+    data: Partial<ClientData>
+  ): Promise<ClientData>
+  softDelete(id: string, organizationId: string): Promise<void>
 }
 ```
 
@@ -384,16 +393,16 @@ export interface ClientRepository {
 
 ```ts
 export class ClientNotFoundError extends Error {
-  readonly code = 'CLIENT_NOT_FOUND';
+  readonly code = 'CLIENT_NOT_FOUND'
   constructor(id: string) {
-    super(`Client ${id} not found`);
+    super(`Client ${id} not found`)
   }
 }
 
 export class ClientAlreadyExistsError extends Error {
-  readonly code = 'CLIENT_ALREADY_EXISTS';
+  readonly code = 'CLIENT_ALREADY_EXISTS'
   constructor(document: string) {
-    super(`Client with document ${document} already exists`);
+    super(`Client with document ${document} already exists`)
   }
 }
 ```
@@ -403,33 +412,41 @@ export class ClientAlreadyExistsError extends Error {
 `create-client.ts`:
 
 ```ts
-import { injectable, inject } from 'tsyringe';
-import type { ClientRepository, ClientData } from '../domain/client-repository.js';
-import { ClientAlreadyExistsError } from '../domain/client-errors.js';
+import { injectable, inject } from 'tsyringe'
+import type {
+  ClientRepository,
+  ClientData,
+} from '../domain/client-repository.js'
+import { ClientAlreadyExistsError } from '../domain/client-errors.js'
 
 interface CreateClientDTO {
-  organizationId: string;
-  name: string;
-  document: string;
-  type?: string;
-  email?: string;
-  phone?: string;
-  birthDate?: Date;
-  profession?: string;
-  maritalStatus?: string;
-  address?: Record<string, unknown>;
-  tags?: string[];
-  consentLgpd?: boolean;
+  organizationId: string
+  name: string
+  document: string
+  type?: string
+  email?: string
+  phone?: string
+  birthDate?: Date
+  profession?: string
+  maritalStatus?: string
+  address?: Record<string, unknown>
+  tags?: string[]
+  consentLgpd?: boolean
 }
 
 @injectable()
 export class CreateClient {
-  constructor(@inject('ClientRepository') private clientRepo: ClientRepository) {}
+  constructor(
+    @inject('ClientRepository') private clientRepo: ClientRepository
+  ) {}
 
   async execute(dto: CreateClientDTO): Promise<ClientData> {
-    const existing = await this.clientRepo.findByDocument(dto.document, dto.organizationId);
+    const existing = await this.clientRepo.findByDocument(
+      dto.document,
+      dto.organizationId
+    )
     if (existing) {
-      throw new ClientAlreadyExistsError(dto.document);
+      throw new ClientAlreadyExistsError(dto.document)
     }
 
     return this.clientRepo.create({
@@ -445,7 +462,7 @@ export class CreateClient {
       address: dto.address ?? null,
       tags: dto.tags ?? [],
       consentLgpd: dto.consentLgpd ?? false,
-    });
+    })
   }
 }
 ```
@@ -453,15 +470,20 @@ export class CreateClient {
 `list-clients.ts`:
 
 ```ts
-import { injectable, inject } from 'tsyringe';
-import type { ClientRepository, ClientFilters } from '../domain/client-repository.js';
+import { injectable, inject } from 'tsyringe'
+import type {
+  ClientRepository,
+  ClientFilters,
+} from '../domain/client-repository.js'
 
 @injectable()
 export class ListClients {
-  constructor(@inject('ClientRepository') private clientRepo: ClientRepository) {}
+  constructor(
+    @inject('ClientRepository') private clientRepo: ClientRepository
+  ) {}
 
   async execute(filters: ClientFilters) {
-    return this.clientRepo.findMany(filters);
+    return this.clientRepo.findMany(filters)
   }
 }
 ```
@@ -469,18 +491,20 @@ export class ListClients {
 `get-client.ts`:
 
 ```ts
-import { injectable, inject } from 'tsyringe';
-import type { ClientRepository } from '../domain/client-repository.js';
-import { ClientNotFoundError } from '../domain/client-errors.js';
+import { injectable, inject } from 'tsyringe'
+import type { ClientRepository } from '../domain/client-repository.js'
+import { ClientNotFoundError } from '../domain/client-errors.js'
 
 @injectable()
 export class GetClient {
-  constructor(@inject('ClientRepository') private clientRepo: ClientRepository) {}
+  constructor(
+    @inject('ClientRepository') private clientRepo: ClientRepository
+  ) {}
 
   async execute(id: string, organizationId: string) {
-    const client = await this.clientRepo.findById(id, organizationId);
-    if (!client) throw new ClientNotFoundError(id);
-    return client;
+    const client = await this.clientRepo.findById(id, organizationId)
+    if (!client) throw new ClientNotFoundError(id)
+    return client
   }
 }
 ```
@@ -488,18 +512,23 @@ export class GetClient {
 `update-client.ts`:
 
 ```ts
-import { injectable, inject } from 'tsyringe';
-import type { ClientRepository, ClientData } from '../domain/client-repository.js';
-import { ClientNotFoundError } from '../domain/client-errors.js';
+import { injectable, inject } from 'tsyringe'
+import type {
+  ClientRepository,
+  ClientData,
+} from '../domain/client-repository.js'
+import { ClientNotFoundError } from '../domain/client-errors.js'
 
 @injectable()
 export class UpdateClient {
-  constructor(@inject('ClientRepository') private clientRepo: ClientRepository) {}
+  constructor(
+    @inject('ClientRepository') private clientRepo: ClientRepository
+  ) {}
 
   async execute(id: string, organizationId: string, data: Partial<ClientData>) {
-    const existing = await this.clientRepo.findById(id, organizationId);
-    if (!existing) throw new ClientNotFoundError(id);
-    return this.clientRepo.update(id, organizationId, data);
+    const existing = await this.clientRepo.findById(id, organizationId)
+    if (!existing) throw new ClientNotFoundError(id)
+    return this.clientRepo.update(id, organizationId, data)
   }
 }
 ```
@@ -507,18 +536,20 @@ export class UpdateClient {
 `delete-client.ts`:
 
 ```ts
-import { injectable, inject } from 'tsyringe';
-import type { ClientRepository } from '../domain/client-repository.js';
-import { ClientNotFoundError } from '../domain/client-errors.js';
+import { injectable, inject } from 'tsyringe'
+import type { ClientRepository } from '../domain/client-repository.js'
+import { ClientNotFoundError } from '../domain/client-errors.js'
 
 @injectable()
 export class DeleteClient {
-  constructor(@inject('ClientRepository') private clientRepo: ClientRepository) {}
+  constructor(
+    @inject('ClientRepository') private clientRepo: ClientRepository
+  ) {}
 
   async execute(id: string, organizationId: string) {
-    const existing = await this.clientRepo.findById(id, organizationId);
-    if (!existing) throw new ClientNotFoundError(id);
-    await this.clientRepo.softDelete(id, organizationId);
+    const existing = await this.clientRepo.findById(id, organizationId)
+    if (!existing) throw new ClientNotFoundError(id)
+    await this.clientRepo.softDelete(id, organizationId)
   }
 }
 ```
@@ -528,26 +559,38 @@ export class DeleteClient {
 `prisma-client-repository.ts`:
 
 ```ts
-import { injectable } from 'tsyringe';
-import { prisma } from '@repo/db';
-import type { ClientRepository, ClientData, ClientFilters } from '../domain/client-repository.js';
+import { injectable } from 'tsyringe'
+import { prisma } from '@repo/db'
+import type {
+  ClientRepository,
+  ClientData,
+  ClientFilters,
+} from '../domain/client-repository.js'
 
 @injectable()
 export class PrismaClientRepository implements ClientRepository {
-  async create(data: Omit<ClientData, 'id' | 'createdAt' | 'updatedAt'>): Promise<ClientData> {
-    return prisma.client.create({ data }) as unknown as ClientData;
+  async create(
+    data: Omit<ClientData, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<ClientData> {
+    return prisma.client.create({ data }) as unknown as ClientData
   }
 
-  async findById(id: string, organizationId: string): Promise<ClientData | null> {
+  async findById(
+    id: string,
+    organizationId: string
+  ): Promise<ClientData | null> {
     return prisma.client.findFirst({
       where: { id, organizationId, deletedAt: null },
-    }) as unknown as ClientData | null;
+    }) as unknown as ClientData | null
   }
 
-  async findByDocument(document: string, organizationId: string): Promise<ClientData | null> {
+  async findByDocument(
+    document: string,
+    organizationId: string
+  ): Promise<ClientData | null> {
     return prisma.client.findFirst({
       where: { document, organizationId, deletedAt: null },
-    }) as unknown as ClientData | null;
+    }) as unknown as ClientData | null
   }
 
   async findMany(filters: ClientFilters) {
@@ -562,9 +605,9 @@ export class PrismaClientRepository implements ClientRepository {
           { email: { contains: filters.search, mode: 'insensitive' as const } },
         ],
       }),
-    };
+    }
 
-    const limit = filters.limit ?? 20;
+    const limit = filters.limit ?? 20
 
     const [items, total] = await Promise.all([
       prisma.client.findMany({
@@ -574,30 +617,34 @@ export class PrismaClientRepository implements ClientRepository {
         orderBy: { createdAt: 'desc' },
       }),
       prisma.client.count({ where }),
-    ]);
+    ])
 
-    const hasMore = items.length > limit;
-    if (hasMore) items.pop();
+    const hasMore = items.length > limit
+    if (hasMore) items.pop()
 
     return {
       items: items as unknown as ClientData[],
       total,
       nextCursor: hasMore ? items[items.length - 1]?.id : undefined,
-    };
+    }
   }
 
-  async update(id: string, organizationId: string, data: Partial<ClientData>): Promise<ClientData> {
+  async update(
+    id: string,
+    organizationId: string,
+    data: Partial<ClientData>
+  ): Promise<ClientData> {
     return prisma.client.update({
       where: { id },
       data,
-    }) as unknown as ClientData;
+    }) as unknown as ClientData
   }
 
   async softDelete(id: string, organizationId: string): Promise<void> {
     await prisma.client.update({
       where: { id },
       data: { deletedAt: new Date() },
-    });
+    })
   }
 }
 ```
@@ -627,8 +674,8 @@ git commit -m "feat: add client module (DDD Light) with CRUD use cases"
 `proposal.spec.ts`:
 
 ```ts
-import { describe, it, expect } from 'vitest';
-import { Proposal } from './proposal.js';
+import { describe, it, expect } from 'vitest'
+import { Proposal } from './proposal.js'
 
 describe('Proposal Entity', () => {
   const validProps = {
@@ -637,79 +684,79 @@ describe('Proposal Entity', () => {
     salespersonId: 'user-1',
     branch: 'AUTO' as const,
     boardType: 'NEW_INSURANCE' as const,
-  };
+  }
 
   it('creates a new proposal in CAPTURE stage', () => {
-    const proposal = Proposal.create(validProps);
-    expect(proposal.stage).toBe('CAPTURE');
-    expect(proposal.organizationId).toBe('org-1');
-  });
+    const proposal = Proposal.create(validProps)
+    expect(proposal.stage).toBe('CAPTURE')
+    expect(proposal.organizationId).toBe('org-1')
+  })
 
   it('advances from CAPTURE to QUOTE', () => {
-    const proposal = Proposal.create(validProps);
-    proposal.advance();
-    expect(proposal.stage).toBe('QUOTE');
-  });
+    const proposal = Proposal.create(validProps)
+    proposal.advance()
+    expect(proposal.stage).toBe('QUOTE')
+  })
 
   it('advances through all stages to POLICY_ISSUED', () => {
-    const proposal = Proposal.create(validProps);
-    proposal.advance(); // QUOTE
-    proposal.advance(); // PROTOCOL
-    proposal.advance(); // INSPECTION
-    proposal.advance(); // PAYMENT
-    proposal.advance(); // POLICY_ISSUED
-    expect(proposal.stage).toBe('POLICY_ISSUED');
-  });
+    const proposal = Proposal.create(validProps)
+    proposal.advance() // QUOTE
+    proposal.advance() // PROTOCOL
+    proposal.advance() // INSPECTION
+    proposal.advance() // PAYMENT
+    proposal.advance() // POLICY_ISSUED
+    expect(proposal.stage).toBe('POLICY_ISSUED')
+  })
 
   it('cannot advance beyond POLICY_ISSUED', () => {
-    const proposal = Proposal.create(validProps);
-    for (let i = 0; i < 5; i++) proposal.advance();
-    expect(() => proposal.advance()).toThrow('Cannot advance');
-  });
+    const proposal = Proposal.create(validProps)
+    for (let i = 0; i < 5; i++) proposal.advance()
+    expect(() => proposal.advance()).toThrow('Cannot advance')
+  })
 
   it('reverts from QUOTE to CAPTURE', () => {
-    const proposal = Proposal.create(validProps);
-    proposal.advance(); // QUOTE
-    proposal.revert();
-    expect(proposal.stage).toBe('CAPTURE');
-  });
+    const proposal = Proposal.create(validProps)
+    proposal.advance() // QUOTE
+    proposal.revert()
+    expect(proposal.stage).toBe('CAPTURE')
+  })
 
   it('cannot revert from CAPTURE', () => {
-    const proposal = Proposal.create(validProps);
-    expect(() => proposal.revert()).toThrow('Cannot revert');
-  });
+    const proposal = Proposal.create(validProps)
+    expect(() => proposal.revert()).toThrow('Cannot revert')
+  })
 
   it('cannot revert from POLICY_ISSUED', () => {
-    const proposal = Proposal.create(validProps);
-    for (let i = 0; i < 5; i++) proposal.advance();
-    expect(() => proposal.revert()).toThrow('Cannot revert');
-  });
+    const proposal = Proposal.create(validProps)
+    for (let i = 0; i < 5; i++) proposal.advance()
+    expect(() => proposal.revert()).toThrow('Cannot revert')
+  })
 
   it('marks as lost with reason', () => {
-    const proposal = Proposal.create(validProps);
-    proposal.advance(); // QUOTE
-    proposal.markAsLost('Cliente desistiu');
-    expect(proposal.stage).toBe('LOST');
-    expect(proposal.lostReason).toBe('Cliente desistiu');
-  });
+    const proposal = Proposal.create(validProps)
+    proposal.advance() // QUOTE
+    proposal.markAsLost('Cliente desistiu')
+    expect(proposal.stage).toBe('LOST')
+    expect(proposal.lostReason).toBe('Cliente desistiu')
+  })
 
   it('cannot mark as lost from POLICY_ISSUED', () => {
-    const proposal = Proposal.create(validProps);
-    for (let i = 0; i < 5; i++) proposal.advance();
-    expect(() => proposal.markAsLost('reason')).toThrow('Cannot mark as lost');
-  });
+    const proposal = Proposal.create(validProps)
+    for (let i = 0; i < 5; i++) proposal.advance()
+    expect(() => proposal.markAsLost('reason')).toThrow('Cannot mark as lost')
+  })
 
   it('cannot mark as lost from LOST', () => {
-    const proposal = Proposal.create(validProps);
-    proposal.markAsLost('reason');
-    expect(() => proposal.markAsLost('another')).toThrow('Cannot mark as lost');
-  });
+    const proposal = Proposal.create(validProps)
+    proposal.markAsLost('reason')
+    expect(() => proposal.markAsLost('another')).toThrow('Cannot mark as lost')
+  })
 
   it('cannot advance from LOST', () => {
-    const proposal = Proposal.create(validProps);
-    proposal.markAsLost('reason');
-    expect(() => proposal.advance()).toThrow('Cannot advance');
-  });
+    const proposal = Proposal.create(validProps)
+    proposal.markAsLost('reason')
+    expect(() => proposal.advance()).toThrow('Cannot advance')
+  })
 
   it('restores from persistence data', () => {
     const proposal = Proposal.restore({
@@ -723,11 +770,11 @@ describe('Proposal Entity', () => {
       deletedAt: null,
       createdAt: new Date(),
       updatedAt: new Date(),
-    });
-    expect(proposal.id).toBe('prop-1');
-    expect(proposal.stage).toBe('PROTOCOL');
-  });
-});
+    })
+    expect(proposal.id).toBe('prop-1')
+    expect(proposal.stage).toBe('PROTOCOL')
+  })
+})
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -743,46 +790,59 @@ Expected: FAIL - module not found.
 `proposal.ts`:
 
 ```ts
-import { randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto'
 
-const STAGES = ['CAPTURE', 'QUOTE', 'PROTOCOL', 'INSPECTION', 'PAYMENT', 'POLICY_ISSUED'] as const;
-type Stage = (typeof STAGES)[number] | 'LOST';
-type Branch = 'AUTO' | 'RESIDENTIAL' | 'CONDOMINIUM' | 'BUSINESS' | 'LIFE' | 'OTHER';
-type BoardType = 'NEW_INSURANCE' | 'RENEWAL';
+const STAGES = [
+  'CAPTURE',
+  'QUOTE',
+  'PROTOCOL',
+  'INSPECTION',
+  'PAYMENT',
+  'POLICY_ISSUED',
+] as const
+type Stage = (typeof STAGES)[number] | 'LOST'
+type Branch =
+  | 'AUTO'
+  | 'RESIDENTIAL'
+  | 'CONDOMINIUM'
+  | 'BUSINESS'
+  | 'LIFE'
+  | 'OTHER'
+type BoardType = 'NEW_INSURANCE' | 'RENEWAL'
 
 interface ProposalProps {
-  id: string;
-  organizationId: string;
-  clientId: string;
-  salespersonId: string;
-  stage: Stage;
-  boardType: BoardType;
-  branch: Branch;
-  premiumValueInCents: number;
-  commissionPercentageInCents: number;
-  lostReason: string | null;
-  renewalPolicyId: string | null;
-  deletedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
+  id: string
+  organizationId: string
+  clientId: string
+  salespersonId: string
+  stage: Stage
+  boardType: BoardType
+  branch: Branch
+  premiumValueInCents: number
+  commissionPercentageInCents: number
+  lostReason: string | null
+  renewalPolicyId: string | null
+  deletedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
 }
 
 interface CreateProposalProps {
-  organizationId: string;
-  clientId: string;
-  salespersonId: string;
-  branch: Branch;
-  boardType: BoardType;
-  premiumValueInCents?: number;
-  commissionPercentageInCents?: number;
-  renewalPolicyId?: string;
+  organizationId: string
+  clientId: string
+  salespersonId: string
+  branch: Branch
+  boardType: BoardType
+  premiumValueInCents?: number
+  commissionPercentageInCents?: number
+  renewalPolicyId?: string
 }
 
 export class Proposal {
-  private props: ProposalProps;
+  private props: ProposalProps
 
   private constructor(props: ProposalProps) {
-    this.props = props;
+    this.props = props
   }
 
   static create(input: CreateProposalProps): Proposal {
@@ -801,93 +861,97 @@ export class Proposal {
       deletedAt: null,
       createdAt: new Date(),
       updatedAt: new Date(),
-    });
+    })
   }
 
   static restore(props: ProposalProps): Proposal {
-    return new Proposal(props);
+    return new Proposal(props)
   }
 
   advance(): void {
     if (this.props.stage === 'LOST') {
-      throw new Error('Cannot advance from LOST stage');
+      throw new Error('Cannot advance from LOST stage')
     }
 
-    const currentIndex = STAGES.indexOf(this.props.stage as (typeof STAGES)[number]);
+    const currentIndex = STAGES.indexOf(
+      this.props.stage as (typeof STAGES)[number]
+    )
     if (currentIndex === -1 || currentIndex >= STAGES.length - 1) {
-      throw new Error('Cannot advance beyond POLICY_ISSUED');
+      throw new Error('Cannot advance beyond POLICY_ISSUED')
     }
 
-    this.props.stage = STAGES[currentIndex + 1]!;
-    this.props.updatedAt = new Date();
+    this.props.stage = STAGES[currentIndex + 1]!
+    this.props.updatedAt = new Date()
   }
 
   revert(): void {
     if (this.props.stage === 'LOST' || this.props.stage === 'POLICY_ISSUED') {
-      throw new Error('Cannot revert from terminal stage');
+      throw new Error('Cannot revert from terminal stage')
     }
 
-    const currentIndex = STAGES.indexOf(this.props.stage as (typeof STAGES)[number]);
+    const currentIndex = STAGES.indexOf(
+      this.props.stage as (typeof STAGES)[number]
+    )
     if (currentIndex <= 0) {
-      throw new Error('Cannot revert from CAPTURE');
+      throw new Error('Cannot revert from CAPTURE')
     }
 
-    this.props.stage = STAGES[currentIndex - 1]!;
-    this.props.updatedAt = new Date();
+    this.props.stage = STAGES[currentIndex - 1]!
+    this.props.updatedAt = new Date()
   }
 
   markAsLost(reason: string): void {
     if (this.props.stage === 'POLICY_ISSUED' || this.props.stage === 'LOST') {
-      throw new Error('Cannot mark as lost from terminal stage');
+      throw new Error('Cannot mark as lost from terminal stage')
     }
 
-    this.props.stage = 'LOST';
-    this.props.lostReason = reason;
-    this.props.updatedAt = new Date();
+    this.props.stage = 'LOST'
+    this.props.lostReason = reason
+    this.props.updatedAt = new Date()
   }
 
   get id() {
-    return this.props.id;
+    return this.props.id
   }
   get organizationId() {
-    return this.props.organizationId;
+    return this.props.organizationId
   }
   get clientId() {
-    return this.props.clientId;
+    return this.props.clientId
   }
   get salespersonId() {
-    return this.props.salespersonId;
+    return this.props.salespersonId
   }
   get stage() {
-    return this.props.stage;
+    return this.props.stage
   }
   get boardType() {
-    return this.props.boardType;
+    return this.props.boardType
   }
   get branch() {
-    return this.props.branch;
+    return this.props.branch
   }
   get premiumValueInCents() {
-    return this.props.premiumValueInCents;
+    return this.props.premiumValueInCents
   }
   get commissionPercentageInCents() {
-    return this.props.commissionPercentageInCents;
+    return this.props.commissionPercentageInCents
   }
   get lostReason() {
-    return this.props.lostReason;
+    return this.props.lostReason
   }
   get renewalPolicyId() {
-    return this.props.renewalPolicyId;
+    return this.props.renewalPolicyId
   }
   get createdAt() {
-    return this.props.createdAt;
+    return this.props.createdAt
   }
   get updatedAt() {
-    return this.props.updatedAt;
+    return this.props.updatedAt
   }
 
   toJSON(): ProposalProps {
-    return { ...this.props };
+    return { ...this.props }
   }
 }
 ```
@@ -906,16 +970,16 @@ Expected: all 11 tests PASS.
 
 ```ts
 export class ProposalNotFoundError extends Error {
-  readonly code = 'PROPOSAL_NOT_FOUND';
+  readonly code = 'PROPOSAL_NOT_FOUND'
   constructor(id: string) {
-    super(`Proposal ${id} not found`);
+    super(`Proposal ${id} not found`)
   }
 }
 
 export class InvalidStageTransitionError extends Error {
-  readonly code = 'INVALID_STAGE_TRANSITION';
+  readonly code = 'INVALID_STAGE_TRANSITION'
   constructor(from: string, action: string) {
-    super(`Cannot ${action} from stage ${from}`);
+    super(`Cannot ${action} from stage ${from}`)
   }
 }
 ```
@@ -924,13 +988,13 @@ export class InvalidStageTransitionError extends Error {
 
 ```ts
 export interface ProposalIssuedEvent {
-  type: 'PROPOSAL_ISSUED';
-  proposalId: string;
-  organizationId: string;
-  clientId: string;
-  salespersonId: string;
-  premiumValueInCents: number;
-  commissionPercentageInCents: number;
+  type: 'PROPOSAL_ISSUED'
+  proposalId: string
+  organizationId: string
+  clientId: string
+  salespersonId: string
+  premiumValueInCents: number
+  commissionPercentageInCents: number
 }
 ```
 
@@ -960,23 +1024,23 @@ git commit -m "feat: add proposal entity with state machine (DDD Full) - all tra
 - [ ] **Step 1: Create repository interface**
 
 ```ts
-import type { Proposal } from './proposal.js';
+import type { Proposal } from './proposal.js'
 
 export interface ProposalFilters {
-  organizationId: string;
-  stage?: string;
-  clientId?: string;
-  boardType?: string;
-  cursor?: string;
-  limit?: number;
+  organizationId: string
+  stage?: string
+  clientId?: string
+  boardType?: string
+  cursor?: string
+  limit?: number
 }
 
 export interface ProposalRepository {
-  save(proposal: Proposal): Promise<void>;
-  findById(id: string, organizationId: string): Promise<Proposal | null>;
+  save(proposal: Proposal): Promise<void>
+  findById(id: string, organizationId: string): Promise<Proposal | null>
   findMany(
-    filters: ProposalFilters,
-  ): Promise<{ items: Proposal[]; total: number; nextCursor?: string }>;
+    filters: ProposalFilters
+  ): Promise<{ items: Proposal[]; total: number; nextCursor?: string }>
 }
 ```
 
@@ -985,16 +1049,16 @@ export interface ProposalRepository {
 `advance-proposal-stage.spec.ts`:
 
 ```ts
-import { describe, it, expect, vi } from 'vitest';
-import { AdvanceProposalStage } from './advance-proposal-stage.js';
-import { Proposal } from '../domain/proposal.js';
-import type { ProposalRepository } from '../domain/proposal-repository.js';
+import { describe, it, expect, vi } from 'vitest'
+import { AdvanceProposalStage } from './advance-proposal-stage.js'
+import { Proposal } from '../domain/proposal.js'
+import type { ProposalRepository } from '../domain/proposal-repository.js'
 
 const createMockRepo = (proposal: Proposal | null): ProposalRepository => ({
   save: vi.fn(),
   findById: vi.fn().mockResolvedValue(proposal),
   findMany: vi.fn(),
-});
+})
 
 describe('AdvanceProposalStage', () => {
   it('advances proposal to next stage', async () => {
@@ -1004,23 +1068,23 @@ describe('AdvanceProposalStage', () => {
       salespersonId: 'u-1',
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
-    });
-    const repo = createMockRepo(proposal);
-    const useCase = new AdvanceProposalStage(repo);
+    })
+    const repo = createMockRepo(proposal)
+    const useCase = new AdvanceProposalStage(repo)
 
-    await useCase.execute('prop-1', 'org-1');
+    await useCase.execute('prop-1', 'org-1')
 
-    expect(proposal.stage).toBe('QUOTE');
-    expect(repo.save).toHaveBeenCalledWith(proposal);
-  });
+    expect(proposal.stage).toBe('QUOTE')
+    expect(repo.save).toHaveBeenCalledWith(proposal)
+  })
 
   it('throws if proposal not found', async () => {
-    const repo = createMockRepo(null);
-    const useCase = new AdvanceProposalStage(repo);
+    const repo = createMockRepo(null)
+    const useCase = new AdvanceProposalStage(repo)
 
-    await expect(useCase.execute('xxx', 'org-1')).rejects.toThrow('not found');
-  });
-});
+    await expect(useCase.execute('xxx', 'org-1')).rejects.toThrow('not found')
+  })
+})
 ```
 
 - [ ] **Step 3: Run test - expect fail**
@@ -1034,22 +1098,27 @@ cd packages/core && pnpm vitest run src/modules/proposal/application/advance-pro
 `advance-proposal-stage.ts`:
 
 ```ts
-import { injectable, inject } from 'tsyringe';
-import type { ProposalRepository } from '../domain/proposal-repository.js';
-import { ProposalNotFoundError } from '../domain/proposal-errors.js';
+import { injectable, inject } from 'tsyringe'
+import type { ProposalRepository } from '../domain/proposal-repository.js'
+import { ProposalNotFoundError } from '../domain/proposal-errors.js'
 
 @injectable()
 export class AdvanceProposalStage {
-  constructor(@inject('ProposalRepository') private proposalRepo: ProposalRepository) {}
+  constructor(
+    @inject('ProposalRepository') private proposalRepo: ProposalRepository
+  ) {}
 
   async execute(proposalId: string, organizationId: string) {
-    const proposal = await this.proposalRepo.findById(proposalId, organizationId);
-    if (!proposal) throw new ProposalNotFoundError(proposalId);
+    const proposal = await this.proposalRepo.findById(
+      proposalId,
+      organizationId
+    )
+    if (!proposal) throw new ProposalNotFoundError(proposalId)
 
-    proposal.advance();
-    await this.proposalRepo.save(proposal);
+    proposal.advance()
+    await this.proposalRepo.save(proposal)
 
-    return proposal;
+    return proposal
   }
 }
 ```
@@ -1057,29 +1126,31 @@ export class AdvanceProposalStage {
 `create-proposal.ts`:
 
 ```ts
-import { injectable, inject } from 'tsyringe';
-import { Proposal } from '../domain/proposal.js';
-import type { ProposalRepository } from '../domain/proposal-repository.js';
+import { injectable, inject } from 'tsyringe'
+import { Proposal } from '../domain/proposal.js'
+import type { ProposalRepository } from '../domain/proposal-repository.js'
 
 interface CreateProposalDTO {
-  organizationId: string;
-  clientId: string;
-  salespersonId: string;
-  branch: 'AUTO' | 'RESIDENTIAL' | 'CONDOMINIUM' | 'BUSINESS' | 'LIFE' | 'OTHER';
-  boardType: 'NEW_INSURANCE' | 'RENEWAL';
-  premiumValueInCents?: number;
-  commissionPercentageInCents?: number;
-  renewalPolicyId?: string;
+  organizationId: string
+  clientId: string
+  salespersonId: string
+  branch: 'AUTO' | 'RESIDENTIAL' | 'CONDOMINIUM' | 'BUSINESS' | 'LIFE' | 'OTHER'
+  boardType: 'NEW_INSURANCE' | 'RENEWAL'
+  premiumValueInCents?: number
+  commissionPercentageInCents?: number
+  renewalPolicyId?: string
 }
 
 @injectable()
 export class CreateProposal {
-  constructor(@inject('ProposalRepository') private proposalRepo: ProposalRepository) {}
+  constructor(
+    @inject('ProposalRepository') private proposalRepo: ProposalRepository
+  ) {}
 
   async execute(dto: CreateProposalDTO) {
-    const proposal = Proposal.create(dto);
-    await this.proposalRepo.save(proposal);
-    return proposal;
+    const proposal = Proposal.create(dto)
+    await this.proposalRepo.save(proposal)
+    return proposal
   }
 }
 ```
@@ -1087,22 +1158,27 @@ export class CreateProposal {
 `mark-proposal-lost.ts`:
 
 ```ts
-import { injectable, inject } from 'tsyringe';
-import type { ProposalRepository } from '../domain/proposal-repository.js';
-import { ProposalNotFoundError } from '../domain/proposal-errors.js';
+import { injectable, inject } from 'tsyringe'
+import type { ProposalRepository } from '../domain/proposal-repository.js'
+import { ProposalNotFoundError } from '../domain/proposal-errors.js'
 
 @injectable()
 export class MarkProposalLost {
-  constructor(@inject('ProposalRepository') private proposalRepo: ProposalRepository) {}
+  constructor(
+    @inject('ProposalRepository') private proposalRepo: ProposalRepository
+  ) {}
 
   async execute(proposalId: string, organizationId: string, reason: string) {
-    const proposal = await this.proposalRepo.findById(proposalId, organizationId);
-    if (!proposal) throw new ProposalNotFoundError(proposalId);
+    const proposal = await this.proposalRepo.findById(
+      proposalId,
+      organizationId
+    )
+    if (!proposal) throw new ProposalNotFoundError(proposalId)
 
-    proposal.markAsLost(reason);
-    await this.proposalRepo.save(proposal);
+    proposal.markAsLost(reason)
+    await this.proposalRepo.save(proposal)
 
-    return proposal;
+    return proposal
   }
 }
 ```
@@ -1143,34 +1219,42 @@ Similar structure to Client module. Policy is issued from a Proposal that reache
 `issue-policy.ts`:
 
 ```ts
-import { injectable, inject } from 'tsyringe';
-import { randomUUID } from 'node:crypto';
-import type { PolicyRepository, PolicyData } from '../domain/policy-repository.js';
-import type { ProposalRepository } from '../../proposal/domain/proposal-repository.js';
-import { ProposalNotFoundError } from '../../proposal/domain/proposal-errors.js';
+import { injectable, inject } from 'tsyringe'
+import { randomUUID } from 'node:crypto'
+import type {
+  PolicyRepository,
+  PolicyData,
+} from '../domain/policy-repository.js'
+import type { ProposalRepository } from '../../proposal/domain/proposal-repository.js'
+import { ProposalNotFoundError } from '../../proposal/domain/proposal-errors.js'
 
 interface IssuePolicyDTO {
-  organizationId: string;
-  proposalId: string;
-  policyNumber: string;
-  startDate: Date;
-  endDate: Date;
-  coverageDetails?: Record<string, unknown>;
+  organizationId: string
+  proposalId: string
+  policyNumber: string
+  startDate: Date
+  endDate: Date
+  coverageDetails?: Record<string, unknown>
 }
 
 @injectable()
 export class IssuePolicy {
   constructor(
     @inject('PolicyRepository') private policyRepo: PolicyRepository,
-    @inject('ProposalRepository') private proposalRepo: ProposalRepository,
+    @inject('ProposalRepository') private proposalRepo: ProposalRepository
   ) {}
 
   async execute(dto: IssuePolicyDTO): Promise<PolicyData> {
-    const proposal = await this.proposalRepo.findById(dto.proposalId, dto.organizationId);
-    if (!proposal) throw new ProposalNotFoundError(dto.proposalId);
+    const proposal = await this.proposalRepo.findById(
+      dto.proposalId,
+      dto.organizationId
+    )
+    if (!proposal) throw new ProposalNotFoundError(dto.proposalId)
 
     if (proposal.stage !== 'POLICY_ISSUED') {
-      throw new Error('Proposal must be in POLICY_ISSUED stage to issue a policy');
+      throw new Error(
+        'Proposal must be in POLICY_ISSUED stage to issue a policy'
+      )
     }
 
     return this.policyRepo.create({
@@ -1191,7 +1275,7 @@ export class IssuePolicy {
       deletedAt: null,
       createdAt: new Date(),
       updatedAt: new Date(),
-    });
+    })
   }
 }
 ```
@@ -1222,7 +1306,7 @@ git commit -m "feat: add policy module (DDD Light) with issue, list, get, cancel
 - [ ] **Step 1: Create client schemas**
 
 ```ts
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const createClientSchema = {
   body: z.object({
@@ -1233,12 +1317,14 @@ export const createClientSchema = {
     phone: z.string().optional(),
     birthDate: z.string().datetime().optional(),
     profession: z.string().optional(),
-    maritalStatus: z.enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER']).optional(),
+    maritalStatus: z
+      .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
+      .optional(),
     address: z.record(z.unknown()).optional(),
     tags: z.array(z.string()).optional(),
     consentLgpd: z.boolean().optional(),
   }),
-};
+}
 
 export const listClientsSchema = {
   querystring: z.object({
@@ -1247,74 +1333,91 @@ export const listClientsSchema = {
     cursor: z.string().optional(),
     limit: z.coerce.number().min(1).max(100).default(20),
   }),
-};
+}
 ```
 
 - [ ] **Step 2: Create client handlers**
 
 ```ts
-import type { FastifyRequest, FastifyReply } from 'fastify';
-import { container } from '@repo/core/container';
-import { CreateClient } from '@repo/core/modules/client/application/create-client.js';
-import { ListClients } from '@repo/core/modules/client/application/list-clients.js';
+import type { FastifyRequest, FastifyReply } from 'fastify'
+import { container } from '@repo/core/container'
+import { CreateClient } from '@repo/core/modules/client/application/create-client.js'
+import { ListClients } from '@repo/core/modules/client/application/list-clients.js'
 
-export async function handleCreateClient(request: FastifyRequest, reply: FastifyReply) {
-  const useCase = container.resolve(CreateClient);
+export async function handleCreateClient(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const useCase = container.resolve(CreateClient)
   try {
     const client = await useCase.execute({
       organizationId: request.organizationId,
       ...(request.body as Record<string, unknown>),
-    });
-    return reply.status(201).send({ success: true, data: client });
+    })
+    return reply.status(201).send({ success: true, data: client })
   } catch (error: unknown) {
     if (error instanceof Error && 'code' in error) {
-      const code = (error as { code: string }).code;
+      const code = (error as { code: string }).code
       if (code === 'CLIENT_ALREADY_EXISTS') {
         return reply.status(409).send({
           success: false,
           error: { code, message: error.message },
-        });
+        })
       }
     }
-    throw error;
+    throw error
   }
 }
 
-export async function handleListClients(request: FastifyRequest, reply: FastifyReply) {
-  const useCase = container.resolve(ListClients);
-  const query = request.query as { type?: string; search?: string; cursor?: string; limit: number };
+export async function handleListClients(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const useCase = container.resolve(ListClients)
+  const query = request.query as {
+    type?: string
+    search?: string
+    cursor?: string
+    limit: number
+  }
   const result = await useCase.execute({
     organizationId: request.organizationId,
     ...query,
-  });
+  })
   return reply.send({
     success: true,
     data: result.items,
     meta: { total: result.total, nextCursor: result.nextCursor },
-  });
+  })
 }
 ```
 
 - [ ] **Step 3: Create client routes**
 
 ```ts
-import type { FastifyInstance } from 'fastify';
-import { requireAbility } from '../../middlewares/ability-middleware.js';
-import { handleCreateClient, handleListClients } from '../../handlers/client.handlers.js';
-import { createClientSchema, listClientsSchema } from '../../schemas/client.schemas.js';
+import type { FastifyInstance } from 'fastify'
+import { requireAbility } from '../../middlewares/ability-middleware.js'
+import {
+  handleCreateClient,
+  handleListClients,
+} from '../../handlers/client.handlers.js'
+import {
+  createClientSchema,
+  listClientsSchema,
+} from '../../schemas/client.schemas.js'
 
 export async function clientRoutes(app: FastifyInstance) {
   app.post('/api/v1/clients', {
     preHandler: [requireAbility('create', 'Client')],
     schema: createClientSchema,
     handler: handleCreateClient,
-  });
+  })
 
   app.get('/api/v1/clients', {
     preHandler: [requireAbility('read', 'Client')],
     schema: listClientsSchema,
     handler: handleListClients,
-  });
+  })
 
   // GET /:id, PUT /:id, DELETE /:id follow same pattern
 }
@@ -1415,14 +1518,14 @@ git commit -m "feat: add policy management pages (list, detail, cancel)"
 - [ ] **Step 1: Register all repositories in container**
 
 ```ts
-import { container } from 'tsyringe';
-import { PrismaClientRepository } from './modules/client/infrastructure/prisma-client-repository.js';
-import { PrismaProposalRepository } from './modules/proposal/infrastructure/prisma-proposal-repository.js';
-import { PrismaPolicyRepository } from './modules/policy/infrastructure/prisma-policy-repository.js';
+import { container } from 'tsyringe'
+import { PrismaClientRepository } from './modules/client/infrastructure/prisma-client-repository.js'
+import { PrismaProposalRepository } from './modules/proposal/infrastructure/prisma-proposal-repository.js'
+import { PrismaPolicyRepository } from './modules/policy/infrastructure/prisma-policy-repository.js'
 
-container.register('ClientRepository', { useClass: PrismaClientRepository });
-container.register('ProposalRepository', { useClass: PrismaProposalRepository });
-container.register('PolicyRepository', { useClass: PrismaPolicyRepository });
+container.register('ClientRepository', { useClass: PrismaClientRepository })
+container.register('ProposalRepository', { useClass: PrismaProposalRepository })
+container.register('PolicyRepository', { useClass: PrismaPolicyRepository })
 ```
 
 - [ ] **Step 2: Run all quality gates**

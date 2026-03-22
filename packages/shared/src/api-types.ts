@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const apiSuccessSchema = <T extends z.ZodType>(dataSchema: T) =>
   z.object({
@@ -10,7 +10,7 @@ export const apiSuccessSchema = <T extends z.ZodType>(dataSchema: T) =>
         nextCursor: z.string().optional(),
       })
       .optional(),
-  });
+  })
 
 export const apiErrorSchema = z.object({
   success: z.literal(false),
@@ -18,17 +18,17 @@ export const apiErrorSchema = z.object({
     code: z.string(),
     message: z.string(),
   }),
-});
+})
 
 export type ApiSuccess<T> = {
-  success: true;
-  data: T;
-  meta?: { total?: number; nextCursor?: string };
-};
+  success: true
+  data: T
+  meta?: { total?: number; nextCursor?: string }
+}
 
 export type ApiError = {
-  success: false;
-  error: { code: string; message: string };
-};
+  success: false
+  error: { code: string; message: string }
+}
 
-export type ApiResponse<T> = ApiSuccess<T> | ApiError;
+export type ApiResponse<T> = ApiSuccess<T> | ApiError

@@ -128,8 +128,8 @@ Canal 3: Meta API + numero +55 11 88888-0000 (comercial principal)
 
 ```ts
 interface Broker {
-  sendMessage(payload: MessagePayload): Promise<MessageResult>;
-  isConnected(): boolean;
+  sendMessage(payload: MessagePayload): Promise<MessageResult>
+  isConnected(): boolean
 }
 ```
 

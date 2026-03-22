@@ -1,19 +1,19 @@
-'use client';
+'use client'
 
-import { useCallback, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Plus, Search } from 'lucide-react';
+import { useCallback, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Plus, Search } from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -21,12 +21,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { useDebounce } from '@/hooks/use-debounce';
-import { formatCurrency, formatDate } from '@/lib/formatters';
+} from '@/components/ui/table'
+import { useDebounce } from '@/hooks/use-debounce'
+import { formatCurrency, formatDate } from '@/lib/formatters'
 
-import { useAdvanceProposal, useProposals, useRevertProposal } from '../hooks/use-proposals';
-import type { BoardType, ProposalData, ProposalStage } from '../types';
+import {
+  useAdvanceProposal,
+  useProposals,
+  useRevertProposal,
+} from '../hooks/use-proposals'
+import type { BoardType, ProposalData, ProposalStage } from '../types'
 import {
   BOARD_TYPE_LABELS,
   BOARD_TYPES,
@@ -34,41 +38,50 @@ import {
   STAGE_BADGE_VARIANT,
   STAGE_LABELS,
   STAGES,
-} from '../types';
-import { LostReasonDialog } from './lost-reason-dialog';
-import { ProposalActionButtons } from './proposal-action-buttons';
-import { ProposalsEmptyState, ProposalsTableSkeleton } from './proposals-table-parts';
+} from '../types'
+import { LostReasonDialog } from './lost-reason-dialog'
+import { ProposalActionButtons } from './proposal-action-buttons'
+import {
+  ProposalsEmptyState,
+  ProposalsTableSkeleton,
+} from './proposals-table-parts'
 
-const ALL_VALUE = '__all__';
+const ALL_VALUE = '__all__'
 
 export function ProposalsTable() {
-  const router = useRouter();
-  const [search, setSearch] = useState('');
-  const [stageFilter, setStageFilter] = useState<string>(ALL_VALUE);
-  const [boardTypeFilter, setBoardTypeFilter] = useState<string>(ALL_VALUE);
-  const [cursor, setCursor] = useState<string | undefined>(undefined);
-  const [lostDialogProposalId, setLostDialogProposalId] = useState<string | null>(null);
+  const router = useRouter()
+  const [search, setSearch] = useState('')
+  const [stageFilter, setStageFilter] = useState<string>(ALL_VALUE)
+  const [boardTypeFilter, setBoardTypeFilter] = useState<string>(ALL_VALUE)
+  const [cursor, setCursor] = useState<string | undefined>(undefined)
+  const [lostDialogProposalId, setLostDialogProposalId] = useState<
+    string | null
+  >(null)
 
-  const debouncedSearch = useDebounce(search, 300);
+  const debouncedSearch = useDebounce(search, 300)
 
   const filters = {
     search: debouncedSearch || undefined,
-    stage: stageFilter !== ALL_VALUE ? (stageFilter as ProposalStage) : undefined,
-    boardType: boardTypeFilter !== ALL_VALUE ? (boardTypeFilter as BoardType) : undefined,
+    stage:
+      stageFilter !== ALL_VALUE ? (stageFilter as ProposalStage) : undefined,
+    boardType:
+      boardTypeFilter !== ALL_VALUE
+        ? (boardTypeFilter as BoardType)
+        : undefined,
     cursor,
     limit: 20,
-  };
+  }
 
-  const { data, isLoading, isError, refetch } = useProposals(filters);
-  const advanceMutation = useAdvanceProposal();
-  const revertMutation = useRevertProposal();
+  const { data, isLoading, isError, refetch } = useProposals(filters)
+  const advanceMutation = useAdvanceProposal()
+  const revertMutation = useRevertProposal()
 
   const handleRowClick = useCallback(
     (id: string) => {
-      router.push(`/proposals/${id}`);
+      router.push(`/proposals/${id}`)
     },
-    [router],
-  );
+    [router]
+  )
 
   if (isError) {
     return (
@@ -78,7 +91,7 @@ export function ProposalsTable() {
           Tentar novamente
         </Button>
       </div>
-    );
+    )
   }
 
   return (
@@ -91,8 +104,8 @@ export function ProposalsTable() {
             placeholder="Buscar propostas..."
             value={search}
             onChange={(e) => {
-              setSearch(e.target.value);
-              setCursor(undefined);
+              setSearch(e.target.value)
+              setCursor(undefined)
             }}
             className="pl-9"
           />
@@ -100,8 +113,8 @@ export function ProposalsTable() {
         <Select
           value={stageFilter}
           onValueChange={(v) => {
-            if (v !== null) setStageFilter(v);
-            setCursor(undefined);
+            if (v !== null) setStageFilter(v)
+            setCursor(undefined)
           }}
           items={[
             { value: ALL_VALUE, label: 'Todos' },
@@ -123,12 +136,15 @@ export function ProposalsTable() {
         <Select
           value={boardTypeFilter}
           onValueChange={(v) => {
-            if (v !== null) setBoardTypeFilter(v);
-            setCursor(undefined);
+            if (v !== null) setBoardTypeFilter(v)
+            setCursor(undefined)
           }}
           items={[
             { value: ALL_VALUE, label: 'Todos' },
-            ...BOARD_TYPES.map((bt) => ({ value: bt, label: BOARD_TYPE_LABELS[bt] })),
+            ...BOARD_TYPES.map((bt) => ({
+              value: bt,
+              label: BOARD_TYPE_LABELS[bt],
+            })),
           ]}
         >
           <SelectTrigger className="w-[160px]">
@@ -178,8 +194,8 @@ export function ProposalsTable() {
                       onClick={() => handleRowClick(proposal.id)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          handleRowClick(proposal.id);
+                          e.preventDefault()
+                          handleRowClick(proposal.id)
                         }
                       }}
                     >
@@ -187,14 +203,18 @@ export function ProposalsTable() {
                         {proposal.clientName ?? proposal.clientId}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{BRANCH_LABELS[proposal.branch]}</Badge>
+                        <Badge variant="outline">
+                          {BRANCH_LABELS[proposal.branch]}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <Badge variant={STAGE_BADGE_VARIANT[proposal.stage]}>
                           {STAGE_LABELS[proposal.stage]}
                         </Badge>
                       </TableCell>
-                      <TableCell>{BOARD_TYPE_LABELS[proposal.boardType]}</TableCell>
+                      <TableCell>
+                        {BOARD_TYPE_LABELS[proposal.boardType]}
+                      </TableCell>
                       <TableCell className="text-right">
                         {formatCurrency(proposal.premiumValueInCents)}
                       </TableCell>
@@ -206,7 +226,9 @@ export function ProposalsTable() {
                         >
                           <ProposalActionButtons
                             stage={proposal.stage}
-                            onAdvance={() => advanceMutation.mutate(proposal.id)}
+                            onAdvance={() =>
+                              advanceMutation.mutate(proposal.id)
+                            }
                             onRevert={() => revertMutation.mutate(proposal.id)}
                             onLost={() => setLostDialogProposalId(proposal.id)}
                             isAdvancing={advanceMutation.isPending}
@@ -238,5 +260,5 @@ export function ProposalsTable() {
         onClose={() => setLostDialogProposalId(null)}
       />
     </div>
-  );
+  )
 }

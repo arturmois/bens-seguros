@@ -1,27 +1,27 @@
-'use client';
+'use client'
 
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 
-import { TYPE_OPTIONS } from '../lib/constants';
+import { TYPE_OPTIONS } from '../lib/constants'
 
-const TYPE_FILTER_OPTIONS = [{ value: 'ALL', label: 'Todos' }, ...TYPE_OPTIONS];
+const TYPE_FILTER_OPTIONS = [{ value: 'ALL', label: 'Todos' }, ...TYPE_OPTIONS]
 
 interface ClientsToolbarProps {
-  readonly search: string;
-  readonly onSearchChange: (value: string) => void;
-  readonly typeFilter: string;
-  readonly onTypeFilterChange: (value: string) => void;
-  readonly onNewClient: () => void;
+  readonly search: string
+  readonly onSearchChange: (value: string) => void
+  readonly typeFilter: string
+  readonly onTypeFilterChange: (value: string) => void
+  readonly onNewClient: () => void
 }
 
 export function ClientsToolbar({
@@ -47,7 +47,7 @@ export function ClientsToolbar({
         <Select
           value={typeFilter}
           onValueChange={(v) => {
-            if (v !== null) onTypeFilterChange(v);
+            if (v !== null) onTypeFilterChange(v)
           }}
           items={TYPE_FILTER_OPTIONS}
         >
@@ -68,5 +68,5 @@ export function ClientsToolbar({
         Novo Cliente
       </Button>
     </div>
-  );
+  )
 }

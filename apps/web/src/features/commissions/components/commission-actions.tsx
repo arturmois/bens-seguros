@@ -1,59 +1,62 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { useState } from 'react'
+import { Loader2 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 
-import type { CommissionStatus } from '../types';
-import { TERMINAL_COMMISSION_STATUSES } from '../lib/constants';
+import type { CommissionStatus } from '../types'
+import { TERMINAL_COMMISSION_STATUSES } from '../lib/constants'
 import {
   useApproveAdmin,
   useApproveCommercial,
   usePayCommission,
   useRejectCommission,
   useReverseCommission,
-} from '../hooks/use-commissions';
-import { RejectDialog, ReverseDialog } from './commission-dialogs';
+} from '../hooks/use-commissions'
+import { RejectDialog, ReverseDialog } from './commission-dialogs'
 
 interface CommissionActionsProps {
-  readonly commissionId: string;
-  readonly currentStatus: CommissionStatus;
+  readonly commissionId: string
+  readonly currentStatus: CommissionStatus
 }
 
-export function CommissionActions({ commissionId, currentStatus }: CommissionActionsProps) {
-  const [rejectOpen, setRejectOpen] = useState(false);
-  const [reverseOpen, setReverseOpen] = useState(false);
-  const [rejectionReason, setRejectionReason] = useState('');
+export function CommissionActions({
+  commissionId,
+  currentStatus,
+}: CommissionActionsProps) {
+  const [rejectOpen, setRejectOpen] = useState(false)
+  const [reverseOpen, setReverseOpen] = useState(false)
+  const [rejectionReason, setRejectionReason] = useState('')
 
-  const approveCommercial = useApproveCommercial();
-  const approveAdmin = useApproveAdmin();
-  const reject = useRejectCommission();
-  const pay = usePayCommission();
-  const reverse = useReverseCommission();
+  const approveCommercial = useApproveCommercial()
+  const approveAdmin = useApproveAdmin()
+  const reject = useRejectCommission()
+  const pay = usePayCommission()
+  const reverse = useReverseCommission()
 
   if (TERMINAL_COMMISSION_STATUSES.includes(currentStatus)) {
-    return null;
+    return null
   }
 
   function handleRejectConfirm() {
-    if (rejectionReason.trim().length === 0) return;
+    if (rejectionReason.trim().length === 0) return
 
     reject.mutate(
       { id: commissionId, reason: rejectionReason.trim() },
       {
         onSuccess: () => {
-          setRejectOpen(false);
-          setRejectionReason('');
+          setRejectOpen(false)
+          setRejectionReason('')
         },
-      },
-    );
+      }
+    )
   }
 
   function handleReverseConfirm() {
     reverse.mutate(commissionId, {
       onSuccess: () => setReverseOpen(false),
-    });
+    })
   }
 
   return (
@@ -129,7 +132,7 @@ export function CommissionActions({ commissionId, currentStatus }: CommissionAct
         isPending={reverse.isPending}
       />
     </div>
-  );
+  )
 }
 
 function ActionButton({
@@ -138,16 +141,18 @@ function ActionButton({
   isPending,
   onClick,
 }: {
-  readonly label: string;
-  readonly variant: 'approve' | 'reject' | 'default';
-  readonly isPending: boolean;
-  readonly onClick: () => void;
+  readonly label: string
+  readonly variant: 'approve' | 'reject' | 'default'
+  readonly isPending: boolean
+  readonly onClick: () => void
 }) {
   const styles = {
-    approve: 'bg-green-600 text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600',
-    reject: 'bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600',
+    approve:
+      'bg-green-600 text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600',
+    reject:
+      'bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600',
     default: '',
-  };
+  }
 
   return (
     <Button
@@ -160,5 +165,5 @@ function ActionButton({
       {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
       {label}
     </Button>
-  );
+  )
 }

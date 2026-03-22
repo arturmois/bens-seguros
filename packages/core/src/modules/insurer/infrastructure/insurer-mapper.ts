@@ -1,5 +1,5 @@
-import type { Insurer as PrismaInsurerRecord } from '@repo/db';
-import type { InsurerData } from '../domain/insurer-repository.js';
+import type { Insurer as PrismaInsurerRecord } from '@repo/db'
+import type { InsurerData } from '../domain/insurer-repository.js'
 
 export class InsurerMapper {
   static toDomain(row: PrismaInsurerRecord): InsurerData {
@@ -11,6 +11,6 @@ export class InsurerMapper {
       active: row.active,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
-    };
+    }
   }
 }

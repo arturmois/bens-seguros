@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
-import { PanelLeftClose, PanelLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button'
+import { PanelLeftClose, PanelLeft } from 'lucide-react'
 
 interface HeaderProps {
-  collapsed: boolean;
-  onToggleSidebar: () => void;
+  collapsed: boolean
+  onToggleSidebar: () => void
 }
 
 export function Header({ collapsed, onToggleSidebar }: HeaderProps) {
@@ -18,8 +18,12 @@ export function Header({ collapsed, onToggleSidebar }: HeaderProps) {
         aria-label={collapsed ? 'Abrir menu lateral' : 'Fechar menu lateral'}
         aria-expanded={!collapsed}
       >
-        {collapsed ? <PanelLeft className="size-4" /> : <PanelLeftClose className="size-4" />}
+        {collapsed ? (
+          <PanelLeft className="size-4" />
+        ) : (
+          <PanelLeftClose className="size-4" />
+        )}
       </Button>
     </header>
-  );
+  )
 }

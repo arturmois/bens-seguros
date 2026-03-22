@@ -1,1 +1,1 @@
-export { formatCurrency, formatDate } from '@/lib/formatters';
+export { formatCurrency, formatDate } from '@/lib/formatters'

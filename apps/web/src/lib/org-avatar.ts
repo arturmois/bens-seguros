@@ -9,7 +9,7 @@ const COLORS = [
   '#e67e22',
   '#1abc9c',
   '#34495e',
-];
+]
 
 export function getOrgInitials(name: string): string {
   return name
@@ -18,14 +18,14 @@ export function getOrgInitials(name: string): string {
     .slice(0, 2)
     .map((word) => word[0])
     .join('')
-    .toUpperCase();
+    .toUpperCase()
 }
 
 export function getOrgColor(id: string): string {
-  let hash = 0;
+  let hash = 0
   for (const char of id) {
-    hash = char.charCodeAt(0) + ((hash << 5) - hash);
+    hash = char.charCodeAt(0) + ((hash << 5) - hash)
   }
-  const index = Math.abs(hash) % COLORS.length;
-  return COLORS[index] ?? '#0d4f4f';
+  const index = Math.abs(hash) % COLORS.length
+  return COLORS[index] ?? '#0d4f4f'
 }

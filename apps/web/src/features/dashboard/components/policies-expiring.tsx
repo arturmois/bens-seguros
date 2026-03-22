@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { Clock } from 'lucide-react';
+import { Clock } from 'lucide-react'
 
-import { Card, CardHeader, CardTitle, CardPanel } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardHeader, CardTitle, CardPanel } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface PoliciesExpiringProps {
-  count: number | undefined;
-  isLoading: boolean;
+  count: number | undefined
+  isLoading: boolean
 }
 
 export function PoliciesExpiring({ count, isLoading }: PoliciesExpiringProps) {
@@ -22,10 +22,10 @@ export function PoliciesExpiring({ count, isLoading }: PoliciesExpiringProps) {
           <Skeleton className="h-24 w-full" />
         </CardPanel>
       </Card>
-    );
+    )
   }
 
-  const expiringCount = count ?? 0;
+  const expiringCount = count ?? 0
 
   return (
     <Card>
@@ -47,5 +47,5 @@ export function PoliciesExpiring({ count, isLoading }: PoliciesExpiringProps) {
         ) : null}
       </CardPanel>
     </Card>
-  );
+  )
 }

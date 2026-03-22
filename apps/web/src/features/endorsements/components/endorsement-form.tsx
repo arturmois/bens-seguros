@@ -1,35 +1,37 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
-import { z } from 'zod';
+import { useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2 } from 'lucide-react'
+import { z } from 'zod'
 
-import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/components/ui/date-picker';
+import { Button } from '@/components/ui/button'
+import { DatePicker } from '@/components/ui/date-picker'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet';
-import { Textarea } from '@/components/ui/textarea';
-import { FormField } from '@/components/shared/form-field';
+} from '@/components/ui/sheet'
+import { Textarea } from '@/components/ui/textarea'
+import { FormField } from '@/components/shared/form-field'
 
-import { ENDORSEMENT_TYPE_OPTIONS } from '../lib/constants';
-import { useCreateEndorsement } from '../hooks/use-endorsements';
+import { ENDORSEMENT_TYPE_OPTIONS } from '../lib/constants'
+import { useCreateEndorsement } from '../hooks/use-endorsements'
 
 const endorsementFormSchema = z.object({
-  type: z.string({ required_error: 'Tipo é obrigatório' }).min(1, 'Tipo é obrigatório'),
+  type: z
+    .string({ required_error: 'Tipo é obrigatório' })
+    .min(1, 'Tipo é obrigatório'),
   description: z
     .string({ required_error: 'Descrição é obrigatória' })
     .min(1, 'Descrição é obrigatória'),
@@ -38,9 +40,9 @@ const endorsementFormSchema = z.object({
     .min(1, 'Data efetiva é obrigatória'),
   previousVersionSnapshot: z.string().optional().or(z.literal('')),
   changes: z.string().optional().or(z.literal('')),
-});
+})
 
-type EndorsementFormValues = z.infer<typeof endorsementFormSchema>;
+type EndorsementFormValues = z.infer<typeof endorsementFormSchema>
 
 const EMPTY_VALUES: EndorsementFormValues = {
   type: '',
@@ -48,50 +50,58 @@ const EMPTY_VALUES: EndorsementFormValues = {
   effectiveDate: '',
   previousVersionSnapshot: '',
   changes: '',
-};
+}
 
 interface EndorsementFormProps {
-  readonly policyId: string;
-  readonly open: boolean;
-  readonly onOpenChange: (open: boolean) => void;
+  readonly policyId: string
+  readonly open: boolean
+  readonly onOpenChange: (open: boolean) => void
 }
 
 function parseDateString(value: string | undefined): Date | undefined {
-  if (!value) return undefined;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return undefined;
-  return date;
+  if (!value) return undefined
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return undefined
+  return date
 }
 
 function formatDateToISO(date: Date | undefined): string {
-  if (!date) return '';
-  return date.toISOString().slice(0, 10);
+  if (!date) return ''
+  return date.toISOString().slice(0, 10)
 }
 
 function parseJsonSafe(value: string): Record<string, unknown> {
-  if (!value.trim()) return {};
+  if (!value.trim()) return {}
   try {
-    const parsed: unknown = JSON.parse(value);
-    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
-      return parsed as Record<string, unknown>;
+    const parsed: unknown = JSON.parse(value)
+    if (
+      typeof parsed === 'object' &&
+      parsed !== null &&
+      !Array.isArray(parsed)
+    ) {
+      return parsed as Record<string, unknown>
     }
-    return {};
+    return {}
   } catch {
-    return {};
+    return {}
   }
 }
 
-export function EndorsementForm({ policyId, open, onOpenChange }: EndorsementFormProps) {
-  const createEndorsement = useCreateEndorsement();
+export function EndorsementForm({
+  policyId,
+  open,
+  onOpenChange,
+}: EndorsementFormProps) {
+  const createEndorsement = useCreateEndorsement()
   const form = useForm<EndorsementFormValues>({
     resolver: zodResolver(endorsementFormSchema),
     defaultValues: EMPTY_VALUES,
-  });
+  })
 
   useEffect(() => {
-    if (!open) return;
-    form.reset(EMPTY_VALUES);
-  }, [open, form]);
+    if (!open) return
+    form.reset(EMPTY_VALUES)
+  }, [open, form])
 
   function handleSubmit(values: EndorsementFormValues) {
     createEndorsement.mutate(
@@ -100,11 +110,13 @@ export function EndorsementForm({ policyId, open, onOpenChange }: EndorsementFor
         type: values.type,
         description: values.description,
         effectiveDate: values.effectiveDate,
-        previousVersionSnapshot: parseJsonSafe(values.previousVersionSnapshot ?? ''),
+        previousVersionSnapshot: parseJsonSafe(
+          values.previousVersionSnapshot ?? ''
+        ),
         changes: parseJsonSafe(values.changes ?? ''),
       },
-      { onSuccess: () => onOpenChange(false) },
-    );
+      { onSuccess: () => onOpenChange(false) }
+    )
   }
 
   return (
@@ -112,11 +124,20 @@ export function EndorsementForm({ policyId, open, onOpenChange }: EndorsementFor
       <SheetContent className="overflow-y-auto sm:max-w-lg">
         <SheetHeader>
           <SheetTitle>Novo Endosso</SheetTitle>
-          <SheetDescription>Registre um novo endosso para esta apólice.</SheetDescription>
+          <SheetDescription>
+            Registre um novo endosso para esta apólice.
+          </SheetDescription>
         </SheetHeader>
 
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-6 space-y-4 px-6">
-          <FormField label="Tipo" error={form.formState.errors.type?.message} required>
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="mt-6 space-y-4 px-6"
+        >
+          <FormField
+            label="Tipo"
+            error={form.formState.errors.type?.message}
+            required
+          >
             <Controller
               name="type"
               control={form.control}
@@ -124,7 +145,7 @@ export function EndorsementForm({ policyId, open, onOpenChange }: EndorsementFor
                 <Select
                   value={field.value}
                   onValueChange={(v) => {
-                    if (v !== null) field.onChange(v);
+                    if (v !== null) field.onChange(v)
                   }}
                   items={ENDORSEMENT_TYPE_OPTIONS}
                 >
@@ -143,7 +164,11 @@ export function EndorsementForm({ policyId, open, onOpenChange }: EndorsementFor
             />
           </FormField>
 
-          <FormField label="Descrição" error={form.formState.errors.description?.message} required>
+          <FormField
+            label="Descrição"
+            error={form.formState.errors.description?.message}
+            required
+          >
             <Textarea
               placeholder="Descreva o endosso..."
               rows={3}
@@ -185,16 +210,22 @@ export function EndorsementForm({ policyId, open, onOpenChange }: EndorsementFor
           </FormField>
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
             <Button type="submit" disabled={createEndorsement.isPending}>
-              {createEndorsement.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {createEndorsement.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Registrar
             </Button>
           </div>
         </form>
       </SheetContent>
     </Sheet>
-  );
+  )
 }

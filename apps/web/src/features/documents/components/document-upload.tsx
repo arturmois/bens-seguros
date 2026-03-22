@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { useCallback, useRef, useState } from 'react';
-import { Upload } from 'lucide-react';
-import { toast } from 'sonner';
+import { useCallback, useRef, useState } from 'react'
+import { Upload } from 'lucide-react'
+import { toast } from 'sonner'
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils'
 
-import type { DocumentEntityType } from '../types';
-import { useUploadDocument } from '../hooks/use-documents';
+import type { DocumentEntityType } from '../types'
+import { useUploadDocument } from '../hooks/use-documents'
 
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
 const ALLOWED_MIME_TYPES = [
   'image/jpeg',
   'image/png',
@@ -20,76 +20,84 @@ const ALLOWED_MIME_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/vnd.ms-excel',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-] as const;
+] as const
 
 interface DocumentUploadProps {
-  readonly entityType: DocumentEntityType;
-  readonly entityId: string;
-  readonly onUploadSuccess?: () => void;
+  readonly entityType: DocumentEntityType
+  readonly entityId: string
+  readonly onUploadSuccess?: () => void
 }
 
 function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${String(bytes)} B`;
-  if (bytes < 1024 * 1024) return `${String(Math.round(bytes / 1024))} KB`;
-  return `${String((bytes / (1024 * 1024)).toFixed(1))} MB`;
+  if (bytes < 1024) return `${String(bytes)} B`
+  if (bytes < 1024 * 1024) return `${String(Math.round(bytes / 1024))} KB`
+  return `${String((bytes / (1024 * 1024)).toFixed(1))} MB`
 }
 
 function isAllowedMimeType(mimeType: string): boolean {
-  if (mimeType.startsWith('image/')) return true;
-  return (ALLOWED_MIME_TYPES as readonly string[]).includes(mimeType);
+  if (mimeType.startsWith('image/')) return true
+  return (ALLOWED_MIME_TYPES as readonly string[]).includes(mimeType)
 }
 
-export function DocumentUpload({ entityType, entityId, onUploadSuccess }: DocumentUploadProps) {
-  const [isDragOver, setIsDragOver] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const uploadDocument = useUploadDocument();
+export function DocumentUpload({
+  entityType,
+  entityId,
+  onUploadSuccess,
+}: DocumentUploadProps) {
+  const [isDragOver, setIsDragOver] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const uploadDocument = useUploadDocument()
 
   const validateAndUpload = useCallback(
     (file: File) => {
       if (file.size > MAX_FILE_SIZE_BYTES) {
-        toast.error(`Arquivo muito grande: ${formatFileSize(file.size)}. Maximo: 10 MB.`);
-        return;
+        toast.error(
+          `Arquivo muito grande: ${formatFileSize(file.size)}. Maximo: 10 MB.`
+        )
+        return
       }
 
       if (!isAllowedMimeType(file.type)) {
-        toast.error('Tipo de arquivo nao permitido. Use imagens, PDF ou documentos Office.');
-        return;
+        toast.error(
+          'Tipo de arquivo nao permitido. Use imagens, PDF ou documentos Office.'
+        )
+        return
       }
 
       uploadDocument.mutate(
         { entityType, entityId, file },
-        { onSuccess: () => onUploadSuccess?.() },
-      );
+        { onSuccess: () => onUploadSuccess?.() }
+      )
     },
-    [entityType, entityId, uploadDocument, onUploadSuccess],
-  );
+    [entityType, entityId, uploadDocument, onUploadSuccess]
+  )
 
   function handleDragOver(e: React.DragEvent) {
-    e.preventDefault();
-    setIsDragOver(true);
+    e.preventDefault()
+    setIsDragOver(true)
   }
 
   function handleDragLeave(e: React.DragEvent) {
-    e.preventDefault();
-    setIsDragOver(false);
+    e.preventDefault()
+    setIsDragOver(false)
   }
 
   function handleDrop(e: React.DragEvent) {
-    e.preventDefault();
-    setIsDragOver(false);
+    e.preventDefault()
+    setIsDragOver(false)
 
-    const file = e.dataTransfer.files[0];
-    if (file) validateAndUpload(file);
+    const file = e.dataTransfer.files[0]
+    if (file) validateAndUpload(file)
   }
 
   function handleFileInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) validateAndUpload(file);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    const file = e.target.files?.[0]
+    if (file) validateAndUpload(file)
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   function handleClick() {
-    fileInputRef.current?.click();
+    fileInputRef.current?.click()
   }
 
   return (
@@ -102,7 +110,7 @@ export function DocumentUpload({ entityType, entityId, onUploadSuccess }: Docume
         isDragOver
           ? 'border-primary bg-primary/5'
           : 'border-muted-foreground/25 hover:border-primary/50',
-        uploadDocument.isPending && 'pointer-events-none opacity-60',
+        uploadDocument.isPending && 'pointer-events-none opacity-60'
       )}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -110,8 +118,8 @@ export function DocumentUpload({ entityType, entityId, onUploadSuccess }: Docume
       onClick={handleClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleClick();
+          e.preventDefault()
+          handleClick()
         }
       }}
     >
@@ -129,7 +137,9 @@ export function DocumentUpload({ entityType, entityId, onUploadSuccess }: Docume
         <>
           <Upload className="text-muted-foreground size-8" />
           <div className="text-center">
-            <p className="text-sm font-medium">Arraste arquivos ou clique para enviar</p>
+            <p className="text-sm font-medium">
+              Arraste arquivos ou clique para enviar
+            </p>
             <p className="text-muted-foreground mt-1 text-xs">
               Imagens, PDF ou documentos Office. Maximo 10 MB.
             </p>
@@ -137,7 +147,7 @@ export function DocumentUpload({ entityType, entityId, onUploadSuccess }: Docume
         </>
       )}
     </div>
-  );
+  )
 }
 
 function UploadingIndicator() {
@@ -146,5 +156,5 @@ function UploadingIndicator() {
       <div className="size-8 animate-spin rounded-full border-2 border-current border-t-transparent" />
       <p className="text-sm font-medium">Enviando documento...</p>
     </>
-  );
+  )
 }

@@ -1,39 +1,46 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/menu';
-import { cn } from '@/lib/utils';
-import { ArrowLeft, LogOut, MoreVertical, RefreshCw, UserCheck, UserPlus } from 'lucide-react';
+} from '@/components/ui/menu'
+import { cn } from '@/lib/utils'
+import {
+  ArrowLeft,
+  LogOut,
+  MoreVertical,
+  RefreshCw,
+  UserCheck,
+  UserPlus,
+} from 'lucide-react'
 
-import type { ContactData, ConversationData } from '../types';
-import { ConversationStatusBadge } from './conversation-status-badge';
-import { TypingIndicator } from './typing-indicator';
+import type { ContactData, ConversationData } from '../types'
+import { ConversationStatusBadge } from './conversation-status-badge'
+import { TypingIndicator } from './typing-indicator'
 
 interface ChatHeaderProps {
-  readonly conversation: ConversationData;
-  readonly contact: ContactData | null;
-  readonly currentUserId: string;
-  readonly typingUser: string | null;
-  readonly onBack: () => void;
-  readonly onOpenProfile: () => void;
-  readonly onAssign: () => void;
-  readonly onTransfer: () => void;
-  readonly onReturnToQueue: () => void;
-  readonly onClose: () => void;
+  readonly conversation: ConversationData
+  readonly contact: ContactData | null
+  readonly currentUserId: string
+  readonly typingUser: string | null
+  readonly onBack: () => void
+  readonly onOpenProfile: () => void
+  readonly onAssign: () => void
+  readonly onTransfer: () => void
+  readonly onReturnToQueue: () => void
+  readonly onClose: () => void
 }
 
 function getContactDisplayName(
   contact: ContactData | null,
-  conversation: ConversationData,
+  conversation: ConversationData
 ): string {
-  if (contact?.pushName) return contact.pushName;
-  if (conversation.whatsappPhone) return conversation.whatsappPhone;
-  return 'Contato';
+  if (contact?.pushName) return contact.pushName
+  if (conversation.whatsappPhone) return conversation.whatsappPhone
+  return 'Contato'
 }
 
 function HeaderActions({
@@ -44,12 +51,12 @@ function HeaderActions({
   onReturnToQueue,
   onClose,
 }: {
-  readonly conversation: ConversationData;
-  readonly currentUserId: string;
-  readonly onAssign: () => void;
-  readonly onTransfer: () => void;
-  readonly onReturnToQueue: () => void;
-  readonly onClose: () => void;
+  readonly conversation: ConversationData
+  readonly currentUserId: string
+  readonly onAssign: () => void
+  readonly onTransfer: () => void
+  readonly onReturnToQueue: () => void
+  readonly onClose: () => void
 }) {
   if (conversation.status === 'WAITING_HUMAN') {
     return (
@@ -57,18 +64,18 @@ function HeaderActions({
         <UserPlus className="h-4 w-4" />
         <span className="hidden sm:inline">Assumir</span>
       </Button>
-    );
+    )
   }
 
   if (conversation.status === 'HUMAN_ACTIVE') {
-    const isCurrentAgent = conversation.assignedTo === currentUserId;
+    const isCurrentAgent = conversation.assignedTo === currentUserId
 
     if (!isCurrentAgent) {
       return (
         <span className="text-muted-foreground text-xs">
           Atendido por {conversation.assignedToName ?? 'outro agente'}
         </span>
-      );
+      )
     }
 
     return (
@@ -91,10 +98,10 @@ function HeaderActions({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    );
+    )
   }
 
-  return null;
+  return null
 }
 
 export function ChatHeader({
@@ -109,13 +116,18 @@ export function ChatHeader({
   onReturnToQueue,
   onClose,
 }: ChatHeaderProps) {
-  const displayName = getContactDisplayName(contact, conversation);
+  const displayName = getContactDisplayName(contact, conversation)
 
   return (
     <div className="border-border bg-card border-b">
       <div className="flex items-center justify-between px-3 py-2 md:px-4 md:py-3">
         <div className="flex items-center gap-2 md:gap-3">
-          <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden" onClick={onBack}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 md:hidden"
+            onClick={onBack}
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
 
@@ -127,7 +139,7 @@ export function ChatHeader({
               <div
                 className={cn(
                   'bg-primary/10 flex h-9 w-9 items-center justify-center rounded-full md:h-10 md:w-10',
-                  contact?.profilePicUrl && 'bg-muted',
+                  contact?.profilePicUrl && 'bg-muted'
                 )}
               >
                 {contact?.profilePicUrl ? (
@@ -150,7 +162,9 @@ export function ChatHeader({
                 </h2>
                 <ConversationStatusBadge status={conversation.status} />
               </div>
-              <p className="text-muted-foreground text-xs">{conversation.whatsappPhone ?? ''}</p>
+              <p className="text-muted-foreground text-xs">
+                {conversation.whatsappPhone ?? ''}
+              </p>
             </div>
           </button>
         </div>
@@ -169,5 +183,5 @@ export function ChatHeader({
 
       <TypingIndicator typingUser={typingUser} />
     </div>
-  );
+  )
 }

@@ -1,12 +1,18 @@
-import type { Occurrence as PrismaOccurrenceRecord } from '@repo/db';
-import type { OccurrenceData, JsonObject } from '../domain/occurrence-repository.js';
+import type { Occurrence as PrismaOccurrenceRecord } from '@repo/db'
+import type {
+  OccurrenceData,
+  JsonObject,
+} from '../domain/occurrence-repository.js'
 
 function isJsonObject(value: unknown): value is JsonObject {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
 export class OccurrenceMapper {
-  static toDomain(row: PrismaOccurrenceRecord, createdByName?: string): OccurrenceData {
+  static toDomain(
+    row: PrismaOccurrenceRecord,
+    createdByName?: string
+  ): OccurrenceData {
     return {
       id: row.id,
       claimId: row.claimId,
@@ -16,6 +22,6 @@ export class OccurrenceMapper {
       createdBy: row.createdBy,
       createdAt: row.createdAt,
       createdByName,
-    };
+    }
   }
 }

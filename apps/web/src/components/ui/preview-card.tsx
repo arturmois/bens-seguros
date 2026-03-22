@@ -1,15 +1,18 @@
-'use client';
+'use client'
 
-import { PreviewCard as PreviewCardPrimitive } from '@base-ui/react/preview-card';
-import type React from 'react';
-import { cn } from '@/lib/utils';
+import { PreviewCard as PreviewCardPrimitive } from '@base-ui/react/preview-card'
+import type React from 'react'
+import { cn } from '@/lib/utils'
 
-export const PreviewCard: typeof PreviewCardPrimitive.Root = PreviewCardPrimitive.Root;
+export const PreviewCard: typeof PreviewCardPrimitive.Root =
+  PreviewCardPrimitive.Root
 
 export function PreviewCardTrigger({
   ...props
 }: PreviewCardPrimitive.Trigger.Props): React.ReactElement {
-  return <PreviewCardPrimitive.Trigger data-slot="preview-card-trigger" {...props} />;
+  return (
+    <PreviewCardPrimitive.Trigger data-slot="preview-card-trigger" {...props} />
+  )
 }
 
 export function PreviewCardPopup({
@@ -20,9 +23,9 @@ export function PreviewCardPopup({
   anchor,
   ...props
 }: PreviewCardPrimitive.Popup.Props & {
-  align?: PreviewCardPrimitive.Positioner.Props['align'];
-  sideOffset?: PreviewCardPrimitive.Positioner.Props['sideOffset'];
-  anchor?: PreviewCardPrimitive.Positioner.Props['anchor'];
+  align?: PreviewCardPrimitive.Positioner.Props['align']
+  sideOffset?: PreviewCardPrimitive.Positioner.Props['sideOffset']
+  anchor?: PreviewCardPrimitive.Positioner.Props['anchor']
 }): React.ReactElement {
   return (
     <PreviewCardPrimitive.Portal>
@@ -36,7 +39,7 @@ export function PreviewCardPopup({
         <PreviewCardPrimitive.Popup
           className={cn(
             'origin-(--transform-origin) bg-popover not-dark:bg-clip-padding text-popover-foreground shadow-lg/5 data-ending-style:scale-98 data-starting-style:scale-98 data-ending-style:opacity-0 data-starting-style:opacity-0 relative flex w-64 text-balance rounded-lg border p-4 text-sm transition-[scale,opacity] before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]',
-            className,
+            className
           )}
           data-slot="preview-card-content"
           {...props}
@@ -45,7 +48,7 @@ export function PreviewCardPopup({
         </PreviewCardPrimitive.Popup>
       </PreviewCardPrimitive.Positioner>
     </PreviewCardPrimitive.Portal>
-  );
+  )
 }
 
 export {
@@ -53,4 +56,4 @@ export {
   PreviewCard as HoverCard,
   PreviewCardTrigger as HoverCardTrigger,
   PreviewCardPopup as HoverCardContent,
-};
+}

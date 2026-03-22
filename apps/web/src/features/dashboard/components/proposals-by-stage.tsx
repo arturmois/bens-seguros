@@ -1,11 +1,19 @@
-'use client';
+'use client'
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
 
-import { Card, CardHeader, CardTitle, CardPanel } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardHeader, CardTitle, CardPanel } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 
-import type { ProposalByStage } from '../types';
+import type { ProposalByStage } from '../types'
 
 const STAGE_LABELS: Record<string, string> = {
   CAPTURE: 'Captacao',
@@ -13,13 +21,13 @@ const STAGE_LABELS: Record<string, string> = {
   PROTOCOL: 'Protocolo',
   INSPECTION: 'Vistoria',
   PAYMENT: 'Pagamento',
-};
+}
 
-const STAGE_ORDER = ['CAPTURE', 'QUOTE', 'PROTOCOL', 'INSPECTION', 'PAYMENT'];
+const STAGE_ORDER = ['CAPTURE', 'QUOTE', 'PROTOCOL', 'INSPECTION', 'PAYMENT']
 
 interface ProposalsByStageProps {
-  data: ProposalByStage[] | undefined;
-  isLoading: boolean;
+  data: ProposalByStage[] | undefined
+  isLoading: boolean
 }
 
 export function ProposalsByStage({ data, isLoading }: ProposalsByStageProps) {
@@ -33,13 +41,13 @@ export function ProposalsByStage({ data, isLoading }: ProposalsByStageProps) {
           <Skeleton className="h-64 w-full" />
         </CardPanel>
       </Card>
-    );
+    )
   }
 
   const chartData = STAGE_ORDER.map((stage) => ({
     stage: STAGE_LABELS[stage] ?? stage,
     count: data?.find((d) => d.stage === stage)?._count ?? 0,
-  }));
+  }))
 
   return (
     <Card>
@@ -48,9 +56,16 @@ export function ProposalsByStage({ data, isLoading }: ProposalsByStageProps) {
       </CardHeader>
       <CardPanel>
         <ResponsiveContainer width="100%" height={256}>
-          <BarChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+          <BarChart
+            data={chartData}
+            margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+          >
             <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis dataKey="stage" tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+            <XAxis
+              dataKey="stage"
+              tick={{ fontSize: 12 }}
+              className="fill-muted-foreground"
+            />
             <YAxis
               allowDecimals={false}
               tick={{ fontSize: 12 }}
@@ -74,5 +89,5 @@ export function ProposalsByStage({ data, isLoading }: ProposalsByStageProps) {
         </ResponsiveContainer>
       </CardPanel>
     </Card>
-  );
+  )
 }

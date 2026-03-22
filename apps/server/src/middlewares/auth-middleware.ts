@@ -1,34 +1,37 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-import type { Auth } from '@repo/auth';
-import type { AuthUser } from '@repo/auth/types';
+import type { FastifyRequest, FastifyReply } from 'fastify'
+import type { Auth } from '@repo/auth'
+import type { AuthUser } from '@repo/auth/types'
 
 function isSuperAdmin(user: object): boolean {
-  return 'isSuperAdmin' in user && user.isSuperAdmin === true;
+  return 'isSuperAdmin' in user && user.isSuperAdmin === true
 }
 
 export function createAuthMiddleware(auth: Auth) {
-  return async function authMiddleware(request: FastifyRequest, reply: FastifyReply) {
-    const headers: Record<string, string> = {};
+  return async function authMiddleware(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ) {
+    const headers: Record<string, string> = {}
     for (const [key, value] of Object.entries(request.headers)) {
       if (typeof value === 'string') {
-        headers[key] = value;
+        headers[key] = value
       } else if (Array.isArray(value)) {
-        headers[key] = value.join(', ');
+        headers[key] = value.join(', ')
       }
     }
 
     const session = await auth.api.getSession({
       headers,
-    });
+    })
 
     if (!session) {
       return reply.status(401).send({
         success: false,
         error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
-      });
+      })
     }
 
-    const { user: sessionUser } = session;
+    const { user: sessionUser } = session
 
     const user: AuthUser = {
       id: sessionUser.id,
@@ -37,19 +40,23 @@ export function createAuthMiddleware(auth: Auth) {
       emailVerified: sessionUser.emailVerified,
       image: sessionUser.image,
       isSuperAdmin: isSuperAdmin(sessionUser),
-    };
+    }
 
-    request.user = user;
-    request.session = session.session;
-  };
+    request.user = user
+    request.session = session.session
+  }
 }
 
-export function requireAuth(request: FastifyRequest, reply: FastifyReply, done: () => void) {
+export function requireAuth(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  done: () => void
+) {
   if (!request.user) {
     return reply.status(401).send({
       success: false,
       error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
-    });
+    })
   }
-  done();
+  done()
 }

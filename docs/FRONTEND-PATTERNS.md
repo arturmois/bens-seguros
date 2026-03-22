@@ -29,14 +29,20 @@
 ```tsx
 // ERRADO - serializa 50 campos do client para o componente
 async function Page() {
-  const client = await fetchClient(id);
-  return <ClientCard client={client} />;
+  const client = await fetchClient(id)
+  return <ClientCard client={client} />
 }
 
 // CERTO - serializa apenas campos usados
 async function Page() {
-  const client = await fetchClient(id);
-  return <ClientCard name={client.name} document={client.document} status={client.type} />;
+  const client = await fetchClient(id)
+  return (
+    <ClientCard
+      name={client.name}
+      document={client.document}
+      status={client.type}
+    />
+  )
 }
 ```
 
@@ -61,12 +67,12 @@ export default function ClientsPage() {
         <ClientsTable /> {/* Busca dados async */}
       </Suspense>
     </div>
-  );
+  )
 }
 
 async function ClientsTable() {
-  const data = await fetchClients(); // So bloqueia este componente
-  return <ClientsTableClient initialData={data} />;
+  const data = await fetchClients() // So bloqueia este componente
+  return <ClientsTableClient initialData={data} />
 }
 ```
 
@@ -85,7 +91,7 @@ export default function ClientDetailPage({ params }) {
         </Suspense>
       </TabsContainer>
     </div>
-  );
+  )
 }
 ```
 
@@ -117,18 +123,18 @@ export default function ClientDetailPage({ params }) {
 ```tsx
 // ERRADO - diverge server/client
 function Component() {
-  const density = localStorage.getItem('density'); // Erro no server
+  const density = localStorage.getItem('density') // Erro no server
 }
 
 // CERTO - Zustand com persist middleware + skeleton
 function Component() {
-  const [mounted, setMounted] = useState(false);
-  const density = useUiStore((s) => s.density);
+  const [mounted, setMounted] = useState(false)
+  const density = useUiStore((s) => s.density)
 
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return <Skeleton />;
+  useEffect(() => setMounted(true), [])
+  if (!mounted) return <Skeleton />
 
-  return <Table density={density} />;
+  return <Table density={density} />
 }
 ```
 
@@ -141,8 +147,11 @@ function Component() {
 
 ```tsx
 // CERTO - locale fixo garante server == client
-const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-const dateFormatter = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' });
+const formatter = new Intl.NumberFormat('pt-BR', {
+  style: 'currency',
+  currency: 'BRL',
+})
+const dateFormatter = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' })
 ```
 
 ### Regra
@@ -158,22 +167,22 @@ Nunca renderizar no server algo que depende de estado do browser. Se precisa de 
 ```tsx
 // page.tsx (Server Component)
 async function ClientsPage({ searchParams }) {
-  const data = await api.listClients(searchParams);
+  const data = await api.listClients(searchParams)
 
-  return <ClientsTableClient initialData={data} filters={searchParams} />;
+  return <ClientsTableClient initialData={data} filters={searchParams} />
 }
 
 // clients-table.tsx (Client Component)
-('use client');
+;('use client')
 function ClientsTableClient({ initialData, filters }) {
   const { data } = useQuery({
     queryKey: ['clients', filters],
     queryFn: () => api.listClients(filters),
     initialData, // First paint instantaneo do server
     staleTime: 60_000, // Revalida apos 1 min
-  });
+  })
 
-  return <DataTable data={data} />;
+  return <DataTable data={data} />
 }
 ```
 
@@ -183,13 +192,13 @@ function ClientsTableClient({ initialData, filters }) {
 const createClient = useMutation({
   mutationFn: api.createClient,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['clients'] });
-    toast.success('Cliente criado');
+    queryClient.invalidateQueries({ queryKey: ['clients'] })
+    toast.success('Cliente criado')
   },
   onError: (error) => {
-    toast.error(error.message);
+    toast.error(error.message)
   },
-});
+})
 ```
 
 ### Real-time (Socket.IO)
@@ -197,9 +206,12 @@ const createClient = useMutation({
 ```tsx
 useEffect(() => {
   socket.on(SOCKET_EVENTS.RECEIVE_MESSAGE, (message) => {
-    queryClient.setQueryData(['messages', conversationId], (old) => [...old, message]);
-  });
-}, []);
+    queryClient.setQueryData(['messages', conversationId], (old) => [
+      ...old,
+      message,
+    ])
+  })
+}, [])
 ```
 
 ### Regras
@@ -238,16 +250,22 @@ useEffect(() => {
 ### Pattern
 
 ```tsx
-import dynamic from 'next/dynamic';
+import dynamic from 'next/dynamic'
 
 const KanbanBoard = dynamic(
-  () => import('@/features/proposals/components/kanban-board').then((m) => m.KanbanBoard),
-  { ssr: false, loading: () => <KanbanSkeleton /> },
-);
+  () =>
+    import('@/features/proposals/components/kanban-board').then(
+      (m) => m.KanbanBoard
+    ),
+  { ssr: false, loading: () => <KanbanSkeleton /> }
+)
 
-const PdfExport = dynamic(() => import('@/features/commissions/components/pdf-export'), {
-  ssr: false,
-});
+const PdfExport = dynamic(
+  () => import('@/features/commissions/components/pdf-export'),
+  {
+    ssr: false,
+  }
+)
 ```
 
 ---
@@ -308,50 +326,50 @@ UI ← Shared ← Feature
 ### Anatomia de um Componente
 
 ```tsx
-'use client';
+'use client'
 
-import { useState } from 'react'; // React imports
-import { useForm } from 'react-hook-form'; // Third-party
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useState } from 'react' // React imports
+import { useForm } from 'react-hook-form' // Third-party
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 
-import { Button } from '@/components/ui/button'; // UI layer
-import { Form } from '@/components/ui/form';
-import { PageHeader } from '@/components/layout/page-header'; // Shared layer
+import { Button } from '@/components/ui/button' // UI layer
+import { Form } from '@/components/ui/form'
+import { PageHeader } from '@/components/layout/page-header' // Shared layer
 
-import { useCreateClient } from '../hooks/use-clients'; // Feature layer
-import type { Client } from '../types';
+import { useCreateClient } from '../hooks/use-clients' // Feature layer
+import type { Client } from '../types'
 
 // Schema colocado com o componente que usa
 const formSchema = z.object({
   name: z.string().min(2),
   document: z.string().min(11),
-});
+})
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<typeof formSchema>
 
 interface ClientFormProps {
-  onSuccess?: () => void;
-  defaultValues?: Partial<FormValues>;
+  onSuccess?: () => void
+  defaultValues?: Partial<FormValues>
 }
 
 export function ClientForm({ onSuccess, defaultValues }: ClientFormProps) {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
-  });
+  })
 
-  const createClient = useCreateClient();
+  const createClient = useCreateClient()
 
   function handleSubmit(values: FormValues) {
-    createClient.mutate(values, { onSuccess });
+    createClient.mutate(values, { onSuccess })
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)}>{/* campos */}</form>
     </Form>
-  );
+  )
 }
 ```
 
@@ -372,13 +390,13 @@ export function ClientForm({ onSuccess, defaultValues }: ClientFormProps) {
 ```tsx
 // Parent re-render NAO afeta children
 function Layout({ children }: { children: ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   return (
     <div>
       <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen((o) => !o)} />
       {children} {/* Nao re-renderiza quando sidebar muda */}
     </div>
-  );
+  )
 }
 ```
 
@@ -386,10 +404,10 @@ function Layout({ children }: { children: ReactNode }) {
 
 ```tsx
 // ERRADO - re-render em qualquer mudanca do store
-const store = useUiStore();
+const store = useUiStore()
 
 // CERTO - re-render apenas quando density muda
-const density = useUiStore((s) => s.density);
+const density = useUiStore((s) => s.density)
 ```
 
 **useRef para valores transientes:**
@@ -404,10 +422,10 @@ onScroll={(e) => { scrollY.current = e.target.scrollTop }}
 
 ```tsx
 function handleSearch(query: string) {
-  setSearchInput(query); // Urgente: atualiza input
+  setSearchInput(query) // Urgente: atualiza input
   startTransition(() => {
-    setSearchFilter(query); // Nao-urgente: atualiza tabela
-  });
+    setSearchFilter(query) // Nao-urgente: atualiza tabela
+  })
 }
 ```
 
@@ -416,14 +434,14 @@ function handleSearch(query: string) {
 ```tsx
 // ERRADO - cria novo array a cada render
 function Component() {
-  return <Select options={[{ label: 'A' }, { label: 'B' }]} />;
+  return <Select options={[{ label: 'A' }, { label: 'B' }]} />
 }
 
 // CERTO - referencia estavel
-const OPTIONS = [{ label: 'A' }, { label: 'B' }] as const;
+const OPTIONS = [{ label: 'A' }, { label: 'B' }] as const
 
 function Component() {
-  return <Select options={OPTIONS} />;
+  return <Select options={OPTIONS} />
 }
 ```
 
@@ -445,21 +463,24 @@ function Component() {
 
 ```tsx
 function TableRow({ client }) {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   function handleMouseEnter() {
     queryClient.prefetchQuery({
       queryKey: ['client', client.id],
       queryFn: () => api.getClient(client.id),
       staleTime: 30_000,
-    });
+    })
   }
 
   return (
-    <tr onMouseEnter={handleMouseEnter} onClick={() => router.push(`/clients/${client.id}`)}>
+    <tr
+      onMouseEnter={handleMouseEnter}
+      onClick={() => router.push(`/clients/${client.id}`)}
+    >
       {/* ... */}
     </tr>
-  );
+  )
 }
 ```
 
@@ -469,19 +490,19 @@ function TableRow({ client }) {
 const updateClient = useMutation({
   mutationFn: api.updateClient,
   onMutate: async (newData) => {
-    await queryClient.cancelQueries({ queryKey: ['client', id] });
-    const previous = queryClient.getQueryData(['client', id]);
-    queryClient.setQueryData(['client', id], (old) => ({ ...old, ...newData }));
-    return { previous };
+    await queryClient.cancelQueries({ queryKey: ['client', id] })
+    const previous = queryClient.getQueryData(['client', id])
+    queryClient.setQueryData(['client', id], (old) => ({ ...old, ...newData }))
+    return { previous }
   },
   onError: (err, vars, context) => {
-    queryClient.setQueryData(['client', id], context?.previous); // Rollback
-    toast.error('Erro ao atualizar');
+    queryClient.setQueryData(['client', id], context?.previous) // Rollback
+    toast.error('Erro ao atualizar')
   },
   onSettled: () => {
-    queryClient.invalidateQueries({ queryKey: ['client', id] });
+    queryClient.invalidateQueries({ queryKey: ['client', id] })
   },
-});
+})
 ```
 
 ### Regras

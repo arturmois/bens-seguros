@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { getOrgInitials, getOrgColor } from '@/lib/org-avatar';
-import { ChevronRight } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import type { Org } from '@/features/org/hooks/use-orgs';
+import { getOrgInitials, getOrgColor } from '@/lib/org-avatar'
+import { ChevronRight } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import type { Org } from '@/features/org/hooks/use-orgs'
 
 interface OrgCardProps {
-  org: Org;
-  onClick: () => void;
+  org: Org
+  onClick: () => void
 }
 
 export function OrgCard({ org, onClick }: OrgCardProps) {
@@ -34,5 +34,5 @@ export function OrgCard({ org, onClick }: OrgCardProps) {
       )}
       <ChevronRight className="text-muted-foreground size-4 shrink-0" />
     </button>
-  );
+  )
 }

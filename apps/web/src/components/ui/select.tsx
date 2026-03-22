@@ -1,14 +1,18 @@
-'use client';
+'use client'
 
-import { mergeProps } from '@base-ui/react/merge-props';
-import { Select as SelectPrimitive } from '@base-ui/react/select';
-import { useRender } from '@base-ui/react/use-render';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { ChevronDownIcon, ChevronsUpDownIcon, ChevronUpIcon } from 'lucide-react';
-import type * as React from 'react';
-import { cn } from '@/lib/utils';
+import { mergeProps } from '@base-ui/react/merge-props'
+import { Select as SelectPrimitive } from '@base-ui/react/select'
+import { useRender } from '@base-ui/react/use-render'
+import { cva, type VariantProps } from 'class-variance-authority'
+import {
+  ChevronDownIcon,
+  ChevronsUpDownIcon,
+  ChevronUpIcon,
+} from 'lucide-react'
+import type * as React from 'react'
+import { cn } from '@/lib/utils'
 
-export const Select: typeof SelectPrimitive.Root = SelectPrimitive.Root;
+export const Select: typeof SelectPrimitive.Root = SelectPrimitive.Root
 
 export const selectTriggerVariants = cva(
   "relative inline-flex min-h-9 w-full min-w-36 select-none items-center justify-between gap-2 rounded-lg border border-input bg-background not-dark:bg-clip-padding px-[calc(--spacing(3)-1px)] text-left text-base text-foreground shadow-xs/5 outline-none ring-ring/24 transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] not-data-disabled:not-focus-visible:not-aria-invalid:not-data-pressed:before:shadow-[0_1px_--theme(--color-black/4%)] pointer-coarse:after:absolute pointer-coarse:after:size-full pointer-coarse:after:min-h-11 focus-visible:border-ring focus-visible:ring-[3px] aria-invalid:border-destructive/36 focus-visible:aria-invalid:border-destructive/64 focus-visible:aria-invalid:ring-destructive/16 data-disabled:pointer-events-none data-disabled:opacity-64 sm:min-h-8 sm:text-sm dark:bg-input/32 dark:aria-invalid:ring-destructive/24 dark:not-data-disabled:not-focus-visible:not-aria-invalid:not-data-pressed:before:shadow-[0_-1px_--theme(--color-white/6%)] [&_svg:not([class*='opacity-'])]:opacity-80 [&_svg:not([class*='size-'])]:size-4.5 sm:[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0 [[data-disabled],:focus-visible,[aria-invalid],[data-pressed]]:shadow-none",
@@ -23,13 +27,13 @@ export const selectTriggerVariants = cva(
         sm: 'min-h-8 gap-1.5 px-[calc(--spacing(2.5)-1px)] sm:min-h-7',
       },
     },
-  },
-);
+  }
+)
 
-export const selectTriggerIconClassName = '-me-1 size-4.5 opacity-80 sm:size-4';
+export const selectTriggerIconClassName = '-me-1 size-4.5 opacity-80 sm:size-4'
 
 export interface SelectButtonProps extends useRender.ComponentProps<'button'> {
-  size?: VariantProps<typeof selectTriggerVariants>['size'];
+  size?: VariantProps<typeof selectTriggerVariants>['size']
 }
 
 export function SelectButton({
@@ -39,9 +43,8 @@ export function SelectButton({
   children,
   ...props
 }: SelectButtonProps): React.ReactElement {
-  const typeValue: React.ButtonHTMLAttributes<HTMLButtonElement>['type'] = render
-    ? undefined
-    : 'button';
+  const typeValue: React.ButtonHTMLAttributes<HTMLButtonElement>['type'] =
+    render ? undefined : 'button'
 
   const defaultProps = {
     children: (
@@ -55,13 +58,13 @@ export function SelectButton({
     className: cn(selectTriggerVariants({ size }), 'min-w-0', className),
     'data-slot': 'select-button',
     type: typeValue,
-  };
+  }
 
   return useRender({
     defaultTagName: 'button',
     props: mergeProps<'button'>(defaultProps, props),
     render,
-  });
+  })
 }
 
 export function SelectTrigger({
@@ -69,7 +72,8 @@ export function SelectTrigger({
   size = 'default',
   children,
   ...props
-}: SelectPrimitive.Trigger.Props & VariantProps<typeof selectTriggerVariants>): React.ReactElement {
+}: SelectPrimitive.Trigger.Props &
+  VariantProps<typeof selectTriggerVariants>): React.ReactElement {
   return (
     <SelectPrimitive.Trigger
       className={cn(selectTriggerVariants({ size }), className)}
@@ -81,7 +85,7 @@ export function SelectTrigger({
         <ChevronsUpDownIcon className={selectTriggerIconClassName} />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
-  );
+  )
 }
 
 export function SelectValue({
@@ -90,11 +94,14 @@ export function SelectValue({
 }: SelectPrimitive.Value.Props): React.ReactElement {
   return (
     <SelectPrimitive.Value
-      className={cn('data-placeholder:text-muted-foreground flex-1 truncate', className)}
+      className={cn(
+        'data-placeholder:text-muted-foreground flex-1 truncate',
+        className
+      )}
       data-slot="select-value"
       {...props}
     />
-  );
+  )
 }
 
 export function SelectPopup({
@@ -108,12 +115,12 @@ export function SelectPopup({
   anchor,
   ...props
 }: SelectPrimitive.Popup.Props & {
-  side?: SelectPrimitive.Positioner.Props['side'];
-  sideOffset?: SelectPrimitive.Positioner.Props['sideOffset'];
-  align?: SelectPrimitive.Positioner.Props['align'];
-  alignOffset?: SelectPrimitive.Positioner.Props['alignOffset'];
-  alignItemWithTrigger?: SelectPrimitive.Positioner.Props['alignItemWithTrigger'];
-  anchor?: SelectPrimitive.Positioner.Props['anchor'];
+  side?: SelectPrimitive.Positioner.Props['side']
+  sideOffset?: SelectPrimitive.Positioner.Props['sideOffset']
+  align?: SelectPrimitive.Positioner.Props['align']
+  alignOffset?: SelectPrimitive.Positioner.Props['alignOffset']
+  alignItemWithTrigger?: SelectPrimitive.Positioner.Props['alignItemWithTrigger']
+  anchor?: SelectPrimitive.Positioner.Props['anchor']
 }): React.ReactElement {
   return (
     <SelectPrimitive.Portal>
@@ -140,7 +147,10 @@ export function SelectPopup({
           </SelectPrimitive.ScrollUpArrow>
           <div className="min-w-(--anchor-width) bg-popover not-dark:bg-clip-padding shadow-lg/5 relative h-full rounded-lg border before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]">
             <SelectPrimitive.List
-              className={cn('max-h-(--available-height) overflow-y-auto p-1', className)}
+              className={cn(
+                'max-h-(--available-height) overflow-y-auto p-1',
+                className
+              )}
               data-slot="select-list"
             >
               {children}
@@ -155,7 +165,7 @@ export function SelectPopup({
         </SelectPrimitive.Popup>
       </SelectPrimitive.Positioner>
     </SelectPrimitive.Portal>
-  );
+  )
 }
 
 export function SelectItem({
@@ -167,7 +177,7 @@ export function SelectItem({
     <SelectPrimitive.Item
       className={cn(
         "in-data-[side=none]:min-w-[calc(var(--anchor-width)+1.25rem)] data-disabled:pointer-events-none data-highlighted:bg-accent data-highlighted:text-accent-foreground data-disabled:opacity-64 [&_svg:not([class*='size-'])]:size-4.5 grid min-h-8 cursor-default grid-cols-[1rem_1fr] items-center gap-2 rounded-sm py-1 pe-4 ps-2 text-base outline-none sm:min-h-7 sm:text-sm sm:[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
-        className,
+        className
       )}
       data-slot="select-item"
       {...props}
@@ -192,7 +202,7 @@ export function SelectItem({
         {children}
       </SelectPrimitive.ItemText>
     </SelectPrimitive.Item>
-  );
+  )
 }
 
 export function SelectSeparator({
@@ -205,11 +215,13 @@ export function SelectSeparator({
       data-slot="select-separator"
       {...props}
     />
-  );
+  )
 }
 
-export function SelectGroup(props: SelectPrimitive.Group.Props): React.ReactElement {
-  return <SelectPrimitive.Group data-slot="select-group" {...props} />;
+export function SelectGroup(
+  props: SelectPrimitive.Group.Props
+): React.ReactElement {
+  return <SelectPrimitive.Group data-slot="select-group" {...props} />
 }
 
 export function SelectLabel({
@@ -220,22 +232,24 @@ export function SelectLabel({
     <SelectPrimitive.Label
       className={cn(
         'not-in-data-[slot=field]:mb-2 text-base/4.5 text-foreground inline-flex cursor-default items-center gap-2 font-medium sm:text-sm/4',
-        className,
+        className
       )}
       data-slot="select-label"
       {...props}
     />
-  );
+  )
 }
 
-export function SelectGroupLabel(props: SelectPrimitive.GroupLabel.Props): React.ReactElement {
+export function SelectGroupLabel(
+  props: SelectPrimitive.GroupLabel.Props
+): React.ReactElement {
   return (
     <SelectPrimitive.GroupLabel
       className="text-muted-foreground px-2 py-1.5 text-xs font-medium"
       data-slot="select-group-label"
       {...props}
     />
-  );
+  )
 }
 
-export { SelectPrimitive, SelectPopup as SelectContent };
+export { SelectPrimitive, SelectPopup as SelectContent }

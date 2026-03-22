@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { useState } from 'react'
+import { Loader2 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
   AlertDialogClose,
@@ -12,38 +12,39 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from '@/components/ui/alert-dialog'
 
-import type { AssistanceStatus } from '../types';
+import type { AssistanceStatus } from '../types'
 import {
   ASSISTANCE_STATUS_BUTTON_STYLES,
   ASSISTANCE_STATUS_LABELS,
   VALID_ASSISTANCE_TRANSITIONS,
-} from '../lib/constants';
-import { useUpdateAssistanceStatus } from '../hooks/use-assistances';
+} from '../lib/constants'
+import { useUpdateAssistanceStatus } from '../hooks/use-assistances'
 
 interface AssistanceStatusActionsProps {
-  readonly assistanceId: string;
-  readonly currentStatus: AssistanceStatus;
+  readonly assistanceId: string
+  readonly currentStatus: AssistanceStatus
 }
 
 export function AssistanceStatusActions({
   assistanceId,
   currentStatus,
 }: AssistanceStatusActionsProps) {
-  const [confirmingStatus, setConfirmingStatus] = useState<AssistanceStatus | null>(null);
-  const updateStatus = useUpdateAssistanceStatus();
+  const [confirmingStatus, setConfirmingStatus] =
+    useState<AssistanceStatus | null>(null)
+  const updateStatus = useUpdateAssistanceStatus()
 
-  const allowedTransitions = VALID_ASSISTANCE_TRANSITIONS[currentStatus];
+  const allowedTransitions = VALID_ASSISTANCE_TRANSITIONS[currentStatus]
 
-  if (allowedTransitions.length === 0) return null;
+  if (allowedTransitions.length === 0) return null
 
   function handleConfirm() {
-    if (!confirmingStatus) return;
+    if (!confirmingStatus) return
     updateStatus.mutate(
       { id: assistanceId, status: confirmingStatus },
-      { onSuccess: () => setConfirmingStatus(null) },
-    );
+      { onSuccess: () => setConfirmingStatus(null) }
+    )
   }
 
   return (
@@ -67,7 +68,7 @@ export function AssistanceStatusActions({
       <AlertDialog
         open={confirmingStatus !== null}
         onOpenChange={(open) => {
-          if (!open) setConfirmingStatus(null);
+          if (!open) setConfirmingStatus(null)
         }}
       >
         <AlertDialogContent>
@@ -75,7 +76,12 @@ export function AssistanceStatusActions({
             <AlertDialogTitle>Confirmar alteração de status</AlertDialogTitle>
             <AlertDialogDescription>
               Deseja alterar o status da assistência para{' '}
-              <strong>{confirmingStatus ? ASSISTANCE_STATUS_LABELS[confirmingStatus] : ''}</strong>?
+              <strong>
+                {confirmingStatus
+                  ? ASSISTANCE_STATUS_LABELS[confirmingStatus]
+                  : ''}
+              </strong>
+              ?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -87,12 +93,14 @@ export function AssistanceStatusActions({
               }
             />
             <Button onClick={handleConfirm} disabled={updateStatus.isPending}>
-              {updateStatus.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {updateStatus.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Confirmar
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  );
+  )
 }

@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState } from 'react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -10,39 +10,42 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 
-import { useCancelPolicy } from '../hooks/use-policies';
-import type { PolicyData } from '../types';
+import { useCancelPolicy } from '../hooks/use-policies'
+import type { PolicyData } from '../types'
 
 interface CancelPolicyDialogProps {
-  policy: PolicyData | null;
-  onClose: () => void;
+  policy: PolicyData | null
+  onClose: () => void
 }
 
-export function CancelPolicyDialog({ policy, onClose }: CancelPolicyDialogProps) {
-  const [reason, setReason] = useState('');
-  const cancelMutation = useCancelPolicy();
+export function CancelPolicyDialog({
+  policy,
+  onClose,
+}: CancelPolicyDialogProps) {
+  const [reason, setReason] = useState('')
+  const cancelMutation = useCancelPolicy()
 
   function handleConfirm() {
-    if (!policy || !reason.trim()) return;
+    if (!policy || !reason.trim()) return
     cancelMutation.mutate(
       { id: policy.id, reason: reason.trim() },
       {
         onSuccess: () => {
-          onClose();
-          setReason('');
+          onClose()
+          setReason('')
         },
-      },
-    );
+      }
+    )
   }
 
   function handleOpenChange(open: boolean) {
     if (!open) {
-      onClose();
-      setReason('');
+      onClose()
+      setReason('')
     }
   }
 
@@ -69,8 +72,8 @@ export function CancelPolicyDialog({ policy, onClose }: CancelPolicyDialogProps)
           <Button
             variant="outline"
             onClick={() => {
-              onClose();
-              setReason('');
+              onClose()
+              setReason('')
             }}
           >
             Voltar
@@ -80,10 +83,12 @@ export function CancelPolicyDialog({ policy, onClose }: CancelPolicyDialogProps)
             disabled={!reason.trim() || cancelMutation.isPending}
             onClick={handleConfirm}
           >
-            {cancelMutation.isPending ? 'Cancelando...' : 'Confirmar cancelamento'}
+            {cancelMutation.isPending
+              ? 'Cancelando...'
+              : 'Confirmar cancelamento'}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

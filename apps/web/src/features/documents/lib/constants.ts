@@ -1,4 +1,4 @@
-import type { DocumentEntityType, DocumentType } from '../types';
+import type { DocumentEntityType, DocumentType } from '../types'
 
 export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
   DRIVER_LICENSE: 'CNH',
@@ -9,7 +9,7 @@ export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
   PROOF_OF_PAYMENT: 'Comprovante Pagamento',
   CONTRACT: 'Contrato',
   OTHER: 'Outro',
-};
+}
 
 export const DOCUMENT_ENTITY_TYPE_LABELS: Record<DocumentEntityType, string> = {
   CLIENT: 'Cliente',
@@ -17,4 +17,4 @@ export const DOCUMENT_ENTITY_TYPE_LABELS: Record<DocumentEntityType, string> = {
   POLICY: 'Apólice',
   CLAIM: 'Sinistro',
   ASSISTANCE: 'Assistência',
-};
+}

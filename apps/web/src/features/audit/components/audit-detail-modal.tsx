@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import {
   Dialog,
@@ -6,28 +6,37 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { formatDate } from '@/lib/formatters';
+} from '@/components/ui/dialog'
+import { Badge } from '@/components/ui/badge'
+import { formatDate } from '@/lib/formatters'
 
-import type { AuditLogEntry } from '../types';
+import type { AuditLogEntry } from '../types'
 
 interface AuditDetailModalProps {
-  entry: AuditLogEntry | null;
-  open: boolean;
-  onClose: () => void;
+  entry: AuditLogEntry | null
+  open: boolean
+  onClose: () => void
 }
 
-const ACTION_VARIANT: Record<string, 'default' | 'success' | 'error' | 'warning' | 'info'> = {
+const ACTION_VARIANT: Record<
+  string,
+  'default' | 'success' | 'error' | 'warning' | 'info'
+> = {
   CREATE: 'success',
   UPDATE: 'info',
   DELETE: 'error',
   APPROVE: 'success',
   REJECT: 'warning',
-};
+}
 
-function JsonBlock({ label, data }: { label: string; data: Record<string, unknown> | null }) {
-  if (!data) return null;
+function JsonBlock({
+  label,
+  data,
+}: {
+  label: string
+  data: Record<string, unknown> | null
+}) {
+  if (!data) return null
   return (
     <div>
       <p className="text-muted-foreground mb-1 text-xs font-medium">{label}</p>
@@ -35,11 +44,15 @@ function JsonBlock({ label, data }: { label: string; data: Record<string, unknow
         {JSON.stringify(data, null, 2)}
       </pre>
     </div>
-  );
+  )
 }
 
-export function AuditDetailModal({ entry, open, onClose }: AuditDetailModalProps) {
-  if (!entry) return null;
+export function AuditDetailModal({
+  entry,
+  open,
+  onClose,
+}: AuditDetailModalProps) {
+  if (!entry) return null
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -49,8 +62,12 @@ export function AuditDetailModal({ entry, open, onClose }: AuditDetailModalProps
         </DialogHeader>
         <div className="space-y-4 px-6">
           <div className="flex items-center gap-2">
-            <Badge variant={ACTION_VARIANT[entry.action] ?? 'default'}>{entry.action}</Badge>
-            <span className="text-muted-foreground text-sm">{entry.entityType}</span>
+            <Badge variant={ACTION_VARIANT[entry.action] ?? 'default'}>
+              {entry.action}
+            </Badge>
+            <span className="text-muted-foreground text-sm">
+              {entry.entityType}
+            </span>
           </div>
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
@@ -59,7 +76,9 @@ export function AuditDetailModal({ entry, open, onClose }: AuditDetailModalProps
             </div>
             <div>
               <p className="text-muted-foreground text-xs">ID da Entidade</p>
-              <p className="truncate font-mono text-xs">{entry.entityId ?? '-'}</p>
+              <p className="truncate font-mono text-xs">
+                {entry.entityId ?? '-'}
+              </p>
             </div>
             <div>
               <p className="text-muted-foreground text-xs">IP</p>
@@ -76,5 +95,5 @@ export function AuditDetailModal({ entry, open, onClose }: AuditDetailModalProps
         <DialogFooter showCloseButton />
       </DialogContent>
     </Dialog>
-  );
+  )
 }

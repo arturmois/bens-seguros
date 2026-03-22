@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { ArrowLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 
-import { AssistanceForm } from '@/features/assistances/components/assistance-form';
+import { AssistanceForm } from '@/features/assistances/components/assistance-form'
 
 export function NewAssistanceContent() {
-  const router = useRouter();
+  const router = useRouter()
 
   return (
     <div className="space-y-6">
@@ -27,7 +27,9 @@ export function NewAssistanceContent() {
       </nav>
 
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Nova Assistencia</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Nova Assistencia
+        </h1>
         <p className="text-muted-foreground text-sm">
           Preencha os dados para registrar uma nova assistencia.
         </p>
@@ -35,5 +37,5 @@ export function NewAssistanceContent() {
 
       <AssistanceForm />
     </div>
-  );
+  )
 }

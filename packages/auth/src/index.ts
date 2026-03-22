@@ -1,41 +1,45 @@
-import { betterAuth } from 'better-auth';
-import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { organization } from 'better-auth/plugins';
-import { createAccessControl, role } from 'better-auth/plugins/access';
-import { prisma } from '@repo/db';
+import { prisma } from '@repo/db'
+import { betterAuth } from 'better-auth'
+import { prismaAdapter } from 'better-auth/adapters/prisma'
+import { organization } from 'better-auth/plugins'
+import { createAccessControl, role } from 'better-auth/plugins/access'
 
 const ORGANIZATION_STATEMENTS = {
   organization: ['update', 'delete'],
   member: ['create', 'update', 'delete'],
   invitation: ['create', 'cancel'],
-} as const;
+} as const
 
-const ac = createAccessControl(ORGANIZATION_STATEMENTS);
+const ac = createAccessControl(ORGANIZATION_STATEMENTS)
 
 const OWNER_ROLE = ac.newRole({
   organization: ['update', 'delete'],
   member: ['create', 'update', 'delete'],
   invitation: ['create', 'cancel'],
-});
+})
 
 const ADMIN_ROLE = ac.newRole({
   organization: ['update'],
   member: ['create', 'update', 'delete'],
   invitation: ['create', 'cancel'],
-});
+})
 
 const MANAGER_ROLE = ac.newRole({
   member: ['create'],
   invitation: ['create'],
-});
+})
 
 const COMMERCIAL_ROLE = ac.newRole({
   invitation: ['create'],
-});
+})
 
-const VIEWER_ROLE = role({});
+const VIEWER_ROLE = role({})
 
-export function createAuth(secret: string, baseURL: string, trustedOrigins: string[]) {
+export function createAuth(
+  secret: string,
+  baseURL: string,
+  trustedOrigins: string[]
+) {
   return betterAuth({
     database: prismaAdapter(prisma, { provider: 'postgresql' }),
     secret,
@@ -66,7 +70,7 @@ export function createAuth(secret: string, baseURL: string, trustedOrigins: stri
         creatorRole: 'OWNER',
       }),
     ],
-  });
+  })
 }
 
-export type Auth = ReturnType<typeof createAuth>;
+export type Auth = ReturnType<typeof createAuth>

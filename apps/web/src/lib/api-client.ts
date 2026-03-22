@@ -1,25 +1,25 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
     public readonly code: string,
-    message: string,
+    message: string
   ) {
-    super(message);
-    this.name = 'ApiError';
+    super(message)
+    this.name = 'ApiError'
   }
 }
 
 export interface ApiResponse<TData> {
-  success: true;
-  data: TData;
-  meta?: { total: number; nextCursor: string | null };
+  success: true
+  data: TData
+  meta?: { total: number; nextCursor: string | null }
 }
 
 interface ApiErrorResponse {
-  success: false;
-  error: { code: string; message: string };
+  success: false
+  error: { code: string; message: string }
 }
 
 function isErrorResponse(body: unknown): body is ApiErrorResponse {
@@ -29,40 +29,42 @@ function isErrorResponse(body: unknown): body is ApiErrorResponse {
     'success' in body &&
     body.success === false &&
     'error' in body
-  );
+  )
 }
 
 async function request<TData>(
   path: string,
-  options: RequestInit = {},
+  options: RequestInit = {}
 ): Promise<ApiResponse<TData>> {
   const headers: Record<string, string> = {
-    ...Object.fromEntries(Object.entries(options.headers ?? {}).filter(([, v]) => v !== '')),
-  };
+    ...Object.fromEntries(
+      Object.entries(options.headers ?? {}).filter(([, v]) => v !== '')
+    ),
+  }
   if (options.body) {
-    headers['Content-Type'] = 'application/json';
+    headers['Content-Type'] = 'application/json'
   }
 
   const res = await fetch(`${API_URL}${path}`, {
     credentials: 'include',
     ...options,
     headers,
-  });
+  })
 
   if (res.status === 204) {
-    return { success: true, data: null as TData };
+    return { success: true, data: null as TData }
   }
 
-  const body: unknown = await res.json();
+  const body: unknown = await res.json()
 
   if (!res.ok) {
     if (isErrorResponse(body)) {
-      throw new ApiError(res.status, body.error.code, body.error.message);
+      throw new ApiError(res.status, body.error.code, body.error.message)
     }
-    throw new ApiError(res.status, 'UNKNOWN_ERROR', 'Erro inesperado');
+    throw new ApiError(res.status, 'UNKNOWN_ERROR', 'Erro inesperado')
   }
 
-  return body as ApiResponse<TData>;
+  return body as ApiResponse<TData>
 }
 
 export const api = {
@@ -87,4 +89,4 @@ export const api = {
     }),
 
   delete: (path: string) => request(path, { method: 'DELETE' }),
-};
+}

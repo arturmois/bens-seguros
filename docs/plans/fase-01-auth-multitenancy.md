@@ -280,9 +280,9 @@ export const ROLES = {
   MANAGER: 'MANAGER',
   COMMERCIAL: 'COMMERCIAL',
   VIEWER: 'VIEWER',
-} as const;
+} as const
 
-export type Role = (typeof ROLES)[keyof typeof ROLES];
+export type Role = (typeof ROLES)[keyof typeof ROLES]
 
 export const ROLE_HIERARCHY: Record<Role, number> = {
   OWNER: 5,
@@ -290,58 +290,58 @@ export const ROLE_HIERARCHY: Record<Role, number> = {
   MANAGER: 3,
   COMMERCIAL: 2,
   VIEWER: 1,
-};
+}
 
 export function isRoleAtLeast(userRole: Role, requiredRole: Role): boolean {
-  return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[requiredRole];
+  return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[requiredRole]
 }
 ```
 
 - [ ] **Step 3: Create types.ts**
 
 ```ts
-import type { Role } from './roles.js';
+import type { Role } from './roles.js'
 
 export interface AuthUser {
-  id: string;
-  email: string;
-  name: string;
-  emailVerified: boolean;
-  image?: string | null;
-  isSuperAdmin: boolean;
+  id: string
+  email: string
+  name: string
+  emailVerified: boolean
+  image?: string | null
+  isSuperAdmin: boolean
 }
 
 export interface AuthSession {
-  id: string;
-  token: string;
-  userId: string;
-  activeOrganizationId?: string | null;
-  expiresAt: Date;
+  id: string
+  token: string
+  userId: string
+  activeOrganizationId?: string | null
+  expiresAt: Date
 }
 
 export interface AuthMember {
-  id: string;
-  organizationId: string;
-  userId: string;
-  role: Role;
-  active: boolean;
+  id: string
+  organizationId: string
+  userId: string
+  role: Role
+  active: boolean
 }
 
 export interface AuthContext {
-  user: AuthUser;
-  session: AuthSession;
-  organizationId: string;
-  role: Role;
+  user: AuthUser
+  session: AuthSession
+  organizationId: string
+  role: Role
 }
 ```
 
 - [ ] **Step 4: Create index.ts (Better Auth server)**
 
 ```ts
-import { betterAuth } from 'better-auth';
-import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { organization } from 'better-auth/plugins';
-import { prisma } from '@repo/db';
+import { betterAuth } from 'better-auth'
+import { prismaAdapter } from 'better-auth/adapters/prisma'
+import { organization } from 'better-auth/plugins'
+import { prisma } from '@repo/db'
 
 export function createAuth(secret: string, baseURL: string) {
   return betterAuth({
@@ -361,23 +361,23 @@ export function createAuth(secret: string, baseURL: string) {
       },
     },
     plugins: [organization()],
-  });
+  })
 }
 
-export type Auth = ReturnType<typeof createAuth>;
+export type Auth = ReturnType<typeof createAuth>
 ```
 
 - [ ] **Step 5: Create client.ts (Better Auth client)**
 
 ```ts
-import { createAuthClient } from 'better-auth/client';
-import { organizationClient } from 'better-auth/client/plugins';
+import { createAuthClient } from 'better-auth/client'
+import { organizationClient } from 'better-auth/client/plugins'
 
 export function createBetterAuthClient(baseURL: string) {
   return createAuthClient({
     baseURL,
     plugins: [organizationClient()],
-  });
+  })
 }
 ```
 
@@ -401,45 +401,45 @@ git commit -m "feat: add better auth config with organization plugin and role sy
 Create `packages/auth/src/abilities.spec.ts`:
 
 ```ts
-import { describe, it, expect } from 'vitest';
-import { defineAbilitiesFor } from './abilities.js';
+import { describe, it, expect } from 'vitest'
+import { defineAbilitiesFor } from './abilities.js'
 
 describe('CASL Abilities', () => {
   it('OWNER can manage all', () => {
-    const ability = defineAbilitiesFor('OWNER');
-    expect(ability.can('manage', 'all')).toBe(true);
-  });
+    const ability = defineAbilitiesFor('OWNER')
+    expect(ability.can('manage', 'all')).toBe(true)
+  })
 
   it('ADMIN can manage Client but not Organization', () => {
-    const ability = defineAbilitiesFor('ADMIN');
-    expect(ability.can('manage', 'Client')).toBe(true);
-    expect(ability.can('manage', 'Organization')).toBe(false);
-  });
+    const ability = defineAbilitiesFor('ADMIN')
+    expect(ability.can('manage', 'Client')).toBe(true)
+    expect(ability.can('manage', 'Organization')).toBe(false)
+  })
 
   it('MANAGER can manage operations but not Users', () => {
-    const ability = defineAbilitiesFor('MANAGER');
-    expect(ability.can('manage', 'Client')).toBe(true);
-    expect(ability.can('manage', 'Proposal')).toBe(true);
-    expect(ability.can('manage', 'User')).toBe(false);
-  });
+    const ability = defineAbilitiesFor('MANAGER')
+    expect(ability.can('manage', 'Client')).toBe(true)
+    expect(ability.can('manage', 'Proposal')).toBe(true)
+    expect(ability.can('manage', 'User')).toBe(false)
+  })
 
   it('COMMERCIAL can create/read/update clients but not delete', () => {
-    const ability = defineAbilitiesFor('COMMERCIAL');
-    expect(ability.can('create', 'Client')).toBe(true);
-    expect(ability.can('read', 'Client')).toBe(true);
-    expect(ability.can('update', 'Client')).toBe(true);
-    expect(ability.can('delete', 'Client')).toBe(false);
-  });
+    const ability = defineAbilitiesFor('COMMERCIAL')
+    expect(ability.can('create', 'Client')).toBe(true)
+    expect(ability.can('read', 'Client')).toBe(true)
+    expect(ability.can('update', 'Client')).toBe(true)
+    expect(ability.can('delete', 'Client')).toBe(false)
+  })
 
   it('VIEWER can only read', () => {
-    const ability = defineAbilitiesFor('VIEWER');
-    expect(ability.can('read', 'Client')).toBe(true);
-    expect(ability.can('read', 'Proposal')).toBe(true);
-    expect(ability.can('create', 'Client')).toBe(false);
-    expect(ability.can('update', 'Client')).toBe(false);
-    expect(ability.can('delete', 'Client')).toBe(false);
-  });
-});
+    const ability = defineAbilitiesFor('VIEWER')
+    expect(ability.can('read', 'Client')).toBe(true)
+    expect(ability.can('read', 'Proposal')).toBe(true)
+    expect(ability.can('create', 'Client')).toBe(false)
+    expect(ability.can('update', 'Client')).toBe(false)
+    expect(ability.can('delete', 'Client')).toBe(false)
+  })
+})
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -453,10 +453,14 @@ Expected: FAIL - module not found.
 - [ ] **Step 3: Implement abilities.ts**
 
 ```ts
-import { AbilityBuilder, createMongoAbility, type MongoAbility } from '@casl/ability';
-import type { Role } from './roles.js';
+import {
+  AbilityBuilder,
+  createMongoAbility,
+  type MongoAbility,
+} from '@casl/ability'
+import type { Role } from './roles.js'
 
-type Action = 'manage' | 'create' | 'read' | 'update' | 'delete' | 'approve';
+type Action = 'manage' | 'create' | 'read' | 'update' | 'delete' | 'approve'
 type Subject =
   | 'all'
   | 'User'
@@ -470,9 +474,9 @@ type Subject =
   | 'Assistance'
   | 'Document'
   | 'AuditLog'
-  | 'Notification';
+  | 'Notification'
 
-export type AppAbility = MongoAbility<[Action, Subject]>;
+export type AppAbility = MongoAbility<[Action, Subject]>
 
 const operationalSubjects: Subject[] = [
   'Client',
@@ -482,46 +486,46 @@ const operationalSubjects: Subject[] = [
   'Endorsement',
   'Assistance',
   'Document',
-];
+]
 
 export function defineAbilitiesFor(role: Role): AppAbility {
-  const { can, build } = new AbilityBuilder<AppAbility>(createMongoAbility);
+  const { can, build } = new AbilityBuilder<AppAbility>(createMongoAbility)
 
   switch (role) {
     case 'OWNER':
-      can('manage', 'all');
-      break;
+      can('manage', 'all')
+      break
 
     case 'ADMIN':
-      can('manage', operationalSubjects);
-      can('manage', 'Commission');
-      can('approve', 'Commission');
-      can('manage', 'User');
-      can('manage', 'Notification');
-      can('read', 'AuditLog');
-      break;
+      can('manage', operationalSubjects)
+      can('manage', 'Commission')
+      can('approve', 'Commission')
+      can('manage', 'User')
+      can('manage', 'Notification')
+      can('read', 'AuditLog')
+      break
 
     case 'MANAGER':
-      can('manage', operationalSubjects);
-      can('manage', 'Commission');
-      can('approve', 'Commission');
-      can('read', 'Notification');
-      can('read', 'AuditLog');
-      break;
+      can('manage', operationalSubjects)
+      can('manage', 'Commission')
+      can('approve', 'Commission')
+      can('read', 'Notification')
+      can('read', 'AuditLog')
+      break
 
     case 'COMMERCIAL':
-      can(['create', 'read', 'update'], ['Client', 'Proposal']);
-      can('read', ['Policy', 'Commission', 'Claim', 'Document']);
-      can('read', 'Notification');
-      break;
+      can(['create', 'read', 'update'], ['Client', 'Proposal'])
+      can('read', ['Policy', 'Commission', 'Claim', 'Document'])
+      can('read', 'Notification')
+      break
 
     case 'VIEWER':
-      can('read', operationalSubjects);
-      can('read', ['Commission', 'Notification']);
-      break;
+      can('read', operationalSubjects)
+      can('read', ['Commission', 'Notification'])
+      break
   }
 
-  return build();
+  return build()
 }
 ```
 
@@ -553,52 +557,65 @@ git commit -m "feat: add CASL abilities with 5 roles (OWNER, ADMIN, MANAGER, COM
 - [ ] **Step 1: Create auth-middleware.ts**
 
 ```ts
-import type { FastifyRequest, FastifyReply } from 'fastify';
-import type { Auth } from '@repo/auth';
+import type { FastifyRequest, FastifyReply } from 'fastify'
+import type { Auth } from '@repo/auth'
 
 export function createAuthMiddleware(auth: Auth) {
-  return async function authMiddleware(request: FastifyRequest, reply: FastifyReply) {
+  return async function authMiddleware(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ) {
     const session = await auth.api.getSession({
       headers: request.headers as Record<string, string>,
-    });
+    })
 
     if (!session) {
       return reply.status(401).send({
         success: false,
         error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
-      });
+      })
     }
 
-    request.user = session.user;
-    request.session = session.session;
-  };
+    request.user = session.user
+    request.session = session.session
+  }
 }
 
-export function requireAuth(request: FastifyRequest, reply: FastifyReply, done: () => void) {
+export function requireAuth(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  done: () => void
+) {
   if (!request.user) {
     return reply.status(401).send({
       success: false,
       error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
-    });
+    })
   }
-  done();
+  done()
 }
 ```
 
 - [ ] **Step 2: Create tenant-middleware.ts**
 
 ```ts
-import type { FastifyRequest, FastifyReply } from 'fastify';
-import { prisma } from '@repo/db';
+import type { FastifyRequest, FastifyReply } from 'fastify'
+import { prisma } from '@repo/db'
 
-export async function tenantMiddleware(request: FastifyRequest, reply: FastifyReply) {
-  const organizationId = request.session?.activeOrganizationId;
+export async function tenantMiddleware(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const organizationId = request.session?.activeOrganizationId
 
   if (!organizationId) {
     return reply.status(400).send({
       success: false,
-      error: { code: 'NO_ORGANIZATION', message: 'No active organization selected' },
-    });
+      error: {
+        code: 'NO_ORGANIZATION',
+        message: 'No active organization selected',
+      },
+    })
   }
 
   const member = await prisma.member.findUnique({
@@ -608,39 +625,42 @@ export async function tenantMiddleware(request: FastifyRequest, reply: FastifyRe
         userId: request.user.id,
       },
     },
-  });
+  })
 
   if (!member || !member.active) {
     return reply.status(403).send({
       success: false,
-      error: { code: 'FORBIDDEN', message: 'Not a member of this organization' },
-    });
+      error: {
+        code: 'FORBIDDEN',
+        message: 'Not a member of this organization',
+      },
+    })
   }
 
-  request.organizationId = organizationId;
-  request.role = member.role;
+  request.organizationId = organizationId
+  request.role = member.role
 }
 ```
 
 - [ ] **Step 3: Create ability-middleware.ts**
 
 ```ts
-import type { FastifyRequest, FastifyReply } from 'fastify';
-import { defineAbilitiesFor, type AppAbility } from '@repo/auth/abilities';
-import type { Role } from '@repo/auth/roles';
+import type { FastifyRequest, FastifyReply } from 'fastify'
+import { defineAbilitiesFor, type AppAbility } from '@repo/auth/abilities'
+import type { Role } from '@repo/auth/roles'
 
 export function requireAbility(action: string, subject: string) {
   return async function (request: FastifyRequest, reply: FastifyReply) {
-    const role = request.role as Role;
+    const role = request.role as Role
 
     if (!role) {
       return reply.status(403).send({
         success: false,
         error: { code: 'FORBIDDEN', message: 'No role assigned' },
-      });
+      })
     }
 
-    const ability: AppAbility = defineAbilitiesFor(role);
+    const ability: AppAbility = defineAbilitiesFor(role)
 
     if (!ability.can(action as never, subject as never)) {
       return reply.status(403).send({
@@ -649,9 +669,9 @@ export function requireAbility(action: string, subject: string) {
           code: 'FORBIDDEN',
           message: `Insufficient permissions: ${action} ${subject}`,
         },
-      });
+      })
     }
-  };
+  }
 }
 ```
 
@@ -676,23 +696,23 @@ git commit -m "feat: add auth, tenant, and ability middlewares for fastify"
 - [ ] **Step 1: Create auth-routes.ts (Better Auth catch-all)**
 
 ```ts
-import type { FastifyInstance } from 'fastify';
-import type { Auth } from '@repo/auth';
+import type { FastifyInstance } from 'fastify'
+import type { Auth } from '@repo/auth'
 
 export function registerAuthRoutes(app: FastifyInstance, auth: Auth) {
   app.all('/api/auth/*', async (request, reply) => {
-    const response = await auth.handler(request.raw, reply.raw);
-    return response;
-  });
+    const response = await auth.handler(request.raw, reply.raw)
+    return response
+  })
 }
 ```
 
 - [ ] **Step 2: Create tenant-routes.ts**
 
 ```ts
-import type { FastifyInstance } from 'fastify';
-import { z } from 'zod';
-import { prisma } from '@repo/db';
+import type { FastifyInstance } from 'fastify'
+import { z } from 'zod'
+import { prisma } from '@repo/db'
 
 export async function tenantRoutes(app: FastifyInstance) {
   app.get(
@@ -709,7 +729,7 @@ export async function tenantRoutes(app: FastifyInstance) {
                 slug: z.string(),
                 logo: z.string().nullable(),
                 role: z.string(),
-              }),
+              })
             ),
           }),
         },
@@ -719,7 +739,7 @@ export async function tenantRoutes(app: FastifyInstance) {
       const members = await prisma.member.findMany({
         where: { userId: request.user.id, active: true },
         include: { organization: true },
-      });
+      })
 
       return {
         success: true as const,
@@ -730,9 +750,9 @@ export async function tenantRoutes(app: FastifyInstance) {
           logo: m.organization.logo,
           role: m.role,
         })),
-      };
-    },
-  );
+      }
+    }
+  )
 }
 ```
 
@@ -742,18 +762,18 @@ Add route registration to `apps/server/src/app.ts` after middleware setup:
 
 ```ts
 // Add after existing setup:
-import { registerAuthRoutes } from './routes/auth-routes.js';
-import { tenantRoutes } from './routes/v1/tenant-routes.js';
-import { createAuth } from '@repo/auth';
+import { registerAuthRoutes } from './routes/auth-routes.js'
+import { tenantRoutes } from './routes/v1/tenant-routes.js'
+import { createAuth } from '@repo/auth'
 
 // Inside buildApp():
 const auth = createAuth(
   process.env.AUTH_SECRET ?? 'dev-secret-at-least-32-characters-long!!',
-  process.env.API_URL ?? 'http://localhost:3001',
-);
+  process.env.API_URL ?? 'http://localhost:3001'
+)
 
-registerAuthRoutes(app, auth);
-await app.register(tenantRoutes);
+registerAuthRoutes(app, auth)
+await app.register(tenantRoutes)
 ```
 
 - [ ] **Step 4: Commit**
@@ -782,57 +802,64 @@ git commit -m "feat: add auth routes, tenant routes, and better auth integration
 - [ ] **Step 1: Create auth-client.ts**
 
 ```ts
-import { createBetterAuthClient } from '@repo/auth/client';
+import { createBetterAuthClient } from '@repo/auth/client'
 
 export const authClient = createBetterAuthClient(
-  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001',
-);
+  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+)
 ```
 
 - [ ] **Step 2: Create use-auth.ts hook**
 
 ```ts
-'use client';
+'use client'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { authClient } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { authClient } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
 
 export function useAuth() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
+  const router = useRouter()
+  const queryClient = useQueryClient()
 
   const session = useQuery({
     queryKey: ['auth', 'session'],
     queryFn: () => authClient.getSession(),
     retry: false,
-  });
+  })
 
   const login = useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
       authClient.signIn.email({ email, password }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
-      router.push('/');
+      queryClient.invalidateQueries({ queryKey: ['auth'] })
+      router.push('/')
     },
-  });
+  })
 
   const register = useMutation({
-    mutationFn: ({ email, password, name }: { email: string; password: string; name: string }) =>
-      authClient.signUp.email({ email, password, name }),
+    mutationFn: ({
+      email,
+      password,
+      name,
+    }: {
+      email: string
+      password: string
+      name: string
+    }) => authClient.signUp.email({ email, password, name }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
-      router.push('/');
+      queryClient.invalidateQueries({ queryKey: ['auth'] })
+      router.push('/')
     },
-  });
+  })
 
   const logout = useMutation({
     mutationFn: () => authClient.signOut(),
     onSuccess: () => {
-      queryClient.clear();
-      router.push('/login');
+      queryClient.clear()
+      router.push('/login')
     },
-  });
+  })
 
   return {
     user: session.data?.user ?? null,
@@ -842,14 +869,14 @@ export function useAuth() {
     login,
     register,
     logout,
-  };
+  }
 }
 ```
 
 - [ ] **Step 3: Create permissions.ts (frontend RBAC)**
 
 ```ts
-import type { Role } from '@repo/auth/roles';
+import type { Role } from '@repo/auth/roles'
 
 const PERMISSION_MATRIX: Record<string, Role[]> = {
   'clients:read': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'],
@@ -871,51 +898,51 @@ const PERMISSION_MATRIX: Record<string, Role[]> = {
   'settings:read': ['OWNER', 'ADMIN'],
   'settings:manage': ['OWNER'],
   'audit:read': ['OWNER', 'ADMIN', 'MANAGER'],
-};
+}
 
 export function hasPermission(role: Role, permission: string): boolean {
-  return PERMISSION_MATRIX[permission]?.includes(role) ?? false;
+  return PERMISSION_MATRIX[permission]?.includes(role) ?? false
 }
 
 export function hasAnyPermission(role: Role, permissions: string[]): boolean {
-  return permissions.some((p) => hasPermission(role, p));
+  return permissions.some((p) => hasPermission(role, p))
 }
 
 export function hasAllPermissions(role: Role, permissions: string[]): boolean {
-  return permissions.every((p) => hasPermission(role, p));
+  return permissions.every((p) => hasPermission(role, p))
 }
 ```
 
 - [ ] **Step 4: Create login-form.tsx**
 
 ```tsx
-'use client';
+'use client'
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useAuth } from '@/features/auth/hooks/use-auth';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useAuth } from '@/features/auth/hooks/use-auth'
+import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 
 const loginSchema = z.object({
   email: z.string().email('Email invalido'),
   password: z.string().min(8, 'Minimo 8 caracteres'),
-});
+})
 
-type LoginForm = z.infer<typeof loginSchema>;
+type LoginForm = z.infer<typeof loginSchema>
 
 export function LoginForm() {
-  const { login } = useAuth();
+  const { login } = useAuth()
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
-  });
+  })
 
   const onSubmit = (data: LoginForm) => {
     login.mutate(data, {
       onError: () => toast.error('Email ou senha incorretos'),
-    });
-  };
+    })
+  }
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -958,7 +985,7 @@ export function LoginForm() {
         {login.isPending ? 'Entrando...' : 'Entrar'}
       </Button>
     </form>
-  );
+  )
 }
 ```
 
@@ -967,25 +994,31 @@ export function LoginForm() {
 `apps/web/src/app/(auth)/layout.tsx`:
 
 ```tsx
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--muted)]">
       <div className="w-full max-w-md rounded-lg border border-[var(--border)] bg-[var(--card)] p-8 shadow-sm">
         <div className="mb-6 text-center">
-          <h1 className="text-primary-600 text-2xl font-semibold">Bens Seguros</h1>
+          <h1 className="text-primary-600 text-2xl font-semibold">
+            Bens Seguros
+          </h1>
         </div>
         {children}
       </div>
     </div>
-  );
+  )
 }
 ```
 
 `apps/web/src/app/(auth)/login/page.tsx`:
 
 ```tsx
-import { LoginForm } from '@/features/auth/components/login-form';
-import Link from 'next/link';
+import { LoginForm } from '@/features/auth/components/login-form'
+import Link from 'next/link'
 
 export default function LoginPage() {
   return (
@@ -993,12 +1026,15 @@ export default function LoginPage() {
       <LoginForm />
       <p className="mt-4 text-center text-sm text-[var(--muted-foreground)]">
         Nao tem conta?{' '}
-        <Link href="/register" className="text-[var(--primary)] hover:underline">
+        <Link
+          href="/register"
+          className="text-[var(--primary)] hover:underline"
+        >
           Cadastre-se
         </Link>
       </p>
     </>
-  );
+  )
 }
 ```
 
@@ -1007,30 +1043,30 @@ export default function LoginPage() {
 `apps/web/src/middleware.ts`:
 
 ```ts
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-const PUBLIC_PATHS = ['/login', '/register', '/api/auth'];
+const PUBLIC_PATHS = ['/login', '/register', '/api/auth']
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname } = request.nextUrl
 
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
-    return NextResponse.next();
+    return NextResponse.next()
   }
 
-  const sessionToken = request.cookies.get('better-auth.session_token')?.value;
+  const sessionToken = request.cookies.get('better-auth.session_token')?.value
 
   if (!sessionToken) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  return NextResponse.next();
+  return NextResponse.next()
 }
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
-};
+}
 ```
 
 - [ ] **Step 7: Commit**
@@ -1054,10 +1090,10 @@ git commit -m "feat: add auth pages (login, register), permissions, route protec
 - [ ] **Step 1: Create sidebar.tsx**
 
 ```tsx
-'use client';
+'use client'
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import {
   Users,
   FileText,
@@ -1068,49 +1104,86 @@ import {
   LayoutDashboard,
   Settings,
   ClipboardList,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { hasPermission } from '@/lib/permissions';
-import type { Role } from '@repo/auth/roles';
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { hasPermission } from '@/lib/permissions'
+import type { Role } from '@repo/auth/roles'
 
 interface SidebarProps {
-  role: Role;
-  collapsed: boolean;
+  role: Role
+  collapsed: boolean
 }
 
 const NAV_ITEMS = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard, permission: null },
-  { href: '/clients', label: 'Clientes', icon: Users, permission: 'clients:read' },
-  { href: '/proposals', label: 'Propostas', icon: FileText, permission: 'proposals:read' },
-  { href: '/policies', label: 'Apolices', icon: Shield, permission: 'policies:read' },
-  { href: '/claims', label: 'Sinistros', icon: AlertTriangle, permission: 'claims:read' },
-  { href: '/commissions', label: 'Comissoes', icon: DollarSign, permission: 'commissions:read' },
+  {
+    href: '/clients',
+    label: 'Clientes',
+    icon: Users,
+    permission: 'clients:read',
+  },
+  {
+    href: '/proposals',
+    label: 'Propostas',
+    icon: FileText,
+    permission: 'proposals:read',
+  },
+  {
+    href: '/policies',
+    label: 'Apolices',
+    icon: Shield,
+    permission: 'policies:read',
+  },
+  {
+    href: '/claims',
+    label: 'Sinistros',
+    icon: AlertTriangle,
+    permission: 'claims:read',
+  },
+  {
+    href: '/commissions',
+    label: 'Comissoes',
+    icon: DollarSign,
+    permission: 'commissions:read',
+  },
   { href: '/chat', label: 'Chat', icon: MessageSquare, permission: null },
-  { href: '/audit', label: 'Auditoria', icon: ClipboardList, permission: 'audit:read' },
-  { href: '/settings', label: 'Configuracoes', icon: Settings, permission: 'settings:read' },
-];
+  {
+    href: '/audit',
+    label: 'Auditoria',
+    icon: ClipboardList,
+    permission: 'audit:read',
+  },
+  {
+    href: '/settings',
+    label: 'Configuracoes',
+    icon: Settings,
+    permission: 'settings:read',
+  },
+]
 
 export function Sidebar({ role, collapsed }: SidebarProps) {
-  const pathname = usePathname();
+  const pathname = usePathname()
 
   const visibleItems = NAV_ITEMS.filter(
-    (item) => !item.permission || hasPermission(role, item.permission),
-  );
+    (item) => !item.permission || hasPermission(role, item.permission)
+  )
 
   return (
     <aside
       className={cn(
         'flex h-screen flex-col border-r border-[var(--border)] bg-[var(--card)] transition-all',
-        collapsed ? 'w-16' : 'w-64',
+        collapsed ? 'w-16' : 'w-64'
       )}
     >
       <div className="flex h-14 items-center border-b border-[var(--border)] px-4">
-        {!collapsed && <span className="text-primary-600 text-lg font-semibold">Bens</span>}
+        {!collapsed && (
+          <span className="text-primary-600 text-lg font-semibold">Bens</span>
+        )}
       </div>
 
       <nav className="flex-1 space-y-1 p-2">
         {visibleItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href
           return (
             <Link
               key={item.href}
@@ -1119,81 +1192,90 @@ export function Sidebar({ role, collapsed }: SidebarProps) {
                 'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
                 isActive
                   ? 'bg-primary-50 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
-                  : 'text-[var(--muted-foreground)] hover:bg-[var(--muted)]',
+                  : 'text-[var(--muted-foreground)] hover:bg-[var(--muted)]'
               )}
             >
               <item.icon className="size-4 shrink-0" />
               {!collapsed && <span>{item.label}</span>}
             </Link>
-          );
+          )
         })}
       </nav>
     </aside>
-  );
+  )
 }
 ```
 
 - [ ] **Step 2: Create header.tsx**
 
 ```tsx
-'use client';
+'use client'
 
-import { useAuth } from '@/features/auth/hooks/use-auth';
-import { Button } from '@/components/ui/button';
-import { LogOut, PanelLeftClose, PanelLeft } from 'lucide-react';
+import { useAuth } from '@/features/auth/hooks/use-auth'
+import { Button } from '@/components/ui/button'
+import { LogOut, PanelLeftClose, PanelLeft } from 'lucide-react'
 
 interface HeaderProps {
-  collapsed: boolean;
-  onToggleSidebar: () => void;
+  collapsed: boolean
+  onToggleSidebar: () => void
 }
 
 export function Header({ collapsed, onToggleSidebar }: HeaderProps) {
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuth()
 
   return (
     <header className="flex h-14 items-center justify-between border-b border-[var(--border)] bg-[var(--card)] px-4">
       <Button variant="ghost" size="icon" onClick={onToggleSidebar}>
-        {collapsed ? <PanelLeft className="size-4" /> : <PanelLeftClose className="size-4" />}
+        {collapsed ? (
+          <PanelLeft className="size-4" />
+        ) : (
+          <PanelLeftClose className="size-4" />
+        )}
       </Button>
 
       <div className="flex items-center gap-4">
-        <span className="text-sm text-[var(--muted-foreground)]">{user?.name}</span>
+        <span className="text-sm text-[var(--muted-foreground)]">
+          {user?.name}
+        </span>
         <Button variant="ghost" size="icon" onClick={() => logout.mutate()}>
           <LogOut className="size-4" />
         </Button>
       </div>
     </header>
-  );
+  )
 }
 ```
 
 - [ ] **Step 3: Create app-shell.tsx**
 
 ```tsx
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Sidebar } from './sidebar';
-import { Header } from './header';
-import type { Role } from '@repo/auth/roles';
+import { useState } from 'react'
+import { Sidebar } from './sidebar'
+import { Header } from './header'
+import type { Role } from '@repo/auth/roles'
 
 interface AppShellProps {
-  role: Role;
-  children: React.ReactNode;
+  role: Role
+  children: React.ReactNode
 }
 
 export function AppShell({ role, children }: AppShellProps) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(false)
 
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar role={role} collapsed={collapsed} />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Header collapsed={collapsed} onToggleSidebar={() => setCollapsed((c) => !c)} />
+        <Header
+          collapsed={collapsed}
+          onToggleSidebar={() => setCollapsed((c) => !c)}
+        />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
-  );
+  )
 }
 ```
 
@@ -1202,12 +1284,16 @@ export function AppShell({ role, children }: AppShellProps) {
 `apps/web/src/app/(dashboard)/layout.tsx`:
 
 ```tsx
-import { AppShell } from '@/components/layout/app-shell';
+import { AppShell } from '@/components/layout/app-shell'
 // Role will be fetched from session in a later task
 // For now, default to VIEWER
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return <AppShell role="MANAGER">{children}</AppShell>;
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return <AppShell role="MANAGER">{children}</AppShell>
 }
 ```
 

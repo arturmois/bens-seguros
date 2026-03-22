@@ -1,8 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
-import { UpdateProposalDetails } from './update-proposal-details.js';
-import { Proposal } from '../domain/proposal.js';
-import type { ProposalRepository } from '../domain/proposal-repository.js';
-import type { AutoDetails } from '../domain/insured-object-details.js';
+import { describe, it, expect, vi } from 'vitest'
+import { UpdateProposalDetails } from './update-proposal-details.js'
+import { Proposal } from '../domain/proposal.js'
+import type { ProposalRepository } from '../domain/proposal-repository.js'
+import type { AutoDetails } from '../domain/insured-object-details.js'
 
 const autoDetails: AutoDetails = {
   branch: 'AUTO',
@@ -10,14 +10,14 @@ const autoDetails: AutoDetails = {
   modelo: 'Corolla',
   anoFabricacao: 2024,
   anoModelo: 2025,
-};
+}
 
 function createMockRepo(proposal: Proposal | null): ProposalRepository {
   return {
     save: vi.fn(),
     findById: vi.fn().mockResolvedValue(proposal),
     findMany: vi.fn(),
-  };
+  }
 }
 
 describe('UpdateProposalDetails', () => {
@@ -28,29 +28,29 @@ describe('UpdateProposalDetails', () => {
       salespersonId: 'u-1',
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
-    });
-    const repo = createMockRepo(proposal);
-    const useCase = new UpdateProposalDetails(repo);
+    })
+    const repo = createMockRepo(proposal)
+    const useCase = new UpdateProposalDetails(repo)
 
     await useCase.execute(proposal.id, 'org-1', {
       details: autoDetails,
       premiumValueInCents: 150000,
       commissionBasisPoints: 1500,
-    });
+    })
 
-    expect(proposal.details).toEqual(autoDetails);
-    expect(repo.save).toHaveBeenCalledWith(proposal);
-  });
+    expect(proposal.details).toEqual(autoDetails)
+    expect(repo.save).toHaveBeenCalledWith(proposal)
+  })
 
   it('throws if proposal not found', async () => {
-    const repo = createMockRepo(null);
-    const useCase = new UpdateProposalDetails(repo);
+    const repo = createMockRepo(null)
+    const useCase = new UpdateProposalDetails(repo)
     await expect(
       useCase.execute('xxx', 'org-1', {
         details: autoDetails,
         premiumValueInCents: 0,
         commissionBasisPoints: 0,
-      }),
-    ).rejects.toThrow('não encontrada');
-  });
-});
+      })
+    ).rejects.toThrow('não encontrada')
+  })
+})

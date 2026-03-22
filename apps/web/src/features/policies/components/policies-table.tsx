@@ -1,21 +1,28 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Ban, ChevronLeft, ChevronRight, MoreHorizontal, Search, Shield } from 'lucide-react';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import {
+  Ban,
+  ChevronLeft,
+  ChevronRight,
+  MoreHorizontal,
+  Search,
+  Shield,
+} from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Menu, MenuPopup, MenuItem, MenuTrigger } from '@/components/ui/menu';
-import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Menu, MenuPopup, MenuItem, MenuTrigger } from '@/components/ui/menu'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -23,37 +30,37 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { useDebounce } from '@/hooks/use-debounce';
-import { formatCurrency, formatDate } from '@/lib/formatters';
+} from '@/components/ui/table'
+import { useDebounce } from '@/hooks/use-debounce'
+import { formatCurrency, formatDate } from '@/lib/formatters'
 
-import { usePolicies } from '../hooks/use-policies';
-import type { PolicyData, PolicyStatus } from '../types';
+import { usePolicies } from '../hooks/use-policies'
+import type { PolicyData, PolicyStatus } from '../types'
 import {
   POLICY_BRANCH_LABELS,
   POLICY_STATUS_BADGE_VARIANT,
   POLICY_STATUS_LABELS,
   POLICY_STATUSES,
-} from '../types';
-import { CancelPolicyDialog } from './cancel-policy-dialog';
+} from '../types'
+import { CancelPolicyDialog } from './cancel-policy-dialog'
 
 export function PoliciesTable() {
-  const router = useRouter();
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<PolicyStatus | 'ALL'>('ALL');
-  const [cursor, setCursor] = useState<string | undefined>(undefined);
-  const [cancelTarget, setCancelTarget] = useState<PolicyData | null>(null);
+  const router = useRouter()
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<PolicyStatus | 'ALL'>('ALL')
+  const [cursor, setCursor] = useState<string | undefined>(undefined)
+  const [cancelTarget, setCancelTarget] = useState<PolicyData | null>(null)
 
-  const debouncedSearch = useDebounce(search, 300);
+  const debouncedSearch = useDebounce(search, 300)
 
   const { data, isLoading, isError, refetch } = usePolicies({
     search: debouncedSearch || undefined,
     status: statusFilter === 'ALL' ? undefined : statusFilter,
     cursor,
-  });
+  })
 
-  const policies = data?.data ?? [];
-  const meta = data?.meta;
+  const policies = data?.data ?? []
+  const meta = data?.meta
 
   if (isError) {
     return (
@@ -63,7 +70,7 @@ export function PoliciesTable() {
           Tentar novamente
         </Button>
       </div>
-    );
+    )
   }
 
   return (
@@ -76,8 +83,8 @@ export function PoliciesTable() {
             placeholder="Buscar por número ou cliente..."
             value={search}
             onChange={(e) => {
-              setSearch(e.target.value);
-              setCursor(undefined);
+              setSearch(e.target.value)
+              setCursor(undefined)
             }}
             className="pl-9"
           />
@@ -85,14 +92,19 @@ export function PoliciesTable() {
         <Select
           value={statusFilter}
           onValueChange={(v) => {
-            if (v === null) return;
-            const validStatuses: readonly string[] = POLICY_STATUSES;
-            setStatusFilter(validStatuses.includes(v) ? (v as PolicyStatus) : 'ALL');
-            setCursor(undefined);
+            if (v === null) return
+            const validStatuses: readonly string[] = POLICY_STATUSES
+            setStatusFilter(
+              validStatuses.includes(v) ? (v as PolicyStatus) : 'ALL'
+            )
+            setCursor(undefined)
           }}
           items={[
             { value: 'ALL', label: 'Todos' },
-            ...POLICY_STATUSES.map((s) => ({ value: s, label: POLICY_STATUS_LABELS[s] })),
+            ...POLICY_STATUSES.map((s) => ({
+              value: s,
+              label: POLICY_STATUS_LABELS[s],
+            })),
           ]}
         >
           <SelectTrigger className="w-40">
@@ -167,14 +179,18 @@ export function PoliciesTable() {
                   onClick={() => router.push(`/policies/${policy.id}`)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      router.push(`/policies/${policy.id}`);
+                      e.preventDefault()
+                      router.push(`/policies/${policy.id}`)
                     }
                   }}
                 >
-                  <TableCell className="font-medium">{policy.policyNumber}</TableCell>
+                  <TableCell className="font-medium">
+                    {policy.policyNumber}
+                  </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{POLICY_BRANCH_LABELS[policy.branch]}</Badge>
+                    <Badge variant="outline">
+                      {POLICY_BRANCH_LABELS[policy.branch]}
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant={POLICY_STATUS_BADGE_VARIANT[policy.status]}>
@@ -185,7 +201,8 @@ export function PoliciesTable() {
                     {formatCurrency(policy.premiumValueInCents)}
                   </TableCell>
                   <TableCell>
-                    {formatDate(policy.startDate)} – {formatDate(policy.endDate)}
+                    {formatDate(policy.startDate)} –{' '}
+                    {formatDate(policy.endDate)}
                   </TableCell>
                   <TableCell>{formatDate(policy.createdAt)}</TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>
@@ -231,7 +248,7 @@ export function PoliciesTable() {
               size="sm"
               disabled={!meta?.hasMore}
               onClick={() => {
-                if (meta?.nextCursor) setCursor(meta.nextCursor);
+                if (meta?.nextCursor) setCursor(meta.nextCursor)
               }}
             >
               Próximo <ChevronRight className="ml-1 size-4" />
@@ -240,7 +257,10 @@ export function PoliciesTable() {
         </>
       )}
 
-      <CancelPolicyDialog policy={cancelTarget} onClose={() => setCancelTarget(null)} />
+      <CancelPolicyDialog
+        policy={cancelTarget}
+        onClose={() => setCancelTarget(null)}
+      />
     </>
-  );
+  )
 }

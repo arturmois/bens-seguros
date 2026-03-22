@@ -1,8 +1,21 @@
-import mongoose, { type InferSchemaType, Schema } from 'mongoose';
+import mongoose, { type InferSchemaType, Schema } from 'mongoose'
 
-const SENDER_TYPES = ['CLIENT', 'AGENT', 'BOT', 'SYSTEM'] as const;
-const MESSAGE_TYPES = ['TEXT', 'IMAGE', 'AUDIO', 'VIDEO', 'DOCUMENT', 'OTHER'] as const;
-const MESSAGE_STATUSES = ['PENDING', 'SENT', 'DELIVERED', 'READ', 'FAILED'] as const;
+const SENDER_TYPES = ['CLIENT', 'AGENT', 'BOT', 'SYSTEM'] as const
+const MESSAGE_TYPES = [
+  'TEXT',
+  'IMAGE',
+  'AUDIO',
+  'VIDEO',
+  'DOCUMENT',
+  'OTHER',
+] as const
+const MESSAGE_STATUSES = [
+  'PENDING',
+  'SENT',
+  'DELIVERED',
+  'READ',
+  'FAILED',
+] as const
 
 const messageSchema = new Schema(
   {
@@ -19,12 +32,17 @@ const messageSchema = new Schema(
     metadata: Schema.Types.Mixed,
     externalId: String,
   },
-  { timestamps: { createdAt: true, updatedAt: false } },
-);
+  { timestamps: { createdAt: true, updatedAt: false } }
+)
 
-messageSchema.index({ tenantId: 1, createdAt: 1 }, { expireAfterSeconds: 730 * 24 * 60 * 60 });
-messageSchema.index({ conversationId: 1, createdAt: -1 });
-messageSchema.index({ externalId: 1 }, { sparse: true });
+messageSchema.index(
+  { tenantId: 1, createdAt: 1 },
+  { expireAfterSeconds: 730 * 24 * 60 * 60 }
+)
+messageSchema.index({ conversationId: 1, createdAt: -1 })
+messageSchema.index({ externalId: 1 }, { sparse: true })
 
-export type MessageDocument = InferSchemaType<typeof messageSchema> & { _id: string };
-export const Message = mongoose.model('Message', messageSchema);
+export type MessageDocument = InferSchemaType<typeof messageSchema> & {
+  _id: string
+}
+export const Message = mongoose.model('Message', messageSchema)

@@ -1,21 +1,25 @@
-'use client';
+'use client'
 
-import { Controller } from 'react-hook-form';
-import { InputMask } from '@react-input/mask';
+import { Controller } from 'react-hook-form'
+import { InputMask } from '@react-input/mask'
 
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { CEP_MASK, CNPJ_MASK } from '@/lib/masks';
+} from '@/components/ui/select'
+import { CEP_MASK, CNPJ_MASK } from '@/lib/masks'
 
-import { CONSTRUCAO_OPTIONS, TIPO_IMOVEL_OPTIONS, USO_IMOVEL_OPTIONS } from '../lib/branch-options';
-import { FieldWrapper } from './branch-field-sets';
-import type { FieldHelperProps } from './branch-field-sets';
+import {
+  CONSTRUCAO_OPTIONS,
+  TIPO_IMOVEL_OPTIONS,
+  USO_IMOVEL_OPTIONS,
+} from '../lib/branch-options'
+import { FieldWrapper } from './branch-field-sets'
+import type { FieldHelperProps } from './branch-field-sets'
 
 export function ResidentialFields({ register, control }: FieldHelperProps) {
   return (
@@ -119,14 +123,17 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
         />
       </FieldWrapper>
     </>
-  );
+  )
 }
 
 export function CondominiumFields({ register, control }: FieldHelperProps) {
   return (
     <>
       <FieldWrapper label="Nome do Condomínio" required>
-        <Input placeholder="Nome do condomínio" {...register('nomeCondominio')} />
+        <Input
+          placeholder="Nome do condomínio"
+          {...register('nomeCondominio')}
+        />
       </FieldWrapper>
       <FieldWrapper label="Número de Unidades" required>
         <Input
@@ -169,14 +176,17 @@ export function CondominiumFields({ register, control }: FieldHelperProps) {
         />
       </FieldWrapper>
     </>
-  );
+  )
 }
 
 export function BusinessFields({ register, control }: FieldHelperProps) {
   return (
     <>
       <FieldWrapper label="Razão Social" required>
-        <Input placeholder="Razão social da empresa" {...register('razaoSocial')} />
+        <Input
+          placeholder="Razão social da empresa"
+          {...register('razaoSocial')}
+        />
       </FieldWrapper>
       <FieldWrapper label="CNPJ" required>
         <Controller
@@ -224,5 +234,5 @@ export function BusinessFields({ register, control }: FieldHelperProps) {
         />
       </FieldWrapper>
     </>
-  );
+  )
 }

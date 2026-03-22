@@ -1,22 +1,22 @@
-'use client';
+'use client'
 
-import { useAuth } from '@/features/auth/hooks/use-auth';
-import { cn } from '@/lib/utils';
-import { useCallback, useState } from 'react';
+import { useAuth } from '@/features/auth/hooks/use-auth'
+import { cn } from '@/lib/utils'
+import { useCallback, useState } from 'react'
 
-import { useConversations } from '../hooks/use-conversations';
-import { useMessages } from '../hooks/use-messages';
-import { useSocket } from '../hooks/use-socket';
-import { ChatArea } from './chat-area';
-import { ContactProfile } from './contact-profile';
-import { ConversationList } from './conversation-list';
-import { WhatsappStatus } from './whatsapp-status';
+import { useConversations } from '../hooks/use-conversations'
+import { useMessages } from '../hooks/use-messages'
+import { useSocket } from '../hooks/use-socket'
+import { ChatArea } from './chat-area'
+import { ContactProfile } from './contact-profile'
+import { ConversationList } from './conversation-list'
+import { WhatsappStatus } from './whatsapp-status'
 
-type MobileView = 'list' | 'chat';
+type MobileView = 'list' | 'chat'
 
 export function ChatLayout() {
-  const { user } = useAuth();
-  const { socket, isConnected } = useSocket();
+  const { user } = useAuth()
+  const { socket, isConnected } = useSocket()
 
   const {
     conversations,
@@ -28,11 +28,13 @@ export function ChatLayout() {
     transferConversation,
     returnToQueue,
     closeConversation,
-  } = useConversations(socket);
+  } = useConversations(socket)
 
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
-  const [mobileView, setMobileView] = useState<MobileView>('list');
-  const [showProfile, setShowProfile] = useState(false);
+  const [selectedConversationId, setSelectedConversationId] = useState<
+    string | null
+  >(null)
+  const [mobileView, setMobileView] = useState<MobileView>('list')
+  const [showProfile, setShowProfile] = useState(false)
 
   const {
     messages,
@@ -43,62 +45,64 @@ export function ChatLayout() {
     sendMessage,
     emitTyping,
     typingUser,
-  } = useMessages(selectedConversationId, socket, user?.id);
+  } = useMessages(selectedConversationId, socket, user?.id)
 
-  const currentUserId = user?.id ?? '';
+  const currentUserId = user?.id ?? ''
 
   const activeConversation =
-    conversationDetails ?? conversations.find((c) => c.id === selectedConversationId) ?? null;
+    conversationDetails ??
+    conversations.find((c) => c.id === selectedConversationId) ??
+    null
 
   const handleSelectConversation = useCallback((id: string) => {
-    setSelectedConversationId(id);
-    setMobileView('chat');
-    setShowProfile(false);
-  }, []);
+    setSelectedConversationId(id)
+    setMobileView('chat')
+    setShowProfile(false)
+  }, [])
 
   const handleBack = useCallback(() => {
-    setMobileView('list');
-    setShowProfile(false);
-  }, []);
+    setMobileView('list')
+    setShowProfile(false)
+  }, [])
 
   const handleOpenProfile = useCallback(() => {
-    setShowProfile(true);
-  }, []);
+    setShowProfile(true)
+  }, [])
 
   const handleCloseProfile = useCallback(() => {
-    setShowProfile(false);
-  }, []);
+    setShowProfile(false)
+  }, [])
 
   const handleAssign = useCallback(() => {
-    if (!selectedConversationId) return;
-    assignConversation.mutate(selectedConversationId);
-  }, [selectedConversationId, assignConversation]);
+    if (!selectedConversationId) return
+    assignConversation.mutate(selectedConversationId)
+  }, [selectedConversationId, assignConversation])
 
   const handleTransfer = useCallback(() => {
     // TODO: Implement agent selection modal before calling transfer.
     // The backend validates that toUserId/toUserName are non-empty,
     // so this will correctly fail until the modal is implemented.
-    if (!selectedConversationId) return;
+    if (!selectedConversationId) return
     transferConversation.mutate({
       id: selectedConversationId,
       toUserId: '',
       toUserName: '',
-    });
-  }, [selectedConversationId, transferConversation]);
+    })
+  }, [selectedConversationId, transferConversation])
 
   const handleReturnToQueue = useCallback(() => {
-    if (!selectedConversationId) return;
-    returnToQueue.mutate(selectedConversationId);
-  }, [selectedConversationId, returnToQueue]);
+    if (!selectedConversationId) return
+    returnToQueue.mutate(selectedConversationId)
+  }, [selectedConversationId, returnToQueue])
 
   const handleCloseConversation = useCallback(() => {
-    if (!selectedConversationId) return;
-    closeConversation.mutate(selectedConversationId);
-  }, [selectedConversationId, closeConversation]);
+    if (!selectedConversationId) return
+    closeConversation.mutate(selectedConversationId)
+  }, [selectedConversationId, closeConversation])
 
   const handleRetryConversations = useCallback(() => {
-    setFilters({});
-  }, [setFilters]);
+    setFilters({})
+  }, [setFilters])
 
   return (
     <div className="bg-background flex h-full w-full overflow-hidden">
@@ -122,7 +126,12 @@ export function ChatLayout() {
           />
         </div>
 
-        <div className={cn('flex-1 transition-all duration-300', showProfile ? 'mr-80' : '')}>
+        <div
+          className={cn(
+            'flex-1 transition-all duration-300',
+            showProfile ? 'mr-80' : ''
+          )}
+        >
           <ChatArea
             conversation={activeConversation}
             contact={contact}
@@ -145,7 +154,7 @@ export function ChatLayout() {
         <div
           className={cn(
             'border-border fixed right-0 top-0 z-40 h-full w-80 border-l transition-transform duration-300',
-            showProfile ? 'translate-x-0' : 'translate-x-full',
+            showProfile ? 'translate-x-0' : 'translate-x-full'
           )}
         >
           {activeConversation && (
@@ -163,7 +172,7 @@ export function ChatLayout() {
         <div
           className={cn(
             'absolute inset-0 z-10 transition-transform duration-300',
-            mobileView === 'list' ? 'translate-x-0' : '-translate-x-full',
+            mobileView === 'list' ? 'translate-x-0' : '-translate-x-full'
           )}
         >
           <ConversationList
@@ -181,7 +190,7 @@ export function ChatLayout() {
         <div
           className={cn(
             'absolute inset-0 z-20 transition-transform duration-300',
-            mobileView === 'chat' ? 'translate-x-0' : 'translate-x-full',
+            mobileView === 'chat' ? 'translate-x-0' : 'translate-x-full'
           )}
         >
           <ChatArea
@@ -206,7 +215,9 @@ export function ChatLayout() {
         <div
           className={cn(
             'bg-card absolute inset-0 z-30 transition-transform duration-300',
-            showProfile && mobileView === 'chat' ? 'translate-x-0' : 'translate-x-full',
+            showProfile && mobileView === 'chat'
+              ? 'translate-x-0'
+              : 'translate-x-full'
           )}
         >
           {activeConversation && (
@@ -219,5 +230,5 @@ export function ChatLayout() {
         </div>
       </div>
     </div>
-  );
+  )
 }

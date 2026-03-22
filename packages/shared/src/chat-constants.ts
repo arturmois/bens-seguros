@@ -6,7 +6,7 @@ export const CHAT_QUEUES = {
   CONNECT_CHANNEL: 'chat-connect-channel',
   PAIR_CHANNEL: 'chat-pair-channel',
   DEAD_LETTER: 'chat-dead-letter',
-} as const;
+} as const
 
 export const CHAT_LIMITS = {
   MAX_CONVERSATIONS_PER_ORG: 50,
@@ -23,7 +23,7 @@ export const CHAT_LIMITS = {
   TYPING_TIMEOUT_MS: 5_000,
   UNASSIGNED_NOTIFY_TIMEOUT_MS: 300_000,
   MAX_AI_RESPONSES_PER_CONVERSATION: 20,
-} as const;
+} as const
 
 export const CHAT_PUBSUB_CHANNELS = {
   INCOMING_MESSAGE: 'chat:pub:incoming-message',
@@ -32,10 +32,10 @@ export const CHAT_PUBSUB_CHANNELS = {
   CONVERSATION_UPDATE: 'chat:pub:conversation-update',
   UNREAD_UPDATE: 'chat:pub:unread-update',
   PAIRING_CODE_RESULT: 'chat:pub:pairing-code-result',
-} as const;
+} as const
 
 /** Redis key helpers for WhatsApp channel state (shared between worker and server) */
 export const WHATSAPP_STATE_KEYS = {
   state: (channelId: string): string => `whatsapp:state:${channelId}`,
   lastQr: (channelId: string): string => `whatsapp:last_qr:${channelId}`,
-} as const;
+} as const

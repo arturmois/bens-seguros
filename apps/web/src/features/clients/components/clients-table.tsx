@@ -1,69 +1,69 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-import { Button } from '@/components/ui/button';
-import { Table } from '@/components/ui/table';
-import { useDebounce } from '@/hooks/use-debounce';
+import { Button } from '@/components/ui/button'
+import { Table } from '@/components/ui/table'
+import { useDebounce } from '@/hooks/use-debounce'
 
-import type { ClientData, ClientType } from '../types';
-import { useClients, useDeleteClient } from '../hooks/use-clients';
-import { ClientForm } from './client-form';
-import { ClientsPagination } from './clients-pagination';
-import { ClientsTableBody, ClientsTableHeader } from './clients-table-rows';
-import { ClientsToolbar } from './clients-toolbar';
-import { DeleteClientDialog } from './delete-client-dialog';
+import type { ClientData, ClientType } from '../types'
+import { useClients, useDeleteClient } from '../hooks/use-clients'
+import { ClientForm } from './client-form'
+import { ClientsPagination } from './clients-pagination'
+import { ClientsTableBody, ClientsTableHeader } from './clients-table-rows'
+import { ClientsToolbar } from './clients-toolbar'
+import { DeleteClientDialog } from './delete-client-dialog'
 
 export function ClientsContent() {
-  const router = useRouter();
-  const [search, setSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState<string>('ALL');
-  const [cursors, setCursors] = useState<string[]>([]);
-  const [formOpen, setFormOpen] = useState(false);
-  const [editingClient, setEditingClient] = useState<ClientData | null>(null);
-  const [deletingClientId, setDeletingClientId] = useState<string | null>(null);
+  const router = useRouter()
+  const [search, setSearch] = useState('')
+  const [typeFilter, setTypeFilter] = useState<string>('ALL')
+  const [cursors, setCursors] = useState<string[]>([])
+  const [formOpen, setFormOpen] = useState(false)
+  const [editingClient, setEditingClient] = useState<ClientData | null>(null)
+  const [deletingClientId, setDeletingClientId] = useState<string | null>(null)
 
-  const debouncedSearch = useDebounce(search, 300);
-  const currentCursor = cursors.at(-1);
+  const debouncedSearch = useDebounce(search, 300)
+  const currentCursor = cursors.at(-1)
 
   const { data, isLoading, isError, refetch } = useClients({
     search: debouncedSearch || undefined,
     type: typeFilter === 'ALL' ? undefined : (typeFilter as ClientType),
     cursor: currentCursor,
-  });
+  })
 
-  const deleteClient = useDeleteClient();
+  const deleteClient = useDeleteClient()
 
   function handleRowClick(id: string) {
-    router.push(`/clients/${id}`);
+    router.push(`/clients/${id}`)
   }
 
   function handleEdit(client: ClientData) {
-    setEditingClient(client);
-    setFormOpen(true);
+    setEditingClient(client)
+    setFormOpen(true)
   }
 
   function handleFormClose(open: boolean) {
-    setFormOpen(open);
-    if (!open) setEditingClient(null);
+    setFormOpen(open)
+    if (!open) setEditingClient(null)
   }
 
   function handleNextPage() {
     if (data?.meta.nextCursor) {
-      setCursors((prev) => [...prev, data.meta.nextCursor!]);
+      setCursors((prev) => [...prev, data.meta.nextCursor!])
     }
   }
 
   function handlePreviousPage() {
-    setCursors((prev) => prev.slice(0, -1));
+    setCursors((prev) => prev.slice(0, -1))
   }
 
   function handleConfirmDelete() {
     if (deletingClientId) {
       deleteClient.mutate(deletingClientId, {
         onSuccess: () => setDeletingClientId(null),
-      });
+      })
     }
   }
 
@@ -75,7 +75,7 @@ export function ClientsContent() {
           Tentar novamente
         </Button>
       </div>
-    );
+    )
   }
 
   return (
@@ -85,12 +85,12 @@ export function ClientsContent() {
         onSearchChange={setSearch}
         typeFilter={typeFilter}
         onTypeFilterChange={(val) => {
-          setTypeFilter(val);
-          setCursors([]);
+          setTypeFilter(val)
+          setCursors([])
         }}
         onNewClient={() => {
-          setEditingClient(null);
-          setFormOpen(true);
+          setEditingClient(null)
+          setFormOpen(true)
         }}
       />
 
@@ -135,11 +135,11 @@ export function ClientsContent() {
       <DeleteClientDialog
         open={Boolean(deletingClientId)}
         onOpenChange={(open) => {
-          if (!open) setDeletingClientId(null);
+          if (!open) setDeletingClientId(null)
         }}
         onConfirm={handleConfirmDelete}
         isPending={deleteClient.isPending}
       />
     </div>
-  );
+  )
 }

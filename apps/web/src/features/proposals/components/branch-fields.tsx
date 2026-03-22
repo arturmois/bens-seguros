@@ -1,28 +1,37 @@
-'use client';
+'use client'
 
-import type { FieldValues } from 'react-hook-form';
-import { useForm } from 'react-hook-form';
-import { Loader2 } from 'lucide-react';
+import type { FieldValues } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
+import { Loader2 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
-import type { InsuranceBranch, InsuredObjectDetails } from '../types';
-import { AutoFields, FieldWrapper, LifeFields, OtherFields } from './branch-field-sets';
-import type { FieldHelperProps } from './branch-field-sets';
-import { BusinessFields, CondominiumFields, ResidentialFields } from './branch-field-sets-property';
+import type { InsuranceBranch, InsuredObjectDetails } from '../types'
+import {
+  AutoFields,
+  FieldWrapper,
+  LifeFields,
+  OtherFields,
+} from './branch-field-sets'
+import type { FieldHelperProps } from './branch-field-sets'
+import {
+  BusinessFields,
+  CondominiumFields,
+  ResidentialFields,
+} from './branch-field-sets-property'
 
 interface BranchFieldsProps {
-  readonly branch: InsuranceBranch;
-  readonly defaultValues?: InsuredObjectDetails | null;
-  readonly defaultPremium?: number;
-  readonly defaultCommission?: number;
+  readonly branch: InsuranceBranch
+  readonly defaultValues?: InsuredObjectDetails | null
+  readonly defaultPremium?: number
+  readonly defaultCommission?: number
   readonly onSubmit: (data: {
-    details: InsuredObjectDetails;
-    premiumValueInCents: number;
-    commissionBasisPoints: number;
-  }) => void;
-  readonly isLoading?: boolean;
+    details: InsuredObjectDetails
+    premiumValueInCents: number
+    commissionBasisPoints: number
+  }) => void
+  readonly isLoading?: boolean
 }
 
 const BRANCH_FIELD_MAP: Record<InsuranceBranch, React.FC<FieldHelperProps>> = {
@@ -32,11 +41,11 @@ const BRANCH_FIELD_MAP: Record<InsuranceBranch, React.FC<FieldHelperProps>> = {
   BUSINESS: BusinessFields,
   LIFE: LifeFields,
   OTHER: OtherFields,
-};
+}
 
 function buildDetails(
   branch: InsuranceBranch,
-  fields: Record<string, unknown>,
+  fields: Record<string, unknown>
 ): InsuredObjectDetails {
   switch (branch) {
     case 'AUTO':
@@ -49,9 +58,11 @@ function buildDetails(
         placa: fields.placa ? String(fields.placa) : undefined,
         chassi: fields.chassi ? String(fields.chassi) : undefined,
         cor: fields.cor ? String(fields.cor) : undefined,
-        combustivel: fields.combustivel ? String(fields.combustivel) : undefined,
+        combustivel: fields.combustivel
+          ? String(fields.combustivel)
+          : undefined,
         usoVeiculo: fields.usoVeiculo ? String(fields.usoVeiculo) : undefined,
-      };
+      }
     case 'RESIDENTIAL':
       return {
         branch,
@@ -61,7 +72,7 @@ function buildDetails(
         endereco: fields.endereco ? String(fields.endereco) : undefined,
         construcao: fields.construcao ? String(fields.construcao) : undefined,
         areaM2: fields.areaM2 ? Number(fields.areaM2) : undefined,
-      };
+      }
     case 'CONDOMINIUM':
       return {
         branch,
@@ -69,9 +80,13 @@ function buildDetails(
         numeroUnidades: Number(fields.numeroUnidades) || 0,
         cep: String(fields.cep ?? ''),
         endereco: fields.endereco ? String(fields.endereco) : undefined,
-        anoConstrucao: fields.anoConstrucao ? Number(fields.anoConstrucao) : undefined,
-        numeroAndares: fields.numeroAndares ? Number(fields.numeroAndares) : undefined,
-      };
+        anoConstrucao: fields.anoConstrucao
+          ? Number(fields.anoConstrucao)
+          : undefined,
+        numeroAndares: fields.numeroAndares
+          ? Number(fields.numeroAndares)
+          : undefined,
+      }
     case 'BUSINESS':
       return {
         branch,
@@ -81,7 +96,7 @@ function buildDetails(
         cep: fields.cep ? String(fields.cep) : undefined,
         endereco: fields.endereco ? String(fields.endereco) : undefined,
         areaM2: fields.areaM2 ? Number(fields.areaM2) : undefined,
-      };
+      }
     case 'LIFE':
       return {
         branch,
@@ -91,10 +106,12 @@ function buildDetails(
           : undefined,
         fumante: fields.fumante === true ? true : undefined,
         esportesRadicais: fields.esportesRadicais === true ? true : undefined,
-        beneficiarios: fields.beneficiarios ? String(fields.beneficiarios) : undefined,
-      };
+        beneficiarios: fields.beneficiarios
+          ? String(fields.beneficiarios)
+          : undefined,
+      }
     case 'OTHER':
-      return { branch, descricao: String(fields.descricao ?? '') };
+      return { branch, descricao: String(fields.descricao ?? '') }
   }
 }
 
@@ -112,19 +129,19 @@ export function BranchFields({
       premiumValueInCents: defaultPremium ?? 0,
       commissionBasisPoints: defaultCommission ?? 0,
     },
-  });
+  })
 
   function handleFormSubmit(values: FieldValues) {
-    const { premiumValueInCents, commissionBasisPoints, ...rest } = values;
-    const details: InsuredObjectDetails = buildDetails(branch, rest);
+    const { premiumValueInCents, commissionBasisPoints, ...rest } = values
+    const details: InsuredObjectDetails = buildDetails(branch, rest)
     onSubmit({
       details,
       premiumValueInCents: Number(premiumValueInCents) || 0,
       commissionBasisPoints: Number(commissionBasisPoints) || 0,
-    });
+    })
   }
 
-  const BranchComponent = BRANCH_FIELD_MAP[branch];
+  const BranchComponent = BRANCH_FIELD_MAP[branch]
 
   return (
     <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
@@ -145,11 +162,17 @@ export function BranchFields({
               {...form.register('premiumValueInCents', { valueAsNumber: true })}
             />
           </FieldWrapper>
-          <FieldWrapper label="Comissão (%)" required hint="Em pontos base (ex: 1500 = 15%)">
+          <FieldWrapper
+            label="Comissão (%)"
+            required
+            hint="Em pontos base (ex: 1500 = 15%)"
+          >
             <Input
               type="number"
               placeholder="1500"
-              {...form.register('commissionBasisPoints', { valueAsNumber: true })}
+              {...form.register('commissionBasisPoints', {
+                valueAsNumber: true,
+              })}
             />
           </FieldWrapper>
         </div>
@@ -162,5 +185,5 @@ export function BranchFields({
         </Button>
       </div>
     </form>
-  );
+  )
 }

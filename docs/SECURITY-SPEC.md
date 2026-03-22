@@ -49,14 +49,14 @@ Aplicar em TODAS as fases de implementacao. Nao negociavel.
 
 ```ts
 // Armazenamento
-client.documentEncrypted = encrypt(cpf); // AES-256-GCM
-client.documentHash = sha256(normalize(cpf)); // Para busca
+client.documentEncrypted = encrypt(cpf) // AES-256-GCM
+client.documentHash = sha256(normalize(cpf)) // Para busca
 
 // Busca
-const hash = sha256(normalize(inputCpf));
+const hash = sha256(normalize(inputCpf))
 const client = await prisma.client.findFirst({
   where: { organizationId, documentHash: hash },
-});
+})
 ```
 
 ### Chaves de Criptografia
@@ -198,7 +198,7 @@ function redactPii(text: string): string {
     .replace(/\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}/g, '[CNPJ]')
     .replace(/\b[\w.+-]+@[\w-]+\.[\w.]+\b/g, '[EMAIL]')
     .replace(/\+?55\s?\(?\d{2}\)?\s?\d{4,5}-?\d{4}/g, '[TELEFONE]')
-    .replace(/\d{5}-?\d{3}/g, '[CEP]');
+    .replace(/\d{5}-?\d{3}/g, '[CEP]')
 }
 ```
 
@@ -285,7 +285,7 @@ function contentTypeMiddleware(request, reply, done) {
 
 ```ts
 // apps/server/src/lib/logger.ts
-import pino from 'pino';
+import pino from 'pino'
 
 export const logger = pino({
   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
@@ -312,7 +312,7 @@ export const logger = pino({
     ],
     censor: '[REDACTED]',
   },
-});
+})
 ```
 
 ---
@@ -321,7 +321,7 @@ export const logger = pino({
 
 ```ts
 // apps/web/src/lib/sentry.ts
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from '@sentry/nextjs'
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -329,12 +329,20 @@ Sentry.init({
     // Strip PII from request body
     if (event.request?.data) {
       try {
-        const data = JSON.parse(event.request.data);
-        const piiFields = ['cpf', 'cnpj', 'document', 'email', 'phone', 'password', 'birthDate'];
+        const data = JSON.parse(event.request.data)
+        const piiFields = [
+          'cpf',
+          'cnpj',
+          'document',
+          'email',
+          'phone',
+          'password',
+          'birthDate',
+        ]
         for (const field of piiFields) {
-          if (data[field]) data[field] = '[REDACTED]';
+          if (data[field]) data[field] = '[REDACTED]'
         }
-        event.request.data = JSON.stringify(data);
+        event.request.data = JSON.stringify(data)
       } catch {}
     }
 
@@ -342,20 +350,20 @@ Sentry.init({
     if (event.breadcrumbs) {
       event.breadcrumbs = event.breadcrumbs.map((b) => {
         if (b.data?.url?.includes('cpf=')) {
-          b.data.url = b.data.url.replace(/cpf=[^&]+/, 'cpf=[REDACTED]');
+          b.data.url = b.data.url.replace(/cpf=[^&]+/, 'cpf=[REDACTED]')
         }
-        return b;
-      });
+        return b
+      })
     }
 
     // User context: only id + role, no email
     if (event.user) {
-      event.user = { id: event.user.id };
+      event.user = { id: event.user.id }
     }
 
-    return event;
+    return event
   },
-});
+})
 ```
 
 ---
@@ -373,9 +381,9 @@ const ALLOWED_MIME = {
   CLAIM_PHOTO: ['image/jpeg', 'image/png'],
   CONTRACT: ['application/pdf'],
   OTHER: ['image/jpeg', 'image/png', 'application/pdf', 'application/msword'],
-};
+}
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 ```
 
 ### Download (Presigned URL)
@@ -410,7 +418,7 @@ export function useClients(filters) {
     queryFn: () => api.listClients(filters),
     // API ja retorna mascarado via Presenter (SEC-2)
     // Nao precisa mascarar no frontend se backend ja faz
-  });
+  })
 }
 ```
 
@@ -424,11 +432,11 @@ export function useClients(filters) {
 
 ```tsx
 // apps/web/src/providers/index.tsx
-const queryClient = new QueryClient();
+const queryClient = new QueryClient()
 
 // Em producao: sem DevTools
 {
-  process.env.NODE_ENV === 'development' && <ReactQueryDevtools />;
+  process.env.NODE_ENV === 'development' && <ReactQueryDevtools />
 }
 ```
 

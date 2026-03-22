@@ -1,6 +1,6 @@
-import Link from 'next/link';
-import { Suspense } from 'react';
-import { RegisterForm } from '@/features/auth/components/register-form';
+import Link from 'next/link'
+import { Suspense } from 'react'
+import { RegisterForm } from '@/features/auth/components/register-form'
 
 export default function RegisterPage() {
   return (
@@ -15,5 +15,5 @@ export default function RegisterPage() {
         </Link>
       </p>
     </>
-  );
+  )
 }

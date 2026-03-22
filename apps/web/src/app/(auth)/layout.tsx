@@ -1,4 +1,8 @@
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <div className="bg-muted flex min-h-dvh items-center justify-center">
       <div className="bg-card w-full max-w-md rounded-lg border p-8 shadow-sm">
@@ -8,5 +12,5 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {children}
       </div>
     </div>
-  );
+  )
 }

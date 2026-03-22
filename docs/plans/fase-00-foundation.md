@@ -402,8 +402,8 @@ git commit -m "chore: initialize monorepo with pnpm + turbo"
 `config/eslint-config/index.mjs`:
 
 ```js
-import tseslint from '@typescript-eslint/eslint-plugin';
-import tsparser from '@typescript-eslint/parser';
+import tseslint from '@typescript-eslint/eslint-plugin'
+import tsparser from '@typescript-eslint/parser'
 
 export const baseConfig = {
   files: ['**/*.ts', '**/*.tsx'],
@@ -422,15 +422,15 @@ export const baseConfig = {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'no-console': ['error', { allow: ['warn', 'error'] }],
   },
-};
+}
 
 export const nextConfig = {
   ...baseConfig,
-};
+}
 
 export const nodeConfig = {
   ...baseConfig,
-};
+}
 ```
 
 - [ ] **Step 3: Create Prettier config**
@@ -456,13 +456,13 @@ export default {
   printWidth: 100,
   tabWidth: 2,
   plugins: ['prettier-plugin-tailwindcss'],
-};
+}
 ```
 
 `.prettierrc.mjs` (root):
 
 ```js
-export { default } from '@config/prettier-config';
+export { default } from '@config/prettier-config'
 ```
 
 - [ ] **Step 4: Install dependencies and verify**
@@ -524,12 +524,14 @@ git commit -m "chore: add shared eslint, prettier, typescript configs"
 - [ ] **Step 3: Create src/index.ts with all env vars**
 
 ```ts
-import { createEnv } from '@t3-oss/env-core';
-import { z } from 'zod';
+import { createEnv } from '@t3-oss/env-core'
+import { z } from 'zod'
 
 export const env = createEnv({
   server: {
-    NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+    NODE_ENV: z
+      .enum(['development', 'production', 'test'])
+      .default('development'),
     DATABASE_URL: z.string().url(),
     MONGODB_URL: z.string().url(),
     REDIS_URL: z.string().url().default('redis://localhost:6379'),
@@ -556,11 +558,14 @@ export const env = createEnv({
   clientPrefix: 'NEXT_PUBLIC_',
   client: {
     NEXT_PUBLIC_API_URL: z.string().url().default('http://localhost:3001'),
-    NEXT_PUBLIC_CHAT_SERVER_URL: z.string().url().default('http://localhost:3002'),
+    NEXT_PUBLIC_CHAT_SERVER_URL: z
+      .string()
+      .url()
+      .default('http://localhost:3002'),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
-});
+})
 ```
 
 - [ ] **Step 4: Commit**
@@ -610,7 +615,7 @@ git commit -m "feat: add @repo/env package with typed environment variables"
 - [ ] **Step 2: Create api-types.ts**
 
 ```ts
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const apiSuccessSchema = <T extends z.ZodType>(dataSchema: T) =>
   z.object({
@@ -622,7 +627,7 @@ export const apiSuccessSchema = <T extends z.ZodType>(dataSchema: T) =>
         nextCursor: z.string().optional(),
       })
       .optional(),
-  });
+  })
 
 export const apiErrorSchema = z.object({
   success: z.literal(false),
@@ -630,20 +635,20 @@ export const apiErrorSchema = z.object({
     code: z.string(),
     message: z.string(),
   }),
-});
+})
 
 export type ApiSuccess<T> = {
-  success: true;
-  data: T;
-  meta?: { total?: number; nextCursor?: string };
-};
+  success: true
+  data: T
+  meta?: { total?: number; nextCursor?: string }
+}
 
 export type ApiError = {
-  success: false;
-  error: { code: string; message: string };
-};
+  success: false
+  error: { code: string; message: string }
+}
 
-export type ApiResponse<T> = ApiSuccess<T> | ApiError;
+export type ApiResponse<T> = ApiSuccess<T> | ApiError
 ```
 
 - [ ] **Step 3: Create socket-events.ts**
@@ -666,16 +671,16 @@ export const SOCKET_EVENTS = {
   WHATSAPP_QR: 'whatsapp_qr',
   // Notifications
   NOTIFICATION: 'notification',
-} as const;
+} as const
 
-export type SocketEvent = (typeof SOCKET_EVENTS)[keyof typeof SOCKET_EVENTS];
+export type SocketEvent = (typeof SOCKET_EVENTS)[keyof typeof SOCKET_EVENTS]
 ```
 
 - [ ] **Step 4: Create index.ts barrel export**
 
 ```ts
-export * from './api-types.js';
-export * from './socket-events.js';
+export * from './api-types.js'
+export * from './socket-events.js'
 ```
 
 - [ ] **Step 5: Commit**
@@ -750,36 +755,38 @@ datasource db {
 - [ ] **Step 3: Create src/index.ts**
 
 ```ts
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client'
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+export const prisma = globalForPrisma.prisma ?? new PrismaClient()
 
 if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
+  globalForPrisma.prisma = prisma
 }
 
-export { PrismaClient } from '@prisma/client';
-export type * from '@prisma/client';
+export { PrismaClient } from '@prisma/client'
+export type * from '@prisma/client'
 ```
 
 - [ ] **Step 4: Create src/tenant-client.ts**
 
 ```ts
-import { prisma } from './index.js';
+import { prisma } from './index.js'
 
 export function createTenantClient(organizationId: string) {
   return prisma.$extends({
     query: {
       $allOperations({ args, query }) {
         return prisma.$transaction(async (tx) => {
-          await tx.$executeRawUnsafe(`SET LOCAL app.current_tenant = '${organizationId}'`);
-          return query(args);
-        });
+          await tx.$executeRawUnsafe(
+            `SET LOCAL app.current_tenant = '${organizationId}'`
+          )
+          return query(args)
+        })
       },
     },
-  });
+  })
 }
 ```
 
@@ -826,32 +833,32 @@ git commit -m "feat: add @repo/db package with prisma + postgresql + tenant clie
 - [ ] **Step 2: Create src/connection.ts**
 
 ```ts
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'
 
-let isConnected = false;
+let isConnected = false
 
 export async function connectMongoDB(uri: string): Promise<void> {
-  if (isConnected) return;
+  if (isConnected) return
 
   await mongoose.connect(uri, {
     retryWrites: true,
     w: 'majority',
-  });
+  })
 
-  isConnected = true;
+  isConnected = true
 }
 
 export async function disconnectMongoDB(): Promise<void> {
-  if (!isConnected) return;
-  await mongoose.disconnect();
-  isConnected = false;
+  if (!isConnected) return
+  await mongoose.disconnect()
+  isConnected = false
 }
 ```
 
 - [ ] **Step 3: Create src/index.ts**
 
 ```ts
-export { connectMongoDB, disconnectMongoDB } from './connection.js';
+export { connectMongoDB, disconnectMongoDB } from './connection.js'
 // Mongoose models will be exported here as they are created in Fase 5
 ```
 
@@ -906,24 +913,24 @@ git commit -m "feat: add @repo/db-chat package with mongoose + mongodb connectio
 - [ ] **Step 2: Create src/container.ts**
 
 ```ts
-import 'reflect-metadata';
-import { container } from 'tsyringe';
+import 'reflect-metadata'
+import { container } from 'tsyringe'
 
-export { container };
-export { injectable, inject, singleton } from 'tsyringe';
+export { container }
+export { injectable, inject, singleton } from 'tsyringe'
 ```
 
 - [ ] **Step 3: Create src/index.ts**
 
 ```ts
-export { container, injectable, inject, singleton } from './container.js';
+export { container, injectable, inject, singleton } from './container.js'
 // Domain modules will be exported here as they are created
 ```
 
 - [ ] **Step 4: Create vitest.config.ts**
 
 ```ts
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
@@ -932,7 +939,7 @@ export default defineConfig({
     include: ['src/**/*.spec.ts'],
     setupFiles: ['reflect-metadata'],
   },
-});
+})
 ```
 
 - [ ] **Step 5: Commit**
@@ -980,7 +987,7 @@ git commit -m "feat: add @repo/core package with tsyringe DI container"
 
 ```ts
 // Better Auth + CASL setup will be implemented in Fase 1
-export {};
+export {}
 ```
 
 - [ ] **Step 2: Create @repo/ai placeholder**
@@ -1008,7 +1015,7 @@ export {};
 
 ```ts
 // Vercel AI SDK multi-provider setup will be implemented in Fase 6
-export {};
+export {}
 ```
 
 - [ ] **Step 3: Commit**
@@ -1081,7 +1088,7 @@ git commit -m "chore: add @repo/auth and @repo/ai placeholder packages"
 - [ ] **Step 2: Create next.config.ts**
 
 ```ts
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
@@ -1100,9 +1107,9 @@ const nextConfig: NextConfig = {
       ],
     },
   ],
-};
+}
 
-export default nextConfig;
+export default nextConfig
 ```
 
 - [ ] **Step 3: Create globals.css with oklch design tokens**
@@ -1207,20 +1214,24 @@ body {
 - [ ] **Step 4: Create layout.tsx with Inter font + providers**
 
 ```tsx
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import { Providers } from '@/providers';
-import { Toaster } from 'sonner';
-import './globals.css';
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import { Providers } from '@/providers'
+import { Toaster } from 'sonner'
+import './globals.css'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
   title: 'Bens Seguros',
   description: 'ERP para corretoras de seguros',
-};
+}
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
@@ -1230,18 +1241,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Providers>
       </body>
     </html>
-  );
+  )
 }
 ```
 
 - [ ] **Step 5: Create providers**
 
 ```tsx
-'use client';
+'use client'
 
-import { ThemeProvider } from 'next-themes';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
+import { ThemeProvider } from 'next-themes'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useState } from 'react'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -1250,14 +1261,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
         defaultOptions: {
           queries: { staleTime: 60 * 1000 },
         },
-      }),
-  );
+      })
+  )
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </ThemeProvider>
-  );
+  )
 }
 ```
 
@@ -1266,11 +1277,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
 `src/lib/utils.ts`:
 
 ```ts
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  return twMerge(clsx(inputs))
 }
 ```
 
@@ -1282,28 +1293,31 @@ export default function Home() {
     <main className="flex min-h-screen items-center justify-center">
       <h1 className="text-primary-600 text-3xl font-semibold">Bens Seguros</h1>
     </main>
-  );
+  )
 }
 ```
 
 - [ ] **Step 7: Create first shadcn component (button) to validate design system**
 
 ```tsx
-import { Slot } from '@radix-ui/react-slot';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { forwardRef } from 'react';
-import { cn } from '@/lib/utils';
+import { Slot } from '@radix-ui/react-slot'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { forwardRef } from 'react'
+import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
   'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        default: 'bg-[var(--primary)] text-[var(--primary-foreground)] hover:opacity-90',
+        default:
+          'bg-[var(--primary)] text-[var(--primary-foreground)] hover:opacity-90',
         destructive:
           'bg-[var(--destructive)] text-[var(--destructive-foreground)] hover:opacity-90',
-        outline: 'border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--muted)]',
-        secondary: 'bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:opacity-80',
+        outline:
+          'border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--muted)]',
+        secondary:
+          'bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:opacity-80',
         ghost: 'hover:bg-[var(--muted)] hover:text-[var(--muted-foreground)]',
         link: 'text-[var(--primary)] underline-offset-4 hover:underline',
       },
@@ -1318,25 +1332,31 @@ const buttonVariants = cva(
       variant: 'default',
       size: 'default',
     },
-  },
-);
+  }
+)
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
+  extends
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'button';
+    const Comp = asChild ? Slot : 'button'
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
-    );
-  },
-);
-Button.displayName = 'Button';
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      />
+    )
+  }
+)
+Button.displayName = 'Button'
 
-export { Button, buttonVariants };
+export { Button, buttonVariants }
 ```
 
 - [ ] **Step 8: Commit**
@@ -1407,7 +1427,7 @@ git commit -m "feat: add web app with next.js 16, design system tokens, dark mod
 > Ref: `ARCHITECTURE-DECISIONS.md` GAP-7 — tsup bundla app + packages internos num dist/ autocontido.
 
 ```ts
-import { defineConfig } from 'tsup';
+import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entry: {
@@ -1419,7 +1439,13 @@ export default defineConfig({
   clean: true,
   splitting: false,
   sourcemap: true,
-  noExternal: ['@repo/core', '@repo/db', '@repo/env', '@repo/shared', '@repo/auth'],
+  noExternal: [
+    '@repo/core',
+    '@repo/db',
+    '@repo/env',
+    '@repo/shared',
+    '@repo/auth',
+  ],
   external: [
     'fastify',
     '@fastify/*',
@@ -1435,7 +1461,7 @@ export default defineConfig({
     'reflect-metadata',
     'zod',
   ],
-});
+})
 ```
 
 - [ ] **Step 3: Create app.ts (Fastify factory)**
@@ -1443,13 +1469,16 @@ export default defineConfig({
 > Ref: `SECURITY-SPEC.md` S6 (bodyLimit 10MB), S1 (Cache-Control no-store).
 
 ```ts
-import 'reflect-metadata';
-import Fastify from 'fastify';
-import cors from '@fastify/cors';
-import helmet from '@fastify/helmet';
-import rateLimit from '@fastify/rate-limit';
-import swagger from '@fastify/swagger';
-import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
+import 'reflect-metadata'
+import Fastify from 'fastify'
+import cors from '@fastify/cors'
+import helmet from '@fastify/helmet'
+import rateLimit from '@fastify/rate-limit'
+import swagger from '@fastify/swagger'
+import {
+  serializerCompiler,
+  validatorCompiler,
+} from 'fastify-type-provider-zod'
 
 export async function buildApp() {
   const app = Fastify({
@@ -1457,22 +1486,22 @@ export async function buildApp() {
       level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
     },
     bodyLimit: 10 * 1024 * 1024, // S6: 10MB
-  });
+  })
 
-  app.setValidatorCompiler(validatorCompiler);
-  app.setSerializerCompiler(serializerCompiler);
+  app.setValidatorCompiler(validatorCompiler)
+  app.setSerializerCompiler(serializerCompiler)
 
   await app.register(cors, {
     origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
     credentials: true,
-  });
+  })
 
-  await app.register(helmet);
+  await app.register(helmet)
 
   await app.register(rateLimit, {
     max: 100,
     timeWindow: '1 minute',
-  });
+  })
 
   await app.register(swagger, {
     openapi: {
@@ -1481,33 +1510,33 @@ export async function buildApp() {
         version: '1.0.0',
       },
     },
-  });
+  })
 
-  app.get('/health', async () => ({ status: 'ok' }));
+  app.get('/health', async () => ({ status: 'ok' }))
 
-  return app;
+  return app
 }
 ```
 
 - [ ] **Step 4: Create server.ts (entrypoint)**
 
 ```ts
-import { buildApp } from './app.js';
+import { buildApp } from './app.js'
 
 const start = async () => {
-  const app = await buildApp();
+  const app = await buildApp()
 
-  const port = Number(process.env.PORT ?? 3001);
-  const host = process.env.HOST ?? '0.0.0.0';
+  const port = Number(process.env.PORT ?? 3001)
+  const host = process.env.HOST ?? '0.0.0.0'
 
-  await app.listen({ port, host });
-  app.log.info(`Server running on http://${host}:${port}`);
-};
+  await app.listen({ port, host })
+  app.log.info(`Server running on http://${host}:${port}`)
+}
 
 start().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+  console.error(err)
+  process.exit(1)
+})
 ```
 
 - [ ] **Step 5: Commit**
@@ -1566,7 +1595,7 @@ git commit -m "feat: add server app with fastify 5, swagger, helmet, rate limit"
 - [ ] **Step 2: Create tsup.config.ts (GAP-7)**
 
 ```ts
-import { defineConfig } from 'tsup';
+import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entry: { index: 'src/index.ts' },
@@ -1587,35 +1616,40 @@ export default defineConfig({
     'reflect-metadata',
     'zod',
   ],
-});
+})
 ```
 
 - [ ] **Step 3: Create src/index.ts**
 
 ```ts
-import 'reflect-metadata';
-import { Worker } from 'bullmq';
-import IORedis from 'ioredis';
-import pino from 'pino';
+import 'reflect-metadata'
+import { Worker } from 'bullmq'
+import IORedis from 'ioredis'
+import pino from 'pino'
 
-const logger = pino({ level: process.env.NODE_ENV === 'production' ? 'info' : 'debug' });
+const logger = pino({
+  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+})
 
-const connection = new IORedis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
-  maxRetriesPerRequest: null,
-});
+const connection = new IORedis(
+  process.env.REDIS_URL ?? 'redis://localhost:6379',
+  {
+    maxRetriesPerRequest: null,
+  }
+)
 
-logger.info('ERP Worker started. Waiting for jobs...');
+logger.info('ERP Worker started. Waiting for jobs...')
 
 // Queue processors will be registered here in Fase 2+
 
 const gracefulShutdown = async () => {
-  logger.info('Shutting down worker...');
-  await connection.quit();
-  process.exit(0);
-};
+  logger.info('Shutting down worker...')
+  await connection.quit()
+  process.exit(0)
+}
 
-process.on('SIGTERM', gracefulShutdown);
-process.on('SIGINT', gracefulShutdown);
+process.on('SIGTERM', gracefulShutdown)
+process.on('SIGINT', gracefulShutdown)
 ```
 
 - [ ] **Step 4: Commit**
@@ -1678,7 +1712,7 @@ git commit -m "feat: add worker app with bullmq + redis connection"
 - [ ] **Step 2: Create tsup.config.ts (GAP-7)**
 
 ```ts
-import { defineConfig } from 'tsup';
+import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entry: { index: 'src/index.ts' },
@@ -1700,37 +1734,40 @@ export default defineConfig({
     'pino',
     'zod',
   ],
-});
+})
 ```
 
 - [ ] **Step 3: Create app.ts**
 
 ```ts
-import Fastify from 'fastify';
-import cors from '@fastify/cors';
-import { Server } from 'socket.io';
-import { createAdapter } from '@socket.io/redis-adapter';
-import IORedis from 'ioredis';
-import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
+import Fastify from 'fastify'
+import cors from '@fastify/cors'
+import { Server } from 'socket.io'
+import { createAdapter } from '@socket.io/redis-adapter'
+import IORedis from 'ioredis'
+import {
+  serializerCompiler,
+  validatorCompiler,
+} from 'fastify-type-provider-zod'
 
 export async function buildChatApp() {
   const app = Fastify({
     logger: {
       level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
     },
-  });
+  })
 
-  app.setValidatorCompiler(validatorCompiler);
-  app.setSerializerCompiler(serializerCompiler);
+  app.setValidatorCompiler(validatorCompiler)
+  app.setSerializerCompiler(serializerCompiler)
 
   await app.register(cors, {
     origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
     credentials: true,
-  });
+  })
 
-  const redisUrl = process.env.REDIS_URL ?? 'redis://localhost:6379';
-  const pubClient = new IORedis(redisUrl);
-  const subClient = pubClient.duplicate();
+  const redisUrl = process.env.REDIS_URL ?? 'redis://localhost:6379'
+  const pubClient = new IORedis(redisUrl)
+  const subClient = pubClient.duplicate()
 
   const io = new Server(app.server, {
     cors: {
@@ -1738,35 +1775,35 @@ export async function buildChatApp() {
       credentials: true,
     },
     adapter: createAdapter(pubClient, subClient),
-  });
+  })
 
-  app.decorate('io', io);
+  app.decorate('io', io)
 
-  app.get('/health', async () => ({ status: 'ok' }));
+  app.get('/health', async () => ({ status: 'ok' }))
 
-  return { app, io };
+  return { app, io }
 }
 ```
 
 - [ ] **Step 4: Create index.ts**
 
 ```ts
-import { buildChatApp } from './app.js';
+import { buildChatApp } from './app.js'
 
 const start = async () => {
-  const { app } = await buildChatApp();
+  const { app } = await buildChatApp()
 
-  const port = Number(process.env.CHAT_PORT ?? 3002);
-  const host = process.env.HOST ?? '0.0.0.0';
+  const port = Number(process.env.CHAT_PORT ?? 3002)
+  const host = process.env.HOST ?? '0.0.0.0'
 
-  await app.listen({ port, host });
-  app.log.info(`Chat server running on http://${host}:${port}`);
-};
+  await app.listen({ port, host })
+  app.log.info(`Chat server running on http://${host}:${port}`)
+}
 
 start().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+  console.error(err)
+  process.exit(1)
+})
 ```
 
 - [ ] **Step 5: Commit**
@@ -1825,7 +1862,7 @@ git commit -m "feat: add chat-server app with fastify + socket.io + redis adapte
 - [ ] **Step 2: Create tsup.config.ts (GAP-7)**
 
 ```ts
-import { defineConfig } from 'tsup';
+import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entry: { index: 'src/index.ts' },
@@ -1837,33 +1874,38 @@ export default defineConfig({
   sourcemap: true,
   noExternal: ['@repo/db-chat', '@repo/env', '@repo/shared', '@repo/ai'],
   external: ['bullmq', 'ioredis', 'mongoose', 'baileys', 'pino', 'zod'],
-});
+})
 ```
 
 - [ ] **Step 3: Create src/index.ts**
 
 ```ts
-import pino from 'pino';
-import IORedis from 'ioredis';
+import pino from 'pino'
+import IORedis from 'ioredis'
 
-const logger = pino({ level: process.env.NODE_ENV === 'production' ? 'info' : 'debug' });
+const logger = pino({
+  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+})
 
-const connection = new IORedis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
-  maxRetriesPerRequest: null,
-});
+const connection = new IORedis(
+  process.env.REDIS_URL ?? 'redis://localhost:6379',
+  {
+    maxRetriesPerRequest: null,
+  }
+)
 
-logger.info('Chat Worker started. Waiting for jobs...');
+logger.info('Chat Worker started. Waiting for jobs...')
 
 // Baileys connection + queue processors will be added in Fase 5
 
 const gracefulShutdown = async () => {
-  logger.info('Shutting down chat worker...');
-  await connection.quit();
-  process.exit(0);
-};
+  logger.info('Shutting down chat worker...')
+  await connection.quit()
+  process.exit(0)
+}
 
-process.on('SIGTERM', gracefulShutdown);
-process.on('SIGINT', gracefulShutdown);
+process.on('SIGTERM', gracefulShutdown)
+process.on('SIGINT', gracefulShutdown)
 ```
 
 - [ ] **Step 4: Commit**

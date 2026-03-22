@@ -1,15 +1,17 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { CHAT_QUEUES } from '@repo/shared';
+import { CHAT_QUEUES } from '@repo/shared'
 
-import { ConversationNotFoundError } from '../domain/errors.js';
-import type { ConversationRepository } from '../domain/ports/conversation-repository.js';
-import type { MessageRepository } from '../domain/ports/message-repository.js';
-import type { ConversationData } from '../domain/types.js';
+import { ConversationNotFoundError } from '../domain/errors.js'
+import type { ConversationRepository } from '../domain/ports/conversation-repository.js'
+import type { MessageRepository } from '../domain/ports/message-repository.js'
+import type { ConversationData } from '../domain/types.js'
 
-import { SendMessage, type QueueProducer } from './send-message.js';
+import { SendMessage, type QueueProducer } from './send-message.js'
 
-function makeConversationData(overrides: Partial<ConversationData> = {}): ConversationData {
+function makeConversationData(
+  overrides: Partial<ConversationData> = {}
+): ConversationData {
   return {
     id: 'conv-1',
     tenantId: 'tenant-1',
@@ -27,11 +29,11 @@ function makeConversationData(overrides: Partial<ConversationData> = {}): Conver
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
-  };
+  }
 }
 
 function createMockConversationRepo(
-  findByIdResult: ConversationData | null,
+  findByIdResult: ConversationData | null
 ): ConversationRepository {
   return {
     findById: vi.fn().mockResolvedValue(findByIdResult),
@@ -42,7 +44,7 @@ function createMockConversationRepo(
     atomicAssign: vi.fn(),
     updateLastMessage: vi.fn().mockResolvedValue(undefined),
     findStaleConversations: vi.fn(),
-  };
+  }
 }
 
 function createMockMessageRepo(): MessageRepository {
@@ -52,13 +54,13 @@ function createMockMessageRepo(): MessageRepository {
     findByExternalId: vi.fn(),
     updateStatus: vi.fn(),
     findAfterTimestamp: vi.fn(),
-  };
+  }
 }
 
 function createMockQueueProducer(): QueueProducer {
   return {
     enqueue: vi.fn().mockResolvedValue(undefined),
-  };
+  }
 }
 
 const BASE_INPUT = {
@@ -68,30 +70,34 @@ const BASE_INPUT = {
   senderName: 'Agent',
   senderType: 'AGENT' as const,
   text: 'Hello, how can I help?',
-};
+}
 
 describe('SendMessage', () => {
-  let conversationRepo: ConversationRepository;
-  let messageRepo: MessageRepository;
-  let queueProducer: QueueProducer;
+  let conversationRepo: ConversationRepository
+  let messageRepo: MessageRepository
+  let queueProducer: QueueProducer
 
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   it('creates message with PENDING status and enqueues to send queue', async () => {
-    const conversation = makeConversationData();
-    conversationRepo = createMockConversationRepo(conversation);
-    messageRepo = createMockMessageRepo();
-    queueProducer = createMockQueueProducer();
+    const conversation = makeConversationData()
+    conversationRepo = createMockConversationRepo(conversation)
+    messageRepo = createMockMessageRepo()
+    queueProducer = createMockQueueProducer()
 
-    const useCase = new SendMessage(conversationRepo, messageRepo, queueProducer);
-    const result = await useCase.execute(BASE_INPUT);
+    const useCase = new SendMessage(
+      conversationRepo,
+      messageRepo,
+      queueProducer
+    )
+    const result = await useCase.execute(BASE_INPUT)
 
-    expect(result.status).toBe('PENDING');
-    expect(result.text).toBe('Hello, how can I help?');
-    expect(result.senderType).toBe('AGENT');
-    expect(messageRepo.create).toHaveBeenCalledTimes(1);
+    expect(result.status).toBe('PENDING')
+    expect(result.text).toBe('Hello, how can I help?')
+    expect(result.senderType).toBe('AGENT')
+    expect(messageRepo.create).toHaveBeenCalledTimes(1)
     expect(queueProducer.enqueue).toHaveBeenCalledWith(
       CHAT_QUEUES.SEND_MESSAGE,
       expect.objectContaining({
@@ -102,35 +108,45 @@ describe('SendMessage', () => {
         to: '+5511999990000',
         text: 'Hello, how can I help?',
         type: 'TEXT',
-      }),
-    );
-  });
+      })
+    )
+  })
 
   it('updates conversation lastMessage after creating message', async () => {
-    conversationRepo = createMockConversationRepo(makeConversationData());
-    messageRepo = createMockMessageRepo();
-    queueProducer = createMockQueueProducer();
+    conversationRepo = createMockConversationRepo(makeConversationData())
+    messageRepo = createMockMessageRepo()
+    queueProducer = createMockQueueProducer()
 
-    const useCase = new SendMessage(conversationRepo, messageRepo, queueProducer);
-    await useCase.execute(BASE_INPUT);
+    const useCase = new SendMessage(
+      conversationRepo,
+      messageRepo,
+      queueProducer
+    )
+    await useCase.execute(BASE_INPUT)
 
     expect(conversationRepo.updateLastMessage).toHaveBeenCalledWith(
       'conv-1',
       'tenant-1',
       'Hello, how can I help?',
-      expect.any(Date),
-    );
-  });
+      expect.any(Date)
+    )
+  })
 
   it('throws ConversationNotFoundError when conversation does not exist', async () => {
-    conversationRepo = createMockConversationRepo(null);
-    messageRepo = createMockMessageRepo();
-    queueProducer = createMockQueueProducer();
+    conversationRepo = createMockConversationRepo(null)
+    messageRepo = createMockMessageRepo()
+    queueProducer = createMockQueueProducer()
 
-    const useCase = new SendMessage(conversationRepo, messageRepo, queueProducer);
+    const useCase = new SendMessage(
+      conversationRepo,
+      messageRepo,
+      queueProducer
+    )
 
-    await expect(useCase.execute(BASE_INPUT)).rejects.toThrow(ConversationNotFoundError);
-    expect(messageRepo.create).not.toHaveBeenCalled();
-    expect(queueProducer.enqueue).not.toHaveBeenCalled();
-  });
-});
+    await expect(useCase.execute(BASE_INPUT)).rejects.toThrow(
+      ConversationNotFoundError
+    )
+    expect(messageRepo.create).not.toHaveBeenCalled()
+    expect(queueProducer.enqueue).not.toHaveBeenCalled()
+  })
+})

@@ -91,60 +91,60 @@ cd packages/db && DATABASE_URL="postgresql://bens:bens_dev@localhost:5432/bens_s
 // packages/core/src/modules/proposal/domain/insured-object-details.ts
 
 export interface AutoDetails {
-  branch: 'AUTO';
-  marca: string;
-  modelo: string;
-  anoFabricacao: number;
-  anoModelo: number;
-  placa?: string;
-  chassi?: string;
-  cor?: string;
-  combustivel?: string;
-  usoVeiculo?: string;
+  branch: 'AUTO'
+  marca: string
+  modelo: string
+  anoFabricacao: number
+  anoModelo: number
+  placa?: string
+  chassi?: string
+  cor?: string
+  combustivel?: string
+  usoVeiculo?: string
 }
 
 export interface ResidentialDetails {
-  branch: 'RESIDENTIAL';
-  tipoImovel: string;
-  usoImovel: string;
-  cep: string;
-  endereco?: string;
-  construcao?: string;
-  areaM2?: number;
+  branch: 'RESIDENTIAL'
+  tipoImovel: string
+  usoImovel: string
+  cep: string
+  endereco?: string
+  construcao?: string
+  areaM2?: number
 }
 
 export interface CondominiumDetails {
-  branch: 'CONDOMINIUM';
-  nomeCondominio: string;
-  numeroUnidades: number;
-  cep: string;
-  endereco?: string;
-  anoConstrucao?: number;
-  numeroAndares?: number;
+  branch: 'CONDOMINIUM'
+  nomeCondominio: string
+  numeroUnidades: number
+  cep: string
+  endereco?: string
+  anoConstrucao?: number
+  numeroAndares?: number
 }
 
 export interface BusinessDetails {
-  branch: 'BUSINESS';
-  razaoSocial: string;
-  cnpj: string;
-  atividade: string;
-  cep?: string;
-  endereco?: string;
-  areaM2?: number;
+  branch: 'BUSINESS'
+  razaoSocial: string
+  cnpj: string
+  atividade: string
+  cep?: string
+  endereco?: string
+  areaM2?: number
 }
 
 export interface LifeDetails {
-  branch: 'LIFE';
-  profissao: string;
-  rendaMensalCentavos?: number;
-  fumante?: boolean;
-  esportesRadicais?: boolean;
-  beneficiarios?: string;
+  branch: 'LIFE'
+  profissao: string
+  rendaMensalCentavos?: number
+  fumante?: boolean
+  esportesRadicais?: boolean
+  beneficiarios?: string
 }
 
 export interface OtherDetails {
-  branch: 'OTHER';
-  descricao: string;
+  branch: 'OTHER'
+  descricao: string
 }
 
 export type InsuredObjectDetails =
@@ -153,12 +153,22 @@ export type InsuredObjectDetails =
   | CondominiumDetails
   | BusinessDetails
   | LifeDetails
-  | OtherDetails;
+  | OtherDetails
 
-export function isInsuredObjectDetails(value: unknown): value is InsuredObjectDetails {
-  if (typeof value !== 'object' || value === null || !('branch' in value)) return false;
-  const branches = ['AUTO', 'RESIDENTIAL', 'CONDOMINIUM', 'BUSINESS', 'LIFE', 'OTHER'];
-  return branches.includes((value as { branch: string }).branch);
+export function isInsuredObjectDetails(
+  value: unknown
+): value is InsuredObjectDetails {
+  if (typeof value !== 'object' || value === null || !('branch' in value))
+    return false
+  const branches = [
+    'AUTO',
+    'RESIDENTIAL',
+    'CONDOMINIUM',
+    'BUSINESS',
+    'LIFE',
+    'OTHER',
+  ]
+  return branches.includes((value as { branch: string }).branch)
 }
 ```
 
@@ -175,8 +185,8 @@ export type {
   BusinessDetails,
   LifeDetails,
   OtherDetails,
-} from './domain/insured-object-details.js';
-export { isInsuredObjectDetails } from './domain/insured-object-details.js';
+} from './domain/insured-object-details.js'
+export { isInsuredObjectDetails } from './domain/insured-object-details.js'
 ```
 
 - [ ] **Step 6: Commit**
@@ -202,10 +212,12 @@ In `proposal-errors.ts`, add:
 
 ```ts
 export class ProposalDetailsRequiredError extends Error {
-  readonly code = 'PROPOSAL_DETAILS_REQUIRED' as const;
+  readonly code = 'PROPOSAL_DETAILS_REQUIRED' as const
   constructor(id: string) {
-    super(`Preencha os dados do objeto segurado antes de avançar (proposta ${id})`);
-    this.name = 'ProposalDetailsRequiredError';
+    super(
+      `Preencha os dados do objeto segurado antes de avançar (proposta ${id})`
+    )
+    this.name = 'ProposalDetailsRequiredError'
   }
 }
 ```
@@ -221,7 +233,7 @@ detailsRequired: (id: string) => new ProposalDetailsRequiredError(id),
 Add to `proposal.spec.ts`:
 
 ```ts
-import type { AutoDetails } from './insured-object-details.js';
+import type { AutoDetails } from './insured-object-details.js'
 
 const autoDetails: AutoDetails = {
   branch: 'AUTO',
@@ -229,26 +241,28 @@ const autoDetails: AutoDetails = {
   modelo: 'Corolla',
   anoFabricacao: 2024,
   anoModelo: 2025,
-};
+}
 
 it('updates details with matching branch', () => {
-  const proposal = Proposal.create(validProps);
-  proposal.updateDetails(autoDetails, 150000, 1500);
-  expect(proposal.details).toEqual(autoDetails);
-  expect(proposal.premiumValueInCents).toBe(150000);
-  expect(proposal.commissionPercentageInCents).toBe(1500);
-});
+  const proposal = Proposal.create(validProps)
+  proposal.updateDetails(autoDetails, 150000, 1500)
+  expect(proposal.details).toEqual(autoDetails)
+  expect(proposal.premiumValueInCents).toBe(150000)
+  expect(proposal.commissionPercentageInCents).toBe(1500)
+})
 
 it('rejects details with mismatched branch', () => {
-  const proposal = Proposal.create(validProps); // branch: AUTO
+  const proposal = Proposal.create(validProps) // branch: AUTO
   const residentialDetails = {
     branch: 'RESIDENTIAL' as const,
     tipoImovel: 'Casa',
     usoImovel: 'Habitual',
     cep: '01310100',
-  };
-  expect(() => proposal.updateDetails(residentialDetails, 100000, 1000)).toThrow('branch');
-});
+  }
+  expect(() =>
+    proposal.updateDetails(residentialDetails, 100000, 1000)
+  ).toThrow('branch')
+})
 ```
 
 - [ ] **Step 3: Run tests — expect fail**
@@ -264,13 +278,13 @@ In `proposal.ts`:
 Add import:
 
 ```ts
-import type { InsuredObjectDetails } from './insured-object-details.js';
+import type { InsuredObjectDetails } from './insured-object-details.js'
 ```
 
 Add to `ProposalProps`:
 
 ```ts
-details: InsuredObjectDetails | null;
+details: InsuredObjectDetails | null
 ```
 
 Add to `Proposal.create()`:
@@ -351,11 +365,11 @@ git commit -m "feat: add details field to Proposal entity with updateDetails met
 
 ```ts
 // update-proposal-details.spec.ts
-import { describe, it, expect, vi } from 'vitest';
-import { UpdateProposalDetails } from './update-proposal-details.js';
-import { Proposal } from '../domain/proposal.js';
-import type { ProposalRepository } from '../domain/proposal-repository.js';
-import type { AutoDetails } from '../domain/insured-object-details.js';
+import { describe, it, expect, vi } from 'vitest'
+import { UpdateProposalDetails } from './update-proposal-details.js'
+import { Proposal } from '../domain/proposal.js'
+import type { ProposalRepository } from '../domain/proposal-repository.js'
+import type { AutoDetails } from '../domain/insured-object-details.js'
 
 const autoDetails: AutoDetails = {
   branch: 'AUTO',
@@ -363,10 +377,14 @@ const autoDetails: AutoDetails = {
   modelo: 'Corolla',
   anoFabricacao: 2024,
   anoModelo: 2025,
-};
+}
 
 function createMockRepo(proposal: Proposal | null): ProposalRepository {
-  return { save: vi.fn(), findById: vi.fn().mockResolvedValue(proposal), findMany: vi.fn() };
+  return {
+    save: vi.fn(),
+    findById: vi.fn().mockResolvedValue(proposal),
+    findMany: vi.fn(),
+  }
 }
 
 describe('UpdateProposalDetails', () => {
@@ -377,32 +395,32 @@ describe('UpdateProposalDetails', () => {
       salespersonId: 'u-1',
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
-    });
-    const repo = createMockRepo(proposal);
-    const useCase = new UpdateProposalDetails(repo);
+    })
+    const repo = createMockRepo(proposal)
+    const useCase = new UpdateProposalDetails(repo)
 
     await useCase.execute(proposal.id, 'org-1', {
       details: autoDetails,
       premiumValueInCents: 150000,
       commissionBasisPoints: 1500,
-    });
+    })
 
-    expect(proposal.details).toEqual(autoDetails);
-    expect(repo.save).toHaveBeenCalledWith(proposal);
-  });
+    expect(proposal.details).toEqual(autoDetails)
+    expect(repo.save).toHaveBeenCalledWith(proposal)
+  })
 
   it('throws if proposal not found', async () => {
-    const repo = createMockRepo(null);
-    const useCase = new UpdateProposalDetails(repo);
+    const repo = createMockRepo(null)
+    const useCase = new UpdateProposalDetails(repo)
     await expect(
       useCase.execute('xxx', 'org-1', {
         details: autoDetails,
         premiumValueInCents: 0,
         commissionBasisPoints: 0,
-      }),
-    ).rejects.toThrow('não encontrada');
-  });
-});
+      })
+    ).rejects.toThrow('não encontrada')
+  })
+})
 ```
 
 - [ ] **Step 2: Run test — expect fail**
@@ -411,32 +429,42 @@ describe('UpdateProposalDetails', () => {
 
 ```ts
 // update-proposal-details.ts
-import { injectable, inject } from 'tsyringe';
-import type { Proposal } from '../domain/proposal.js';
-import type { ProposalRepository } from '../domain/proposal-repository.js';
-import type { InsuredObjectDetails } from '../domain/insured-object-details.js';
-import { ProposalErrors } from '../domain/proposal-errors.js';
+import { injectable, inject } from 'tsyringe'
+import type { Proposal } from '../domain/proposal.js'
+import type { ProposalRepository } from '../domain/proposal-repository.js'
+import type { InsuredObjectDetails } from '../domain/insured-object-details.js'
+import { ProposalErrors } from '../domain/proposal-errors.js'
 
 interface UpdateProposalDetailsDTO {
-  details: InsuredObjectDetails;
-  premiumValueInCents: number;
-  commissionBasisPoints: number;
+  details: InsuredObjectDetails
+  premiumValueInCents: number
+  commissionBasisPoints: number
 }
 
 @injectable()
 export class UpdateProposalDetails {
-  constructor(@inject('ProposalRepository') private readonly proposalRepo: ProposalRepository) {}
+  constructor(
+    @inject('ProposalRepository')
+    private readonly proposalRepo: ProposalRepository
+  ) {}
 
   async execute(
     proposalId: string,
     organizationId: string,
-    dto: UpdateProposalDetailsDTO,
+    dto: UpdateProposalDetailsDTO
   ): Promise<Proposal> {
-    const proposal = await this.proposalRepo.findById(proposalId, organizationId);
-    if (!proposal) throw ProposalErrors.notFound(proposalId);
-    proposal.updateDetails(dto.details, dto.premiumValueInCents, dto.commissionBasisPoints);
-    await this.proposalRepo.save(proposal);
-    return proposal;
+    const proposal = await this.proposalRepo.findById(
+      proposalId,
+      organizationId
+    )
+    if (!proposal) throw ProposalErrors.notFound(proposalId)
+    proposal.updateDetails(
+      dto.details,
+      dto.premiumValueInCents,
+      dto.commissionBasisPoints
+    )
+    await this.proposalRepo.save(proposal)
+    return proposal
   }
 }
 ```
@@ -449,7 +477,7 @@ In `advance-proposal-stage.ts`, before `proposal.advance()`:
 
 ```ts
 if (proposal.stage === 'QUOTE' && !proposal.details) {
-  throw ProposalErrors.detailsRequired(proposalId);
+  throw ProposalErrors.detailsRequired(proposalId)
 }
 ```
 
@@ -467,13 +495,15 @@ it('rejects advance from QUOTE without details', async () => {
     salespersonId: 'u-1',
     branch: 'AUTO',
     boardType: 'NEW_INSURANCE',
-  });
-  proposal.advance(); // → QUOTE
-  const repo = createMockRepo(proposal);
-  const useCase = new AdvanceProposalStage(repo);
+  })
+  proposal.advance() // → QUOTE
+  const repo = createMockRepo(proposal)
+  const useCase = new AdvanceProposalStage(repo)
 
-  await expect(useCase.execute(proposal.id, 'org-1')).rejects.toThrow('objeto segurado');
-});
+  await expect(useCase.execute(proposal.id, 'org-1')).rejects.toThrow(
+    'objeto segurado'
+  )
+})
 ```
 
 - [ ] **Step 7: Run all proposal tests — expect pass**
@@ -646,24 +676,24 @@ Copy types from `@repo/core` or import if possible. Add to `features/proposals/t
 
 ```ts
 export function useUpdateProposalDetails() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({
       id,
       ...data
     }: {
-      id: string;
-      details: InsuredObjectDetails;
-      premiumValueInCents: number;
-      commissionBasisPoints: number;
+      id: string
+      details: InsuredObjectDetails
+      premiumValueInCents: number
+      commissionBasisPoints: number
     }) => api.post(`/api/v1/proposals/${id}/details`, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['proposals'] });
-      queryClient.invalidateQueries({ queryKey: ['proposal', variables.id] });
-      toast.success('Dados do objeto segurado salvos');
+      queryClient.invalidateQueries({ queryKey: ['proposals'] })
+      queryClient.invalidateQueries({ queryKey: ['proposal', variables.id] })
+      toast.success('Dados do objeto segurado salvos')
     },
     onError: () => toast.error('Erro ao salvar dados'),
-  });
+  })
 }
 ```
 

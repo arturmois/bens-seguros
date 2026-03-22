@@ -1,30 +1,30 @@
-import 'reflect-metadata';
-import { injectable, inject } from 'tsyringe';
+import 'reflect-metadata'
+import { inject, injectable } from 'tsyringe'
 
-import { ConversationEntity } from '../domain/conversation.js';
-import type { ContactRepository } from '../domain/ports/contact-repository.js';
-import type { ConversationRepository } from '../domain/ports/conversation-repository.js';
-import type { MessageRepository } from '../domain/ports/message-repository.js';
-import type { ConversationData, MessageData } from '../domain/types.js';
+import { ConversationEntity } from '../domain/conversation.js'
+import type { ContactRepository } from '../domain/ports/contact-repository.js'
+import type { ConversationRepository } from '../domain/ports/conversation-repository.js'
+import type { MessageRepository } from '../domain/ports/message-repository.js'
+import type { ConversationData, MessageData } from '../domain/types.js'
 
 interface SaveIncomingMessageInput {
-  readonly tenantId: string;
-  readonly channelId: string;
-  readonly whatsappPhone: string;
-  readonly pushName: string | null;
-  readonly text: string | null;
-  readonly type: MessageData['type'];
-  readonly mediaUrl: string | null;
-  readonly mediaKey: string | null;
-  readonly externalId: string | null;
-  readonly hasAi: boolean;
+  readonly tenantId: string
+  readonly channelId: string
+  readonly whatsappPhone: string
+  readonly pushName: string | null
+  readonly text: string | null
+  readonly type: MessageData['type']
+  readonly mediaUrl: string | null
+  readonly mediaKey: string | null
+  readonly externalId: string | null
+  readonly hasAi: boolean
 }
 
 interface SaveIncomingMessageResult {
-  readonly conversation: ConversationData;
-  readonly message: MessageData;
-  readonly isNewConversation: boolean;
-  readonly isDuplicate: boolean;
+  readonly conversation: ConversationData
+  readonly message: MessageData
+  readonly isNewConversation: boolean
+  readonly isDuplicate: boolean
 }
 
 @injectable()
@@ -35,41 +35,47 @@ export class SaveIncomingMessage {
     @inject('MessageRepository')
     private readonly messageRepo: MessageRepository,
     @inject('ContactRepository')
-    private readonly contactRepo: ContactRepository,
+    private readonly contactRepo: ContactRepository
   ) {}
 
-  async execute(input: SaveIncomingMessageInput): Promise<SaveIncomingMessageResult> {
+  async execute(
+    input: SaveIncomingMessageInput
+  ): Promise<SaveIncomingMessageResult> {
     if (input.externalId) {
-      const existing = await this.messageRepo.findByExternalId(input.externalId, input.tenantId);
+      const existing = await this.messageRepo.findByExternalId(
+        input.externalId,
+        input.tenantId
+      )
       if (existing) {
         const conversation = await this.conversationRepo.findById(
           existing.conversationId,
-          input.tenantId,
-        );
+          input.tenantId
+        )
         return {
           conversation: conversation!,
           message: existing,
           isNewConversation: false,
           isDuplicate: true,
-        };
+        }
       }
     }
 
     const contact = await this.contactRepo.upsertByPhone(
       input.tenantId,
       input.whatsappPhone,
-      input.pushName ?? undefined,
-    );
+      input.pushName ?? undefined
+    )
 
-    const { conversation, isNewConversation } = await this.findOrCreateConversation({
-      tenantId: input.tenantId,
-      channelId: input.channelId,
-      contactId: contact.id,
-      whatsappPhone: input.whatsappPhone,
-      hasAi: input.hasAi,
-    });
+    const { conversation, isNewConversation } =
+      await this.findOrCreateConversation({
+        tenantId: input.tenantId,
+        channelId: input.channelId,
+        contactId: contact.id,
+        whatsappPhone: input.whatsappPhone,
+        hasAi: input.hasAi,
+      })
 
-    const now = new Date();
+    const now = new Date()
 
     const message = await this.messageRepo.create({
       conversationId: conversation.id,
@@ -85,38 +91,42 @@ export class SaveIncomingMessage {
       metadata: null,
       externalId: input.externalId,
       createdAt: now,
-    });
+    })
 
     await this.conversationRepo.updateLastMessage(
       conversation.id,
       input.tenantId,
       input.text ?? '',
-      now,
-    );
+      now
+    )
 
     return {
-      conversation: { ...conversation, lastMessageText: input.text, lastMessageAt: now },
+      conversation: {
+        ...conversation,
+        lastMessageText: input.text,
+        lastMessageAt: now,
+      },
       message,
       isNewConversation,
       isDuplicate: false,
-    };
+    }
   }
 
   private async findOrCreateConversation(params: {
-    tenantId: string;
-    channelId: string;
-    contactId: string;
-    whatsappPhone: string;
-    hasAi: boolean;
+    tenantId: string
+    channelId: string
+    contactId: string
+    whatsappPhone: string
+    hasAi: boolean
   }): Promise<{ conversation: ConversationData; isNewConversation: boolean }> {
     const existing = await this.conversationRepo.findOpenByContactAndChannel(
       params.tenantId,
       params.contactId,
-      params.channelId,
-    );
+      params.channelId
+    )
 
     if (existing) {
-      return { conversation: existing, isNewConversation: false };
+      return { conversation: existing, isNewConversation: false }
     }
 
     const entity = ConversationEntity.create({
@@ -125,9 +135,9 @@ export class SaveIncomingMessage {
       contactId: params.contactId,
       whatsappPhone: params.whatsappPhone,
       hasAi: params.hasAi,
-    });
+    })
 
-    const created = await this.conversationRepo.create(entity.toJSON());
-    return { conversation: created, isNewConversation: true };
+    const created = await this.conversationRepo.create(entity.toJSON())
+    return { conversation: created, isNewConversation: true }
   }
 }

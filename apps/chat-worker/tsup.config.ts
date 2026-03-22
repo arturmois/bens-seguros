@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsup';
+import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entry: { index: 'src/index.ts' },
@@ -9,5 +9,13 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   noExternal: ['@repo/db-chat', '@repo/env', '@repo/shared', '@repo/ai'],
-  external: ['bullmq', 'ioredis', 'mongoose', 'baileys', 'pino', 'zod', 'reflect-metadata'],
-});
+  external: [
+    'bullmq',
+    'ioredis',
+    'mongoose',
+    'baileys',
+    'pino',
+    'zod',
+    'reflect-metadata',
+  ],
+})

@@ -1,4 +1,4 @@
-import type { Role } from '@repo/auth/roles';
+import type { Role } from '@repo/auth/roles'
 
 const PERMISSION_MATRIX: Record<string, Role[]> = {
   'clients:read': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'],
@@ -30,16 +30,16 @@ const PERMISSION_MATRIX: Record<string, Role[]> = {
   'settings:read': ['OWNER', 'ADMIN'],
   'settings:manage': ['OWNER'],
   'audit:read': ['OWNER', 'ADMIN', 'MANAGER'],
-};
+}
 
 export function hasPermission(role: Role, permission: string): boolean {
-  return PERMISSION_MATRIX[permission]?.includes(role) ?? false;
+  return PERMISSION_MATRIX[permission]?.includes(role) ?? false
 }
 
 export function hasAnyPermission(role: Role, permissions: string[]): boolean {
-  return permissions.some((p) => hasPermission(role, p));
+  return permissions.some((p) => hasPermission(role, p))
 }
 
 export function hasAllPermissions(role: Role, permissions: string[]): boolean {
-  return permissions.every((p) => hasPermission(role, p));
+  return permissions.every((p) => hasPermission(role, p))
 }

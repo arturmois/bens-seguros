@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 const DOCUMENT_ENTITY_TYPE_VALUES = [
   'CLIENT',
@@ -6,7 +6,7 @@ const DOCUMENT_ENTITY_TYPE_VALUES = [
   'POLICY',
   'CLAIM',
   'ASSISTANCE',
-] as const;
+] as const
 
 const DOCUMENT_TYPE_VALUES = [
   'DRIVER_LICENSE',
@@ -17,16 +17,16 @@ const DOCUMENT_TYPE_VALUES = [
   'PROOF_OF_PAYMENT',
   'CONTRACT',
   'OTHER',
-] as const;
+] as const
 
 export const listDocumentsQuerySchema = z.object({
   entityType: z.enum(DOCUMENT_ENTITY_TYPE_VALUES),
   entityId: z.string().min(1),
-});
+})
 
 export const uploadDocumentQuerySchema = z.object({
   entityType: z.enum(DOCUMENT_ENTITY_TYPE_VALUES),
   entityId: z.string().min(1),
   clientId: z.string().optional(),
   type: z.enum(DOCUMENT_TYPE_VALUES).optional(),
-});
+})

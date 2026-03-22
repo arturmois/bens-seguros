@@ -1,21 +1,25 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { prisma } from '@repo/db';
-import { tenantMiddleware } from '../../middlewares/tenant-middleware.js';
-import { requireAbility } from '../../middlewares/ability-middleware.js';
-import { dashboardStatsQuerySchema } from '../../schemas/stats.schemas.js';
+import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
+import { prisma } from '@repo/db'
+import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
+import { requireAbility } from '../../middlewares/ability-middleware.js'
+import { dashboardStatsQuerySchema } from '../../schemas/stats.schemas.js'
 
 export async function statsRoutes(app: FastifyInstance) {
-  app.addHook('preHandler', tenantMiddleware);
+  app.addHook('preHandler', tenantMiddleware)
 
   app.get(
     '/api/v1/stats/dashboard',
     { preHandler: [requireAbility('read', 'Client')] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { months } = dashboardStatsQuerySchema.parse(request.query);
-      const orgId = request.organizationId!;
-      const now = new Date();
-      const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-      const cutoffDate = new Date(now.getTime() - months * 30 * 24 * 60 * 60 * 1000);
+      const { months } = dashboardStatsQuerySchema.parse(request.query)
+      const orgId = request.organizationId!
+      const now = new Date()
+      const thirtyDaysFromNow = new Date(
+        now.getTime() + 30 * 24 * 60 * 60 * 1000
+      )
+      const cutoffDate = new Date(
+        now.getTime() - months * 30 * 24 * 60 * 60 * 1000
+      )
 
       const [
         proposalsByStage,
@@ -72,7 +76,11 @@ export async function statsRoutes(app: FastifyInstance) {
 
         Promise.all([
           prisma.proposal.count({
-            where: { organizationId: orgId, createdAt: { gte: cutoffDate }, deletedAt: null },
+            where: {
+              organizationId: orgId,
+              createdAt: { gte: cutoffDate },
+              deletedAt: null,
+            },
           }),
           prisma.proposal.count({
             where: {
@@ -100,7 +108,7 @@ export async function statsRoutes(app: FastifyInstance) {
           GROUP BY DATE_TRUNC('month', "createdAt")
           ORDER BY month
         `,
-      ]);
+      ])
 
       return reply.send({
         success: true,
@@ -113,7 +121,7 @@ export async function statsRoutes(app: FastifyInstance) {
           conversionRate,
           monthlyTrends,
         },
-      });
-    },
-  );
+      })
+    }
+  )
 }

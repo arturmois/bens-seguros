@@ -1,15 +1,21 @@
-'use client';
+'use client'
 
-import { DollarSign } from 'lucide-react';
+import { DollarSign } from 'lucide-react'
 
-import { Skeleton } from '@/components/ui/skeleton';
-import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { formatCurrency, formatDate } from '@/lib/formatters';
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { formatCurrency, formatDate } from '@/lib/formatters'
 
-import type { CommissionData } from '../types';
-import { CommissionStatusBadge } from './commission-status-badge';
+import type { CommissionData } from '../types'
+import { CommissionStatusBadge } from './commission-status-badge'
 
-const COLUMN_COUNT = 8;
+const COLUMN_COUNT = 8
 
 export function CommissionsTableHeader() {
   return (
@@ -18,14 +24,16 @@ export function CommissionsTableHeader() {
         <TableHead>Vendedor</TableHead>
         <TableHead className="hidden md:table-cell">Apólice</TableHead>
         <TableHead className="hidden lg:table-cell">Cliente</TableHead>
-        <TableHead className="hidden text-right sm:table-cell">Prêmio</TableHead>
+        <TableHead className="hidden text-right sm:table-cell">
+          Prêmio
+        </TableHead>
         <TableHead className="text-right">%</TableHead>
         <TableHead className="text-right">Valor (R$)</TableHead>
         <TableHead>Status</TableHead>
         <TableHead className="hidden lg:table-cell">Data</TableHead>
       </TableRow>
     </TableHeader>
-  );
+  )
 }
 
 export function CommissionsTableBody({
@@ -33,9 +41,9 @@ export function CommissionsTableBody({
   isLoading,
   onRowClick,
 }: {
-  readonly data: readonly CommissionData[] | undefined;
-  readonly isLoading: boolean;
-  readonly onRowClick: (id: string) => void;
+  readonly data: readonly CommissionData[] | undefined
+  readonly isLoading: boolean
+  readonly onRowClick: (id: string) => void
 }) {
   return (
     <TableBody>
@@ -50,17 +58,17 @@ export function CommissionsTableBody({
           />
         ))}
     </TableBody>
-  );
+  )
 }
 
 function CommissionRow({
   commission,
   onClick,
 }: {
-  readonly commission: CommissionData;
-  readonly onClick: () => void;
+  readonly commission: CommissionData
+  readonly onClick: () => void
 }) {
-  const percentageDisplay = `${(commission.percentageInBasisPoints / 100).toFixed(1)}%`;
+  const percentageDisplay = `${(commission.percentageInBasisPoints / 100).toFixed(1)}%`
 
   return (
     <TableRow
@@ -70,14 +78,20 @@ function CommissionRow({
       onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
+          e.preventDefault()
+          onClick()
         }
       }}
     >
-      <TableCell className="font-medium">{commission.salespersonName ?? '-'}</TableCell>
-      <TableCell className="hidden md:table-cell">{commission.policyNumber ?? '-'}</TableCell>
-      <TableCell className="hidden lg:table-cell">{commission.clientName ?? '-'}</TableCell>
+      <TableCell className="font-medium">
+        {commission.salespersonName ?? '-'}
+      </TableCell>
+      <TableCell className="hidden md:table-cell">
+        {commission.policyNumber ?? '-'}
+      </TableCell>
+      <TableCell className="hidden lg:table-cell">
+        {commission.clientName ?? '-'}
+      </TableCell>
       <TableCell className="hidden text-right sm:table-cell">
         {formatCurrency(commission.premiumValueInCents)}
       </TableCell>
@@ -88,9 +102,11 @@ function CommissionRow({
       <TableCell>
         <CommissionStatusBadge status={commission.status} />
       </TableCell>
-      <TableCell className="hidden lg:table-cell">{formatDate(commission.createdAt)}</TableCell>
+      <TableCell className="hidden lg:table-cell">
+        {formatDate(commission.createdAt)}
+      </TableCell>
     </TableRow>
-  );
+  )
 }
 
 function LoadingRows() {
@@ -106,7 +122,7 @@ function LoadingRows() {
         </TableRow>
       ))}
     </>
-  );
+  )
 }
 
 function EmptyRow() {
@@ -114,7 +130,10 @@ function EmptyRow() {
     <TableRow>
       <TableCell colSpan={COLUMN_COUNT} className="h-48 text-center">
         <div className="flex flex-col items-center justify-center gap-3">
-          <DollarSign aria-hidden="true" className="text-muted-foreground size-10" />
+          <DollarSign
+            aria-hidden="true"
+            className="text-muted-foreground size-10"
+          />
           <div>
             <p className="font-medium">Nenhuma comissão encontrada</p>
             <p className="text-muted-foreground mt-1 text-sm">
@@ -124,5 +143,5 @@ function EmptyRow() {
         </div>
       </TableCell>
     </TableRow>
-  );
+  )
 }

@@ -1,6 +1,6 @@
-import Link from 'next/link';
-import { Suspense } from 'react';
-import { LoginForm } from '@/features/auth/components/login-form';
+import Link from 'next/link'
+import { Suspense } from 'react'
+import { LoginForm } from '@/features/auth/components/login-form'
 
 export default function LoginPage() {
   return (
@@ -15,5 +15,5 @@ export default function LoginPage() {
         </Link>
       </p>
     </>
-  );
+  )
 }

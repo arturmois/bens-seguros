@@ -1,74 +1,74 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { authClient } from '@/lib/auth-client';
-import { setActiveOrgCookie } from '@/lib/org-cookie';
-import { useAuth } from '@/features/auth/hooks/use-auth';
-import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { authClient } from '@/lib/auth-client'
+import { setActiveOrgCookie } from '@/lib/org-cookie'
+import { useAuth } from '@/features/auth/hooks/use-auth'
+import { Button } from '@/components/ui/button'
+import { Loader2 } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
 
-type PageStatus = 'loading' | 'success' | 'error';
+type PageStatus = 'loading' | 'success' | 'error'
 
 export function AcceptInvitationContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const invitationId = searchParams.get('id');
-  const [status, setStatus] = useState<PageStatus>('loading');
-  const [errorMessage, setErrorMessage] = useState('');
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const invitationId = searchParams.get('id')
+  const [status, setStatus] = useState<PageStatus>('loading')
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading) return
 
     if (!invitationId) {
-      setStatus('error');
-      setErrorMessage('Link de convite inválido');
-      return;
+      setStatus('error')
+      setErrorMessage('Link de convite inválido')
+      return
     }
 
     if (!isAuthenticated) {
-      router.replace(`/login?invitationId=${invitationId}`);
-      return;
+      router.replace(`/login?invitationId=${invitationId}`)
+      return
     }
 
-    acceptInvitation(invitationId);
-  }, [authLoading, isAuthenticated, invitationId, router]);
+    acceptInvitation(invitationId)
+  }, [authLoading, isAuthenticated, invitationId, router])
 
   async function acceptInvitation(id: string) {
     try {
       const res = await authClient.organization.acceptInvitation({
         invitationId: id,
-      });
+      })
 
       if (res.error) {
-        setStatus('error');
-        setErrorMessage('Convite expirado ou já aceito');
-        return;
+        setStatus('error')
+        setErrorMessage('Convite expirado ou já aceito')
+        return
       }
 
-      const member = res.data;
+      const member = res.data
       const orgId =
         typeof member === 'object' &&
         member !== null &&
         'organizationId' in member &&
         typeof member.organizationId === 'string'
           ? member.organizationId
-          : null;
+          : null
 
       if (orgId) {
-        await authClient.organization.setActive({ organizationId: orgId });
-        setActiveOrgCookie(orgId);
+        await authClient.organization.setActive({ organizationId: orgId })
+        setActiveOrgCookie(orgId)
       }
 
-      queryClient.clear();
-      setStatus('success');
-      router.push('/');
+      queryClient.clear()
+      setStatus('success')
+      router.push('/')
     } catch {
-      setStatus('error');
-      setErrorMessage('Erro ao aceitar convite');
+      setStatus('error')
+      setErrorMessage('Erro ao aceitar convite')
     }
   }
 
@@ -76,9 +76,11 @@ export function AcceptInvitationContent() {
     return (
       <div className="bg-card flex flex-col items-center rounded-lg border p-8 shadow-sm">
         <Loader2 className="text-primary size-8 animate-spin" />
-        <p className="text-muted-foreground mt-4 text-sm">Aceitando convite...</p>
+        <p className="text-muted-foreground mt-4 text-sm">
+          Aceitando convite...
+        </p>
       </div>
-    );
+    )
   }
 
   if (status === 'error') {
@@ -90,8 +92,8 @@ export function AcceptInvitationContent() {
           Ir para login
         </Button>
       </div>
-    );
+    )
   }
 
-  return null;
+  return null
 }

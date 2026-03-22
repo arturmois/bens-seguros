@@ -1,35 +1,40 @@
-'use client';
+'use client'
 
-import type { Control, FieldValues, UseFormRegister } from 'react-hook-form';
-import { Controller } from 'react-hook-form';
+import type { Control, FieldValues, UseFormRegister } from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
+} from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
 
-import { COMBUSTIVEL_OPTIONS, USO_VEICULO_OPTIONS } from '../lib/branch-options';
+import { COMBUSTIVEL_OPTIONS, USO_VEICULO_OPTIONS } from '../lib/branch-options'
 
 export interface FieldHelperProps {
-  register: UseFormRegister<FieldValues>;
-  control: Control<FieldValues>;
+  register: UseFormRegister<FieldValues>
+  control: Control<FieldValues>
 }
 
 interface FormFieldProps {
-  readonly label: string;
-  readonly required?: boolean;
-  readonly hint?: string;
-  readonly children: React.ReactNode;
+  readonly label: string
+  readonly required?: boolean
+  readonly hint?: string
+  readonly children: React.ReactNode
 }
 
-export function FieldWrapper({ label, required, hint, children }: FormFieldProps) {
+export function FieldWrapper({
+  label,
+  required,
+  hint,
+  children,
+}: FormFieldProps) {
   return (
     <div className="space-y-2">
       <Label>
@@ -39,7 +44,7 @@ export function FieldWrapper({ label, required, hint, children }: FormFieldProps
       {children}
       {hint && <p className="text-muted-foreground text-xs">{hint}</p>}
     </div>
-  );
+  )
 }
 
 export function AutoFields({ register, control }: FieldHelperProps) {
@@ -123,7 +128,7 @@ export function AutoFields({ register, control }: FieldHelperProps) {
         />
       </FieldWrapper>
     </>
-  );
+  )
 }
 
 export function LifeFields({ register, control }: FieldHelperProps) {
@@ -144,7 +149,10 @@ export function LifeFields({ register, control }: FieldHelperProps) {
           name="fumante"
           control={control}
           render={({ field }) => (
-            <Switch checked={field.value === true} onCheckedChange={field.onChange} />
+            <Switch
+              checked={field.value === true}
+              onCheckedChange={field.onChange}
+            />
           )}
         />
       </FieldWrapper>
@@ -153,7 +161,10 @@ export function LifeFields({ register, control }: FieldHelperProps) {
           name="esportesRadicais"
           control={control}
           render={({ field }) => (
-            <Switch checked={field.value === true} onCheckedChange={field.onChange} />
+            <Switch
+              checked={field.value === true}
+              onCheckedChange={field.onChange}
+            />
           )}
         />
       </FieldWrapper>
@@ -164,13 +175,16 @@ export function LifeFields({ register, control }: FieldHelperProps) {
         />
       </FieldWrapper>
     </>
-  );
+  )
 }
 
 export function OtherFields({ register }: FieldHelperProps) {
   return (
     <FieldWrapper label="Descrição" required>
-      <Textarea placeholder="Descreva o objeto segurado" {...register('descricao')} />
+      <Textarea
+        placeholder="Descreva o objeto segurado"
+        {...register('descricao')}
+      />
     </FieldWrapper>
-  );
+  )
 }

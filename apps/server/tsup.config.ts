@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsup';
+import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entry: {
@@ -10,7 +10,13 @@ export default defineConfig({
   clean: true,
   splitting: false,
   sourcemap: true,
-  noExternal: ['@repo/core', '@repo/db', '@repo/env', '@repo/shared', '@repo/auth'],
+  noExternal: [
+    '@repo/core',
+    '@repo/db',
+    '@repo/env',
+    '@repo/shared',
+    '@repo/auth',
+  ],
   external: [
     'fastify',
     '@fastify/*',
@@ -26,4 +32,4 @@ export default defineConfig({
     'reflect-metadata',
     'zod',
   ],
-});
+})

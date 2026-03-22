@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState } from 'react'
 
-import { AuditTable } from './audit-table';
-import type { AuditLogFilters } from '../types';
+import { AuditTable } from './audit-table'
+import type { AuditLogFilters } from '../types'
 
 export function AuditContent() {
-  const [filters, setFilters] = useState<AuditLogFilters>({});
+  const [filters, setFilters] = useState<AuditLogFilters>({})
 
   function handleLoadMore(cursor: string) {
-    setFilters((prev) => ({ ...prev, cursor }));
+    setFilters((prev) => ({ ...prev, cursor }))
   }
 
   return (
@@ -54,5 +54,5 @@ export function AuditContent() {
       </div>
       <AuditTable filters={filters} onLoadMore={handleLoadMore} />
     </div>
-  );
+  )
 }

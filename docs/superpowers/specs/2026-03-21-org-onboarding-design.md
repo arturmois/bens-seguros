@@ -80,11 +80,11 @@ Helper para setar/ler o cookie:
 ```ts
 // lib/org-cookie.ts
 export function setActiveOrgCookie(organizationId: string) {
-  document.cookie = `bens-active-org=${organizationId};path=/;max-age=${60 * 60 * 24 * 30};samesite=lax`;
+  document.cookie = `bens-active-org=${organizationId};path=/;max-age=${60 * 60 * 24 * 30};samesite=lax`
 }
 
 export function clearActiveOrgCookie() {
-  document.cookie = 'bens-active-org=;path=/;max-age=0';
+  document.cookie = 'bens-active-org=;path=/;max-age=0'
 }
 ```
 
@@ -226,19 +226,19 @@ Componente no topo do sidebar, substituindo o logo "Bens":
 
 ```ts
 interface Org {
-  id: string;
-  name: string;
-  slug: string;
-  logo: string | null;
-  role: Role;
+  id: string
+  name: string
+  slug: string
+  logo: string | null
+  role: Role
 }
 
 function useOrgs(): {
-  orgs: Org[];
-  activeOrg: Org | null;
-  isLoading: boolean;
-  switchOrg: (orgId: string) => Promise<void>;
-};
+  orgs: Org[]
+  activeOrg: Org | null
+  isLoading: boolean
+  switchOrg: (orgId: string) => Promise<void>
+}
 ```
 
 - Wraps `authClient.organization.list()` via React Query
@@ -257,15 +257,15 @@ O layout `(dashboard)/layout.tsx` atualmente passa `role="MANAGER"` hardcoded. P
 ```tsx
 // app/(dashboard)/layout.tsx — Server Component wrapper
 export default function DashboardLayout({ children }) {
-  return <DashboardShell>{children}</DashboardShell>;
+  return <DashboardShell>{children}</DashboardShell>
 }
 
 // components/layout/dashboard-shell.tsx — Client Component
-('use client');
+;('use client')
 function DashboardShell({ children }) {
-  const { activeOrg, isLoading } = useOrgs();
-  if (isLoading) return <LoadingSkeleton />;
-  return <AppShell role={activeOrg?.role ?? 'VIEWER'}>{children}</AppShell>;
+  const { activeOrg, isLoading } = useOrgs()
+  if (isLoading) return <LoadingSkeleton />
+  return <AppShell role={activeOrg?.role ?? 'VIEWER'}>{children}</AppShell>
 }
 ```
 

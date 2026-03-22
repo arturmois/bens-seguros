@@ -1,65 +1,74 @@
-'use client';
+'use client'
 
-import { useCallback, useEffect, useRef } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Socket } from 'socket.io-client';
-import { SOCKET_EVENTS, CHAT_LIMITS } from '@repo/shared';
+import { useCallback, useEffect, useRef } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import type { Socket } from 'socket.io-client'
+import { SOCKET_EVENTS, CHAT_LIMITS } from '@repo/shared'
 
-import { chatApi } from '../lib/chat-api';
-import { MESSAGES_KEY } from '../lib/constants';
-import { isRecord } from '../lib/type-guards';
-import type { ConversationData, ConversationWithDetails, ContactData, MessageData } from '../types';
-import { useMessageSocketHandlers } from './use-message-socket-handlers';
+import { chatApi } from '../lib/chat-api'
+import { MESSAGES_KEY } from '../lib/constants'
+import { isRecord } from '../lib/type-guards'
+import type {
+  ConversationData,
+  ConversationWithDetails,
+  ContactData,
+  MessageData,
+} from '../types'
+import { useMessageSocketHandlers } from './use-message-socket-handlers'
 
 interface UseMessagesReturn {
-  readonly messages: MessageData[];
-  readonly contact: ContactData | null;
-  readonly conversation: ConversationData | null;
-  readonly isLoading: boolean;
-  readonly isError: boolean;
-  readonly sendMessage: (text: string) => void;
-  readonly emitTyping: () => void;
-  readonly typingUser: string | null;
+  readonly messages: MessageData[]
+  readonly contact: ContactData | null
+  readonly conversation: ConversationData | null
+  readonly isLoading: boolean
+  readonly isError: boolean
+  readonly sendMessage: (text: string) => void
+  readonly emitTyping: () => void
+  readonly typingUser: string | null
 }
 
 export function useMessages(
   conversationId: string | null,
   socket: Socket | null,
-  currentUserId?: string,
+  currentUserId?: string
 ): UseMessagesReturn {
-  const queryClient = useQueryClient();
-  const lastTypingEmitRef = useRef<number>(0);
+  const queryClient = useQueryClient()
+  const lastTypingEmitRef = useRef<number>(0)
 
   const query = useQuery({
     queryKey: [MESSAGES_KEY, conversationId],
     queryFn: async (): Promise<ConversationWithDetails> => {
       const response = await chatApi.get<ConversationWithDetails>(
-        `/chat/conversations/${conversationId}`,
-      );
-      return response.data;
+        `/chat/conversations/${conversationId}`
+      )
+      return response.data
     },
     staleTime: 60_000,
     enabled: conversationId !== null && conversationId.length > 0,
-  });
+  })
 
-  const { typingUser } = useMessageSocketHandlers(conversationId, socket, queryClient);
+  const { typingUser } = useMessageSocketHandlers(
+    conversationId,
+    socket,
+    queryClient
+  )
 
   // Subscribe/unsubscribe to conversation room + mark as read
   useEffect(() => {
-    if (!socket?.connected || !conversationId) return;
+    if (!socket?.connected || !conversationId) return
 
-    socket.emit(SOCKET_EVENTS.SUBSCRIBE_CONVERSATION, { conversationId });
+    socket.emit(SOCKET_EVENTS.SUBSCRIBE_CONVERSATION, { conversationId })
 
-    void chatApi.post(`/chat/conversations/${conversationId}/read`, {});
+    void chatApi.post(`/chat/conversations/${conversationId}/read`, {})
 
     return () => {
-      socket.emit(SOCKET_EVENTS.UNSUBSCRIBE_CONVERSATION, { conversationId });
-    };
-  }, [socket, conversationId]);
+      socket.emit(SOCKET_EVENTS.UNSUBSCRIBE_CONVERSATION, { conversationId })
+    }
+  }, [socket, conversationId])
 
   const sendMessage = useCallback(
     (text: string) => {
-      if (!socket?.connected || !conversationId || !text.trim()) return;
+      if (!socket?.connected || !conversationId || !text.trim()) return
 
       const optimisticMessage: MessageData = {
         id: `temp-${Date.now()}`,
@@ -73,50 +82,65 @@ export function useMessages(
         status: 'PENDING',
         externalId: null,
         createdAt: new Date().toISOString(),
-      };
+      }
 
-      queryClient.setQueryData<ConversationWithDetails>([MESSAGES_KEY, conversationId], (prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          messages: { ...prev.messages, data: [...prev.messages.data, optimisticMessage] },
-        };
-      });
+      queryClient.setQueryData<ConversationWithDetails>(
+        [MESSAGES_KEY, conversationId],
+        (prev) => {
+          if (!prev) return prev
+          return {
+            ...prev,
+            messages: {
+              ...prev.messages,
+              data: [...prev.messages.data, optimisticMessage],
+            },
+          }
+        }
+      )
 
       socket.emit(
         SOCKET_EVENTS.SEND_MESSAGE,
         { conversationId, text: text.trim() },
         (response: unknown) => {
           if (!isSendMessageAck(response) || !response.success) {
-            markOptimisticFailed(queryClient, conversationId, optimisticMessage.id);
-            return;
+            markOptimisticFailed(
+              queryClient,
+              conversationId,
+              optimisticMessage.id
+            )
+            return
           }
 
-          replaceOptimisticId(queryClient, conversationId, optimisticMessage.id, response.data);
-        },
-      );
+          replaceOptimisticId(
+            queryClient,
+            conversationId,
+            optimisticMessage.id,
+            response.data
+          )
+        }
+      )
     },
-    [socket, conversationId, queryClient],
-  );
+    [socket, conversationId, queryClient]
+  )
 
   // Emit typing start (debounced)
   const emitTyping = useCallback(() => {
-    if (!socket?.connected || !conversationId) return;
+    if (!socket?.connected || !conversationId) return
 
-    const now = Date.now();
-    if (now - lastTypingEmitRef.current < CHAT_LIMITS.TYPING_DEBOUNCE_MS) return;
+    const now = Date.now()
+    if (now - lastTypingEmitRef.current < CHAT_LIMITS.TYPING_DEBOUNCE_MS) return
 
-    lastTypingEmitRef.current = now;
-    socket.emit(SOCKET_EVENTS.TYPING_START, { conversationId });
-  }, [socket, conversationId]);
+    lastTypingEmitRef.current = now
+    socket.emit(SOCKET_EVENTS.TYPING_START, { conversationId })
+  }, [socket, conversationId])
 
   const sendMessageWithTypingReset = useCallback(
     (text: string) => {
-      lastTypingEmitRef.current = 0;
-      sendMessage(text);
+      lastTypingEmitRef.current = 0
+      sendMessage(text)
     },
-    [sendMessage],
-  );
+    [sendMessage]
+  )
 
   return {
     messages: query.data?.messages.data ?? [],
@@ -127,7 +151,7 @@ export function useMessages(
     sendMessage: sendMessageWithTypingReset,
     emitTyping,
     typingUser,
-  };
+  }
 }
 
 // --- helpers ---
@@ -135,52 +159,64 @@ export function useMessages(
 function markOptimisticFailed(
   queryClient: ReturnType<typeof useQueryClient>,
   conversationId: string,
-  optimisticId: string,
+  optimisticId: string
 ): void {
-  queryClient.setQueryData<ConversationWithDetails>([MESSAGES_KEY, conversationId], (prev) => {
-    if (!prev) return prev;
-    return {
-      ...prev,
-      messages: {
-        ...prev.messages,
-        data: prev.messages.data.map((msg) =>
-          msg.id === optimisticId ? { ...msg, status: 'FAILED' as const } : msg,
-        ),
-      },
-    };
-  });
+  queryClient.setQueryData<ConversationWithDetails>(
+    [MESSAGES_KEY, conversationId],
+    (prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        messages: {
+          ...prev.messages,
+          data: prev.messages.data.map((msg) =>
+            msg.id === optimisticId
+              ? { ...msg, status: 'FAILED' as const }
+              : msg
+          ),
+        },
+      }
+    }
+  )
 }
 
 function replaceOptimisticId(
   queryClient: ReturnType<typeof useQueryClient>,
   conversationId: string,
   optimisticId: string,
-  responseData: unknown,
+  responseData: unknown
 ): void {
-  queryClient.setQueryData<ConversationWithDetails>([MESSAGES_KEY, conversationId], (prev) => {
-    if (!prev) return prev;
-    return {
-      ...prev,
-      messages: {
-        ...prev.messages,
-        data: prev.messages.data.map((msg) =>
-          msg.id === optimisticId && isRecord(responseData)
-            ? { ...msg, id: String(responseData['id'] ?? msg.id), status: 'SENT' as const }
-            : msg,
-        ),
-      },
-    };
-  });
+  queryClient.setQueryData<ConversationWithDetails>(
+    [MESSAGES_KEY, conversationId],
+    (prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        messages: {
+          ...prev.messages,
+          data: prev.messages.data.map((msg) =>
+            msg.id === optimisticId && isRecord(responseData)
+              ? {
+                  ...msg,
+                  id: String(responseData['id'] ?? msg.id),
+                  status: 'SENT' as const,
+                }
+              : msg
+          ),
+        },
+      }
+    }
+  )
 }
 
 // --- type guards ---
 
 interface SendMessageAck {
-  success: boolean;
-  data?: unknown;
+  success: boolean
+  data?: unknown
 }
 
 function isSendMessageAck(data: unknown): data is SendMessageAck {
-  if (!isRecord(data)) return false;
-  return typeof data['success'] === 'boolean';
+  if (!isRecord(data)) return false
+  return typeof data['success'] === 'boolean'
 }

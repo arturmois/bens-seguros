@@ -1,7 +1,7 @@
-'use client';
+'use client'
 
-import { AssistancesTable } from '@/features/assistances/components/assistances-table';
+import { AssistancesTable } from '@/features/assistances/components/assistances-table'
 
 export function AssistancesContent() {
-  return <AssistancesTable />;
+  return <AssistancesTable />
 }

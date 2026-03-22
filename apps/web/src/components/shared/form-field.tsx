@@ -1,15 +1,20 @@
-'use client';
+'use client'
 
-import { Label } from '@/components/ui/label';
+import { Label } from '@/components/ui/label'
 
 interface FormFieldProps {
-  readonly label: string;
-  readonly error?: string;
-  readonly required?: boolean;
-  readonly children: React.ReactNode;
+  readonly label: string
+  readonly error?: string
+  readonly required?: boolean
+  readonly children: React.ReactNode
 }
 
-export function FormField({ label, error, required, children }: FormFieldProps) {
+export function FormField({
+  label,
+  error,
+  required,
+  children,
+}: FormFieldProps) {
   return (
     <div className="space-y-2">
       <Label>
@@ -23,5 +28,5 @@ export function FormField({ label, error, required, children }: FormFieldProps) 
         </p>
       )}
     </div>
-  );
+  )
 }

@@ -1,87 +1,93 @@
-import 'reflect-metadata';
-import * as Sentry from '@sentry/node';
-import IORedis from 'ioredis';
-import pino from 'pino';
-import { connectMongoDB } from '@repo/db-chat';
-import { env } from '@repo/env';
+import 'reflect-metadata'
+import * as Sentry from '@sentry/node'
+import IORedis from 'ioredis'
+import pino from 'pino'
+import { connectMongoDB } from '@repo/db-chat'
+import { env } from '@repo/env'
 
 if (process.env.SENTRY_DSN) {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
     environment: process.env.NODE_ENV,
     tracesSampleRate: 0.2,
-  });
+  })
 }
 
-import { buildChatApp } from './app.js';
-import { registerDependencies } from './infra/di/registry.js';
-import { RedisSubscriber } from './infra/pubsub/redis-subscriber.js';
+import { buildChatApp } from './app.js'
+import { registerDependencies } from './infra/di/registry.js'
+import { RedisSubscriber } from './infra/pubsub/redis-subscriber.js'
 
 const logger = pino({
   level: env.NODE_ENV === 'production' ? 'info' : 'debug',
-});
+})
 
 function parseRedisUrl(url: string): {
-  host: string;
-  port: number;
-  password?: string;
+  host: string
+  port: number
+  password?: string
 } {
-  const parsed = new URL(url);
+  const parsed = new URL(url)
   return {
     host: parsed.hostname || 'localhost',
     port: Number(parsed.port) || 6379,
-    ...(parsed.password ? { password: decodeURIComponent(parsed.password) } : {}),
-  };
+    ...(parsed.password
+      ? { password: decodeURIComponent(parsed.password) }
+      : {}),
+  }
 }
 
 const start = async (): Promise<void> => {
-  const mongoUri = env.MONGODB_URL;
-  await connectMongoDB(mongoUri);
-  logger.info('MongoDB connected');
+  const mongoUri = env.MONGODB_URL
+  await connectMongoDB(mongoUri)
+  logger.info('MongoDB connected')
 
-  const redisUrl = env.REDIS_URL;
-  const redisPub = new IORedis(redisUrl);
-  const redisSub = redisPub.duplicate();
-  const redisSubscriber = new IORedis(redisUrl);
-  const redisGeneral = new IORedis(redisUrl);
+  const redisUrl = env.REDIS_URL
+  const redisPub = new IORedis(redisUrl)
+  const redisSub = redisPub.duplicate()
+  const redisSubscriber = new IORedis(redisUrl)
+  const redisGeneral = new IORedis(redisUrl)
 
-  const redisInfo = parseRedisUrl(redisUrl);
+  const redisInfo = parseRedisUrl(redisUrl)
   const queueConnection = {
     host: redisInfo.host,
     port: redisInfo.port,
     ...(redisInfo.password ? { password: redisInfo.password } : {}),
     maxRetriesPerRequest: null,
-  };
+  }
 
-  registerDependencies(queueConnection, logger);
+  registerDependencies(queueConnection, logger)
 
-  const { app, io, presence } = await buildChatApp({ redisPub, redisSub, redisGeneral });
+  const { app, io, presence } = await buildChatApp({
+    redisPub,
+    redisSub,
+    redisGeneral,
+  })
 
-  const subscriber = new RedisSubscriber(redisSubscriber, io, logger);
-  await subscriber.subscribe();
+  const subscriber = new RedisSubscriber(redisSubscriber, io, logger)
+  await subscriber.subscribe()
 
-  const port = Number(env.CHAT_SERVER_URL.split(':').pop() ?? 3002);
-  const host = '0.0.0.0';
+  const port = Number(env.CHAT_SERVER_URL.split(':').pop() ?? 3002)
+  const host = '0.0.0.0'
 
-  await app.listen({ port, host });
-  logger.info({ port, host }, 'Chat server running');
+  await app.listen({ port, host })
+  logger.info({ port, host }, 'Chat server running')
 
   const shutdown = async (): Promise<void> => {
-    logger.info('Shutting down chat server...');
-    presence.stop();
-    await app.close();
-    redisPub.disconnect();
-    redisSub.disconnect();
-    redisSubscriber.disconnect();
-    redisGeneral.disconnect();
-    logger.info('Chat server shut down');
-  };
+    logger.info('Shutting down chat server...')
+    presence.stop()
+    await app.close()
+    redisPub.disconnect()
+    redisSub.disconnect()
+    redisSubscriber.disconnect()
+    redisGeneral.disconnect()
+    logger.info('Chat server shut down')
+  }
 
-  process.on('SIGTERM', () => void shutdown());
-  process.on('SIGINT', () => void shutdown());
-};
+  process.on('SIGTERM', () => void shutdown())
+  process.on('SIGINT', () => void shutdown())
+}
 
 start().catch((err: unknown) => {
-  logger.fatal({ err }, 'Failed to start chat server');
-  process.exit(1);
-});
+  logger.fatal({ err }, 'Failed to start chat server')
+  process.exit(1)
+})

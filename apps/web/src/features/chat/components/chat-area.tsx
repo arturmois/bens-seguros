@@ -1,52 +1,59 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
-import { AlertCircle, Paperclip, Send, Smile } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Skeleton } from '@/components/ui/skeleton'
+import { AlertCircle, Paperclip, Send, Smile } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
-import type { ContactData, ConversationData, MessageData } from '../types';
-import { ChatHeader } from './chat-header';
-import { MessageBubble } from './message-bubble';
+import type { ContactData, ConversationData, MessageData } from '../types'
+import { ChatHeader } from './chat-header'
+import { MessageBubble } from './message-bubble'
 
 interface ChatAreaProps {
-  readonly conversation: ConversationData | null;
-  readonly contact: ContactData | null;
-  readonly messages: MessageData[];
-  readonly currentUserId: string;
-  readonly typingUser: string | null;
-  readonly isLoading: boolean;
-  readonly isError: boolean;
-  readonly onSendMessage: (text: string) => void;
-  readonly onEmitTyping: () => void;
-  readonly onBack: () => void;
-  readonly onOpenProfile: () => void;
-  readonly onAssign: () => void;
-  readonly onTransfer: () => void;
-  readonly onReturnToQueue: () => void;
-  readonly onCloseConversation: () => void;
+  readonly conversation: ConversationData | null
+  readonly contact: ContactData | null
+  readonly messages: MessageData[]
+  readonly currentUserId: string
+  readonly typingUser: string | null
+  readonly isLoading: boolean
+  readonly isError: boolean
+  readonly onSendMessage: (text: string) => void
+  readonly onEmitTyping: () => void
+  readonly onBack: () => void
+  readonly onOpenProfile: () => void
+  readonly onAssign: () => void
+  readonly onTransfer: () => void
+  readonly onReturnToQueue: () => void
+  readonly onCloseConversation: () => void
 }
 
 function MessagesLoading() {
   return (
     <div className="space-y-4 p-4">
       {Array.from({ length: 4 }, (_, i) => (
-        <div key={i} className={i % 2 === 0 ? 'flex justify-start' : 'flex justify-end'}>
-          <Skeleton className={`h-12 rounded-2xl ${i % 2 === 0 ? 'w-2/3' : 'w-1/2'}`} />
+        <div
+          key={i}
+          className={i % 2 === 0 ? 'flex justify-start' : 'flex justify-end'}
+        >
+          <Skeleton
+            className={`h-12 rounded-2xl ${i % 2 === 0 ? 'w-2/3' : 'w-1/2'}`}
+          />
         </div>
       ))}
     </div>
-  );
+  )
 }
 
 function MessagesError() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-2">
       <AlertCircle className="text-destructive h-10 w-10" />
-      <p className="text-muted-foreground text-sm">Erro ao carregar mensagens</p>
+      <p className="text-muted-foreground text-sm">
+        Erro ao carregar mensagens
+      </p>
     </div>
-  );
+  )
 }
 
 function EmptyState() {
@@ -56,13 +63,15 @@ function EmptyState() {
         <div className="bg-primary/10 mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full">
           <Send className="text-primary h-10 w-10" />
         </div>
-        <h2 className="text-foreground mb-2 text-xl font-semibold">Selecione uma conversa</h2>
+        <h2 className="text-foreground mb-2 text-xl font-semibold">
+          Selecione uma conversa
+        </h2>
         <p className="text-muted-foreground max-w-sm">
           Escolha uma conversa na lista ao lado para comecar a trocar mensagens
         </p>
       </div>
     </div>
-  );
+  )
 }
 
 function MessageInput({
@@ -70,24 +79,24 @@ function MessageInput({
   onEmitTyping,
   disabled,
 }: {
-  readonly onSendMessage: (text: string) => void;
-  readonly onEmitTyping: () => void;
-  readonly disabled: boolean;
+  readonly onSendMessage: (text: string) => void
+  readonly onEmitTyping: () => void
+  readonly disabled: boolean
 }) {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (inputValue.trim()) {
-      onSendMessage(inputValue);
-      setInputValue('');
+      onSendMessage(inputValue)
+      setInputValue('')
     }
-  };
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-    onEmitTyping();
-  };
+    setInputValue(e.target.value)
+    onEmitTyping()
+  }
 
   return (
     <div className="border-border bg-card border-t p-2 md:p-3">
@@ -127,7 +136,7 @@ function MessageInput({
         </Button>
       </form>
     </div>
-  );
+  )
 }
 
 export function ChatArea({
@@ -147,20 +156,21 @@ export function ChatArea({
   onReturnToQueue,
   onCloseConversation,
 }: ChatAreaProps) {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [messages]);
+  }, [messages])
 
   if (!conversation) {
-    return <EmptyState />;
+    return <EmptyState />
   }
 
   const canSendMessage =
-    conversation.status === 'HUMAN_ACTIVE' && conversation.assignedTo === currentUserId;
+    conversation.status === 'HUMAN_ACTIVE' &&
+    conversation.assignedTo === currentUserId
 
   return (
     <div className="bg-(--chat-bg) flex h-full flex-col">
@@ -201,5 +211,5 @@ export function ChatArea({
         disabled={!canSendMessage}
       />
     </div>
-  );
+  )
 }

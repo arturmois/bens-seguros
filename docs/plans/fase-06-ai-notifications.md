@@ -101,17 +101,17 @@ apps/web/src/emails/                 # React Email templates
 - [ ] **Step 2: Create providers.ts**
 
 ```ts
-import { anthropic } from '@ai-sdk/anthropic';
-import { openai } from '@ai-sdk/openai';
+import { anthropic } from '@ai-sdk/anthropic'
+import { openai } from '@ai-sdk/openai'
 
-export type AIProvider = 'claude' | 'openai';
+export type AIProvider = 'claude' | 'openai'
 
 export function getModel(provider: AIProvider = 'claude') {
   switch (provider) {
     case 'claude':
-      return anthropic('claude-sonnet-4-20250514');
+      return anthropic('claude-sonnet-4-20250514')
     case 'openai':
-      return openai('gpt-4o-mini');
+      return openai('gpt-4o-mini')
   }
 }
 ```
@@ -119,15 +119,15 @@ export function getModel(provider: AIProvider = 'claude') {
 - [ ] **Step 3: Create generate.ts**
 
 ```ts
-import { generateText, streamText } from 'ai';
-import { getModel, type AIProvider } from './providers.js';
+import { generateText, streamText } from 'ai'
+import { getModel, type AIProvider } from './providers.js'
 
 interface GenerateOptions {
-  systemPrompt: string;
-  userMessage: string;
-  provider?: AIProvider;
-  maxTokens?: number;
-  temperature?: number;
+  systemPrompt: string
+  userMessage: string
+  provider?: AIProvider
+  maxTokens?: number
+  temperature?: number
 }
 
 export async function generate(options: GenerateOptions): Promise<string> {
@@ -137,8 +137,8 @@ export async function generate(options: GenerateOptions): Promise<string> {
     prompt: options.userMessage,
     maxTokens: options.maxTokens ?? 500,
     temperature: options.temperature ?? 0.7,
-  });
-  return text;
+  })
+  return text
 }
 
 export function stream(options: GenerateOptions) {
@@ -148,15 +148,15 @@ export function stream(options: GenerateOptions) {
     prompt: options.userMessage,
     maxTokens: options.maxTokens ?? 500,
     temperature: options.temperature ?? 0.7,
-  });
+  })
 }
 ```
 
 - [ ] **Step 4: Create index.ts barrel**
 
 ```ts
-export { generate, stream } from './generate.js';
-export { getModel, type AIProvider } from './providers.js';
+export { generate, stream } from './generate.js'
+export { getModel, type AIProvider } from './providers.js'
 ```
 
 - [ ] **Step 5: Commit**
@@ -178,49 +178,49 @@ git commit -m "feat: add @repo/ai with vercel ai sdk multi-provider (claude + op
 - [ ] **Step 1: Create ai-bot-processor**
 
 ```ts
-import { Worker, type Job } from 'bullmq';
-import { generate } from '@repo/ai';
-import { Message, Conversation, AiAgent } from '@repo/db-chat';
-import pino from 'pino';
+import { Worker, type Job } from 'bullmq'
+import { generate } from '@repo/ai'
+import { Message, Conversation, AiAgent } from '@repo/db-chat'
+import pino from 'pino'
 
-const logger = pino({ name: 'ai-bot-processor' });
+const logger = pino({ name: 'ai-bot-processor' })
 
 interface AiBotJob {
-  conversationId: string;
-  tenantId: string;
-  messageText: string;
-  contactName: string;
+  conversationId: string
+  tenantId: string
+  messageText: string
+  contactName: string
 }
 
 export function createAiBotProcessor(connection: import('ioredis').default) {
   return new Worker<AiBotJob>(
     'chat-ai-bot',
     async (job: Job<AiBotJob>) => {
-      const { conversationId, tenantId, messageText, contactName } = job.data;
+      const { conversationId, tenantId, messageText, contactName } = job.data
 
       // Check if conversation is still in BOT_ACTIVE
-      const conversation = await Conversation.findById(conversationId);
-      if (!conversation || conversation.status !== 'BOT_ACTIVE') return;
+      const conversation = await Conversation.findById(conversationId)
+      if (!conversation || conversation.status !== 'BOT_ACTIVE') return
 
       // Get AI agent config for this tenant
-      const aiAgent = await AiAgent.findOne({ tenantId });
-      if (!aiAgent?.isActive) return;
+      const aiAgent = await AiAgent.findOne({ tenantId })
+      if (!aiAgent?.isActive) return
 
       // Get recent messages for context
       const recentMessages = await Message.find({ conversationId })
         .sort({ createdAt: -1 })
         .limit(10)
-        .lean();
+        .lean()
 
       const context = recentMessages
         .reverse()
         .map((m) => `${m.senderType}: ${m.text}`)
-        .join('\n');
+        .join('\n')
 
       // Generate AI response
       const systemPrompt =
         aiAgent.systemPrompt ??
-        `Voce e um assistente de uma corretora de seguros. Responda de forma educada e profissional em portugues brasileiro. Se o cliente quiser falar com um atendente humano, diga que vai transferi-lo.`;
+        `Voce e um assistente de uma corretora de seguros. Responda de forma educada e profissional em portugues brasileiro. Se o cliente quiser falar com um atendente humano, diga que vai transferi-lo.`
 
       const response = await generate({
         systemPrompt,
@@ -228,7 +228,7 @@ export function createAiBotProcessor(connection: import('ioredis').default) {
         provider: (aiAgent.provider as 'claude' | 'openai') ?? 'claude',
         maxTokens: aiAgent.maxTokens ?? 300,
         temperature: aiAgent.temperature ?? 0.7,
-      });
+      })
 
       // Save bot response
       await Message.create({
@@ -239,15 +239,15 @@ export function createAiBotProcessor(connection: import('ioredis').default) {
         text: response,
         type: 'TEXT',
         status: 'PENDING',
-      });
+      })
 
       // Enqueue for sending via WhatsApp
       // (triggers send-message-processor)
 
-      logger.info({ conversationId }, 'AI bot response generated');
+      logger.info({ conversationId }, 'AI bot response generated')
     },
-    { connection, concurrency: 5 },
-  );
+    { connection, concurrency: 5 }
+  )
 }
 ```
 
@@ -326,21 +326,21 @@ git commit -m "feat: add notification module with in-app + email delivery"
 - [ ] **Step 1: Create email provider**
 
 ```ts
-import { Resend } from 'resend';
-import { injectable } from 'tsyringe';
+import { Resend } from 'resend'
+import { injectable } from 'tsyringe'
 
 export interface EmailPayload {
-  to: string;
-  subject: string;
-  html: string;
+  to: string
+  subject: string
+  html: string
 }
 
 @injectable()
 export class ResendEmailProvider {
-  private client: Resend;
+  private client: Resend
 
   constructor() {
-    this.client = new Resend(process.env.RESEND_API_KEY);
+    this.client = new Resend(process.env.RESEND_API_KEY)
   }
 
   async send(payload: EmailPayload): Promise<void> {
@@ -349,7 +349,7 @@ export class ResendEmailProvider {
       to: payload.to,
       subject: payload.subject,
       html: payload.html,
-    });
+    })
   }
 }
 ```
@@ -359,20 +359,30 @@ export class ResendEmailProvider {
 Example `commission-approved.tsx`:
 
 ```tsx
-import { Html, Head, Body, Container, Text, Button, Hr } from '@react-email/components';
+import {
+  Html,
+  Head,
+  Body,
+  Container,
+  Text,
+  Button,
+  Hr,
+} from '@react-email/components'
 
 interface CommissionApprovedProps {
-  userName: string;
-  policyNumber: string;
-  value: string;
-  approvedBy: string;
+  userName: string
+  policyNumber: string
+  value: string
+  approvedBy: string
 }
 
 export function CommissionApprovedEmail(props: CommissionApprovedProps) {
   return (
     <Html>
       <Head />
-      <Body style={{ fontFamily: 'Inter, sans-serif', backgroundColor: '#f4f4f5' }}>
+      <Body
+        style={{ fontFamily: 'Inter, sans-serif', backgroundColor: '#f4f4f5' }}
+      >
         <Container
           style={{
             maxWidth: 600,
@@ -382,11 +392,14 @@ export function CommissionApprovedEmail(props: CommissionApprovedProps) {
             borderRadius: 8,
           }}
         >
-          <Text style={{ fontSize: 20, fontWeight: 600, color: '#1f4b5f' }}>Comissao Aprovada</Text>
+          <Text style={{ fontSize: 20, fontWeight: 600, color: '#1f4b5f' }}>
+            Comissao Aprovada
+          </Text>
           <Hr />
           <Text>Ola {props.userName},</Text>
           <Text>
-            Sua comissao referente a apolice <strong>{props.policyNumber}</strong> no valor de{' '}
+            Sua comissao referente a apolice{' '}
+            <strong>{props.policyNumber}</strong> no valor de{' '}
             <strong>{props.value}</strong> foi aprovada por {props.approvedBy}.
           </Text>
           <Button
@@ -403,7 +416,7 @@ export function CommissionApprovedEmail(props: CommissionApprovedProps) {
         </Container>
       </Body>
     </Html>
-  );
+  )
 }
 ```
 
@@ -470,9 +483,9 @@ git commit -m "feat: add notification API routes"
 
 ```ts
 socket.on(SOCKET_EVENTS.NOTIFICATION, (notification) => {
-  queryClient.invalidateQueries({ queryKey: ['notifications'] });
-  toast.info(notification.title);
-});
+  queryClient.invalidateQueries({ queryKey: ['notifications'] })
+  toast.info(notification.title)
+})
 ```
 
 - [ ] **Step 5: Add bell to header.tsx**

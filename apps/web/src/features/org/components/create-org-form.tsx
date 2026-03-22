@@ -1,18 +1,18 @@
-'use client';
+'use client'
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useQueryClient } from '@tanstack/react-query';
-import { authClient } from '@/lib/auth-client';
-import { setActiveOrgCookie } from '@/lib/org-cookie';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
+import { authClient } from '@/lib/auth-client'
+import { setActiveOrgCookie } from '@/lib/org-cookie'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { toast } from 'sonner'
+import { Loader2 } from 'lucide-react'
 
 const createOrgSchema = z.object({
   name: z.string().min(2, 'Mínimo 2 caracteres'),
@@ -20,9 +20,9 @@ const createOrgSchema = z.object({
     .string()
     .min(3, 'Mínimo 3 caracteres')
     .regex(/^[a-z0-9-]+$/, 'Apenas letras minúsculas, números e hífens'),
-});
+})
 
-type CreateOrgFormData = z.infer<typeof createOrgSchema>;
+type CreateOrgFormData = z.infer<typeof createOrgSchema>
 
 function slugify(text: string): string {
   return text
@@ -30,73 +30,75 @@ function slugify(text: string): string {
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/^-+|-+$/g, '')
 }
 
 export function CreateOrgForm() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [slugError, setSlugError] = useState('');
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [slugError, setSlugError] = useState('')
 
   const form = useForm<CreateOrgFormData>({
     resolver: zodResolver(createOrgSchema),
     defaultValues: { name: '', slug: '' },
-  });
+  })
 
-  const nameValue = form.watch('name');
+  const nameValue = form.watch('name')
 
   useEffect(() => {
     if (nameValue) {
-      form.setValue('slug', slugify(nameValue), { shouldValidate: true });
+      form.setValue('slug', slugify(nameValue), { shouldValidate: true })
     }
-  }, [nameValue, form]);
+  }, [nameValue, form])
 
   const onSubmit = async (data: CreateOrgFormData) => {
-    setIsSubmitting(true);
-    setSlugError('');
+    setIsSubmitting(true)
+    setSlugError('')
     try {
       const createRes = await authClient.organization.create({
         name: data.name,
         slug: data.slug,
-      });
+      })
 
       if (createRes.error) {
-        const message = createRes.error.message ?? 'Erro ao criar organização';
+        const message = createRes.error.message ?? 'Erro ao criar organização'
         const isSlugTaken =
           message.toLowerCase().includes('slug') ||
           message.toLowerCase().includes('already') ||
-          message.toLowerCase().includes('existe');
+          message.toLowerCase().includes('existe')
 
         if (isSlugTaken) {
-          setSlugError('Este slug já está em uso. Escolha outro.');
-          return;
+          setSlugError('Este slug já está em uso. Escolha outro.')
+          return
         }
 
-        toast.error(message);
-        return;
+        toast.error(message)
+        return
       }
 
-      const orgId = createRes.data?.id;
+      const orgId = createRes.data?.id
       if (orgId) {
-        await authClient.organization.setActive({ organizationId: orgId });
-        setActiveOrgCookie(orgId);
+        await authClient.organization.setActive({ organizationId: orgId })
+        setActiveOrgCookie(orgId)
       }
 
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
-      queryClient.invalidateQueries({ queryKey: ['orgs'] });
-      router.push('/');
+      queryClient.invalidateQueries({ queryKey: ['auth'] })
+      queryClient.invalidateQueries({ queryKey: ['orgs'] })
+      router.push('/')
     } catch {
-      toast.error('Erro ao criar organização');
+      toast.error('Erro ao criar organização')
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className="bg-card rounded-lg border p-8 shadow-sm">
       <div className="mb-6 text-center">
-        <p className="text-primary text-sm font-semibold uppercase tracking-wide">Passo 2 de 2</p>
+        <p className="text-primary text-sm font-semibold uppercase tracking-wide">
+          Passo 2 de 2
+        </p>
         <h2 className="mt-1 text-xl font-semibold">Configure sua corretora</h2>
         <p className="text-muted-foreground mt-1 text-sm">
           Estas informações podem ser alteradas depois
@@ -106,9 +108,15 @@ export function CreateOrgForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="name">Nome da corretora *</Label>
-          <Input {...form.register('name')} id="name" placeholder="Ex: Corretora ABC Seguros" />
+          <Input
+            {...form.register('name')}
+            id="name"
+            placeholder="Ex: Corretora ABC Seguros"
+          />
           {form.formState.errors.name && (
-            <p className="text-destructive text-sm">{form.formState.errors.name.message}</p>
+            <p className="text-destructive text-sm">
+              {form.formState.errors.name.message}
+            </p>
           )}
         </div>
 
@@ -126,9 +134,13 @@ export function CreateOrgForm() {
               className="rounded-none border-0"
             />
           </div>
-          <p className="text-muted-foreground text-xs">Gerado automaticamente. Pode ser editado.</p>
+          <p className="text-muted-foreground text-xs">
+            Gerado automaticamente. Pode ser editado.
+          </p>
           {form.formState.errors.slug && (
-            <p className="text-destructive text-sm">{form.formState.errors.slug.message}</p>
+            <p className="text-destructive text-sm">
+              {form.formState.errors.slug.message}
+            </p>
           )}
           {slugError && <p className="text-destructive text-sm">{slugError}</p>}
         </div>
@@ -148,5 +160,5 @@ export function CreateOrgForm() {
         </p>
       </form>
     </div>
-  );
+  )
 }

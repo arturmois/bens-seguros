@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { MoreHorizontal, Pencil, Power, QrCode } from 'lucide-react';
+import { MoreHorizontal, Pencil, Power, QrCode } from 'lucide-react'
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/menu';
-import { Skeleton } from '@/components/ui/skeleton';
+} from '@/components/ui/menu'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -16,24 +16,29 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 
-import type { ChannelData } from '../types';
-import { ChannelStatusBadge } from './channel-status-badge';
+import type { ChannelData } from '../types'
+import { ChannelStatusBadge } from './channel-status-badge'
 
 interface ChannelsTableProps {
-  readonly channels: readonly ChannelData[];
-  readonly onEdit: (channel: ChannelData) => void;
-  readonly onQrCode: (channel: ChannelData) => void;
-  readonly onDeactivate: (channel: ChannelData) => void;
+  readonly channels: readonly ChannelData[]
+  readonly onEdit: (channel: ChannelData) => void
+  readonly onQrCode: (channel: ChannelData) => void
+  readonly onDeactivate: (channel: ChannelData) => void
 }
 
 const BROKER_TYPE_LABELS: Record<string, string> = {
   BAILEYS: 'Baileys',
   META: 'Meta',
-};
+}
 
-export function ChannelsTable({ channels, onEdit, onQrCode, onDeactivate }: ChannelsTableProps) {
+export function ChannelsTable({
+  channels,
+  onEdit,
+  onQrCode,
+  onDeactivate,
+}: ChannelsTableProps) {
   return (
     <Table>
       <TableHeader>
@@ -59,22 +64,29 @@ export function ChannelsTable({ channels, onEdit, onQrCode, onDeactivate }: Chan
         ))}
       </TableBody>
     </Table>
-  );
+  )
 }
 
 interface ChannelRowProps {
-  readonly channel: ChannelData;
-  readonly onEdit: (channel: ChannelData) => void;
-  readonly onQrCode: (channel: ChannelData) => void;
-  readonly onDeactivate: (channel: ChannelData) => void;
+  readonly channel: ChannelData
+  readonly onEdit: (channel: ChannelData) => void
+  readonly onQrCode: (channel: ChannelData) => void
+  readonly onDeactivate: (channel: ChannelData) => void
 }
 
-function ChannelRow({ channel, onEdit, onQrCode, onDeactivate }: ChannelRowProps) {
+function ChannelRow({
+  channel,
+  onEdit,
+  onQrCode,
+  onDeactivate,
+}: ChannelRowProps) {
   return (
     <TableRow>
       <TableCell className="font-medium">{channel.name}</TableCell>
       <TableCell>{channel.phoneNumber ?? '-'}</TableCell>
-      <TableCell>{BROKER_TYPE_LABELS[channel.brokerType] ?? channel.brokerType}</TableCell>
+      <TableCell>
+        {BROKER_TYPE_LABELS[channel.brokerType] ?? channel.brokerType}
+      </TableCell>
       <TableCell>
         <ChannelStatusBadge status={channel.status} />
       </TableCell>
@@ -97,7 +109,10 @@ function ChannelRow({ channel, onEdit, onQrCode, onDeactivate }: ChannelRowProps
                 QR Code
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem variant="destructive" onClick={() => onDeactivate(channel)}>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => onDeactivate(channel)}
+            >
               <Power />
               Desativar
             </DropdownMenuItem>
@@ -105,7 +120,7 @@ function ChannelRow({ channel, onEdit, onQrCode, onDeactivate }: ChannelRowProps
         </DropdownMenu>
       </TableCell>
     </TableRow>
-  );
+  )
 }
 
 export function ChannelsTableSkeleton() {
@@ -144,5 +159,5 @@ export function ChannelsTableSkeleton() {
         ))}
       </TableBody>
     </Table>
-  );
+  )
 }

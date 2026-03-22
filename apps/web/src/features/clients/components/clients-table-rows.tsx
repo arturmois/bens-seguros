@@ -1,19 +1,25 @@
-'use client';
+'use client'
 
-import { MoreHorizontal, Users } from 'lucide-react';
+import { MoreHorizontal, Users } from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/menu';
+} from '@/components/ui/menu'
 
-import type { ClientData } from '../types';
-import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants';
+import type { ClientData } from '../types'
+import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
 
 export function ClientsTableHeader() {
   return (
@@ -28,7 +34,7 @@ export function ClientsTableHeader() {
         <TableHead className="w-12" />
       </TableRow>
     </TableHeader>
-  );
+  )
 }
 
 export function ClientsTableBody({
@@ -38,11 +44,11 @@ export function ClientsTableBody({
   onEdit,
   onDelete,
 }: {
-  readonly data: ClientData[] | undefined;
-  readonly isLoading: boolean;
-  readonly onRowClick: (id: string) => void;
-  readonly onEdit: (client: ClientData) => void;
-  readonly onDelete: (id: string) => void;
+  readonly data: ClientData[] | undefined
+  readonly isLoading: boolean
+  readonly onRowClick: (id: string) => void
+  readonly onEdit: (client: ClientData) => void
+  readonly onDelete: (id: string) => void
 }) {
   return (
     <TableBody>
@@ -59,7 +65,7 @@ export function ClientsTableBody({
           />
         ))}
     </TableBody>
-  );
+  )
 }
 
 function ClientRow({
@@ -68,10 +74,10 @@ function ClientRow({
   onEdit,
   onDelete,
 }: {
-  readonly client: ClientData;
-  readonly onClick: () => void;
-  readonly onEdit: () => void;
-  readonly onDelete: () => void;
+  readonly client: ClientData
+  readonly onClick: () => void
+  readonly onEdit: () => void
+  readonly onDelete: () => void
 }) {
   return (
     <TableRow
@@ -80,19 +86,23 @@ function ClientRow({
       onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
+          e.preventDefault()
+          onClick()
         }
       }}
     >
       <TableCell className="font-medium">{client.name}</TableCell>
       <TableCell>{client.document}</TableCell>
       <TableCell>
-        <Badge variant={TYPE_BADGE_VARIANT[client.type]}>{TYPE_LABELS[client.type]}</Badge>
+        <Badge variant={TYPE_BADGE_VARIANT[client.type]}>
+          {TYPE_LABELS[client.type]}
+        </Badge>
       </TableCell>
       <TableCell>{client.email ?? '-'}</TableCell>
       <TableCell>{client.phone ?? '-'}</TableCell>
-      <TableCell>{new Date(client.createdAt).toLocaleDateString('pt-BR')}</TableCell>
+      <TableCell>
+        {new Date(client.createdAt).toLocaleDateString('pt-BR')}
+      </TableCell>
       <TableCell>
         <DropdownMenu>
           <DropdownMenuTrigger
@@ -106,8 +116,8 @@ function ClientRow({
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={(e) => {
-                e.stopPropagation();
-                onEdit();
+                e.stopPropagation()
+                onEdit()
               }}
             >
               Editar
@@ -115,8 +125,8 @@ function ClientRow({
             <DropdownMenuItem
               className="text-destructive"
               onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
+                e.stopPropagation()
+                onDelete()
               }}
             >
               Excluir
@@ -125,7 +135,7 @@ function ClientRow({
         </DropdownMenu>
       </TableCell>
     </TableRow>
-  );
+  )
 }
 
 function LoadingRows() {
@@ -141,7 +151,7 @@ function LoadingRows() {
         </TableRow>
       ))}
     </>
-  );
+  )
 }
 
 function EmptyRow() {
@@ -159,5 +169,5 @@ function EmptyRow() {
         </div>
       </TableCell>
     </TableRow>
-  );
+  )
 }

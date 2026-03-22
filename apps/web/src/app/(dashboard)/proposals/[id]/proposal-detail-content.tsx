@@ -1,11 +1,13 @@
-'use client';
+'use client'
 
-import { ProposalDetail } from '@/features/proposals/components/proposal-detail';
+import { ProposalDetail } from '@/features/proposals/components/proposal-detail'
 
 interface ProposalDetailContentProps {
-  proposalId: string;
+  proposalId: string
 }
 
-export function ProposalDetailContent({ proposalId }: ProposalDetailContentProps) {
-  return <ProposalDetail proposalId={proposalId} />;
+export function ProposalDetailContent({
+  proposalId,
+}: ProposalDetailContentProps) {
+  return <ProposalDetail proposalId={proposalId} />
 }

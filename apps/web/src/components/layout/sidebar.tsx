@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import { UserMenu } from '@/components/layout/user-menu';
-import { OrgSwitcher } from '@/features/org/components/org-switcher';
-import { hasPermission } from '@/lib/permissions';
-import { cn } from '@/lib/utils';
-import type { Role } from '@repo/auth/roles';
+import { UserMenu } from '@/components/layout/user-menu'
+import { OrgSwitcher } from '@/features/org/components/org-switcher'
+import { hasPermission } from '@/lib/permissions'
+import { cn } from '@/lib/utils'
+import type { Role } from '@repo/auth/roles'
 import {
   AlertTriangle,
   ClipboardList,
@@ -16,47 +16,87 @@ import {
   Settings,
   Shield,
   Users,
-} from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+} from 'lucide-react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 interface SidebarProps {
-  role: Role;
-  collapsed: boolean;
+  role: Role
+  collapsed: boolean
 }
 
 const MAIN_NAV = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard, permission: null },
-  { href: '/clients', label: 'Clientes', icon: Users, permission: 'clients:read' },
-  { href: '/proposals', label: 'Propostas', icon: FileText, permission: 'proposals:read' },
-  { href: '/policies', label: 'Apólices', icon: Shield, permission: 'policies:read' },
-  { href: '/claims', label: 'Sinistros', icon: AlertTriangle, permission: 'claims:read' },
-  { href: '/assistances', label: 'Assistências', icon: LifeBuoy, permission: 'assistances:read' },
-  { href: '/commissions', label: 'Comissões', icon: DollarSign, permission: 'commissions:read' },
-] as const;
+  {
+    href: '/clients',
+    label: 'Clientes',
+    icon: Users,
+    permission: 'clients:read',
+  },
+  {
+    href: '/proposals',
+    label: 'Propostas',
+    icon: FileText,
+    permission: 'proposals:read',
+  },
+  {
+    href: '/policies',
+    label: 'Apólices',
+    icon: Shield,
+    permission: 'policies:read',
+  },
+  {
+    href: '/claims',
+    label: 'Sinistros',
+    icon: AlertTriangle,
+    permission: 'claims:read',
+  },
+  {
+    href: '/assistances',
+    label: 'Assistências',
+    icon: LifeBuoy,
+    permission: 'assistances:read',
+  },
+  {
+    href: '/commissions',
+    label: 'Comissões',
+    icon: DollarSign,
+    permission: 'commissions:read',
+  },
+] as const
 
 const SECONDARY_NAV = [
   { href: '/chat', label: 'Chat', icon: MessageSquare, permission: null },
-  { href: '/audit', label: 'Auditoria', icon: ClipboardList, permission: 'audit:read' },
-  { href: '/settings', label: 'Configurações', icon: Settings, permission: 'settings:read' },
-] as const;
+  {
+    href: '/audit',
+    label: 'Auditoria',
+    icon: ClipboardList,
+    permission: 'audit:read',
+  },
+  {
+    href: '/settings',
+    label: 'Configurações',
+    icon: Settings,
+    permission: 'settings:read',
+  },
+] as const
 
 export function Sidebar({ role, collapsed }: SidebarProps) {
-  const pathname = usePathname();
+  const pathname = usePathname()
 
   const mainItems = MAIN_NAV.filter(
-    (item) => !item.permission || hasPermission(role, item.permission),
-  );
+    (item) => !item.permission || hasPermission(role, item.permission)
+  )
 
   const secondaryItems = SECONDARY_NAV.filter(
-    (item) => !item.permission || hasPermission(role, item.permission),
-  );
+    (item) => !item.permission || hasPermission(role, item.permission)
+  )
 
   return (
     <aside
       className={cn(
         'bg-card flex h-screen flex-col border-r transition-all',
-        collapsed ? 'w-16' : 'w-68',
+        collapsed ? 'w-16' : 'w-68'
       )}
     >
       <OrgSwitcher collapsed={collapsed} />
@@ -96,7 +136,7 @@ export function Sidebar({ role, collapsed }: SidebarProps) {
 
       <UserMenu collapsed={collapsed} />
     </aside>
-  );
+  )
 }
 
 function NavItem({
@@ -106,11 +146,11 @@ function NavItem({
   isActive,
   collapsed,
 }: {
-  href: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  isActive: boolean;
-  collapsed: boolean;
+  href: string
+  label: string
+  icon: React.ComponentType<{ className?: string }>
+  isActive: boolean
+  collapsed: boolean
 }) {
   return (
     <Link
@@ -119,13 +159,15 @@ function NavItem({
       aria-label={collapsed ? label : undefined}
       className={cn(
         'flex min-h-10 items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
-        isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted',
-        collapsed && 'justify-center px-0',
+        isActive
+          ? 'bg-primary/10 text-primary'
+          : 'text-muted-foreground hover:bg-muted',
+        collapsed && 'justify-center px-0'
       )}
       title={collapsed ? label : undefined}
     >
       <Icon className="size-4 shrink-0" />
       {!collapsed && <span>{label}</span>}
     </Link>
-  );
+  )
 }

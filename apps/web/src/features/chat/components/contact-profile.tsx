@@ -1,34 +1,46 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { ExternalLink, Phone, X } from 'lucide-react';
-import Link from 'next/link';
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { ExternalLink, Phone, X } from 'lucide-react'
+import Link from 'next/link'
 
-import type { ContactData, ConversationData } from '../types';
-import { ConversationStatusBadge } from './conversation-status-badge';
+import type { ContactData, ConversationData } from '../types'
+import { ConversationStatusBadge } from './conversation-status-badge'
 
 interface ContactProfileProps {
-  readonly contact: ContactData | null;
-  readonly conversation: ConversationData;
-  readonly onClose: () => void;
+  readonly contact: ContactData | null
+  readonly conversation: ConversationData
+  readonly onClose: () => void
 }
 
-function getDisplayName(contact: ContactData | null, conversation: ConversationData): string {
-  if (contact?.pushName) return contact.pushName;
-  if (conversation.whatsappPhone) return conversation.whatsappPhone;
-  return 'Contato';
+function getDisplayName(
+  contact: ContactData | null,
+  conversation: ConversationData
+): string {
+  if (contact?.pushName) return contact.pushName
+  if (conversation.whatsappPhone) return conversation.whatsappPhone
+  return 'Contato'
 }
 
-export function ContactProfile({ contact, conversation, onClose }: ContactProfileProps) {
-  const displayName = getDisplayName(contact, conversation);
+export function ContactProfile({
+  contact,
+  conversation,
+  onClose,
+}: ContactProfileProps) {
+  const displayName = getDisplayName(contact, conversation)
 
   return (
     <div className="bg-card flex h-full flex-col">
       {/* Header */}
       <div className="border-border flex items-center justify-between border-b px-4 py-3">
         <h2 className="text-foreground font-semibold">Perfil do contato</h2>
-        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onClose}
+          className="h-8 w-8"
+        >
           <X className="h-5 w-5" />
         </Button>
       </div>
@@ -52,15 +64,18 @@ export function ContactProfile({ contact, conversation, onClose }: ContactProfil
               )}
             </div>
           </div>
-          <h3 className="text-foreground text-xl font-semibold">{displayName}</h3>
+          <h3 className="text-foreground text-xl font-semibold">
+            {displayName}
+          </h3>
           <div className="mt-2">
             <ConversationStatusBadge status={conversation.status} />
           </div>
-          {conversation.status === 'HUMAN_ACTIVE' && conversation.assignedToName && (
-            <p className="text-muted-foreground mt-1 text-sm">
-              Atendido por {conversation.assignedToName}
-            </p>
-          )}
+          {conversation.status === 'HUMAN_ACTIVE' &&
+            conversation.assignedToName && (
+              <p className="text-muted-foreground mt-1 text-sm">
+                Atendido por {conversation.assignedToName}
+              </p>
+            )}
         </div>
 
         <Separator />
@@ -91,7 +106,10 @@ export function ContactProfile({ contact, conversation, onClose }: ContactProfil
             <Separator />
             <div className="px-4 py-4">
               <Link href={`/clients/${contact.clientId}`}>
-                <Button variant="outline" className="w-full justify-start gap-3">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3"
+                >
                   <ExternalLink className="h-4 w-4" />
                   Ver cliente
                 </Button>
@@ -101,5 +119,5 @@ export function ContactProfile({ contact, conversation, onClose }: ContactProfil
         )}
       </div>
     </div>
-  );
+  )
 }

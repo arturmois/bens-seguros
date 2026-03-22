@@ -1,8 +1,12 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const claimFormSchema = z.object({
-  policyId: z.string({ required_error: 'Apólice é obrigatória' }).min(1, 'Apólice é obrigatória'),
-  clientId: z.string({ required_error: 'Cliente é obrigatório' }).min(1, 'Cliente é obrigatório'),
+  policyId: z
+    .string({ required_error: 'Apólice é obrigatória' })
+    .min(1, 'Apólice é obrigatória'),
+  clientId: z
+    .string({ required_error: 'Cliente é obrigatório' })
+    .min(1, 'Cliente é obrigatório'),
   insurerId: z.string().optional().or(z.literal('')),
   assignedToId: z.string().optional().or(z.literal('')),
   priority: z.enum(['NORMAL', 'HIGH', 'URGENT']).optional(),
@@ -15,9 +19,9 @@ export const claimFormSchema = z.object({
     .max(500, 'Local deve ter no máximo 500 caracteres')
     .optional()
     .or(z.literal('')),
-});
+})
 
-export type ClaimFormValues = z.infer<typeof claimFormSchema>;
+export type ClaimFormValues = z.infer<typeof claimFormSchema>
 
 export const EMPTY_CLAIM_FORM_VALUES: ClaimFormValues = {
   policyId: '',
@@ -28,4 +32,4 @@ export const EMPTY_CLAIM_FORM_VALUES: ClaimFormValues = {
   description: '',
   incidentDate: '',
   incidentLocation: '',
-};
+}

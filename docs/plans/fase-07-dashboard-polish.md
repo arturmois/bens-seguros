@@ -81,14 +81,17 @@ e2e/
 - [ ] **Step 1: Create stats handlers with aggregation queries**
 
 ```ts
-import { prisma } from '@repo/db';
-import type { FastifyRequest, FastifyReply } from 'fastify';
+import { prisma } from '@repo/db'
+import type { FastifyRequest, FastifyReply } from 'fastify'
 
-export async function handleGetDashboardStats(request: FastifyRequest, reply: FastifyReply) {
-  const orgId = request.organizationId;
-  const now = new Date();
-  const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-  const sixMonthsAgo = new Date(now.getTime() - 6 * 30 * 24 * 60 * 60 * 1000);
+export async function handleGetDashboardStats(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const orgId = request.organizationId
+  const now = new Date()
+  const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+  const sixMonthsAgo = new Date(now.getTime() - 6 * 30 * 24 * 60 * 60 * 1000)
 
   const [
     proposalsByStage,
@@ -151,7 +154,11 @@ export async function handleGetDashboardStats(request: FastifyRequest, reply: Fa
     // Conversion rate (proposals -> policies, last 6 months)
     Promise.all([
       prisma.proposal.count({
-        where: { organizationId: orgId, createdAt: { gte: sixMonthsAgo }, deletedAt: null },
+        where: {
+          organizationId: orgId,
+          createdAt: { gte: sixMonthsAgo },
+          deletedAt: null,
+        },
       }),
       prisma.proposal.count({
         where: {
@@ -180,7 +187,7 @@ export async function handleGetDashboardStats(request: FastifyRequest, reply: Fa
       GROUP BY DATE_TRUNC('month', "createdAt")
       ORDER BY month
     `,
-  ]);
+  ])
 
   return reply.send({
     success: true,
@@ -193,7 +200,7 @@ export async function handleGetDashboardStats(request: FastifyRequest, reply: Fa
       conversionRate,
       monthlyTrends,
     },
-  });
+  })
 }
 ```
 
@@ -243,7 +250,7 @@ export default async function DashboardPage() {
       </div>
       <TrendChart />
     </div>
-  );
+  )
 }
 ```
 
@@ -306,35 +313,35 @@ model AuditLogArchive {
 - [ ] **Step 2: Create audit helper utility**
 
 ```ts
-import { prisma } from '@repo/db';
+import { prisma } from '@repo/db'
 
 interface AuditEntry {
-  organizationId: string;
-  userId?: string;
-  action: string;
-  entityType: string;
-  entityId?: string;
-  before?: Record<string, unknown>;
-  after?: Record<string, unknown>;
-  ipAddress?: string;
-  userAgent?: string;
+  organizationId: string
+  userId?: string
+  action: string
+  entityType: string
+  entityId?: string
+  before?: Record<string, unknown>
+  after?: Record<string, unknown>
+  ipAddress?: string
+  userAgent?: string
 }
 
 export async function logAudit(entry: AuditEntry): Promise<void> {
-  await prisma.auditLog.create({ data: entry });
+  await prisma.auditLog.create({ data: entry })
 }
 
 export const logCreate = (base: Omit<AuditEntry, 'action'>) =>
-  logAudit({ ...base, action: 'CREATE' });
+  logAudit({ ...base, action: 'CREATE' })
 
 export const logUpdate = (base: Omit<AuditEntry, 'action'>) =>
-  logAudit({ ...base, action: 'UPDATE' });
+  logAudit({ ...base, action: 'UPDATE' })
 
 export const logDelete = (base: Omit<AuditEntry, 'action'>) =>
-  logAudit({ ...base, action: 'DELETE' });
+  logAudit({ ...base, action: 'DELETE' })
 
 export const logApprove = (base: Omit<AuditEntry, 'action'>) =>
-  logAudit({ ...base, action: 'APPROVE' });
+  logAudit({ ...base, action: 'APPROVE' })
 ```
 
 - [ ] **Step 3: Create audit routes**
@@ -352,15 +359,15 @@ Monthly cron job: moves audit logs older than 12 months to AuditLogArchive table
 const archiveJob = new Worker(
   'audit-archive',
   async () => {
-    const cutoffDate = new Date();
-    cutoffDate.setFullYear(cutoffDate.getFullYear() - 1);
+    const cutoffDate = new Date()
+    cutoffDate.setFullYear(cutoffDate.getFullYear() - 1)
 
     const logs = await prisma.auditLog.findMany({
       where: { createdAt: { lt: cutoffDate } },
       take: 10000,
-    });
+    })
 
-    if (logs.length === 0) return;
+    if (logs.length === 0) return
 
     await prisma.$transaction([
       prisma.auditLogArchive.createMany({
@@ -372,10 +379,10 @@ const archiveJob = new Worker(
       prisma.auditLog.deleteMany({
         where: { id: { in: logs.map((l) => l.id) } },
       }),
-    ]);
+    ])
   },
-  { connection },
-);
+  { connection }
+)
 ```
 
 - [ ] **Step 5: Integrate audit logging into existing use cases**
@@ -402,14 +409,16 @@ git commit -m "feat: add audit log system with archive processor and frontend"
 - [ ] **Step 1: Setup Bull Board**
 
 ```ts
-import { createBullBoard } from '@bull-board/api';
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
-import { FastifyAdapter } from '@bull-board/fastify';
-import { Queue } from 'bullmq';
-import IORedis from 'ioredis';
+import { createBullBoard } from '@bull-board/api'
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
+import { FastifyAdapter } from '@bull-board/fastify'
+import { Queue } from 'bullmq'
+import IORedis from 'ioredis'
 
 export function setupBullBoard(app: import('fastify').FastifyInstance) {
-  const connection = new IORedis(process.env.REDIS_URL ?? 'redis://localhost:6379');
+  const connection = new IORedis(
+    process.env.REDIS_URL ?? 'redis://localhost:6379'
+  )
 
   const queues = [
     'erp-notifications',
@@ -418,17 +427,17 @@ export function setupBullBoard(app: import('fastify').FastifyInstance) {
     'chat-send-message',
     'chat-incoming-message',
     'chat-ai-bot',
-  ].map((name) => new BullMQAdapter(new Queue(name, { connection })));
+  ].map((name) => new BullMQAdapter(new Queue(name, { connection })))
 
-  const serverAdapter = new FastifyAdapter();
-  serverAdapter.setBasePath('/admin/queues');
+  const serverAdapter = new FastifyAdapter()
+  serverAdapter.setBasePath('/admin/queues')
 
-  createBullBoard({ queues, serverAdapter });
+  createBullBoard({ queues, serverAdapter })
 
   app.register(serverAdapter.registerPlugin(), {
     basePath: '/admin/queues',
     prefix: '/admin/queues',
-  });
+  })
 }
 ```
 
@@ -461,14 +470,14 @@ cd apps/web && pnpm add @sentry/nextjs
 - [ ] **Step 2: Setup Sentry in server (Fastify)**
 
 ```ts
-import * as Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node'
 
 if (process.env.SENTRY_DSN) {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
     environment: process.env.NODE_ENV,
     tracesSampleRate: 0.2,
-  });
+  })
 }
 ```
 
@@ -524,7 +533,7 @@ npx playwright install chromium
 `playwright.config.ts`:
 
 ```ts
-import { defineConfig } from '@playwright/test';
+import { defineConfig } from '@playwright/test'
 
 export default defineConfig({
   testDir: './e2e/tests',
@@ -539,43 +548,43 @@ export default defineConfig({
     port: 3000,
     reuseExistingServer: true,
   },
-});
+})
 ```
 
 - [ ] **Step 2: Create auth fixture (login helper)**
 
 ```ts
-import { test as base, type Page } from '@playwright/test';
+import { test as base, type Page } from '@playwright/test'
 
 export const test = base.extend<{ authedPage: Page }>({
   authedPage: async ({ page }, use) => {
-    await page.goto('/login');
-    await page.fill('input[type="email"]', 'test@bens.com.br');
-    await page.fill('input[type="password"]', 'password123');
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/');
-    await use(page);
+    await page.goto('/login')
+    await page.fill('input[type="email"]', 'test@bens.com.br')
+    await page.fill('input[type="password"]', 'password123')
+    await page.click('button[type="submit"]')
+    await page.waitForURL('/')
+    await use(page)
   },
-});
+})
 ```
 
 - [ ] **Step 3: Test 1 - Auth flow**
 
 ```ts
 test('login and see dashboard', async ({ authedPage: page }) => {
-  await expect(page.locator('h1')).toContainText('Dashboard');
-});
+  await expect(page.locator('h1')).toContainText('Dashboard')
+})
 ```
 
 - [ ] **Step 4: Test 2 - Proposal to Policy**
 
 ```ts
 test('create proposal and advance to policy', async ({ authedPage: page }) => {
-  await page.goto('/proposals/new');
+  await page.goto('/proposals/new')
   // Fill form, submit
   // Advance through stages
   // Verify policy created
-});
+})
 ```
 
 - [ ] **Step 5: Test 3 - Claim flow**

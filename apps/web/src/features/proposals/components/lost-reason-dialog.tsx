@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState } from 'react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -10,48 +10,53 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
-import { useMarkProposalLost } from '../hooks/use-proposals';
+import { useMarkProposalLost } from '../hooks/use-proposals'
 
 interface LostReasonDialogProps {
-  proposalId: string | null;
-  onClose: () => void;
+  proposalId: string | null
+  onClose: () => void
 }
 
-export function LostReasonDialog({ proposalId, onClose }: LostReasonDialogProps) {
-  const [reason, setReason] = useState('');
-  const markLostMutation = useMarkProposalLost();
+export function LostReasonDialog({
+  proposalId,
+  onClose,
+}: LostReasonDialogProps) {
+  const [reason, setReason] = useState('')
+  const markLostMutation = useMarkProposalLost()
 
   const handleSubmit = () => {
-    if (!proposalId || !reason.trim()) return;
+    if (!proposalId || !reason.trim()) return
 
     markLostMutation.mutate(
       { id: proposalId, reason: reason.trim() },
       {
         onSuccess: () => {
-          setReason('');
-          onClose();
+          setReason('')
+          onClose()
         },
-      },
-    );
-  };
+      }
+    )
+  }
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      setReason('');
-      onClose();
+      setReason('')
+      onClose()
     }
-  };
+  }
 
   return (
     <Dialog open={!!proposalId} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Marcar como Perda</DialogTitle>
-          <DialogDescription>Informe o motivo da perda desta proposta.</DialogDescription>
+          <DialogDescription>
+            Informe o motivo da perda desta proposta.
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
           <Label htmlFor="lost-reason">Motivo</Label>
@@ -76,5 +81,5 @@ export function LostReasonDialog({ proposalId, onClose }: LostReasonDialogProps)
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

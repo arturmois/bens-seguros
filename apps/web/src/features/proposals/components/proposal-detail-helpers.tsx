@@ -1,8 +1,8 @@
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface InfoItemProps {
-  readonly label: string;
-  readonly value: string;
+  readonly label: string
+  readonly value: string
 }
 
 export function InfoItem({ label, value }: InfoItemProps) {
@@ -11,7 +11,7 @@ export function InfoItem({ label, value }: InfoItemProps) {
       <p className="text-muted-foreground text-xs">{label}</p>
       <p className="text-sm font-medium">{value}</p>
     </div>
-  );
+  )
 }
 
 export function DetailSkeleton() {
@@ -32,5 +32,5 @@ export function DetailSkeleton() {
         ))}
       </div>
     </div>
-  );
+  )
 }

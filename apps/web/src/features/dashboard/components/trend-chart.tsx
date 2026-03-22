@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import {
   LineChart,
@@ -9,12 +9,12 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-} from 'recharts';
+} from 'recharts'
 
-import { Card, CardHeader, CardTitle, CardPanel } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardHeader, CardTitle, CardPanel } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 
-import type { MonthlyTrend } from '../types';
+import type { MonthlyTrend } from '../types'
 
 const MONTH_LABELS: Record<string, string> = {
   '01': 'Jan',
@@ -29,16 +29,16 @@ const MONTH_LABELS: Record<string, string> = {
   '10': 'Out',
   '11': 'Nov',
   '12': 'Dez',
-};
+}
 
 function formatMonth(month: string): string {
-  const parts = month.split('-');
-  return MONTH_LABELS[parts[1] ?? ''] ?? month;
+  const parts = month.split('-')
+  return MONTH_LABELS[parts[1] ?? ''] ?? month
 }
 
 interface TrendChartProps {
-  data: MonthlyTrend[] | undefined;
-  isLoading: boolean;
+  data: MonthlyTrend[] | undefined
+  isLoading: boolean
 }
 
 export function TrendChart({ data, isLoading }: TrendChartProps) {
@@ -52,14 +52,14 @@ export function TrendChart({ data, isLoading }: TrendChartProps) {
           <Skeleton className="h-64 w-full" />
         </CardPanel>
       </Card>
-    );
+    )
   }
 
   const chartData = (data ?? []).map((d) => ({
     month: formatMonth(d.month),
     proposals: Number(d.proposals),
     issued: Number(d.issued),
-  }));
+  }))
 
   return (
     <Card>
@@ -68,9 +68,16 @@ export function TrendChart({ data, isLoading }: TrendChartProps) {
       </CardHeader>
       <CardPanel>
         <ResponsiveContainer width="100%" height={256}>
-          <LineChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+          <LineChart
+            data={chartData}
+            margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+          >
             <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis dataKey="month" tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+            <XAxis
+              dataKey="month"
+              tick={{ fontSize: 12 }}
+              className="fill-muted-foreground"
+            />
             <YAxis
               allowDecimals={false}
               tick={{ fontSize: 12 }}
@@ -107,5 +114,5 @@ export function TrendChart({ data, isLoading }: TrendChartProps) {
         </ResponsiveContainer>
       </CardPanel>
     </Card>
-  );
+  )
 }

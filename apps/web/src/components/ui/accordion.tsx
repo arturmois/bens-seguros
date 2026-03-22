@@ -1,12 +1,14 @@
-'use client';
+'use client'
 
-import { Accordion as AccordionPrimitive } from '@base-ui/react/accordion';
-import { ChevronDownIcon } from 'lucide-react';
-import type React from 'react';
-import { cn } from '@/lib/utils';
+import { Accordion as AccordionPrimitive } from '@base-ui/react/accordion'
+import { ChevronDownIcon } from 'lucide-react'
+import type React from 'react'
+import { cn } from '@/lib/utils'
 
-export function Accordion(props: AccordionPrimitive.Root.Props): React.ReactElement {
-  return <AccordionPrimitive.Root data-slot="accordion" {...props} />;
+export function Accordion(
+  props: AccordionPrimitive.Root.Props
+): React.ReactElement {
+  return <AccordionPrimitive.Root data-slot="accordion" {...props} />
 }
 
 export function AccordionItem({
@@ -19,7 +21,7 @@ export function AccordionItem({
       data-slot="accordion-item"
       {...props}
     />
-  );
+  )
 }
 
 export function AccordionTrigger({
@@ -32,7 +34,7 @@ export function AccordionTrigger({
       <AccordionPrimitive.Trigger
         className={cn(
           'focus-visible:ring-ring disabled:opacity-64 data-panel-open:*:data-[slot=accordion-indicator]:rotate-180 flex flex-1 cursor-pointer items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium outline-none transition-all focus-visible:ring-[3px] disabled:pointer-events-none',
-          className,
+          className
         )}
         data-slot="accordion-trigger"
         {...props}
@@ -44,7 +46,7 @@ export function AccordionTrigger({
         />
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
-  );
+  )
 }
 
 export function AccordionPanel({
@@ -60,7 +62,7 @@ export function AccordionPanel({
     >
       <div className={cn('pb-4 pt-0', className)}>{children}</div>
     </AccordionPrimitive.Panel>
-  );
+  )
 }
 
-export { AccordionPrimitive, AccordionPanel as AccordionContent };
+export { AccordionPrimitive, AccordionPanel as AccordionContent }

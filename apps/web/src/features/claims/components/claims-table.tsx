@@ -1,68 +1,69 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-import { Button } from '@/components/ui/button';
-import { Table } from '@/components/ui/table';
-import { useDebounce } from '@/hooks/use-debounce';
+import { Button } from '@/components/ui/button'
+import { Table } from '@/components/ui/table'
+import { useDebounce } from '@/hooks/use-debounce'
 
-import type { ClaimPriority, ClaimStatus } from '../types';
-import { useClaims, useDeleteClaim } from '../hooks/use-claims';
-import { ClaimsPagination } from './claims-pagination';
-import { ClaimsTableBody, ClaimsTableHeader } from './claims-table-rows';
-import { ClaimsToolbar } from './claims-toolbar';
-import { DeleteClaimDialog } from './delete-claim-dialog';
+import type { ClaimPriority, ClaimStatus } from '../types'
+import { useClaims, useDeleteClaim } from '../hooks/use-claims'
+import { ClaimsPagination } from './claims-pagination'
+import { ClaimsTableBody, ClaimsTableHeader } from './claims-table-rows'
+import { ClaimsToolbar } from './claims-toolbar'
+import { DeleteClaimDialog } from './delete-claim-dialog'
 
 export function ClaimsTable() {
-  const router = useRouter();
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
-  const [priorityFilter, setPriorityFilter] = useState('ALL');
-  const [cursors, setCursors] = useState<string[]>([]);
-  const [deletingClaimId, setDeletingClaimId] = useState<string | null>(null);
+  const router = useRouter()
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('ALL')
+  const [priorityFilter, setPriorityFilter] = useState('ALL')
+  const [cursors, setCursors] = useState<string[]>([])
+  const [deletingClaimId, setDeletingClaimId] = useState<string | null>(null)
 
-  const debouncedSearch = useDebounce(search, 300);
-  const currentCursor = cursors.at(-1);
+  const debouncedSearch = useDebounce(search, 300)
+  const currentCursor = cursors.at(-1)
 
   const { data, isLoading, isError, refetch } = useClaims({
     search: debouncedSearch || undefined,
     status: statusFilter === 'ALL' ? undefined : (statusFilter as ClaimStatus),
-    priority: priorityFilter === 'ALL' ? undefined : (priorityFilter as ClaimPriority),
+    priority:
+      priorityFilter === 'ALL' ? undefined : (priorityFilter as ClaimPriority),
     cursor: currentCursor,
-  });
+  })
 
-  const deleteClaim = useDeleteClaim();
+  const deleteClaim = useDeleteClaim()
 
   function handleRowClick(id: string) {
-    router.push(`/claims/${id}`);
+    router.push(`/claims/${id}`)
   }
 
   function handleStatusFilterChange(value: string) {
-    setStatusFilter(value);
-    setCursors([]);
+    setStatusFilter(value)
+    setCursors([])
   }
 
   function handlePriorityFilterChange(value: string) {
-    setPriorityFilter(value);
-    setCursors([]);
+    setPriorityFilter(value)
+    setCursors([])
   }
 
   function handleNextPage() {
     if (data?.meta.nextCursor) {
-      setCursors((prev) => [...prev, data.meta.nextCursor!]);
+      setCursors((prev) => [...prev, data.meta.nextCursor!])
     }
   }
 
   function handlePreviousPage() {
-    setCursors((prev) => prev.slice(0, -1));
+    setCursors((prev) => prev.slice(0, -1))
   }
 
   function handleConfirmDelete() {
     if (deletingClaimId) {
       deleteClaim.mutate(deletingClaimId, {
         onSuccess: () => setDeletingClaimId(null),
-      });
+      })
     }
   }
 
@@ -74,7 +75,7 @@ export function ClaimsTable() {
           Tentar novamente
         </Button>
       </div>
-    );
+    )
   }
 
   return (
@@ -111,11 +112,11 @@ export function ClaimsTable() {
       <DeleteClaimDialog
         open={Boolean(deletingClaimId)}
         onOpenChange={(open) => {
-          if (!open) setDeletingClaimId(null);
+          if (!open) setDeletingClaimId(null)
         }}
         onConfirm={handleConfirmDelete}
         isPending={deleteClaim.isPending}
       />
     </div>
-  );
+  )
 }

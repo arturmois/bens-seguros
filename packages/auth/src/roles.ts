@@ -4,9 +4,9 @@ export const ROLES = {
   MANAGER: 'MANAGER',
   COMMERCIAL: 'COMMERCIAL',
   VIEWER: 'VIEWER',
-} as const;
+} as const
 
-export type Role = (typeof ROLES)[keyof typeof ROLES];
+export type Role = (typeof ROLES)[keyof typeof ROLES]
 
 export const ROLE_HIERARCHY: Record<Role, number> = {
   OWNER: 5,
@@ -14,8 +14,8 @@ export const ROLE_HIERARCHY: Record<Role, number> = {
   MANAGER: 3,
   COMMERCIAL: 2,
   VIEWER: 1,
-};
+}
 
 export function isRoleAtLeast(userRole: Role, requiredRole: Role): boolean {
-  return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[requiredRole];
+  return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[requiredRole]
 }

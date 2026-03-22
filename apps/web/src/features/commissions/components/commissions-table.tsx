@@ -1,52 +1,57 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-import { Button } from '@/components/ui/button';
-import { Table } from '@/components/ui/table';
-import { useDebounce } from '@/hooks/use-debounce';
+import { Button } from '@/components/ui/button'
+import { Table } from '@/components/ui/table'
+import { useDebounce } from '@/hooks/use-debounce'
 
-import type { CommissionStatus } from '../types';
-import { useCommissions } from '../hooks/use-commissions';
-import { CommissionsPagination } from './commissions-pagination';
-import { CommissionsTableBody, CommissionsTableHeader } from './commissions-table-rows';
-import { CommissionsToolbar } from './commissions-toolbar';
+import type { CommissionStatus } from '../types'
+import { useCommissions } from '../hooks/use-commissions'
+import { CommissionsPagination } from './commissions-pagination'
+import {
+  CommissionsTableBody,
+  CommissionsTableHeader,
+} from './commissions-table-rows'
+import { CommissionsToolbar } from './commissions-toolbar'
 
 export function CommissionsTable() {
-  const router = useRouter();
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<CommissionStatus | 'ALL'>('ALL');
-  const [cursors, setCursors] = useState<string[]>([]);
+  const router = useRouter()
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<CommissionStatus | 'ALL'>(
+    'ALL'
+  )
+  const [cursors, setCursors] = useState<string[]>([])
 
-  const debouncedSearch = useDebounce(search, 300);
-  const currentCursor = cursors.at(-1);
+  const debouncedSearch = useDebounce(search, 300)
+  const currentCursor = cursors.at(-1)
 
   const filters = {
     search: debouncedSearch || undefined,
     status: statusFilter === 'ALL' ? undefined : statusFilter,
     cursor: currentCursor,
-  };
+  }
 
-  const { data, isLoading, isError, refetch } = useCommissions(filters);
+  const { data, isLoading, isError, refetch } = useCommissions(filters)
 
   function handleRowClick(id: string) {
-    router.push(`/commissions/${id}`);
+    router.push(`/commissions/${id}`)
   }
 
   function handleStatusFilterChange(value: CommissionStatus | 'ALL') {
-    setStatusFilter(value);
-    setCursors([]);
+    setStatusFilter(value)
+    setCursors([])
   }
 
   function handleNextPage() {
     if (data?.meta.nextCursor) {
-      setCursors((prev) => [...prev, data.meta.nextCursor!]);
+      setCursors((prev) => [...prev, data.meta.nextCursor!])
     }
   }
 
   function handlePreviousPage() {
-    setCursors((prev) => prev.slice(0, -1));
+    setCursors((prev) => prev.slice(0, -1))
   }
 
   if (isError) {
@@ -57,7 +62,7 @@ export function CommissionsTable() {
           Tentar novamente
         </Button>
       </div>
-    );
+    )
   }
 
   return (
@@ -89,5 +94,5 @@ export function CommissionsTable() {
         onPrevious={handlePreviousPage}
       />
     </div>
-  );
+  )
 }

@@ -1,22 +1,28 @@
-'use client';
+'use client'
 
-import { FileWarning, MoreHorizontal } from 'lucide-react';
+import { FileWarning, MoreHorizontal } from 'lucide-react'
 
-import { Skeleton } from '@/components/ui/skeleton';
-import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/menu';
+} from '@/components/ui/menu'
 
-import type { ClaimData } from '../types';
-import { formatClaimNumber } from '../lib/constants';
-import { ClaimPriorityBadge } from './claim-priority-badge';
-import { ClaimStatusBadge } from './claim-status-badge';
+import type { ClaimData } from '../types'
+import { formatClaimNumber } from '../lib/constants'
+import { ClaimPriorityBadge } from './claim-priority-badge'
+import { ClaimStatusBadge } from './claim-status-badge'
 
-const COLUMN_COUNT = 7;
+const COLUMN_COUNT = 7
 
 export function ClaimsTableHeader() {
   return (
@@ -31,7 +37,7 @@ export function ClaimsTableHeader() {
         <TableHead className="w-12" />
       </TableRow>
     </TableHeader>
-  );
+  )
 }
 
 export function ClaimsTableBody({
@@ -40,10 +46,10 @@ export function ClaimsTableBody({
   onRowClick,
   onDelete,
 }: {
-  readonly data: readonly ClaimData[] | undefined;
-  readonly isLoading: boolean;
-  readonly onRowClick: (id: string) => void;
-  readonly onDelete: (id: string) => void;
+  readonly data: readonly ClaimData[] | undefined
+  readonly isLoading: boolean
+  readonly onRowClick: (id: string) => void
+  readonly onDelete: (id: string) => void
 }) {
   return (
     <TableBody>
@@ -59,7 +65,7 @@ export function ClaimsTableBody({
           />
         ))}
     </TableBody>
-  );
+  )
 }
 
 function ClaimRow({
@@ -67,15 +73,15 @@ function ClaimRow({
   onClick,
   onDelete,
 }: {
-  readonly claim: ClaimData;
-  readonly onClick: () => void;
-  readonly onDelete: () => void;
+  readonly claim: ClaimData
+  readonly onClick: () => void
+  readonly onDelete: () => void
 }) {
-  const formattedNumber = formatClaimNumber(claim.claimNumber, claim.createdAt);
+  const formattedNumber = formatClaimNumber(claim.claimNumber, claim.createdAt)
   const formattedDate = new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
     timeZone: 'America/Sao_Paulo',
-  }).format(new Date(claim.reportedAt));
+  }).format(new Date(claim.reportedAt))
 
   return (
     <TableRow
@@ -84,14 +90,16 @@ function ClaimRow({
       onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
+          e.preventDefault()
+          onClick()
         }
       }}
     >
       <TableCell className="font-medium">{formattedNumber}</TableCell>
       <TableCell>{claim.clientName ?? '-'}</TableCell>
-      <TableCell className="hidden md:table-cell">{claim.policyNumber ?? '-'}</TableCell>
+      <TableCell className="hidden md:table-cell">
+        {claim.policyNumber ?? '-'}
+      </TableCell>
       <TableCell>
         <ClaimStatusBadge status={claim.status} />
       </TableCell>
@@ -112,8 +120,8 @@ function ClaimRow({
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={(e) => {
-                e.stopPropagation();
-                onClick();
+                e.stopPropagation()
+                onClick()
               }}
             >
               Ver detalhes
@@ -121,8 +129,8 @@ function ClaimRow({
             <DropdownMenuItem
               className="text-destructive"
               onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
+                e.stopPropagation()
+                onDelete()
               }}
             >
               Excluir
@@ -131,7 +139,7 @@ function ClaimRow({
         </DropdownMenu>
       </TableCell>
     </TableRow>
-  );
+  )
 }
 
 function LoadingRows() {
@@ -147,7 +155,7 @@ function LoadingRows() {
         </TableRow>
       ))}
     </>
-  );
+  )
 }
 
 function EmptyRow() {
@@ -165,5 +173,5 @@ function EmptyRow() {
         </div>
       </TableCell>
     </TableRow>
-  );
+  )
 }

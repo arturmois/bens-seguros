@@ -1,18 +1,18 @@
-import { injectable, inject } from 'tsyringe';
-import type { PrismaClient } from '@repo/db';
-import { Prisma } from '@repo/db';
-import type { CursorPage, Page } from '../../client/domain/client-repository.js';
+import { injectable, inject } from 'tsyringe'
+import type { PrismaClient } from '@repo/db'
+import { Prisma } from '@repo/db'
+import type { CursorPage, Page } from '../../client/domain/client-repository.js'
 import type {
   EndorsementRepository,
   EndorsementData,
   EndorsementFilters,
   CreateEndorsementInput,
-} from '../domain/endorsement-repository.js';
-import { EndorsementMapper } from './endorsement-mapper.js';
+} from '../domain/endorsement-repository.js'
+import { EndorsementMapper } from './endorsement-mapper.js'
 
 const ENDORSEMENT_INCLUDE = {
   policy: { select: { policyNumber: true } },
-} satisfies Prisma.EndorsementInclude;
+} satisfies Prisma.EndorsementInclude
 
 @injectable()
 export class PrismaEndorsementRepository implements EndorsementRepository {
@@ -31,24 +31,30 @@ export class PrismaEndorsementRepository implements EndorsementRepository {
         createdBy: data.createdBy ?? null,
       },
       include: ENDORSEMENT_INCLUDE,
-    });
+    })
 
-    return EndorsementMapper.toDomain(row);
+    return EndorsementMapper.toDomain(row)
   }
 
-  async findById(id: string, organizationId: string): Promise<EndorsementData | null> {
+  async findById(
+    id: string,
+    organizationId: string
+  ): Promise<EndorsementData | null> {
     const row = await this.prisma.endorsement.findFirst({
       where: { id, organizationId },
       include: ENDORSEMENT_INCLUDE,
-    });
-    return row ? EndorsementMapper.toDomain(row) : null;
+    })
+    return row ? EndorsementMapper.toDomain(row) : null
   }
 
-  async findMany(filters: EndorsementFilters, page: CursorPage): Promise<Page<EndorsementData>> {
+  async findMany(
+    filters: EndorsementFilters,
+    page: CursorPage
+  ): Promise<Page<EndorsementData>> {
     const where: Prisma.EndorsementWhereInput = {
       organizationId: filters.organizationId,
       ...(filters.policyId && { policyId: filters.policyId }),
-    };
+    }
 
     const [rows, total] = await Promise.all([
       this.prisma.endorsement.findMany({
@@ -59,15 +65,15 @@ export class PrismaEndorsementRepository implements EndorsementRepository {
         orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       }),
       this.prisma.endorsement.count({ where }),
-    ]);
+    ])
 
-    const hasNext = rows.length > page.limit;
-    const items = hasNext ? rows.slice(0, -1) : rows;
+    const hasNext = rows.length > page.limit
+    const items = hasNext ? rows.slice(0, -1) : rows
 
     return {
       items: items.map(EndorsementMapper.toDomain),
       total,
       nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,
-    };
+    }
   }
 }

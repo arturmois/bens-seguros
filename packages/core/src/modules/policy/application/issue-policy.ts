@@ -1,37 +1,45 @@
-import { injectable, inject } from 'tsyringe';
-import { randomUUID } from 'node:crypto';
+import { injectable, inject } from 'tsyringe'
+import { randomUUID } from 'node:crypto'
 
-import type { OnPolicyIssued } from '../../commission/application/on-policy-issued.js';
-import type { CoverageDetails, PolicyData, PolicyRepository } from '../domain/policy-repository.js';
-import type { ProposalRepository } from '../../proposal/domain/proposal-repository.js';
-import { ProposalErrors } from '../../proposal/domain/proposal-errors.js';
-import { PolicyErrors } from '../domain/policy-errors.js';
+import type { OnPolicyIssued } from '../../commission/application/on-policy-issued.js'
+import type {
+  CoverageDetails,
+  PolicyData,
+  PolicyRepository,
+} from '../domain/policy-repository.js'
+import type { ProposalRepository } from '../../proposal/domain/proposal-repository.js'
+import { ProposalErrors } from '../../proposal/domain/proposal-errors.js'
+import { PolicyErrors } from '../domain/policy-errors.js'
 
 interface IssuePolicyDTO {
-  organizationId: string;
-  proposalId: string;
-  policyNumber: string;
-  startDate: Date;
-  endDate: Date;
-  coverageDetails?: CoverageDetails;
+  organizationId: string
+  proposalId: string
+  policyNumber: string
+  startDate: Date
+  endDate: Date
+  coverageDetails?: CoverageDetails
 }
 
 @injectable()
 export class IssuePolicy {
   constructor(
     @inject('PolicyRepository') private readonly policyRepo: PolicyRepository,
-    @inject('ProposalRepository') private readonly proposalRepo: ProposalRepository,
-    @inject('OnPolicyIssued') private readonly onPolicyIssued: OnPolicyIssued,
+    @inject('ProposalRepository')
+    private readonly proposalRepo: ProposalRepository,
+    @inject('OnPolicyIssued') private readonly onPolicyIssued: OnPolicyIssued
   ) {}
 
   async execute(dto: IssuePolicyDTO): Promise<PolicyData> {
-    const proposal = await this.proposalRepo.findById(dto.proposalId, dto.organizationId);
+    const proposal = await this.proposalRepo.findById(
+      dto.proposalId,
+      dto.organizationId
+    )
     if (!proposal) {
-      throw ProposalErrors.notFound(dto.proposalId);
+      throw ProposalErrors.notFound(dto.proposalId)
     }
 
     if (proposal.stage !== 'POLICY_ISSUED') {
-      throw PolicyErrors.notIssuable(dto.proposalId);
+      throw PolicyErrors.notIssuable(dto.proposalId)
     }
 
     const policy = await this.policyRepo.create({
@@ -47,7 +55,7 @@ export class IssuePolicy {
       coverageDetails: dto.coverageDetails ?? null,
       startDate: dto.startDate,
       endDate: dto.endDate,
-    });
+    })
 
     await this.onPolicyIssued.execute({
       organizationId: dto.organizationId,
@@ -55,8 +63,8 @@ export class IssuePolicy {
       salespersonId: proposal.salespersonId,
       premiumValueInCents: proposal.premiumValueInCents,
       commissionPercentageInBasisPoints: proposal.commissionPercentageInCents,
-    });
+    })
 
-    return policy;
+    return policy
   }
 }

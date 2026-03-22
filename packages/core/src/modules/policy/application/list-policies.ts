@@ -1,16 +1,21 @@
-import { injectable, inject } from 'tsyringe';
+import { injectable, inject } from 'tsyringe'
 import type {
   PolicyRepository,
   PolicyFilters,
   PolicyCursorPage,
   PolicyPage,
-} from '../domain/policy-repository.js';
+} from '../domain/policy-repository.js'
 
 @injectable()
 export class ListPolicies {
-  constructor(@inject('PolicyRepository') private readonly policyRepo: PolicyRepository) {}
+  constructor(
+    @inject('PolicyRepository') private readonly policyRepo: PolicyRepository
+  ) {}
 
-  async execute(filters: PolicyFilters, page: PolicyCursorPage): Promise<PolicyPage> {
-    return this.policyRepo.findMany(filters, page);
+  async execute(
+    filters: PolicyFilters,
+    page: PolicyCursorPage
+  ): Promise<PolicyPage> {
+    return this.policyRepo.findMany(filters, page)
   }
 }

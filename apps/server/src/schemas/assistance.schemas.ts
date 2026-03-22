@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 const ASSISTANCE_STATUS_VALUES = [
   'REQUESTED',
@@ -7,13 +7,13 @@ const ASSISTANCE_STATUS_VALUES = [
   'DISPATCHED',
   'IN_PROGRESS',
   'COMPLETED',
-] as const;
+] as const
 
-const emptyToUndefined = z.literal('').transform(() => undefined);
+const emptyToUndefined = z.literal('').transform(() => undefined)
 
-const optionalString = z.union([emptyToUndefined, z.string()]).optional();
+const optionalString = z.union([emptyToUndefined, z.string()]).optional()
 
-const optionalDate = z.union([emptyToUndefined, z.coerce.date()]).optional();
+const optionalDate = z.union([emptyToUndefined, z.coerce.date()]).optional()
 
 export const createAssistanceBodySchema = z.object({
   policyId: z.string().min(1),
@@ -27,11 +27,11 @@ export const createAssistanceBodySchema = z.object({
   providerName: optionalString,
   providerPhone: optionalString,
   scheduledAt: optionalDate,
-});
+})
 
 export const updateAssistanceStatusBodySchema = z.object({
   status: z.enum(ASSISTANCE_STATUS_VALUES),
-});
+})
 
 export const listAssistancesQuerySchema = z.object({
   status: z.enum(ASSISTANCE_STATUS_VALUES).optional(),
@@ -40,4 +40,4 @@ export const listAssistancesQuerySchema = z.object({
   type: z.string().optional(),
   cursor: z.string().optional(),
   limit: z.coerce.number().min(1).max(100).default(20),
-});
+})

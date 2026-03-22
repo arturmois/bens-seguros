@@ -1,37 +1,37 @@
-'use client';
+'use client'
 
-import { Search } from 'lucide-react';
+import { Search } from 'lucide-react'
 
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 
-import type { CommissionFilters, CommissionStatus } from '../types';
-import { COMMISSION_STATUS_OPTIONS } from '../lib/constants';
-import { CommissionExportButton } from './commission-export-button';
+import type { CommissionFilters, CommissionStatus } from '../types'
+import { COMMISSION_STATUS_OPTIONS } from '../lib/constants'
+import { CommissionExportButton } from './commission-export-button'
 
 const STATUS_FILTER_OPTIONS = [
   { value: 'ALL' as const, label: 'Todos os status' },
   ...COMMISSION_STATUS_OPTIONS,
-];
+]
 
-const VALID_STATUS_FILTER_VALUES = STATUS_FILTER_OPTIONS.map((opt) => opt.value);
+const VALID_STATUS_FILTER_VALUES = STATUS_FILTER_OPTIONS.map((opt) => opt.value)
 
 function isValidStatusFilter(value: string): value is CommissionStatus | 'ALL' {
-  return VALID_STATUS_FILTER_VALUES.includes(value as CommissionStatus | 'ALL');
+  return VALID_STATUS_FILTER_VALUES.includes(value as CommissionStatus | 'ALL')
 }
 
 interface CommissionsToolbarProps {
-  readonly search: string;
-  readonly onSearchChange: (value: string) => void;
-  readonly statusFilter: CommissionStatus | 'ALL';
-  readonly onStatusFilterChange: (value: CommissionStatus | 'ALL') => void;
-  readonly currentFilters: CommissionFilters;
+  readonly search: string
+  readonly onSearchChange: (value: string) => void
+  readonly statusFilter: CommissionStatus | 'ALL'
+  readonly onStatusFilterChange: (value: CommissionStatus | 'ALL') => void
+  readonly currentFilters: CommissionFilters
 }
 
 export function CommissionsToolbar({
@@ -62,7 +62,7 @@ export function CommissionsToolbar({
           aria-label="Filtrar por status"
           value={statusFilter}
           onValueChange={(v: string | null) => {
-            if (v && isValidStatusFilter(v)) onStatusFilterChange(v);
+            if (v && isValidStatusFilter(v)) onStatusFilterChange(v)
           }}
           items={STATUS_FILTER_OPTIONS}
         >
@@ -79,5 +79,5 @@ export function CommissionsToolbar({
         </Select>
       </div>
     </div>
-  );
+  )
 }

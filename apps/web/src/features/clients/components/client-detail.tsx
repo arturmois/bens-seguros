@@ -1,70 +1,93 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Mail, Phone, Pencil, Trash2, Calendar, RefreshCw } from 'lucide-react';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import {
+  ArrowLeft,
+  Mail,
+  Phone,
+  Pencil,
+  Trash2,
+  Calendar,
+  RefreshCw,
+} from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs'
 
-import { DocumentList } from '@/features/documents/components/document-list';
-import { DocumentUpload } from '@/features/documents/components/document-upload';
+import { DocumentList } from '@/features/documents/components/document-list'
+import { DocumentUpload } from '@/features/documents/components/document-upload'
 
-import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants';
-import { useClient, useDeleteClient } from '../hooks/use-clients';
-import { ClientForm } from './client-form';
-import { DeleteClientDialog } from './delete-client-dialog';
+import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
+import { useClient, useDeleteClient } from '../hooks/use-clients'
+import { ClientForm } from './client-form'
+import { DeleteClientDialog } from './delete-client-dialog'
 
 interface ClientDetailContentProps {
-  readonly clientId: string;
+  readonly clientId: string
 }
 
 export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
-  const router = useRouter();
-  const { data: client, isLoading, isError } = useClient(clientId);
-  const deleteClient = useDeleteClient();
+  const router = useRouter()
+  const { data: client, isLoading, isError } = useClient(clientId)
+  const deleteClient = useDeleteClient()
 
-  const [formOpen, setFormOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
 
   function handleConfirmDelete() {
     deleteClient.mutate(clientId, {
       onSuccess: () => {
-        setDeleteOpen(false);
-        router.push('/clients');
+        setDeleteOpen(false)
+        router.push('/clients')
       },
-    });
+    })
   }
 
   if (isLoading) {
-    return <DetailSkeleton />;
+    return <DetailSkeleton />
   }
 
   if (isError || !client) {
     return (
       <div className="flex h-64 flex-col items-center justify-center gap-3">
-        <p className="text-destructive text-sm">Erro ao carregar os dados do cliente.</p>
+        <p className="text-destructive text-sm">
+          Erro ao carregar os dados do cliente.
+        </p>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => router.push('/clients')}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push('/clients')}
+          >
             <ArrowLeft className="mr-1 h-4 w-4" />
             Voltar
           </Button>
-          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.location.reload()}
+          >
             <RefreshCw className="mr-1 h-4 w-4" />
             Tentar novamente
           </Button>
         </div>
       </div>
-    );
+    )
   }
 
   return (
     <div className="space-y-6">
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
-        <Button variant="ghost" size="sm" onClick={() => router.push('/clients')} className="gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push('/clients')}
+          className="gap-1"
+        >
           <ArrowLeft className="h-4 w-4" />
           Clientes
         </Button>
@@ -76,17 +99,29 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold tracking-tight">{client.name}</h1>
-              <Badge variant={TYPE_BADGE_VARIANT[client.type]}>{TYPE_LABELS[client.type]}</Badge>
+              <h1 className="text-2xl font-semibold tracking-tight">
+                {client.name}
+              </h1>
+              <Badge variant={TYPE_BADGE_VARIANT[client.type]}>
+                {TYPE_LABELS[client.type]}
+              </Badge>
             </div>
             <p className="text-muted-foreground text-sm">{client.document}</p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => setFormOpen(true)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setFormOpen(true)}
+            >
               <Pencil className="mr-2 h-4 w-4" />
               Editar
             </Button>
-            <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setDeleteOpen(true)}
+            >
               <Trash2 className="mr-2 h-4 w-4" />
               Excluir
             </Button>
@@ -145,7 +180,7 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
         isPending={deleteClient.isPending}
       />
     </div>
-  );
+  )
 }
 
 function InfoItem({
@@ -153,9 +188,9 @@ function InfoItem({
   label,
   value,
 }: {
-  readonly icon: React.ReactNode;
-  readonly label: string;
-  readonly value: string;
+  readonly icon: React.ReactNode
+  readonly label: string
+  readonly value: string
 }) {
   return (
     <div className="flex items-start gap-3">
@@ -165,7 +200,7 @@ function InfoItem({
         <p className="text-sm font-medium">{value}</p>
       </div>
     </div>
-  );
+  )
 }
 
 function DetailSkeleton() {
@@ -191,5 +226,5 @@ function DetailSkeleton() {
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,17 +1,17 @@
-import type { FastifyInstance } from 'fastify';
-import { z } from 'zod';
-import { prisma } from '@repo/db';
+import type { FastifyInstance } from 'fastify'
+import { z } from 'zod'
+import { prisma } from '@repo/db'
 
 interface OrganizationData {
-  id: string;
-  name: string;
-  slug: string;
-  logo: string | null;
+  id: string
+  name: string
+  slug: string
+  logo: string | null
 }
 
 interface MemberWithOrganization {
-  role: string;
-  organization: OrganizationData;
+  role: string
+  organization: OrganizationData
 }
 
 const tenantResponseSchema = z.object({
@@ -23,9 +23,9 @@ const tenantResponseSchema = z.object({
       slug: z.string(),
       logo: z.string().nullable(),
       role: z.enum(['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER']),
-    }),
+    })
   ),
-});
+})
 
 const errorResponseSchema = z.object({
   success: z.literal(false),
@@ -33,7 +33,7 @@ const errorResponseSchema = z.object({
     code: z.string(),
     message: z.string(),
   }),
-});
+})
 
 export async function tenantRoutes(app: FastifyInstance) {
   app.get(
@@ -51,13 +51,13 @@ export async function tenantRoutes(app: FastifyInstance) {
         return reply.status(401).send({
           success: false,
           error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
-        });
+        })
       }
 
       const members: MemberWithOrganization[] = await prisma.member.findMany({
         where: { userId: request.user.id, active: true },
         include: { organization: true },
-      });
+      })
 
       return {
         success: true as const,
@@ -68,7 +68,7 @@ export async function tenantRoutes(app: FastifyInstance) {
           logo: member.organization.logo,
           role: member.role,
         })),
-      };
-    },
-  );
+      }
+    }
+  )
 }

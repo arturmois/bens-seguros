@@ -1,4 +1,4 @@
-import type { CursorPage, Page } from '../../client/domain/client-repository.js';
+import type { CursorPage, Page } from '../../client/domain/client-repository.js'
 
 export type ClaimStatus =
   | 'REGISTERED'
@@ -8,69 +8,69 @@ export type ClaimStatus =
   | 'APPROVED'
   | 'REJECTED'
   | 'PAID'
-  | 'COMPLETED';
+  | 'COMPLETED'
 
-export type ClaimPriority = 'NORMAL' | 'HIGH' | 'URGENT';
+export type ClaimPriority = 'NORMAL' | 'HIGH' | 'URGENT'
 
 export interface ClaimData {
-  id: string;
-  organizationId: string;
-  claimNumber: number;
-  policyId: string;
-  clientId: string;
-  insurerId: string | null;
-  assignedToId: string | null;
-  status: ClaimStatus;
-  priority: ClaimPriority;
-  description: string;
-  incidentDate: Date | null;
-  incidentLocation: string | null;
-  reportedAt: Date;
-  resolvedAt: Date | null;
-  closedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-  policyNumber?: string;
-  clientName?: string;
-  insurerName?: string;
-  assignedToName?: string;
+  id: string
+  organizationId: string
+  claimNumber: number
+  policyId: string
+  clientId: string
+  insurerId: string | null
+  assignedToId: string | null
+  status: ClaimStatus
+  priority: ClaimPriority
+  description: string
+  incidentDate: Date | null
+  incidentLocation: string | null
+  reportedAt: Date
+  resolvedAt: Date | null
+  closedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
+  policyNumber?: string
+  clientName?: string
+  insurerName?: string
+  assignedToName?: string
 }
 
 export interface ClaimFilters {
-  organizationId: string;
-  status?: ClaimStatus;
-  priority?: ClaimPriority;
-  policyId?: string;
-  clientId?: string;
-  search?: string;
+  organizationId: string
+  status?: ClaimStatus
+  priority?: ClaimPriority
+  policyId?: string
+  clientId?: string
+  search?: string
 }
 
 export interface CreateClaimInput {
-  organizationId: string;
-  policyId: string;
-  clientId: string;
-  insurerId?: string;
-  assignedToId?: string;
-  priority?: ClaimPriority;
-  description: string;
-  incidentDate?: Date;
-  incidentLocation?: string;
+  organizationId: string
+  policyId: string
+  clientId: string
+  insurerId?: string
+  assignedToId?: string
+  priority?: ClaimPriority
+  description: string
+  incidentDate?: Date
+  incidentLocation?: string
 }
 
 export interface UpdateClaimStatusInput {
-  status: ClaimStatus;
-  resolvedAt?: Date;
-  closedAt?: Date;
+  status: ClaimStatus
+  resolvedAt?: Date
+  closedAt?: Date
 }
 
 export interface ClaimRepository {
-  create(data: CreateClaimInput): Promise<ClaimData>;
-  findById(id: string, organizationId: string): Promise<ClaimData | null>;
-  findMany(filters: ClaimFilters, page: CursorPage): Promise<Page<ClaimData>>;
+  create(data: CreateClaimInput): Promise<ClaimData>
+  findById(id: string, organizationId: string): Promise<ClaimData | null>
+  findMany(filters: ClaimFilters, page: CursorPage): Promise<Page<ClaimData>>
   updateStatus(
     id: string,
     organizationId: string,
-    data: UpdateClaimStatusInput,
-  ): Promise<ClaimData>;
-  softDelete(id: string, organizationId: string): Promise<void>;
+    data: UpdateClaimStatusInput
+  ): Promise<ClaimData>
+  softDelete(id: string, organizationId: string): Promise<void>
 }

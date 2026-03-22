@@ -1,5 +1,5 @@
-import type { Document as PrismaDocumentRecord } from '@repo/db';
-import type { DocumentData } from '../domain/document-repository.js';
+import type { Document as PrismaDocumentRecord } from '@repo/db'
+import type { DocumentData } from '../domain/document-repository.js'
 
 export class DocumentMapper {
   static toDomain(row: PrismaDocumentRecord): DocumentData {
@@ -17,6 +17,6 @@ export class DocumentMapper {
       url: row.url,
       createdBy: row.createdBy,
       createdAt: row.createdAt,
-    };
+    }
   }
 }

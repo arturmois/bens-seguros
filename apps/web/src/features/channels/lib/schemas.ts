@@ -1,6 +1,6 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
-const BROKER_TYPES = ['BAILEYS', 'META'] as const;
+const BROKER_TYPES = ['BAILEYS', 'META'] as const
 
 export const channelFormSchema = z
   .object({
@@ -19,19 +19,19 @@ export const channelFormSchema = z
           code: z.ZodIssueCode.custom,
           message: 'Token e obrigatorio para conexao Meta',
           path: ['metaToken'],
-        });
+        })
       }
       if (!data.phoneNumberId || data.phoneNumberId.trim().length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'Phone Number ID e obrigatorio para conexao Meta',
           path: ['phoneNumberId'],
-        });
+        })
       }
     }
-  });
+  })
 
-export type ChannelFormValues = z.infer<typeof channelFormSchema>;
+export type ChannelFormValues = z.infer<typeof channelFormSchema>
 
 export const EMPTY_CHANNEL_FORM: ChannelFormValues = {
   name: '',
@@ -39,4 +39,4 @@ export const EMPTY_CHANNEL_FORM: ChannelFormValues = {
   phoneNumber: '',
   metaToken: '',
   phoneNumberId: '',
-};
+}

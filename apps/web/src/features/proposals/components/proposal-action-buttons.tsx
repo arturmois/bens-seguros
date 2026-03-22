@@ -1,16 +1,16 @@
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 
-import type { ProposalStage } from '../types';
+import type { ProposalStage } from '../types'
 
 interface ProposalActionButtonsProps {
-  stage: ProposalStage;
-  onAdvance: () => void;
-  onRevert: () => void;
-  onLost: () => void;
-  isAdvancing: boolean;
-  isReverting: boolean;
+  stage: ProposalStage
+  onAdvance: () => void
+  onRevert: () => void
+  onLost: () => void
+  isAdvancing: boolean
+  isReverting: boolean
 }
 
 export function ProposalActionButtons({
@@ -21,20 +21,39 @@ export function ProposalActionButtons({
   isAdvancing,
   isReverting,
 }: ProposalActionButtonsProps) {
-  const canAdvance = stage !== 'POLICY_ISSUED' && stage !== 'LOST';
-  const canRevert = stage !== 'CAPTURE' && stage !== 'LOST' && stage !== 'POLICY_ISSUED';
-  const canMarkLost = stage !== 'LOST' && stage !== 'POLICY_ISSUED';
+  const canAdvance = stage !== 'POLICY_ISSUED' && stage !== 'LOST'
+  const canRevert =
+    stage !== 'CAPTURE' && stage !== 'LOST' && stage !== 'POLICY_ISSUED'
+  const canMarkLost = stage !== 'LOST' && stage !== 'POLICY_ISSUED'
 
   return (
     <>
       {canAdvance && (
-        <Button size="sm" variant="outline" onClick={onAdvance} disabled={isAdvancing}>
-          {isAdvancing ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Avançar'}
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onAdvance}
+          disabled={isAdvancing}
+        >
+          {isAdvancing ? (
+            <Loader2 className="h-3 w-3 animate-spin" />
+          ) : (
+            'Avançar'
+          )}
         </Button>
       )}
       {canRevert && (
-        <Button size="sm" variant="outline" onClick={onRevert} disabled={isReverting}>
-          {isReverting ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Reverter'}
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onRevert}
+          disabled={isReverting}
+        >
+          {isReverting ? (
+            <Loader2 className="h-3 w-3 animate-spin" />
+          ) : (
+            'Reverter'
+          )}
         </Button>
       )}
       {canMarkLost && (
@@ -43,5 +62,5 @@ export function ProposalActionButtons({
         </Button>
       )}
     </>
-  );
+  )
 }

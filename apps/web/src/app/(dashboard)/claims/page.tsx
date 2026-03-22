@@ -1,4 +1,4 @@
-import { ClaimsContent } from './claims-content';
+import { ClaimsContent } from './claims-content'
 
 export default function ClaimsPage() {
   return (
@@ -11,5 +11,5 @@ export default function ClaimsPage() {
       </div>
       <ClaimsContent />
     </div>
-  );
+  )
 }

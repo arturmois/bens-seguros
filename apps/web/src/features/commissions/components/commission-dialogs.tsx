@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
   AlertDialogClose,
@@ -11,16 +11,16 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Textarea } from '@/components/ui/textarea';
+} from '@/components/ui/alert-dialog'
+import { Textarea } from '@/components/ui/textarea'
 
 interface RejectDialogProps {
-  readonly open: boolean;
-  readonly onOpenChange: (open: boolean) => void;
-  readonly reason: string;
-  readonly onReasonChange: (value: string) => void;
-  readonly onConfirm: () => void;
-  readonly isPending: boolean;
+  readonly open: boolean
+  readonly onOpenChange: (open: boolean) => void
+  readonly reason: string
+  readonly onReasonChange: (value: string) => void
+  readonly onConfirm: () => void
+  readonly isPending: boolean
 }
 
 export function RejectDialog({
@@ -68,25 +68,30 @@ export function RejectDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
+  )
 }
 
 interface ReverseDialogProps {
-  readonly open: boolean;
-  readonly onOpenChange: (open: boolean) => void;
-  readonly onConfirm: () => void;
-  readonly isPending: boolean;
+  readonly open: boolean
+  readonly onOpenChange: (open: boolean) => void
+  readonly onConfirm: () => void
+  readonly isPending: boolean
 }
 
-export function ReverseDialog({ open, onOpenChange, onConfirm, isPending }: ReverseDialogProps) {
+export function ReverseDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+  isPending,
+}: ReverseDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Estornar comissão</AlertDialogTitle>
           <AlertDialogDescription>
-            Tem certeza que deseja estornar esta comissão? Uma comissão de estorno será criada
-            automaticamente.
+            Tem certeza que deseja estornar esta comissão? Uma comissão de
+            estorno será criada automaticamente.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -97,12 +102,16 @@ export function ReverseDialog({ open, onOpenChange, onConfirm, isPending }: Reve
               </Button>
             }
           />
-          <Button variant="destructive" onClick={onConfirm} disabled={isPending}>
+          <Button
+            variant="destructive"
+            onClick={onConfirm}
+            disabled={isPending}
+          >
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Estornar
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 const autoDetailsSchema = z.object({
   branch: z.literal('AUTO'),
@@ -11,7 +11,7 @@ const autoDetailsSchema = z.object({
   cor: z.string().optional(),
   combustivel: z.string().optional(),
   usoVeiculo: z.string().optional(),
-});
+})
 
 const residentialDetailsSchema = z.object({
   branch: z.literal('RESIDENTIAL'),
@@ -21,7 +21,7 @@ const residentialDetailsSchema = z.object({
   endereco: z.string().optional(),
   construcao: z.string().optional(),
   areaM2: z.number().optional(),
-});
+})
 
 const condominiumDetailsSchema = z.object({
   branch: z.literal('CONDOMINIUM'),
@@ -31,7 +31,7 @@ const condominiumDetailsSchema = z.object({
   endereco: z.string().optional(),
   anoConstrucao: z.number().int().optional(),
   numeroAndares: z.number().int().optional(),
-});
+})
 
 const businessDetailsSchema = z.object({
   branch: z.literal('BUSINESS'),
@@ -41,7 +41,7 @@ const businessDetailsSchema = z.object({
   cep: z.string().optional(),
   endereco: z.string().optional(),
   areaM2: z.number().optional(),
-});
+})
 
 const lifeDetailsSchema = z.object({
   branch: z.literal('LIFE'),
@@ -50,12 +50,12 @@ const lifeDetailsSchema = z.object({
   fumante: z.boolean().optional(),
   esportesRadicais: z.boolean().optional(),
   beneficiarios: z.string().optional(),
-});
+})
 
 const otherDetailsSchema = z.object({
   branch: z.literal('OTHER'),
   descricao: z.string().min(1),
-});
+})
 
 export const insuredObjectDetailsSchema = z.discriminatedUnion('branch', [
   autoDetailsSchema,
@@ -64,10 +64,10 @@ export const insuredObjectDetailsSchema = z.discriminatedUnion('branch', [
   businessDetailsSchema,
   lifeDetailsSchema,
   otherDetailsSchema,
-]);
+])
 
 export const updateProposalDetailsBodySchema = z.object({
   details: insuredObjectDetailsSchema,
   premiumValueInCents: z.number().int().min(0),
   commissionBasisPoints: z.number().int().min(0).max(10000),
-});
+})

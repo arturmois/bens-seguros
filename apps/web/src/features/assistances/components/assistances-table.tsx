@@ -1,58 +1,64 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-import { Button } from '@/components/ui/button';
-import { Table } from '@/components/ui/table';
+import { Button } from '@/components/ui/button'
+import { Table } from '@/components/ui/table'
 
-import type { AssistanceStatus } from '../types';
-import { useAssistances } from '../hooks/use-assistances';
-import { AssistancesPagination } from './assistances-pagination';
-import { AssistancesTableBody, AssistancesTableHeader } from './assistances-table-rows';
-import { AssistancesToolbar } from './assistances-toolbar';
+import type { AssistanceStatus } from '../types'
+import { useAssistances } from '../hooks/use-assistances'
+import { AssistancesPagination } from './assistances-pagination'
+import {
+  AssistancesTableBody,
+  AssistancesTableHeader,
+} from './assistances-table-rows'
+import { AssistancesToolbar } from './assistances-toolbar'
 
 export function AssistancesTable() {
-  const router = useRouter();
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
-  const [cursors, setCursors] = useState<string[]>([]);
+  const router = useRouter()
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('ALL')
+  const [cursors, setCursors] = useState<string[]>([])
 
-  const currentCursor = cursors.at(-1);
+  const currentCursor = cursors.at(-1)
 
   const { data, isLoading, isError, refetch } = useAssistances({
-    status: statusFilter === 'ALL' ? undefined : (statusFilter as AssistanceStatus),
+    status:
+      statusFilter === 'ALL' ? undefined : (statusFilter as AssistanceStatus),
     cursor: currentCursor,
-  });
+  })
 
   function handleRowClick(id: string) {
-    router.push(`/assistances/${id}`);
+    router.push(`/assistances/${id}`)
   }
 
   function handleStatusFilterChange(value: string) {
-    setStatusFilter(value);
-    setCursors([]);
+    setStatusFilter(value)
+    setCursors([])
   }
 
   function handleNextPage() {
     if (data?.meta.nextCursor) {
-      setCursors((prev) => [...prev, data.meta.nextCursor!]);
+      setCursors((prev) => [...prev, data.meta.nextCursor!])
     }
   }
 
   function handlePreviousPage() {
-    setCursors((prev) => prev.slice(0, -1));
+    setCursors((prev) => prev.slice(0, -1))
   }
 
   if (isError) {
     return (
       <div className="flex h-48 flex-col items-center justify-center gap-3 rounded-md border">
-        <p className="text-destructive text-sm">Erro ao carregar assistências.</p>
+        <p className="text-destructive text-sm">
+          Erro ao carregar assistências.
+        </p>
         <Button variant="outline" size="sm" onClick={() => refetch()}>
           Tentar novamente
         </Button>
       </div>
-    );
+    )
   }
 
   return (
@@ -83,5 +89,5 @@ export function AssistancesTable() {
         onPrevious={handlePreviousPage}
       />
     </div>
-  );
+  )
 }

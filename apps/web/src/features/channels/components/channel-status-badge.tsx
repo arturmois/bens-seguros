@@ -1,21 +1,21 @@
-import { CheckCircle2, Circle, Loader2 } from 'lucide-react';
+import { CheckCircle2, Circle, Loader2 } from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
-import type { ChannelStatus } from '../types';
+import type { ChannelStatus } from '../types'
 
 interface ChannelStatusBadgeProps {
-  readonly status: ChannelStatus;
+  readonly status: ChannelStatus
 }
 
 const STATUS_CONFIG: Record<
   ChannelStatus,
   {
-    label: string;
-    variant: 'success' | 'outline' | 'warning';
-    icon: typeof CheckCircle2;
-    pulse: boolean;
+    label: string
+    variant: 'success' | 'outline' | 'warning'
+    icon: typeof CheckCircle2
+    pulse: boolean
   }
 > = {
   CONNECTED: {
@@ -36,16 +36,19 @@ const STATUS_CONFIG: Record<
     icon: Loader2,
     pulse: true,
   },
-};
+}
 
 export function ChannelStatusBadge({ status }: ChannelStatusBadgeProps) {
-  const config = STATUS_CONFIG[status];
-  const Icon = config.icon;
+  const config = STATUS_CONFIG[status]
+  const Icon = config.icon
 
   return (
     <Badge variant={config.variant}>
-      <Icon aria-hidden="true" className={cn('size-3', config.pulse && 'animate-spin')} />
+      <Icon
+        aria-hidden="true"
+        className={cn('size-3', config.pulse && 'animate-spin')}
+      />
       {config.label}
     </Badge>
-  );
+  )
 }

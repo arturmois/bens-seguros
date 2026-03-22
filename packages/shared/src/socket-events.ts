@@ -33,6 +33,6 @@ export const SOCKET_EVENTS = {
 
   // Notifications (Fase 6)
   NOTIFICATION: 'notification',
-} as const;
+} as const
 
-export type SocketEvent = (typeof SOCKET_EVENTS)[keyof typeof SOCKET_EVENTS];
+export type SocketEvent = (typeof SOCKET_EVENTS)[keyof typeof SOCKET_EVENTS]

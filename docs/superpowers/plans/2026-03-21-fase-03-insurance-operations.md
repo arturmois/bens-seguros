@@ -516,36 +516,39 @@ Claim has claimNumber (sequential per org) for user-facing identification."
 
 ```ts
 // packages/core/src/modules/insurer/domain/insurer-repository.ts
-import type { CursorPage, Page } from '../../client/domain/client-repository.js';
+import type { CursorPage, Page } from '../../client/domain/client-repository.js'
 
 export interface InsurerData {
-  id: string;
-  organizationId: string;
-  name: string;
-  code: string | null;
-  active: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  id: string
+  organizationId: string
+  name: string
+  code: string | null
+  active: boolean
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface InsurerFilters {
-  organizationId: string;
-  active?: boolean;
-  search?: string;
+  organizationId: string
+  active?: boolean
+  search?: string
 }
 
 export interface CreateInsurerInput {
-  organizationId: string;
-  name: string;
-  code?: string | null;
-  active?: boolean;
+  organizationId: string
+  name: string
+  code?: string | null
+  active?: boolean
 }
 
 export interface InsurerRepository {
-  create(data: CreateInsurerInput): Promise<InsurerData>;
-  findById(id: string, organizationId: string): Promise<InsurerData | null>;
-  findByName(name: string, organizationId: string): Promise<InsurerData | null>;
-  findMany(filters: InsurerFilters, page: CursorPage): Promise<Page<InsurerData>>;
+  create(data: CreateInsurerInput): Promise<InsurerData>
+  findById(id: string, organizationId: string): Promise<InsurerData | null>
+  findByName(name: string, organizationId: string): Promise<InsurerData | null>
+  findMany(
+    filters: InsurerFilters,
+    page: CursorPage
+  ): Promise<Page<InsurerData>>
 }
 ```
 
@@ -554,89 +557,104 @@ export interface InsurerRepository {
 ```ts
 // packages/core/src/modules/insurer/domain/insurer-errors.ts
 export class InsurerNotFoundError extends Error {
-  readonly code = 'INSURER_NOT_FOUND' as const;
+  readonly code = 'INSURER_NOT_FOUND' as const
   constructor(id: string) {
-    super(`Seguradora ${id} não encontrada`);
-    this.name = 'InsurerNotFoundError';
+    super(`Seguradora ${id} não encontrada`)
+    this.name = 'InsurerNotFoundError'
   }
 }
 
 export class InsurerAlreadyExistsError extends Error {
-  readonly code = 'INSURER_ALREADY_EXISTS' as const;
+  readonly code = 'INSURER_ALREADY_EXISTS' as const
   constructor(name: string) {
-    super(`Seguradora "${name}" já cadastrada nesta organização`);
-    this.name = 'InsurerAlreadyExistsError';
+    super(`Seguradora "${name}" já cadastrada nesta organização`)
+    this.name = 'InsurerAlreadyExistsError'
   }
 }
 
 export const InsurerErrors = {
   notFound: (id: string) => new InsurerNotFoundError(id),
   alreadyExists: (name: string) => new InsurerAlreadyExistsError(name),
-};
+}
 ```
 
 - [ ] **Step 3: Create use cases (create-insurer.ts, list-insurers.ts, get-insurer.ts)**
 
 ```ts
 // packages/core/src/modules/insurer/application/create-insurer.ts
-import { injectable, inject } from 'tsyringe';
+import { injectable, inject } from 'tsyringe'
 import type {
   InsurerRepository,
   InsurerData,
   CreateInsurerInput,
-} from '../domain/insurer-repository.js';
-import { InsurerErrors } from '../domain/insurer-errors.js';
+} from '../domain/insurer-repository.js'
+import { InsurerErrors } from '../domain/insurer-errors.js'
 
 @injectable()
 export class CreateInsurer {
-  constructor(@inject('InsurerRepository') private readonly insurerRepo: InsurerRepository) {}
+  constructor(
+    @inject('InsurerRepository') private readonly insurerRepo: InsurerRepository
+  ) {}
 
   async execute(dto: CreateInsurerInput): Promise<InsurerData> {
-    const existing = await this.insurerRepo.findByName(dto.name, dto.organizationId);
+    const existing = await this.insurerRepo.findByName(
+      dto.name,
+      dto.organizationId
+    )
     if (existing) {
-      throw InsurerErrors.alreadyExists(dto.name);
+      throw InsurerErrors.alreadyExists(dto.name)
     }
-    return this.insurerRepo.create(dto);
+    return this.insurerRepo.create(dto)
   }
 }
 ```
 
 ```ts
 // packages/core/src/modules/insurer/application/list-insurers.ts
-import { injectable, inject } from 'tsyringe';
-import type { CursorPage, Page } from '../../client/domain/client-repository.js';
+import { injectable, inject } from 'tsyringe'
+import type { CursorPage, Page } from '../../client/domain/client-repository.js'
 import type {
   InsurerRepository,
   InsurerData,
   InsurerFilters,
-} from '../domain/insurer-repository.js';
+} from '../domain/insurer-repository.js'
 
 @injectable()
 export class ListInsurers {
-  constructor(@inject('InsurerRepository') private readonly insurerRepo: InsurerRepository) {}
+  constructor(
+    @inject('InsurerRepository') private readonly insurerRepo: InsurerRepository
+  ) {}
 
-  async execute(filters: InsurerFilters, page: CursorPage): Promise<Page<InsurerData>> {
-    return this.insurerRepo.findMany(filters, page);
+  async execute(
+    filters: InsurerFilters,
+    page: CursorPage
+  ): Promise<Page<InsurerData>> {
+    return this.insurerRepo.findMany(filters, page)
   }
 }
 ```
 
 ```ts
 // packages/core/src/modules/insurer/application/get-insurer.ts
-import { injectable, inject } from 'tsyringe';
-import type { InsurerRepository, InsurerData } from '../domain/insurer-repository.js';
-import { InsurerErrors } from '../domain/insurer-errors.js';
+import { injectable, inject } from 'tsyringe'
+import type {
+  InsurerRepository,
+  InsurerData,
+} from '../domain/insurer-repository.js'
+import { InsurerErrors } from '../domain/insurer-errors.js'
 
 @injectable()
 export class GetInsurer {
-  constructor(@inject('InsurerRepository') private readonly insurerRepo: InsurerRepository) {}
+  constructor(
+    @inject('InsurerRepository') private readonly insurerRepo: InsurerRepository
+  ) {}
 
   async execute(id: string, organizationId: string): Promise<InsurerData> {
-    const insurer = await this.insurerRepo.findById(id, organizationId);
+    const insurer = await this.insurerRepo.findById(id, organizationId)
     if (!insurer) {
-      throw InsurerErrors.notFound(id);
+      throw InsurerErrors.notFound(id)
     }
-    return insurer;
+    return insurer
   }
 }
 ```
@@ -645,8 +663,8 @@ export class GetInsurer {
 
 ```ts
 // packages/core/src/modules/insurer/infrastructure/insurer-mapper.ts
-import type { Insurer as PrismaInsurerRecord } from '@repo/db';
-import type { InsurerData } from '../domain/insurer-repository.js';
+import type { Insurer as PrismaInsurerRecord } from '@repo/db'
+import type { InsurerData } from '../domain/insurer-repository.js'
 
 export class InsurerMapper {
   static toDomain(row: PrismaInsurerRecord): InsurerData {
@@ -658,7 +676,7 @@ export class InsurerMapper {
       active: row.active,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
-    };
+    }
   }
 }
 ```
@@ -667,17 +685,17 @@ export class InsurerMapper {
 
 ```ts
 // packages/core/src/modules/insurer/infrastructure/prisma-insurer-repository.ts
-import { injectable, inject } from 'tsyringe';
-import type { PrismaClient } from '@repo/db';
-import { Prisma } from '@repo/db';
+import { injectable, inject } from 'tsyringe'
+import type { PrismaClient } from '@repo/db'
+import { Prisma } from '@repo/db'
 import type {
   InsurerRepository,
   InsurerData,
   InsurerFilters,
   CreateInsurerInput,
-} from '../domain/insurer-repository.js';
-import type { CursorPage, Page } from '../../client/domain/client-repository.js';
-import { InsurerMapper } from './insurer-mapper.js';
+} from '../domain/insurer-repository.js'
+import type { CursorPage, Page } from '../../client/domain/client-repository.js'
+import { InsurerMapper } from './insurer-mapper.js'
 
 @injectable()
 export class PrismaInsurerRepository implements InsurerRepository {
@@ -691,32 +709,41 @@ export class PrismaInsurerRepository implements InsurerRepository {
         code: data.code ?? null,
         active: data.active ?? true,
       },
-    });
-    return InsurerMapper.toDomain(row);
+    })
+    return InsurerMapper.toDomain(row)
   }
 
-  async findById(id: string, organizationId: string): Promise<InsurerData | null> {
+  async findById(
+    id: string,
+    organizationId: string
+  ): Promise<InsurerData | null> {
     const row = await this.prisma.insurer.findFirst({
       where: { id, organizationId },
-    });
-    return row ? InsurerMapper.toDomain(row) : null;
+    })
+    return row ? InsurerMapper.toDomain(row) : null
   }
 
-  async findByName(name: string, organizationId: string): Promise<InsurerData | null> {
+  async findByName(
+    name: string,
+    organizationId: string
+  ): Promise<InsurerData | null> {
     const row = await this.prisma.insurer.findFirst({
       where: { organizationId, name },
-    });
-    return row ? InsurerMapper.toDomain(row) : null;
+    })
+    return row ? InsurerMapper.toDomain(row) : null
   }
 
-  async findMany(filters: InsurerFilters, page: CursorPage): Promise<Page<InsurerData>> {
+  async findMany(
+    filters: InsurerFilters,
+    page: CursorPage
+  ): Promise<Page<InsurerData>> {
     const where: Prisma.InsurerWhereInput = {
       organizationId: filters.organizationId,
       ...(filters.active !== undefined && { active: filters.active }),
       ...(filters.search && {
         name: { contains: filters.search, mode: 'insensitive' },
       }),
-    };
+    }
 
     const [rows, total] = await Promise.all([
       this.prisma.insurer.findMany({
@@ -726,16 +753,16 @@ export class PrismaInsurerRepository implements InsurerRepository {
         orderBy: [{ name: 'asc' }],
       }),
       this.prisma.insurer.count({ where }),
-    ]);
+    ])
 
-    const hasNext = rows.length > page.limit;
-    const items = hasNext ? rows.slice(0, -1) : rows;
+    const hasNext = rows.length > page.limit
+    const items = hasNext ? rows.slice(0, -1) : rows
 
     return {
       items: items.map(InsurerMapper.toDomain),
       total,
       nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,
-    };
+    }
   }
 }
 ```
@@ -750,27 +777,27 @@ export type {
   InsurerFilters,
   InsurerRepository,
   CreateInsurerInput,
-} from './domain/insurer-repository.js';
+} from './domain/insurer-repository.js'
 export {
   InsurerNotFoundError,
   InsurerAlreadyExistsError,
   InsurerErrors,
-} from './domain/insurer-errors.js';
+} from './domain/insurer-errors.js'
 
 // Application
-export { CreateInsurer } from './application/create-insurer.js';
-export { ListInsurers } from './application/list-insurers.js';
-export { GetInsurer } from './application/get-insurer.js';
+export { CreateInsurer } from './application/create-insurer.js'
+export { ListInsurers } from './application/list-insurers.js'
+export { GetInsurer } from './application/get-insurer.js'
 
 // Infrastructure
-export { InsurerMapper } from './infrastructure/insurer-mapper.js';
-export { PrismaInsurerRepository } from './infrastructure/prisma-insurer-repository.js';
+export { InsurerMapper } from './infrastructure/insurer-mapper.js'
+export { PrismaInsurerRepository } from './infrastructure/prisma-insurer-repository.js'
 ```
 
 - [ ] **Step 7: Add insurer export to packages/core/src/index.ts**
 
 ```ts
-export * from './modules/insurer/index.js';
+export * from './modules/insurer/index.js'
 ```
 
 - [ ] **Step 8: Commit**
@@ -800,7 +827,7 @@ git commit -m "feat: add insurer module (reference data for insurance companies)
 
 ```ts
 // packages/core/src/modules/claim/domain/claim-repository.ts
-import type { CursorPage, Page } from '../../client/domain/client-repository.js';
+import type { CursorPage, Page } from '../../client/domain/client-repository.js'
 
 export type ClaimStatus =
   | 'REGISTERED'
@@ -810,72 +837,72 @@ export type ClaimStatus =
   | 'APPROVED'
   | 'REJECTED'
   | 'PAID'
-  | 'COMPLETED';
+  | 'COMPLETED'
 
-export type ClaimPriority = 'NORMAL' | 'HIGH' | 'URGENT';
+export type ClaimPriority = 'NORMAL' | 'HIGH' | 'URGENT'
 
 export interface ClaimData {
-  id: string;
-  organizationId: string;
-  claimNumber: number;
-  policyId: string;
-  clientId: string;
-  insurerId: string | null;
-  assignedToId: string | null;
-  status: ClaimStatus;
-  priority: ClaimPriority;
-  description: string;
-  incidentDate: Date | null;
-  incidentLocation: string | null;
-  reportedAt: Date;
-  resolvedAt: Date | null;
-  closedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
+  id: string
+  organizationId: string
+  claimNumber: number
+  policyId: string
+  clientId: string
+  insurerId: string | null
+  assignedToId: string | null
+  status: ClaimStatus
+  priority: ClaimPriority
+  description: string
+  incidentDate: Date | null
+  incidentLocation: string | null
+  reportedAt: Date
+  resolvedAt: Date | null
+  closedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
   // Joined fields (populated when using include)
-  policyNumber?: string;
-  clientName?: string;
-  insurerName?: string;
-  assignedToName?: string;
+  policyNumber?: string
+  clientName?: string
+  insurerName?: string
+  assignedToName?: string
 }
 
 export interface ClaimFilters {
-  organizationId: string;
-  status?: ClaimStatus;
-  priority?: ClaimPriority;
-  policyId?: string;
-  clientId?: string;
-  search?: string;
+  organizationId: string
+  status?: ClaimStatus
+  priority?: ClaimPriority
+  policyId?: string
+  clientId?: string
+  search?: string
 }
 
 export interface CreateClaimInput {
-  organizationId: string;
-  policyId: string;
-  clientId: string;
-  insurerId?: string | null;
-  assignedToId?: string | null;
-  priority?: ClaimPriority;
-  description: string;
-  incidentDate?: Date | null;
-  incidentLocation?: string | null;
+  organizationId: string
+  policyId: string
+  clientId: string
+  insurerId?: string | null
+  assignedToId?: string | null
+  priority?: ClaimPriority
+  description: string
+  incidentDate?: Date | null
+  incidentLocation?: string | null
 }
 
 export interface UpdateClaimStatusInput {
-  status: ClaimStatus;
-  resolvedAt?: Date | null;
-  closedAt?: Date | null;
+  status: ClaimStatus
+  resolvedAt?: Date | null
+  closedAt?: Date | null
 }
 
 export interface ClaimRepository {
-  create(data: CreateClaimInput): Promise<ClaimData>;
-  findById(id: string, organizationId: string): Promise<ClaimData | null>;
-  findMany(filters: ClaimFilters, page: CursorPage): Promise<Page<ClaimData>>;
+  create(data: CreateClaimInput): Promise<ClaimData>
+  findById(id: string, organizationId: string): Promise<ClaimData | null>
+  findMany(filters: ClaimFilters, page: CursorPage): Promise<Page<ClaimData>>
   updateStatus(
     id: string,
     organizationId: string,
-    data: UpdateClaimStatusInput,
-  ): Promise<ClaimData>;
-  softDelete(id: string, organizationId: string): Promise<void>;
+    data: UpdateClaimStatusInput
+  ): Promise<ClaimData>
+  softDelete(id: string, organizationId: string): Promise<void>
 }
 ```
 
@@ -884,40 +911,47 @@ export interface ClaimRepository {
 ```ts
 // packages/core/src/modules/claim/domain/claim-errors.ts
 export class ClaimNotFoundError extends Error {
-  readonly code = 'CLAIM_NOT_FOUND' as const;
+  readonly code = 'CLAIM_NOT_FOUND' as const
   constructor(id: string) {
-    super(`Sinistro ${id} não encontrado`);
-    this.name = 'ClaimNotFoundError';
+    super(`Sinistro ${id} não encontrado`)
+    this.name = 'ClaimNotFoundError'
   }
 }
 
 export class InvalidClaimStatusTransitionError extends Error {
-  readonly code = 'INVALID_CLAIM_STATUS_TRANSITION' as const;
+  readonly code = 'INVALID_CLAIM_STATUS_TRANSITION' as const
   constructor(from: string, to: string) {
-    super(`Transição de status inválida: ${from} → ${to}`);
-    this.name = 'InvalidClaimStatusTransitionError';
+    super(`Transição de status inválida: ${from} → ${to}`)
+    this.name = 'InvalidClaimStatusTransitionError'
   }
 }
 
 export const ClaimErrors = {
   notFound: (id: string) => new ClaimNotFoundError(id),
-  invalidTransition: (from: string, to: string) => new InvalidClaimStatusTransitionError(from, to),
-};
+  invalidTransition: (from: string, to: string) =>
+    new InvalidClaimStatusTransitionError(from, to),
+}
 ```
 
 - [ ] **Step 3: Create create-claim.ts**
 
 ```ts
 // packages/core/src/modules/claim/application/create-claim.ts
-import { injectable, inject } from 'tsyringe';
-import type { ClaimRepository, ClaimData, CreateClaimInput } from '../domain/claim-repository.js';
+import { injectable, inject } from 'tsyringe'
+import type {
+  ClaimRepository,
+  ClaimData,
+  CreateClaimInput,
+} from '../domain/claim-repository.js'
 
 @injectable()
 export class CreateClaim {
-  constructor(@inject('ClaimRepository') private readonly claimRepo: ClaimRepository) {}
+  constructor(
+    @inject('ClaimRepository') private readonly claimRepo: ClaimRepository
+  ) {}
 
   async execute(dto: CreateClaimInput): Promise<ClaimData> {
-    return this.claimRepo.create(dto);
+    return this.claimRepo.create(dto)
   }
 }
 ```
@@ -928,45 +962,62 @@ Note: `claimNumber` generation is handled atomically inside the repository's `cr
 
 ```ts
 // packages/core/src/modules/claim/application/update-claim-status.ts
-import { injectable, inject } from 'tsyringe';
-import type { ClaimRepository, ClaimData, ClaimStatus } from '../domain/claim-repository.js';
-import { ClaimErrors } from '../domain/claim-errors.js';
+import { injectable, inject } from 'tsyringe'
+import type {
+  ClaimRepository,
+  ClaimData,
+  ClaimStatus,
+} from '../domain/claim-repository.js'
+import { ClaimErrors } from '../domain/claim-errors.js'
 
 const VALID_TRANSITIONS: Record<ClaimStatus, ClaimStatus[]> = {
   REGISTERED: ['IN_ANALYSIS'],
-  IN_ANALYSIS: ['AWAITING_DOCUMENT', 'PENDING_INSPECTION', 'APPROVED', 'REJECTED'],
+  IN_ANALYSIS: [
+    'AWAITING_DOCUMENT',
+    'PENDING_INSPECTION',
+    'APPROVED',
+    'REJECTED',
+  ],
   AWAITING_DOCUMENT: ['IN_ANALYSIS'],
   PENDING_INSPECTION: ['APPROVED', 'REJECTED'],
   APPROVED: ['PAID'],
   REJECTED: [],
   PAID: ['COMPLETED'],
   COMPLETED: [],
-};
+}
 
 @injectable()
 export class UpdateClaimStatus {
-  constructor(@inject('ClaimRepository') private readonly claimRepo: ClaimRepository) {}
+  constructor(
+    @inject('ClaimRepository') private readonly claimRepo: ClaimRepository
+  ) {}
 
-  async execute(id: string, organizationId: string, newStatus: ClaimStatus): Promise<ClaimData> {
-    const claim = await this.claimRepo.findById(id, organizationId);
+  async execute(
+    id: string,
+    organizationId: string,
+    newStatus: ClaimStatus
+  ): Promise<ClaimData> {
+    const claim = await this.claimRepo.findById(id, organizationId)
     if (!claim) {
-      throw ClaimErrors.notFound(id);
+      throw ClaimErrors.notFound(id)
     }
 
-    const allowed = VALID_TRANSITIONS[claim.status];
+    const allowed = VALID_TRANSITIONS[claim.status]
     if (!allowed.includes(newStatus)) {
-      throw ClaimErrors.invalidTransition(claim.status, newStatus);
+      throw ClaimErrors.invalidTransition(claim.status, newStatus)
     }
 
     const resolvedAt =
-      newStatus === 'APPROVED' || newStatus === 'REJECTED' ? new Date() : claim.resolvedAt;
-    const closedAt = newStatus === 'COMPLETED' ? new Date() : claim.closedAt;
+      newStatus === 'APPROVED' || newStatus === 'REJECTED'
+        ? new Date()
+        : claim.resolvedAt
+    const closedAt = newStatus === 'COMPLETED' ? new Date() : claim.closedAt
 
     return this.claimRepo.updateStatus(id, organizationId, {
       status: newStatus,
       resolvedAt,
       closedAt,
-    });
+    })
   }
 }
 ```
@@ -975,36 +1026,47 @@ export class UpdateClaimStatus {
 
 ```ts
 // packages/core/src/modules/claim/application/list-claims.ts
-import { injectable, inject } from 'tsyringe';
-import type { CursorPage, Page } from '../../client/domain/client-repository.js';
-import type { ClaimRepository, ClaimData, ClaimFilters } from '../domain/claim-repository.js';
+import { injectable, inject } from 'tsyringe'
+import type { CursorPage, Page } from '../../client/domain/client-repository.js'
+import type {
+  ClaimRepository,
+  ClaimData,
+  ClaimFilters,
+} from '../domain/claim-repository.js'
 
 @injectable()
 export class ListClaims {
-  constructor(@inject('ClaimRepository') private readonly claimRepo: ClaimRepository) {}
+  constructor(
+    @inject('ClaimRepository') private readonly claimRepo: ClaimRepository
+  ) {}
 
-  async execute(filters: ClaimFilters, page: CursorPage): Promise<Page<ClaimData>> {
-    return this.claimRepo.findMany(filters, page);
+  async execute(
+    filters: ClaimFilters,
+    page: CursorPage
+  ): Promise<Page<ClaimData>> {
+    return this.claimRepo.findMany(filters, page)
   }
 }
 ```
 
 ```ts
 // packages/core/src/modules/claim/application/get-claim.ts
-import { injectable, inject } from 'tsyringe';
-import type { ClaimRepository, ClaimData } from '../domain/claim-repository.js';
-import { ClaimErrors } from '../domain/claim-errors.js';
+import { injectable, inject } from 'tsyringe'
+import type { ClaimRepository, ClaimData } from '../domain/claim-repository.js'
+import { ClaimErrors } from '../domain/claim-errors.js'
 
 @injectable()
 export class GetClaim {
-  constructor(@inject('ClaimRepository') private readonly claimRepo: ClaimRepository) {}
+  constructor(
+    @inject('ClaimRepository') private readonly claimRepo: ClaimRepository
+  ) {}
 
   async execute(id: string, organizationId: string): Promise<ClaimData> {
-    const claim = await this.claimRepo.findById(id, organizationId);
+    const claim = await this.claimRepo.findById(id, organizationId)
     if (!claim) {
-      throw ClaimErrors.notFound(id);
+      throw ClaimErrors.notFound(id)
     }
-    return claim;
+    return claim
   }
 }
 ```
@@ -1013,14 +1075,14 @@ export class GetClaim {
 
 ```ts
 // packages/core/src/modules/claim/infrastructure/claim-mapper.ts
-import type { Claim as PrismaClaimRecord } from '@repo/db';
-import type { ClaimData } from '../domain/claim-repository.js';
+import type { Claim as PrismaClaimRecord } from '@repo/db'
+import type { ClaimData } from '../domain/claim-repository.js'
 
 interface ClaimWithRelations extends PrismaClaimRecord {
-  policy?: { policyNumber: string } | null;
-  client?: { name: string } | null;
-  insurer?: { name: string } | null;
-  assignedTo?: { name: string } | null;
+  policy?: { policyNumber: string } | null
+  client?: { name: string } | null
+  insurer?: { name: string } | null
+  assignedTo?: { name: string } | null
 }
 
 export class ClaimMapper {
@@ -1047,7 +1109,7 @@ export class ClaimMapper {
       clientName: row.client?.name,
       insurerName: row.insurer?.name,
       assignedToName: row.assignedTo?.name,
-    };
+    }
   }
 }
 ```
@@ -1056,25 +1118,25 @@ export class ClaimMapper {
 
 ```ts
 // packages/core/src/modules/claim/infrastructure/prisma-claim-repository.ts
-import { injectable, inject } from 'tsyringe';
-import type { PrismaClient } from '@repo/db';
-import { Prisma } from '@repo/db';
+import { injectable, inject } from 'tsyringe'
+import type { PrismaClient } from '@repo/db'
+import { Prisma } from '@repo/db'
 import type {
   ClaimRepository,
   ClaimData,
   ClaimFilters,
   CreateClaimInput,
   UpdateClaimStatusInput,
-} from '../domain/claim-repository.js';
-import type { CursorPage, Page } from '../../client/domain/client-repository.js';
-import { ClaimMapper } from './claim-mapper.js';
+} from '../domain/claim-repository.js'
+import type { CursorPage, Page } from '../../client/domain/client-repository.js'
+import { ClaimMapper } from './claim-mapper.js'
 
 const CLAIM_INCLUDE = {
   policy: { select: { policyNumber: true } },
   client: { select: { name: true } },
   insurer: { select: { name: true } },
   assignedTo: { select: { name: true } },
-} satisfies Prisma.ClaimInclude;
+} satisfies Prisma.ClaimInclude
 
 @injectable()
 export class PrismaClaimRepository implements ClaimRepository {
@@ -1085,8 +1147,8 @@ export class PrismaClaimRepository implements ClaimRepository {
       const result = await tx.claim.aggregate({
         where: { organizationId: data.organizationId },
         _max: { claimNumber: true },
-      });
-      const claimNumber = (result._max.claimNumber ?? 0) + 1;
+      })
+      const claimNumber = (result._max.claimNumber ?? 0) + 1
 
       return tx.claim.create({
         data: {
@@ -1102,21 +1164,27 @@ export class PrismaClaimRepository implements ClaimRepository {
           incidentLocation: data.incidentLocation ?? null,
         },
         include: CLAIM_INCLUDE,
-      });
-    });
+      })
+    })
 
-    return ClaimMapper.toDomain(row);
+    return ClaimMapper.toDomain(row)
   }
 
-  async findById(id: string, organizationId: string): Promise<ClaimData | null> {
+  async findById(
+    id: string,
+    organizationId: string
+  ): Promise<ClaimData | null> {
     const row = await this.prisma.claim.findFirst({
       where: { id, organizationId, deletedAt: null },
       include: CLAIM_INCLUDE,
-    });
-    return row ? ClaimMapper.toDomain(row) : null;
+    })
+    return row ? ClaimMapper.toDomain(row) : null
   }
 
-  async findMany(filters: ClaimFilters, page: CursorPage): Promise<Page<ClaimData>> {
+  async findMany(
+    filters: ClaimFilters,
+    page: CursorPage
+  ): Promise<Page<ClaimData>> {
     const where: Prisma.ClaimWhereInput = {
       organizationId: filters.organizationId,
       deletedAt: null,
@@ -1127,10 +1195,12 @@ export class PrismaClaimRepository implements ClaimRepository {
       ...(filters.search && {
         OR: [
           { description: { contains: filters.search, mode: 'insensitive' } },
-          { incidentLocation: { contains: filters.search, mode: 'insensitive' } },
+          {
+            incidentLocation: { contains: filters.search, mode: 'insensitive' },
+          },
         ],
       }),
-    };
+    }
 
     const [rows, total] = await Promise.all([
       this.prisma.claim.findMany({
@@ -1141,22 +1211,22 @@ export class PrismaClaimRepository implements ClaimRepository {
         include: CLAIM_INCLUDE,
       }),
       this.prisma.claim.count({ where }),
-    ]);
+    ])
 
-    const hasNext = rows.length > page.limit;
-    const items = hasNext ? rows.slice(0, -1) : rows;
+    const hasNext = rows.length > page.limit
+    const items = hasNext ? rows.slice(0, -1) : rows
 
     return {
       items: items.map(ClaimMapper.toDomain),
       total,
       nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,
-    };
+    }
   }
 
   async updateStatus(
     id: string,
     organizationId: string,
-    data: UpdateClaimStatusInput,
+    data: UpdateClaimStatusInput
   ): Promise<ClaimData> {
     const row = await this.prisma.claim.update({
       where: { id, organizationId },
@@ -1166,15 +1236,15 @@ export class PrismaClaimRepository implements ClaimRepository {
         closedAt: data.closedAt,
       },
       include: CLAIM_INCLUDE,
-    });
-    return ClaimMapper.toDomain(row);
+    })
+    return ClaimMapper.toDomain(row)
   }
 
   async softDelete(id: string, organizationId: string): Promise<void> {
     await this.prisma.claim.update({
       where: { id, organizationId },
       data: { deletedAt: new Date() },
-    });
+    })
   }
 }
 ```
@@ -1192,28 +1262,28 @@ export type {
   ClaimRepository,
   CreateClaimInput,
   UpdateClaimStatusInput,
-} from './domain/claim-repository.js';
+} from './domain/claim-repository.js'
 export {
   ClaimNotFoundError,
   InvalidClaimStatusTransitionError,
   ClaimErrors,
-} from './domain/claim-errors.js';
+} from './domain/claim-errors.js'
 
 // Application
-export { CreateClaim } from './application/create-claim.js';
-export { UpdateClaimStatus } from './application/update-claim-status.js';
-export { ListClaims } from './application/list-claims.js';
-export { GetClaim } from './application/get-claim.js';
+export { CreateClaim } from './application/create-claim.js'
+export { UpdateClaimStatus } from './application/update-claim-status.js'
+export { ListClaims } from './application/list-claims.js'
+export { GetClaim } from './application/get-claim.js'
 
 // Infrastructure
-export { ClaimMapper } from './infrastructure/claim-mapper.js';
-export { PrismaClaimRepository } from './infrastructure/prisma-claim-repository.js';
+export { ClaimMapper } from './infrastructure/claim-mapper.js'
+export { PrismaClaimRepository } from './infrastructure/prisma-claim-repository.js'
 ```
 
 Add to `packages/core/src/index.ts`:
 
 ```ts
-export * from './modules/claim/index.js';
+export * from './modules/claim/index.js'
 ```
 
 - [ ] **Step 9: Commit**
@@ -1243,27 +1313,27 @@ git commit -m "feat: add claim module with status workflow validation"
 // packages/core/src/modules/occurrence/domain/occurrence-repository.ts
 
 export interface OccurrenceData {
-  id: string;
-  claimId: string;
-  type: string;
-  description: string;
-  metadata: Record<string, unknown> | null;
-  createdBy: string | null;
-  createdAt: Date;
-  createdByName?: string;
+  id: string
+  claimId: string
+  type: string
+  description: string
+  metadata: Record<string, unknown> | null
+  createdBy: string | null
+  createdAt: Date
+  createdByName?: string
 }
 
 export interface CreateOccurrenceInput {
-  claimId: string;
-  type: string;
-  description: string;
-  metadata?: Record<string, unknown> | null;
-  createdBy?: string | null;
+  claimId: string
+  type: string
+  description: string
+  metadata?: Record<string, unknown> | null
+  createdBy?: string | null
 }
 
 export interface OccurrenceRepository {
-  create(data: CreateOccurrenceInput): Promise<OccurrenceData>;
-  findByClaimId(claimId: string): Promise<OccurrenceData[]>;
+  create(data: CreateOccurrenceInput): Promise<OccurrenceData>
+  findByClaimId(claimId: string): Promise<OccurrenceData[]>
 }
 ```
 
@@ -1272,54 +1342,59 @@ export interface OccurrenceRepository {
 ```ts
 // packages/core/src/modules/occurrence/domain/occurrence-errors.ts
 export class OccurrenceClaimNotFoundError extends Error {
-  readonly code = 'OCCURRENCE_CLAIM_NOT_FOUND' as const;
+  readonly code = 'OCCURRENCE_CLAIM_NOT_FOUND' as const
   constructor(claimId: string) {
-    super(`Sinistro ${claimId} não encontrado para registrar ocorrência`);
-    this.name = 'OccurrenceClaimNotFoundError';
+    super(`Sinistro ${claimId} não encontrado para registrar ocorrência`)
+    this.name = 'OccurrenceClaimNotFoundError'
   }
 }
 
 export const OccurrenceErrors = {
   claimNotFound: (claimId: string) => new OccurrenceClaimNotFoundError(claimId),
-};
+}
 ```
 
 - [ ] **Step 3: Create use cases**
 
 ```ts
 // packages/core/src/modules/occurrence/application/create-occurrence.ts
-import { injectable, inject } from 'tsyringe';
+import { injectable, inject } from 'tsyringe'
 import type {
   OccurrenceRepository,
   OccurrenceData,
   CreateOccurrenceInput,
-} from '../domain/occurrence-repository.js';
+} from '../domain/occurrence-repository.js'
 
 @injectable()
 export class CreateOccurrence {
   constructor(
-    @inject('OccurrenceRepository') private readonly occurrenceRepo: OccurrenceRepository,
+    @inject('OccurrenceRepository')
+    private readonly occurrenceRepo: OccurrenceRepository
   ) {}
 
   async execute(dto: CreateOccurrenceInput): Promise<OccurrenceData> {
-    return this.occurrenceRepo.create(dto);
+    return this.occurrenceRepo.create(dto)
   }
 }
 ```
 
 ```ts
 // packages/core/src/modules/occurrence/application/list-occurrences.ts
-import { injectable, inject } from 'tsyringe';
-import type { OccurrenceRepository, OccurrenceData } from '../domain/occurrence-repository.js';
+import { injectable, inject } from 'tsyringe'
+import type {
+  OccurrenceRepository,
+  OccurrenceData,
+} from '../domain/occurrence-repository.js'
 
 @injectable()
 export class ListOccurrences {
   constructor(
-    @inject('OccurrenceRepository') private readonly occurrenceRepo: OccurrenceRepository,
+    @inject('OccurrenceRepository')
+    private readonly occurrenceRepo: OccurrenceRepository
   ) {}
 
   async execute(claimId: string): Promise<OccurrenceData[]> {
-    return this.occurrenceRepo.findByClaimId(claimId);
+    return this.occurrenceRepo.findByClaimId(claimId)
   }
 }
 ```
@@ -1328,11 +1403,11 @@ export class ListOccurrences {
 
 ```ts
 // packages/core/src/modules/occurrence/infrastructure/occurrence-mapper.ts
-import type { Occurrence as PrismaOccurrenceRecord } from '@repo/db';
-import type { OccurrenceData } from '../domain/occurrence-repository.js';
+import type { Occurrence as PrismaOccurrenceRecord } from '@repo/db'
+import type { OccurrenceData } from '../domain/occurrence-repository.js'
 
 function isJsonObject(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
 export class OccurrenceMapper {
@@ -1345,22 +1420,22 @@ export class OccurrenceMapper {
       metadata: isJsonObject(row.metadata) ? row.metadata : null,
       createdBy: row.createdBy,
       createdAt: row.createdAt,
-    };
+    }
   }
 }
 ```
 
 ```ts
 // packages/core/src/modules/occurrence/infrastructure/prisma-occurrence-repository.ts
-import { injectable, inject } from 'tsyringe';
-import type { PrismaClient } from '@repo/db';
-import { Prisma } from '@repo/db';
+import { injectable, inject } from 'tsyringe'
+import type { PrismaClient } from '@repo/db'
+import { Prisma } from '@repo/db'
 import type {
   OccurrenceRepository,
   OccurrenceData,
   CreateOccurrenceInput,
-} from '../domain/occurrence-repository.js';
-import { OccurrenceMapper } from './occurrence-mapper.js';
+} from '../domain/occurrence-repository.js'
+import { OccurrenceMapper } from './occurrence-mapper.js'
 
 @injectable()
 export class PrismaOccurrenceRepository implements OccurrenceRepository {
@@ -1373,19 +1448,21 @@ export class PrismaOccurrenceRepository implements OccurrenceRepository {
         type: data.type,
         description: data.description,
         metadata:
-          data.metadata === null || data.metadata === undefined ? Prisma.JsonNull : data.metadata,
+          data.metadata === null || data.metadata === undefined
+            ? Prisma.JsonNull
+            : data.metadata,
         createdBy: data.createdBy ?? null,
       },
-    });
-    return OccurrenceMapper.toDomain(row);
+    })
+    return OccurrenceMapper.toDomain(row)
   }
 
   async findByClaimId(claimId: string): Promise<OccurrenceData[]> {
     const rows = await this.prisma.occurrence.findMany({
       where: { claimId },
       orderBy: { createdAt: 'desc' },
-    });
-    return rows.map(OccurrenceMapper.toDomain);
+    })
+    return rows.map(OccurrenceMapper.toDomain)
   }
 }
 ```
@@ -1399,22 +1476,25 @@ export type {
   OccurrenceData,
   OccurrenceRepository,
   CreateOccurrenceInput,
-} from './domain/occurrence-repository.js';
-export { OccurrenceClaimNotFoundError, OccurrenceErrors } from './domain/occurrence-errors.js';
+} from './domain/occurrence-repository.js'
+export {
+  OccurrenceClaimNotFoundError,
+  OccurrenceErrors,
+} from './domain/occurrence-errors.js'
 
 // Application
-export { CreateOccurrence } from './application/create-occurrence.js';
-export { ListOccurrences } from './application/list-occurrences.js';
+export { CreateOccurrence } from './application/create-occurrence.js'
+export { ListOccurrences } from './application/list-occurrences.js'
 
 // Infrastructure
-export { OccurrenceMapper } from './infrastructure/occurrence-mapper.js';
-export { PrismaOccurrenceRepository } from './infrastructure/prisma-occurrence-repository.js';
+export { OccurrenceMapper } from './infrastructure/occurrence-mapper.js'
+export { PrismaOccurrenceRepository } from './infrastructure/prisma-occurrence-repository.js'
 ```
 
 Add to `packages/core/src/index.ts`:
 
 ```ts
-export * from './modules/occurrence/index.js';
+export * from './modules/occurrence/index.js'
 ```
 
 - [ ] **Step 6: Commit**
@@ -1436,43 +1516,46 @@ git commit -m "feat: add occurrence module (sub-entity log for claims)"
 
 ```ts
 // packages/core/src/modules/endorsement/domain/endorsement-repository.ts
-import type { CursorPage, Page } from '../../client/domain/client-repository.js';
+import type { CursorPage, Page } from '../../client/domain/client-repository.js'
 
 export interface EndorsementData {
-  id: string;
-  organizationId: string;
-  policyId: string;
-  type: string;
-  description: string;
-  effectiveDate: Date;
-  previousVersionSnapshot: Record<string, unknown>;
-  changes: Record<string, unknown>;
-  createdBy: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  policyNumber?: string;
+  id: string
+  organizationId: string
+  policyId: string
+  type: string
+  description: string
+  effectiveDate: Date
+  previousVersionSnapshot: Record<string, unknown>
+  changes: Record<string, unknown>
+  createdBy: string | null
+  createdAt: Date
+  updatedAt: Date
+  policyNumber?: string
 }
 
 export interface EndorsementFilters {
-  organizationId: string;
-  policyId?: string;
+  organizationId: string
+  policyId?: string
 }
 
 export interface CreateEndorsementInput {
-  organizationId: string;
-  policyId: string;
-  type: string;
-  description: string;
-  effectiveDate: Date;
-  previousVersionSnapshot: Record<string, unknown>;
-  changes: Record<string, unknown>;
-  createdBy?: string | null;
+  organizationId: string
+  policyId: string
+  type: string
+  description: string
+  effectiveDate: Date
+  previousVersionSnapshot: Record<string, unknown>
+  changes: Record<string, unknown>
+  createdBy?: string | null
 }
 
 export interface EndorsementRepository {
-  create(data: CreateEndorsementInput): Promise<EndorsementData>;
-  findById(id: string, organizationId: string): Promise<EndorsementData | null>;
-  findMany(filters: EndorsementFilters, page: CursorPage): Promise<Page<EndorsementData>>;
+  create(data: CreateEndorsementInput): Promise<EndorsementData>
+  findById(id: string, organizationId: string): Promise<EndorsementData | null>
+  findMany(
+    filters: EndorsementFilters,
+    page: CursorPage
+  ): Promise<Page<EndorsementData>>
 }
 ```
 
@@ -1481,81 +1564,90 @@ export interface EndorsementRepository {
 ```ts
 // packages/core/src/modules/endorsement/domain/endorsement-errors.ts
 export class EndorsementNotFoundError extends Error {
-  readonly code = 'ENDORSEMENT_NOT_FOUND' as const;
+  readonly code = 'ENDORSEMENT_NOT_FOUND' as const
   constructor(id: string) {
-    super(`Endosso ${id} não encontrado`);
-    this.name = 'EndorsementNotFoundError';
+    super(`Endosso ${id} não encontrado`)
+    this.name = 'EndorsementNotFoundError'
   }
 }
 
 export const EndorsementErrors = {
   notFound: (id: string) => new EndorsementNotFoundError(id),
-};
+}
 ```
 
 - [ ] **Step 3: Create use cases (create, list, get)**
 
 ```ts
 // packages/core/src/modules/endorsement/application/create-endorsement.ts
-import { injectable, inject } from 'tsyringe';
+import { injectable, inject } from 'tsyringe'
 import type {
   EndorsementRepository,
   EndorsementData,
   CreateEndorsementInput,
-} from '../domain/endorsement-repository.js';
+} from '../domain/endorsement-repository.js'
 
 @injectable()
 export class CreateEndorsement {
   constructor(
-    @inject('EndorsementRepository') private readonly endorsementRepo: EndorsementRepository,
+    @inject('EndorsementRepository')
+    private readonly endorsementRepo: EndorsementRepository
   ) {}
 
   async execute(dto: CreateEndorsementInput): Promise<EndorsementData> {
-    return this.endorsementRepo.create(dto);
+    return this.endorsementRepo.create(dto)
   }
 }
 ```
 
 ```ts
 // packages/core/src/modules/endorsement/application/get-endorsement.ts
-import { injectable, inject } from 'tsyringe';
-import type { EndorsementRepository, EndorsementData } from '../domain/endorsement-repository.js';
-import { EndorsementErrors } from '../domain/endorsement-errors.js';
+import { injectable, inject } from 'tsyringe'
+import type {
+  EndorsementRepository,
+  EndorsementData,
+} from '../domain/endorsement-repository.js'
+import { EndorsementErrors } from '../domain/endorsement-errors.js'
 
 @injectable()
 export class GetEndorsement {
   constructor(
-    @inject('EndorsementRepository') private readonly endorsementRepo: EndorsementRepository,
+    @inject('EndorsementRepository')
+    private readonly endorsementRepo: EndorsementRepository
   ) {}
 
   async execute(id: string, organizationId: string): Promise<EndorsementData> {
-    const endorsement = await this.endorsementRepo.findById(id, organizationId);
+    const endorsement = await this.endorsementRepo.findById(id, organizationId)
     if (!endorsement) {
-      throw EndorsementErrors.notFound(id);
+      throw EndorsementErrors.notFound(id)
     }
-    return endorsement;
+    return endorsement
   }
 }
 ```
 
 ```ts
 // packages/core/src/modules/endorsement/application/list-endorsements.ts
-import { injectable, inject } from 'tsyringe';
-import type { CursorPage, Page } from '../../client/domain/client-repository.js';
+import { injectable, inject } from 'tsyringe'
+import type { CursorPage, Page } from '../../client/domain/client-repository.js'
 import type {
   EndorsementRepository,
   EndorsementData,
   EndorsementFilters,
-} from '../domain/endorsement-repository.js';
+} from '../domain/endorsement-repository.js'
 
 @injectable()
 export class ListEndorsements {
   constructor(
-    @inject('EndorsementRepository') private readonly endorsementRepo: EndorsementRepository,
+    @inject('EndorsementRepository')
+    private readonly endorsementRepo: EndorsementRepository
   ) {}
 
-  async execute(filters: EndorsementFilters, page: CursorPage): Promise<Page<EndorsementData>> {
-    return this.endorsementRepo.findMany(filters, page);
+  async execute(
+    filters: EndorsementFilters,
+    page: CursorPage
+  ): Promise<Page<EndorsementData>> {
+    return this.endorsementRepo.findMany(filters, page)
   }
 }
 ```
@@ -1564,15 +1656,15 @@ export class ListEndorsements {
 
 ```ts
 // packages/core/src/modules/endorsement/infrastructure/endorsement-mapper.ts
-import type { Endorsement as PrismaEndorsementRecord } from '@repo/db';
-import type { EndorsementData } from '../domain/endorsement-repository.js';
+import type { Endorsement as PrismaEndorsementRecord } from '@repo/db'
+import type { EndorsementData } from '../domain/endorsement-repository.js'
 
 function isJsonObject(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
 interface EndorsementWithRelations extends PrismaEndorsementRecord {
-  policy?: { policyNumber: string } | null;
+  policy?: { policyNumber: string } | null
 }
 
 export class EndorsementMapper {
@@ -1592,7 +1684,7 @@ export class EndorsementMapper {
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
       policyNumber: row.policy?.policyNumber,
-    };
+    }
   }
 }
 ```
@@ -1620,7 +1712,7 @@ git commit -m "feat: add endorsement module (policy modifications with before/af
 
 ```ts
 // packages/core/src/modules/assistance/domain/assistance-repository.ts
-import type { CursorPage, Page } from '../../client/domain/client-repository.js';
+import type { CursorPage, Page } from '../../client/domain/client-repository.js'
 
 export type AssistanceStatus =
   | 'REQUESTED'
@@ -1628,68 +1720,71 @@ export type AssistanceStatus =
   | 'PENDING_INSPECTION'
   | 'DISPATCHED'
   | 'IN_PROGRESS'
-  | 'COMPLETED';
+  | 'COMPLETED'
 
 export interface AssistanceData {
-  id: string;
-  organizationId: string;
-  policyId: string;
-  clientId: string;
-  claimId: string | null;
-  type: string;
-  status: AssistanceStatus;
-  description: string | null;
-  address: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  providerName: string | null;
-  providerPhone: string | null;
-  requestedAt: Date;
-  scheduledAt: Date | null;
-  completedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-  policyNumber?: string;
-  clientName?: string;
+  id: string
+  organizationId: string
+  policyId: string
+  clientId: string
+  claimId: string | null
+  type: string
+  status: AssistanceStatus
+  description: string | null
+  address: string | null
+  latitude: number | null
+  longitude: number | null
+  providerName: string | null
+  providerPhone: string | null
+  requestedAt: Date
+  scheduledAt: Date | null
+  completedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
+  policyNumber?: string
+  clientName?: string
 }
 
 export interface AssistanceFilters {
-  organizationId: string;
-  status?: AssistanceStatus;
-  policyId?: string;
-  clientId?: string;
-  type?: string;
+  organizationId: string
+  status?: AssistanceStatus
+  policyId?: string
+  clientId?: string
+  type?: string
 }
 
 export interface CreateAssistanceInput {
-  organizationId: string;
-  policyId: string;
-  clientId: string;
-  claimId?: string | null;
-  type: string;
-  description?: string | null;
-  address?: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
-  providerName?: string | null;
-  providerPhone?: string | null;
-  scheduledAt?: Date | null;
+  organizationId: string
+  policyId: string
+  clientId: string
+  claimId?: string | null
+  type: string
+  description?: string | null
+  address?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  providerName?: string | null
+  providerPhone?: string | null
+  scheduledAt?: Date | null
 }
 
 export interface UpdateAssistanceStatusInput {
-  status: AssistanceStatus;
-  completedAt?: Date | null;
+  status: AssistanceStatus
+  completedAt?: Date | null
 }
 
 export interface AssistanceRepository {
-  create(data: CreateAssistanceInput): Promise<AssistanceData>;
-  findById(id: string, organizationId: string): Promise<AssistanceData | null>;
-  findMany(filters: AssistanceFilters, page: CursorPage): Promise<Page<AssistanceData>>;
+  create(data: CreateAssistanceInput): Promise<AssistanceData>
+  findById(id: string, organizationId: string): Promise<AssistanceData | null>
+  findMany(
+    filters: AssistanceFilters,
+    page: CursorPage
+  ): Promise<Page<AssistanceData>>
   updateStatus(
     id: string,
     organizationId: string,
-    data: UpdateAssistanceStatusInput,
-  ): Promise<AssistanceData>;
+    data: UpdateAssistanceStatusInput
+  ): Promise<AssistanceData>
 }
 ```
 
@@ -1698,18 +1793,18 @@ export interface AssistanceRepository {
 ```ts
 // packages/core/src/modules/assistance/domain/assistance-errors.ts
 export class AssistanceNotFoundError extends Error {
-  readonly code = 'ASSISTANCE_NOT_FOUND' as const;
+  readonly code = 'ASSISTANCE_NOT_FOUND' as const
   constructor(id: string) {
-    super(`Assistência ${id} não encontrada`);
-    this.name = 'AssistanceNotFoundError';
+    super(`Assistência ${id} não encontrada`)
+    this.name = 'AssistanceNotFoundError'
   }
 }
 
 export class InvalidAssistanceStatusTransitionError extends Error {
-  readonly code = 'INVALID_ASSISTANCE_STATUS_TRANSITION' as const;
+  readonly code = 'INVALID_ASSISTANCE_STATUS_TRANSITION' as const
   constructor(from: string, to: string) {
-    super(`Transição de status inválida: ${from} → ${to}`);
-    this.name = 'InvalidAssistanceStatusTransitionError';
+    super(`Transição de status inválida: ${from} → ${to}`)
+    this.name = 'InvalidAssistanceStatusTransitionError'
   }
 }
 
@@ -1717,7 +1812,7 @@ export const AssistanceErrors = {
   notFound: (id: string) => new AssistanceNotFoundError(id),
   invalidTransition: (from: string, to: string) =>
     new InvalidAssistanceStatusTransitionError(from, to),
-};
+}
 ```
 
 - [ ] **Step 3: Create update-assistance-status.ts with transition validation**
@@ -1730,7 +1825,7 @@ const VALID_TRANSITIONS: Record<AssistanceStatus, AssistanceStatus[]> = {
   DISPATCHED: ['IN_PROGRESS'],
   IN_PROGRESS: ['COMPLETED'],
   COMPLETED: [],
-};
+}
 ```
 
 Sets `completedAt = new Date()` when transitioning to `COMPLETED`.
@@ -1763,13 +1858,17 @@ git commit -m "feat: add assistance module with status workflow validation"
 ```ts
 // packages/core/src/modules/document/domain/storage-provider.ts
 export interface UploadResult {
-  storageKey: string;
+  storageKey: string
 }
 
 export interface StorageProvider {
-  upload(key: string, buffer: Buffer, contentType: string): Promise<UploadResult>;
-  getSignedUrl(key: string, expiresIn?: number): Promise<string>;
-  delete(key: string): Promise<void>;
+  upload(
+    key: string,
+    buffer: Buffer,
+    contentType: string
+  ): Promise<UploadResult>
+  getSignedUrl(key: string, expiresIn?: number): Promise<string>
+  delete(key: string): Promise<void>
 }
 ```
 
@@ -1777,7 +1876,7 @@ export interface StorageProvider {
 
 ```ts
 // packages/core/src/modules/document/domain/document-repository.ts
-export type DocumentEntityType = 'CLIENT' | 'PROPOSAL' | 'POLICY' | 'CLAIM';
+export type DocumentEntityType = 'CLIENT' | 'PROPOSAL' | 'POLICY' | 'CLAIM'
 export type DocumentType =
   | 'DRIVER_LICENSE'
   | 'VEHICLE_REGISTRATION'
@@ -1786,49 +1885,49 @@ export type DocumentType =
   | 'CLAIM_REPORT'
   | 'PROOF_OF_PAYMENT'
   | 'CONTRACT'
-  | 'OTHER';
+  | 'OTHER'
 
 export interface DocumentData {
-  id: string;
-  organizationId: string;
-  entityType: DocumentEntityType;
-  entityId: string;
-  clientId: string | null;
-  type: DocumentType;
-  fileName: string;
-  mimeType: string;
-  sizeBytes: number;
-  storageKey: string;
-  url: string | null;
-  createdBy: string | null;
-  createdAt: Date;
+  id: string
+  organizationId: string
+  entityType: DocumentEntityType
+  entityId: string
+  clientId: string | null
+  type: DocumentType
+  fileName: string
+  mimeType: string
+  sizeBytes: number
+  storageKey: string
+  url: string | null
+  createdBy: string | null
+  createdAt: Date
 }
 
 export interface DocumentFilters {
-  organizationId: string;
-  entityType?: DocumentEntityType;
-  entityId?: string;
+  organizationId: string
+  entityType?: DocumentEntityType
+  entityId?: string
 }
 
 export interface CreateDocumentInput {
-  organizationId: string;
-  entityType: DocumentEntityType;
-  entityId: string;
-  clientId?: string | null;
-  type?: DocumentType;
-  fileName: string;
-  mimeType: string;
-  sizeBytes: number;
-  storageKey: string;
-  url?: string | null;
-  createdBy?: string | null;
+  organizationId: string
+  entityType: DocumentEntityType
+  entityId: string
+  clientId?: string | null
+  type?: DocumentType
+  fileName: string
+  mimeType: string
+  sizeBytes: number
+  storageKey: string
+  url?: string | null
+  createdBy?: string | null
 }
 
 export interface DocumentRepository {
-  create(data: CreateDocumentInput): Promise<DocumentData>;
-  findById(id: string, organizationId: string): Promise<DocumentData | null>;
-  findByEntity(filters: DocumentFilters): Promise<DocumentData[]>;
-  delete(id: string, organizationId: string): Promise<DocumentData | null>;
+  create(data: CreateDocumentInput): Promise<DocumentData>
+  findById(id: string, organizationId: string): Promise<DocumentData | null>
+  findByEntity(filters: DocumentFilters): Promise<DocumentData[]>
+  delete(id: string, organizationId: string): Promise<DocumentData | null>
 }
 ```
 
@@ -1837,46 +1936,53 @@ export interface DocumentRepository {
 ```ts
 // packages/core/src/modules/document/domain/document-errors.ts
 export class DocumentNotFoundError extends Error {
-  readonly code = 'DOCUMENT_NOT_FOUND' as const;
+  readonly code = 'DOCUMENT_NOT_FOUND' as const
   constructor(id: string) {
-    super(`Documento ${id} não encontrado`);
-    this.name = 'DocumentNotFoundError';
+    super(`Documento ${id} não encontrado`)
+    this.name = 'DocumentNotFoundError'
   }
 }
 
 export const DocumentErrors = {
   notFound: (id: string) => new DocumentNotFoundError(id),
-};
+}
 ```
 
 - [ ] **Step 4: Create R2StorageProvider (uses @repo/env)**
 
 ```ts
 // packages/core/src/modules/document/infrastructure/r2-storage-provider.ts
-import { injectable } from 'tsyringe';
+import { injectable } from 'tsyringe'
 import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { env } from '@repo/env';
-import type { StorageProvider, UploadResult } from '../domain/storage-provider.js';
+} from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { env } from '@repo/env'
+import type {
+  StorageProvider,
+  UploadResult,
+} from '../domain/storage-provider.js'
 
 @injectable()
 export class R2StorageProvider implements StorageProvider {
-  private client: S3Client;
-  private bucket: string;
+  private client: S3Client
+  private bucket: string
 
   constructor() {
-    if (!env.R2_ACCOUNT_ID || !env.R2_ACCESS_KEY_ID || !env.R2_SECRET_ACCESS_KEY) {
+    if (
+      !env.R2_ACCOUNT_ID ||
+      !env.R2_ACCESS_KEY_ID ||
+      !env.R2_SECRET_ACCESS_KEY
+    ) {
       throw new Error(
-        'R2 credentials required when STORAGE_PROVIDER=r2. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY.',
-      );
+        'R2 credentials required when STORAGE_PROVIDER=r2. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY.'
+      )
     }
 
-    this.bucket = env.R2_BUCKET_NAME;
+    this.bucket = env.R2_BUCKET_NAME
     this.client = new S3Client({
       region: 'auto',
       endpoint: `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
@@ -1884,28 +1990,34 @@ export class R2StorageProvider implements StorageProvider {
         accessKeyId: env.R2_ACCESS_KEY_ID,
         secretAccessKey: env.R2_SECRET_ACCESS_KEY,
       },
-    });
+    })
   }
 
-  async upload(key: string, buffer: Buffer, contentType: string): Promise<UploadResult> {
+  async upload(
+    key: string,
+    buffer: Buffer,
+    contentType: string
+  ): Promise<UploadResult> {
     await this.client.send(
       new PutObjectCommand({
         Bucket: this.bucket,
         Key: key,
         Body: buffer,
         ContentType: contentType,
-      }),
-    );
-    return { storageKey: key };
+      })
+    )
+    return { storageKey: key }
   }
 
   async getSignedUrl(key: string, expiresIn = 3600): Promise<string> {
-    const command = new GetObjectCommand({ Bucket: this.bucket, Key: key });
-    return getSignedUrl(this.client, command, { expiresIn });
+    const command = new GetObjectCommand({ Bucket: this.bucket, Key: key })
+    return getSignedUrl(this.client, command, { expiresIn })
   }
 
   async delete(key: string): Promise<void> {
-    await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
+    await this.client.send(
+      new DeleteObjectCommand({ Bucket: this.bucket, Key: key })
+    )
   }
 }
 ```
@@ -1914,35 +2026,46 @@ export class R2StorageProvider implements StorageProvider {
 
 ```ts
 // packages/core/src/modules/document/infrastructure/local-storage-provider.ts
-import { injectable } from 'tsyringe';
-import { writeFile, unlink, mkdir } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
-import type { StorageProvider, UploadResult } from '../domain/storage-provider.js';
+import { injectable } from 'tsyringe'
+import { writeFile, unlink, mkdir } from 'node:fs/promises'
+import { dirname, resolve } from 'node:path'
+import type {
+  StorageProvider,
+  UploadResult,
+} from '../domain/storage-provider.js'
 
-const UPLOAD_DIR = resolve(process.cwd(), 'uploads');
+const UPLOAD_DIR = resolve(process.cwd(), 'uploads')
 
 @injectable()
 export class LocalStorageProvider implements StorageProvider {
-  async upload(key: string, buffer: Buffer, _contentType: string): Promise<UploadResult> {
-    const filePath = resolve(UPLOAD_DIR, key);
-    await mkdir(dirname(filePath), { recursive: true });
-    await writeFile(filePath, buffer);
-    return { storageKey: key };
+  async upload(
+    key: string,
+    buffer: Buffer,
+    _contentType: string
+  ): Promise<UploadResult> {
+    const filePath = resolve(UPLOAD_DIR, key)
+    await mkdir(dirname(filePath), { recursive: true })
+    await writeFile(filePath, buffer)
+    return { storageKey: key }
   }
 
   async getSignedUrl(key: string, _expiresIn?: number): Promise<string> {
-    return `/uploads/${key}`;
+    return `/uploads/${key}`
   }
 
   async delete(key: string): Promise<void> {
-    const filePath = resolve(UPLOAD_DIR, key);
+    const filePath = resolve(UPLOAD_DIR, key)
     try {
-      await unlink(filePath);
+      await unlink(filePath)
     } catch (error: unknown) {
-      if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
-        return; // File already deleted, no-op
+      if (
+        error instanceof Error &&
+        'code' in error &&
+        error.code === 'ENOENT'
+      ) {
+        return // File already deleted, no-op
       }
-      throw error;
+      throw error
     }
   }
 }
@@ -1994,11 +2117,11 @@ git commit -m "feat: add document module with R2 and local storage providers"
 `claim.schemas.ts`:
 
 ```ts
-import { z } from 'zod';
+import { z } from 'zod'
 
-const emptyToUndefined = z.literal('').transform(() => undefined);
-const optionalDate = z.union([emptyToUndefined, z.coerce.date()]).optional();
-const optionalString = z.union([emptyToUndefined, z.string()]).optional();
+const emptyToUndefined = z.literal('').transform(() => undefined)
+const optionalDate = z.union([emptyToUndefined, z.coerce.date()]).optional()
+const optionalString = z.union([emptyToUndefined, z.string()]).optional()
 
 export const createClaimBodySchema = z.object({
   policyId: z.string().min(1),
@@ -2009,7 +2132,7 @@ export const createClaimBodySchema = z.object({
   description: z.string().min(1),
   incidentDate: optionalDate,
   incidentLocation: optionalString,
-});
+})
 
 export const updateClaimStatusBodySchema = z.object({
   status: z.enum([
@@ -2022,7 +2145,7 @@ export const updateClaimStatusBodySchema = z.object({
     'PAID',
     'COMPLETED',
   ]),
-});
+})
 
 export const listClaimsQuerySchema = z.object({
   status: z
@@ -2043,7 +2166,7 @@ export const listClaimsQuerySchema = z.object({
   search: z.string().optional(),
   cursor: z.string().optional(),
   limit: z.coerce.number().min(1).max(100).default(20),
-});
+})
 ```
 
 Similar schemas for endorsement, assistance, document, occurrence, insurer.
@@ -2100,9 +2223,9 @@ cd apps/server && pnpm add @fastify/multipart
 Register in `app.ts`:
 
 ```ts
-import multipart from '@fastify/multipart';
+import multipart from '@fastify/multipart'
 // After helmet:
-await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB
+await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } }) // 10MB
 ```
 
 - [ ] **Step 5: Update container-registrations.ts**
@@ -2110,75 +2233,105 @@ await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } }); // 10
 Register all new repositories, use cases, and the StorageProvider based on `STORAGE_PROVIDER` env var:
 
 ```ts
-import { env } from '@repo/env';
+import { env } from '@repo/env'
 // ... import all new modules from @repo/core
 
 // Storage Provider (selected by env)
 const storageProvider =
-  env.STORAGE_PROVIDER === 'r2' ? new R2StorageProvider() : new LocalStorageProvider();
-container.register('StorageProvider', { useValue: storageProvider });
+  env.STORAGE_PROVIDER === 'r2'
+    ? new R2StorageProvider()
+    : new LocalStorageProvider()
+container.register('StorageProvider', { useValue: storageProvider })
 
 // Repositories
-const insurerRepo = new PrismaInsurerRepository(prisma);
-const claimRepo = new PrismaClaimRepository(prisma);
-const occurrenceRepo = new PrismaOccurrenceRepository(prisma);
-const endorsementRepo = new PrismaEndorsementRepository(prisma);
-const assistanceRepo = new PrismaAssistanceRepository(prisma);
-const documentRepo = new PrismaDocumentRepository(prisma);
+const insurerRepo = new PrismaInsurerRepository(prisma)
+const claimRepo = new PrismaClaimRepository(prisma)
+const occurrenceRepo = new PrismaOccurrenceRepository(prisma)
+const endorsementRepo = new PrismaEndorsementRepository(prisma)
+const assistanceRepo = new PrismaAssistanceRepository(prisma)
+const documentRepo = new PrismaDocumentRepository(prisma)
 
-container.register('InsurerRepository', { useValue: insurerRepo });
-container.register('ClaimRepository', { useValue: claimRepo });
-container.register('OccurrenceRepository', { useValue: occurrenceRepo });
-container.register('EndorsementRepository', { useValue: endorsementRepo });
-container.register('AssistanceRepository', { useValue: assistanceRepo });
-container.register('DocumentRepository', { useValue: documentRepo });
+container.register('InsurerRepository', { useValue: insurerRepo })
+container.register('ClaimRepository', { useValue: claimRepo })
+container.register('OccurrenceRepository', { useValue: occurrenceRepo })
+container.register('EndorsementRepository', { useValue: endorsementRepo })
+container.register('AssistanceRepository', { useValue: assistanceRepo })
+container.register('DocumentRepository', { useValue: documentRepo })
 
 // Use cases (useFactory pattern)
-container.register(CreateInsurer, { useFactory: () => new CreateInsurer(insurerRepo) });
-container.register(ListInsurers, { useFactory: () => new ListInsurers(insurerRepo) });
-container.register(GetInsurer, { useFactory: () => new GetInsurer(insurerRepo) });
-container.register(CreateClaim, { useFactory: () => new CreateClaim(claimRepo) });
-container.register(UpdateClaimStatus, { useFactory: () => new UpdateClaimStatus(claimRepo) });
-container.register(ListClaims, { useFactory: () => new ListClaims(claimRepo) });
-container.register(GetClaim, { useFactory: () => new GetClaim(claimRepo) });
-container.register(CreateOccurrence, { useFactory: () => new CreateOccurrence(occurrenceRepo) });
-container.register(ListOccurrences, { useFactory: () => new ListOccurrences(occurrenceRepo) });
-container.register(CreateEndorsement, { useFactory: () => new CreateEndorsement(endorsementRepo) });
-container.register(ListEndorsements, { useFactory: () => new ListEndorsements(endorsementRepo) });
-container.register(GetEndorsement, { useFactory: () => new GetEndorsement(endorsementRepo) });
-container.register(CreateAssistance, { useFactory: () => new CreateAssistance(assistanceRepo) });
+container.register(CreateInsurer, {
+  useFactory: () => new CreateInsurer(insurerRepo),
+})
+container.register(ListInsurers, {
+  useFactory: () => new ListInsurers(insurerRepo),
+})
+container.register(GetInsurer, {
+  useFactory: () => new GetInsurer(insurerRepo),
+})
+container.register(CreateClaim, {
+  useFactory: () => new CreateClaim(claimRepo),
+})
+container.register(UpdateClaimStatus, {
+  useFactory: () => new UpdateClaimStatus(claimRepo),
+})
+container.register(ListClaims, { useFactory: () => new ListClaims(claimRepo) })
+container.register(GetClaim, { useFactory: () => new GetClaim(claimRepo) })
+container.register(CreateOccurrence, {
+  useFactory: () => new CreateOccurrence(occurrenceRepo),
+})
+container.register(ListOccurrences, {
+  useFactory: () => new ListOccurrences(occurrenceRepo),
+})
+container.register(CreateEndorsement, {
+  useFactory: () => new CreateEndorsement(endorsementRepo),
+})
+container.register(ListEndorsements, {
+  useFactory: () => new ListEndorsements(endorsementRepo),
+})
+container.register(GetEndorsement, {
+  useFactory: () => new GetEndorsement(endorsementRepo),
+})
+container.register(CreateAssistance, {
+  useFactory: () => new CreateAssistance(assistanceRepo),
+})
 container.register(UpdateAssistanceStatus, {
   useFactory: () => new UpdateAssistanceStatus(assistanceRepo),
-});
-container.register(ListAssistances, { useFactory: () => new ListAssistances(assistanceRepo) });
-container.register(GetAssistance, { useFactory: () => new GetAssistance(assistanceRepo) });
+})
+container.register(ListAssistances, {
+  useFactory: () => new ListAssistances(assistanceRepo),
+})
+container.register(GetAssistance, {
+  useFactory: () => new GetAssistance(assistanceRepo),
+})
 container.register(UploadDocument, {
   useFactory: () => new UploadDocument(storageProvider, documentRepo),
-});
-container.register(ListDocuments, { useFactory: () => new ListDocuments(documentRepo) });
+})
+container.register(ListDocuments, {
+  useFactory: () => new ListDocuments(documentRepo),
+})
 container.register(GetDocumentUrl, {
   useFactory: () => new GetDocumentUrl(documentRepo, storageProvider),
-});
+})
 container.register(DeleteDocument, {
   useFactory: () => new DeleteDocument(documentRepo, storageProvider),
-});
+})
 ```
 
 - [ ] **Step 6: Update app.ts to register new routes**
 
 ```ts
-import { claimRoutes } from './routes/v1/claim-routes.js';
-import { endorsementRoutes } from './routes/v1/endorsement-routes.js';
-import { assistanceRoutes } from './routes/v1/assistance-routes.js';
-import { documentRoutes } from './routes/v1/document-routes.js';
-import { insurerRoutes } from './routes/v1/insurer-routes.js';
+import { claimRoutes } from './routes/v1/claim-routes.js'
+import { endorsementRoutes } from './routes/v1/endorsement-routes.js'
+import { assistanceRoutes } from './routes/v1/assistance-routes.js'
+import { documentRoutes } from './routes/v1/document-routes.js'
+import { insurerRoutes } from './routes/v1/insurer-routes.js'
 
 // Inside the authenticated app.register block:
-await authenticatedApp.register(claimRoutes);
-await authenticatedApp.register(endorsementRoutes);
-await authenticatedApp.register(assistanceRoutes);
-await authenticatedApp.register(documentRoutes);
-await authenticatedApp.register(insurerRoutes);
+await authenticatedApp.register(claimRoutes)
+await authenticatedApp.register(endorsementRoutes)
+await authenticatedApp.register(assistanceRoutes)
+await authenticatedApp.register(documentRoutes)
+await authenticatedApp.register(insurerRoutes)
 ```
 
 - [ ] **Step 7: Commit**
@@ -2229,10 +2382,10 @@ Add `create` permission for Document to COMMERCIAL role:
 
 ```ts
 // In the COMMERCIAL case, change:
-can('read', ['Policy', 'Commission', 'Claim', 'Document']);
+can('read', ['Policy', 'Commission', 'Claim', 'Document'])
 // To:
-can('read', ['Policy', 'Commission', 'Claim']);
-can(['read', 'create'], 'Document');
+can('read', ['Policy', 'Commission', 'Claim'])
+can(['read', 'create'], 'Document')
 ```
 
 - [ ] **Step 3: Add new permissions to permissions.ts**
@@ -2264,34 +2417,40 @@ export const CLAIM_STATUS_LABELS: Record<ClaimStatus, string> = {
   REJECTED: 'Rejeitado',
   PAID: 'Pago',
   COMPLETED: 'Concluído',
-};
+}
 
 export const CLAIM_PRIORITY_LABELS: Record<ClaimPriority, string> = {
   NORMAL: 'Normal',
   HIGH: 'Alta',
   URGENT: 'Urgente',
-};
+}
 
 export const CLAIM_STATUS_COLORS: Record<ClaimStatus, string> = {
-  REGISTERED: 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200',
+  REGISTERED:
+    'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200',
   IN_ANALYSIS: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  AWAITING_DOCUMENT: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
-  PENDING_INSPECTION: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+  AWAITING_DOCUMENT:
+    'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
+  PENDING_INSPECTION:
+    'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
   APPROVED: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
   REJECTED: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
   PAID: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
   COMPLETED: 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200',
-};
+}
 
 export const CLAIM_PRIORITY_COLORS: Record<ClaimPriority, string> = {
   NORMAL: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
   HIGH: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
   URGENT: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-};
+}
 
-export function formatClaimNumber(claimNumber: number, createdAt: string | Date): string {
-  const year = new Date(createdAt).getFullYear();
-  return `SIN-${year}-${String(claimNumber).padStart(4, '0')}`;
+export function formatClaimNumber(
+  claimNumber: number,
+  createdAt: string | Date
+): string {
+  const year = new Date(createdAt).getFullYear()
+  return `SIN-${year}-${String(claimNumber).padStart(4, '0')}`
 }
 ```
 
@@ -2464,7 +2623,7 @@ export const ASSISTANCE_STATUS_LABELS: Record<AssistanceStatus, string> = {
   DISPATCHED: 'Despachada',
   IN_PROGRESS: 'Em Andamento',
   COMPLETED: 'Concluída',
-};
+}
 ```
 
 - [ ] **Step 3: Create assistances-table.tsx**

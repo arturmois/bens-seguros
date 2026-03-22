@@ -4,36 +4,47 @@ import type {
   ConversationStatus,
   CursorPage,
   Page,
-} from '../types.js';
+} from '../types.js'
 
 export interface ConversationRepository {
-  findById(id: string, tenantId: string): Promise<ConversationData | null>;
+  findById(id: string, tenantId: string): Promise<ConversationData | null>
 
   findOpenByContactAndChannel(
     tenantId: string,
     contactId: string,
-    channelId: string,
-  ): Promise<ConversationData | null>;
+    channelId: string
+  ): Promise<ConversationData | null>
 
-  findMany(filters: ConversationFilters, page: CursorPage): Promise<Page<ConversationData>>;
+  findMany(
+    filters: ConversationFilters,
+    page: CursorPage
+  ): Promise<Page<ConversationData>>
 
-  create(data: ConversationData): Promise<ConversationData>;
+  create(data: ConversationData): Promise<ConversationData>
 
   updateStatus(
     id: string,
     tenantId: string,
     status: ConversationStatus,
-    fields?: Partial<ConversationData>,
-  ): Promise<ConversationData | null>;
+    fields?: Partial<ConversationData>
+  ): Promise<ConversationData | null>
 
   atomicAssign(
     id: string,
     tenantId: string,
     agentId: string,
-    agentName: string,
-  ): Promise<ConversationData | null>;
+    agentName: string
+  ): Promise<ConversationData | null>
 
-  updateLastMessage(id: string, tenantId: string, text: string, timestamp: Date): Promise<void>;
+  updateLastMessage(
+    id: string,
+    tenantId: string,
+    text: string,
+    timestamp: Date
+  ): Promise<void>
 
-  findStaleConversations(olderThan: Date, limit: number): Promise<ConversationData[]>;
+  findStaleConversations(
+    olderThan: Date,
+    limit: number
+  ): Promise<ConversationData[]>
 }

@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { PolicyDetail } from '@/features/policies/components/policy-detail';
+import { PolicyDetail } from '@/features/policies/components/policy-detail'
 
 interface PolicyDetailContentProps {
-  policyId: string;
+  policyId: string
 }
 
 export function PolicyDetailContent({ policyId }: PolicyDetailContentProps) {
-  return <PolicyDetail policyId={policyId} />;
+  return <PolicyDetail policyId={policyId} />
 }

@@ -1,24 +1,24 @@
-'use client';
+'use client'
 
-import { FileText, Shield, AlertTriangle, DollarSign } from 'lucide-react';
+import { FileText, Shield, AlertTriangle, DollarSign } from 'lucide-react'
 
-import { Card, CardPanel } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { formatCurrency } from '@/lib/formatters';
+import { Card, CardPanel } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import { formatCurrency } from '@/lib/formatters'
 
-import type { DashboardStats } from '../types';
+import type { DashboardStats } from '../types'
 
 interface StatsCardsProps {
-  data: DashboardStats | undefined;
-  isLoading: boolean;
+  data: DashboardStats | undefined
+  isLoading: boolean
 }
 
 interface StatCardProps {
-  title: string;
-  value: string | number;
-  icon: React.ReactNode;
-  badge?: { label: string; variant: 'warning' | 'info' | 'success' | 'error' };
+  title: string
+  value: string | number
+  icon: React.ReactNode
+  badge?: { label: string; variant: 'warning' | 'info' | 'success' | 'error' }
 }
 
 function StatCard({ title, value, icon, badge }: StatCardProps) {
@@ -41,7 +41,7 @@ function StatCard({ title, value, icon, badge }: StatCardProps) {
         </div>
       </CardPanel>
     </Card>
-  );
+  )
 }
 
 function StatCardSkeleton() {
@@ -55,7 +55,7 @@ function StatCardSkeleton() {
         </div>
       </CardPanel>
     </Card>
-  );
+  )
 }
 
 export function StatsCards({ data, isLoading }: StatsCardsProps) {
@@ -67,16 +67,21 @@ export function StatsCards({ data, isLoading }: StatsCardsProps) {
         <StatCardSkeleton />
         <StatCardSkeleton />
       </div>
-    );
+    )
   }
 
-  if (!data) return null;
+  if (!data) return null
 
-  const activeProposals = data.proposalsByStage.reduce((sum, s) => sum + s._count, 0);
-  const openClaims = data.claimsByPriority.reduce((sum, c) => sum + c._count, 0);
+  const activeProposals = data.proposalsByStage.reduce(
+    (sum, s) => sum + s._count,
+    0
+  )
+  const openClaims = data.claimsByPriority.reduce((sum, c) => sum + c._count, 0)
   const pendingCommissions = data.commissionsThisMonth
-    .filter((c) => c.status === 'PENDING_COMMERCIAL' || c.status === 'PENDING_ADMIN')
-    .reduce((sum, c) => sum + (c._sum.commissionValueInCents ?? 0), 0);
+    .filter(
+      (c) => c.status === 'PENDING_COMMERCIAL' || c.status === 'PENDING_ADMIN'
+    )
+    .reduce((sum, c) => sum + (c._sum.commissionValueInCents ?? 0), 0)
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -91,7 +96,10 @@ export function StatsCards({ data, isLoading }: StatsCardsProps) {
         icon={<Shield className="size-5" />}
         badge={
           data.expiringPolicies > 0
-            ? { label: `${data.expiringPolicies} expirando`, variant: 'warning' }
+            ? {
+                label: `${data.expiringPolicies} expirando`,
+                variant: 'warning',
+              }
             : undefined
         }
       />
@@ -106,5 +114,5 @@ export function StatsCards({ data, isLoading }: StatsCardsProps) {
         icon={<DollarSign className="size-5" />}
       />
     </div>
-  );
+  )
 }

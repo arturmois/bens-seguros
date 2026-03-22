@@ -1,10 +1,14 @@
-'use client';
+'use client'
 
-import { Separator } from '@/components/ui/separator';
+import { Separator } from '@/components/ui/separator'
 
-import { useUpdateProposalDetails } from '../hooks/use-proposals';
-import type { InsuranceBranch, InsuredObjectDetails, ProposalData } from '../types';
-import { BranchFields } from './branch-fields';
+import { useUpdateProposalDetails } from '../hooks/use-proposals'
+import type {
+  InsuranceBranch,
+  InsuredObjectDetails,
+  ProposalData,
+} from '../types'
+import { BranchFields } from './branch-fields'
 
 const BRANCH_SECTION_TITLES: Record<InsuranceBranch, string> = {
   AUTO: 'Dados do Veículo',
@@ -13,37 +17,39 @@ const BRANCH_SECTION_TITLES: Record<InsuranceBranch, string> = {
   BUSINESS: 'Dados do Estabelecimento',
   LIFE: 'Dados do Segurado',
   OTHER: 'Dados Gerais',
-};
+}
 
 interface InsuredObjectSectionProps {
-  readonly proposal: ProposalData;
+  readonly proposal: ProposalData
 }
 
 export function InsuredObjectSection({ proposal }: InsuredObjectSectionProps) {
-  const updateMutation = useUpdateProposalDetails();
+  const updateMutation = useUpdateProposalDetails()
 
   if (proposal.stage === 'CAPTURE') {
-    return null;
+    return null
   }
 
   function handleSubmit(data: {
-    details: InsuredObjectDetails;
-    premiumValueInCents: number;
-    commissionBasisPoints: number;
+    details: InsuredObjectDetails
+    premiumValueInCents: number
+    commissionBasisPoints: number
   }) {
     updateMutation.mutate({
       id: proposal.id,
       details: data.details,
       premiumValueInCents: data.premiumValueInCents,
       commissionBasisPoints: data.commissionBasisPoints,
-    });
+    })
   }
 
   return (
     <>
       <Separator />
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">{BRANCH_SECTION_TITLES[proposal.branch]}</h3>
+        <h3 className="text-lg font-semibold">
+          {BRANCH_SECTION_TITLES[proposal.branch]}
+        </h3>
         <BranchFields
           branch={proposal.branch}
           defaultValues={proposal.details}
@@ -54,5 +60,5 @@ export function InsuredObjectSection({ proposal }: InsuredObjectSectionProps) {
         />
       </div>
     </>
-  );
+  )
 }

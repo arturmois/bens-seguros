@@ -1,27 +1,27 @@
-import type { JsonValue } from '../../policy/domain/policy-repository.js';
+import type { JsonValue } from '../../policy/domain/policy-repository.js'
 
-export type JsonObject = { [key: string]: JsonValue };
+export type JsonObject = { [key: string]: JsonValue }
 
 export interface OccurrenceData {
-  id: string;
-  claimId: string;
-  type: string;
-  description: string;
-  metadata: JsonObject | null;
-  createdBy: string | null;
-  createdAt: Date;
-  createdByName?: string;
+  id: string
+  claimId: string
+  type: string
+  description: string
+  metadata: JsonObject | null
+  createdBy: string | null
+  createdAt: Date
+  createdByName?: string
 }
 
 export interface CreateOccurrenceInput {
-  claimId: string;
-  type: string;
-  description: string;
-  metadata?: JsonObject;
-  createdBy?: string;
+  claimId: string
+  type: string
+  description: string
+  metadata?: JsonObject
+  createdBy?: string
 }
 
 export interface OccurrenceRepository {
-  create(data: CreateOccurrenceInput): Promise<OccurrenceData>;
-  findByClaimId(claimId: string): Promise<OccurrenceData[]>;
+  create(data: CreateOccurrenceInput): Promise<OccurrenceData>
+  findByClaimId(claimId: string): Promise<OccurrenceData[]>
 }

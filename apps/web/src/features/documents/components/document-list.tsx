@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { ExternalLink, File, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState } from 'react'
+import { ExternalLink, File, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
   AlertDialogClose,
@@ -13,38 +13,41 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Skeleton } from '@/components/ui/skeleton';
+} from '@/components/ui/alert-dialog'
+import { Skeleton } from '@/components/ui/skeleton'
 
-import { api } from '@/lib/api-client';
+import { api } from '@/lib/api-client'
 
-import type { DocumentData, DocumentEntityType } from '../types';
-import { useDeleteDocument, useDocuments } from '../hooks/use-documents';
-import { DocumentTypeBadge } from './document-type-badge';
+import type { DocumentData, DocumentEntityType } from '../types'
+import { useDeleteDocument, useDocuments } from '../hooks/use-documents'
+import { DocumentTypeBadge } from './document-type-badge'
 
 interface DocumentListProps {
-  readonly entityType: DocumentEntityType;
-  readonly entityId: string;
+  readonly entityType: DocumentEntityType
+  readonly entityId: string
 }
 
 function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${String(bytes)} B`;
-  if (bytes < 1024 * 1024) return `${String(Math.round(bytes / 1024))} KB`;
-  return `${String((bytes / (1024 * 1024)).toFixed(1))} MB`;
+  if (bytes < 1024) return `${String(bytes)} B`
+  if (bytes < 1024 * 1024) return `${String(Math.round(bytes / 1024))} KB`
+  return `${String((bytes / (1024 * 1024)).toFixed(1))} MB`
 }
 
 function formatDate(dateStr: string): string {
   return new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
     timeZone: 'America/Sao_Paulo',
-  }).format(new Date(dateStr));
+  }).format(new Date(dateStr))
 }
 
 export function DocumentList({ entityType, entityId }: DocumentListProps) {
-  const { data, isLoading, isError, refetch } = useDocuments(entityType, entityId);
-  const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
+  const { data, isLoading, isError, refetch } = useDocuments(
+    entityType,
+    entityId
+  )
+  const [deletingDocId, setDeletingDocId] = useState<string | null>(null)
 
-  if (isLoading) return <DocumentListSkeleton />;
+  if (isLoading) return <DocumentListSkeleton />
 
   if (isError) {
     return (
@@ -54,44 +57,50 @@ export function DocumentList({ entityType, entityId }: DocumentListProps) {
           Tentar novamente
         </Button>
       </div>
-    );
+    )
   }
 
   if (!data || data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-8">
         <File className="text-muted-foreground size-10" />
-        <p className="text-muted-foreground text-sm">Nenhum documento anexado</p>
+        <p className="text-muted-foreground text-sm">
+          Nenhum documento anexado
+        </p>
       </div>
-    );
+    )
   }
 
   return (
     <>
       <div className="divide-y rounded-md border">
         {data.map((doc) => (
-          <DocumentRow key={doc.id} document={doc} onDelete={() => setDeletingDocId(doc.id)} />
+          <DocumentRow
+            key={doc.id}
+            document={doc}
+            onDelete={() => setDeletingDocId(doc.id)}
+          />
         ))}
       </div>
 
       <DeleteDocumentDialog
         open={deletingDocId !== null}
         onOpenChange={(open) => {
-          if (!open) setDeletingDocId(null);
+          if (!open) setDeletingDocId(null)
         }}
         documentId={deletingDocId}
         onDeleted={() => setDeletingDocId(null)}
       />
     </>
-  );
+  )
 }
 
 function DocumentRow({
   document,
   onDelete,
 }: {
-  readonly document: DocumentData;
-  readonly onDelete: () => void;
+  readonly document: DocumentData
+  readonly onDelete: () => void
 }) {
   return (
     <div className="flex items-center gap-3 px-4 py-3">
@@ -104,12 +113,17 @@ function DocumentRow({
           <span className="text-muted-foreground text-xs">
             {formatFileSize(document.sizeBytes)}
           </span>
-          <span className="text-muted-foreground text-xs">{formatDate(document.createdAt)}</span>
+          <span className="text-muted-foreground text-xs">
+            {formatDate(document.createdAt)}
+          </span>
         </div>
       </div>
 
       <div className="flex shrink-0 items-center gap-1">
-        <OpenDocumentButton documentId={document.id} fileName={document.fileName} />
+        <OpenDocumentButton
+          documentId={document.id}
+          fileName={document.fileName}
+        />
         <Button
           variant="ghost"
           size="sm"
@@ -120,27 +134,29 @@ function DocumentRow({
         </Button>
       </div>
     </div>
-  );
+  )
 }
 
 function OpenDocumentButton({
   documentId,
   fileName,
 }: {
-  readonly documentId: string;
-  readonly fileName: string;
+  readonly documentId: string
+  readonly fileName: string
 }) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
 
   async function handleOpen() {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      const response = await api.get<{ url: string }>(`/api/v1/documents/${documentId}/url`);
-      window.open(response.data.url, '_blank', 'noopener');
+      const response = await api.get<{ url: string }>(
+        `/api/v1/documents/${documentId}/url`
+      )
+      window.open(response.data.url, '_blank', 'noopener')
     } catch {
-      toast.error('Erro ao abrir documento');
+      toast.error('Erro ao abrir documento')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
 
@@ -154,7 +170,7 @@ function OpenDocumentButton({
     >
       <ExternalLink className="size-4" />
     </Button>
-  );
+  )
 }
 
 function DeleteDocumentDialog({
@@ -163,16 +179,16 @@ function DeleteDocumentDialog({
   documentId,
   onDeleted,
 }: {
-  readonly open: boolean;
-  readonly onOpenChange: (open: boolean) => void;
-  readonly documentId: string | null;
-  readonly onDeleted: () => void;
+  readonly open: boolean
+  readonly onOpenChange: (open: boolean) => void
+  readonly documentId: string | null
+  readonly onDeleted: () => void
 }) {
-  const deleteDocument = useDeleteDocument();
+  const deleteDocument = useDeleteDocument()
 
   function handleConfirm() {
-    if (!documentId) return;
-    deleteDocument.mutate(documentId, { onSuccess: onDeleted });
+    if (!documentId) return
+    deleteDocument.mutate(documentId, { onSuccess: onDeleted })
   }
 
   return (
@@ -181,7 +197,8 @@ function DeleteDocumentDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Excluir documento</AlertDialogTitle>
           <AlertDialogDescription>
-            Tem certeza que deseja excluir este documento? Esta acao nao pode ser desfeita.
+            Tem certeza que deseja excluir este documento? Esta acao nao pode
+            ser desfeita.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -192,20 +209,27 @@ function DeleteDocumentDialog({
               </Button>
             }
           />
-          <Button variant="destructive" onClick={handleConfirm} disabled={deleteDocument.isPending}>
+          <Button
+            variant="destructive"
+            onClick={handleConfirm}
+            disabled={deleteDocument.isPending}
+          >
             {deleteDocument.isPending ? 'Excluindo...' : 'Excluir'}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
+  )
 }
 
 function DocumentListSkeleton() {
   return (
     <div className="divide-y rounded-md border">
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={`doc-skel-${String(i)}`} className="flex items-center gap-3 px-4 py-3">
+        <div
+          key={`doc-skel-${String(i)}`}
+          className="flex items-center gap-3 px-4 py-3"
+        >
           <Skeleton className="size-5 shrink-0" />
           <div className="flex-1 space-y-2">
             <Skeleton className="h-4 w-48" />
@@ -215,5 +239,5 @@ function DocumentListSkeleton() {
         </div>
       ))}
     </div>
-  );
+  )
 }

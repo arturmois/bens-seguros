@@ -154,11 +154,11 @@ apps/web/src/app/(dashboard)/chat/
 
 ```ts
 // packages/db-chat/src/models/channel.model.ts
-import mongoose, { type InferSchemaType, Schema } from 'mongoose';
+import mongoose, { type InferSchemaType, Schema } from 'mongoose'
 
-const CHANNEL_TYPES = ['WHATSAPP', 'WEB'] as const;
-const BROKER_TYPES = ['BAILEYS', 'META'] as const;
-const CHANNEL_STATUSES = ['CONNECTED', 'DISCONNECTED', 'QR_PENDING'] as const;
+const CHANNEL_TYPES = ['WHATSAPP', 'WEB'] as const
+const BROKER_TYPES = ['BAILEYS', 'META'] as const
+const CHANNEL_STATUSES = ['CONNECTED', 'DISCONNECTED', 'QR_PENDING'] as const
 
 const channelSchema = new Schema(
   {
@@ -173,27 +173,29 @@ const channelSchema = new Schema(
     aiUserId: String, // if set, new conversations start as BOT_ACTIVE
     config: { type: Schema.Types.Mixed, default: {} },
   },
-  { timestamps: true },
-);
+  { timestamps: true }
+)
 
-channelSchema.index({ tenantId: 1, type: 1 });
+channelSchema.index({ tenantId: 1, type: 1 })
 
-export type ChannelDocument = InferSchemaType<typeof channelSchema> & { _id: string };
-export const Channel = mongoose.model('Channel', channelSchema);
+export type ChannelDocument = InferSchemaType<typeof channelSchema> & {
+  _id: string
+}
+export const Channel = mongoose.model('Channel', channelSchema)
 ```
 
 - [ ] **Step 2: Create Conversation model**
 
 ```ts
 // packages/db-chat/src/models/conversation.model.ts
-import mongoose, { type InferSchemaType, Schema } from 'mongoose';
+import mongoose, { type InferSchemaType, Schema } from 'mongoose'
 
 export const CONVERSATION_STATUSES = [
   'BOT_ACTIVE',
   'WAITING_HUMAN',
   'HUMAN_ACTIVE',
   'CLOSED',
-] as const;
+] as const
 
 const conversationSchema = new Schema(
   {
@@ -214,15 +216,17 @@ const conversationSchema = new Schema(
     closedAt: Date,
     closedBy: String,
   },
-  { timestamps: true },
-);
+  { timestamps: true }
+)
 
-conversationSchema.index({ tenantId: 1, status: 1 });
-conversationSchema.index({ tenantId: 1, contactId: 1, channelId: 1, status: 1 });
-conversationSchema.index({ tenantId: 1, updatedAt: -1 });
+conversationSchema.index({ tenantId: 1, status: 1 })
+conversationSchema.index({ tenantId: 1, contactId: 1, channelId: 1, status: 1 })
+conversationSchema.index({ tenantId: 1, updatedAt: -1 })
 
-export type ConversationDocument = InferSchemaType<typeof conversationSchema> & { _id: string };
-export const Conversation = mongoose.model('Conversation', conversationSchema);
+export type ConversationDocument = InferSchemaType<
+  typeof conversationSchema
+> & { _id: string }
+export const Conversation = mongoose.model('Conversation', conversationSchema)
 ```
 
 Note: unique index changed to `(tenantId, contactId, channelId, status)` — same contact+channel can have multiple conversations (closed ones), uniqueness is per-open-conversation enforced at app level via `findOneAndUpdate`.
@@ -231,11 +235,24 @@ Note: unique index changed to `(tenantId, contactId, channelId, status)` — sam
 
 ```ts
 // packages/db-chat/src/models/message.model.ts
-import mongoose, { type InferSchemaType, Schema } from 'mongoose';
+import mongoose, { type InferSchemaType, Schema } from 'mongoose'
 
-const SENDER_TYPES = ['CLIENT', 'AGENT', 'BOT', 'SYSTEM'] as const;
-const MESSAGE_TYPES = ['TEXT', 'IMAGE', 'AUDIO', 'VIDEO', 'DOCUMENT', 'OTHER'] as const;
-const MESSAGE_STATUSES = ['PENDING', 'SENT', 'DELIVERED', 'READ', 'FAILED'] as const;
+const SENDER_TYPES = ['CLIENT', 'AGENT', 'BOT', 'SYSTEM'] as const
+const MESSAGE_TYPES = [
+  'TEXT',
+  'IMAGE',
+  'AUDIO',
+  'VIDEO',
+  'DOCUMENT',
+  'OTHER',
+] as const
+const MESSAGE_STATUSES = [
+  'PENDING',
+  'SENT',
+  'DELIVERED',
+  'READ',
+  'FAILED',
+] as const
 
 const messageSchema = new Schema(
   {
@@ -252,22 +269,27 @@ const messageSchema = new Schema(
     metadata: Schema.Types.Mixed,
     externalId: String, // WhatsApp message ID for dedup
   },
-  { timestamps: { createdAt: true, updatedAt: false } },
-);
+  { timestamps: { createdAt: true, updatedAt: false } }
+)
 
-messageSchema.index({ tenantId: 1, createdAt: 1 }, { expireAfterSeconds: 730 * 24 * 60 * 60 }); // 730 days TTL
-messageSchema.index({ conversationId: 1, createdAt: -1 });
-messageSchema.index({ externalId: 1 }, { sparse: true }); // dedup index
+messageSchema.index(
+  { tenantId: 1, createdAt: 1 },
+  { expireAfterSeconds: 730 * 24 * 60 * 60 }
+) // 730 days TTL
+messageSchema.index({ conversationId: 1, createdAt: -1 })
+messageSchema.index({ externalId: 1 }, { sparse: true }) // dedup index
 
-export type MessageDocument = InferSchemaType<typeof messageSchema> & { _id: string };
-export const Message = mongoose.model('Message', messageSchema);
+export type MessageDocument = InferSchemaType<typeof messageSchema> & {
+  _id: string
+}
+export const Message = mongoose.model('Message', messageSchema)
 ```
 
 - [ ] **Step 4: Create Contact model**
 
 ```ts
 // packages/db-chat/src/models/contact.model.ts
-import mongoose, { type InferSchemaType, Schema } from 'mongoose';
+import mongoose, { type InferSchemaType, Schema } from 'mongoose'
 
 const contactSchema = new Schema(
   {
@@ -277,20 +299,22 @@ const contactSchema = new Schema(
     profilePicUrl: String,
     clientId: String, // link to PostgreSQL Client (future: lead capture)
   },
-  { timestamps: true },
-);
+  { timestamps: true }
+)
 
-contactSchema.index({ tenantId: 1, whatsappPhone: 1 }, { unique: true });
+contactSchema.index({ tenantId: 1, whatsappPhone: 1 }, { unique: true })
 
-export type ContactDocument = InferSchemaType<typeof contactSchema> & { _id: string };
-export const Contact = mongoose.model('Contact', contactSchema);
+export type ContactDocument = InferSchemaType<typeof contactSchema> & {
+  _id: string
+}
+export const Contact = mongoose.model('Contact', contactSchema)
 ```
 
 - [ ] **Step 5: Create UnreadCount, BaileysAuthState, AiAgent models**
 
 ```ts
 // packages/db-chat/src/models/unread-count.model.ts
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose'
 
 const unreadCountSchema = new Schema({
   tenantId: { type: String, required: true },
@@ -298,32 +322,41 @@ const unreadCountSchema = new Schema({
   userId: { type: String, required: true },
   count: { type: Number, default: 0 },
   lastReadAt: Date,
-});
+})
 
-unreadCountSchema.index({ tenantId: 1, conversationId: 1, userId: 1 }, { unique: true });
+unreadCountSchema.index(
+  { tenantId: 1, conversationId: 1, userId: 1 },
+  { unique: true }
+)
 
-export const UnreadCount = mongoose.model('UnreadCount', unreadCountSchema);
+export const UnreadCount = mongoose.model('UnreadCount', unreadCountSchema)
 ```
 
 ```ts
 // packages/db-chat/src/models/baileys-auth-state.model.ts
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose'
 
 const baileysAuthStateSchema = new Schema({
   tenantId: { type: String, required: true },
   channelId: { type: String, required: true },
   key: { type: String, required: true },
   value: Schema.Types.Mixed,
-});
+})
 
-baileysAuthStateSchema.index({ tenantId: 1, channelId: 1, key: 1 }, { unique: true });
+baileysAuthStateSchema.index(
+  { tenantId: 1, channelId: 1, key: 1 },
+  { unique: true }
+)
 
-export const BaileysAuthState = mongoose.model('BaileysAuthState', baileysAuthStateSchema);
+export const BaileysAuthState = mongoose.model(
+  'BaileysAuthState',
+  baileysAuthStateSchema
+)
 ```
 
 ```ts
 // packages/db-chat/src/models/ai-agent.model.ts
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose'
 
 // Stub: config model for future AI bot (Fase 6)
 const aiAgentSchema = new Schema(
@@ -341,31 +374,31 @@ const aiAgentSchema = new Schema(
     maxResponsesPerConversation: { type: Number, default: 20 },
     isActive: { type: Boolean, default: false }, // stub: always false
   },
-  { timestamps: true },
-);
+  { timestamps: true }
+)
 
-aiAgentSchema.index({ tenantId: 1, channelId: 1 }, { unique: true });
+aiAgentSchema.index({ tenantId: 1, channelId: 1 }, { unique: true })
 
-export const AiAgent = mongoose.model('AiAgent', aiAgentSchema);
+export const AiAgent = mongoose.model('AiAgent', aiAgentSchema)
 ```
 
 - [ ] **Step 6: Export all from index.ts**
 
 ```ts
 // packages/db-chat/src/index.ts
-export { connectMongoDB, disconnectMongoDB } from './connection.js';
+export { connectMongoDB, disconnectMongoDB } from './connection.js'
 
-export { Channel, type ChannelDocument } from './models/channel.model.js';
+export { Channel, type ChannelDocument } from './models/channel.model.js'
 export {
   Conversation,
   CONVERSATION_STATUSES,
   type ConversationDocument,
-} from './models/conversation.model.js';
-export { Message, type MessageDocument } from './models/message.model.js';
-export { Contact, type ContactDocument } from './models/contact.model.js';
-export { UnreadCount } from './models/unread-count.model.js';
-export { BaileysAuthState } from './models/baileys-auth-state.model.js';
-export { AiAgent } from './models/ai-agent.model.js';
+} from './models/conversation.model.js'
+export { Message, type MessageDocument } from './models/message.model.js'
+export { Contact, type ContactDocument } from './models/contact.model.js'
+export { UnreadCount } from './models/unread-count.model.js'
+export { BaileysAuthState } from './models/baileys-auth-state.model.js'
+export { AiAgent } from './models/ai-agent.model.js'
 ```
 
 - [ ] **Step 7: Commit**
@@ -425,9 +458,9 @@ export const SOCKET_EVENTS = {
 
   // Notifications (Fase 6)
   NOTIFICATION: 'notification',
-} as const;
+} as const
 
-export type SocketEvent = (typeof SOCKET_EVENTS)[keyof typeof SOCKET_EVENTS];
+export type SocketEvent = (typeof SOCKET_EVENTS)[keyof typeof SOCKET_EVENTS]
 ```
 
 - [ ] **Step 2: Create chat constants**
@@ -440,7 +473,7 @@ export const CHAT_QUEUES = {
   AI_BOT: 'chat-ai-bot',
   AUTO_CLOSE: 'chat-auto-close',
   DEAD_LETTER: 'chat-dead-letter',
-} as const;
+} as const
 
 export const CHAT_LIMITS = {
   MAX_CONVERSATIONS_PER_ORG: 50,
@@ -457,7 +490,7 @@ export const CHAT_LIMITS = {
   TYPING_TIMEOUT_MS: 5_000,
   UNASSIGNED_NOTIFY_TIMEOUT_MS: 300_000, // 5 min
   MAX_AI_RESPONSES_PER_CONVERSATION: 20,
-} as const;
+} as const
 
 export const CHAT_PUBSUB_CHANNELS = {
   INCOMING_MESSAGE: 'chat:pub:incoming-message',
@@ -465,7 +498,7 @@ export const CHAT_PUBSUB_CHANNELS = {
   CHANNEL_STATUS: 'chat:pub:channel-status',
   CONVERSATION_UPDATE: 'chat:pub:conversation-update',
   UNREAD_UPDATE: 'chat:pub:unread-update',
-} as const;
+} as const
 ```
 
 - [ ] **Step 3: Update shared index.ts exports**
@@ -473,7 +506,11 @@ export const CHAT_PUBSUB_CHANNELS = {
 Add to `packages/shared/src/index.ts`:
 
 ```ts
-export { CHAT_QUEUES, CHAT_LIMITS, CHAT_PUBSUB_CHANNELS } from './chat-constants.js';
+export {
+  CHAT_QUEUES,
+  CHAT_LIMITS,
+  CHAT_PUBSUB_CHANNELS,
+} from './chat-constants.js'
 ```
 
 - [ ] **Step 4: Commit**
@@ -503,94 +540,104 @@ git commit -m "feat(chat): update socket events and add chat constants (queues, 
 
 ```ts
 // apps/chat-server/src/domain/types.ts
-export type ConversationStatus = 'BOT_ACTIVE' | 'WAITING_HUMAN' | 'HUMAN_ACTIVE' | 'CLOSED';
-export type SenderType = 'CLIENT' | 'AGENT' | 'BOT' | 'SYSTEM';
-export type MessageType = 'TEXT' | 'IMAGE' | 'AUDIO' | 'VIDEO' | 'DOCUMENT' | 'OTHER';
-export type MessageStatus = 'PENDING' | 'SENT' | 'DELIVERED' | 'READ' | 'FAILED';
-export type ChannelType = 'WHATSAPP' | 'WEB';
-export type BrokerType = 'BAILEYS' | 'META';
-export type ChannelStatus = 'CONNECTED' | 'DISCONNECTED' | 'QR_PENDING';
+export type ConversationStatus =
+  | 'BOT_ACTIVE'
+  | 'WAITING_HUMAN'
+  | 'HUMAN_ACTIVE'
+  | 'CLOSED'
+export type SenderType = 'CLIENT' | 'AGENT' | 'BOT' | 'SYSTEM'
+export type MessageType =
+  | 'TEXT'
+  | 'IMAGE'
+  | 'AUDIO'
+  | 'VIDEO'
+  | 'DOCUMENT'
+  | 'OTHER'
+export type MessageStatus = 'PENDING' | 'SENT' | 'DELIVERED' | 'READ' | 'FAILED'
+export type ChannelType = 'WHATSAPP' | 'WEB'
+export type BrokerType = 'BAILEYS' | 'META'
+export type ChannelStatus = 'CONNECTED' | 'DISCONNECTED' | 'QR_PENDING'
 
 export interface ConversationData {
-  readonly id: string;
-  readonly tenantId: string;
-  readonly channelId: string;
-  readonly contactId: string;
-  readonly status: ConversationStatus;
-  readonly assignedTo: string | null;
-  readonly assignedToName: string | null;
-  readonly subject: string | null;
-  readonly lastMessageText: string | null;
-  readonly lastMessageAt: Date | null;
-  readonly whatsappPhone: string | null;
-  readonly closedAt: Date | null;
-  readonly closedBy: string | null;
-  readonly createdAt: Date;
-  readonly updatedAt: Date;
+  readonly id: string
+  readonly tenantId: string
+  readonly channelId: string
+  readonly contactId: string
+  readonly status: ConversationStatus
+  readonly assignedTo: string | null
+  readonly assignedToName: string | null
+  readonly subject: string | null
+  readonly lastMessageText: string | null
+  readonly lastMessageAt: Date | null
+  readonly whatsappPhone: string | null
+  readonly closedAt: Date | null
+  readonly closedBy: string | null
+  readonly createdAt: Date
+  readonly updatedAt: Date
 }
 
 export interface MessageData {
-  readonly id: string;
-  readonly conversationId: string;
-  readonly tenantId: string;
-  readonly senderType: SenderType;
-  readonly senderName: string | null;
-  readonly senderId: string | null;
-  readonly text: string | null;
-  readonly type: MessageType;
-  readonly mediaUrl: string | null;
-  readonly mediaKey: string | null;
-  readonly status: MessageStatus;
-  readonly metadata: Record<string, unknown> | null;
-  readonly externalId: string | null;
-  readonly createdAt: Date;
+  readonly id: string
+  readonly conversationId: string
+  readonly tenantId: string
+  readonly senderType: SenderType
+  readonly senderName: string | null
+  readonly senderId: string | null
+  readonly text: string | null
+  readonly type: MessageType
+  readonly mediaUrl: string | null
+  readonly mediaKey: string | null
+  readonly status: MessageStatus
+  readonly metadata: Record<string, unknown> | null
+  readonly externalId: string | null
+  readonly createdAt: Date
 }
 
 export interface ContactData {
-  readonly id: string;
-  readonly tenantId: string;
-  readonly whatsappPhone: string;
-  readonly pushName: string | null;
-  readonly profilePicUrl: string | null;
-  readonly clientId: string | null;
-  readonly createdAt: Date;
-  readonly updatedAt: Date;
+  readonly id: string
+  readonly tenantId: string
+  readonly whatsappPhone: string
+  readonly pushName: string | null
+  readonly profilePicUrl: string | null
+  readonly clientId: string | null
+  readonly createdAt: Date
+  readonly updatedAt: Date
 }
 
 export interface ChannelData {
-  readonly id: string;
-  readonly tenantId: string;
-  readonly name: string;
-  readonly type: ChannelType;
-  readonly brokerType: BrokerType;
-  readonly phoneNumber: string | null;
-  readonly isActive: boolean;
-  readonly status: ChannelStatus;
-  readonly lastConnectedAt: Date | null;
-  readonly aiUserId: string | null;
-  readonly config: Record<string, unknown>;
-  readonly createdAt: Date;
-  readonly updatedAt: Date;
+  readonly id: string
+  readonly tenantId: string
+  readonly name: string
+  readonly type: ChannelType
+  readonly brokerType: BrokerType
+  readonly phoneNumber: string | null
+  readonly isActive: boolean
+  readonly status: ChannelStatus
+  readonly lastConnectedAt: Date | null
+  readonly aiUserId: string | null
+  readonly config: Record<string, unknown>
+  readonly createdAt: Date
+  readonly updatedAt: Date
 }
 
 export interface CursorPage {
-  readonly cursor?: string;
-  readonly limit: number;
+  readonly cursor?: string
+  readonly limit: number
 }
 
 export interface Page<TData> {
-  readonly data: TData[];
+  readonly data: TData[]
   readonly meta: {
-    readonly total: number;
-    readonly nextCursor: string | null;
-  };
+    readonly total: number
+    readonly nextCursor: string | null
+  }
 }
 
 export interface ConversationFilters {
-  readonly tenantId: string;
-  readonly status?: ConversationStatus;
-  readonly assignedTo?: string;
-  readonly search?: string;
+  readonly tenantId: string
+  readonly status?: ConversationStatus
+  readonly assignedTo?: string
+  readonly search?: string
 }
 ```
 
@@ -599,42 +646,42 @@ export interface ConversationFilters {
 ```ts
 // apps/chat-server/src/domain/errors.ts
 export class ConversationNotFoundError extends Error {
-  readonly code = 'CONVERSATION_NOT_FOUND' as const;
+  readonly code = 'CONVERSATION_NOT_FOUND' as const
   constructor(id: string) {
-    super(`Conversa ${id} nao encontrada`);
-    this.name = 'ConversationNotFoundError';
+    super(`Conversa ${id} nao encontrada`)
+    this.name = 'ConversationNotFoundError'
   }
 }
 
 export class InvalidConversationTransitionError extends Error {
-  readonly code = 'INVALID_CONVERSATION_TRANSITION' as const;
+  readonly code = 'INVALID_CONVERSATION_TRANSITION' as const
   constructor(from: string, action: string) {
-    super(`Nao e possivel ${action} a partir do status ${from}`);
-    this.name = 'InvalidConversationTransitionError';
+    super(`Nao e possivel ${action} a partir do status ${from}`)
+    this.name = 'InvalidConversationTransitionError'
   }
 }
 
 export class ConversationAlreadyAssignedError extends Error {
-  readonly code = 'CONVERSATION_ALREADY_ASSIGNED' as const;
+  readonly code = 'CONVERSATION_ALREADY_ASSIGNED' as const
   constructor() {
-    super('Conversa ja esta atribuida a outro agente');
-    this.name = 'ConversationAlreadyAssignedError';
+    super('Conversa ja esta atribuida a outro agente')
+    this.name = 'ConversationAlreadyAssignedError'
   }
 }
 
 export class ContactNotFoundError extends Error {
-  readonly code = 'CONTACT_NOT_FOUND' as const;
+  readonly code = 'CONTACT_NOT_FOUND' as const
   constructor(id: string) {
-    super(`Contato ${id} nao encontrado`);
-    this.name = 'ContactNotFoundError';
+    super(`Contato ${id} nao encontrado`)
+    this.name = 'ContactNotFoundError'
   }
 }
 
 export class ChannelNotFoundError extends Error {
-  readonly code = 'CHANNEL_NOT_FOUND' as const;
+  readonly code = 'CHANNEL_NOT_FOUND' as const
   constructor(id: string) {
-    super(`Canal ${id} nao encontrado`);
-    this.name = 'ChannelNotFoundError';
+    super(`Canal ${id} nao encontrado`)
+    this.name = 'ChannelNotFoundError'
   }
 }
 
@@ -645,7 +692,7 @@ export const ChatErrors = {
   alreadyAssigned: () => new ConversationAlreadyAssignedError(),
   contactNotFound: (id: string) => new ContactNotFoundError(id),
   channelNotFound: (id: string) => new ChannelNotFoundError(id),
-};
+}
 ```
 
 - [ ] **Step 3: Create repository ports**
@@ -658,60 +705,83 @@ import type {
   ConversationStatus,
   CursorPage,
   Page,
-} from '../types.js';
+} from '../types.js'
 
 export interface ConversationRepository {
-  findById(id: string, tenantId: string): Promise<ConversationData | null>;
+  findById(id: string, tenantId: string): Promise<ConversationData | null>
   findOpenByContactAndChannel(
     tenantId: string,
     contactId: string,
-    channelId: string,
-  ): Promise<ConversationData | null>;
-  findMany(filters: ConversationFilters, page: CursorPage): Promise<Page<ConversationData>>;
-  create(data: Omit<ConversationData, 'id' | 'createdAt' | 'updatedAt'>): Promise<ConversationData>;
+    channelId: string
+  ): Promise<ConversationData | null>
+  findMany(
+    filters: ConversationFilters,
+    page: CursorPage
+  ): Promise<Page<ConversationData>>
+  create(
+    data: Omit<ConversationData, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<ConversationData>
   updateStatus(
     id: string,
     tenantId: string,
     status: ConversationStatus,
-    fields?: Partial<ConversationData>,
-  ): Promise<ConversationData | null>;
+    fields?: Partial<ConversationData>
+  ): Promise<ConversationData | null>
   atomicAssign(
     id: string,
     tenantId: string,
     agentId: string,
-    agentName: string,
-  ): Promise<ConversationData | null>;
-  updateLastMessage(id: string, tenantId: string, text: string, timestamp: Date): Promise<void>;
-  findStaleConversations(olderThan: Date, limit: number): Promise<ConversationData[]>; // cross-tenant by design: system auto-close job
+    agentName: string
+  ): Promise<ConversationData | null>
+  updateLastMessage(
+    id: string,
+    tenantId: string,
+    text: string,
+    timestamp: Date
+  ): Promise<void>
+  findStaleConversations(
+    olderThan: Date,
+    limit: number
+  ): Promise<ConversationData[]> // cross-tenant by design: system auto-close job
 }
 ```
 
 ```ts
 // apps/chat-server/src/domain/ports/message-repository.ts
-import type { CursorPage, MessageData, MessageStatus, Page } from '../types.js';
+import type { CursorPage, MessageData, MessageStatus, Page } from '../types.js'
 
 export interface MessageRepository {
-  create(data: Omit<MessageData, 'id' | 'createdAt'>): Promise<MessageData>;
-  findByConversation(conversationId: string, page: CursorPage): Promise<Page<MessageData>>;
-  findByExternalId(externalId: string): Promise<MessageData | null>;
-  updateStatus(id: string, status: MessageStatus): Promise<void>;
-  findAfterTimestamp(conversationIds: string[], after: Date, limit: number): Promise<MessageData[]>;
+  create(data: Omit<MessageData, 'id' | 'createdAt'>): Promise<MessageData>
+  findByConversation(
+    conversationId: string,
+    page: CursorPage
+  ): Promise<Page<MessageData>>
+  findByExternalId(externalId: string): Promise<MessageData | null>
+  updateStatus(id: string, status: MessageStatus): Promise<void>
+  findAfterTimestamp(
+    conversationIds: string[],
+    after: Date,
+    limit: number
+  ): Promise<MessageData[]>
 }
 ```
 
 ```ts
 // apps/chat-server/src/domain/ports/contact-repository.ts
-import type { ContactData } from '../types.js';
+import type { ContactData } from '../types.js'
 
 export interface ContactRepository {
-  findById(id: string, tenantId: string): Promise<ContactData | null>;
-  findByPhone(tenantId: string, whatsappPhone: string): Promise<ContactData | null>;
+  findById(id: string, tenantId: string): Promise<ContactData | null>
+  findByPhone(
+    tenantId: string,
+    whatsappPhone: string
+  ): Promise<ContactData | null>
   upsertByPhone(
     tenantId: string,
     whatsappPhone: string,
     pushName?: string,
-    profilePicUrl?: string,
-  ): Promise<ContactData>;
+    profilePicUrl?: string
+  ): Promise<ContactData>
 }
 ```
 
@@ -719,12 +789,15 @@ export interface ContactRepository {
 
 ```ts
 // apps/chat-server/src/domain/conversation.spec.ts
-import { describe, expect, it } from 'vitest';
-import { ConversationEntity } from './conversation.js';
-import { InvalidConversationTransitionError, ConversationAlreadyAssignedError } from './errors.js';
+import { describe, expect, it } from 'vitest'
+import { ConversationEntity } from './conversation.js'
+import {
+  InvalidConversationTransitionError,
+  ConversationAlreadyAssignedError,
+} from './errors.js'
 
 function makeConversation(
-  overrides: Partial<Parameters<typeof ConversationEntity.restore>[0]> = {},
+  overrides: Partial<Parameters<typeof ConversationEntity.restore>[0]> = {}
 ) {
   return ConversationEntity.restore({
     id: 'conv-1',
@@ -735,7 +808,7 @@ function makeConversation(
     assignedTo: null,
     assignedToName: null,
     ...overrides,
-  });
+  })
 }
 
 describe('ConversationEntity', () => {
@@ -747,9 +820,9 @@ describe('ConversationEntity', () => {
         contactId: 'contact-1',
         whatsappPhone: '+5511999990000',
         hasAi: true,
-      });
-      expect(conv.status).toBe('BOT_ACTIVE');
-    });
+      })
+      expect(conv.status).toBe('BOT_ACTIVE')
+    })
 
     it('creates with WAITING_HUMAN when channel has no AI', () => {
       const conv = ConversationEntity.create({
@@ -758,100 +831,127 @@ describe('ConversationEntity', () => {
         contactId: 'contact-1',
         whatsappPhone: '+5511999990000',
         hasAi: false,
-      });
-      expect(conv.status).toBe('WAITING_HUMAN');
-    });
-  });
+      })
+      expect(conv.status).toBe('WAITING_HUMAN')
+    })
+  })
 
   describe('assign', () => {
     it('assigns agent to WAITING_HUMAN conversation', () => {
-      const conv = makeConversation({ status: 'WAITING_HUMAN', assignedTo: null });
-      conv.assign('agent-1', 'Maria');
-      expect(conv.status).toBe('HUMAN_ACTIVE');
-      expect(conv.assignedTo).toBe('agent-1');
-      expect(conv.assignedToName).toBe('Maria');
-    });
+      const conv = makeConversation({
+        status: 'WAITING_HUMAN',
+        assignedTo: null,
+      })
+      conv.assign('agent-1', 'Maria')
+      expect(conv.status).toBe('HUMAN_ACTIVE')
+      expect(conv.assignedTo).toBe('agent-1')
+      expect(conv.assignedToName).toBe('Maria')
+    })
 
     it('rejects assign on HUMAN_ACTIVE (already assigned)', () => {
-      const conv = makeConversation({ status: 'HUMAN_ACTIVE', assignedTo: 'agent-2' });
-      expect(() => conv.assign('agent-1', 'Maria')).toThrow(ConversationAlreadyAssignedError);
-    });
+      const conv = makeConversation({
+        status: 'HUMAN_ACTIVE',
+        assignedTo: 'agent-2',
+      })
+      expect(() => conv.assign('agent-1', 'Maria')).toThrow(
+        ConversationAlreadyAssignedError
+      )
+    })
 
     it('rejects assign on CLOSED', () => {
-      const conv = makeConversation({ status: 'CLOSED' });
-      expect(() => conv.assign('agent-1', 'Maria')).toThrow(InvalidConversationTransitionError);
-    });
-  });
+      const conv = makeConversation({ status: 'CLOSED' })
+      expect(() => conv.assign('agent-1', 'Maria')).toThrow(
+        InvalidConversationTransitionError
+      )
+    })
+  })
 
   describe('transfer', () => {
     it('transfers from HUMAN_ACTIVE to another agent', () => {
-      const conv = makeConversation({ status: 'HUMAN_ACTIVE', assignedTo: 'agent-1' });
-      conv.transfer('agent-2', 'Joao');
-      expect(conv.status).toBe('HUMAN_ACTIVE');
-      expect(conv.assignedTo).toBe('agent-2');
-      expect(conv.assignedToName).toBe('Joao');
-    });
+      const conv = makeConversation({
+        status: 'HUMAN_ACTIVE',
+        assignedTo: 'agent-1',
+      })
+      conv.transfer('agent-2', 'Joao')
+      expect(conv.status).toBe('HUMAN_ACTIVE')
+      expect(conv.assignedTo).toBe('agent-2')
+      expect(conv.assignedToName).toBe('Joao')
+    })
 
     it('rejects transfer from WAITING_HUMAN', () => {
-      const conv = makeConversation({ status: 'WAITING_HUMAN' });
-      expect(() => conv.transfer('agent-2', 'Joao')).toThrow(InvalidConversationTransitionError);
-    });
-  });
+      const conv = makeConversation({ status: 'WAITING_HUMAN' })
+      expect(() => conv.transfer('agent-2', 'Joao')).toThrow(
+        InvalidConversationTransitionError
+      )
+    })
+  })
 
   describe('returnToQueue', () => {
     it('returns HUMAN_ACTIVE to WAITING_HUMAN', () => {
-      const conv = makeConversation({ status: 'HUMAN_ACTIVE', assignedTo: 'agent-1' });
-      conv.returnToQueue();
-      expect(conv.status).toBe('WAITING_HUMAN');
-      expect(conv.assignedTo).toBeNull();
-      expect(conv.assignedToName).toBeNull();
-    });
+      const conv = makeConversation({
+        status: 'HUMAN_ACTIVE',
+        assignedTo: 'agent-1',
+      })
+      conv.returnToQueue()
+      expect(conv.status).toBe('WAITING_HUMAN')
+      expect(conv.assignedTo).toBeNull()
+      expect(conv.assignedToName).toBeNull()
+    })
 
     it('rejects from CLOSED', () => {
-      const conv = makeConversation({ status: 'CLOSED' });
-      expect(() => conv.returnToQueue()).toThrow(InvalidConversationTransitionError);
-    });
-  });
+      const conv = makeConversation({ status: 'CLOSED' })
+      expect(() => conv.returnToQueue()).toThrow(
+        InvalidConversationTransitionError
+      )
+    })
+  })
 
   describe('close', () => {
     it('closes HUMAN_ACTIVE conversation', () => {
-      const conv = makeConversation({ status: 'HUMAN_ACTIVE', assignedTo: 'agent-1' });
-      conv.close('agent-1');
-      expect(conv.status).toBe('CLOSED');
-      expect(conv.closedBy).toBe('agent-1');
-    });
+      const conv = makeConversation({
+        status: 'HUMAN_ACTIVE',
+        assignedTo: 'agent-1',
+      })
+      conv.close('agent-1')
+      expect(conv.status).toBe('CLOSED')
+      expect(conv.closedBy).toBe('agent-1')
+    })
 
     it('closes BOT_ACTIVE conversation (auto-close)', () => {
-      const conv = makeConversation({ status: 'BOT_ACTIVE' });
-      conv.close('system');
-      expect(conv.status).toBe('CLOSED');
-    });
+      const conv = makeConversation({ status: 'BOT_ACTIVE' })
+      conv.close('system')
+      expect(conv.status).toBe('CLOSED')
+    })
 
     it('closes WAITING_HUMAN conversation (auto-close)', () => {
-      const conv = makeConversation({ status: 'WAITING_HUMAN' });
-      conv.close('system');
-      expect(conv.status).toBe('CLOSED');
-    });
+      const conv = makeConversation({ status: 'WAITING_HUMAN' })
+      conv.close('system')
+      expect(conv.status).toBe('CLOSED')
+    })
 
     it('rejects close on already CLOSED', () => {
-      const conv = makeConversation({ status: 'CLOSED' });
-      expect(() => conv.close('agent-1')).toThrow(InvalidConversationTransitionError);
-    });
-  });
+      const conv = makeConversation({ status: 'CLOSED' })
+      expect(() => conv.close('agent-1')).toThrow(
+        InvalidConversationTransitionError
+      )
+    })
+  })
 
   describe('escalateToHuman', () => {
     it('escalates from BOT_ACTIVE to WAITING_HUMAN', () => {
-      const conv = makeConversation({ status: 'BOT_ACTIVE' });
-      conv.escalateToHuman();
-      expect(conv.status).toBe('WAITING_HUMAN');
-    });
+      const conv = makeConversation({ status: 'BOT_ACTIVE' })
+      conv.escalateToHuman()
+      expect(conv.status).toBe('WAITING_HUMAN')
+    })
 
     it('rejects escalate from HUMAN_ACTIVE', () => {
-      const conv = makeConversation({ status: 'HUMAN_ACTIVE' });
-      expect(() => conv.escalateToHuman()).toThrow(InvalidConversationTransitionError);
-    });
-  });
-});
+      const conv = makeConversation({ status: 'HUMAN_ACTIVE' })
+      expect(() => conv.escalateToHuman()).toThrow(
+        InvalidConversationTransitionError
+      )
+    })
+  })
+})
 ```
 
 - [ ] **Step 5: Run tests, verify they fail**
@@ -868,35 +968,38 @@ Note: if vitest is not configured for chat-server, create `vitest.config.ts` fol
 
 ```ts
 // apps/chat-server/src/domain/conversation.ts
-import { ConversationAlreadyAssignedError, InvalidConversationTransitionError } from './errors.js';
-import type { ConversationStatus } from './types.js';
+import {
+  ConversationAlreadyAssignedError,
+  InvalidConversationTransitionError,
+} from './errors.js'
+import type { ConversationStatus } from './types.js'
 
 interface ConversationProps {
-  readonly id: string;
-  readonly tenantId: string;
-  readonly channelId: string;
-  readonly contactId: string;
-  status: ConversationStatus;
-  assignedTo: string | null;
-  assignedToName: string | null;
-  whatsappPhone?: string | null;
-  closedAt?: Date | null;
-  closedBy?: string | null;
+  readonly id: string
+  readonly tenantId: string
+  readonly channelId: string
+  readonly contactId: string
+  status: ConversationStatus
+  assignedTo: string | null
+  assignedToName: string | null
+  whatsappPhone?: string | null
+  closedAt?: Date | null
+  closedBy?: string | null
 }
 
 interface CreateInput {
-  tenantId: string;
-  channelId: string;
-  contactId: string;
-  whatsappPhone: string;
-  hasAi: boolean;
+  tenantId: string
+  channelId: string
+  contactId: string
+  whatsappPhone: string
+  hasAi: boolean
 }
 
 export class ConversationEntity {
-  private props: ConversationProps;
+  private props: ConversationProps
 
   private constructor(props: ConversationProps) {
-    this.props = props;
+    this.props = props
   }
 
   static create(input: CreateInput): ConversationEntity {
@@ -911,85 +1014,97 @@ export class ConversationEntity {
       whatsappPhone: input.whatsappPhone,
       closedAt: null,
       closedBy: null,
-    });
+    })
   }
 
   static restore(props: ConversationProps): ConversationEntity {
-    return new ConversationEntity(props);
+    return new ConversationEntity(props)
   }
 
   get id(): string {
-    return this.props.id;
+    return this.props.id
   }
   get tenantId(): string {
-    return this.props.tenantId;
+    return this.props.tenantId
   }
   get channelId(): string {
-    return this.props.channelId;
+    return this.props.channelId
   }
   get contactId(): string {
-    return this.props.contactId;
+    return this.props.contactId
   }
   get status(): ConversationStatus {
-    return this.props.status;
+    return this.props.status
   }
   get assignedTo(): string | null {
-    return this.props.assignedTo;
+    return this.props.assignedTo
   }
   get assignedToName(): string | null {
-    return this.props.assignedToName;
+    return this.props.assignedToName
   }
   get closedBy(): string | null {
-    return this.props.closedBy ?? null;
+    return this.props.closedBy ?? null
   }
 
   assign(agentId: string, agentName: string): void {
     if (this.props.status !== 'WAITING_HUMAN') {
       if (this.props.status === 'HUMAN_ACTIVE') {
-        throw new ConversationAlreadyAssignedError();
+        throw new ConversationAlreadyAssignedError()
       }
-      throw new InvalidConversationTransitionError(this.props.status, 'assumir');
+      throw new InvalidConversationTransitionError(this.props.status, 'assumir')
     }
-    this.props.status = 'HUMAN_ACTIVE';
-    this.props.assignedTo = agentId;
-    this.props.assignedToName = agentName;
+    this.props.status = 'HUMAN_ACTIVE'
+    this.props.assignedTo = agentId
+    this.props.assignedToName = agentName
   }
 
   transfer(agentId: string, agentName: string): void {
     if (this.props.status !== 'HUMAN_ACTIVE') {
-      throw new InvalidConversationTransitionError(this.props.status, 'transferir');
+      throw new InvalidConversationTransitionError(
+        this.props.status,
+        'transferir'
+      )
     }
-    this.props.assignedTo = agentId;
-    this.props.assignedToName = agentName;
+    this.props.assignedTo = agentId
+    this.props.assignedToName = agentName
   }
 
   returnToQueue(): void {
     if (this.props.status !== 'HUMAN_ACTIVE') {
-      throw new InvalidConversationTransitionError(this.props.status, 'devolver para fila');
+      throw new InvalidConversationTransitionError(
+        this.props.status,
+        'devolver para fila'
+      )
     }
-    this.props.status = 'WAITING_HUMAN';
-    this.props.assignedTo = null;
-    this.props.assignedToName = null;
+    this.props.status = 'WAITING_HUMAN'
+    this.props.assignedTo = null
+    this.props.assignedToName = null
   }
 
   close(closedBy: string): void {
     if (this.props.status === 'CLOSED') {
-      throw new InvalidConversationTransitionError(this.props.status, 'finalizar');
+      throw new InvalidConversationTransitionError(
+        this.props.status,
+        'finalizar'
+      )
     }
-    this.props.status = 'CLOSED';
-    this.props.closedAt = new Date();
-    this.props.closedBy = closedBy;
+    this.props.status = 'CLOSED'
+    this.props.closedAt = new Date()
+    this.props.closedBy = closedBy
   }
 
   escalateToHuman(): void {
     if (this.props.status !== 'BOT_ACTIVE') {
-      throw new InvalidConversationTransitionError(this.props.status, 'escalar para humano');
+      throw new InvalidConversationTransitionError(
+        this.props.status,
+        'escalar para humano'
+      )
     }
-    this.props.status = 'WAITING_HUMAN';
+    this.props.status = 'WAITING_HUMAN'
   }
 
   toJSON(): ConversationProps {
-    return { ...this.props };
+    return { ...this.props }
   }
 }
 ```
@@ -1023,11 +1138,11 @@ git commit -m "feat(chat): add conversation domain entity with state machine (TD
 
 ```ts
 // apps/chat-server/src/application/save-incoming-message.spec.ts
-import { describe, expect, it, vi } from 'vitest';
-import { SaveIncomingMessage } from './save-incoming-message.js';
-import type { ConversationRepository } from '../domain/ports/conversation-repository.js';
-import type { MessageRepository } from '../domain/ports/message-repository.js';
-import type { ContactRepository } from '../domain/ports/contact-repository.js';
+import { describe, expect, it, vi } from 'vitest'
+import { SaveIncomingMessage } from './save-incoming-message.js'
+import type { ConversationRepository } from '../domain/ports/conversation-repository.js'
+import type { MessageRepository } from '../domain/ports/message-repository.js'
+import type { ContactRepository } from '../domain/ports/contact-repository.js'
 
 function makeRepos() {
   const conversationRepo: ConversationRepository = {
@@ -1039,25 +1154,25 @@ function makeRepos() {
     atomicAssign: vi.fn(),
     updateLastMessage: vi.fn(),
     findStaleConversations: vi.fn(),
-  };
+  }
   const messageRepo: MessageRepository = {
     create: vi.fn(),
     findByConversation: vi.fn(),
     findByExternalId: vi.fn().mockResolvedValue(null),
     updateStatus: vi.fn(),
     findAfterTimestamp: vi.fn(),
-  };
+  }
   const contactRepo: ContactRepository = {
     findById: vi.fn(),
     findByPhone: vi.fn(),
     upsertByPhone: vi.fn(),
-  };
-  return { conversationRepo, messageRepo, contactRepo };
+  }
+  return { conversationRepo, messageRepo, contactRepo }
 }
 
 describe('SaveIncomingMessage', () => {
   it('creates new conversation when none exists', async () => {
-    const { conversationRepo, messageRepo, contactRepo } = makeRepos();
+    const { conversationRepo, messageRepo, contactRepo } = makeRepos()
     const contact = {
       id: 'contact-1',
       tenantId: 't1',
@@ -1067,7 +1182,7 @@ describe('SaveIncomingMessage', () => {
       clientId: null,
       createdAt: new Date(),
       updatedAt: new Date(),
-    };
+    }
     const conversation = {
       id: 'conv-1',
       tenantId: 't1',
@@ -1084,7 +1199,7 @@ describe('SaveIncomingMessage', () => {
       closedBy: null,
       createdAt: new Date(),
       updatedAt: new Date(),
-    };
+    }
     const message = {
       id: 'msg-1',
       conversationId: 'conv-1',
@@ -1100,14 +1215,20 @@ describe('SaveIncomingMessage', () => {
       metadata: null,
       externalId: 'wa-123',
       createdAt: new Date(),
-    };
+    }
 
-    vi.mocked(contactRepo.upsertByPhone).mockResolvedValue(contact);
-    vi.mocked(conversationRepo.findOpenByContactAndChannel).mockResolvedValue(null);
-    vi.mocked(conversationRepo.create).mockResolvedValue(conversation);
-    vi.mocked(messageRepo.create).mockResolvedValue(message);
+    vi.mocked(contactRepo.upsertByPhone).mockResolvedValue(contact)
+    vi.mocked(conversationRepo.findOpenByContactAndChannel).mockResolvedValue(
+      null
+    )
+    vi.mocked(conversationRepo.create).mockResolvedValue(conversation)
+    vi.mocked(messageRepo.create).mockResolvedValue(message)
 
-    const useCase = new SaveIncomingMessage(conversationRepo, messageRepo, contactRepo);
+    const useCase = new SaveIncomingMessage(
+      conversationRepo,
+      messageRepo,
+      contactRepo
+    )
     const result = await useCase.execute({
       tenantId: 't1',
       channelId: 'ch-1',
@@ -1116,15 +1237,15 @@ describe('SaveIncomingMessage', () => {
       text: 'Oi',
       externalId: 'wa-123',
       hasAi: false,
-    });
+    })
 
-    expect(conversationRepo.create).toHaveBeenCalled();
-    expect(messageRepo.create).toHaveBeenCalled();
-    expect(result.message.text).toBe('Oi');
-  });
+    expect(conversationRepo.create).toHaveBeenCalled()
+    expect(messageRepo.create).toHaveBeenCalled()
+    expect(result.message.text).toBe('Oi')
+  })
 
   it('deduplicates by externalId', async () => {
-    const { conversationRepo, messageRepo, contactRepo } = makeRepos();
+    const { conversationRepo, messageRepo, contactRepo } = makeRepos()
     const existingMsg = {
       id: 'msg-1',
       conversationId: 'conv-1',
@@ -1140,11 +1261,15 @@ describe('SaveIncomingMessage', () => {
       metadata: null,
       externalId: 'wa-123',
       createdAt: new Date(),
-    };
+    }
 
-    vi.mocked(messageRepo.findByExternalId).mockResolvedValue(existingMsg);
+    vi.mocked(messageRepo.findByExternalId).mockResolvedValue(existingMsg)
 
-    const useCase = new SaveIncomingMessage(conversationRepo, messageRepo, contactRepo);
+    const useCase = new SaveIncomingMessage(
+      conversationRepo,
+      messageRepo,
+      contactRepo
+    )
     const result = await useCase.execute({
       tenantId: 't1',
       channelId: 'ch-1',
@@ -1153,13 +1278,13 @@ describe('SaveIncomingMessage', () => {
       text: 'Oi',
       externalId: 'wa-123',
       hasAi: false,
-    });
+    })
 
-    expect(messageRepo.create).not.toHaveBeenCalled();
-    expect(result.message.id).toBe('msg-1');
-    expect(result.isDuplicate).toBe(true);
-  });
-});
+    expect(messageRepo.create).not.toHaveBeenCalled()
+    expect(result.message.id).toBe('msg-1')
+    expect(result.isDuplicate).toBe(true)
+  })
+})
 ```
 
 - [ ] **Step 2: Run test, verify it fails**
@@ -1172,56 +1297,58 @@ cd apps/chat-server && pnpm vitest run src/application/save-incoming-message.spe
 
 ```ts
 // apps/chat-server/src/application/save-incoming-message.ts
-import 'reflect-metadata';
-import { injectable, inject } from 'tsyringe';
-import { ConversationEntity } from '../domain/conversation.js';
-import type { ConversationRepository } from '../domain/ports/conversation-repository.js';
-import type { ContactRepository } from '../domain/ports/contact-repository.js';
-import type { MessageRepository } from '../domain/ports/message-repository.js';
-import type { ConversationData, MessageData } from '../domain/types.js';
+import 'reflect-metadata'
+import { injectable, inject } from 'tsyringe'
+import { ConversationEntity } from '../domain/conversation.js'
+import type { ConversationRepository } from '../domain/ports/conversation-repository.js'
+import type { ContactRepository } from '../domain/ports/contact-repository.js'
+import type { MessageRepository } from '../domain/ports/message-repository.js'
+import type { ConversationData, MessageData } from '../domain/types.js'
 
 interface SaveIncomingInput {
-  tenantId: string;
-  channelId: string;
-  whatsappPhone: string;
-  pushName?: string;
-  text?: string;
-  type?: 'TEXT' | 'IMAGE' | 'AUDIO' | 'VIDEO' | 'DOCUMENT' | 'OTHER';
-  mediaUrl?: string;
-  externalId?: string;
-  hasAi: boolean;
+  tenantId: string
+  channelId: string
+  whatsappPhone: string
+  pushName?: string
+  text?: string
+  type?: 'TEXT' | 'IMAGE' | 'AUDIO' | 'VIDEO' | 'DOCUMENT' | 'OTHER'
+  mediaUrl?: string
+  externalId?: string
+  hasAi: boolean
 }
 
 interface SaveIncomingResult {
-  conversation: ConversationData;
-  message: MessageData;
-  isNewConversation: boolean;
-  isDuplicate: boolean;
+  conversation: ConversationData
+  message: MessageData
+  isNewConversation: boolean
+  isDuplicate: boolean
 }
 
 @injectable()
 export class SaveIncomingMessage {
   constructor(
-    @inject('ConversationRepository') private readonly conversationRepo: ConversationRepository,
-    @inject('MessageRepository') private readonly messageRepo: MessageRepository,
-    @inject('ContactRepository') private readonly contactRepo: ContactRepository,
+    @inject('ConversationRepository')
+    private readonly conversationRepo: ConversationRepository,
+    @inject('MessageRepository')
+    private readonly messageRepo: MessageRepository,
+    @inject('ContactRepository') private readonly contactRepo: ContactRepository
   ) {}
 
   async execute(input: SaveIncomingInput): Promise<SaveIncomingResult> {
     // Dedup by externalId
     if (input.externalId) {
-      const existing = await this.messageRepo.findByExternalId(input.externalId);
+      const existing = await this.messageRepo.findByExternalId(input.externalId)
       if (existing) {
         const conversation = await this.conversationRepo.findById(
           existing.conversationId,
-          input.tenantId,
-        );
+          input.tenantId
+        )
         return {
           conversation: conversation!,
           message: existing,
           isNewConversation: false,
           isDuplicate: true,
-        };
+        }
       }
     }
 
@@ -1229,16 +1356,16 @@ export class SaveIncomingMessage {
     const contact = await this.contactRepo.upsertByPhone(
       input.tenantId,
       input.whatsappPhone,
-      input.pushName,
-    );
+      input.pushName
+    )
 
     // Find or create conversation
-    let isNewConversation = false;
+    let isNewConversation = false
     let conversation = await this.conversationRepo.findOpenByContactAndChannel(
       input.tenantId,
       contact.id,
-      input.channelId,
-    );
+      input.channelId
+    )
 
     if (!conversation) {
       const entity = ConversationEntity.create({
@@ -1247,7 +1374,7 @@ export class SaveIncomingMessage {
         contactId: contact.id,
         whatsappPhone: input.whatsappPhone,
         hasAi: input.hasAi,
-      });
+      })
       conversation = await this.conversationRepo.create({
         ...entity.toJSON(),
         subject: null,
@@ -1255,8 +1382,8 @@ export class SaveIncomingMessage {
         lastMessageAt: new Date(),
         closedAt: null,
         closedBy: null,
-      });
-      isNewConversation = true;
+      })
+      isNewConversation = true
     }
 
     // Save message
@@ -1273,12 +1400,16 @@ export class SaveIncomingMessage {
       status: 'DELIVERED',
       metadata: null,
       externalId: input.externalId ?? null,
-    });
+    })
 
     // Update conversation lastMessage
-    await this.conversationRepo.updateLastMessage(conversation.id, input.text ?? '', new Date());
+    await this.conversationRepo.updateLastMessage(
+      conversation.id,
+      input.text ?? '',
+      new Date()
+    )
 
-    return { conversation, message, isNewConversation, isDuplicate: false };
+    return { conversation, message, isNewConversation, isDuplicate: false }
   }
 }
 ```
@@ -1289,9 +1420,9 @@ export class SaveIncomingMessage {
 
 ```ts
 // apps/chat-server/src/application/assign-conversation.spec.ts
-import { describe, expect, it, vi } from 'vitest';
-import { AssignConversation } from './assign-conversation.js';
-import type { ConversationRepository } from '../domain/ports/conversation-repository.js';
+import { describe, expect, it, vi } from 'vitest'
+import { AssignConversation } from './assign-conversation.js'
+import type { ConversationRepository } from '../domain/ports/conversation-repository.js'
 
 describe('AssignConversation', () => {
   it('atomically assigns unassigned conversation', async () => {
@@ -1320,19 +1451,24 @@ describe('AssignConversation', () => {
       }),
       updateLastMessage: vi.fn(),
       findStaleConversations: vi.fn(),
-    };
+    }
 
-    const useCase = new AssignConversation(repo);
+    const useCase = new AssignConversation(repo)
     const result = await useCase.execute({
       conversationId: 'conv-1',
       tenantId: 't1',
       agentId: 'agent-1',
       agentName: 'Maria',
-    });
+    })
 
-    expect(repo.atomicAssign).toHaveBeenCalledWith('conv-1', 't1', 'agent-1', 'Maria');
-    expect(result.status).toBe('HUMAN_ACTIVE');
-  });
+    expect(repo.atomicAssign).toHaveBeenCalledWith(
+      'conv-1',
+      't1',
+      'agent-1',
+      'Maria'
+    )
+    expect(result.status).toBe('HUMAN_ACTIVE')
+  })
 
   it('throws when conversation already assigned (race condition)', async () => {
     const repo: ConversationRepository = {
@@ -1344,19 +1480,19 @@ describe('AssignConversation', () => {
       atomicAssign: vi.fn().mockResolvedValue(null), // atomic failed
       updateLastMessage: vi.fn(),
       findStaleConversations: vi.fn(),
-    };
+    }
 
-    const useCase = new AssignConversation(repo);
+    const useCase = new AssignConversation(repo)
     await expect(
       useCase.execute({
         conversationId: 'conv-1',
         tenantId: 't1',
         agentId: 'agent-1',
         agentName: 'Maria',
-      }),
-    ).rejects.toThrow('Conversa ja esta atribuida');
-  });
-});
+      })
+    ).rejects.toThrow('Conversa ja esta atribuida')
+  })
+})
 ```
 
 - [ ] **Step 6: Implement AssignConversation and remaining use cases**
@@ -1427,39 +1563,41 @@ git commit -m "feat(chat): add chat use cases (save message, send, assign, trans
 
 ```ts
 // apps/chat-server/src/infra/http/middleware/chat-auth-middleware.ts
-import jwt from 'jsonwebtoken';
-import { z } from 'zod';
-import { env } from '@repo/env';
-import type { FastifyRequest, FastifyReply } from 'fastify';
+import jwt from 'jsonwebtoken'
+import { z } from 'zod'
+import { env } from '@repo/env'
+import type { FastifyRequest, FastifyReply } from 'fastify'
 
 const jwtPayloadSchema = z.object({
   userId: z.string(),
   organizationId: z.string(),
   role: z.string(),
   name: z.string(),
-});
+})
 
 export async function chatAuthMiddleware(
   request: FastifyRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ): Promise<void> {
-  const authHeader = request.headers.authorization;
+  const authHeader = request.headers.authorization
   if (!authHeader?.startsWith('Bearer ')) {
-    return reply
-      .status(401)
-      .send({ success: false, error: { code: 'UNAUTHORIZED', message: 'Token nao fornecido' } });
+    return reply.status(401).send({
+      success: false,
+      error: { code: 'UNAUTHORIZED', message: 'Token nao fornecido' },
+    })
   }
 
   try {
-    const token = authHeader.slice(7);
-    const decoded = jwt.verify(token, env.SOCKET_JWT_SECRET);
-    const payload = jwtPayloadSchema.parse(decoded);
-    request.user = payload;
-    request.organizationId = payload.organizationId;
+    const token = authHeader.slice(7)
+    const decoded = jwt.verify(token, env.SOCKET_JWT_SECRET)
+    const payload = jwtPayloadSchema.parse(decoded)
+    request.user = payload
+    request.organizationId = payload.organizationId
   } catch {
-    return reply
-      .status(401)
-      .send({ success: false, error: { code: 'UNAUTHORIZED', message: 'Token invalido' } });
+    return reply.status(401).send({
+      success: false,
+      error: { code: 'UNAUTHORIZED', message: 'Token invalido' },
+    })
   }
 }
 ```
@@ -1470,204 +1608,257 @@ Note: Chat-server uses its own JWT (SOCKET_JWT_SECRET) separate from Better Auth
 
 ```ts
 // apps/chat-server/src/infra/socket/socket-auth.ts
-import jwt from 'jsonwebtoken';
-import { z } from 'zod';
-import { env } from '@repo/env';
-import type { Socket } from 'socket.io';
+import jwt from 'jsonwebtoken'
+import { z } from 'zod'
+import { env } from '@repo/env'
+import type { Socket } from 'socket.io'
 
 const jwtPayloadSchema = z.object({
   userId: z.string(),
   organizationId: z.string(),
   role: z.string(),
   name: z.string(),
-});
+})
 
 export function socketAuth(socket: Socket, next: (err?: Error) => void): void {
   const token =
-    typeof socket.handshake.auth?.token === 'string' ? socket.handshake.auth.token : undefined;
-  if (!token) return next(new Error('Token nao fornecido'));
+    typeof socket.handshake.auth?.token === 'string'
+      ? socket.handshake.auth.token
+      : undefined
+  if (!token) return next(new Error('Token nao fornecido'))
 
   try {
-    const decoded = jwt.verify(token, env.SOCKET_JWT_SECRET);
-    const payload = jwtPayloadSchema.parse(decoded);
-    socket.data.user = payload;
-    next();
+    const decoded = jwt.verify(token, env.SOCKET_JWT_SECRET)
+    const payload = jwtPayloadSchema.parse(decoded)
+    socket.data.user = payload
+    next()
   } catch {
-    next(new Error('Token invalido'));
+    next(new Error('Token invalido'))
   }
 }
 ```
 
 ```ts
 // apps/chat-server/src/infra/socket/socket-handler.ts
-import type { Server, Socket } from 'socket.io';
-import { container } from 'tsyringe';
-import { SOCKET_EVENTS, CHAT_LIMITS } from '@repo/shared';
-import { SendMessage } from '../../application/send-message.js';
-import { AssignConversation } from '../../application/assign-conversation.js';
-import { CloseConversation } from '../../application/close-conversation.js';
-import { TransferConversation } from '../../application/transfer-conversation.js';
-import { MarkAsRead } from '../../application/mark-as-read.js';
-import type { MessageRepository } from '../../domain/ports/message-repository.js';
-import { socketAuth } from './socket-auth.js';
-import pino from 'pino';
+import type { Server, Socket } from 'socket.io'
+import { container } from 'tsyringe'
+import { SOCKET_EVENTS, CHAT_LIMITS } from '@repo/shared'
+import { SendMessage } from '../../application/send-message.js'
+import { AssignConversation } from '../../application/assign-conversation.js'
+import { CloseConversation } from '../../application/close-conversation.js'
+import { TransferConversation } from '../../application/transfer-conversation.js'
+import { MarkAsRead } from '../../application/mark-as-read.js'
+import type { MessageRepository } from '../../domain/ports/message-repository.js'
+import { socketAuth } from './socket-auth.js'
+import pino from 'pino'
 
-const logger = pino({ name: 'socket-handler' });
+const logger = pino({ name: 'socket-handler' })
 
 // Presence: Map<orgId, Map<userId, { name, lastHeartbeat }>>
-const presenceMap = new Map<string, Map<string, { name: string; lastHeartbeat: number }>>();
+const presenceMap = new Map<
+  string,
+  Map<string, { name: string; lastHeartbeat: number }>
+>()
 
 export function setupSocketHandlers(io: Server): void {
-  io.use(socketAuth);
+  io.use(socketAuth)
 
   // Stale agent check interval
   setInterval(() => {
-    const now = Date.now();
+    const now = Date.now()
     for (const [orgId, agents] of presenceMap) {
       for (const [userId, data] of agents) {
         if (now - data.lastHeartbeat > CHAT_LIMITS.HEARTBEAT_TIMEOUT_MS) {
-          agents.delete(userId);
-          io.to(`tenant:${orgId}:lobby`).emit(SOCKET_EVENTS.AGENT_STATUS_UPDATE, {
-            userId,
-            status: 'offline',
-          });
+          agents.delete(userId)
+          io.to(`tenant:${orgId}:lobby`).emit(
+            SOCKET_EVENTS.AGENT_STATUS_UPDATE,
+            {
+              userId,
+              status: 'offline',
+            }
+          )
         }
       }
     }
-  }, CHAT_LIMITS.HEARTBEAT_INTERVAL_MS);
+  }, CHAT_LIMITS.HEARTBEAT_INTERVAL_MS)
 
   io.on('connection', (socket: Socket) => {
-    const { userId, organizationId, name } = socket.data.user;
-    const orgRoom = `tenant:${organizationId}:lobby`;
-    socket.join(orgRoom);
+    const { userId, organizationId, name } = socket.data.user
+    const orgRoom = `tenant:${organizationId}:lobby`
+    socket.join(orgRoom)
 
     // Register presence
-    if (!presenceMap.has(organizationId)) presenceMap.set(organizationId, new Map());
-    presenceMap.get(organizationId)!.set(userId, { name, lastHeartbeat: Date.now() });
-    io.to(orgRoom).emit(SOCKET_EVENTS.AGENT_STATUS_UPDATE, { userId, status: 'online', name });
+    if (!presenceMap.has(organizationId))
+      presenceMap.set(organizationId, new Map())
+    presenceMap
+      .get(organizationId)!
+      .set(userId, { name, lastHeartbeat: Date.now() })
+    io.to(orgRoom).emit(SOCKET_EVENTS.AGENT_STATUS_UPDATE, {
+      userId,
+      status: 'online',
+      name,
+    })
 
     // --- Event handlers ---
 
-    socket.on(SOCKET_EVENTS.SUBSCRIBE_CONVERSATION, (data: { conversationId: string }) => {
-      socket.join(`tenant:${organizationId}:conversation:${data.conversationId}`);
-    });
+    socket.on(
+      SOCKET_EVENTS.SUBSCRIBE_CONVERSATION,
+      (data: { conversationId: string }) => {
+        socket.join(
+          `tenant:${organizationId}:conversation:${data.conversationId}`
+        )
+      }
+    )
 
-    socket.on(SOCKET_EVENTS.UNSUBSCRIBE_CONVERSATION, (data: { conversationId: string }) => {
-      socket.leave(`tenant:${organizationId}:conversation:${data.conversationId}`);
-    });
+    socket.on(
+      SOCKET_EVENTS.UNSUBSCRIBE_CONVERSATION,
+      (data: { conversationId: string }) => {
+        socket.leave(
+          `tenant:${organizationId}:conversation:${data.conversationId}`
+        )
+      }
+    )
 
     socket.on(
       SOCKET_EVENTS.SEND_MESSAGE,
       async (data: { conversationId: string; text: string }) => {
         try {
-          const useCase = container.resolve(SendMessage);
+          const useCase = container.resolve(SendMessage)
           await useCase.execute({
             conversationId: data.conversationId,
             tenantId: organizationId,
             senderId: userId,
             senderName: name,
             text: data.text,
-          });
+          })
         } catch (err) {
           logger.error(
             { err, conversationId: data.conversationId },
-            'Error sending message via socket',
-          );
-          socket.emit('error', { message: 'Erro ao enviar mensagem' });
+            'Error sending message via socket'
+          )
+          socket.emit('error', { message: 'Erro ao enviar mensagem' })
         }
-      },
-    );
-
-    socket.on(SOCKET_EVENTS.ASSIGN_CONVERSATION, async (data: { conversationId: string }) => {
-      try {
-        const useCase = container.resolve(AssignConversation);
-        const result = await useCase.execute({
-          conversationId: data.conversationId,
-          tenantId: organizationId,
-          agentId: userId,
-          agentName: name,
-        });
-        io.to(orgRoom).emit(SOCKET_EVENTS.CONVERSATION_UPDATED, result);
-      } catch (err) {
-        logger.error({ err }, 'Error assigning conversation');
-        socket.emit('error', {
-          message: err instanceof Error ? err.message : 'Erro ao assumir conversa',
-        });
       }
-    });
+    )
 
-    socket.on(SOCKET_EVENTS.CLOSE_CONVERSATION, async (data: { conversationId: string }) => {
-      try {
-        const useCase = container.resolve(CloseConversation);
-        const result = await useCase.execute({
-          conversationId: data.conversationId,
-          tenantId: organizationId,
-          closedBy: userId,
-        });
-        io.to(orgRoom).emit(SOCKET_EVENTS.CONVERSATION_UPDATED, result);
-      } catch (err) {
-        logger.error({ err }, 'Error closing conversation');
-        socket.emit('error', {
-          message: err instanceof Error ? err.message : 'Erro ao fechar conversa',
-        });
+    socket.on(
+      SOCKET_EVENTS.ASSIGN_CONVERSATION,
+      async (data: { conversationId: string }) => {
+        try {
+          const useCase = container.resolve(AssignConversation)
+          const result = await useCase.execute({
+            conversationId: data.conversationId,
+            tenantId: organizationId,
+            agentId: userId,
+            agentName: name,
+          })
+          io.to(orgRoom).emit(SOCKET_EVENTS.CONVERSATION_UPDATED, result)
+        } catch (err) {
+          logger.error({ err }, 'Error assigning conversation')
+          socket.emit('error', {
+            message:
+              err instanceof Error ? err.message : 'Erro ao assumir conversa',
+          })
+        }
       }
-    });
+    )
+
+    socket.on(
+      SOCKET_EVENTS.CLOSE_CONVERSATION,
+      async (data: { conversationId: string }) => {
+        try {
+          const useCase = container.resolve(CloseConversation)
+          const result = await useCase.execute({
+            conversationId: data.conversationId,
+            tenantId: organizationId,
+            closedBy: userId,
+          })
+          io.to(orgRoom).emit(SOCKET_EVENTS.CONVERSATION_UPDATED, result)
+        } catch (err) {
+          logger.error({ err }, 'Error closing conversation')
+          socket.emit('error', {
+            message:
+              err instanceof Error ? err.message : 'Erro ao fechar conversa',
+          })
+        }
+      }
+    )
 
     socket.on(
       SOCKET_EVENTS.TRANSFER_CONVERSATION,
-      async (data: { conversationId: string; toUserId: string; toUserName: string }) => {
+      async (data: {
+        conversationId: string
+        toUserId: string
+        toUserName: string
+      }) => {
         try {
-          const useCase = container.resolve(TransferConversation);
+          const useCase = container.resolve(TransferConversation)
           const result = await useCase.execute({
             conversationId: data.conversationId,
             tenantId: organizationId,
             toUserId: data.toUserId,
             toUserName: data.toUserName,
-          });
-          io.to(orgRoom).emit(SOCKET_EVENTS.CONVERSATION_UPDATED, result);
+          })
+          io.to(orgRoom).emit(SOCKET_EVENTS.CONVERSATION_UPDATED, result)
         } catch (err) {
-          logger.error({ err }, 'Error transferring conversation');
+          logger.error({ err }, 'Error transferring conversation')
           socket.emit('error', {
-            message: err instanceof Error ? err.message : 'Erro ao transferir conversa',
-          });
+            message:
+              err instanceof Error
+                ? err.message
+                : 'Erro ao transferir conversa',
+          })
         }
-      },
-    );
+      }
+    )
 
-    socket.on(SOCKET_EVENTS.TYPING_START, (data: { conversationId: string }) => {
-      socket
-        .to(`tenant:${organizationId}:conversation:${data.conversationId}`)
-        .emit(SOCKET_EVENTS.TYPING, { conversationId: data.conversationId, userName: name });
-    });
+    socket.on(
+      SOCKET_EVENTS.TYPING_START,
+      (data: { conversationId: string }) => {
+        socket
+          .to(`tenant:${organizationId}:conversation:${data.conversationId}`)
+          .emit(SOCKET_EVENTS.TYPING, {
+            conversationId: data.conversationId,
+            userName: name,
+          })
+      }
+    )
 
     socket.on(SOCKET_EVENTS.AGENT_HEARTBEAT, () => {
-      const agents = presenceMap.get(organizationId);
-      if (agents) agents.set(userId, { name, lastHeartbeat: Date.now() });
-    });
+      const agents = presenceMap.get(organizationId)
+      if (agents) agents.set(userId, { name, lastHeartbeat: Date.now() })
+    })
 
     socket.on(
       SOCKET_EVENTS.CATCH_UP,
-      async (data: { lastEventTimestamp: string; conversationIds: string[] }) => {
+      async (data: {
+        lastEventTimestamp: string
+        conversationIds: string[]
+      }) => {
         try {
-          const messageRepo = container.resolve<MessageRepository>('MessageRepository');
+          const messageRepo =
+            container.resolve<MessageRepository>('MessageRepository')
           const messages = await messageRepo.findAfterTimestamp(
             data.conversationIds,
             new Date(data.lastEventTimestamp),
-            CHAT_LIMITS.CATCH_UP_MAX_MESSAGES,
-          );
-          socket.emit(SOCKET_EVENTS.CATCH_UP, { messages });
+            CHAT_LIMITS.CATCH_UP_MAX_MESSAGES
+          )
+          socket.emit(SOCKET_EVENTS.CATCH_UP, { messages })
         } catch (err) {
-          logger.error({ err }, 'Error during catch-up');
+          logger.error({ err }, 'Error during catch-up')
         }
-      },
-    );
+      }
+    )
 
     socket.on('disconnect', () => {
-      const agents = presenceMap.get(organizationId);
-      if (agents) agents.delete(userId);
-      io.to(orgRoom).emit(SOCKET_EVENTS.AGENT_STATUS_UPDATE, { userId, status: 'offline' });
-    });
-  });
+      const agents = presenceMap.get(organizationId)
+      if (agents) agents.delete(userId)
+      io.to(orgRoom).emit(SOCKET_EVENTS.AGENT_STATUS_UPDATE, {
+        userId,
+        status: 'offline',
+      })
+    })
+  })
 }
 ```
 
@@ -1685,38 +1876,41 @@ Subscriber listens on these channels and broadcasts to appropriate Socket.IO roo
 
 ```ts
 // apps/chat-server/src/infra/pubsub/redis-publisher.ts
-import IORedis from 'ioredis';
-import type { CHAT_PUBSUB_CHANNELS } from '@repo/shared';
+import IORedis from 'ioredis'
+import type { CHAT_PUBSUB_CHANNELS } from '@repo/shared'
 
 export class RedisPublisher {
   constructor(private readonly redis: IORedis) {}
 
-  async publish(channel: string, payload: Record<string, unknown>): Promise<void> {
-    await this.redis.publish(channel, JSON.stringify(payload));
+  async publish(
+    channel: string,
+    payload: Record<string, unknown>
+  ): Promise<void> {
+    await this.redis.publish(channel, JSON.stringify(payload))
   }
 }
 ```
 
 ```ts
 // apps/chat-server/src/infra/pubsub/redis-subscriber.ts
-import type IORedis from 'ioredis';
-import type { Server } from 'socket.io';
-import { CHAT_PUBSUB_CHANNELS, SOCKET_EVENTS } from '@repo/shared';
-import pino from 'pino';
+import type IORedis from 'ioredis'
+import type { Server } from 'socket.io'
+import { CHAT_PUBSUB_CHANNELS, SOCKET_EVENTS } from '@repo/shared'
+import pino from 'pino'
 
-const logger = pino({ name: 'redis-subscriber' });
+const logger = pino({ name: 'redis-subscriber' })
 
 interface PubSubMessage {
-  tenantId: string;
-  conversationId?: string;
-  userId?: string;
-  [key: string]: unknown;
+  tenantId: string
+  conversationId?: string
+  userId?: string
+  [key: string]: unknown
 }
 
 export class RedisSubscriber {
   constructor(
     private readonly redis: IORedis,
-    private readonly io: Server,
+    private readonly io: Server
   ) {}
 
   async subscribe(): Promise<void> {
@@ -1725,57 +1919,63 @@ export class RedisSubscriber {
       CHAT_PUBSUB_CHANNELS.MESSAGE_STATUS,
       CHAT_PUBSUB_CHANNELS.CHANNEL_STATUS,
       CHAT_PUBSUB_CHANNELS.CONVERSATION_UPDATE,
-      CHAT_PUBSUB_CHANNELS.UNREAD_UPDATE,
-    );
+      CHAT_PUBSUB_CHANNELS.UNREAD_UPDATE
+    )
 
     this.redis.on('message', (channel: string, rawMessage: string) => {
       try {
-        const data = JSON.parse(rawMessage) as PubSubMessage;
-        this.handleMessage(channel, data);
+        const data = JSON.parse(rawMessage) as PubSubMessage
+        this.handleMessage(channel, data)
       } catch (err) {
-        logger.error({ err, channel }, 'Failed to parse pub/sub message');
+        logger.error({ err, channel }, 'Failed to parse pub/sub message')
       }
-    });
+    })
 
-    logger.info('Redis subscriber listening on chat pub/sub channels');
+    logger.info('Redis subscriber listening on chat pub/sub channels')
   }
 
   private handleMessage(channel: string, data: PubSubMessage): void {
-    const { tenantId, conversationId } = data;
+    const { tenantId, conversationId } = data
 
     switch (channel) {
       case CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE:
         if (conversationId) {
           this.io
             .to(`tenant:${tenantId}:conversation:${conversationId}`)
-            .emit(SOCKET_EVENTS.INCOMING_MESSAGE, data);
-          this.io.to(`tenant:${tenantId}:lobby`).emit(SOCKET_EVENTS.CONVERSATION_UPDATED, data);
+            .emit(SOCKET_EVENTS.INCOMING_MESSAGE, data)
+          this.io
+            .to(`tenant:${tenantId}:lobby`)
+            .emit(SOCKET_EVENTS.CONVERSATION_UPDATED, data)
         }
-        break;
+        break
 
       case CHAT_PUBSUB_CHANNELS.MESSAGE_STATUS:
         if (conversationId) {
           this.io
             .to(`tenant:${tenantId}:conversation:${conversationId}`)
-            .emit(SOCKET_EVENTS.MESSAGE_STATUS, data);
+            .emit(SOCKET_EVENTS.MESSAGE_STATUS, data)
         }
-        break;
+        break
 
       case CHAT_PUBSUB_CHANNELS.CHANNEL_STATUS:
-        this.io.to(`tenant:${tenantId}:lobby`).emit(SOCKET_EVENTS.CHANNEL_STATUS, data);
-        break;
+        this.io
+          .to(`tenant:${tenantId}:lobby`)
+          .emit(SOCKET_EVENTS.CHANNEL_STATUS, data)
+        break
 
       case CHAT_PUBSUB_CHANNELS.CONVERSATION_UPDATE:
-        this.io.to(`tenant:${tenantId}:lobby`).emit(SOCKET_EVENTS.CONVERSATION_UPDATED, data);
-        break;
+        this.io
+          .to(`tenant:${tenantId}:lobby`)
+          .emit(SOCKET_EVENTS.CONVERSATION_UPDATED, data)
+        break
 
       case CHAT_PUBSUB_CHANNELS.UNREAD_UPDATE:
         if (data.userId) {
           this.io
             .to(`tenant:${tenantId}:user:${data.userId}`)
-            .emit(SOCKET_EVENTS.UNREAD_UPDATE, data);
+            .emit(SOCKET_EVENTS.UNREAD_UPDATE, data)
         }
-        break;
+        break
     }
   }
 }
@@ -1785,44 +1985,50 @@ export class RedisSubscriber {
 
 ```ts
 // apps/chat-server/src/infra/queue/queue-names.ts
-export { CHAT_QUEUES } from '@repo/shared';
+export { CHAT_QUEUES } from '@repo/shared'
 ```
 
 ```ts
 // apps/chat-server/src/infra/queue/queue-producer.ts
-import { Queue } from 'bullmq';
-import type IORedis from 'ioredis';
-import { CHAT_QUEUES } from '@repo/shared';
+import { Queue } from 'bullmq'
+import type IORedis from 'ioredis'
+import { CHAT_QUEUES } from '@repo/shared'
 
 export class QueueProducer {
-  private queues: Map<string, Queue>;
+  private queues: Map<string, Queue>
 
   constructor(connection: IORedis) {
     this.queues = new Map([
-      [CHAT_QUEUES.SEND_MESSAGE, new Queue(CHAT_QUEUES.SEND_MESSAGE, { connection })],
-      [CHAT_QUEUES.PROCESS_INCOMING, new Queue(CHAT_QUEUES.PROCESS_INCOMING, { connection })],
+      [
+        CHAT_QUEUES.SEND_MESSAGE,
+        new Queue(CHAT_QUEUES.SEND_MESSAGE, { connection }),
+      ],
+      [
+        CHAT_QUEUES.PROCESS_INCOMING,
+        new Queue(CHAT_QUEUES.PROCESS_INCOMING, { connection }),
+      ],
       [CHAT_QUEUES.AI_BOT, new Queue(CHAT_QUEUES.AI_BOT, { connection })],
-    ]);
+    ])
   }
 
   async enqueue(
     queueName: string,
     data: Record<string, unknown>,
-    opts?: { delay?: number },
+    opts?: { delay?: number }
   ): Promise<void> {
-    const queue = this.queues.get(queueName);
-    if (!queue) throw new Error(`Queue ${queueName} not found`);
+    const queue = this.queues.get(queueName)
+    if (!queue) throw new Error(`Queue ${queueName} not found`)
     await queue.add(queueName, data, {
       attempts: 3,
       backoff: { type: 'exponential', delay: 1000 },
       removeOnComplete: 100,
       removeOnFail: false, // keep for DLQ inspection
       ...opts,
-    });
+    })
   }
 
   async closeAll(): Promise<void> {
-    await Promise.all([...this.queues.values()].map((q) => q.close()));
+    await Promise.all([...this.queues.values()].map((q) => q.close()))
   }
 }
 ```
@@ -1831,60 +2037,63 @@ export class QueueProducer {
 
 ```ts
 // apps/chat-server/src/infra/di/registry.ts
-import { container } from 'tsyringe';
-import { MongooseConversationRepository } from '../repository/mongoose-conversation-repository.js';
-import { MongooseMessageRepository } from '../repository/mongoose-message-repository.js';
-import { MongooseContactRepository } from '../repository/mongoose-contact-repository.js';
-import { SaveIncomingMessage } from '../../application/save-incoming-message.js';
-import { SendMessage } from '../../application/send-message.js';
-import { ListConversations } from '../../application/list-conversations.js';
-import { GetConversation } from '../../application/get-conversation.js';
-import { AssignConversation } from '../../application/assign-conversation.js';
-import { TransferConversation } from '../../application/transfer-conversation.js';
-import { ReturnToQueue } from '../../application/return-to-queue.js';
-import { CloseConversation } from '../../application/close-conversation.js';
-import { MarkAsRead } from '../../application/mark-as-read.js';
-import type { QueueProducer } from '../queue/queue-producer.js';
+import { container } from 'tsyringe'
+import { MongooseConversationRepository } from '../repository/mongoose-conversation-repository.js'
+import { MongooseMessageRepository } from '../repository/mongoose-message-repository.js'
+import { MongooseContactRepository } from '../repository/mongoose-contact-repository.js'
+import { SaveIncomingMessage } from '../../application/save-incoming-message.js'
+import { SendMessage } from '../../application/send-message.js'
+import { ListConversations } from '../../application/list-conversations.js'
+import { GetConversation } from '../../application/get-conversation.js'
+import { AssignConversation } from '../../application/assign-conversation.js'
+import { TransferConversation } from '../../application/transfer-conversation.js'
+import { ReturnToQueue } from '../../application/return-to-queue.js'
+import { CloseConversation } from '../../application/close-conversation.js'
+import { MarkAsRead } from '../../application/mark-as-read.js'
+import type { QueueProducer } from '../queue/queue-producer.js'
 
 export function registerDependencies(queueProducer: QueueProducer): void {
   // Repositories (singletons)
-  const conversationRepo = new MongooseConversationRepository();
-  const messageRepo = new MongooseMessageRepository();
-  const contactRepo = new MongooseContactRepository();
+  const conversationRepo = new MongooseConversationRepository()
+  const messageRepo = new MongooseMessageRepository()
+  const contactRepo = new MongooseContactRepository()
 
-  container.register('ConversationRepository', { useValue: conversationRepo });
-  container.register('MessageRepository', { useValue: messageRepo });
-  container.register('ContactRepository', { useValue: contactRepo });
-  container.register('QueueProducer', { useValue: queueProducer });
+  container.register('ConversationRepository', { useValue: conversationRepo })
+  container.register('MessageRepository', { useValue: messageRepo })
+  container.register('ContactRepository', { useValue: contactRepo })
+  container.register('QueueProducer', { useValue: queueProducer })
 
   // Use cases (factories — resolve deps from container)
   container.register(SaveIncomingMessage, {
-    useFactory: () => new SaveIncomingMessage(conversationRepo, messageRepo, contactRepo),
-  });
+    useFactory: () =>
+      new SaveIncomingMessage(conversationRepo, messageRepo, contactRepo),
+  })
   container.register(SendMessage, {
-    useFactory: () => new SendMessage(conversationRepo, messageRepo, queueProducer),
-  });
+    useFactory: () =>
+      new SendMessage(conversationRepo, messageRepo, queueProducer),
+  })
   container.register(ListConversations, {
     useFactory: () => new ListConversations(conversationRepo),
-  });
+  })
   container.register(GetConversation, {
-    useFactory: () => new GetConversation(conversationRepo, messageRepo, contactRepo),
-  });
+    useFactory: () =>
+      new GetConversation(conversationRepo, messageRepo, contactRepo),
+  })
   container.register(AssignConversation, {
     useFactory: () => new AssignConversation(conversationRepo),
-  });
+  })
   container.register(TransferConversation, {
     useFactory: () => new TransferConversation(conversationRepo),
-  });
+  })
   container.register(ReturnToQueue, {
     useFactory: () => new ReturnToQueue(conversationRepo),
-  });
+  })
   container.register(CloseConversation, {
     useFactory: () => new CloseConversation(conversationRepo, messageRepo),
-  });
+  })
   container.register(MarkAsRead, {
     useFactory: () => new MarkAsRead(),
-  });
+  })
 }
 ```
 
@@ -1987,44 +2196,47 @@ git commit -m "feat(chat): add HTTP routes (conversations, channels, meta webhoo
 ```ts
 // apps/chat-worker/src/messaging/broker.ts
 export interface MessagePayload {
-  to: string; // phone number
-  text?: string;
-  mediaUrl?: string;
-  type: 'TEXT' | 'IMAGE' | 'AUDIO' | 'VIDEO' | 'DOCUMENT';
+  to: string // phone number
+  text?: string
+  mediaUrl?: string
+  type: 'TEXT' | 'IMAGE' | 'AUDIO' | 'VIDEO' | 'DOCUMENT'
 }
 
 export interface MessageResult {
-  externalId: string;
-  status: 'SENT' | 'FAILED';
-  errorCode?: string;
+  externalId: string
+  status: 'SENT' | 'FAILED'
+  errorCode?: string
 }
 
 export interface BrokerEvents {
-  onMessage: (msg: IncomingMessage) => void;
-  onStatusUpdate: (update: StatusUpdate) => void;
-  onConnectionUpdate: (status: 'CONNECTED' | 'DISCONNECTED' | 'QR_PENDING', qr?: string) => void;
+  onMessage: (msg: IncomingMessage) => void
+  onStatusUpdate: (update: StatusUpdate) => void
+  onConnectionUpdate: (
+    status: 'CONNECTED' | 'DISCONNECTED' | 'QR_PENDING',
+    qr?: string
+  ) => void
 }
 
 export interface IncomingMessage {
-  from: string; // phone number
-  pushName?: string;
-  text?: string;
-  type: 'TEXT' | 'IMAGE' | 'AUDIO' | 'VIDEO' | 'DOCUMENT' | 'OTHER';
-  mediaUrl?: string;
-  externalId: string;
-  timestamp: Date;
+  from: string // phone number
+  pushName?: string
+  text?: string
+  type: 'TEXT' | 'IMAGE' | 'AUDIO' | 'VIDEO' | 'DOCUMENT' | 'OTHER'
+  mediaUrl?: string
+  externalId: string
+  timestamp: Date
 }
 
 export interface StatusUpdate {
-  externalId: string;
-  status: 'SENT' | 'DELIVERED' | 'READ' | 'FAILED';
+  externalId: string
+  status: 'SENT' | 'DELIVERED' | 'READ' | 'FAILED'
 }
 
 export interface Broker {
-  connect(events: BrokerEvents): Promise<void>;
-  disconnect(): Promise<void>;
-  sendMessage(payload: MessagePayload): Promise<MessageResult>;
-  isConnected(): boolean;
+  connect(events: BrokerEvents): Promise<void>
+  disconnect(): Promise<void>
+  sendMessage(payload: MessagePayload): Promise<MessageResult>
+  isConnected(): boolean
 }
 ```
 
@@ -2032,18 +2244,18 @@ export interface Broker {
 
 ```ts
 // apps/chat-worker/src/baileys/baileys-auth-store.ts
-import { BaileysAuthState } from '@repo/db-chat';
-import type { AuthenticationState, SignalDataTypeMap } from 'baileys';
-import { proto } from 'baileys';
-import { initAuthCreds, BufferJSON } from 'baileys';
+import { BaileysAuthState } from '@repo/db-chat'
+import type { AuthenticationState, SignalDataTypeMap } from 'baileys'
+import { proto } from 'baileys'
+import { initAuthCreds, BufferJSON } from 'baileys'
 
 // MongoDB-backed auth state for Baileys.
 // Replaces useMultiFileAuthState with useMongoDBAuthState.
 // Stores creds + signal keys in BaileysAuthState collection per channelId.
 // Pattern: get/set/delete operations on MongoDB documents.
 export async function useMongoDBAuthState(channelId: string): Promise<{
-  state: AuthenticationState;
-  saveCreds: () => Promise<void>;
+  state: AuthenticationState
+  saveCreds: () => Promise<void>
 }> {
   // Read creds from MongoDB, or init new
   // Read/write signal keys from MongoDB
@@ -2110,56 +2322,74 @@ git commit -m "feat(chat): add broker pattern with baileys (MongoDB auth) and me
 
 ```ts
 // apps/chat-worker/src/processors/send-message-processor.ts
-import { UnrecoverableError, DelayedError, type Job } from 'bullmq';
-import { Channel, Message } from '@repo/db-chat';
-import { CHAT_PUBSUB_CHANNELS } from '@repo/shared';
-import type IORedis from 'ioredis';
-import type { BaileysManager } from '../messaging/baileys-manager.js';
-import { MetaBroker } from '../messaging/meta-broker.js';
-import pino from 'pino';
+import { UnrecoverableError, DelayedError, type Job } from 'bullmq'
+import { Channel, Message } from '@repo/db-chat'
+import { CHAT_PUBSUB_CHANNELS } from '@repo/shared'
+import type IORedis from 'ioredis'
+import type { BaileysManager } from '../messaging/baileys-manager.js'
+import { MetaBroker } from '../messaging/meta-broker.js'
+import pino from 'pino'
 
-const logger = pino({ name: 'send-message-processor' });
+const logger = pino({ name: 'send-message-processor' })
 
-const PERMANENT_ERROR_CODES = ['INVALID_NUMBER', 'BLOCKED', 'BANNED', 'DEREGISTERED'];
+const PERMANENT_ERROR_CODES = [
+  'INVALID_NUMBER',
+  'BLOCKED',
+  'BANNED',
+  'DEREGISTERED',
+]
 
 interface SendMessageJobData {
-  messageId: string;
-  tenantId: string;
-  channelId: string;
-  to: string;
-  text?: string;
-  type: string;
+  messageId: string
+  tenantId: string
+  channelId: string
+  to: string
+  text?: string
+  type: string
 }
 
-export function createSendMessageProcessor(redis: IORedis, baileysManager: BaileysManager) {
-  return async function processSendMessage(job: Job<SendMessageJobData>): Promise<void> {
-    const { messageId, tenantId, channelId, to, text, type } = job.data;
+export function createSendMessageProcessor(
+  redis: IORedis,
+  baileysManager: BaileysManager
+) {
+  return async function processSendMessage(
+    job: Job<SendMessageJobData>
+  ): Promise<void> {
+    const { messageId, tenantId, channelId, to, text, type } = job.data
 
     // 1. Load channel
-    const channel = await Channel.findOne({ _id: channelId, tenantId }).lean();
-    if (!channel) throw new UnrecoverableError(`Channel ${channelId} not found`);
+    const channel = await Channel.findOne({ _id: channelId, tenantId }).lean()
+    if (!channel) throw new UnrecoverableError(`Channel ${channelId} not found`)
 
     // 2. Get broker
-    let result;
+    let result
     try {
       if (channel.brokerType === 'BAILEYS') {
-        const broker = baileysManager.get(channelId);
-        if (!broker?.isConnected()) throw new Error('Baileys not connected');
-        result = await broker.sendMessage({ to, text, type: type === 'TEXT' ? 'TEXT' : 'IMAGE' });
+        const broker = baileysManager.get(channelId)
+        if (!broker?.isConnected()) throw new Error('Baileys not connected')
+        result = await broker.sendMessage({
+          to,
+          text,
+          type: type === 'TEXT' ? 'TEXT' : 'IMAGE',
+        })
       } else {
-        const metaBroker = new MetaBroker(channel.config);
+        const metaBroker = new MetaBroker(channel.config)
         result = await metaBroker.sendMessage({
           to,
           text,
           type: type === 'TEXT' ? 'TEXT' : 'IMAGE',
-        });
+        })
       }
     } catch (err) {
-      const errorCode = err instanceof Error ? (err as { code?: string }).code : undefined;
+      const errorCode =
+        err instanceof Error ? (err as { code?: string }).code : undefined
 
       // Permanent error — no retry
       if (errorCode && PERMANENT_ERROR_CODES.includes(errorCode)) {
-        await Message.updateOne({ _id: messageId }, { $set: { status: 'FAILED' } });
+        await Message.updateOne(
+          { _id: messageId },
+          { $set: { status: 'FAILED' } }
+        )
         await redis.publish(
           CHAT_PUBSUB_CHANNELS.MESSAGE_STATUS,
           JSON.stringify({
@@ -2167,26 +2397,26 @@ export function createSendMessageProcessor(redis: IORedis, baileysManager: Baile
             messageId,
             status: 'FAILED',
             errorCode,
-          }),
-        );
-        throw new UnrecoverableError(`Permanent error: ${errorCode}`);
+          })
+        )
+        throw new UnrecoverableError(`Permanent error: ${errorCode}`)
       }
 
       // Rate limit — respect Retry-After
       if (errorCode === 'RATE_LIMITED') {
-        const retryAfter = (err as { retryAfter?: number }).retryAfter ?? 60;
-        throw new DelayedError(`Rate limited, retry after ${retryAfter}s`);
+        const retryAfter = (err as { retryAfter?: number }).retryAfter ?? 60
+        throw new DelayedError(`Rate limited, retry after ${retryAfter}s`)
       }
 
       // Transient — let BullMQ retry
-      throw err;
+      throw err
     }
 
     // 3. Update message status
     await Message.updateOne(
       { _id: messageId },
-      { $set: { status: 'SENT', externalId: result.externalId } },
-    );
+      { $set: { status: 'SENT', externalId: result.externalId } }
+    )
     await redis.publish(
       CHAT_PUBSUB_CHANNELS.MESSAGE_STATUS,
       JSON.stringify({
@@ -2194,11 +2424,11 @@ export function createSendMessageProcessor(redis: IORedis, baileysManager: Baile
         messageId,
         status: 'SENT',
         externalId: result.externalId,
-      }),
-    );
+      })
+    )
 
-    logger.info({ messageId, externalId: result.externalId }, 'Message sent');
-  };
+    logger.info({ messageId, externalId: result.externalId }, 'Message sent')
+  }
 }
 ```
 
@@ -2208,40 +2438,47 @@ Concurrency: 5
 
 ```ts
 // apps/chat-worker/src/processors/incoming-message-processor.ts
-import type { Job } from 'bullmq';
-import { Conversation, Contact, Message, UnreadCount } from '@repo/db-chat';
-import { CHAT_PUBSUB_CHANNELS, CHAT_QUEUES } from '@repo/shared';
-import type IORedis from 'ioredis';
-import type { Queue } from 'bullmq';
-import pino from 'pino';
+import type { Job } from 'bullmq'
+import { Conversation, Contact, Message, UnreadCount } from '@repo/db-chat'
+import { CHAT_PUBSUB_CHANNELS, CHAT_QUEUES } from '@repo/shared'
+import type IORedis from 'ioredis'
+import type { Queue } from 'bullmq'
+import pino from 'pino'
 
-const logger = pino({ name: 'incoming-message-processor' });
+const logger = pino({ name: 'incoming-message-processor' })
 
 interface IncomingMessageJobData {
-  tenantId: string;
-  channelId: string;
-  whatsappPhone: string;
-  pushName?: string;
-  text?: string;
-  type: string;
-  mediaUrl?: string;
-  externalId?: string;
-  hasAi: boolean;
+  tenantId: string
+  channelId: string
+  whatsappPhone: string
+  pushName?: string
+  text?: string
+  type: string
+  mediaUrl?: string
+  externalId?: string
+  hasAi: boolean
 }
 
 // Chat-worker handles persistence directly (not via chat-server use case)
 // because the worker receives raw Baileys/Meta events and needs to persist
 // before publishing to Redis. Chat-server only broadcasts via Socket.IO.
 export function createIncomingMessageProcessor(redis: IORedis, aiQueue: Queue) {
-  return async function processIncomingMessage(job: Job<IncomingMessageJobData>): Promise<void> {
-    const data = job.data;
+  return async function processIncomingMessage(
+    job: Job<IncomingMessageJobData>
+  ): Promise<void> {
+    const data = job.data
 
     // 1. Dedup by externalId
     if (data.externalId) {
-      const existing = await Message.findOne({ externalId: data.externalId }).lean();
+      const existing = await Message.findOne({
+        externalId: data.externalId,
+      }).lean()
       if (existing) {
-        logger.debug({ externalId: data.externalId }, 'Duplicate message, skipping');
-        return;
+        logger.debug(
+          { externalId: data.externalId },
+          'Duplicate message, skipping'
+        )
+        return
       }
     }
 
@@ -2249,8 +2486,8 @@ export function createIncomingMessageProcessor(redis: IORedis, aiQueue: Queue) {
     const contact = await Contact.findOneAndUpdate(
       { tenantId: data.tenantId, whatsappPhone: data.whatsappPhone },
       { $set: { pushName: data.pushName } },
-      { upsert: true, returnDocument: 'after' },
-    );
+      { upsert: true, returnDocument: 'after' }
+    )
 
     // 3. Find or create conversation
     let conversation = await Conversation.findOne({
@@ -2258,9 +2495,9 @@ export function createIncomingMessageProcessor(redis: IORedis, aiQueue: Queue) {
       contactId: contact!._id.toString(),
       channelId: data.channelId,
       status: { $ne: 'CLOSED' },
-    });
+    })
 
-    let isNewConversation = false;
+    let isNewConversation = false
     if (!conversation) {
       conversation = await Conversation.create({
         tenantId: data.tenantId,
@@ -2268,8 +2505,8 @@ export function createIncomingMessageProcessor(redis: IORedis, aiQueue: Queue) {
         contactId: contact!._id.toString(),
         status: data.hasAi ? 'BOT_ACTIVE' : 'WAITING_HUMAN',
         whatsappPhone: data.whatsappPhone,
-      });
-      isNewConversation = true;
+      })
+      isNewConversation = true
     }
 
     // 4. Save message
@@ -2283,13 +2520,13 @@ export function createIncomingMessageProcessor(redis: IORedis, aiQueue: Queue) {
       mediaUrl: data.mediaUrl,
       status: 'DELIVERED',
       externalId: data.externalId,
-    });
+    })
 
     // 5. Update conversation lastMessage
     await Conversation.updateOne(
       { _id: conversation._id },
-      { $set: { lastMessageText: data.text, lastMessageAt: new Date() } },
-    );
+      { $set: { lastMessageText: data.text, lastMessageAt: new Date() } }
+    )
 
     // 6. Increment unread counts for all agents in org
     // (bulk upsert — handled by a separate UnreadCount update)
@@ -2298,8 +2535,8 @@ export function createIncomingMessageProcessor(redis: IORedis, aiQueue: Queue) {
       JSON.stringify({
         tenantId: data.tenantId,
         conversationId: conversation._id.toString(),
-      }),
-    );
+      })
+    )
 
     // 7. Publish to chat-server for Socket.IO broadcast
     await redis.publish(
@@ -2310,8 +2547,8 @@ export function createIncomingMessageProcessor(redis: IORedis, aiQueue: Queue) {
         message: message.toObject(),
         isNewConversation,
         contact: contact!.toObject(),
-      }),
-    );
+      })
+    )
 
     // 8. If BOT_ACTIVE, enqueue AI processing
     if (conversation.status === 'BOT_ACTIVE') {
@@ -2319,14 +2556,14 @@ export function createIncomingMessageProcessor(redis: IORedis, aiQueue: Queue) {
         conversationId: conversation._id.toString(),
         tenantId: data.tenantId,
         messageText: data.text,
-      });
+      })
     }
 
     logger.info(
       { conversationId: conversation._id, messageId: message._id },
-      'Incoming message processed',
-    );
-  };
+      'Incoming message processed'
+    )
+  }
 }
 ```
 
@@ -2336,32 +2573,37 @@ Concurrency: 3
 
 ```ts
 // apps/chat-worker/src/processors/auto-close-processor.ts
-import type { Job } from 'bullmq';
-import { Conversation, Message } from '@repo/db-chat';
-import { CHAT_PUBSUB_CHANNELS, CHAT_LIMITS } from '@repo/shared';
-import type IORedis from 'ioredis';
-import pino from 'pino';
+import type { Job } from 'bullmq'
+import { Conversation, Message } from '@repo/db-chat'
+import { CHAT_PUBSUB_CHANNELS, CHAT_LIMITS } from '@repo/shared'
+import type IORedis from 'ioredis'
+import pino from 'pino'
 
-const logger = pino({ name: 'auto-close-processor' });
+const logger = pino({ name: 'auto-close-processor' })
 
 export function createAutoCloseProcessor(redis: IORedis) {
   return async function processAutoClose(_job: Job): Promise<void> {
-    const cutoff = new Date(Date.now() - CHAT_LIMITS.AUTO_CLOSE_HOURS * 60 * 60 * 1000);
+    const cutoff = new Date(
+      Date.now() - CHAT_LIMITS.AUTO_CLOSE_HOURS * 60 * 60 * 1000
+    )
 
     const staleConversations = await Conversation.find({
       status: { $in: ['BOT_ACTIVE', 'WAITING_HUMAN', 'HUMAN_ACTIVE'] },
       updatedAt: { $lt: cutoff },
     })
       .limit(100)
-      .lean();
+      .lean()
 
-    logger.info({ count: staleConversations.length }, 'Auto-closing stale conversations');
+    logger.info(
+      { count: staleConversations.length },
+      'Auto-closing stale conversations'
+    )
 
     for (const conv of staleConversations) {
       await Conversation.updateOne(
         { _id: conv._id },
-        { $set: { status: 'CLOSED', closedAt: new Date(), closedBy: 'system' } },
-      );
+        { $set: { status: 'CLOSED', closedAt: new Date(), closedBy: 'system' } }
+      )
 
       await Message.create({
         conversationId: conv._id.toString(),
@@ -2371,7 +2613,7 @@ export function createAutoCloseProcessor(redis: IORedis) {
         text: 'Atendimento encerrado por inatividade',
         type: 'TEXT',
         status: 'DELIVERED',
-      });
+      })
 
       await redis.publish(
         CHAT_PUBSUB_CHANNELS.CONVERSATION_UPDATE,
@@ -2380,10 +2622,10 @@ export function createAutoCloseProcessor(redis: IORedis) {
           conversationId: conv._id.toString(),
           status: 'CLOSED',
           closedBy: 'system',
-        }),
-      );
+        })
+      )
     }
-  };
+  }
 }
 ```
 
@@ -2393,17 +2635,17 @@ Concurrency: 1 (repeatable: every 1 hour)
 
 ```ts
 // apps/chat-worker/src/processors/ai-bot-processor.ts
-import { CHAT_PUBSUB_CHANNELS } from '@repo/shared';
-import type { Job } from 'bullmq';
-import pino from 'pino';
+import { CHAT_PUBSUB_CHANNELS } from '@repo/shared'
+import type { Job } from 'bullmq'
+import pino from 'pino'
 
-const logger = pino({ name: 'ai-bot-processor' });
+const logger = pino({ name: 'ai-bot-processor' })
 
 // STUB: Immediately escalates to WAITING_HUMAN.
 // Real implementation comes in Fase 6 with @repo/ai (Vercel AI SDK).
 export async function processAiBot(job: Job): Promise<void> {
-  const { conversationId, tenantId } = job.data;
-  logger.info({ conversationId }, 'AI bot stub: escalating to human queue');
+  const { conversationId, tenantId } = job.data
+  logger.info({ conversationId }, 'AI bot stub: escalating to human queue')
 
   // Update conversation status to WAITING_HUMAN
   // Create system message: "Transferido para um atendente. Aguarde."
@@ -2445,22 +2687,26 @@ Chat-server uses its own JWT (SOCKET_JWT_SECRET). The main server issues this to
 
 ```ts
 // apps/server/src/routes/v1/chat-token-route.ts
-import jwt from 'jsonwebtoken';
-import { env } from '@repo/env';
-import type { FastifyInstance } from 'fastify';
+import jwt from 'jsonwebtoken'
+import { env } from '@repo/env'
+import type { FastifyInstance } from 'fastify'
 
 export async function chatTokenRoute(app: FastifyInstance): Promise<void> {
   app.post('/api/v1/chat/token', async (request, reply) => {
-    const { id: userId, name } = request.user;
-    const organizationId = request.organizationId;
-    const role = request.role;
+    const { id: userId, name } = request.user
+    const organizationId = request.organizationId
+    const role = request.role
 
-    const token = jwt.sign({ userId, organizationId, role, name }, env.SOCKET_JWT_SECRET, {
-      expiresIn: '24h',
-    });
+    const token = jwt.sign(
+      { userId, organizationId, role, name },
+      env.SOCKET_JWT_SECRET,
+      {
+        expiresIn: '24h',
+      }
+    )
 
-    return reply.send({ success: true, data: { token } });
-  });
+    return reply.send({ success: true, data: { token } })
+  })
 }
 ```
 
@@ -2509,27 +2755,30 @@ git commit -m "feat(chat): add chat JWT token endpoint in main server"
 
 ```ts
 // apps/web/src/features/chat/lib/socket-client.ts
-import { io, type Socket } from 'socket.io-client';
+import { io, type Socket } from 'socket.io-client'
 
-let socket: Socket | null = null;
+let socket: Socket | null = null
 
 export function getSocket(token: string): Socket {
-  if (socket?.connected) return socket;
+  if (socket?.connected) return socket
 
-  socket = io(process.env.NEXT_PUBLIC_CHAT_SERVER_URL ?? 'http://localhost:3002', {
-    auth: { token },
-    transports: ['websocket'],
-    reconnection: true,
-    reconnectionDelay: 1000,
-    reconnectionAttempts: 10,
-  });
+  socket = io(
+    process.env.NEXT_PUBLIC_CHAT_SERVER_URL ?? 'http://localhost:3002',
+    {
+      auth: { token },
+      transports: ['websocket'],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 10,
+    }
+  )
 
-  return socket;
+  return socket
 }
 
 export function disconnectSocket(): void {
-  socket?.disconnect();
-  socket = null;
+  socket?.disconnect()
+  socket = null
 }
 ```
 
@@ -2759,10 +3008,10 @@ Replace generic User profile with:
 
 ```tsx
 // apps/web/src/app/(dashboard)/chat/page.tsx
-import { ChatLayout } from '@/features/chat/components/chat-layout';
+import { ChatLayout } from '@/features/chat/components/chat-layout'
 
 export default function ChatPage() {
-  return <ChatLayout />;
+  return <ChatLayout />
 }
 ```
 

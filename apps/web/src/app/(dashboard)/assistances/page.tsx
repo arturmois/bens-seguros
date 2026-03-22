@@ -1,4 +1,4 @@
-import { AssistancesContent } from './assistances-content';
+import { AssistancesContent } from './assistances-content'
 
 export default function AssistancesPage() {
   return (
@@ -11,5 +11,5 @@ export default function AssistancesPage() {
       </div>
       <AssistancesContent />
     </div>
-  );
+  )
 }

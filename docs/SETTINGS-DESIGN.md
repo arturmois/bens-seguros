@@ -663,7 +663,12 @@ PREFERENCIAS
   options={[
     { value: 'light', label: 'Claro', icon: Sun, preview: <LightPreview /> },
     { value: 'dark', label: 'Escuro', icon: Moon, preview: <DarkPreview /> },
-    { value: 'system', label: 'Sistema', icon: Monitor, preview: <SystemPreview /> },
+    {
+      value: 'system',
+      label: 'Sistema',
+      icon: Monitor,
+      preview: <SystemPreview />,
+    },
   ]}
   value={theme}
   onChange={setTheme}

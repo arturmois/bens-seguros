@@ -37,7 +37,7 @@ export default {
       },
     },
   },
-};
+}
 ```
 
 ### Custom Instance (`apps/web/src/api/custom-instance.ts`)
@@ -142,37 +142,39 @@ export const CLIENT_MESSAGES = {
   duplicateDocument: 'Ja existe um cliente com este documento',
   invalidCpf: 'CPF invalido',
   invalidCnpj: 'CNPJ invalido',
-} as const;
+} as const
 ```
 
 ### Formatacao (centralizada em `lib/formatters.ts`)
 
 ```ts
 export const formatCurrency = (cents: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cents / 100);
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+    cents / 100
+  )
 
 export const formatDate = (date: Date) =>
   new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
     timeZone: 'America/Sao_Paulo',
-  }).format(date);
+  }).format(date)
 
 export const formatDateTime = (date: Date) =>
   new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
     timeStyle: 'short',
     timeZone: 'America/Sao_Paulo',
-  }).format(date);
+  }).format(date)
 
 export const formatPhone = (phone: string) => {
   /* mascara */
-};
+}
 export const formatCpf = (cpf: string) => {
   /* mascara */
-};
+}
 export const formatCnpj = (cnpj: string) => {
   /* mascara */
-};
+}
 ```
 
 ### Regras
@@ -210,11 +212,11 @@ export const formatCnpj = (cnpj: string) => {
 ```ts
 // Policy expiry check - roda 3am UTC (meia-noite em SP)
 {
-  pattern: '0 3 * * *';
+  pattern: '0 3 * * *'
 }
 // Audit archive - roda 1o do mes 4am UTC
 {
-  pattern: '0 4 1 * *';
+  pattern: '0 4 1 * *'
 }
 ```
 
@@ -246,7 +248,7 @@ const org = await prisma.organization.upsert({
   where: { slug: 'default' },
   create: { name: 'Minha Corretora', slug: 'default' },
   update: {},
-});
+})
 // Cria usuario OWNER com Better Auth
 ```
 
@@ -321,14 +323,22 @@ app/(auth)/error.tsx         # Erros em login/register
 // Erro em 1 tab nao derruba as outras
 <Tabs>
   <TabContent value="proposals">
-    <ErrorBoundary fallback={<ErrorCard message="Erro ao carregar propostas" onRetry={retry} />}>
+    <ErrorBoundary
+      fallback={
+        <ErrorCard message="Erro ao carregar propostas" onRetry={retry} />
+      }
+    >
       <Suspense fallback={<TableSkeleton />}>
         <ProposalsTab />
       </Suspense>
     </ErrorBoundary>
   </TabContent>
   <TabContent value="policies">
-    <ErrorBoundary fallback={<ErrorCard message="Erro ao carregar apolices" onRetry={retry} />}>
+    <ErrorBoundary
+      fallback={
+        <ErrorCard message="Erro ao carregar apolices" onRetry={retry} />
+      }
+    >
       <Suspense fallback={<TableSkeleton />}>
         <PoliciesTab />
       </Suspense>
@@ -348,14 +358,14 @@ components/error-boundary.tsx # Class component wrapper (React Error Boundary)
 
 ```tsx
 // global-error.tsx
-'use client';
-import * as Sentry from '@sentry/nextjs';
-import { useEffect } from 'react';
+'use client'
+import * as Sentry from '@sentry/nextjs'
+import { useEffect } from 'react'
 
 export default function GlobalError({ error, reset }) {
   useEffect(() => {
-    Sentry.captureException(error);
-  }, [error]);
+    Sentry.captureException(error)
+  }, [error])
 
   return (
     <html>
@@ -364,7 +374,7 @@ export default function GlobalError({ error, reset }) {
         <button onClick={reset}>Recarregar</button>
       </body>
     </html>
-  );
+  )
 }
 ```
 
@@ -615,7 +625,7 @@ case 'COMMERCIAL':
 const where = {
   organizationId,
   ...(role === 'COMMERCIAL' && { salespersonId: userId }),
-};
+}
 ```
 
 ### Implementacao Frontend
@@ -649,18 +659,19 @@ app.register(rateLimit, {
   max: 5,
   timeWindow: '15 minutes',
   keyGenerator: (request) => {
-    const body = request.body as { email?: string };
-    return `login:${body?.email ?? request.ip}`;
+    const body = request.body as { email?: string }
+    return `login:${body?.email ?? request.ip}`
   },
   hook: 'preHandler',
-});
+})
 
 // API routes - rate limit geral
 app.register(rateLimit, {
   max: 100,
   timeWindow: '1 minute',
-  keyGenerator: (request) => `api:${request.user?.id}:${request.organizationId}`,
-});
+  keyGenerator: (request) =>
+    `api:${request.user?.id}:${request.organizationId}`,
+})
 ```
 
 ### Resposta 429
@@ -708,7 +719,7 @@ Continua exportando TS cru. Nao precisa de build step.
 `apps/server/tsup.config.ts`:
 
 ```ts
-import { defineConfig } from 'tsup';
+import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entry: {
@@ -722,7 +733,13 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   // Bundla packages internos (@repo/*) dentro do output
-  noExternal: ['@repo/core', '@repo/db', '@repo/env', '@repo/shared', '@repo/auth'],
+  noExternal: [
+    '@repo/core',
+    '@repo/db',
+    '@repo/env',
+    '@repo/shared',
+    '@repo/auth',
+  ],
   // NÃO bundla deps externas (fastify, prisma, etc.)
   external: [
     'fastify',
@@ -739,13 +756,13 @@ export default defineConfig({
     'reflect-metadata',
     'zod',
   ],
-});
+})
 ```
 
 `apps/chat-server/tsup.config.ts`:
 
 ```ts
-import { defineConfig } from 'tsup';
+import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entry: {
@@ -769,7 +786,7 @@ export default defineConfig({
     'pino',
     'zod',
   ],
-});
+})
 ```
 
 Mesmo padrao para `apps/chat-worker/tsup.config.ts` (com `@repo/ai` em noExternal e `baileys` em external).
@@ -797,7 +814,7 @@ Mesmo padrao para `apps/chat-worker/tsup.config.ts` (com `@repo/ai` em noExterna
 const nextConfig: NextConfig = {
   transpilePackages: ['@repo/shared', '@repo/env', '@repo/auth'],
   // ...
-};
+}
 ```
 
 ### Dockerfile.server (Corrigido)

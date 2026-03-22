@@ -1,25 +1,25 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { z } from 'zod';
+import { useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { z } from 'zod'
 
-import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/components/ui/date-picker';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button'
+import { DatePicker } from '@/components/ui/date-picker'
+import { Input } from '@/components/ui/input'
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet';
+} from '@/components/ui/sheet'
 
-import { FormField } from '@/components/shared/form-field';
-import { useIssuePolicy } from '@/features/policies/hooks/use-policies';
+import { FormField } from '@/components/shared/form-field'
+import { useIssuePolicy } from '@/features/policies/hooks/use-policies'
 
 const issuePolicySchema = z.object({
   policyNumber: z
@@ -31,58 +31,62 @@ const issuePolicySchema = z.object({
   endDate: z
     .string({ required_error: 'Data de fim é obrigatória' })
     .min(1, 'Data de fim é obrigatória'),
-});
+})
 
-type IssuePolicyFormValues = z.infer<typeof issuePolicySchema>;
+type IssuePolicyFormValues = z.infer<typeof issuePolicySchema>
 
 const EMPTY_VALUES: IssuePolicyFormValues = {
   policyNumber: '',
   startDate: '',
   endDate: '',
-};
+}
 
 interface IssuePolicySheetProps {
-  readonly proposalId: string;
-  readonly open: boolean;
-  readonly onOpenChange: (open: boolean) => void;
+  readonly proposalId: string
+  readonly open: boolean
+  readonly onOpenChange: (open: boolean) => void
 }
 
 function parseDateString(value: string | undefined): Date | undefined {
-  if (!value) return undefined;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return undefined;
-  return date;
+  if (!value) return undefined
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return undefined
+  return date
 }
 
 function formatDateToISO(date: Date | undefined): string {
-  if (!date) return '';
-  return date.toISOString().slice(0, 10);
+  if (!date) return ''
+  return date.toISOString().slice(0, 10)
 }
 
-export function IssuePolicySheet({ proposalId, open, onOpenChange }: IssuePolicySheetProps) {
-  const router = useRouter();
-  const issuePolicy = useIssuePolicy();
+export function IssuePolicySheet({
+  proposalId,
+  open,
+  onOpenChange,
+}: IssuePolicySheetProps) {
+  const router = useRouter()
+  const issuePolicy = useIssuePolicy()
 
   const form = useForm<IssuePolicyFormValues>({
     resolver: zodResolver(issuePolicySchema),
     defaultValues: EMPTY_VALUES,
-  });
+  })
 
   useEffect(() => {
-    if (!open) return;
-    form.reset(EMPTY_VALUES);
-  }, [open, form]);
+    if (!open) return
+    form.reset(EMPTY_VALUES)
+  }, [open, form])
 
   function handleSubmit(values: IssuePolicyFormValues) {
     issuePolicy.mutate(
       { proposalId, ...values },
       {
         onSuccess: (policy) => {
-          onOpenChange(false);
-          router.push(`/policies/${policy.id}`);
+          onOpenChange(false)
+          router.push(`/policies/${policy.id}`)
         },
-      },
-    );
+      }
+    )
   }
 
   return (
@@ -95,13 +99,19 @@ export function IssuePolicySheet({ proposalId, open, onOpenChange }: IssuePolicy
           </SheetDescription>
         </SheetHeader>
 
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-6 space-y-4 px-6">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="mt-6 space-y-4 px-6"
+        >
           <FormField
             label="Número da Apólice"
             error={form.formState.errors.policyNumber?.message}
             required
           >
-            <Input placeholder="Ex: AUTO-2026-001" {...form.register('policyNumber')} />
+            <Input
+              placeholder="Ex: AUTO-2026-001"
+              {...form.register('policyNumber')}
+            />
           </FormField>
 
           <FormField
@@ -141,16 +151,22 @@ export function IssuePolicySheet({ proposalId, open, onOpenChange }: IssuePolicy
           </FormField>
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
             <Button type="submit" disabled={issuePolicy.isPending}>
-              {issuePolicy.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {issuePolicy.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Emitir Apólice
             </Button>
           </div>
         </form>
       </SheetContent>
     </Sheet>
-  );
+  )
 }

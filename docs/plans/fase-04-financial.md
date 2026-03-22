@@ -153,8 +153,8 @@ git commit -m "feat: add commission model with approval workflow to prisma schem
 - [ ] **Step 1: Write failing tests for Commission entity**
 
 ```ts
-import { describe, it, expect } from 'vitest';
-import { Commission } from './commission.js';
+import { describe, it, expect } from 'vitest'
+import { Commission } from './commission.js'
 
 describe('Commission Entity', () => {
   const validProps = {
@@ -163,95 +163,95 @@ describe('Commission Entity', () => {
     salespersonId: 'user-1',
     premiumValueInCents: 100000, // R$1000
     percentageInBasisPoints: 1500, // 15%
-  };
+  }
 
   it('creates with PENDING_COMMERCIAL status and calculated value', () => {
-    const commission = Commission.create(validProps);
-    expect(commission.status).toBe('PENDING_COMMERCIAL');
-    expect(commission.commissionValueInCents).toBe(15000); // 1000 * 15% = 150
-  });
+    const commission = Commission.create(validProps)
+    expect(commission.status).toBe('PENDING_COMMERCIAL')
+    expect(commission.commissionValueInCents).toBe(15000) // 1000 * 15% = 150
+  })
 
   it('advances from PENDING_COMMERCIAL to PENDING_ADMIN', () => {
-    const commission = Commission.create(validProps);
-    commission.approveByCommercial('user-2');
-    expect(commission.status).toBe('PENDING_ADMIN');
-  });
+    const commission = Commission.create(validProps)
+    commission.approveByCommercial('user-2')
+    expect(commission.status).toBe('PENDING_ADMIN')
+  })
 
   it('advances from PENDING_ADMIN to APPROVED', () => {
-    const commission = Commission.create(validProps);
-    commission.approveByCommercial('user-2');
-    commission.approveByAdmin('admin-1');
-    expect(commission.status).toBe('APPROVED');
-    expect(commission.approvedBy).toBe('admin-1');
-  });
+    const commission = Commission.create(validProps)
+    commission.approveByCommercial('user-2')
+    commission.approveByAdmin('admin-1')
+    expect(commission.status).toBe('APPROVED')
+    expect(commission.approvedBy).toBe('admin-1')
+  })
 
   it('advances from APPROVED to PAID', () => {
-    const commission = Commission.create(validProps);
-    commission.approveByCommercial('user-2');
-    commission.approveByAdmin('admin-1');
-    commission.markAsPaid();
-    expect(commission.status).toBe('PAID');
-  });
+    const commission = Commission.create(validProps)
+    commission.approveByCommercial('user-2')
+    commission.approveByAdmin('admin-1')
+    commission.markAsPaid()
+    expect(commission.status).toBe('PAID')
+  })
 
   it('rejects from PENDING_COMMERCIAL', () => {
-    const commission = Commission.create(validProps);
-    commission.reject('admin-1', 'Valores incorretos');
-    expect(commission.status).toBe('REJECTED');
-    expect(commission.rejectionReason).toBe('Valores incorretos');
-  });
+    const commission = Commission.create(validProps)
+    commission.reject('admin-1', 'Valores incorretos')
+    expect(commission.status).toBe('REJECTED')
+    expect(commission.rejectionReason).toBe('Valores incorretos')
+  })
 
   it('rejects from PENDING_ADMIN', () => {
-    const commission = Commission.create(validProps);
-    commission.approveByCommercial('user-2');
-    commission.reject('admin-1', 'Sem orcamento');
-    expect(commission.status).toBe('REJECTED');
-  });
+    const commission = Commission.create(validProps)
+    commission.approveByCommercial('user-2')
+    commission.reject('admin-1', 'Sem orcamento')
+    expect(commission.status).toBe('REJECTED')
+  })
 
   it('cannot approve from REJECTED', () => {
-    const commission = Commission.create(validProps);
-    commission.reject('admin-1', 'reason');
-    expect(() => commission.approveByCommercial('user-2')).toThrow();
-  });
+    const commission = Commission.create(validProps)
+    commission.reject('admin-1', 'reason')
+    expect(() => commission.approveByCommercial('user-2')).toThrow()
+  })
 
   it('cannot approve from PAID', () => {
-    const commission = Commission.create(validProps);
-    commission.approveByCommercial('u');
-    commission.approveByAdmin('a');
-    commission.markAsPaid();
-    expect(() => commission.approveByAdmin('a')).toThrow();
-  });
+    const commission = Commission.create(validProps)
+    commission.approveByCommercial('u')
+    commission.approveByAdmin('a')
+    commission.markAsPaid()
+    expect(() => commission.approveByAdmin('a')).toThrow()
+  })
 
   it('cannot pay from PENDING_COMMERCIAL', () => {
-    const commission = Commission.create(validProps);
-    expect(() => commission.markAsPaid()).toThrow();
-  });
+    const commission = Commission.create(validProps)
+    expect(() => commission.markAsPaid()).toThrow()
+  })
 
   it('creates reversal commission', () => {
-    const original = Commission.create(validProps);
-    original.approveByCommercial('u');
-    original.approveByAdmin('a');
-    original.markAsPaid();
+    const original = Commission.create(validProps)
+    original.approveByCommercial('u')
+    original.approveByAdmin('a')
+    original.markAsPaid()
 
-    const reversal = Commission.createReversal(original);
-    expect(reversal.isReversal).toBe(true);
-    expect(reversal.originalCommissionId).toBe(original.id);
-    expect(reversal.commissionValueInCents).toBe(-15000);
-    expect(reversal.status).toBe('PENDING_COMMERCIAL');
-  });
+    const reversal = Commission.createReversal(original)
+    expect(reversal.isReversal).toBe(true)
+    expect(reversal.originalCommissionId).toBe(original.id)
+    expect(reversal.commissionValueInCents).toBe(-15000)
+    expect(reversal.status).toBe('PENDING_COMMERCIAL')
+  })
 
   it('cannot reverse unpaid commission', () => {
-    const commission = Commission.create(validProps);
-    expect(() => Commission.createReversal(commission)).toThrow();
-  });
+    const commission = Commission.create(validProps)
+    expect(() => Commission.createReversal(commission)).toThrow()
+  })
 
   it('calculates with split percentage', () => {
     const commission = Commission.create({
       ...validProps,
       splitPercentage: 5000, // 50%
-    });
-    expect(commission.commissionValueInCents).toBe(7500); // 150 * 50% = 75
-  });
-});
+    })
+    expect(commission.commissionValueInCents).toBe(7500) // 150 * 50% = 75
+  })
+})
 ```
 
 - [ ] **Step 2: Run test - expect fail**
@@ -263,8 +263,8 @@ cd packages/core && pnpm vitest run src/modules/commission/domain/commission.spe
 - [ ] **Step 3: Implement Commission entity**
 
 ```ts
-import { randomUUID } from 'node:crypto';
-import { calculateCommission } from './commission-calculator.js';
+import { randomUUID } from 'node:crypto'
+import { calculateCommission } from './commission-calculator.js'
 
 type Status =
   | 'PENDING_COMMERCIAL'
@@ -272,54 +272,54 @@ type Status =
   | 'APPROVED'
   | 'PAID'
   | 'REJECTED'
-  | 'REVERSED';
+  | 'REVERSED'
 
 interface CommissionProps {
-  id: string;
-  organizationId: string;
-  policyId: string;
-  salespersonId: string;
-  status: Status;
-  commissionValueInCents: number;
-  premiumValueInCents: number;
-  percentageInBasisPoints: number;
-  splitPercentage: number;
-  approvedBy: string | null;
-  approvedAt: Date | null;
-  paidAt: Date | null;
-  rejectedBy: string | null;
-  rejectedAt: Date | null;
-  rejectionReason: string | null;
-  isReversal: boolean;
-  originalCommissionId: string | null;
-  deletedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
+  id: string
+  organizationId: string
+  policyId: string
+  salespersonId: string
+  status: Status
+  commissionValueInCents: number
+  premiumValueInCents: number
+  percentageInBasisPoints: number
+  splitPercentage: number
+  approvedBy: string | null
+  approvedAt: Date | null
+  paidAt: Date | null
+  rejectedBy: string | null
+  rejectedAt: Date | null
+  rejectionReason: string | null
+  isReversal: boolean
+  originalCommissionId: string | null
+  deletedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
 }
 
 interface CreateCommissionProps {
-  organizationId: string;
-  policyId: string;
-  salespersonId: string;
-  premiumValueInCents: number;
-  percentageInBasisPoints: number;
-  splitPercentage?: number;
+  organizationId: string
+  policyId: string
+  salespersonId: string
+  premiumValueInCents: number
+  percentageInBasisPoints: number
+  splitPercentage?: number
 }
 
 export class Commission {
-  private props: CommissionProps;
+  private props: CommissionProps
 
   private constructor(props: CommissionProps) {
-    this.props = props;
+    this.props = props
   }
 
   static create(input: CreateCommissionProps): Commission {
-    const split = input.splitPercentage ?? 10000;
+    const split = input.splitPercentage ?? 10000
     const value = calculateCommission(
       input.premiumValueInCents,
       input.percentageInBasisPoints,
-      split,
-    );
+      split
+    )
 
     return new Commission({
       id: randomUUID(),
@@ -342,16 +342,16 @@ export class Commission {
       deletedAt: null,
       createdAt: new Date(),
       updatedAt: new Date(),
-    });
+    })
   }
 
   static restore(props: CommissionProps): Commission {
-    return new Commission(props);
+    return new Commission(props)
   }
 
   static createReversal(original: Commission): Commission {
     if (original.status !== 'PAID') {
-      throw new Error('Can only reverse PAID commissions');
+      throw new Error('Can only reverse PAID commissions')
     }
 
     return new Commission({
@@ -375,89 +375,92 @@ export class Commission {
       deletedAt: null,
       createdAt: new Date(),
       updatedAt: new Date(),
-    });
+    })
   }
 
   approveByCommercial(userId: string): void {
     if (this.props.status !== 'PENDING_COMMERCIAL') {
-      throw new Error(`Cannot approve from ${this.props.status}`);
+      throw new Error(`Cannot approve from ${this.props.status}`)
     }
-    this.props.status = 'PENDING_ADMIN';
-    this.props.updatedAt = new Date();
+    this.props.status = 'PENDING_ADMIN'
+    this.props.updatedAt = new Date()
   }
 
   approveByAdmin(userId: string): void {
     if (this.props.status !== 'PENDING_ADMIN') {
-      throw new Error(`Cannot approve from ${this.props.status}`);
+      throw new Error(`Cannot approve from ${this.props.status}`)
     }
-    this.props.status = 'APPROVED';
-    this.props.approvedBy = userId;
-    this.props.approvedAt = new Date();
-    this.props.updatedAt = new Date();
+    this.props.status = 'APPROVED'
+    this.props.approvedBy = userId
+    this.props.approvedAt = new Date()
+    this.props.updatedAt = new Date()
   }
 
   markAsPaid(): void {
     if (this.props.status !== 'APPROVED') {
-      throw new Error(`Cannot pay from ${this.props.status}`);
+      throw new Error(`Cannot pay from ${this.props.status}`)
     }
-    this.props.status = 'PAID';
-    this.props.paidAt = new Date();
-    this.props.updatedAt = new Date();
+    this.props.status = 'PAID'
+    this.props.paidAt = new Date()
+    this.props.updatedAt = new Date()
   }
 
   reject(userId: string, reason: string): void {
-    if (this.props.status !== 'PENDING_COMMERCIAL' && this.props.status !== 'PENDING_ADMIN') {
-      throw new Error(`Cannot reject from ${this.props.status}`);
+    if (
+      this.props.status !== 'PENDING_COMMERCIAL' &&
+      this.props.status !== 'PENDING_ADMIN'
+    ) {
+      throw new Error(`Cannot reject from ${this.props.status}`)
     }
-    this.props.status = 'REJECTED';
-    this.props.rejectedBy = userId;
-    this.props.rejectedAt = new Date();
-    this.props.rejectionReason = reason;
-    this.props.updatedAt = new Date();
+    this.props.status = 'REJECTED'
+    this.props.rejectedBy = userId
+    this.props.rejectedAt = new Date()
+    this.props.rejectionReason = reason
+    this.props.updatedAt = new Date()
   }
 
   get id() {
-    return this.props.id;
+    return this.props.id
   }
   get organizationId() {
-    return this.props.organizationId;
+    return this.props.organizationId
   }
   get policyId() {
-    return this.props.policyId;
+    return this.props.policyId
   }
   get salespersonId() {
-    return this.props.salespersonId;
+    return this.props.salespersonId
   }
   get status() {
-    return this.props.status;
+    return this.props.status
   }
   get commissionValueInCents() {
-    return this.props.commissionValueInCents;
+    return this.props.commissionValueInCents
   }
   get premiumValueInCents() {
-    return this.props.premiumValueInCents;
+    return this.props.premiumValueInCents
   }
   get percentageInBasisPoints() {
-    return this.props.percentageInBasisPoints;
+    return this.props.percentageInBasisPoints
   }
   get splitPercentage() {
-    return this.props.splitPercentage;
+    return this.props.splitPercentage
   }
   get approvedBy() {
-    return this.props.approvedBy;
+    return this.props.approvedBy
   }
   get rejectionReason() {
-    return this.props.rejectionReason;
+    return this.props.rejectionReason
   }
   get isReversal() {
-    return this.props.isReversal;
+    return this.props.isReversal
   }
   get originalCommissionId() {
-    return this.props.originalCommissionId;
+    return this.props.originalCommissionId
   }
 
   toJSON(): CommissionProps {
-    return { ...this.props };
+    return { ...this.props }
   }
 }
 ```
@@ -475,11 +478,12 @@ export class Commission {
 export function calculateCommission(
   premiumInCents: number,
   percentageInBasisPoints: number,
-  splitInBasisPoints: number = 10000,
+  splitInBasisPoints: number = 10000
 ): number {
   return Math.round(
-    (premiumInCents * percentageInBasisPoints * splitInBasisPoints) / (10000 * 10000),
-  );
+    (premiumInCents * percentageInBasisPoints * splitInBasisPoints) /
+      (10000 * 10000)
+  )
 }
 ```
 
@@ -510,12 +514,21 @@ git commit -m "feat: add commission entity with approval state machine - all tra
 ```ts
 @injectable()
 export class ExportCommissionsCsv {
-  constructor(@inject('CommissionRepository') private repo: CommissionRepository) {}
+  constructor(
+    @inject('CommissionRepository') private repo: CommissionRepository
+  ) {}
 
-  async execute(organizationId: string, filters: CommissionFilters): Promise<string> {
-    const { items } = await this.repo.findMany({ ...filters, organizationId, limit: 10000 });
+  async execute(
+    organizationId: string,
+    filters: CommissionFilters
+  ): Promise<string> {
+    const { items } = await this.repo.findMany({
+      ...filters,
+      organizationId,
+      limit: 10000,
+    })
 
-    const header = 'ID,Apolice,Vendedor,Premio,Percentual,Valor,Status,Data\n';
+    const header = 'ID,Apolice,Vendedor,Premio,Percentual,Valor,Status,Data\n'
     const rows = items
       .map((c) =>
         [
@@ -527,11 +540,11 @@ export class ExportCommissionsCsv {
           (c.commissionValueInCents / 100).toFixed(2),
           c.status,
           c.createdAt.toISOString(),
-        ].join(','),
+        ].join(',')
       )
-      .join('\n');
+      .join('\n')
 
-    return header + rows;
+    return header + rows
   }
 }
 ```
@@ -597,14 +610,16 @@ git commit -m "feat: add commission management pages with approval workflow and 
 - [ ] **Step 1: Create event handler**
 
 ```ts
-import { injectable, inject } from 'tsyringe';
-import { Commission } from '../domain/commission.js';
-import type { CommissionRepository } from '../domain/commission-repository.js';
-import type { ProposalIssuedEvent } from '../../proposal/domain/events/proposal-issued.js';
+import { injectable, inject } from 'tsyringe'
+import { Commission } from '../domain/commission.js'
+import type { CommissionRepository } from '../domain/commission-repository.js'
+import type { ProposalIssuedEvent } from '../../proposal/domain/events/proposal-issued.js'
 
 @injectable()
 export class OnProposalIssued {
-  constructor(@inject('CommissionRepository') private repo: CommissionRepository) {}
+  constructor(
+    @inject('CommissionRepository') private repo: CommissionRepository
+  ) {}
 
   async handle(event: ProposalIssuedEvent): Promise<void> {
     const commission = Commission.create({
@@ -613,9 +628,9 @@ export class OnProposalIssued {
       salespersonId: event.salespersonId,
       premiumValueInCents: event.premiumValueInCents,
       percentageInBasisPoints: event.commissionPercentageInCents,
-    });
+    })
 
-    await this.repo.save(commission);
+    await this.repo.save(commission)
   }
 }
 ```

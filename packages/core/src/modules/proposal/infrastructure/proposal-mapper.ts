@@ -1,18 +1,18 @@
-import type { Proposal as PrismaProposalRecord } from '@repo/db';
-import { Prisma } from '@repo/db';
-import { Proposal } from '../domain/proposal.js';
-import type { ProposalProps } from '../domain/proposal.js';
-import { isInsuredObjectDetails } from '../domain/insured-object-details.js';
+import type { Proposal as PrismaProposalRecord } from '@repo/db'
+import { Prisma } from '@repo/db'
+import { Proposal } from '../domain/proposal.js'
+import type { ProposalProps } from '../domain/proposal.js'
+import { isInsuredObjectDetails } from '../domain/insured-object-details.js'
 
 interface ProposalRelations {
-  client?: { name: string } | null;
-  salesperson?: { name: string } | null;
+  client?: { name: string } | null
+  salesperson?: { name: string } | null
 }
 
-type ProposalWithRelations = PrismaProposalRecord & ProposalRelations;
+type ProposalWithRelations = PrismaProposalRecord & ProposalRelations
 
 function toJsonValue(value: unknown): Prisma.InputJsonValue {
-  return JSON.parse(JSON.stringify(value));
+  return JSON.parse(JSON.stringify(value))
 }
 
 export class ProposalMapper {
@@ -35,13 +35,16 @@ export class ProposalMapper {
       updatedAt: row.updatedAt,
       clientName: row.client?.name,
       salespersonName: row.salesperson?.name,
-    });
+    })
   }
 
-  static toPersistence(proposal: Proposal): Omit<ProposalProps, 'deletedAt' | 'details'> & {
-    details: Prisma.InputJsonValue | typeof Prisma.DbNull;
+  static toPersistence(proposal: Proposal): Omit<
+    ProposalProps,
+    'deletedAt' | 'details'
+  > & {
+    details: Prisma.InputJsonValue | typeof Prisma.DbNull
   } {
-    const json = proposal.toJSON();
+    const json = proposal.toJSON()
     return {
       id: json.id,
       organizationId: json.organizationId,
@@ -57,6 +60,6 @@ export class ProposalMapper {
       renewalPolicyId: json.renewalPolicyId,
       createdAt: json.createdAt,
       updatedAt: json.updatedAt,
-    };
+    }
   }
 }

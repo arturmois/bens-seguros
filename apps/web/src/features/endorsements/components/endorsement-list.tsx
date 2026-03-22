@@ -1,31 +1,37 @@
-'use client';
+'use client'
 
-import { FileText } from 'lucide-react';
+import { FileText } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Table } from '@/components/ui/table';
-import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Table } from '@/components/ui/table'
+import {
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
-import type { EndorsementData } from '../types';
-import { ENDORSEMENT_TYPE_LABELS } from '../lib/constants';
-import { useEndorsements } from '../hooks/use-endorsements';
+import type { EndorsementData } from '../types'
+import { ENDORSEMENT_TYPE_LABELS } from '../lib/constants'
+import { useEndorsements } from '../hooks/use-endorsements'
 
 interface EndorsementListProps {
-  readonly policyId: string;
+  readonly policyId: string
 }
 
 function formatDate(dateStr: string): string {
   return new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
     timeZone: 'America/Sao_Paulo',
-  }).format(new Date(dateStr));
+  }).format(new Date(dateStr))
 }
 
 export function EndorsementList({ policyId }: EndorsementListProps) {
-  const { data, isLoading, isError, refetch } = useEndorsements({ policyId });
+  const { data, isLoading, isError, refetch } = useEndorsements({ policyId })
 
-  if (isLoading) return <EndorsementListSkeleton />;
+  if (isLoading) return <EndorsementListSkeleton />
 
   if (isError) {
     return (
@@ -35,16 +41,18 @@ export function EndorsementList({ policyId }: EndorsementListProps) {
           Tentar novamente
         </Button>
       </div>
-    );
+    )
   }
 
   if (!data?.data || data.data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-8">
         <FileText className="text-muted-foreground size-10" />
-        <p className="text-muted-foreground text-sm">Nenhum endosso registrado</p>
+        <p className="text-muted-foreground text-sm">
+          Nenhum endosso registrado
+        </p>
       </div>
-    );
+    )
   }
 
   return (
@@ -65,10 +73,14 @@ export function EndorsementList({ policyId }: EndorsementListProps) {
         </TableBody>
       </Table>
     </div>
-  );
+  )
 }
 
-function EndorsementRow({ endorsement }: { readonly endorsement: EndorsementData }) {
+function EndorsementRow({
+  endorsement,
+}: {
+  readonly endorsement: EndorsementData
+}) {
   return (
     <TableRow>
       <TableCell>
@@ -76,13 +88,17 @@ function EndorsementRow({ endorsement }: { readonly endorsement: EndorsementData
           {ENDORSEMENT_TYPE_LABELS[endorsement.type]}
         </span>
       </TableCell>
-      <TableCell className="max-w-xs truncate">{endorsement.description}</TableCell>
+      <TableCell className="max-w-xs truncate">
+        {endorsement.description}
+      </TableCell>
       <TableCell className="hidden sm:table-cell">
         {formatDate(endorsement.effectiveDate)}
       </TableCell>
-      <TableCell className="hidden md:table-cell">{formatDate(endorsement.createdAt)}</TableCell>
+      <TableCell className="hidden md:table-cell">
+        {formatDate(endorsement.createdAt)}
+      </TableCell>
     </TableRow>
-  );
+  )
 }
 
 function EndorsementListSkeleton() {
@@ -110,5 +126,5 @@ function EndorsementListSkeleton() {
         </TableBody>
       </Table>
     </div>
-  );
+  )
 }

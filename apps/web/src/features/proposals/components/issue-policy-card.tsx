@@ -1,20 +1,23 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { FileCheck, ExternalLink } from 'lucide-react';
-import Link from 'next/link';
+import { useState } from 'react'
+import { FileCheck, ExternalLink } from 'lucide-react'
+import Link from 'next/link'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 
-import { IssuePolicySheet } from './issue-policy-sheet';
+import { IssuePolicySheet } from './issue-policy-sheet'
 
 interface IssuePolicyCardProps {
-  readonly proposalId: string;
-  readonly policyId?: string | null;
+  readonly proposalId: string
+  readonly policyId?: string | null
 }
 
-export function IssuePolicyCard({ proposalId, policyId }: IssuePolicyCardProps) {
-  const [sheetOpen, setSheetOpen] = useState(false);
+export function IssuePolicyCard({
+  proposalId,
+  policyId,
+}: IssuePolicyCardProps) {
+  const [sheetOpen, setSheetOpen] = useState(false)
 
   if (policyId) {
     return (
@@ -35,7 +38,7 @@ export function IssuePolicyCard({ proposalId, policyId }: IssuePolicyCardProps) 
           </Link>
         </Button>
       </div>
-    );
+    )
   }
 
   return (
@@ -47,14 +50,18 @@ export function IssuePolicyCard({ proposalId, policyId }: IssuePolicyCardProps) 
         <div className="flex-1">
           <p className="text-sm font-semibold">Pronta para Emissão</p>
           <p className="text-muted-foreground text-sm">
-            Esta proposta atingiu o estágio final. Emita a apólice para ativar a cobertura do
-            segurado.
+            Esta proposta atingiu o estágio final. Emita a apólice para ativar a
+            cobertura do segurado.
           </p>
         </div>
         <Button onClick={() => setSheetOpen(true)}>Emitir Apólice</Button>
       </div>
 
-      <IssuePolicySheet proposalId={proposalId} open={sheetOpen} onOpenChange={setSheetOpen} />
+      <IssuePolicySheet
+        proposalId={proposalId}
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+      />
     </>
-  );
+  )
 }

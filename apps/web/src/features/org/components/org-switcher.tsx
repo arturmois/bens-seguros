@@ -1,36 +1,40 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Check, ChevronsUpDown, Plus } from 'lucide-react';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { useOrgs } from '@/features/org/hooks/use-orgs';
-import { getOrgInitials, getOrgColor } from '@/lib/org-avatar';
-import { cn } from '@/lib/utils';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Check, ChevronsUpDown, Plus } from 'lucide-react'
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '@/components/ui/popover'
+import { useOrgs } from '@/features/org/hooks/use-orgs'
+import { getOrgInitials, getOrgColor } from '@/lib/org-avatar'
+import { cn } from '@/lib/utils'
 
 interface OrgSwitcherProps {
-  collapsed: boolean;
+  collapsed: boolean
 }
 
 export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
-  const { orgs, activeOrg, switchOrg } = useOrgs();
-  const [open, setOpen] = useState(false);
-  const router = useRouter();
+  const { orgs, activeOrg, switchOrg } = useOrgs()
+  const [open, setOpen] = useState(false)
+  const router = useRouter()
 
   function handleSwitch(orgId: string) {
-    setOpen(false);
+    setOpen(false)
     if (orgId !== activeOrg?.id) {
-      switchOrg(orgId);
+      switchOrg(orgId)
     }
   }
 
   function handleCreateNew() {
-    setOpen(false);
-    router.push('/onboarding?new=true');
+    setOpen(false)
+    router.push('/onboarding?new=true')
   }
 
   if (!activeOrg) {
-    return null;
+    return null
   }
 
   return (
@@ -38,7 +42,7 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
       <PopoverTrigger
         className={cn(
           'hover:bg-muted flex w-full items-center gap-3 px-4 py-3 text-left transition-colors',
-          collapsed && 'justify-center px-0',
+          collapsed && 'justify-center px-0'
         )}
       >
         <div
@@ -50,9 +54,13 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
         {!collapsed && (
           <>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-semibold">{activeOrg.name}</div>
+              <div className="truncate text-sm font-semibold">
+                {activeOrg.name}
+              </div>
               {activeOrg.role && (
-                <div className="text-muted-foreground truncate text-xs">{activeOrg.role}</div>
+                <div className="text-muted-foreground truncate text-xs">
+                  {activeOrg.role}
+                </div>
               )}
             </div>
             <ChevronsUpDown className="text-muted-foreground size-4 shrink-0" />
@@ -72,7 +80,7 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
               onClick={() => handleSwitch(org.id)}
               className={cn(
                 'hover:bg-muted flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors',
-                org.id === activeOrg.id && 'bg-muted',
+                org.id === activeOrg.id && 'bg-muted'
               )}
             >
               <div
@@ -84,10 +92,14 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium">{org.name}</div>
                 {org.role && (
-                  <div className="text-muted-foreground truncate text-xs">{org.role}</div>
+                  <div className="text-muted-foreground truncate text-xs">
+                    {org.role}
+                  </div>
                 )}
               </div>
-              {org.id === activeOrg.id && <Check className="text-primary size-4 shrink-0" />}
+              {org.id === activeOrg.id && (
+                <Check className="text-primary size-4 shrink-0" />
+              )}
             </button>
           ))}
         </div>
@@ -106,5 +118,5 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
         </div>
       </PopoverContent>
     </Popover>
-  );
+  )
 }

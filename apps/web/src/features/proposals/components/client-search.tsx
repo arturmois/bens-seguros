@@ -1,89 +1,97 @@
-'use client';
+'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { Loader2 } from 'lucide-react'
 
-import { Input } from '@/components/ui/input';
-import { useDebounce } from '@/hooks/use-debounce';
-import { api } from '@/lib/api-client';
+import { Input } from '@/components/ui/input'
+import { useDebounce } from '@/hooks/use-debounce'
+import { api } from '@/lib/api-client'
 
-import type { ClientData } from '@/features/clients/types';
+import type { ClientData } from '@/features/clients/types'
 
 interface ClientSearchProps {
-  readonly value: string;
-  readonly onChange: (id: string) => void;
+  readonly value: string
+  readonly onChange: (id: string) => void
 }
 
 export function ClientSearch({ value, onChange }: ClientSearchProps) {
-  const [search, setSearch] = useState('');
-  const [showResults, setShowResults] = useState(false);
-  const [selectedLabel, setSelectedLabel] = useState('');
-  const [highlightedIndex, setHighlightedIndex] = useState(-1);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
-  const debouncedSearch = useDebounce(search, 300);
+  const [search, setSearch] = useState('')
+  const [showResults, setShowResults] = useState(false)
+  const [selectedLabel, setSelectedLabel] = useState('')
+  const [highlightedIndex, setHighlightedIndex] = useState(-1)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLUListElement>(null)
+  const debouncedSearch = useDebounce(search, 300)
 
   const { data, isLoading } = useQuery({
     queryKey: ['clients-search', debouncedSearch],
     queryFn: async () => {
-      if (!debouncedSearch || debouncedSearch.length < 2) return [];
+      if (!debouncedSearch || debouncedSearch.length < 2) return []
       const res = await api.get<ClientData[]>(
-        `/api/v1/clients?search=${encodeURIComponent(debouncedSearch)}&limit=10`,
-      );
-      return res.data;
+        `/api/v1/clients?search=${encodeURIComponent(debouncedSearch)}&limit=10`
+      )
+      return res.data
     },
     enabled: debouncedSearch.length >= 2,
-  });
+  })
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      const target = event.target;
-      if (!(target instanceof Node)) return;
+      const target = event.target
+      if (!(target instanceof Node)) return
       if (containerRef.current && !containerRef.current.contains(target)) {
-        setShowResults(false);
+        setShowResults(false)
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   useEffect(() => {
-    setHighlightedIndex(-1);
-  }, [data]);
+    setHighlightedIndex(-1)
+  }, [data])
 
   const selectClient = useCallback(
     (client: ClientData) => {
-      const label = `${client.name} \u2014 ${client.document}`;
-      onChange(client.id);
-      setSelectedLabel(label);
-      setSearch(label);
-      setShowResults(false);
+      const label = `${client.name} \u2014 ${client.document}`
+      onChange(client.id)
+      setSelectedLabel(label)
+      setSearch(label)
+      setShowResults(false)
     },
-    [onChange],
-  );
+    [onChange]
+  )
 
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (!showResults || !data || data.length === 0) return;
+    if (!showResults || !data || data.length === 0) return
 
     if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setHighlightedIndex((prev) => (prev < data.length - 1 ? prev + 1 : 0));
+      e.preventDefault()
+      setHighlightedIndex((prev) => (prev < data.length - 1 ? prev + 1 : 0))
     } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : data.length - 1));
-    } else if (e.key === 'Enter' && highlightedIndex >= 0 && data[highlightedIndex]) {
-      e.preventDefault();
-      selectClient(data[highlightedIndex]);
+      e.preventDefault()
+      setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : data.length - 1))
+    } else if (
+      e.key === 'Enter' &&
+      highlightedIndex >= 0 &&
+      data[highlightedIndex]
+    ) {
+      e.preventDefault()
+      selectClient(data[highlightedIndex])
     } else if (e.key === 'Escape') {
-      setShowResults(false);
+      setShowResults(false)
     }
   }
 
-  const displayValue = value && selectedLabel ? selectedLabel : search;
-  const hasResults = showResults && data && data.length > 0;
+  const displayValue = value && selectedLabel ? selectedLabel : search
+  const hasResults = showResults && data && data.length > 0
   const hasNoResults =
-    showResults && debouncedSearch.length >= 2 && !isLoading && data && data.length === 0;
+    showResults &&
+    debouncedSearch.length >= 2 &&
+    !isLoading &&
+    data &&
+    data.length === 0
 
   return (
     <div className="relative" ref={containerRef}>
@@ -101,14 +109,14 @@ export function ClientSearch({ value, onChange }: ClientSearchProps) {
         placeholder="Buscar cliente por nome ou documento..."
         value={displayValue}
         onChange={(e) => {
-          setSearch(e.target.value);
-          setSelectedLabel('');
-          onChange('');
-          setShowResults(true);
+          setSearch(e.target.value)
+          setSelectedLabel('')
+          onChange('')
+          setShowResults(true)
         }}
         onFocus={() => {
           if (debouncedSearch.length >= 2) {
-            setShowResults(true);
+            setShowResults(true)
           }
         }}
         onKeyDown={handleKeyDown}
@@ -139,7 +147,9 @@ export function ClientSearch({ value, onChange }: ClientSearchProps) {
               onMouseEnter={() => setHighlightedIndex(index)}
             >
               <span className="font-medium">{client.name}</span>
-              <span className="text-muted-foreground ml-2">{client.document}</span>
+              <span className="text-muted-foreground ml-2">
+                {client.document}
+              </span>
             </li>
           ))}
         </ul>
@@ -150,9 +160,11 @@ export function ClientSearch({ value, onChange }: ClientSearchProps) {
           aria-live="polite"
           className="bg-popover absolute z-50 mt-1 w-full rounded-lg border px-3 py-2 shadow-md"
         >
-          <p className="text-muted-foreground text-sm">Nenhum cliente encontrado.</p>
+          <p className="text-muted-foreground text-sm">
+            Nenhum cliente encontrado.
+          </p>
         </div>
       )}
     </div>
-  );
+  )
 }

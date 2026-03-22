@@ -63,12 +63,16 @@ apps/web/src/
 
 ```ts
 // packages/auth/src/index.ts
-import { betterAuth } from 'better-auth';
-import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { organization } from 'better-auth/plugins';
-import { prisma } from '@repo/db';
+import { betterAuth } from 'better-auth'
+import { prismaAdapter } from 'better-auth/adapters/prisma'
+import { organization } from 'better-auth/plugins'
+import { prisma } from '@repo/db'
 
-export function createAuth(secret: string, baseURL: string, trustedOrigins: string[]) {
+export function createAuth(
+  secret: string,
+  baseURL: string,
+  trustedOrigins: string[]
+) {
   return betterAuth({
     database: prismaAdapter(prisma, { provider: 'postgresql' }),
     secret,
@@ -92,10 +96,10 @@ export function createAuth(secret: string, baseURL: string, trustedOrigins: stri
         memberRoleValues: ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'],
       }),
     ],
-  });
+  })
 }
 
-export type Auth = ReturnType<typeof createAuth>;
+export type Auth = ReturnType<typeof createAuth>
 ```
 
 - [ ] **Step 2: Verify typecheck passes**
@@ -127,15 +131,15 @@ git commit -m "feat: configure organization plugin with custom role values"
 ```ts
 // apps/web/src/lib/org-cookie.ts
 
-const COOKIE_NAME = 'bens-active-org';
-const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+const COOKIE_NAME = 'bens-active-org'
+const MAX_AGE = 60 * 60 * 24 * 30 // 30 days
 
 export function setActiveOrgCookie(organizationId: string) {
-  document.cookie = `${COOKIE_NAME}=${organizationId};path=/;max-age=${MAX_AGE};samesite=lax`;
+  document.cookie = `${COOKIE_NAME}=${organizationId};path=/;max-age=${MAX_AGE};samesite=lax`
 }
 
 export function clearActiveOrgCookie() {
-  document.cookie = `${COOKIE_NAME}=;path=/;max-age=0`;
+  document.cookie = `${COOKIE_NAME}=;path=/;max-age=0`
 }
 ```
 
@@ -155,7 +159,7 @@ const COLORS = [
   '#e67e22',
   '#1abc9c',
   '#34495e',
-];
+]
 
 export function getOrgInitials(name: string): string {
   return name
@@ -163,16 +167,16 @@ export function getOrgInitials(name: string): string {
     .slice(0, 2)
     .map((word) => word[0])
     .join('')
-    .toUpperCase();
+    .toUpperCase()
 }
 
 export function getOrgColor(id: string): string {
-  let hash = 0;
+  let hash = 0
   for (const char of id) {
-    hash = char.charCodeAt(0) + ((hash << 5) - hash);
+    hash = char.charCodeAt(0) + ((hash << 5) - hash)
   }
-  const index = Math.abs(hash) % COLORS.length;
-  return COLORS[index] ?? COLORS[0];
+  const index = Math.abs(hash) % COLORS.length
+  return COLORS[index] ?? COLORS[0]
 }
 ```
 
@@ -195,34 +199,34 @@ git commit -m "feat: add org cookie helper and avatar utilities"
 
 ```ts
 // apps/web/src/features/org/hooks/use-orgs.ts
-'use client';
+'use client'
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
-import { authClient } from '@/lib/auth-client';
-import { useAuth } from '@/features/auth/hooks/use-auth';
-import { setActiveOrgCookie } from '@/lib/org-cookie';
-import type { Role } from '@repo/auth/roles';
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
+import { authClient } from '@/lib/auth-client'
+import { useAuth } from '@/features/auth/hooks/use-auth'
+import { setActiveOrgCookie } from '@/lib/org-cookie'
+import type { Role } from '@repo/auth/roles'
 
 export interface Org {
-  id: string;
-  name: string;
-  slug: string;
-  logo: string | null;
-  role: Role;
+  id: string
+  name: string
+  slug: string
+  logo: string | null
+  role: Role
 }
 
 export function useOrgs() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const { session, isAuthenticated } = useAuth();
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const { session, isAuthenticated } = useAuth()
 
   const orgsQuery = useQuery({
     queryKey: ['orgs'],
     queryFn: async (): Promise<Org[]> => {
-      const response = await authClient.organization.list();
+      const response = await authClient.organization.list()
       if (response.error) {
-        return [];
+        return []
       }
       return (response.data ?? []).map((org) => ({
         id: org.id,
@@ -230,19 +234,20 @@ export function useOrgs() {
         slug: org.slug,
         logo: org.logo ?? null,
         role: (org.members?.[0]?.role ?? 'VIEWER') as Role,
-      }));
+      }))
     },
     enabled: isAuthenticated,
-  });
+  })
 
-  const activeOrgId = session?.activeOrganizationId;
-  const activeOrg = orgsQuery.data?.find((org) => org.id === activeOrgId) ?? null;
+  const activeOrgId = session?.activeOrganizationId
+  const activeOrg =
+    orgsQuery.data?.find((org) => org.id === activeOrgId) ?? null
 
   async function switchOrg(organizationId: string) {
-    await authClient.organization.setActive({ organizationId });
-    setActiveOrgCookie(organizationId);
-    queryClient.clear();
-    router.push('/');
+    await authClient.organization.setActive({ organizationId })
+    setActiveOrgCookie(organizationId)
+    queryClient.clear()
+    router.push('/')
   }
 
   return {
@@ -250,7 +255,7 @@ export function useOrgs() {
     activeOrg,
     isLoading: orgsQuery.isLoading,
     switchOrg,
-  };
+  }
 }
 ```
 
@@ -275,44 +280,44 @@ git commit -m "feat: add useOrgs hook for org listing and switching"
 
 ```ts
 // apps/web/src/proxy.ts
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-const PUBLIC_PATHS = ['/login', '/register', '/api/auth'];
-const AUTH_ONLY_PATHS = ['/onboarding', '/select-org', '/accept-invitation'];
+const PUBLIC_PATHS = ['/login', '/register', '/api/auth']
+const AUTH_ONLY_PATHS = ['/onboarding', '/select-org', '/accept-invitation']
 
 export default function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname } = request.nextUrl
 
   // 1. Public routes — no check
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
-    return NextResponse.next();
+    return NextResponse.next()
   }
 
   // 2. No session — redirect to login
-  const sessionToken = request.cookies.get('better-auth.session_token')?.value;
+  const sessionToken = request.cookies.get('better-auth.session_token')?.value
   if (!sessionToken) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
   // 3. Auth-only routes (need session, not org) — pass through
   if (AUTH_ONLY_PATHS.some((p) => pathname.startsWith(p))) {
-    return NextResponse.next();
+    return NextResponse.next()
   }
 
   // 4. No active org cookie — redirect to select-org
-  const activeOrg = request.cookies.get('bens-active-org')?.value;
+  const activeOrg = request.cookies.get('bens-active-org')?.value
   if (!activeOrg) {
-    return NextResponse.redirect(new URL('/select-org', request.url));
+    return NextResponse.redirect(new URL('/select-org', request.url))
   }
 
   // 5. All checks passed
-  return NextResponse.next();
+  return NextResponse.next()
 }
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
-};
+}
 ```
 
 - [ ] **Step 2: Commit**
@@ -336,12 +341,16 @@ git commit -m "feat: add org-active cookie check to proxy.ts"
 
 ```tsx
 // apps/web/src/app/(onboarding)/layout.tsx
-export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
+export default function OnboardingLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <div className="bg-muted flex min-h-dvh items-center justify-center">
       <div className="w-full max-w-lg p-4">{children}</div>
     </div>
-  );
+  )
 }
 ```
 
@@ -349,22 +358,22 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
 
 ```tsx
 // apps/web/src/features/org/components/create-org-form.tsx
-'use client';
+'use client'
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useQueryClient } from '@tanstack/react-query';
-import { authClient } from '@/lib/auth-client';
-import { setActiveOrgCookie } from '@/lib/org-cookie';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { Check, X, Loader2 } from 'lucide-react';
-import { useDebounce } from '@/hooks/use-debounce';
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
+import { authClient } from '@/lib/auth-client'
+import { setActiveOrgCookie } from '@/lib/org-cookie'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { toast } from 'sonner'
+import { Check, X, Loader2 } from 'lucide-react'
+import { useDebounce } from '@/hooks/use-debounce'
 
 const createOrgSchema = z.object({
   name: z.string().min(2, 'Mínimo 2 caracteres'),
@@ -372,9 +381,9 @@ const createOrgSchema = z.object({
     .string()
     .min(3, 'Mínimo 3 caracteres')
     .regex(/^[a-z0-9-]+$/, 'Apenas letras minúsculas, números e hífens'),
-});
+})
 
-type CreateOrgFormData = z.infer<typeof createOrgSchema>;
+type CreateOrgFormData = z.infer<typeof createOrgSchema>
 
 function slugify(text: string): string {
   return text
@@ -382,79 +391,83 @@ function slugify(text: string): string {
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/^-+|-+$/g, '')
 }
 
 export function CreateOrgForm() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [slugStatus, setSlugStatus] = useState<
+    'idle' | 'checking' | 'available' | 'taken'
+  >('idle')
 
   const form = useForm<CreateOrgFormData>({
     resolver: zodResolver(createOrgSchema),
     defaultValues: { name: '', slug: '' },
-  });
+  })
 
-  const nameValue = form.watch('name');
-  const slugValue = form.watch('slug');
-  const debouncedSlug = useDebounce(slugValue, 500);
+  const nameValue = form.watch('name')
+  const slugValue = form.watch('slug')
+  const debouncedSlug = useDebounce(slugValue, 500)
 
   // Auto-generate slug from name
   useEffect(() => {
     if (nameValue) {
-      form.setValue('slug', slugify(nameValue), { shouldValidate: true });
+      form.setValue('slug', slugify(nameValue), { shouldValidate: true })
     }
-  }, [nameValue, form]);
+  }, [nameValue, form])
 
   // Check slug uniqueness
   useEffect(() => {
     if (!debouncedSlug || debouncedSlug.length < 3) {
-      setSlugStatus('idle');
-      return;
+      setSlugStatus('idle')
+      return
     }
-    setSlugStatus('checking');
+    setSlugStatus('checking')
     authClient.organization
       .checkSlug({ slug: debouncedSlug })
       .then((res) => {
-        setSlugStatus(res.data?.available ? 'available' : 'taken');
+        setSlugStatus(res.data?.available ? 'available' : 'taken')
       })
-      .catch(() => setSlugStatus('idle'));
-  }, [debouncedSlug]);
+      .catch(() => setSlugStatus('idle'))
+  }, [debouncedSlug])
 
   const onSubmit = async (data: CreateOrgFormData) => {
     if (slugStatus === 'taken') {
-      toast.error('Este identificador já está em uso');
-      return;
+      toast.error('Este identificador já está em uso')
+      return
     }
-    setIsSubmitting(true);
+    setIsSubmitting(true)
     try {
       const createRes = await authClient.organization.create({
         name: data.name,
         slug: data.slug,
-      });
+      })
       if (createRes.error) {
-        toast.error('Erro ao criar organização');
-        return;
+        toast.error('Erro ao criar organização')
+        return
       }
-      const orgId = createRes.data?.id;
+      const orgId = createRes.data?.id
       if (orgId) {
-        await authClient.organization.setActive({ organizationId: orgId });
-        setActiveOrgCookie(orgId);
+        await authClient.organization.setActive({ organizationId: orgId })
+        setActiveOrgCookie(orgId)
       }
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
-      router.push('/');
+      queryClient.invalidateQueries({ queryKey: ['auth'] })
+      router.push('/')
     } catch {
-      toast.error('Erro ao criar organização');
+      toast.error('Erro ao criar organização')
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className="bg-card rounded-lg border p-8 shadow-sm">
       <div className="mb-6 text-center">
-        <p className="text-primary text-sm font-semibold uppercase tracking-wide">Passo 2 de 2</p>
+        <p className="text-primary text-sm font-semibold uppercase tracking-wide">
+          Passo 2 de 2
+        </p>
         <h2 className="mt-1 text-xl font-semibold">Configure sua corretora</h2>
         <p className="text-muted-foreground mt-1 text-sm">
           Estas informações podem ser alteradas depois
@@ -464,9 +477,15 @@ export function CreateOrgForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="name">Nome da corretora *</Label>
-          <Input {...form.register('name')} id="name" placeholder="Ex: Corretora ABC Seguros" />
+          <Input
+            {...form.register('name')}
+            id="name"
+            placeholder="Ex: Corretora ABC Seguros"
+          />
           {form.formState.errors.name && (
-            <p className="text-destructive text-sm">{form.formState.errors.name.message}</p>
+            <p className="text-destructive text-sm">
+              {form.formState.errors.name.message}
+            </p>
           )}
         </div>
 
@@ -476,24 +495,38 @@ export function CreateOrgForm() {
             <span className="bg-muted text-muted-foreground border-r px-3 py-2 text-sm">
               bens.app/
             </span>
-            <Input {...form.register('slug')} id="slug" className="rounded-none border-0" />
+            <Input
+              {...form.register('slug')}
+              id="slug"
+              className="rounded-none border-0"
+            />
             <span className="px-3">
               {slugStatus === 'checking' && (
                 <Loader2 className="text-muted-foreground size-4 animate-spin" />
               )}
-              {slugStatus === 'available' && <Check className="size-4 text-green-600" />}
+              {slugStatus === 'available' && (
+                <Check className="size-4 text-green-600" />
+              )}
               {slugStatus === 'taken' && <X className="size-4 text-red-600" />}
             </span>
           </div>
           {form.formState.errors.slug && (
-            <p className="text-destructive text-sm">{form.formState.errors.slug.message}</p>
+            <p className="text-destructive text-sm">
+              {form.formState.errors.slug.message}
+            </p>
           )}
           {slugStatus === 'taken' && (
-            <p className="text-destructive text-sm">Este identificador já está em uso</p>
+            <p className="text-destructive text-sm">
+              Este identificador já está em uso
+            </p>
           )}
         </div>
 
-        <Button type="submit" className="w-full" disabled={isSubmitting || slugStatus === 'taken'}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isSubmitting || slugStatus === 'taken'}
+        >
           {isSubmitting ? 'Criando...' : 'Criar corretora'}
         </Button>
 
@@ -502,7 +535,7 @@ export function CreateOrgForm() {
         </p>
       </form>
     </div>
-  );
+  )
 }
 ```
 
@@ -510,17 +543,17 @@ export function CreateOrgForm() {
 
 ```ts
 // apps/web/src/hooks/use-debounce.ts
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 
 export function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState(value);
+  const [debouncedValue, setDebouncedValue] = useState(value)
 
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedValue(value), delay);
-    return () => clearTimeout(timer);
-  }, [value, delay]);
+    const timer = setTimeout(() => setDebouncedValue(value), delay)
+    return () => clearTimeout(timer)
+  }, [value, delay])
 
-  return debouncedValue;
+  return debouncedValue
 }
 ```
 
@@ -528,31 +561,31 @@ export function useDebounce<T>(value: T, delay: number): T {
 
 ```tsx
 // apps/web/src/app/(onboarding)/onboarding/page.tsx
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { CreateOrgForm } from '@/features/org/components/create-org-form';
-import { useOrgs } from '@/features/org/hooks/use-orgs';
+import { useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { CreateOrgForm } from '@/features/org/components/create-org-form'
+import { useOrgs } from '@/features/org/hooks/use-orgs'
 
 export default function OnboardingPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const { orgs, isLoading } = useOrgs();
-  const isNewOrg = searchParams.get('new') === 'true';
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const { orgs, isLoading } = useOrgs()
+  const isNewOrg = searchParams.get('new') === 'true'
 
   // Guard: if already has org and not creating new, redirect to dashboard
   useEffect(() => {
     if (!isLoading && orgs.length > 0 && !isNewOrg) {
-      router.replace('/');
+      router.replace('/')
     }
-  }, [isLoading, orgs.length, isNewOrg, router]);
+  }, [isLoading, orgs.length, isNewOrg, router])
 
   if (isLoading) {
-    return null;
+    return null
   }
 
-  return <CreateOrgForm />;
+  return <CreateOrgForm />
 }
 ```
 
@@ -576,24 +609,26 @@ git commit -m "feat: add onboarding layout and create org page"
 
 ```tsx
 // apps/web/src/features/org/components/org-card.tsx
-'use client';
+'use client'
 
-import { getOrgInitials, getOrgColor } from '@/lib/org-avatar';
-import { ChevronRight } from 'lucide-react';
-import type { Org } from '@/features/org/hooks/use-orgs';
+import { getOrgInitials, getOrgColor } from '@/lib/org-avatar'
+import { ChevronRight } from 'lucide-react'
+import type { Org } from '@/features/org/hooks/use-orgs'
 
 interface OrgCardProps {
-  org: Org;
-  onClick: () => void;
+  org: Org
+  onClick: () => void
 }
 
 const ROLE_COLORS: Record<string, string> = {
   OWNER: 'bg-primary/10 text-primary',
-  ADMIN: 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
+  ADMIN:
+    'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
   MANAGER: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
-  COMMERCIAL: 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
+  COMMERCIAL:
+    'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
   VIEWER: 'bg-muted text-muted-foreground',
-};
+}
 
 export function OrgCard({ org, onClick }: OrgCardProps) {
   return (
@@ -619,7 +654,7 @@ export function OrgCard({ org, onClick }: OrgCardProps) {
       </span>
       <ChevronRight className="text-muted-foreground size-4 shrink-0" />
     </button>
-  );
+  )
 }
 ```
 
@@ -627,40 +662,42 @@ export function OrgCard({ org, onClick }: OrgCardProps) {
 
 ```tsx
 // apps/web/src/app/(onboarding)/select-org/page.tsx
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { useOrgs } from '@/features/org/hooks/use-orgs';
-import { OrgCard } from '@/features/org/components/org-card';
-import { useRouter } from 'next/navigation';
+import { useEffect } from 'react'
+import { useOrgs } from '@/features/org/hooks/use-orgs'
+import { OrgCard } from '@/features/org/components/org-card'
+import { useRouter } from 'next/navigation'
 
 export default function SelectOrgPage() {
-  const { orgs, isLoading, switchOrg } = useOrgs();
-  const router = useRouter();
+  const { orgs, isLoading, switchOrg } = useOrgs()
+  const router = useRouter()
 
   // Auto-select if user has exactly 1 org
   useEffect(() => {
     if (!isLoading && orgs.length === 1 && orgs[0]) {
-      switchOrg(orgs[0].id);
+      switchOrg(orgs[0].id)
     }
-  }, [isLoading, orgs, switchOrg]);
+  }, [isLoading, orgs, switchOrg])
 
   // No orgs — redirect to onboarding
   useEffect(() => {
     if (!isLoading && orgs.length === 0) {
-      router.replace('/onboarding');
+      router.replace('/onboarding')
     }
-  }, [isLoading, orgs.length, router]);
+  }, [isLoading, orgs.length, router])
 
   if (isLoading || orgs.length <= 1) {
-    return null;
+    return null
   }
 
   return (
     <div className="bg-card rounded-lg border p-8 shadow-sm">
       <div className="mb-6 text-center">
         <h2 className="text-xl font-semibold">Selecione uma organização</h2>
-        <p className="text-muted-foreground mt-1 text-sm">Escolha a corretora que deseja acessar</p>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Escolha a corretora que deseja acessar
+        </p>
       </div>
 
       <div className="space-y-3">
@@ -669,7 +706,7 @@ export default function SelectOrgPage() {
         ))}
       </div>
     </div>
-  );
+  )
 }
 ```
 
@@ -692,71 +729,77 @@ git commit -m "feat: add select-org page with auto-selection for single org"
 
 ```tsx
 // apps/web/src/app/(onboarding)/accept-invitation/page.tsx
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { authClient } from '@/lib/auth-client';
-import { setActiveOrgCookie } from '@/lib/org-cookie';
-import { useAuth } from '@/features/auth/hooks/use-auth';
-import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { authClient } from '@/lib/auth-client'
+import { setActiveOrgCookie } from '@/lib/org-cookie'
+import { useAuth } from '@/features/auth/hooks/use-auth'
+import { Button } from '@/components/ui/button'
+import { Loader2 } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
 
 export default function AcceptInvitationPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const invitationId = searchParams.get('id');
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [errorMessage, setErrorMessage] = useState('');
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const invitationId = searchParams.get('id')
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>(
+    'loading'
+  )
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading) return
 
     if (!isAuthenticated) {
-      router.replace(`/login?invitationId=${invitationId}`);
-      return;
+      router.replace(`/login?invitationId=${invitationId}`)
+      return
     }
 
     if (!invitationId) {
-      setStatus('error');
-      setErrorMessage('Link de convite inválido');
-      return;
+      setStatus('error')
+      setErrorMessage('Link de convite inválido')
+      return
     }
 
     authClient.organization
       .acceptInvitation({ invitationId })
       .then(async (res) => {
         if (res.error) {
-          setStatus('error');
-          setErrorMessage('Convite expirado ou já aceito');
-          return;
+          setStatus('error')
+          setErrorMessage('Convite expirado ou já aceito')
+          return
         }
         // Set active org to the invitation's org
-        const member = res.data;
+        const member = res.data
         if (member?.organizationId) {
-          await authClient.organization.setActive({ organizationId: member.organizationId });
-          setActiveOrgCookie(member.organizationId);
+          await authClient.organization.setActive({
+            organizationId: member.organizationId,
+          })
+          setActiveOrgCookie(member.organizationId)
         }
-        queryClient.clear();
-        setStatus('success');
-        router.push('/');
+        queryClient.clear()
+        setStatus('success')
+        router.push('/')
       })
       .catch(() => {
-        setStatus('error');
-        setErrorMessage('Erro ao aceitar convite');
-      });
-  }, [authLoading, isAuthenticated, invitationId, router, queryClient]);
+        setStatus('error')
+        setErrorMessage('Erro ao aceitar convite')
+      })
+  }, [authLoading, isAuthenticated, invitationId, router, queryClient])
 
   if (status === 'loading' || authLoading) {
     return (
       <div className="bg-card flex flex-col items-center rounded-lg border p-8 shadow-sm">
         <Loader2 className="text-primary size-8 animate-spin" />
-        <p className="text-muted-foreground mt-4 text-sm">Aceitando convite...</p>
+        <p className="text-muted-foreground mt-4 text-sm">
+          Aceitando convite...
+        </p>
       </div>
-    );
+    )
   }
 
   if (status === 'error') {
@@ -768,10 +811,10 @@ export default function AcceptInvitationPage() {
           Ir para login
         </Button>
       </div>
-    );
+    )
   }
 
-  return null;
+  return null
 }
 ```
 
@@ -795,35 +838,39 @@ git commit -m "feat: add accept-invitation page"
 
 ```tsx
 // apps/web/src/features/org/components/org-switcher.tsx
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useOrgs, type Org } from '@/features/org/hooks/use-orgs';
-import { getOrgInitials, getOrgColor } from '@/lib/org-avatar';
-import { cn } from '@/lib/utils';
-import { Check, ChevronsUpDown, Plus } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react'
+import { useOrgs, type Org } from '@/features/org/hooks/use-orgs'
+import { getOrgInitials, getOrgColor } from '@/lib/org-avatar'
+import { cn } from '@/lib/utils'
+import { Check, ChevronsUpDown, Plus } from 'lucide-react'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { useRouter } from 'next/navigation'
 
 interface OrgSwitcherProps {
-  collapsed: boolean;
+  collapsed: boolean
 }
 
 export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
-  const { orgs, activeOrg, switchOrg } = useOrgs();
-  const [open, setOpen] = useState(false);
-  const router = useRouter();
+  const { orgs, activeOrg, switchOrg } = useOrgs()
+  const [open, setOpen] = useState(false)
+  const router = useRouter()
 
   function handleSwitch(org: Org) {
-    setOpen(false);
+    setOpen(false)
     if (org.id !== activeOrg?.id) {
-      switchOrg(org.id);
+      switchOrg(org.id)
     }
   }
 
   function handleCreateNew() {
-    setOpen(false);
-    router.push('/onboarding?new=true');
+    setOpen(false)
+    router.push('/onboarding?new=true')
   }
 
   return (
@@ -833,7 +880,7 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
           type="button"
           className={cn(
             'hover:bg-muted flex w-full items-center gap-3 border-b px-4 py-3 text-left transition-colors',
-            collapsed && 'justify-center px-0',
+            collapsed && 'justify-center px-0'
           )}
         >
           {activeOrg && (
@@ -847,8 +894,12 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
               {!collapsed && (
                 <>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-semibold">{activeOrg.name}</div>
-                    <div className="text-muted-foreground text-xs">{activeOrg.role}</div>
+                    <div className="truncate text-sm font-semibold">
+                      {activeOrg.name}
+                    </div>
+                    <div className="text-muted-foreground text-xs">
+                      {activeOrg.role}
+                    </div>
                   </div>
                   <ChevronsUpDown className="text-muted-foreground size-4 shrink-0" />
                 </>
@@ -870,7 +921,7 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
               onClick={() => handleSwitch(org)}
               className={cn(
                 'hover:bg-muted flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors',
-                org.id === activeOrg?.id && 'bg-muted',
+                org.id === activeOrg?.id && 'bg-muted'
               )}
             >
               <div
@@ -883,7 +934,9 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
                 <div className="truncate text-sm font-medium">{org.name}</div>
                 <div className="text-muted-foreground text-xs">{org.role}</div>
               </div>
-              {org.id === activeOrg?.id && <Check className="text-primary size-4 shrink-0" />}
+              {org.id === activeOrg?.id && (
+                <Check className="text-primary size-4 shrink-0" />
+              )}
             </button>
           ))}
         </div>
@@ -902,7 +955,7 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
         </div>
       </PopoverContent>
     </Popover>
-  );
+  )
 }
 ```
 
@@ -923,7 +976,7 @@ Replace the header section in `apps/web/src/components/layout/sidebar.tsx`:
 Add the import at the top:
 
 ```ts
-import { OrgSwitcher } from '@/features/org/components/org-switcher';
+import { OrgSwitcher } from '@/features/org/components/org-switcher'
 ```
 
 - [ ] **Step 3: Commit**
@@ -947,23 +1000,23 @@ git commit -m "feat: add org switcher component and integrate into sidebar"
 
 ```tsx
 // apps/web/src/components/layout/dashboard-shell.tsx
-'use client';
+'use client'
 
-import { AppShell } from '@/components/layout/app-shell';
-import { useOrgs } from '@/features/org/hooks/use-orgs';
+import { AppShell } from '@/components/layout/app-shell'
+import { useOrgs } from '@/features/org/hooks/use-orgs'
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
-  const { activeOrg, isLoading } = useOrgs();
+  const { activeOrg, isLoading } = useOrgs()
 
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-muted-foreground text-sm">Carregando...</div>
       </div>
-    );
+    )
   }
 
-  return <AppShell role={activeOrg?.role ?? 'VIEWER'}>{children}</AppShell>;
+  return <AppShell role={activeOrg?.role ?? 'VIEWER'}>{children}</AppShell>
 }
 ```
 
@@ -971,10 +1024,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
 ```tsx
 // apps/web/src/app/(dashboard)/layout.tsx
-import { DashboardShell } from '@/components/layout/dashboard-shell';
+import { DashboardShell } from '@/components/layout/dashboard-shell'
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return <DashboardShell>{children}</DashboardShell>;
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return <DashboardShell>{children}</DashboardShell>
 }
 ```
 
@@ -982,96 +1039,105 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
 ```ts
 // apps/web/src/features/auth/hooks/use-auth.ts
-'use client';
+'use client'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { authClient } from '@/lib/auth-client';
-import { setActiveOrgCookie, clearActiveOrgCookie } from '@/lib/org-cookie';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { authClient } from '@/lib/auth-client'
+import { setActiveOrgCookie, clearActiveOrgCookie } from '@/lib/org-cookie'
 
 async function fetchSession() {
-  const response = await authClient.getSession();
+  const response = await authClient.getSession()
   if (response.error) {
-    return null;
+    return null
   }
-  return response.data;
+  return response.data
 }
 
 export function useAuth() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const queryClient = useQueryClient()
 
   const session = useQuery({
     queryKey: ['auth', 'session'],
     queryFn: fetchSession,
     retry: false,
-  });
+  })
 
   const login = useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
       authClient.signIn.email({ email, password }),
     onSuccess: async (response) => {
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
+      queryClient.invalidateQueries({ queryKey: ['auth'] })
 
       // Handle pending invitation from URL
-      const invitationId = searchParams.get('invitationId');
+      const invitationId = searchParams.get('invitationId')
       if (invitationId) {
-        router.push(`/accept-invitation?id=${invitationId}`);
-        return;
+        router.push(`/accept-invitation?id=${invitationId}`)
+        return
       }
 
       // Check if session has active org
-      const activeOrgId = response.data?.session?.activeOrganizationId;
+      const activeOrgId = response.data?.session?.activeOrganizationId
       if (activeOrgId) {
-        setActiveOrgCookie(activeOrgId);
-        router.push('/');
+        setActiveOrgCookie(activeOrgId)
+        router.push('/')
       } else {
-        router.push('/select-org');
+        router.push('/select-org')
       }
     },
-  });
+  })
 
   const register = useMutation({
-    mutationFn: ({ email, password, name }: { email: string; password: string; name: string }) =>
-      authClient.signUp.email({ email, password, name }),
+    mutationFn: ({
+      email,
+      password,
+      name,
+    }: {
+      email: string
+      password: string
+      name: string
+    }) => authClient.signUp.email({ email, password, name }),
     onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
+      queryClient.invalidateQueries({ queryKey: ['auth'] })
 
       // Handle pending invitation from URL
-      const invitationId = searchParams.get('invitationId');
+      const invitationId = searchParams.get('invitationId')
       if (invitationId) {
-        router.push(`/accept-invitation?id=${invitationId}`);
-        return;
+        router.push(`/accept-invitation?id=${invitationId}`)
+        return
       }
 
       // Check for pending invitations
-      const invites = await authClient.organization.listUserInvitations();
+      const invites = await authClient.organization.listUserInvitations()
       if (invites.data && invites.data.length > 0) {
-        const firstInvite = invites.data[0];
+        const firstInvite = invites.data[0]
         if (firstInvite) {
-          await authClient.organization.acceptInvitation({ invitationId: firstInvite.id });
-          const orgId = firstInvite.organizationId;
-          await authClient.organization.setActive({ organizationId: orgId });
-          setActiveOrgCookie(orgId);
-          router.push('/');
-          return;
+          await authClient.organization.acceptInvitation({
+            invitationId: firstInvite.id,
+          })
+          const orgId = firstInvite.organizationId
+          await authClient.organization.setActive({ organizationId: orgId })
+          setActiveOrgCookie(orgId)
+          router.push('/')
+          return
         }
       }
 
       // No invitations — go to onboarding
-      router.push('/onboarding');
+      router.push('/onboarding')
     },
-  });
+  })
 
   const logout = useMutation({
     mutationFn: () => authClient.signOut(),
     onSuccess: () => {
-      clearActiveOrgCookie();
-      queryClient.clear();
-      router.push('/login');
+      clearActiveOrgCookie()
+      queryClient.clear()
+      router.push('/login')
     },
-  });
+  })
 
   return {
     user: session.data?.user ?? null,
@@ -1081,7 +1147,7 @@ export function useAuth() {
     login,
     register,
     logout,
-  };
+  }
 }
 ```
 

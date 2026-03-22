@@ -1,33 +1,36 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
-import { Plus, Search } from 'lucide-react';
+import Link from 'next/link'
+import { Plus, Search } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 
-import { CLAIM_PRIORITY_OPTIONS, CLAIM_STATUS_OPTIONS } from '../lib/constants';
+import { CLAIM_PRIORITY_OPTIONS, CLAIM_STATUS_OPTIONS } from '../lib/constants'
 
-const STATUS_FILTER_OPTIONS = [{ value: 'ALL', label: 'Todos os status' }, ...CLAIM_STATUS_OPTIONS];
+const STATUS_FILTER_OPTIONS = [
+  { value: 'ALL', label: 'Todos os status' },
+  ...CLAIM_STATUS_OPTIONS,
+]
 const PRIORITY_FILTER_OPTIONS = [
   { value: 'ALL', label: 'Todas as prioridades' },
   ...CLAIM_PRIORITY_OPTIONS,
-];
+]
 
 interface ClaimsToolbarProps {
-  readonly search: string;
-  readonly onSearchChange: (value: string) => void;
-  readonly statusFilter: string;
-  readonly onStatusFilterChange: (value: string) => void;
-  readonly priorityFilter: string;
-  readonly onPriorityFilterChange: (value: string) => void;
+  readonly search: string
+  readonly onSearchChange: (value: string) => void
+  readonly statusFilter: string
+  readonly onStatusFilterChange: (value: string) => void
+  readonly priorityFilter: string
+  readonly onPriorityFilterChange: (value: string) => void
 }
 
 export function ClaimsToolbar({
@@ -63,7 +66,7 @@ export function ClaimsToolbar({
         <Select
           value={statusFilter}
           onValueChange={(v) => {
-            if (v !== null) onStatusFilterChange(v);
+            if (v !== null) onStatusFilterChange(v)
           }}
           items={STATUS_FILTER_OPTIONS}
         >
@@ -82,7 +85,7 @@ export function ClaimsToolbar({
         <Select
           value={priorityFilter}
           onValueChange={(v) => {
-            if (v !== null) onPriorityFilterChange(v);
+            if (v !== null) onPriorityFilterChange(v)
           }}
           items={PRIORITY_FILTER_OPTIONS}
         >
@@ -99,5 +102,5 @@ export function ClaimsToolbar({
         </Select>
       </div>
     </div>
-  );
+  )
 }

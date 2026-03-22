@@ -5,7 +5,7 @@ export type ProposalStage =
   | 'INSPECTION'
   | 'PAYMENT'
   | 'POLICY_ISSUED'
-  | 'LOST';
+  | 'LOST'
 
 export type InsuranceBranch =
   | 'AUTO'
@@ -13,65 +13,65 @@ export type InsuranceBranch =
   | 'CONDOMINIUM'
   | 'BUSINESS'
   | 'LIFE'
-  | 'OTHER';
+  | 'OTHER'
 
-export type BoardType = 'NEW_INSURANCE' | 'RENEWAL';
+export type BoardType = 'NEW_INSURANCE' | 'RENEWAL'
 
 export interface AutoDetails {
-  branch: 'AUTO';
-  marca: string;
-  modelo: string;
-  anoFabricacao: number;
-  anoModelo: number;
-  placa?: string;
-  chassi?: string;
-  cor?: string;
-  combustivel?: string;
-  usoVeiculo?: string;
+  branch: 'AUTO'
+  marca: string
+  modelo: string
+  anoFabricacao: number
+  anoModelo: number
+  placa?: string
+  chassi?: string
+  cor?: string
+  combustivel?: string
+  usoVeiculo?: string
 }
 
 export interface ResidentialDetails {
-  branch: 'RESIDENTIAL';
-  tipoImovel: string;
-  usoImovel: string;
-  cep: string;
-  endereco?: string;
-  construcao?: string;
-  areaM2?: number;
+  branch: 'RESIDENTIAL'
+  tipoImovel: string
+  usoImovel: string
+  cep: string
+  endereco?: string
+  construcao?: string
+  areaM2?: number
 }
 
 export interface CondominiumDetails {
-  branch: 'CONDOMINIUM';
-  nomeCondominio: string;
-  numeroUnidades: number;
-  cep: string;
-  endereco?: string;
-  anoConstrucao?: number;
-  numeroAndares?: number;
+  branch: 'CONDOMINIUM'
+  nomeCondominio: string
+  numeroUnidades: number
+  cep: string
+  endereco?: string
+  anoConstrucao?: number
+  numeroAndares?: number
 }
 
 export interface BusinessDetails {
-  branch: 'BUSINESS';
-  razaoSocial: string;
-  cnpj: string;
-  atividade: string;
-  cep?: string;
-  endereco?: string;
-  areaM2?: number;
+  branch: 'BUSINESS'
+  razaoSocial: string
+  cnpj: string
+  atividade: string
+  cep?: string
+  endereco?: string
+  areaM2?: number
 }
 
 export interface LifeDetails {
-  branch: 'LIFE';
-  profissao: string;
-  rendaMensalCentavos?: number;
-  fumante?: boolean;
-  esportesRadicais?: boolean;
-  beneficiarios?: string;
+  branch: 'LIFE'
+  profissao: string
+  rendaMensalCentavos?: number
+  fumante?: boolean
+  esportesRadicais?: boolean
+  beneficiarios?: string
 }
 
 export interface OtherDetails {
-  branch: 'OTHER';
-  descricao: string;
+  branch: 'OTHER'
+  descricao: string
 }
 
 export type InsuredObjectDetails =
@@ -80,26 +80,26 @@ export type InsuredObjectDetails =
   | CondominiumDetails
   | BusinessDetails
   | LifeDetails
-  | OtherDetails;
+  | OtherDetails
 
 export interface ProposalData {
-  id: string;
-  organizationId: string;
-  clientId: string;
-  clientName?: string;
-  salespersonId: string;
-  salespersonName?: string;
-  stage: ProposalStage;
-  boardType: BoardType;
-  branch: InsuranceBranch;
-  premiumValueInCents: number;
-  commissionPercentageInCents: number;
-  details: InsuredObjectDetails | null;
-  lostReason: string | null;
-  renewalPolicyId: string | null;
-  deletedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  organizationId: string
+  clientId: string
+  clientName?: string
+  salespersonId: string
+  salespersonName?: string
+  stage: ProposalStage
+  boardType: BoardType
+  branch: InsuranceBranch
+  premiumValueInCents: number
+  commissionPercentageInCents: number
+  details: InsuredObjectDetails | null
+  lostReason: string | null
+  renewalPolicyId: string | null
+  deletedAt: string | null
+  createdAt: string
+  updatedAt: string
 }
 
 export const STAGE_LABELS: Record<ProposalStage, string> = {
@@ -110,7 +110,7 @@ export const STAGE_LABELS: Record<ProposalStage, string> = {
   PAYMENT: 'Pagamento',
   POLICY_ISSUED: 'Apólice Emitida',
   LOST: 'Perda',
-};
+}
 
 export const BRANCH_LABELS: Record<InsuranceBranch, string> = {
   AUTO: 'Auto',
@@ -119,12 +119,12 @@ export const BRANCH_LABELS: Record<InsuranceBranch, string> = {
   BUSINESS: 'Empresarial',
   LIFE: 'Vida',
   OTHER: 'Outros',
-};
+}
 
 export const BOARD_TYPE_LABELS: Record<BoardType, string> = {
   NEW_INSURANCE: 'Novo Seguro',
   RENEWAL: 'Renovação',
-};
+}
 
 export const STAGE_BADGE_VARIANT: Record<
   ProposalStage,
@@ -137,7 +137,7 @@ export const STAGE_BADGE_VARIANT: Record<
   PAYMENT: 'success',
   POLICY_ISSUED: 'success',
   LOST: 'destructive',
-};
+}
 
 export const STAGES: readonly ProposalStage[] = [
   'CAPTURE',
@@ -147,7 +147,7 @@ export const STAGES: readonly ProposalStage[] = [
   'PAYMENT',
   'POLICY_ISSUED',
   'LOST',
-] as const;
+] as const
 
 export const BRANCHES: readonly InsuranceBranch[] = [
   'AUTO',
@@ -156,6 +156,9 @@ export const BRANCHES: readonly InsuranceBranch[] = [
   'BUSINESS',
   'LIFE',
   'OTHER',
-] as const;
+] as const
 
-export const BOARD_TYPES: readonly BoardType[] = ['NEW_INSURANCE', 'RENEWAL'] as const;
+export const BOARD_TYPES: readonly BoardType[] = [
+  'NEW_INSURANCE',
+  'RENEWAL',
+] as const

@@ -1,7 +1,17 @@
-import { AbilityBuilder, createMongoAbility, type MongoAbility } from '@casl/ability';
-import type { Role } from './roles.js';
+import {
+  AbilityBuilder,
+  createMongoAbility,
+  type MongoAbility,
+} from '@casl/ability'
+import type { Role } from './roles.js'
 
-export type Action = 'manage' | 'create' | 'read' | 'update' | 'delete' | 'approve';
+export type Action =
+  | 'manage'
+  | 'create'
+  | 'read'
+  | 'update'
+  | 'delete'
+  | 'approve'
 export type Subject =
   | 'all'
   | 'User'
@@ -15,9 +25,9 @@ export type Subject =
   | 'Assistance'
   | 'Document'
   | 'AuditLog'
-  | 'Notification';
+  | 'Notification'
 
-export type AppAbility = MongoAbility<[Action, Subject]>;
+export type AppAbility = MongoAbility<[Action, Subject]>
 
 const OPERATIONAL_SUBJECTS: Subject[] = [
   'Client',
@@ -27,45 +37,45 @@ const OPERATIONAL_SUBJECTS: Subject[] = [
   'Endorsement',
   'Assistance',
   'Document',
-];
+]
 
 export function defineAbilitiesFor(role: Role): AppAbility {
-  const { can, build } = new AbilityBuilder<AppAbility>(createMongoAbility);
+  const { can, build } = new AbilityBuilder<AppAbility>(createMongoAbility)
 
   switch (role) {
     case 'OWNER':
-      can('manage', 'all');
-      break;
+      can('manage', 'all')
+      break
 
     case 'ADMIN':
-      can('manage', OPERATIONAL_SUBJECTS);
-      can('manage', 'Commission');
-      can('approve', 'Commission');
-      can('manage', 'User');
-      can('manage', 'Notification');
-      can('read', 'AuditLog');
-      break;
+      can('manage', OPERATIONAL_SUBJECTS)
+      can('manage', 'Commission')
+      can('approve', 'Commission')
+      can('manage', 'User')
+      can('manage', 'Notification')
+      can('read', 'AuditLog')
+      break
 
     case 'MANAGER':
-      can('manage', OPERATIONAL_SUBJECTS);
-      can('manage', 'Commission');
-      can('approve', 'Commission');
-      can('read', 'Notification');
-      can('read', 'AuditLog');
-      break;
+      can('manage', OPERATIONAL_SUBJECTS)
+      can('manage', 'Commission')
+      can('approve', 'Commission')
+      can('read', 'Notification')
+      can('read', 'AuditLog')
+      break
 
     case 'COMMERCIAL':
-      can(['create', 'read', 'update'], ['Client', 'Proposal']);
-      can('read', ['Policy', 'Commission', 'Claim']);
-      can(['read', 'create'], 'Document');
-      can('read', 'Notification');
-      break;
+      can(['create', 'read', 'update'], ['Client', 'Proposal'])
+      can('read', ['Policy', 'Commission', 'Claim'])
+      can(['read', 'create'], 'Document')
+      can('read', 'Notification')
+      break
 
     case 'VIEWER':
-      can('read', OPERATIONAL_SUBJECTS);
-      can('read', ['Commission', 'Notification']);
-      break;
+      can('read', OPERATIONAL_SUBJECTS)
+      can('read', ['Commission', 'Notification'])
+      break
   }
 
-  return build();
+  return build()
 }

@@ -1,24 +1,24 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
-import { ProposalForm } from '@/features/proposals/components/proposal-form';
+import { ProposalForm } from '@/features/proposals/components/proposal-form'
 
 export function NewProposalContent() {
-  const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const router = useRouter()
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    setOpen(true);
-  }, []);
+    setOpen(true)
+  }, [])
 
   const handleOpenChange = (isOpen: boolean) => {
-    setOpen(isOpen);
+    setOpen(isOpen)
     if (!isOpen) {
-      router.push('/proposals');
+      router.push('/proposals')
     }
-  };
+  }
 
-  return <ProposalForm open={open} onOpenChange={handleOpenChange} />;
+  return <ProposalForm open={open} onOpenChange={handleOpenChange} />
 }

@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose'
 
 const aiAgentSchema = new Schema(
   {
@@ -15,9 +15,9 @@ const aiAgentSchema = new Schema(
     maxResponsesPerConversation: { type: Number, default: 20 },
     isActive: { type: Boolean, default: false },
   },
-  { timestamps: true },
-);
+  { timestamps: true }
+)
 
-aiAgentSchema.index({ tenantId: 1, channelId: 1 }, { unique: true });
+aiAgentSchema.index({ tenantId: 1, channelId: 1 }, { unique: true })
 
-export const AiAgent = mongoose.model('AiAgent', aiAgentSchema);
+export const AiAgent = mongoose.model('AiAgent', aiAgentSchema)

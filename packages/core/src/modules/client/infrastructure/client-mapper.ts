@@ -1,8 +1,8 @@
-import type { Client as PrismaClientRecord } from '@repo/db';
-import type { ClientData, ClientAddress } from '../domain/client-repository.js';
+import type { Client as PrismaClientRecord } from '@repo/db'
+import type { ClientData, ClientAddress } from '../domain/client-repository.js'
 
 function isAddressObject(value: unknown): value is ClientAddress {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
 export class ClientMapper {
@@ -23,6 +23,6 @@ export class ClientMapper {
       consentLgpd: row.consentLgpd,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
-    };
+    }
   }
 }

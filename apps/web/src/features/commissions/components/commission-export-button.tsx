@@ -1,18 +1,20 @@
-'use client';
+'use client'
 
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 
-import type { CommissionFilters } from '../types';
-import { useExportCommissionsCsv } from '../hooks/use-commissions';
+import type { CommissionFilters } from '../types'
+import { useExportCommissionsCsv } from '../hooks/use-commissions'
 
 interface CommissionExportButtonProps {
-  readonly filters: CommissionFilters;
+  readonly filters: CommissionFilters
 }
 
-export function CommissionExportButton({ filters }: CommissionExportButtonProps) {
-  const exportCsv = useExportCommissionsCsv();
+export function CommissionExportButton({
+  filters,
+}: CommissionExportButtonProps) {
+  const exportCsv = useExportCommissionsCsv()
 
   return (
     <Button
@@ -29,5 +31,5 @@ export function CommissionExportButton({ filters }: CommissionExportButtonProps)
       )}
       Exportar CSV
     </Button>
-  );
+  )
 }

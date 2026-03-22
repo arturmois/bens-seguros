@@ -1,17 +1,17 @@
-import { Contact } from '@repo/db-chat';
+import { Contact } from '@repo/db-chat'
 
-import type { ContactRepository } from '../../domain/ports/contact-repository.js';
-import type { ContactData } from '../../domain/types.js';
+import type { ContactRepository } from '../../domain/ports/contact-repository.js'
+import type { ContactData } from '../../domain/types.js'
 
 interface MongooseContactDoc {
-  _id: unknown;
-  tenantId: string;
-  whatsappPhone: string;
-  pushName?: string | null;
-  profilePicUrl?: string | null;
-  clientId?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  _id: unknown
+  tenantId: string
+  whatsappPhone: string
+  pushName?: string | null
+  profilePicUrl?: string | null
+  clientId?: string | null
+  createdAt: Date
+  updatedAt: Date
 }
 
 function toContactData(doc: MongooseContactDoc): ContactData {
@@ -24,31 +24,35 @@ function toContactData(doc: MongooseContactDoc): ContactData {
     clientId: doc.clientId ?? null,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
-  };
+  }
 }
 
 export class MongooseContactRepository implements ContactRepository {
   async findById(id: string, tenantId: string): Promise<ContactData | null> {
-    const doc = await Contact.findOne({ _id: id, tenantId }).lean();
-    if (!doc) return null;
-    return toContactData(doc as unknown as MongooseContactDoc);
+    const doc = await Contact.findOne({ _id: id, tenantId }).lean()
+    if (!doc) return null
+    return toContactData(doc as unknown as MongooseContactDoc)
   }
 
-  async findByPhone(tenantId: string, whatsappPhone: string): Promise<ContactData | null> {
-    const doc = await Contact.findOne({ tenantId, whatsappPhone }).lean();
-    if (!doc) return null;
-    return toContactData(doc as unknown as MongooseContactDoc);
+  async findByPhone(
+    tenantId: string,
+    whatsappPhone: string
+  ): Promise<ContactData | null> {
+    const doc = await Contact.findOne({ tenantId, whatsappPhone }).lean()
+    if (!doc) return null
+    return toContactData(doc as unknown as MongooseContactDoc)
   }
 
   async upsertByPhone(
     tenantId: string,
     whatsappPhone: string,
     pushName?: string,
-    profilePicUrl?: string,
+    profilePicUrl?: string
   ): Promise<ContactData> {
-    const updateFields: Record<string, unknown> = {};
-    if (pushName !== undefined) updateFields['pushName'] = pushName;
-    if (profilePicUrl !== undefined) updateFields['profilePicUrl'] = profilePicUrl;
+    const updateFields: Record<string, unknown> = {}
+    if (pushName !== undefined) updateFields['pushName'] = pushName
+    if (profilePicUrl !== undefined)
+      updateFields['profilePicUrl'] = profilePicUrl
 
     const doc = await Contact.findOneAndUpdate(
       { tenantId, whatsappPhone },
@@ -56,9 +60,9 @@ export class MongooseContactRepository implements ContactRepository {
         $set: updateFields,
         $setOnInsert: { tenantId, whatsappPhone },
       },
-      { upsert: true, returnDocument: 'after' },
-    ).lean();
+      { upsert: true, returnDocument: 'after' }
+    ).lean()
 
-    return toContactData(doc as unknown as MongooseContactDoc);
+    return toContactData(doc as unknown as MongooseContactDoc)
   }
 }

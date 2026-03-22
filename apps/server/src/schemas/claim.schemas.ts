@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 const CLAIM_STATUS_VALUES = [
   'REGISTERED',
@@ -9,15 +9,15 @@ const CLAIM_STATUS_VALUES = [
   'REJECTED',
   'PAID',
   'COMPLETED',
-] as const;
+] as const
 
-const CLAIM_PRIORITY_VALUES = ['NORMAL', 'HIGH', 'URGENT'] as const;
+const CLAIM_PRIORITY_VALUES = ['NORMAL', 'HIGH', 'URGENT'] as const
 
-const emptyToUndefined = z.literal('').transform(() => undefined);
+const emptyToUndefined = z.literal('').transform(() => undefined)
 
-const optionalDate = z.union([emptyToUndefined, z.coerce.date()]).optional();
+const optionalDate = z.union([emptyToUndefined, z.coerce.date()]).optional()
 
-const optionalString = z.union([emptyToUndefined, z.string()]).optional();
+const optionalString = z.union([emptyToUndefined, z.string()]).optional()
 
 export const createClaimBodySchema = z.object({
   policyId: z.string().min(1),
@@ -28,11 +28,11 @@ export const createClaimBodySchema = z.object({
   description: z.string().min(1),
   incidentDate: optionalDate,
   incidentLocation: optionalString,
-});
+})
 
 export const updateClaimStatusBodySchema = z.object({
   status: z.enum(CLAIM_STATUS_VALUES),
-});
+})
 
 export const listClaimsQuerySchema = z.object({
   status: z.enum(CLAIM_STATUS_VALUES).optional(),
@@ -42,4 +42,4 @@ export const listClaimsQuerySchema = z.object({
   search: z.string().optional(),
   cursor: z.string().optional(),
   limit: z.coerce.number().min(1).max(100).default(20),
-});
+})

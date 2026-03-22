@@ -1,21 +1,27 @@
-'use client';
+'use client'
 
-import { LifeBuoy, MoreHorizontal } from 'lucide-react';
+import { LifeBuoy, MoreHorizontal } from 'lucide-react'
 
-import { Skeleton } from '@/components/ui/skeleton';
-import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/menu';
+} from '@/components/ui/menu'
 
-import type { AssistanceData } from '../types';
-import { ASSISTANCE_TYPE_LABELS } from '../lib/constants';
-import { AssistanceStatusBadge } from './assistance-status-badge';
+import type { AssistanceData } from '../types'
+import { ASSISTANCE_TYPE_LABELS } from '../lib/constants'
+import { AssistanceStatusBadge } from './assistance-status-badge'
 
-const COLUMN_COUNT = 7;
+const COLUMN_COUNT = 7
 
 export function AssistancesTableHeader() {
   return (
@@ -30,7 +36,7 @@ export function AssistancesTableHeader() {
         <TableHead className="w-12" />
       </TableRow>
     </TableHeader>
-  );
+  )
 }
 
 export function AssistancesTableBody({
@@ -38,9 +44,9 @@ export function AssistancesTableBody({
   isLoading,
   onRowClick,
 }: {
-  readonly data: readonly AssistanceData[] | undefined;
-  readonly isLoading: boolean;
-  readonly onRowClick: (id: string) => void;
+  readonly data: readonly AssistanceData[] | undefined
+  readonly isLoading: boolean
+  readonly onRowClick: (id: string) => void
 }) {
   return (
     <TableBody>
@@ -55,20 +61,20 @@ export function AssistancesTableBody({
           />
         ))}
     </TableBody>
-  );
+  )
 }
 
 function AssistanceRow({
   assistance,
   onClick,
 }: {
-  readonly assistance: AssistanceData;
-  readonly onClick: () => void;
+  readonly assistance: AssistanceData
+  readonly onClick: () => void
 }) {
   const formattedDate = new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
     timeZone: 'America/Sao_Paulo',
-  }).format(new Date(assistance.requestedAt));
+  }).format(new Date(assistance.requestedAt))
 
   return (
     <TableRow
@@ -77,14 +83,18 @@ function AssistanceRow({
       onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
+          e.preventDefault()
+          onClick()
         }
       }}
     >
-      <TableCell className="font-medium">{ASSISTANCE_TYPE_LABELS[assistance.type]}</TableCell>
+      <TableCell className="font-medium">
+        {ASSISTANCE_TYPE_LABELS[assistance.type]}
+      </TableCell>
       <TableCell>{assistance.clientName ?? '-'}</TableCell>
-      <TableCell className="hidden md:table-cell">{assistance.policyNumber ?? '-'}</TableCell>
+      <TableCell className="hidden md:table-cell">
+        {assistance.policyNumber ?? '-'}
+      </TableCell>
       <TableCell>
         <AssistanceStatusBadge status={assistance.status} />
       </TableCell>
@@ -105,8 +115,8 @@ function AssistanceRow({
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={(e) => {
-                e.stopPropagation();
-                onClick();
+                e.stopPropagation()
+                onClick()
               }}
             >
               Ver detalhes
@@ -115,7 +125,7 @@ function AssistanceRow({
         </DropdownMenu>
       </TableCell>
     </TableRow>
-  );
+  )
 }
 
 function LoadingRows() {
@@ -131,7 +141,7 @@ function LoadingRows() {
         </TableRow>
       ))}
     </>
-  );
+  )
 }
 
 function EmptyRow() {
@@ -149,5 +159,5 @@ function EmptyRow() {
         </div>
       </TableCell>
     </TableRow>
-  );
+  )
 }

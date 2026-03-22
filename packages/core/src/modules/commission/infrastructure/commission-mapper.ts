@@ -1,13 +1,16 @@
-import type { Commission as PrismaCommissionRecord, CommissionStatus } from '@repo/db';
-import type { CommissionData } from '../domain/commission-repository.js';
-import type { CommissionProps } from '../domain/commission-types.js';
+import type {
+  Commission as PrismaCommissionRecord,
+  CommissionStatus,
+} from '@repo/db'
+import type { CommissionData } from '../domain/commission-repository.js'
+import type { CommissionProps } from '../domain/commission-types.js'
 
 interface CommissionRelations {
-  salesperson?: { name: string } | null;
-  policy?: { policyNumber: string; client?: { name: string } | null } | null;
+  salesperson?: { name: string } | null
+  policy?: { policyNumber: string; client?: { name: string } | null } | null
 }
 
-type CommissionWithRelations = PrismaCommissionRecord & CommissionRelations;
+type CommissionWithRelations = PrismaCommissionRecord & CommissionRelations
 
 export class CommissionMapper {
   static toData(row: CommissionWithRelations): CommissionData {
@@ -35,28 +38,28 @@ export class CommissionMapper {
       salespersonName: row.salesperson?.name,
       policyNumber: row.policy?.policyNumber,
       clientName: row.policy?.client?.name,
-    };
+    }
   }
 
   static toPersistence(props: CommissionProps): {
-    id: string;
-    organizationId: string;
-    policyId: string;
-    salespersonId: string;
-    status: CommissionStatus;
-    commissionValueInCents: number;
-    premiumValueInCents: number;
-    percentageInBasisPoints: number;
-    splitPercentage: number;
-    approvedBy: string | null;
-    approvedAt: Date | null;
-    paidAt: Date | null;
-    rejectedBy: string | null;
-    rejectedAt: Date | null;
-    rejectionReason: string | null;
-    isReversal: boolean;
-    originalCommissionId: string | null;
-    deletedAt: Date | null;
+    id: string
+    organizationId: string
+    policyId: string
+    salespersonId: string
+    status: CommissionStatus
+    commissionValueInCents: number
+    premiumValueInCents: number
+    percentageInBasisPoints: number
+    splitPercentage: number
+    approvedBy: string | null
+    approvedAt: Date | null
+    paidAt: Date | null
+    rejectedBy: string | null
+    rejectedAt: Date | null
+    rejectionReason: string | null
+    isReversal: boolean
+    originalCommissionId: string | null
+    deletedAt: Date | null
   } {
     return {
       id: props.id,
@@ -77,6 +80,6 @@ export class CommissionMapper {
       isReversal: props.isReversal,
       originalCommissionId: props.originalCommissionId,
       deletedAt: props.deletedAt,
-    };
+    }
   }
 }

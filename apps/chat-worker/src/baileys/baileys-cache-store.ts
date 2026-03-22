@@ -1,4 +1,4 @@
-import type { CacheStore } from 'baileys';
+import type { CacheStore } from 'baileys'
 
 /**
  * Creates a Baileys-compatible CacheStore backed by an in-memory Map.
@@ -8,20 +8,20 @@ import type { CacheStore } from 'baileys';
  * and small ephemeral data that must persist across socket reconnections.
  */
 export function createBaileysCacheStore(): CacheStore {
-  const map = new Map<string, unknown>();
+  const map = new Map<string, unknown>()
 
   return {
     get<TValue>(key: string): TValue | undefined {
-      return map.get(key) as TValue | undefined;
+      return map.get(key) as TValue | undefined
     },
     set<TValue>(key: string, value: TValue): void {
-      map.set(key, value);
+      map.set(key, value)
     },
     del(key: string): void {
-      map.delete(key);
+      map.delete(key)
     },
     flushAll(): void {
-      map.clear();
+      map.clear()
     },
-  };
+  }
 }

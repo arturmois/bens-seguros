@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { Clock, MessageSquare } from 'lucide-react';
+import { Clock, MessageSquare } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 
-import { useClaimOccurrences } from '../hooks/use-claims';
+import { useClaimOccurrences } from '../hooks/use-claims'
 
 const OCCURRENCE_TYPE_LABELS: Record<string, string> = {
   acompanhamento: 'Acompanhamento',
@@ -14,50 +14,54 @@ const OCCURRENCE_TYPE_LABELS: Record<string, string> = {
   vistoria: 'Vistoria',
   parecer: 'Parecer',
   outro: 'Outro',
-};
+}
 
 function formatDateTime(dateStr: string): string {
   return new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
     timeStyle: 'short',
     timeZone: 'America/Sao_Paulo',
-  }).format(new Date(dateStr));
+  }).format(new Date(dateStr))
 }
 
 interface OccurrenceListProps {
-  readonly claimId: string;
+  readonly claimId: string
 }
 
 export function OccurrenceList({ claimId }: OccurrenceListProps) {
-  const { data, isLoading, isError, refetch } = useClaimOccurrences(claimId);
+  const { data, isLoading, isError, refetch } = useClaimOccurrences(claimId)
 
   if (isLoading) {
-    return <OccurrenceListSkeleton />;
+    return <OccurrenceListSkeleton />
   }
 
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-8">
-        <p className="text-destructive text-sm">Erro ao carregar ocorrências.</p>
+        <p className="text-destructive text-sm">
+          Erro ao carregar ocorrências.
+        </p>
         <Button variant="outline" size="sm" onClick={() => refetch()}>
           Tentar novamente
         </Button>
       </div>
-    );
+    )
   }
 
   if (!data || data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-8">
         <MessageSquare className="text-muted-foreground size-10" />
-        <p className="text-muted-foreground text-sm">Nenhuma ocorrência registrada</p>
+        <p className="text-muted-foreground text-sm">
+          Nenhuma ocorrência registrada
+        </p>
       </div>
-    );
+    )
   }
 
   const sorted = [...data].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  )
 
   return (
     <div className="relative space-y-0">
@@ -86,7 +90,7 @@ export function OccurrenceList({ claimId }: OccurrenceListProps) {
         </div>
       ))}
     </div>
-  );
+  )
 }
 
 function OccurrenceListSkeleton() {
@@ -102,5 +106,5 @@ function OccurrenceListSkeleton() {
         </div>
       ))}
     </div>
-  );
+  )
 }

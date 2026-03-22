@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -10,13 +10,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 
 interface DeleteClientDialogProps {
-  readonly open: boolean;
-  readonly onOpenChange: (open: boolean) => void;
-  readonly onConfirm: () => void;
-  readonly isPending: boolean;
+  readonly open: boolean
+  readonly onOpenChange: (open: boolean) => void
+  readonly onConfirm: () => void
+  readonly isPending: boolean
 }
 
 export function DeleteClientDialog({
@@ -31,19 +31,28 @@ export function DeleteClientDialog({
         <DialogHeader>
           <DialogTitle>Excluir cliente</DialogTitle>
           <DialogDescription>
-            Tem certeza que deseja excluir este cliente? Esta acao nao pode ser desfeita.
+            Tem certeza que deseja excluir este cliente? Esta acao nao pode ser
+            desfeita.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+          >
             Cancelar
           </Button>
-          <Button variant="destructive" onClick={onConfirm} disabled={isPending}>
+          <Button
+            variant="destructive"
+            onClick={onConfirm}
+            disabled={isPending}
+          >
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Excluir
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

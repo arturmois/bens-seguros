@@ -1,11 +1,13 @@
-'use client';
+'use client'
 
-import { AssistanceDetail } from '@/features/assistances/components/assistance-detail';
+import { AssistanceDetail } from '@/features/assistances/components/assistance-detail'
 
 interface AssistanceDetailContentProps {
-  readonly assistanceId: string;
+  readonly assistanceId: string
 }
 
-export function AssistanceDetailContent({ assistanceId }: AssistanceDetailContentProps) {
-  return <AssistanceDetail assistanceId={assistanceId} />;
+export function AssistanceDetailContent({
+  assistanceId,
+}: AssistanceDetailContentProps) {
+  return <AssistanceDetail assistanceId={assistanceId} />
 }

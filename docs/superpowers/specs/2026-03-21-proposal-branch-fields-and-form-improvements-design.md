@@ -110,64 +110,64 @@ O Proposal é DDD Full. O campo `details` deve fluir pela camada de domínio.
 Adicionar à interface `ProposalProps`:
 
 ```ts
-details: InsuredObjectDetails | null;
-premiumValueInCents: number; // já existe
-commissionPercentageInCents: number; // já existe (basis points 0-10000)
+details: InsuredObjectDetails | null
+premiumValueInCents: number // já existe
+commissionPercentageInCents: number // já existe (basis points 0-10000)
 ```
 
 ### Tipo discriminado para `details`
 
 ```ts
 interface AutoDetails {
-  branch: 'AUTO';
-  marca: string;
-  modelo: string;
-  anoFabricacao: number;
-  anoModelo: number;
-  placa?: string;
-  chassi?: string;
-  cor?: string;
-  combustivel?: string;
-  usoVeiculo?: string;
+  branch: 'AUTO'
+  marca: string
+  modelo: string
+  anoFabricacao: number
+  anoModelo: number
+  placa?: string
+  chassi?: string
+  cor?: string
+  combustivel?: string
+  usoVeiculo?: string
 }
 interface ResidentialDetails {
-  branch: 'RESIDENTIAL';
-  tipoImovel: string;
-  usoImovel: string;
-  cep: string;
-  endereco?: string;
-  construcao?: string;
-  areaM2?: number;
+  branch: 'RESIDENTIAL'
+  tipoImovel: string
+  usoImovel: string
+  cep: string
+  endereco?: string
+  construcao?: string
+  areaM2?: number
 }
 interface CondominiumDetails {
-  branch: 'CONDOMINIUM';
-  nomeCondominio: string;
-  numeroUnidades: number;
-  cep: string;
-  endereco?: string;
-  anoConstrucao?: number;
-  numeroAndares?: number;
+  branch: 'CONDOMINIUM'
+  nomeCondominio: string
+  numeroUnidades: number
+  cep: string
+  endereco?: string
+  anoConstrucao?: number
+  numeroAndares?: number
 }
 interface BusinessDetails {
-  branch: 'BUSINESS';
-  razaoSocial: string;
-  cnpj: string;
-  atividade: string;
-  cep?: string;
-  endereco?: string;
-  areaM2?: number;
+  branch: 'BUSINESS'
+  razaoSocial: string
+  cnpj: string
+  atividade: string
+  cep?: string
+  endereco?: string
+  areaM2?: number
 }
 interface LifeDetails {
-  branch: 'LIFE';
-  profissao: string;
-  rendaMensalCentavos?: number;
-  fumante?: boolean;
-  esportesRadicais?: boolean;
-  beneficiarios?: string;
+  branch: 'LIFE'
+  profissao: string
+  rendaMensalCentavos?: number
+  fumante?: boolean
+  esportesRadicais?: boolean
+  beneficiarios?: string
 }
 interface OtherDetails {
-  branch: 'OTHER';
-  descricao: string;
+  branch: 'OTHER'
+  descricao: string
 }
 
 type InsuredObjectDetails =
@@ -176,7 +176,7 @@ type InsuredObjectDetails =
   | CondominiumDetails
   | BusinessDetails
   | LifeDetails
-  | OtherDetails;
+  | OtherDetails
 ```
 
 Definir em `packages/core/src/modules/proposal/domain/insured-object-details.ts` e reutilizar no frontend.
@@ -205,16 +205,20 @@ class UpdateProposalDetails {
     proposalId: string,
     organizationId: string,
     dto: {
-      details: InsuredObjectDetails;
-      premiumValueInCents: number;
-      commissionBasisPoints: number;
-    },
+      details: InsuredObjectDetails
+      premiumValueInCents: number
+      commissionBasisPoints: number
+    }
   ): Promise<Proposal> {
-    const proposal = await this.repo.findById(proposalId, organizationId);
-    if (!proposal) throw ProposalErrors.notFound(proposalId);
-    proposal.updateDetails(dto.details, dto.premiumValueInCents, dto.commissionBasisPoints);
-    await this.repo.save(proposal);
-    return proposal;
+    const proposal = await this.repo.findById(proposalId, organizationId)
+    if (!proposal) throw ProposalErrors.notFound(proposalId)
+    proposal.updateDetails(
+      dto.details,
+      dto.premiumValueInCents,
+      dto.commissionBasisPoints
+    )
+    await this.repo.save(proposal)
+    return proposal
   }
 }
 ```
@@ -229,7 +233,7 @@ Antes de chamar `proposal.advance()`, verificar:
 
 ```ts
 if (proposal.stage === 'QUOTE' && !proposal.details) {
-  throw new ProposalDetailsRequiredError(proposalId);
+  throw new ProposalDetailsRequiredError(proposalId)
 }
 ```
 
@@ -237,7 +241,7 @@ if (proposal.stage === 'QUOTE' && !proposal.details) {
 
 ```ts
 class ProposalDetailsRequiredError extends Error {
-  readonly code = 'PROPOSAL_DETAILS_REQUIRED' as const;
+  readonly code = 'PROPOSAL_DETAILS_REQUIRED' as const
   // "Preencha os dados do objeto segurado antes de avançar para Protocolo"
 }
 ```
@@ -264,7 +268,7 @@ const autoDetailsSchema = z.object({
   cor: z.string().optional(),
   combustivel: z.string().optional(),
   usoVeiculo: z.string().optional(),
-});
+})
 
 // ... mesmo padrão para cada ramo
 
@@ -275,13 +279,13 @@ const insuredObjectDetailsSchema = z.discriminatedUnion('branch', [
   businessDetailsSchema,
   lifeDetailsSchema,
   otherDetailsSchema,
-]);
+])
 
 const updateProposalDetailsSchema = z.object({
   details: insuredObjectDetailsSchema,
   premiumValueInCents: z.number().int().min(0),
   commissionBasisPoints: z.number().int().min(0).max(10000),
-});
+})
 ```
 
 Endpoint: `PUT /api/v1/proposals/:id/details`

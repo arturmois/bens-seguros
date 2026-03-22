@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const listAuditLogsQuerySchema = z.object({
   entityType: z.string().optional(),
@@ -8,4 +8,4 @@ export const listAuditLogsQuerySchema = z.object({
   dateTo: z.string().optional(),
   cursor: z.string().optional(),
   limit: z.coerce.number().min(1).max(100).default(30),
-});
+})

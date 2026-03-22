@@ -1,17 +1,17 @@
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'
 
-let isConnected = false;
+let isConnected = false
 
 export async function connectMongoDB(uri: string): Promise<void> {
-  if (isConnected) return;
+  if (isConnected) return
 
-  await mongoose.connect(uri);
+  await mongoose.connect(uri)
 
-  isConnected = true;
+  isConnected = true
 }
 
 export async function disconnectMongoDB(): Promise<void> {
-  if (!isConnected) return;
-  await mongoose.disconnect();
-  isConnected = false;
+  if (!isConnected) return
+  await mongoose.disconnect()
+  isConnected = false
 }

@@ -1,10 +1,16 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const assistanceFormSchema = z.object({
-  policyId: z.string({ required_error: 'Apólice é obrigatória' }).min(1, 'Apólice é obrigatória'),
-  clientId: z.string({ required_error: 'Cliente é obrigatório' }).min(1, 'Cliente é obrigatório'),
+  policyId: z
+    .string({ required_error: 'Apólice é obrigatória' })
+    .min(1, 'Apólice é obrigatória'),
+  clientId: z
+    .string({ required_error: 'Cliente é obrigatório' })
+    .min(1, 'Cliente é obrigatório'),
   claimId: z.string().optional().or(z.literal('')),
-  type: z.string({ required_error: 'Tipo é obrigatório' }).min(1, 'Tipo é obrigatório'),
+  type: z
+    .string({ required_error: 'Tipo é obrigatório' })
+    .min(1, 'Tipo é obrigatório'),
   description: z
     .string()
     .max(2000, 'Descrição deve ter no máximo 2000 caracteres')
@@ -26,9 +32,9 @@ export const assistanceFormSchema = z.object({
     .optional()
     .or(z.literal('')),
   scheduledAt: z.string().optional().or(z.literal('')),
-});
+})
 
-export type AssistanceFormValues = z.infer<typeof assistanceFormSchema>;
+export type AssistanceFormValues = z.infer<typeof assistanceFormSchema>
 
 export const EMPTY_ASSISTANCE_FORM_VALUES: AssistanceFormValues = {
   policyId: '',
@@ -40,4 +46,4 @@ export const EMPTY_ASSISTANCE_FORM_VALUES: AssistanceFormValues = {
   providerName: '',
   providerPhone: '',
   scheduledAt: '',
-};
+}

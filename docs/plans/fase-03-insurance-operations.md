@@ -342,37 +342,44 @@ git commit -m "feat: add claim, endorsement, assistance, document, occurrence mo
 
 ```ts
 export interface UploadResult {
-  storageKey: string;
-  url?: string;
+  storageKey: string
+  url?: string
 }
 
 export interface StorageProvider {
-  upload(key: string, buffer: Buffer, contentType: string): Promise<UploadResult>;
-  getSignedUrl(key: string, expiresIn?: number): Promise<string>;
-  delete(key: string): Promise<void>;
+  upload(
+    key: string,
+    buffer: Buffer,
+    contentType: string
+  ): Promise<UploadResult>
+  getSignedUrl(key: string, expiresIn?: number): Promise<string>
+  delete(key: string): Promise<void>
 }
 ```
 
 - [ ] **Step 2: Implement R2StorageProvider**
 
 ```ts
-import { injectable } from 'tsyringe';
+import { injectable } from 'tsyringe'
 import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import type { StorageProvider, UploadResult } from '../domain/storage-provider.js';
+} from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import type {
+  StorageProvider,
+  UploadResult,
+} from '../domain/storage-provider.js'
 
 @injectable()
 export class R2StorageProvider implements StorageProvider {
-  private client: S3Client;
-  private bucket: string;
+  private client: S3Client
+  private bucket: string
 
   constructor() {
-    this.bucket = process.env.R2_BUCKET_NAME ?? 'bens-seguros';
+    this.bucket = process.env.R2_BUCKET_NAME ?? 'bens-seguros'
     this.client = new S3Client({
       region: 'auto',
       endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
@@ -380,28 +387,34 @@ export class R2StorageProvider implements StorageProvider {
         accessKeyId: process.env.R2_ACCESS_KEY_ID ?? '',
         secretAccessKey: process.env.R2_SECRET_ACCESS_KEY ?? '',
       },
-    });
+    })
   }
 
-  async upload(key: string, buffer: Buffer, contentType: string): Promise<UploadResult> {
+  async upload(
+    key: string,
+    buffer: Buffer,
+    contentType: string
+  ): Promise<UploadResult> {
     await this.client.send(
       new PutObjectCommand({
         Bucket: this.bucket,
         Key: key,
         Body: buffer,
         ContentType: contentType,
-      }),
-    );
-    return { storageKey: key };
+      })
+    )
+    return { storageKey: key }
   }
 
   async getSignedUrl(key: string, expiresIn = 3600): Promise<string> {
-    const command = new GetObjectCommand({ Bucket: this.bucket, Key: key });
-    return getSignedUrl(this.client, command, { expiresIn });
+    const command = new GetObjectCommand({ Bucket: this.bucket, Key: key })
+    return getSignedUrl(this.client, command, { expiresIn })
   }
 
   async delete(key: string): Promise<void> {
-    await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
+    await this.client.send(
+      new DeleteObjectCommand({ Bucket: this.bucket, Key: key })
+    )
   }
 }
 ```
@@ -409,35 +422,35 @@ export class R2StorageProvider implements StorageProvider {
 - [ ] **Step 3: Create upload-document use case**
 
 ```ts
-import { injectable, inject } from 'tsyringe';
-import { randomUUID } from 'node:crypto';
-import type { StorageProvider } from '../domain/storage-provider.js';
-import type { DocumentRepository } from '../domain/document-repository.js';
+import { injectable, inject } from 'tsyringe'
+import { randomUUID } from 'node:crypto'
+import type { StorageProvider } from '../domain/storage-provider.js'
+import type { DocumentRepository } from '../domain/document-repository.js'
 
 interface UploadDocumentDTO {
-  organizationId: string;
-  entityType: string;
-  entityId: string;
-  clientId?: string;
-  type?: string;
-  fileName: string;
-  mimeType: string;
-  sizeBytes: number;
-  buffer: Buffer;
-  createdBy?: string;
+  organizationId: string
+  entityType: string
+  entityId: string
+  clientId?: string
+  type?: string
+  fileName: string
+  mimeType: string
+  sizeBytes: number
+  buffer: Buffer
+  createdBy?: string
 }
 
 @injectable()
 export class UploadDocument {
   constructor(
     @inject('StorageProvider') private storage: StorageProvider,
-    @inject('DocumentRepository') private docRepo: DocumentRepository,
+    @inject('DocumentRepository') private docRepo: DocumentRepository
   ) {}
 
   async execute(dto: UploadDocumentDTO) {
-    const storageKey = `${dto.organizationId}/${dto.entityType}/${dto.entityId}/${randomUUID()}-${dto.fileName}`;
+    const storageKey = `${dto.organizationId}/${dto.entityType}/${dto.entityId}/${randomUUID()}-${dto.fileName}`
 
-    await this.storage.upload(storageKey, dto.buffer, dto.mimeType);
+    await this.storage.upload(storageKey, dto.buffer, dto.mimeType)
 
     return this.docRepo.create({
       organizationId: dto.organizationId,
@@ -451,7 +464,7 @@ export class UploadDocument {
       storageKey,
       url: null,
       createdBy: dto.createdBy ?? null,
-    });
+    })
   }
 }
 ```
@@ -477,14 +490,19 @@ git commit -m "feat: add document module with R2 storage provider and presigned 
 ```ts
 const VALID_TRANSITIONS: Record<string, string[]> = {
   REGISTERED: ['IN_ANALYSIS'],
-  IN_ANALYSIS: ['AWAITING_DOCUMENT', 'PENDING_INSPECTION', 'APPROVED', 'REJECTED'],
+  IN_ANALYSIS: [
+    'AWAITING_DOCUMENT',
+    'PENDING_INSPECTION',
+    'APPROVED',
+    'REJECTED',
+  ],
   AWAITING_DOCUMENT: ['IN_ANALYSIS'],
   PENDING_INSPECTION: ['APPROVED', 'REJECTED'],
   APPROVED: ['PAID'],
   REJECTED: [],
   PAID: ['COMPLETED'],
   COMPLETED: [],
-};
+}
 ```
 
 - [ ] **Step 3: Create infrastructure (prisma repository)**
@@ -512,7 +530,7 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
   DISPATCHED: ['IN_PROGRESS'],
   IN_PROGRESS: ['COMPLETED'],
   COMPLETED: [],
-};
+}
 ```
 
 - [ ] **Step 3: Create occurrence module (create, list by claim)**

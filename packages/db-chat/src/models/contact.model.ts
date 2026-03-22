@@ -1,4 +1,4 @@
-import mongoose, { type InferSchemaType, Schema } from 'mongoose';
+import mongoose, { type InferSchemaType, Schema } from 'mongoose'
 
 const contactSchema = new Schema(
   {
@@ -8,10 +8,12 @@ const contactSchema = new Schema(
     profilePicUrl: String,
     clientId: String,
   },
-  { timestamps: true },
-);
+  { timestamps: true }
+)
 
-contactSchema.index({ tenantId: 1, whatsappPhone: 1 }, { unique: true });
+contactSchema.index({ tenantId: 1, whatsappPhone: 1 }, { unique: true })
 
-export type ContactDocument = InferSchemaType<typeof contactSchema> & { _id: string };
-export const Contact = mongoose.model('Contact', contactSchema);
+export type ContactDocument = InferSchemaType<typeof contactSchema> & {
+  _id: string
+}
+export const Contact = mongoose.model('Contact', contactSchema)

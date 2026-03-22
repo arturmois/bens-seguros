@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { ClaimDetail } from '@/features/claims/components/claim-detail';
+import { ClaimDetail } from '@/features/claims/components/claim-detail'
 
 interface ClaimDetailContentProps {
-  readonly claimId: string;
+  readonly claimId: string
 }
 
 export function ClaimDetailContent({ claimId }: ClaimDetailContentProps) {
-  return <ClaimDetail claimId={claimId} />;
+  return <ClaimDetail claimId={claimId} />
 }

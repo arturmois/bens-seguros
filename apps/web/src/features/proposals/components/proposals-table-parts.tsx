@@ -1,6 +1,6 @@
-import { FileText } from 'lucide-react';
+import { FileText } from 'lucide-react'
 
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 
 export function ProposalsTableSkeleton() {
   return (
@@ -38,7 +38,7 @@ export function ProposalsTableSkeleton() {
         </TableBody>
       </Table>
     </div>
-  );
+  )
 }
 
 export function ProposalsEmptyState() {
@@ -47,8 +47,10 @@ export function ProposalsEmptyState() {
       <FileText className="text-muted-foreground size-10" />
       <div>
         <p className="font-medium">Nenhuma proposta encontrada</p>
-        <p className="text-muted-foreground mt-1 text-sm">Crie uma nova proposta para começar.</p>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Crie uma nova proposta para começar.
+        </p>
       </div>
     </div>
-  );
+  )
 }

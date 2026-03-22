@@ -1,4 +1,4 @@
-import { DashboardContent } from '@/features/dashboard/components/dashboard-content';
+import { DashboardContent } from '@/features/dashboard/components/dashboard-content'
 
 export default function DashboardPage() {
   return (
@@ -6,5 +6,5 @@ export default function DashboardPage() {
       <h1 className="text-2xl font-semibold">Dashboard</h1>
       <DashboardContent />
     </div>
-  );
+  )
 }

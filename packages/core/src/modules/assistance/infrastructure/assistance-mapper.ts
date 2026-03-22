@@ -1,12 +1,12 @@
-import type { Assistance as PrismaAssistanceRecord } from '@repo/db';
-import type { AssistanceData } from '../domain/assistance-repository.js';
+import type { Assistance as PrismaAssistanceRecord } from '@repo/db'
+import type { AssistanceData } from '../domain/assistance-repository.js'
 
 interface AssistanceRelations {
-  policy?: { policyNumber: string } | null;
-  client?: { name: string } | null;
+  policy?: { policyNumber: string } | null
+  client?: { name: string } | null
 }
 
-type AssistanceWithRelations = PrismaAssistanceRecord & AssistanceRelations;
+type AssistanceWithRelations = PrismaAssistanceRecord & AssistanceRelations
 
 export class AssistanceMapper {
   static toDomain(row: AssistanceWithRelations): AssistanceData {
@@ -31,6 +31,6 @@ export class AssistanceMapper {
       updatedAt: row.updatedAt,
       policyNumber: row.policy?.policyNumber,
       clientName: row.client?.name,
-    };
+    }
   }
 }

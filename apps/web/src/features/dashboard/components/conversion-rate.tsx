@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp } from 'lucide-react'
 
-import { Card, CardHeader, CardTitle, CardPanel } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardHeader, CardTitle, CardPanel } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 
-import type { ConversionRate as ConversionRateType } from '../types';
+import type { ConversionRate as ConversionRateType } from '../types'
 
 interface ConversionRateProps {
-  data: ConversionRateType | undefined;
-  isLoading: boolean;
+  data: ConversionRateType | undefined
+  isLoading: boolean
 }
 
 export function ConversionRate({ data, isLoading }: ConversionRateProps) {
@@ -23,10 +23,10 @@ export function ConversionRate({ data, isLoading }: ConversionRateProps) {
           <Skeleton className="h-24 w-full" />
         </CardPanel>
       </Card>
-    );
+    )
   }
 
-  if (!data) return null;
+  if (!data) return null
 
   return (
     <Card>
@@ -35,7 +35,9 @@ export function ConversionRate({ data, isLoading }: ConversionRateProps) {
       </CardHeader>
       <CardPanel className="flex items-center gap-4">
         <div className="flex items-baseline gap-1">
-          <span className="text-4xl font-bold tracking-tight">{data.rate}%</span>
+          <span className="text-4xl font-bold tracking-tight">
+            {data.rate}%
+          </span>
         </div>
         <div className="text-muted-foreground space-y-1 text-xs">
           <div className="flex items-center gap-1">
@@ -46,5 +48,5 @@ export function ConversionRate({ data, isLoading }: ConversionRateProps) {
         </div>
       </CardPanel>
     </Card>
-  );
+  )
 }

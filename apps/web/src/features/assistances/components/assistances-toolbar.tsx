@@ -1,30 +1,30 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
-import { Plus, Search } from 'lucide-react';
+import Link from 'next/link'
+import { Plus, Search } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 
-import { ASSISTANCE_STATUS_OPTIONS } from '../lib/constants';
+import { ASSISTANCE_STATUS_OPTIONS } from '../lib/constants'
 
 const STATUS_FILTER_OPTIONS = [
   { value: 'ALL', label: 'Todos os status' },
   ...ASSISTANCE_STATUS_OPTIONS,
-];
+]
 
 interface AssistancesToolbarProps {
-  readonly search: string;
-  readonly onSearchChange: (value: string) => void;
-  readonly statusFilter: string;
-  readonly onStatusFilterChange: (value: string) => void;
+  readonly search: string
+  readonly onSearchChange: (value: string) => void
+  readonly statusFilter: string
+  readonly onStatusFilterChange: (value: string) => void
 }
 
 export function AssistancesToolbar({
@@ -58,7 +58,7 @@ export function AssistancesToolbar({
         <Select
           value={statusFilter}
           onValueChange={(v) => {
-            if (v !== null) onStatusFilterChange(v);
+            if (v !== null) onStatusFilterChange(v)
           }}
           items={STATUS_FILTER_OPTIONS}
         >
@@ -75,5 +75,5 @@ export function AssistancesToolbar({
         </Select>
       </div>
     </div>
-  );
+  )
 }

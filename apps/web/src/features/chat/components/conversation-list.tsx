@@ -1,38 +1,42 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
-import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { AlertCircle, MessageCircle, RefreshCw, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
+import { formatDistanceToNow } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+import { AlertCircle, MessageCircle, RefreshCw, Search } from 'lucide-react'
 
-import type { ConversationData, ConversationFilters, ConversationStatus } from '../types';
-import { ConversationStatusBadge } from './conversation-status-badge';
+import type {
+  ConversationData,
+  ConversationFilters,
+  ConversationStatus,
+} from '../types'
+import { ConversationStatusBadge } from './conversation-status-badge'
 
 interface ConversationListProps {
-  readonly conversations: ConversationData[];
-  readonly activeConversationId: string | null;
-  readonly isLoading: boolean;
-  readonly isError: boolean;
-  readonly filters: ConversationFilters;
-  readonly onSelectConversation: (id: string) => void;
-  readonly onFiltersChange: (filters: ConversationFilters) => void;
-  readonly onRetry: () => void;
+  readonly conversations: ConversationData[]
+  readonly activeConversationId: string | null
+  readonly isLoading: boolean
+  readonly isError: boolean
+  readonly filters: ConversationFilters
+  readonly onSelectConversation: (id: string) => void
+  readonly onFiltersChange: (filters: ConversationFilters) => void
+  readonly onRetry: () => void
 }
 
-type FilterTab = 'ALL' | ConversationStatus;
+type FilterTab = 'ALL' | ConversationStatus
 
 const FILTER_TABS: ReadonlyArray<{ value: FilterTab; label: string }> = [
   { value: 'ALL', label: 'Todos' },
   { value: 'WAITING_HUMAN', label: 'Fila' },
   { value: 'HUMAN_ACTIVE', label: 'Meus' },
   { value: 'CLOSED', label: 'Fechados' },
-];
+]
 
 function getDisplayName(conversation: ConversationData): string {
-  return conversation.whatsappPhone ?? 'Contato';
+  return conversation.whatsappPhone ?? 'Contato'
 }
 
 function ConversationListSkeleton() {
@@ -48,20 +52,22 @@ function ConversationListSkeleton() {
         </div>
       ))}
     </div>
-  );
+  )
 }
 
 function ConversationListError({ onRetry }: { readonly onRetry: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-12">
       <AlertCircle className="text-destructive h-10 w-10" />
-      <p className="text-muted-foreground text-sm">Erro ao carregar conversas</p>
+      <p className="text-muted-foreground text-sm">
+        Erro ao carregar conversas
+      </p>
       <Button variant="outline" size="sm" onClick={onRetry} className="gap-1.5">
         <RefreshCw className="h-3.5 w-3.5" />
         Tentar novamente
       </Button>
     </div>
-  );
+  )
 }
 
 function ConversationListEmpty() {
@@ -70,7 +76,7 @@ function ConversationListEmpty() {
       <MessageCircle className="mb-2 h-12 w-12 opacity-50" />
       <p className="text-sm">Nenhuma conversa encontrada</p>
     </div>
-  );
+  )
 }
 
 function ConversationItem({
@@ -78,12 +84,12 @@ function ConversationItem({
   isActive,
   onSelect,
 }: {
-  readonly conversation: ConversationData;
-  readonly isActive: boolean;
-  readonly onSelect: () => void;
+  readonly conversation: ConversationData
+  readonly isActive: boolean
+  readonly onSelect: () => void
 }) {
-  const displayName = getDisplayName(conversation);
-  const isWaiting = conversation.status === 'WAITING_HUMAN';
+  const displayName = getDisplayName(conversation)
+  const isWaiting = conversation.status === 'WAITING_HUMAN'
 
   return (
     <button
@@ -92,7 +98,7 @@ function ConversationItem({
         'flex w-full items-center gap-3 px-3 py-3 text-left transition-colors',
         'hover:bg-sidebar-hover',
         isActive && 'bg-sidebar-accent',
-        isWaiting && 'border-(--chat-waiting) border-l-4',
+        isWaiting && 'border-(--chat-waiting) border-l-4'
       )}
     >
       <div className="relative shrink-0">
@@ -106,7 +112,9 @@ function ConversationItem({
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 truncate">
-            <span className="text-foreground truncate font-medium">{displayName}</span>
+            <span className="text-foreground truncate font-medium">
+              {displayName}
+            </span>
             <ConversationStatusBadge status={conversation.status} />
           </div>
           {conversation.lastMessageAt && (
@@ -122,15 +130,16 @@ function ConversationItem({
           <p className="text-muted-foreground truncate text-sm">
             {conversation.lastMessageText ?? 'Sem mensagens'}
           </p>
-          {conversation.status === 'HUMAN_ACTIVE' && conversation.assignedToName && (
-            <span className="text-muted-foreground shrink-0 text-xs">
-              {conversation.assignedToName}
-            </span>
-          )}
+          {conversation.status === 'HUMAN_ACTIVE' &&
+            conversation.assignedToName && (
+              <span className="text-muted-foreground shrink-0 text-xs">
+                {conversation.assignedToName}
+              </span>
+            )}
         </div>
       </div>
     </button>
-  );
+  )
 }
 
 export function ConversationList({
@@ -143,33 +152,35 @@ export function ConversationList({
   onFiltersChange,
   onRetry,
 }: ConversationListProps) {
-  const activeTab: FilterTab = filters.status ?? 'ALL';
+  const activeTab: FilterTab = filters.status ?? 'ALL'
 
   const handleTabChange = (tab: FilterTab) => {
     onFiltersChange({
       ...filters,
       status: tab === 'ALL' ? undefined : tab,
-    });
-  };
+    })
+  }
 
   const handleSearchChange = (value: string) => {
     onFiltersChange({
       ...filters,
       search: value.length > 0 ? value : undefined,
-    });
-  };
+    })
+  }
 
   const sortedConversations = [...conversations].sort((a, b) => {
-    const aTime = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
-    const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
-    return bTime - aTime;
-  });
+    const aTime = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0
+    const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0
+    return bTime - aTime
+  })
 
   return (
     <div className="bg-sidebar flex h-full flex-col">
       {/* Header */}
       <div className="border-sidebar-border flex items-center justify-between border-b px-4 py-4">
-        <h1 className="text-sidebar-foreground text-xl font-semibold">Conversas</h1>
+        <h1 className="text-sidebar-foreground text-xl font-semibold">
+          Conversas
+        </h1>
         <MessageCircle className="text-primary h-5 w-5" />
       </div>
 
@@ -196,7 +207,7 @@ export function ConversationList({
               'rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
               activeTab === tab.value
                 ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:bg-muted',
+                : 'text-muted-foreground hover:bg-muted'
             )}
           >
             {tab.label}
@@ -208,7 +219,9 @@ export function ConversationList({
       <div className="chat-scrollbar flex-1 overflow-y-auto">
         {isLoading && <ConversationListSkeleton />}
         {isError && !isLoading && <ConversationListError onRetry={onRetry} />}
-        {!isLoading && !isError && sortedConversations.length === 0 && <ConversationListEmpty />}
+        {!isLoading && !isError && sortedConversations.length === 0 && (
+          <ConversationListEmpty />
+        )}
         {!isLoading &&
           !isError &&
           sortedConversations.map((conversation) => (
@@ -221,5 +234,5 @@ export function ConversationList({
           ))}
       </div>
     </div>
-  );
+  )
 }

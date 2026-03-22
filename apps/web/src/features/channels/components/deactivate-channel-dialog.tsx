@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -10,15 +10,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 
-import type { ChannelData } from '../types';
-import { useDeactivateChannel } from '../hooks/use-channels';
+import type { ChannelData } from '../types'
+import { useDeactivateChannel } from '../hooks/use-channels'
 
 interface DeactivateChannelDialogProps {
-  readonly open: boolean;
-  readonly onOpenChange: (open: boolean) => void;
-  readonly channel: ChannelData | null;
+  readonly open: boolean
+  readonly onOpenChange: (open: boolean) => void
+  readonly channel: ChannelData | null
 }
 
 export function DeactivateChannelDialog({
@@ -26,14 +26,14 @@ export function DeactivateChannelDialog({
   onOpenChange,
   channel,
 }: DeactivateChannelDialogProps) {
-  const deactivateChannel = useDeactivateChannel();
+  const deactivateChannel = useDeactivateChannel()
 
   function handleDeactivate() {
-    if (!channel) return;
+    if (!channel) return
 
     deactivateChannel.mutate(channel.id, {
       onSuccess: () => onOpenChange(false),
-    });
+    })
   }
 
   return (
@@ -42,7 +42,8 @@ export function DeactivateChannelDialog({
         <DialogHeader>
           <DialogTitle>Desativar Canal</DialogTitle>
           <DialogDescription>
-            Deseja desativar o canal {channel?.name}? Conversas em andamento serao encerradas.
+            Deseja desativar o canal {channel?.name}? Conversas em andamento
+            serao encerradas.
           </DialogDescription>
         </DialogHeader>
 
@@ -55,11 +56,13 @@ export function DeactivateChannelDialog({
             onClick={handleDeactivate}
             disabled={deactivateChannel.isPending}
           >
-            {deactivateChannel.isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+            {deactivateChannel.isPending && (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            )}
             Desativar
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

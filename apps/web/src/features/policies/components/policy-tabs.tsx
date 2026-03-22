@@ -1,22 +1,22 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { useState } from 'react'
+import { Plus } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs'
 
-import { DocumentList } from '@/features/documents/components/document-list';
-import { DocumentUpload } from '@/features/documents/components/document-upload';
-import { EndorsementForm } from '@/features/endorsements/components/endorsement-form';
-import { EndorsementList } from '@/features/endorsements/components/endorsement-list';
+import { DocumentList } from '@/features/documents/components/document-list'
+import { DocumentUpload } from '@/features/documents/components/document-upload'
+import { EndorsementForm } from '@/features/endorsements/components/endorsement-form'
+import { EndorsementList } from '@/features/endorsements/components/endorsement-list'
 
 interface PolicyTabsProps {
-  readonly policyId: string;
+  readonly policyId: string
 }
 
 export function PolicyTabs({ policyId }: PolicyTabsProps) {
-  const [endorsementFormOpen, setEndorsementFormOpen] = useState(false);
+  const [endorsementFormOpen, setEndorsementFormOpen] = useState(false)
 
   return (
     <>
@@ -48,5 +48,5 @@ export function PolicyTabs({ policyId }: PolicyTabsProps) {
         onOpenChange={setEndorsementFormOpen}
       />
     </>
-  );
+  )
 }

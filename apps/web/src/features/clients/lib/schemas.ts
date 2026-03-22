@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const clientFormSchema = z.object({
   name: z
@@ -22,7 +22,9 @@ export const clientFormSchema = z.object({
     .max(100, 'Profissao deve ter no maximo 100 caracteres')
     .optional()
     .or(z.literal('')),
-  maritalStatus: z.enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER']).optional(),
-});
+  maritalStatus: z
+    .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
+    .optional(),
+})
 
-export type ClientFormValues = z.infer<typeof clientFormSchema>;
+export type ClientFormValues = z.infer<typeof clientFormSchema>
