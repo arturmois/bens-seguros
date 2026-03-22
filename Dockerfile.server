@@ -22,17 +22,19 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/server/node_modules ./apps/server/node_modules
 COPY . .
 
-# Prisma generate (cria client no node_modules)
+# Prisma generate
 RUN cd packages/db && pnpm exec prisma generate
 
-# tsup bundla app + packages internos
+# Build both apps
 RUN cd apps/server && pnpm build
+RUN cd apps/worker && pnpm build
 
 # --- PRODUCTION DEPS ---
 FROM base AS prod-deps
 WORKDIR /app
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/server/package.json apps/server/
+COPY apps/worker/package.json apps/worker/
 COPY packages/db/package.json packages/db/
 RUN pnpm install --frozen-lockfile --prod
 
@@ -41,16 +43,20 @@ FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Apenas deps externas de producao
+# Production dependencies (includes @prisma/client with WASM engine)
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=prod-deps /app/apps/server/node_modules ./apps/server/node_modules
 
-# Prisma client gerado
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+# Prisma generated client (Prisma 7 uses WASM, no native .prisma binaries)
+COPY --from=builder /app/packages/db/generated ./packages/db/generated
 COPY --from=builder /app/packages/db/prisma ./prisma
 
-# dist/ bundlado (contem app + packages internos)
-COPY --from=builder /app/apps/server/dist ./dist
+# Bundled app code
+COPY --from=builder /app/apps/server/dist ./server/dist
+COPY --from=builder /app/apps/worker/dist ./worker/dist
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD wget -qO- http://localhost:3001/health || exit 1
 
 EXPOSE 3001
-CMD ["node", "dist/server.js"]
+CMD ["node", "server/dist/server.js"]
