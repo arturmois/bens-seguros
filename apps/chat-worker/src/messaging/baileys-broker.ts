@@ -164,12 +164,15 @@ export class BaileysBroker implements Broker {
     }
 
     if (update.connection === 'open') {
-      this.connected = true;
-      events.onConnectionUpdate('CONNECTED');
+      if (!this.connected) {
+        this.connected = true;
+        events.onConnectionUpdate('CONNECTED');
+      }
       return;
     }
 
     if (update.connection === 'close') {
+      const wasConnected = this.connected;
       this.connected = false;
 
       if (shouldReconnect(update)) {
@@ -178,8 +181,10 @@ export class BaileysBroker implements Broker {
           void this.connect({ ...events });
         }, RECONNECT_DELAY_MS);
       } else {
-        // Permanent disconnect (loggedOut) — notify frontend
-        events.onConnectionUpdate('DISCONNECTED');
+        // Permanent disconnect (loggedOut) — notify frontend only if was connected
+        if (wasConnected) {
+          events.onConnectionUpdate('DISCONNECTED');
+        }
       }
     }
   }
