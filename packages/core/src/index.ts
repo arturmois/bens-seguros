@@ -11,3 +11,11 @@ export * from './modules/endorsement/index.js';
 export * from './modules/assistance/index.js';
 export * from './modules/document/index.js';
 export * from './modules/commission/index.js';
+export {
+  logAudit,
+  logCreate,
+  logUpdate,
+  logDelete,
+  logApprove,
+  logReject,
+} from './modules/audit/log-audit.js';

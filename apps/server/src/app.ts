@@ -21,6 +21,7 @@ import { insurerRoutes } from './routes/v1/insurer-routes.js';
 import { commissionRoutes } from './routes/v1/commission-routes.js';
 import { chatTokenRoute } from './routes/v1/chat-token-route.js';
 import { statsRoutes } from './routes/v1/stats-routes.js';
+import { auditLogRoutes } from './routes/v1/audit-log-routes.js';
 import { createAuthMiddleware } from './middlewares/auth-middleware.js';
 import { registerDependencies } from './container-registrations.js';
 
@@ -84,6 +85,7 @@ export async function buildApp() {
     await authenticatedApp.register(commissionRoutes);
     await authenticatedApp.register(chatTokenRoute);
     await authenticatedApp.register(statsRoutes);
+    await authenticatedApp.register(auditLogRoutes);
   });
 
   return app;

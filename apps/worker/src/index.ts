@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import pino from 'pino';
 import IORedis from 'ioredis';
+import { setupAuditArchiveProcessor } from './processors/audit-archive-processor.js';
 
 const logger = pino({ level: process.env.NODE_ENV === 'production' ? 'info' : 'debug' });
 
@@ -8,12 +9,14 @@ const connection = new IORedis(process.env.REDIS_URL ?? 'redis://localhost:6379'
   maxRetriesPerRequest: null,
 });
 
-logger.info('ERP Worker started. Waiting for jobs...');
+const auditArchive = setupAuditArchiveProcessor(connection);
 
-// Queue processors will be registered here in Fase 2+
+logger.info('ERP Worker started. Active processors: audit-archive');
 
 const gracefulShutdown = async () => {
   logger.info('Shutting down worker...');
+  await auditArchive.worker.close();
+  await auditArchive.queue.close();
   await connection.quit();
   process.exit(0);
 };
