@@ -5,15 +5,19 @@ import {
   logApprove,
   logReject,
 } from '@repo/core'
-import type { FastifyRequest } from 'fastify'
 import type { Prisma } from '@repo/db'
-
+import type { FastifyRequest } from 'fastify'
 interface AuditContext {
   readonly request: FastifyRequest
   readonly entityType: string
   readonly entityId?: string
-  readonly before?: Prisma.InputJsonValue
-  readonly after?: Prisma.InputJsonValue
+  readonly before?: unknown
+  readonly after?: unknown
+}
+
+function toJson(value: unknown): Prisma.InputJsonValue | undefined {
+  if (value === undefined || value === null) return undefined
+  return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue
 }
 
 function extractMeta(request: FastifyRequest) {
@@ -34,7 +38,7 @@ export function auditCreate(ctx: AuditContext): void {
     ...extractMeta(ctx.request),
     entityType: ctx.entityType,
     entityId: ctx.entityId,
-    after: ctx.after,
+    after: toJson(ctx.after),
   })
 }
 
@@ -43,8 +47,8 @@ export function auditUpdate(ctx: AuditContext): void {
     ...extractMeta(ctx.request),
     entityType: ctx.entityType,
     entityId: ctx.entityId,
-    before: ctx.before,
-    after: ctx.after,
+    before: toJson(ctx.before),
+    after: toJson(ctx.after),
   })
 }
 
@@ -53,7 +57,7 @@ export function auditDelete(ctx: AuditContext): void {
     ...extractMeta(ctx.request),
     entityType: ctx.entityType,
     entityId: ctx.entityId,
-    before: ctx.before,
+    before: toJson(ctx.before),
   })
 }
 
@@ -62,7 +66,7 @@ export function auditApprove(ctx: AuditContext): void {
     ...extractMeta(ctx.request),
     entityType: ctx.entityType,
     entityId: ctx.entityId,
-    after: ctx.after,
+    after: toJson(ctx.after),
   })
 }
 
@@ -71,6 +75,6 @@ export function auditReject(ctx: AuditContext): void {
     ...extractMeta(ctx.request),
     entityType: ctx.entityType,
     entityId: ctx.entityId,
-    after: ctx.after,
+    after: toJson(ctx.after),
   })
 }

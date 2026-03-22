@@ -113,7 +113,7 @@ export async function claimRoutes(app: FastifyInstance) {
           request,
           entityType: 'Claim',
           entityId: claim.id,
-          after: claim as unknown as Record<string, unknown>,
+          after: claim,
         })
         return reply.status(201).send({ success: true, data: claim })
       } catch (error) {

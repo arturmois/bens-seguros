@@ -70,7 +70,7 @@ export async function proposalRoutes(app: FastifyInstance) {
         request,
         entityType: 'Proposal',
         entityId: proposal.id,
-        after: proposal as unknown as Record<string, unknown>,
+        after: proposal,
       })
       return reply.status(201).send({ success: true, data: proposal.toJSON() })
     }
@@ -191,7 +191,7 @@ export async function proposalRoutes(app: FastifyInstance) {
           request,
           entityType: 'Proposal',
           entityId: id,
-          after: updated as unknown as Record<string, unknown>,
+          after: updated,
         })
         return reply.send({ success: true, data: updated.toJSON() })
       } catch (error) {

@@ -290,27 +290,12 @@ model Proposal {
   renewalPolicy Policy?               @relation("ProposalRenewal", fields: [renewalPolicyId], references: [id])
   insurer       Insurer?              @relation(fields: [insurerId], references: [id])
   policy        Policy?               @relation("ProposalPolicy")
-  checklistItems ProposalChecklistItem[]
 
   @@index([organizationId, stage])
   @@index([organizationId, clientId])
   @@index([organizationId, salespersonId])
   @@index([organizationId, insurerId])
   @@index([organizationId, createdAt(sort: Desc)])
-}
-
-model ProposalChecklistItem {
-  id          String    @id @default(cuid())
-  proposalId  String
-  label       String
-  isCompleted Boolean   @default(false)
-  completedAt DateTime?
-  completedBy String?
-  createdAt   DateTime  @default(now())
-
-  proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
-
-  @@index([proposalId])
 }
 
 model Policy {

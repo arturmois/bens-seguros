@@ -70,7 +70,7 @@ export async function policyRoutes(app: FastifyInstance) {
           request,
           entityType: 'Policy',
           entityId: policy.id,
-          after: policy as unknown as Record<string, unknown>,
+          after: policy,
         })
         return reply.status(201).send({ success: true, data: policy })
       } catch (error) {
