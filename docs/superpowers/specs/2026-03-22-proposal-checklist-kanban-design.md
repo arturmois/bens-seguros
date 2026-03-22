@@ -115,7 +115,16 @@ interface ChecklistItemConfig {
 
 ### Visao Geral
 
-Pagina `/proposals/kanban` — visualizacao do pipeline de propostas em colunas por etapa. Cada coluna = um `ProposalStage`. Cards arrastáveis entre colunas (avanca/reverte etapa).
+Visualizacao do pipeline de propostas em colunas por etapa. Cada coluna = um `ProposalStage`. Cards arrastaveis entre colunas (avanca/reverte etapa).
+
+**Dois quadros separados por BoardType:**
+
+- Toggle no topo: **Novo Seguro | Renovacao**
+- Cada quadro filtra propostas pelo `boardType` (`NEW_INSURANCE` / `RENEWAL`)
+- Mesmas colunas e mecanica, pipelines independentes
+- Renovacoes usam o mesmo checklist (documentos podem ter vencido, endereco mudado — re-verificacao e boa pratica)
+
+**Acesso:** Toggle "Lista / Kanban" na toolbar da pagina de propostas (nao e pagina separada).
 
 ### Tecnologia
 
@@ -177,7 +186,7 @@ apps/web/src/features/proposals/
 │   ├── kanban-card.tsx              # Card da proposta
 │   └── kanban-card-detail.tsx       # Dialog de detalhe
 ├── hooks/
-│   └── use-kanban-proposals.ts      # Hook que agrupa propostas por stage
+│   └── use-kanban-proposals.ts      # Hook que agrupa propostas por stage + boardType
 ```
 
 **Pagina:** `apps/web/src/app/(dashboard)/proposals/kanban/page.tsx`
