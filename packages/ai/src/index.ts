@@ -1,2 +1,3 @@
-// Vercel AI SDK multi-provider setup will be implemented in Fase 6
-export {}
+export { generate, stream } from './generate.js'
+export { getModel } from './providers.js'
+export type { AIProvider, GenerateOptions } from './types.js'
