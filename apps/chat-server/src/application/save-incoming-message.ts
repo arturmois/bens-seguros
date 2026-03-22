@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import { randomUUID } from 'node:crypto';
 import { injectable, inject } from 'tsyringe';
 
 import { ConversationEntity } from '../domain/conversation.js';
@@ -73,7 +72,6 @@ export class SaveIncomingMessage {
     const now = new Date();
 
     const message = await this.messageRepo.create({
-      id: randomUUID(),
       conversationId: conversation.id,
       tenantId: input.tenantId,
       senderType: 'CLIENT',

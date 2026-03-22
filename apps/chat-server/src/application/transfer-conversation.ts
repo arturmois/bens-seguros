@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import { randomUUID } from 'node:crypto';
 import { injectable, inject } from 'tsyringe';
 
 import { ConversationEntity } from '../domain/conversation.js';
@@ -53,7 +52,6 @@ export class TransferConversation {
     }
 
     await this.messageRepo.create({
-      id: randomUUID(),
       conversationId: input.conversationId,
       tenantId: input.tenantId,
       senderType: 'SYSTEM',

@@ -40,9 +40,8 @@ function toMessageData(doc: MongooseMessageDoc): MessageData {
 }
 
 export class MongooseMessageRepository implements MessageRepository {
-  async create(data: MessageData): Promise<MessageData> {
+  async create(data: Omit<MessageData, 'id'>): Promise<MessageData> {
     const doc = await Message.create({
-      _id: data.id,
       conversationId: data.conversationId,
       tenantId: data.tenantId,
       senderType: data.senderType,

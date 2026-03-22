@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import { randomUUID } from 'node:crypto';
 import { injectable, inject } from 'tsyringe';
 
 import { CHAT_QUEUES } from '@repo/shared';
@@ -43,7 +42,6 @@ export class SendMessage {
     const now = new Date();
 
     const message = await this.messageRepo.create({
-      id: randomUUID(),
       conversationId: input.conversationId,
       tenantId: input.tenantId,
       senderType: input.senderType,

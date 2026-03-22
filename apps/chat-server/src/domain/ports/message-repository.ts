@@ -1,7 +1,7 @@
 import type { CursorPage, MessageData, MessageStatus, Page } from '../types.js';
 
 export interface MessageRepository {
-  create(data: MessageData): Promise<MessageData>;
+  create(data: Omit<MessageData, 'id'>): Promise<MessageData>;
 
   findByConversation(conversationId: string, page: CursorPage): Promise<Page<MessageData>>;
 

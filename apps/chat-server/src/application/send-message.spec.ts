@@ -99,8 +99,9 @@ describe('SendMessage', () => {
         conversationId: 'conv-1',
         channelId: 'channel-1',
         tenantId: 'tenant-1',
+        to: '+5511999990000',
         text: 'Hello, how can I help?',
-        whatsappPhone: '+5511999990000',
+        type: 'TEXT',
       }),
     );
   });
