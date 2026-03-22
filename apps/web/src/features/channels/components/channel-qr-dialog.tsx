@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CheckCircle2, Loader2, QrCode } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { SOCKET_EVENTS } from '@repo/shared';
 import { toast } from 'sonner';
 
@@ -35,6 +36,26 @@ function isChannelStatusEvent(data: unknown): data is ChannelStatusEvent {
     typeof data['status'] === 'string' &&
     ['CONNECTED', 'DISCONNECTED', 'QR_PENDING'].includes(data['status'])
   );
+}
+
+interface ChannelStateAckData {
+  readonly state: string;
+  readonly qr: string | null;
+}
+
+interface ChannelStateAck {
+  readonly ok: boolean;
+  readonly data?: ChannelStateAckData;
+}
+
+function isChannelStateAck(data: unknown): data is ChannelStateAck {
+  if (!isRecord(data)) return false;
+  if (typeof data['ok'] !== 'boolean') return false;
+  if (data['ok'] && isRecord(data['data'])) {
+    const inner = data['data'];
+    return typeof inner['state'] === 'string';
+  }
+  return true;
 }
 
 export function ChannelQrDialog({ open, onOpenChange, channel }: ChannelQrDialogProps) {
@@ -75,19 +96,43 @@ export function ChannelQrDialog({ open, onOpenChange, channel }: ChannelQrDialog
   );
 
   useEffect(() => {
-    if (!open || !socket) return;
+    if (!open || !socket || !channel) return;
 
     setQrData(null);
     setIsConnected(false);
     clearAutoCloseTimer();
 
+    // Subscribe to real-time status events
     socket.on(SOCKET_EVENTS.CHANNEL_STATUS, handleChannelStatus);
+
+    // Request current state via ack (handles QR generated before dialog opened)
+    socket.emit(
+      SOCKET_EVENTS.CHANNEL_STATUS_GET,
+      { channelId: channel.id },
+      (response: unknown) => {
+        if (!isChannelStateAck(response)) return;
+        if (!response.ok || !response.data) return;
+
+        const { state, qr } = response.data;
+
+        if (state === 'qr_pending' && qr) {
+          setQrData(qr);
+          setIsConnected(false);
+          return;
+        }
+
+        if (state === 'connected') {
+          setIsConnected(true);
+          setQrData(null);
+        }
+      },
+    );
 
     return () => {
       socket.off(SOCKET_EVENTS.CHANNEL_STATUS, handleChannelStatus);
       clearAutoCloseTimer();
     };
-  }, [open, socket, handleChannelStatus, clearAutoCloseTimer]);
+  }, [open, socket, channel, handleChannelStatus, clearAutoCloseTimer]);
 
   useEffect(() => {
     if (!open || !channel) return;
@@ -133,7 +178,7 @@ function QrCodeDisplay({ qrData }: { readonly qrData: string }) {
   return (
     <>
       <div className="bg-background rounded-lg border p-4">
-        <img src={qrData} alt="QR Code para conexao do WhatsApp" className="size-64" />
+        <QRCodeSVG value={qrData} size={256} />
       </div>
       <div className="flex items-center gap-2 text-sm">
         <Loader2 className="text-warning size-4 animate-spin" />

@@ -53,6 +53,12 @@ export function parseCatchUpData(data: unknown): CatchUpData | null {
   return { conversationIds: ids, after: new Date(timestamp) };
 }
 
+export function parseChannelId(data: unknown): string | null {
+  if (!isRecord(data)) return null;
+  if (typeof data['channelId'] !== 'string') return null;
+  return data['channelId'];
+}
+
 export function formatError(err: unknown): { code: string; message: string } {
   if (err instanceof Error && 'code' in err && typeof err.code === 'string') {
     return { code: err.code, message: err.message };

@@ -20,6 +20,7 @@ const UNAUTHENTICATED_PATHS = new Set(['/health', '/chat/webhook/meta']);
 interface BuildChatAppOptions {
   readonly redisPub: IORedis;
   readonly redisSub: IORedis;
+  readonly redisGeneral: IORedis;
 }
 
 interface ChatAppResult {
@@ -73,7 +74,7 @@ export async function buildChatApp(options: BuildChatAppOptions): Promise<ChatAp
 
   // Socket.IO auth + handlers
   io.use(createSocketAuthMiddleware(app.log));
-  const presence = setupSocketHandlers(io, app.log);
+  const presence = setupSocketHandlers(io, app.log, options.redisGeneral);
 
   return { app, io, presence };
 }

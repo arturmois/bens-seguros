@@ -1,11 +1,9 @@
 import { UnrecoverableError, type Job } from 'bullmq';
 import pino from 'pino';
-import QRCode from 'qrcode';
 import { Channel } from '@repo/db-chat';
-import { CHAT_PUBSUB_CHANNELS } from '@repo/shared';
 import type * as BaileysManager from '../messaging/baileys-manager.js';
 import type { BrokerEvents } from '../messaging/broker.js';
-import type { PubsubClient } from '../types/pubsub-client.js';
+import type { QrStateManager } from '../whatsapp/qr-state-manager.js';
 
 const logger = pino({ name: 'connect-channel-processor' });
 
@@ -14,25 +12,8 @@ export interface ConnectChannelJobData {
   readonly tenantId: string;
 }
 
-function publishChannelStatus(
-  pubsubClient: PubsubClient,
-  channelId: string,
-  tenantId: string,
-  status: string,
-  qr?: string,
-): void {
-  pubsubClient
-    .publish(
-      CHAT_PUBSUB_CHANNELS.CHANNEL_STATUS,
-      JSON.stringify({ channelId, tenantId, status, qr }),
-    )
-    .catch((err: unknown) => {
-      logger.error({ err, channelId }, 'Failed to publish channel status');
-    });
-}
-
 function buildConnectionEvents(
-  pubsubClient: PubsubClient,
+  qrStateManager: QrStateManager,
   channelId: string,
   tenantId: string,
   baseEventsFactory: () => BrokerEvents,
@@ -42,26 +23,31 @@ function buildConnectionEvents(
   return {
     onMessage: baseEvents.onMessage,
     onStatusUpdate: baseEvents.onStatusUpdate,
-    onConnectionUpdate: async (status: string, qr?: string) => {
-      let qrDataUrl: string | undefined;
-
+    onConnectionUpdate: (status: string, qr?: string) => {
       if (status === 'QR_PENDING' && qr) {
-        try {
-          qrDataUrl = await QRCode.toDataURL(qr, { width: 256, margin: 2 });
-        } catch (err: unknown) {
-          logger.error({ err, channelId }, 'Failed to convert QR to data URL');
-          qrDataUrl = undefined;
-        }
+        qrStateManager.emitQr(channelId, tenantId, qr).catch((err: unknown) => {
+          logger.error({ err, channelId }, 'Failed to persist QR state');
+        });
+        return;
       }
 
-      publishChannelStatus(pubsubClient, channelId, tenantId, status, qrDataUrl);
+      if (status === 'CONNECTED') {
+        qrStateManager.emitConnected(channelId, tenantId).catch((err: unknown) => {
+          logger.error({ err, channelId }, 'Failed to persist connected state');
+        });
+        return;
+      }
+
+      qrStateManager.emitDisconnected(channelId, tenantId).catch((err: unknown) => {
+        logger.error({ err, channelId }, 'Failed to persist disconnected state');
+      });
     },
   };
 }
 
 export function createConnectChannelProcessor(
   manager: typeof BaileysManager,
-  pubsubClient: PubsubClient,
+  qrStateManager: QrStateManager,
   buildEvents: (channelId: string, tenantId: string) => BrokerEvents,
 ) {
   return async function processConnectChannel(job: Job<ConnectChannelJobData>): Promise<void> {
@@ -83,7 +69,7 @@ export function createConnectChannelProcessor(
       );
     }
 
-    const events = buildConnectionEvents(pubsubClient, channelId, tenantId, () =>
+    const events = buildConnectionEvents(qrStateManager, channelId, tenantId, () =>
       buildEvents(channelId, tenantId),
     );
 

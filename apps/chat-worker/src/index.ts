@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 import pino from 'pino';
 import IORedis from 'ioredis';
-import QRCode from 'qrcode';
 import { Worker, Queue } from 'bullmq';
 import { connectMongoDB, disconnectMongoDB } from '@repo/db-chat';
 import { CHAT_QUEUES, CHAT_PUBSUB_CHANNELS } from '@repo/shared';
@@ -12,6 +11,7 @@ import { createIncomingMessageProcessor } from './processors/incoming-message-pr
 import { createAutoCloseProcessor } from './processors/auto-close-processor.js';
 import { createAiBotProcessor } from './processors/ai-bot-processor.js';
 import { createConnectChannelProcessor } from './processors/connect-channel-processor.js';
+import { QrStateManager } from './whatsapp/qr-state-manager.js';
 import type { IncomingMessage } from './messaging/broker.js';
 
 const logger = pino({
@@ -47,7 +47,12 @@ const bullmqConnection = {
 // IORedis instance used only for pub/sub publishing
 const pubsubRedis = new IORedis(REDIS_URL, { maxRetriesPerRequest: null });
 
-function buildChannelEvents(channelId: string, tenantId: string, incomingQueue: Queue) {
+function buildChannelEvents(
+  channelId: string,
+  tenantId: string,
+  incomingQueue: Queue,
+  qrStateManager: QrStateManager,
+) {
   return {
     onMessage: (msg: IncomingMessage) => {
       incomingQueue
@@ -79,30 +84,23 @@ function buildChannelEvents(channelId: string, tenantId: string, incomingQueue: 
     onConnectionUpdate: (status: string, qr?: string) => {
       logger.info({ channelId, tenantId, status }, 'Channel connection update');
 
-      const publishStatus = (qrDataUrl?: string): void => {
-        pubsubRedis
-          .publish(
-            CHAT_PUBSUB_CHANNELS.CHANNEL_STATUS,
-            JSON.stringify({ channelId, tenantId, status, qr: qrDataUrl }),
-          )
-          .catch((err: unknown) => {
-            logger.error({ err, channelId }, 'Failed to publish connection update');
-          });
-      };
-
       if (status === 'QR_PENDING' && qr) {
-        QRCode.toDataURL(qr, { width: 256, margin: 2 })
-          .then((dataUrl: string) => {
-            publishStatus(dataUrl);
-          })
-          .catch((err: unknown) => {
-            logger.error({ err, channelId }, 'Failed to convert QR to data URL');
-            publishStatus(undefined);
-          });
+        qrStateManager.emitQr(channelId, tenantId, qr).catch((err: unknown) => {
+          logger.error({ err, channelId }, 'Failed to persist QR state');
+        });
         return;
       }
 
-      publishStatus(undefined);
+      if (status === 'CONNECTED') {
+        qrStateManager.emitConnected(channelId, tenantId).catch((err: unknown) => {
+          logger.error({ err, channelId }, 'Failed to persist connected state');
+        });
+        return;
+      }
+
+      qrStateManager.emitDisconnected(channelId, tenantId).catch((err: unknown) => {
+        logger.error({ err, channelId }, 'Failed to persist disconnected state');
+      });
     },
   };
 }
@@ -116,6 +114,8 @@ function attachWorkerErrorLogger(worker: Worker, queue: string): void {
 async function bootstrap(): Promise<void> {
   logger.info('Connecting to MongoDB...');
   await connectMongoDB(env.MONGODB_URL);
+
+  const qrStateManager = new QrStateManager(pubsubRedis);
 
   const aiBotQueue = new Queue(CHAT_QUEUES.AI_BOT, { connection: bullmqConnection });
   const incomingQueue = new Queue(CHAT_QUEUES.PROCESS_INCOMING, { connection: bullmqConnection });
@@ -152,8 +152,8 @@ async function bootstrap(): Promise<void> {
 
   const connectChannelWorker = new Worker(
     CHAT_QUEUES.CONNECT_CHANNEL,
-    createConnectChannelProcessor(BaileysManager, pubsubRedis, (chId, tId) =>
-      buildChannelEvents(chId, tId, incomingQueue),
+    createConnectChannelProcessor(BaileysManager, qrStateManager, (chId, tId) =>
+      buildChannelEvents(chId, tId, incomingQueue, qrStateManager),
     ),
     { connection: bullmqConnection, concurrency: 2 },
   );
@@ -166,7 +166,7 @@ async function bootstrap(): Promise<void> {
 
   logger.info('Loading active Baileys channels...');
   await BaileysManager.loadActiveChannels((channelId, tenantId) =>
-    buildChannelEvents(channelId, tenantId, incomingQueue),
+    buildChannelEvents(channelId, tenantId, incomingQueue, qrStateManager),
   );
 
   logger.info('Chat Worker started. Listening for jobs...');

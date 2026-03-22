@@ -31,3 +31,9 @@ export const CHAT_PUBSUB_CHANNELS = {
   CONVERSATION_UPDATE: 'chat:pub:conversation-update',
   UNREAD_UPDATE: 'chat:pub:unread-update',
 } as const;
+
+/** Redis key helpers for WhatsApp channel state (shared between worker and server) */
+export const WHATSAPP_STATE_KEYS = {
+  state: (channelId: string): string => `whatsapp:state:${channelId}`,
+  lastQr: (channelId: string): string => `whatsapp:last_qr:${channelId}`,
+} as const;

@@ -1,7 +1,8 @@
 import type { Server, Socket } from 'socket.io';
+import type IORedis from 'ioredis';
 import type { AppLogger } from '../logger.js';
 import { container } from 'tsyringe';
-import { SOCKET_EVENTS, CHAT_LIMITS, isRecord } from '@repo/shared';
+import { SOCKET_EVENTS, CHAT_LIMITS, WHATSAPP_STATE_KEYS, isRecord } from '@repo/shared';
 
 import { SendMessage } from '../../application/send-message.js';
 import { AssignConversation } from '../../application/assign-conversation.js';
@@ -12,6 +13,7 @@ import type { SocketUserData } from './socket-auth.js';
 import { PresenceTracker } from './presence-tracker.js';
 import {
   parseConversationId,
+  parseChannelId,
   parseTransferData,
   parseSendMessageData,
   parseCatchUpData,
@@ -31,7 +33,11 @@ function getUserData(socket: Socket): SocketUserData {
   };
 }
 
-export function setupSocketHandlers(io: Server, logger: AppLogger): PresenceTracker {
+export function setupSocketHandlers(
+  io: Server,
+  logger: AppLogger,
+  redis: IORedis,
+): PresenceTracker {
   const presence = new PresenceTracker(io, logger);
   presence.start();
 
@@ -48,6 +54,7 @@ export function setupSocketHandlers(io: Server, logger: AppLogger): PresenceTrac
     registerMessageEvents(socket, user, logger);
     registerPresenceEvents(socket, user, presence, logger);
     registerCatchUpEvent(socket, user, logger);
+    registerChannelStatusEvents(socket, logger, redis);
 
     socket.on('disconnect', () => {
       presence.removeAgent(user.organizationId, user.userId);
@@ -186,6 +193,33 @@ function registerCatchUpEvent(socket: Socket, user: SocketUserData, logger: AppL
     } catch (err: unknown) {
       logger.error({ err }, 'Failed to catch up messages');
       if (typeof ack === 'function') ack({ success: false, error: formatError(err) });
+    }
+  });
+}
+
+function registerChannelStatusEvents(socket: Socket, logger: AppLogger, redis: IORedis): void {
+  socket.on(SOCKET_EVENTS.CHANNEL_STATUS_GET, async (data: unknown, ack?: unknown) => {
+    try {
+      const channelId = parseChannelId(data);
+      if (!channelId) return;
+
+      const [state, qr] = await Promise.all([
+        redis.get(WHATSAPP_STATE_KEYS.state(channelId)),
+        redis.get(WHATSAPP_STATE_KEYS.lastQr(channelId)),
+      ]);
+
+      if (typeof ack === 'function') {
+        ack({
+          ok: true,
+          data: {
+            state: state ?? 'disconnected',
+            qr: qr ?? null,
+          },
+        });
+      }
+    } catch (err: unknown) {
+      logger.error({ err }, 'Failed to get channel status');
+      if (typeof ack === 'function') ack({ ok: false, error: formatError(err) });
     }
   });
 }
