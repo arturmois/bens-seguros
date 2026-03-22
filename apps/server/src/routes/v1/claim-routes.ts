@@ -1,26 +1,29 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import { container } from '@repo/core'
 import {
-  CreateClaim,
-  ListClaims,
-  GetClaim,
-  UpdateClaimStatus,
-  DeleteClaim,
   ClaimNotFoundError,
-  InvalidClaimStatusTransitionError,
+  CreateClaim,
   CreateOccurrence,
+  DeleteClaim,
+  GetClaim,
+  InvalidClaimStatusTransitionError,
+  ListClaims,
   ListOccurrences,
   OccurrenceClaimNotFoundError,
+  UpdateClaimStatus,
+  claimOpenedEmail,
+  container,
 } from '@repo/core'
-import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
+import { prisma } from '@repo/db'
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
+import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
 import {
   createClaimBodySchema,
-  updateClaimStatusBodySchema,
   listClaimsQuerySchema,
+  updateClaimStatusBodySchema,
 } from '../../schemas/claim.schemas.js'
-import { createOccurrenceBodySchema } from '../../schemas/occurrence.schemas.js'
 import { idParamSchema } from '../../schemas/client.schemas.js'
+import { createOccurrenceBodySchema } from '../../schemas/occurrence.schemas.js'
+import { enqueueNotifications } from '../../services/notification-enqueuer.js'
 
 function handleClaimError(error: unknown, reply: FastifyReply) {
   if (error instanceof ClaimNotFoundError) {
@@ -58,6 +61,46 @@ export async function claimRoutes(app: FastifyInstance) {
           organizationId: request.organizationId!,
           ...body,
         })
+
+        // Notify ADMIN + MANAGER about new claim
+        const managers = await prisma.member.findMany({
+          where: {
+            organizationId: request.organizationId!,
+            role: { in: ['ADMIN', 'MANAGER', 'OWNER'] },
+          },
+          include: { user: true },
+        })
+        const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000'
+        const notifItems = managers
+          .filter((m) => m.userId !== request.user!.id)
+          .map((m) => ({
+            notification: {
+              organizationId: request.organizationId!,
+              userId: m.userId,
+              type: 'CLAIM_OPENED',
+              title: 'Novo sinistro aberto',
+              body: `Sinistro #${String(claim.claimNumber)} aberto`,
+              entityType: 'Claim',
+              entityId: claim.id,
+            },
+            email: m.user.email
+              ? {
+                  to: m.user.email,
+                  subject: `Novo sinistro #${String(claim.claimNumber)}`,
+                  html: claimOpenedEmail({
+                    userName: m.user.name,
+                    claimNumber: String(claim.claimNumber),
+                    clientName: 'N/A',
+                    priority: String(claim.priority ?? 'NORMAL'),
+                    frontendUrl,
+                  }),
+                }
+              : undefined,
+          }))
+        if (notifItems.length > 0) {
+          enqueueNotifications(notifItems).catch(() => {})
+        }
+
         return reply.status(201).send({ success: true, data: claim })
       } catch (error) {
         return handleClaimError(error, reply)

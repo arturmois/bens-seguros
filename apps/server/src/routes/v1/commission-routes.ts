@@ -1,26 +1,30 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import { container } from '@repo/core'
 import {
-  GetCommission,
-  ListCommissions,
-  ApproveCommissionCommercial,
   ApproveCommissionAdmin,
-  RejectCommission,
-  PayCommission,
-  ReverseCommission,
-  ExportCommissionsCsv,
-  CommissionNotFoundError,
-  InvalidCommissionTransitionError,
-  CommissionNotPaidError,
+  ApproveCommissionCommercial,
   CommissionAlreadyPaidError,
+  commissionApprovedEmail,
+  CommissionNotFoundError,
+  CommissionNotPaidError,
+  commissionRejectedEmail,
+  container,
+  ExportCommissionsCsv,
+  GetCommission,
+  InvalidCommissionTransitionError,
+  ListCommissions,
+  PayCommission,
+  RejectCommission,
+  ReverseCommission,
 } from '@repo/core'
-import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
+import { prisma } from '@repo/db'
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
+import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
+import { idParamSchema } from '../../schemas/client.schemas.js'
 import {
   listCommissionsQuerySchema,
   rejectCommissionBodySchema,
 } from '../../schemas/commission.schemas.js'
-import { idParamSchema } from '../../schemas/client.schemas.js'
+import { enqueueNotification } from '../../services/notification-enqueuer.js'
 
 function handleCommissionError(
   error: unknown,
@@ -145,6 +149,45 @@ export async function commissionRoutes(app: FastifyInstance) {
           request.organizationId!,
           request.user!.id
         )
+
+        // Notify salesperson about approval
+        if (commission.salespersonId) {
+          const salesperson = await prisma.user.findUnique({
+            where: { id: commission.salespersonId },
+          })
+          if (salesperson) {
+            const frontendUrl =
+              process.env.FRONTEND_URL ?? 'http://localhost:3000'
+            const valueFormatted = (
+              commission.commissionValueInCents / 100
+            ).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+            enqueueNotification({
+              notification: {
+                organizationId: request.organizationId!,
+                userId: commission.salespersonId,
+                type: 'COMMISSION_APPROVED',
+                title: 'Comissao aprovada',
+                body: `Comissao de ${valueFormatted} aprovada`,
+                entityType: 'Commission',
+                entityId: commission.id,
+              },
+              email: salesperson.email
+                ? {
+                    to: salesperson.email,
+                    subject: 'Sua comissao foi aprovada',
+                    html: commissionApprovedEmail({
+                      userName: salesperson.name,
+                      policyNumber: String(commission.policyNumber ?? 'N/A'),
+                      value: valueFormatted,
+                      approvedBy: request.user!.name ?? 'Admin',
+                      frontendUrl,
+                    }),
+                  }
+                : undefined,
+            }).catch(() => {})
+          }
+        }
+
         return reply.send({ success: true, data: commission })
       } catch (error) {
         return handleCommissionError(error, reply)
@@ -166,6 +209,42 @@ export async function commissionRoutes(app: FastifyInstance) {
           userId: request.user!.id,
           reason,
         })
+
+        // Notify salesperson about rejection
+        if (commission.salespersonId) {
+          const salesperson = await prisma.user.findUnique({
+            where: { id: commission.salespersonId },
+          })
+          if (salesperson) {
+            const frontendUrl =
+              process.env.FRONTEND_URL ?? 'http://localhost:3000'
+            enqueueNotification({
+              notification: {
+                organizationId: request.organizationId!,
+                userId: commission.salespersonId,
+                type: 'COMMISSION_REJECTED',
+                title: 'Comissao rejeitada',
+                body: `Comissao rejeitada: ${reason}`,
+                entityType: 'Commission',
+                entityId: commission.id,
+              },
+              email: salesperson.email
+                ? {
+                    to: salesperson.email,
+                    subject: 'Sua comissao foi rejeitada',
+                    html: commissionRejectedEmail({
+                      userName: salesperson.name,
+                      policyNumber: String(commission.policyNumber ?? 'N/A'),
+                      reason,
+                      rejectedBy: request.user!.name ?? 'Admin',
+                      frontendUrl,
+                    }),
+                  }
+                : undefined,
+            }).catch(() => {})
+          }
+        }
+
         return reply.send({ success: true, data: commission })
       } catch (error) {
         return handleCommissionError(error, reply)
