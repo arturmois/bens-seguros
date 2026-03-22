@@ -179,6 +179,11 @@ export class BaileysBroker implements Broker {
           continue;
         }
 
+        // Ignore group messages — only process individual chats
+        if (msg.key.remoteJid?.endsWith('@g.us')) {
+          continue;
+        }
+
         events.onMessage(toIncomingMessage(msg));
       }
     });
