@@ -140,8 +140,11 @@ export function ChatArea({
     const target = observerTargetRef.current
     if (!target) return
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        isAtBottomRef.current = entry.isIntersecting
+      (entries) => {
+        const entry = entries[0]
+        if (entry) {
+          isAtBottomRef.current = entry.isIntersecting
+        }
       },
       { threshold: 0.1 }
     )
