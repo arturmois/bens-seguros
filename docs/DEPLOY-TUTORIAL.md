@@ -23,7 +23,7 @@ Guia passo a passo para colocar o projeto em producao.
 
 ### 1.1 Adicionar site ao Cloudflare
 
-1. Acesse https://dash.cloudflare.com → "Add a site"
+1. Acesse https://dash.cloudflare.com → "Add a domain" → "Connect domain"
 2. Digite `bensseg.com`
 3. Selecione o plano Free
 4. Cloudflare vai escanear os registros DNS existentes
