@@ -26,6 +26,10 @@ import type {
 
 const RECONNECT_DELAY_MS = 3_000
 
+function isMessageMetadata(data: unknown): data is Record<string, unknown> {
+  return data !== null && typeof data === 'object' && !Array.isArray(data)
+}
+
 export class BaileysBroker implements Broker {
   private socket: WASocket | null = null
   private connected = false
@@ -142,9 +146,9 @@ export class BaileysBroker implements Broker {
     if (!key.id) return undefined
 
     const msg = await Message.findOne({ externalId: key.id }).lean().exec()
-    if (!msg?.metadata || typeof msg.metadata !== 'object') return undefined
+    if (!msg?.metadata || !isMessageMetadata(msg.metadata)) return undefined
 
-    return msg.metadata as Record<string, unknown>
+    return msg.metadata
   }
 
   private setupEventListeners(
