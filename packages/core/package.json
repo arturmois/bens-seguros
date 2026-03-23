@@ -17,6 +17,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1014.0",
     "@repo/db": "workspace:*",
     "@repo/env": "workspace:^",
+    "pino": "^9.0.0",
     "reflect-metadata": "^0.2.0",
     "resend": "^6.9.4",
     "tsyringe": "^4.8.0",

@@ -472,6 +472,9 @@ importers:
       '@repo/env':
         specifier: workspace:^
         version: link:../env
+      pino:
+        specifier: ^9.0.0
+        version: 9.14.0
       reflect-metadata:
         specifier: ^0.2.0
         version: 0.2.2
