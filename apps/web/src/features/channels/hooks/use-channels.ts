@@ -6,15 +6,12 @@ import { toast } from 'sonner'
 import { chatApi } from '@/features/chat/lib/chat-api'
 
 import type {
-  AiAgentConfig,
   ChannelData,
   CreateChannelPayload,
-  UpdateAiAgentPayload,
   UpdateChannelPayload,
 } from '../types'
 
 const CHANNELS_KEY = 'channels'
-const AI_AGENT_KEY = 'ai-agent'
 
 export function useChannels() {
   return useQuery({
@@ -89,49 +86,6 @@ export function useDeactivateChannel() {
     },
     onError: () => {
       toast.error('Erro ao desativar canal')
-    },
-  })
-}
-
-export function useAiAgentConfig(channelId: string | null) {
-  return useQuery({
-    queryKey: [AI_AGENT_KEY, channelId],
-    queryFn: async () => {
-      const response = await chatApi.get<AiAgentConfig>(
-        `/chat/channels/${channelId}/ai-agent`
-      )
-      return response.data
-    },
-    enabled: channelId !== null,
-    staleTime: 60_000,
-  })
-}
-
-export function useUpdateAiAgent() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async ({
-      channelId,
-      data,
-    }: {
-      channelId: string
-      data: UpdateAiAgentPayload
-    }) => {
-      const response = await chatApi.put<AiAgentConfig>(
-        `/chat/channels/${channelId}/ai-agent`,
-        data
-      )
-      return response.data
-    },
-    onSuccess: (_, variables) => {
-      void queryClient.invalidateQueries({
-        queryKey: [AI_AGENT_KEY, variables.channelId],
-      })
-      toast.success('Configuracao de IA salva')
-    },
-    onError: () => {
-      toast.error('Erro ao salvar configuracao de IA')
     },
   })
 }

@@ -11,6 +11,7 @@ export const channelFormSchema = z
     phoneNumber: z.string().optional(),
     metaToken: z.string().optional(),
     phoneNumberId: z.string().optional(),
+    aiAgentId: z.string().nullable().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.brokerType === 'META') {
@@ -39,4 +40,5 @@ export const EMPTY_CHANNEL_FORM: ChannelFormValues = {
   phoneNumber: '',
   metaToken: '',
   phoneNumberId: '',
+  aiAgentId: null,
 }

@@ -1,20 +1,13 @@
 'use client'
 
 import { useEffect } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { FormField } from '@/components/ui/form-field'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {
   Sheet,
   SheetContent,
@@ -23,15 +16,16 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 
+import { useAiAgents } from '@/features/ai-agents/hooks/use-ai-agents'
 import type { ChannelData, CreateChannelPayload } from '../types'
 import { useCreateChannel, useUpdateChannel } from '../hooks/use-channels'
 import { channelFormSchema, EMPTY_CHANNEL_FORM } from '../lib/schemas'
 import type { ChannelFormValues } from '../lib/schemas'
-
-const BROKER_TYPE_OPTIONS = [
-  { value: 'BAILEYS', label: 'Baileys (WhatsApp Web)' },
-  { value: 'META', label: 'Meta (API Oficial)' },
-] as const
+import { ChannelAiAgentSelect } from './channel-ai-agent-select'
+import {
+  ChannelBrokerTypeSelect,
+  ChannelMetaFields,
+} from './channel-meta-fields'
 
 interface ChannelFormSheetProps {
   readonly open: boolean
@@ -48,6 +42,7 @@ export function ChannelFormSheet({
   const createChannel = useCreateChannel()
   const updateChannel = useUpdateChannel()
   const isPending = createChannel.isPending || updateChannel.isPending
+  const { data: aiAgents } = useAiAgents()
 
   const form = useForm<ChannelFormValues>({
     resolver: zodResolver(channelFormSchema),
@@ -70,6 +65,7 @@ export function ChannelFormSheet({
         name: channel.name,
         brokerType: channel.brokerType,
         phoneNumber: channel.phoneNumber ?? '',
+        aiAgentId: channel.aiAgentId ?? null,
       })
       return
     }
@@ -85,6 +81,7 @@ export function ChannelFormSheet({
           payload: {
             name: values.name,
             phoneNumber: values.phoneNumber,
+            aiAgentId: values.aiAgentId,
           },
         },
         { onSuccess: () => onOpenChange(false) }
@@ -134,35 +131,11 @@ export function ChannelFormSheet({
             />
           </FormField>
 
-          <FormField
-            label="Tipo de Conexao"
+          <ChannelBrokerTypeSelect
+            control={form.control}
+            disabled={isEditMode}
             error={form.formState.errors.brokerType?.message}
-            helperText="Baileys conecta via QR Code. Meta usa a API oficial do WhatsApp Business."
-            required
-          >
-            <Controller
-              name="brokerType"
-              control={form.control}
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  disabled={isEditMode}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {BROKER_TYPE_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </FormField>
+          />
 
           <FormField
             label="Numero"
@@ -174,31 +147,15 @@ export function ChannelFormSheet({
             />
           </FormField>
 
-          {watchedBrokerType === 'META' && (
-            <>
-              <FormField
-                label="Token"
-                error={form.formState.errors.metaToken?.message}
-                required
-              >
-                <Input
-                  type="password"
-                  placeholder="Token de acesso permanente"
-                  {...form.register('metaToken')}
-                />
-              </FormField>
+          {isEditMode && (
+            <ChannelAiAgentSelect control={form.control} agents={aiAgents} />
+          )}
 
-              <FormField
-                label="Phone Number ID"
-                error={form.formState.errors.phoneNumberId?.message}
-                required
-              >
-                <Input
-                  placeholder="ID do numero no Meta Business"
-                  {...form.register('phoneNumberId')}
-                />
-              </FormField>
-            </>
+          {watchedBrokerType === 'META' && (
+            <ChannelMetaFields
+              register={form.register}
+              errors={form.formState.errors}
+            />
           )}
 
           <div className="flex justify-end gap-2 pt-4">
@@ -217,39 +174,5 @@ export function ChannelFormSheet({
         </form>
       </SheetContent>
     </Sheet>
-  )
-}
-
-interface FormFieldProps {
-  readonly label: string
-  readonly error?: string
-  readonly required?: boolean
-  readonly helperText?: string
-  readonly children: React.ReactNode
-}
-
-function FormField({
-  label,
-  error,
-  required,
-  helperText,
-  children,
-}: FormFieldProps) {
-  return (
-    <div className="space-y-2">
-      <Label>
-        {label}
-        {required && <span className="text-destructive ml-1">*</span>}
-      </Label>
-      <div aria-required={required || undefined}>{children}</div>
-      {helperText && !error && (
-        <p className="text-muted-foreground text-sm">{helperText}</p>
-      )}
-      {error && (
-        <p role="alert" className="text-destructive text-sm">
-          {error}
-        </p>
-      )}
-    </div>
   )
 }

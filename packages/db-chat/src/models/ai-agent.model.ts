@@ -3,7 +3,8 @@ import mongoose, { Schema } from 'mongoose'
 const aiAgentSchema = new Schema(
   {
     tenantId: { type: String, required: true },
-    channelId: { type: String, required: true },
+    name: { type: String, required: true, maxlength: 100 },
+    description: { type: String, default: null, maxlength: 300 },
     systemPrompt: {
       type: String,
       default:
@@ -18,6 +19,6 @@ const aiAgentSchema = new Schema(
   { timestamps: true }
 )
 
-aiAgentSchema.index({ tenantId: 1, channelId: 1 }, { unique: true })
+aiAgentSchema.index({ tenantId: 1, name: 1 }, { unique: true })
 
 export const AiAgent = mongoose.model('AiAgent', aiAgentSchema)

@@ -2,7 +2,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { container } from 'tsyringe'
 import { z } from 'zod'
 
-import { Channel } from '@repo/db-chat'
+import { Channel, AiAgent } from '@repo/db-chat'
 import { CHAT_QUEUES } from '@repo/shared'
 import { ChannelNotFoundError } from '../../../domain/errors.js'
 import type { QueueProducer } from '../../queue/queue-producer.js'
@@ -21,6 +21,7 @@ const updateChannelBodySchema = z.object({
   phoneNumber: z.string().optional(),
   isActive: z.boolean().optional(),
   aiUserId: z.string().optional(),
+  aiAgentId: z.string().nullable().optional(),
 })
 
 const pairChannelBodySchema = z.object({
@@ -102,6 +103,21 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
       const { id } = channelIdSchema.parse(request.params)
       const body = updateChannelBodySchema.parse(request.body)
       const tenantId = request.organizationId
+
+      if (body.aiAgentId) {
+        const agent = await AiAgent.findOne({ _id: body.aiAgentId, tenantId })
+          .lean()
+          .exec()
+        if (!agent) {
+          return reply.status(404).send({
+            success: false,
+            error: {
+              code: 'AI_AGENT_NOT_FOUND',
+              message: 'Agente de IA nao encontrado',
+            },
+          })
+        }
+      }
 
       const channel = await Channel.findOneAndUpdate(
         { _id: id, tenantId },

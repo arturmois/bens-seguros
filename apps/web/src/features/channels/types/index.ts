@@ -13,6 +13,7 @@ export interface UpdateChannelPayload {
   readonly name?: string
   readonly phoneNumber?: string
   readonly isActive?: boolean
+  readonly aiAgentId?: string | null
 }
 
 export interface ChannelStatusEvent {
@@ -27,25 +28,4 @@ export interface PairingCodeResultEvent {
   readonly success: boolean
   readonly code?: string
   readonly error?: string
-}
-
-export interface AiAgentConfig {
-  readonly id?: string
-  readonly channelId: string
-  readonly tenantId: string
-  readonly systemPrompt: string
-  readonly provider: 'claude' | 'openai'
-  readonly temperature: number
-  readonly maxTokens: number
-  readonly maxResponsesPerConversation: number
-  readonly isActive: boolean
-}
-
-export interface UpdateAiAgentPayload {
-  readonly systemPrompt?: string
-  readonly provider?: 'claude' | 'openai'
-  readonly temperature?: number
-  readonly maxTokens?: number
-  readonly maxResponsesPerConversation?: number
-  readonly isActive?: boolean
 }

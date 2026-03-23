@@ -15,6 +15,7 @@ const channelSchema = new Schema(
     status: { type: String, enum: CHANNEL_STATUSES, default: 'DISCONNECTED' },
     lastConnectedAt: Date,
     aiUserId: String,
+    aiAgentId: { type: String, default: null },
     config: { type: Schema.Types.Mixed, default: {} },
   },
   { timestamps: true }
