@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -7,9 +8,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/menu'
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogClose,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { cn } from '@/lib/utils'
 import {
   ArrowLeft,
+  Bot,
   LogOut,
   MoreVertical,
   RefreshCw,
@@ -19,6 +30,7 @@ import {
 import Image from 'next/image'
 
 import type { ContactData, ConversationData } from '../types'
+import { useChatActions } from './chat-actions-context'
 import { ConversationStatusBadge } from './conversation-status-badge'
 import { TypingIndicator } from './typing-indicator'
 
@@ -29,10 +41,7 @@ interface ChatHeaderProps {
   readonly typingUser: string | null
   readonly onBack: () => void
   readonly onOpenProfile: () => void
-  readonly onAssign: () => void
   readonly onTransfer: () => void
-  readonly onReturnToQueue: () => void
-  readonly onClose: () => void
 }
 
 function getContactDisplayName(
@@ -47,21 +56,23 @@ function getContactDisplayName(
 function HeaderActions({
   conversation,
   currentUserId,
-  onAssign,
   onTransfer,
-  onReturnToQueue,
-  onClose,
 }: {
   readonly conversation: ConversationData
   readonly currentUserId: string
-  readonly onAssign: () => void
   readonly onTransfer: () => void
-  readonly onReturnToQueue: () => void
-  readonly onClose: () => void
 }) {
+  const { assignConversation, returnToBot, returnToQueue, closeConversation } =
+    useChatActions()
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false)
+
   if (conversation.status === 'WAITING_HUMAN') {
     return (
-      <Button size="sm" onClick={onAssign} className="gap-1.5">
+      <Button
+        size="sm"
+        onClick={() => assignConversation.mutate(conversation.id)}
+        className="gap-1.5"
+      >
         <UserPlus className="h-4 w-4" />
         <span className="hidden sm:inline">Assumir</span>
       </Button>
@@ -80,25 +91,64 @@ function HeaderActions({
     }
 
     return (
-      <DropdownMenu>
-        <DropdownMenuTrigger className="text-muted-foreground hover:text-foreground hover:bg-accent inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors md:h-9 md:w-9">
-          <MoreVertical className="h-4 w-4 md:h-5 md:w-5" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={onTransfer}>
-            <UserCheck className="mr-2 h-4 w-4" />
-            Transferir
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={onReturnToQueue}>
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Devolver para fila
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={onClose} variant="destructive">
-            <LogOut className="mr-2 h-4 w-4" />
-            Finalizar
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <>
+        <DropdownMenu>
+          <DropdownMenuTrigger className="text-muted-foreground hover:text-foreground hover:bg-accent inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors md:h-9 md:w-9">
+            <MoreVertical className="h-4 w-4 md:h-5 md:w-5" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={onTransfer}>
+              <UserCheck className="mr-2 h-4 w-4" />
+              Transferir
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => returnToBot.mutate(conversation.id)}
+            >
+              <Bot className="mr-2 h-4 w-4" />
+              Voltar para IA
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => returnToQueue.mutate(conversation.id)}
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Devolver para fila
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setShowCloseConfirm(true)}
+              variant="destructive"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Finalizar
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Encerrar conversa?</AlertDialogTitle>
+              <AlertDialogDescription>
+                A conversa sera encerrada. O cliente podera iniciar uma nova
+                conversa.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogClose
+                render={<Button variant="outline">Cancelar</Button>}
+              />
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  closeConversation.mutate(conversation.id)
+                  setShowCloseConfirm(false)
+                }}
+              >
+                Encerrar
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
     )
   }
 
@@ -112,10 +162,7 @@ export function ChatHeader({
   typingUser,
   onBack,
   onOpenProfile,
-  onAssign,
   onTransfer,
-  onReturnToQueue,
-  onClose,
 }: ChatHeaderProps) {
   const displayName = getContactDisplayName(contact, conversation)
 
@@ -176,10 +223,7 @@ export function ChatHeader({
           <HeaderActions
             conversation={conversation}
             currentUserId={currentUserId}
-            onAssign={onAssign}
             onTransfer={onTransfer}
-            onReturnToQueue={onReturnToQueue}
-            onClose={onClose}
           />
         </div>
       </div>
