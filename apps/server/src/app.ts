@@ -76,7 +76,13 @@ export async function buildApp() {
 
   // Better Auth integration
   const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000'
-  const auth = createAuth(env.AUTH_SECRET, env.API_URL, [frontendUrl])
+  const cookieDomain = process.env.COOKIE_DOMAIN
+  const auth = createAuth(
+    env.AUTH_SECRET,
+    env.API_URL,
+    [frontendUrl],
+    cookieDomain
+  )
   registerAuthRoutes(app, auth)
 
   // API v1 routes (authenticated)

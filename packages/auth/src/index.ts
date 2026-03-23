@@ -38,8 +38,11 @@ const VIEWER_ROLE = role({})
 export function createAuth(
   secret: string,
   baseURL: string,
-  trustedOrigins: string[]
+  trustedOrigins: string[],
+  cookieDomain?: string
 ) {
+  const isProduction = process.env.NODE_ENV === 'production'
+
   return betterAuth({
     database: prismaAdapter(prisma, { provider: 'postgresql' }),
     secret,
@@ -48,6 +51,11 @@ export function createAuth(
     emailAndPassword: {
       enabled: true,
       minPasswordLength: 8,
+    },
+    advanced: {
+      crossSubDomainCookies: isProduction
+        ? { enabled: true, domain: cookieDomain }
+        : undefined,
     },
     session: {
       expiresIn: 60 * 60 * 24 * 7, // 7 days
