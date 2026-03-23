@@ -626,15 +626,29 @@ git commit -m "fix(web): smart auto-scroll + remove placeholder buttons"
 
 ---
 
-## Task 21: Frontend — Search Debounce
+## Task 21: Frontend — Search Debounce + Unread Badge
 
 **Files:**
 
 - Modify: `apps/web/src/features/chat/components/conversation-list.tsx`
+- Create: `apps/web/src/features/chat/hooks/use-unread-counts.ts`
+- Modify: `apps/chat-server/src/infra/http/routes/conversation-routes.ts`
 
-- [ ] **Step 1:** Add local `searchInput` state + 300ms debounce with `setTimeout`/`clearTimeout` before updating filters
+- [ ] **Step 1:** Add `GET /chat/conversations/unread-counts` endpoint in `conversation-routes.ts`
 
-- [ ] **Step 2:** Verify typecheck
+Uses existing `UnreadRepository`. Returns `{ success: true, data: Record<conversationId, number> }` scoped to `tenantId` + `userId`.
+
+- [ ] **Step 2:** Create `use-unread-counts.ts` hook
+
+React Query hook that fetches unread counts. Listens to `UNREAD_UPDATE` socket event to invalidate/update cache.
+
+- [ ] **Step 3:** Add local `searchInput` state + 300ms debounce with `setTimeout`/`clearTimeout` before updating filters
+
+- [ ] **Step 4:** Add unread badge to `ConversationItem`
+
+Show a small numeric badge circle next to the conversation name when unread count > 0.
+
+- [ ] **Step 5:** Verify typecheck
 
 Run: `pnpm --filter web typecheck`
 
