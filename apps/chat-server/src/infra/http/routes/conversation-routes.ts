@@ -4,6 +4,7 @@ import { z } from 'zod'
 
 import { GetConversation } from '../../../application/get-conversation.js'
 import { ListConversations } from '../../../application/list-conversations.js'
+import type { UnreadRepository } from '../../../domain/ports/unread-repository.js'
 import { conversationActionRoutes } from './conversation-action-routes.js'
 import { handleDomainError } from './conversation-error-handler.js'
 
@@ -45,6 +46,24 @@ export async function conversationRoutes(app: FastifyInstance): Promise<void> {
         data: result.data,
         meta: result.meta,
       })
+    }
+  )
+
+  app.get(
+    '/chat/conversations/unread-counts',
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const tenantId = request.organizationId
+      const { userId } = request.user
+
+      const unreadRepo = container.resolve<UnreadRepository>('UnreadRepository')
+      const counts = await unreadRepo.getUnreadCounts(tenantId, userId)
+
+      const data: Record<string, number> = {}
+      for (const entry of counts) {
+        data[entry.conversationId] = entry.count
+      }
+
+      return reply.send({ success: true, data })
     }
   )
 
