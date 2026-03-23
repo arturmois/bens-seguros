@@ -33,6 +33,7 @@ import { notificationRoutes } from './routes/v1/notification-routes.js'
 import { policyRoutes } from './routes/v1/policy-routes.js'
 import { proposalRoutes } from './routes/v1/proposal-routes.js'
 import { statsRoutes } from './routes/v1/stats-routes.js'
+import { internalLeadRoutes } from './routes/internal/lead-routes.js'
 import { tenantRoutes } from './routes/v1/tenant-routes.js'
 
 export async function buildApp() {
@@ -104,6 +105,9 @@ export async function buildApp() {
     await authenticatedApp.register(auditLogRoutes)
     await authenticatedApp.register(notificationRoutes)
   })
+
+  // Internal API routes (token-authenticated, no session required)
+  await app.register(internalLeadRoutes)
 
   // Bull Board (owner-only, inside authenticated + tenant scope)
   await app.register(async (adminApp) => {

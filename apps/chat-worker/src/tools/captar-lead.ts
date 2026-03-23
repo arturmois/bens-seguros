@@ -35,7 +35,7 @@ export function createCaptarLeadTool(tenantId: string, contactPhone: string) {
       }
 
       try {
-        const response = await fetch(`${INTERNAL_API_URL}/api/proposals`, {
+        const response = await fetch(`${INTERNAL_API_URL}/api/internal/leads`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

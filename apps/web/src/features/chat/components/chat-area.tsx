@@ -121,7 +121,10 @@ export function ChatArea({
               <MessageBubble
                 key={message.id}
                 message={message}
-                isFromCurrentUser={message.senderId === currentUserId}
+                isFromCurrentUser={
+                  message.senderId === currentUserId ||
+                  message.senderType === 'BOT'
+                }
               />
             ))}
             <div ref={observerTargetRef} className="h-1" />
