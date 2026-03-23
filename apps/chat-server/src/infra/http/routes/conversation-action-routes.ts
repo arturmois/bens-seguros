@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { AssignConversation } from '../../../application/assign-conversation.js'
 import { CloseConversation } from '../../../application/close-conversation.js'
 import { MarkAsRead } from '../../../application/mark-as-read.js'
+import { ReturnToBot } from '../../../application/return-to-bot.js'
 import { ReturnToQueue } from '../../../application/return-to-queue.js'
 import { SendMessage } from '../../../application/send-message.js'
 import { TransferConversation } from '../../../application/transfer-conversation.js'
@@ -90,6 +91,26 @@ export async function conversationActionRoutes(
 
       try {
         const useCase = container.resolve(ReturnToQueue)
+        const result = await useCase.execute({ conversationId: id, tenantId })
+
+        return reply.send({ success: true, data: result })
+      } catch (error: unknown) {
+        handleDomainError(error, reply)
+      }
+    }
+  )
+
+  app.post(
+    '/chat/conversations/:id/return-to-bot',
+    async (
+      request: FastifyRequest<{ Params: z.infer<typeof conversationIdSchema> }>,
+      reply: FastifyReply
+    ) => {
+      const { id } = conversationIdSchema.parse(request.params)
+      const tenantId = request.organizationId
+
+      try {
+        const useCase = container.resolve(ReturnToBot)
         const result = await useCase.execute({ conversationId: id, tenantId })
 
         return reply.send({ success: true, data: result })
