@@ -65,7 +65,7 @@ export function AcceptInvitationContent() {
 
       queryClient.clear()
       setStatus('success')
-      router.push('/')
+      router.push('/dashboard')
     } catch {
       setStatus('error')
       setErrorMessage('Erro ao aceitar convite')

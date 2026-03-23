@@ -40,13 +40,16 @@ export function LoginForm() {
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email" className="text-slate-400">
+          Email
+        </Label>
         <Input
           {...form.register('email')}
           type="email"
           id="email"
           placeholder="seu@email.com"
           autoComplete="email"
+          className="border-white/10 bg-white/[0.04] text-slate-100 placeholder:text-slate-500"
         />
         {form.formState.errors.email && (
           <p role="alert" className="text-destructive text-sm">
@@ -56,19 +59,30 @@ export function LoginForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Senha</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="password" className="text-slate-400">
+            Senha
+          </Label>
+          <span
+            className="text-accent-500/50 cursor-default text-sm"
+            title="Em breve"
+          >
+            Esqueceu?
+          </span>
+        </div>
         <div className="relative">
           <Input
             {...form.register('password')}
             type={showPassword ? 'text' : 'password'}
             id="password"
             autoComplete="current-password"
+            className="border-white/10 bg-white/[0.04] text-slate-100 placeholder:text-slate-500"
           />
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+            className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:bg-transparent"
             onClick={() => setShowPassword((prev) => !prev)}
             aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
           >
@@ -86,7 +100,11 @@ export function LoginForm() {
         )}
       </div>
 
-      <Button type="submit" className="w-full" disabled={login.isPending}>
+      <Button
+        type="submit"
+        className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 w-full bg-gradient-to-r font-bold text-slate-900"
+        disabled={login.isPending}
+      >
         {login.isPending ? 'Entrando...' : 'Entrar'}
       </Button>
     </form>
