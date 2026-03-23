@@ -101,12 +101,14 @@ function HeaderActions({
               <UserCheck className="mr-2 h-4 w-4" />
               Transferir
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => returnToBot.mutate(conversation.id)}
-            >
-              <Bot className="mr-2 h-4 w-4" />
-              Voltar para IA
-            </DropdownMenuItem>
+            {conversation.hasAiAgent && (
+              <DropdownMenuItem
+                onClick={() => returnToBot.mutate(conversation.id)}
+              >
+                <Bot className="mr-2 h-4 w-4" />
+                Voltar para IA
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
               onClick={() => returnToQueue.mutate(conversation.id)}
             >

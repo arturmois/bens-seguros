@@ -28,6 +28,7 @@ export interface ConversationData {
   readonly whatsappPhone: string | null
   readonly closedAt: string | null
   readonly closedBy: string | null
+  readonly hasAiAgent?: boolean
   readonly createdAt: string
   readonly updatedAt: string
 }
