@@ -65,6 +65,7 @@ export interface ChannelData {
   readonly phoneNumber: string | null
   readonly isActive: boolean
   readonly status: ChannelStatus
+  readonly aiAgentId: string | null
 }
 
 export interface MessagePage {

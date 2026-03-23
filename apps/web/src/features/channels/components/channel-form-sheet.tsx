@@ -23,10 +23,12 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 
+import { useAiAgents } from '@/features/ai-agents/hooks/use-ai-agents'
 import type { ChannelData, CreateChannelPayload } from '../types'
 import { useCreateChannel, useUpdateChannel } from '../hooks/use-channels'
 import { channelFormSchema, EMPTY_CHANNEL_FORM } from '../lib/schemas'
 import type { ChannelFormValues } from '../lib/schemas'
+import { ChannelAiAgentSelect } from './channel-ai-agent-select'
 
 const BROKER_TYPE_OPTIONS = [
   { value: 'BAILEYS', label: 'Baileys (WhatsApp Web)' },
@@ -48,6 +50,7 @@ export function ChannelFormSheet({
   const createChannel = useCreateChannel()
   const updateChannel = useUpdateChannel()
   const isPending = createChannel.isPending || updateChannel.isPending
+  const { data: aiAgents } = useAiAgents()
 
   const form = useForm<ChannelFormValues>({
     resolver: zodResolver(channelFormSchema),
@@ -70,6 +73,7 @@ export function ChannelFormSheet({
         name: channel.name,
         brokerType: channel.brokerType,
         phoneNumber: channel.phoneNumber ?? '',
+        aiAgentId: channel.aiAgentId ?? null,
       })
       return
     }
@@ -85,6 +89,7 @@ export function ChannelFormSheet({
           payload: {
             name: values.name,
             phoneNumber: values.phoneNumber,
+            aiAgentId: values.aiAgentId,
           },
         },
         { onSuccess: () => onOpenChange(false) }
@@ -173,6 +178,10 @@ export function ChannelFormSheet({
               {...form.register('phoneNumber')}
             />
           </FormField>
+
+          {isEditMode && (
+            <ChannelAiAgentSelect control={form.control} agents={aiAgents} />
+          )}
 
           {watchedBrokerType === 'META' && (
             <>
