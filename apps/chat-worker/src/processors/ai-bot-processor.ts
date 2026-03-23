@@ -31,7 +31,26 @@ export function createAiBotProcessor(
 
     const channelId = String(conversation.channelId)
 
-    const aiAgent = await AiAgent.findOne({ tenantId, channelId }).lean().exec()
+    // Step 1: Get channel to find aiAgentId
+    const channel = await Channel.findOne({ _id: channelId, tenantId })
+      .lean()
+      .exec()
+    if (!channel?.aiAgentId) {
+      await escalateToHuman(conversationId, tenantId, pubsubClient)
+      logger.info(
+        { conversationId, tenantId },
+        'No AI agent configured for channel, escalated to human'
+      )
+      return
+    }
+
+    // Step 2: Get agent by id
+    const aiAgent = await AiAgent.findOne({
+      _id: channel.aiAgentId,
+      tenantId,
+    })
+      .lean()
+      .exec()
     if (!aiAgent || !aiAgent.isActive) {
       await escalateToHuman(conversationId, tenantId, pubsubClient)
       logger.info(
@@ -63,14 +82,11 @@ export function createAiBotProcessor(
       return
     }
 
-    const [recentMessages, channel] = await Promise.all([
-      Message.find({ conversationId })
-        .sort({ createdAt: -1 })
-        .limit(10)
-        .lean()
-        .exec(),
-      Channel.findById(channelId).lean().exec(),
-    ])
+    const recentMessages = await Message.find({ conversationId })
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .lean()
+      .exec()
 
     const channelName =
       typeof channel?.name === 'string' ? channel.name : 'WhatsApp'
