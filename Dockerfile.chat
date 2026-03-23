@@ -25,7 +25,9 @@ WORKDIR /app
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/chat-server/package.json apps/chat-server/
 COPY apps/chat-worker/package.json apps/chat-worker/
-RUN pnpm install --frozen-lockfile --prod --ignore-scripts
+COPY packages/db-chat/package.json packages/db-chat/
+COPY packages/ai/package.json packages/ai/
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts --shamefully-hoist
 
 FROM node:22-alpine AS runner
 WORKDIR /app

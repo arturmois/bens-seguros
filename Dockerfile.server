@@ -38,7 +38,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/server/package.json apps/server/
 COPY apps/worker/package.json apps/worker/
 COPY packages/db/package.json packages/db/
-RUN pnpm install --frozen-lockfile --prod --ignore-scripts
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts --shamefully-hoist
 
 # --- RUNNER ---
 FROM node:22-alpine AS runner
