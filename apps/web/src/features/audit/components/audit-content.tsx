@@ -2,8 +2,34 @@
 
 import { useState } from 'react'
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+
 import { AuditTable } from './audit-table'
 import type { AuditLogFilters } from '../types'
+
+const ENTITY_TYPE_OPTIONS = [
+  { value: 'ALL', label: 'Todas entidades' },
+  { value: 'Client', label: 'Cliente' },
+  { value: 'Proposal', label: 'Proposta' },
+  { value: 'Policy', label: 'Apólice' },
+  { value: 'Claim', label: 'Sinistro' },
+  { value: 'Commission', label: 'Comissão' },
+] as const
+
+const ACTION_OPTIONS = [
+  { value: 'ALL', label: 'Todas ações' },
+  { value: 'CREATE', label: 'Criar' },
+  { value: 'UPDATE', label: 'Atualizar' },
+  { value: 'DELETE', label: 'Excluir' },
+  { value: 'APPROVE', label: 'Aprovar' },
+  { value: 'REJECT', label: 'Rejeitar' },
+] as const
 
 export function AuditContent() {
   const [filters, setFilters] = useState<AuditLogFilters>({})
@@ -15,42 +41,52 @@ export function AuditContent() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <select
-          className="border-input bg-background h-8 rounded-md border px-2 text-sm"
-          value={filters.entityType ?? ''}
-          onChange={(e) =>
+        <Select
+          aria-label="Filtrar por entidade"
+          value={filters.entityType ?? 'ALL'}
+          onValueChange={(v: string | null) => {
             setFilters((prev) => ({
               ...prev,
-              entityType: e.target.value || undefined,
+              entityType: v === 'ALL' ? undefined : (v ?? undefined),
               cursor: undefined,
             }))
-          }
+          }}
+          items={[...ENTITY_TYPE_OPTIONS]}
         >
-          <option value="">Todas entidades</option>
-          <option value="Client">Cliente</option>
-          <option value="Proposal">Proposta</option>
-          <option value="Policy">Apolice</option>
-          <option value="Claim">Sinistro</option>
-          <option value="Commission">Comissao</option>
-        </select>
-        <select
-          className="border-input bg-background h-8 rounded-md border px-2 text-sm"
-          value={filters.action ?? ''}
-          onChange={(e) =>
+          <SelectTrigger size="sm" className="w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {ENTITY_TYPE_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          aria-label="Filtrar por ação"
+          value={filters.action ?? 'ALL'}
+          onValueChange={(v: string | null) => {
             setFilters((prev) => ({
               ...prev,
-              action: e.target.value || undefined,
+              action: v === 'ALL' ? undefined : (v ?? undefined),
               cursor: undefined,
             }))
-          }
+          }}
+          items={[...ACTION_OPTIONS]}
         >
-          <option value="">Todas acoes</option>
-          <option value="CREATE">Criar</option>
-          <option value="UPDATE">Atualizar</option>
-          <option value="DELETE">Excluir</option>
-          <option value="APPROVE">Aprovar</option>
-          <option value="REJECT">Rejeitar</option>
-        </select>
+          <SelectTrigger size="sm" className="w-44">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {ACTION_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <AuditTable filters={filters} onLoadMore={handleLoadMore} />
     </div>
