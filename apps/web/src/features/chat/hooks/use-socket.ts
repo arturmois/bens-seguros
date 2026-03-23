@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Socket } from 'socket.io-client'
 import { SOCKET_EVENTS, CHAT_LIMITS } from '@repo/shared'
 
-import { getChatToken } from '../lib/chat-api'
+import { clearChatToken, getChatToken } from '../lib/chat-api'
 import { disconnectSocket, getSocket } from '../lib/socket-client'
 import { isRecord } from '../lib/type-guards'
 import type { AgentPresence } from '../types'
@@ -61,6 +61,15 @@ export function useSocket(): UseSocketReturn {
 
         sock.on(SOCKET_EVENTS.CONVERSATION_UPDATED, () => {
           lastEventTimestampRef.current = Date.now()
+        })
+
+        sock.io.on('reconnect_attempt', () => {
+          clearChatToken()
+          void getChatToken().then((freshToken) => {
+            if (freshToken && socketRef.current) {
+              socketRef.current.auth = { token: freshToken }
+            }
+          })
         })
 
         heartbeatRef.current = setInterval(() => {
