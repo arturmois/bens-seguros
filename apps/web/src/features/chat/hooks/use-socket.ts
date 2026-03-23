@@ -5,6 +5,7 @@ import type { Socket } from 'socket.io-client'
 import { SOCKET_EVENTS, CHAT_LIMITS } from '@repo/shared'
 
 import { clearChatToken, getChatToken } from '../lib/chat-api'
+import { requestNotificationPermission } from '../lib/notifications'
 import { disconnectSocket, getSocket } from '../lib/socket-client'
 import { isRecord } from '../lib/type-guards'
 import type { AgentPresence } from '../types'
@@ -34,6 +35,7 @@ export function useSocket(): UseSocketReturn {
 
   const handleConnect = useCallback(() => {
     setIsConnected(true)
+    void requestNotificationPermission()
   }, [])
 
   const handleDisconnect = useCallback(() => {

@@ -6,6 +6,10 @@ import type { Socket } from 'socket.io-client'
 import { SOCKET_EVENTS, CHAT_LIMITS } from '@repo/shared'
 
 import { MESSAGES_KEY } from '../lib/constants'
+import {
+  playNotificationSound,
+  showBrowserNotification,
+} from '../lib/notifications'
 import type {
   ConversationWithDetails,
   MessageData,
@@ -45,6 +49,20 @@ export function useMessageSocketHandlers(
           }
         }
       )
+
+      if (
+        typeof document !== 'undefined' &&
+        document.hidden &&
+        payload.senderType !== 'AGENT'
+      ) {
+        playNotificationSound()
+        showBrowserNotification(
+          typeof payload.senderName === 'string'
+            ? payload.senderName
+            : 'Nova mensagem',
+          typeof payload.text === 'string' ? payload.text : 'Mensagem recebida'
+        )
+      }
     },
     [queryClient, conversationId]
   )
