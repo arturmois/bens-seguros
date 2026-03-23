@@ -67,14 +67,18 @@ function buildConversationMessages(
     })
 }
 
-function buildSystemPrompt(contactName: string, customPrompt?: string): string {
+function buildSystemPrompt(
+  contactName: string,
+  channelName: string,
+  customPrompt?: string
+): string {
   const base = customPrompt ?? DEFAULT_SYSTEM_PROMPT
   return [
     base,
     '',
     'Contexto adicional:',
     `- Voce esta conversando com: ${contactName}`,
-    '- Canal: WhatsApp',
+    `- Voce esta atendendo pelo canal: ${channelName}`,
     '- Se o cliente quiser falar com um humano, use a ferramenta escalarParaHumano',
     '- Se o cliente perguntar sobre seguros disponiveis, use consultarProdutos',
     '- Se o cliente demonstrar interesse em cotar/contratar, use captarLead',
@@ -153,11 +157,17 @@ export function createAiBotProcessor(
       return
     }
 
-    const recentMessages = await Message.find({ conversationId })
-      .sort({ createdAt: -1 })
-      .limit(10)
-      .lean()
-      .exec()
+    const [recentMessages, channel] = await Promise.all([
+      Message.find({ conversationId })
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .lean()
+        .exec(),
+      Channel.findById(channelId).lean().exec(),
+    ])
+
+    const channelName =
+      typeof channel?.name === 'string' ? channel.name : 'WhatsApp'
 
     const chronologicalMessages = [...recentMessages].reverse()
     const lastMessage = chronologicalMessages.at(-1)
@@ -167,7 +177,11 @@ export function createAiBotProcessor(
         : 'Cliente'
 
     const messages = buildConversationMessages(chronologicalMessages)
-    const systemPrompt = buildSystemPrompt(contactName, config.systemPrompt)
+    const systemPrompt = buildSystemPrompt(
+      contactName,
+      channelName,
+      config.systemPrompt
+    )
 
     const tools = {
       [ESCALATION_TOOL_NAME]: createEscalarParaHumanoTool(
@@ -254,7 +268,6 @@ export function createAiBotProcessor(
       })
     )
 
-    const channel = await Channel.findById(channelId).lean().exec()
     if (channel) {
       await sendMessageQueue.add(CHAT_QUEUES.SEND_MESSAGE, {
         messageId: String(savedMessage._id),
