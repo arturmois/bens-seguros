@@ -80,6 +80,7 @@ export function useMessages(
         text: text.trim(),
         type: 'TEXT',
         status: 'PENDING',
+        mediaUrl: null,
         externalId: null,
         createdAt: new Date().toISOString(),
       }

@@ -22,10 +22,7 @@ interface ChatAreaProps {
   readonly onEmitTyping: () => void
   readonly onBack: () => void
   readonly onOpenProfile: () => void
-  readonly onAssign: () => void
   readonly onTransfer: () => void
-  readonly onReturnToQueue: () => void
-  readonly onCloseConversation: () => void
 }
 
 function MessagesLoading() {
@@ -151,10 +148,7 @@ export function ChatArea({
   onEmitTyping,
   onBack,
   onOpenProfile,
-  onAssign,
   onTransfer,
-  onReturnToQueue,
-  onCloseConversation,
 }: ChatAreaProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -181,10 +175,7 @@ export function ChatArea({
         typingUser={typingUser}
         onBack={onBack}
         onOpenProfile={onOpenProfile}
-        onAssign={onAssign}
         onTransfer={onTransfer}
-        onReturnToQueue={onReturnToQueue}
-        onClose={onCloseConversation}
       />
 
       {/* Messages */}
