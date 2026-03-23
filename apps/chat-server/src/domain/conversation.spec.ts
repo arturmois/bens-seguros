@@ -256,6 +256,46 @@ describe('ConversationEntity', () => {
     })
   })
 
+  describe('returnToBot', () => {
+    it('returns HUMAN_ACTIVE to BOT_ACTIVE and clears assignment', () => {
+      const conv = makeConversation({
+        status: 'HUMAN_ACTIVE',
+        assignedTo: 'agent-1',
+        assignedToName: 'Joao',
+      })
+
+      conv.returnToBot()
+
+      expect(conv.status).toBe('BOT_ACTIVE')
+      expect(conv.assignedTo).toBeNull()
+      expect(conv.assignedToName).toBeNull()
+    })
+
+    it('returns WAITING_HUMAN to BOT_ACTIVE', () => {
+      const conv = makeConversation({ status: 'WAITING_HUMAN' })
+
+      conv.returnToBot()
+
+      expect(conv.status).toBe('BOT_ACTIVE')
+    })
+
+    it('rejects from BOT_ACTIVE', () => {
+      const conv = makeConversation({ status: 'BOT_ACTIVE' })
+
+      expect(() => conv.returnToBot()).toThrow(
+        InvalidConversationTransitionError
+      )
+    })
+
+    it('rejects from CLOSED', () => {
+      const conv = makeConversation({ status: 'CLOSED' })
+
+      expect(() => conv.returnToBot()).toThrow(
+        InvalidConversationTransitionError
+      )
+    })
+  })
+
   describe('restore', () => {
     it('restores entity with all properties', () => {
       const now = new Date()

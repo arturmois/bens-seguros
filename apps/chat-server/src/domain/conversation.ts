@@ -155,6 +155,19 @@ export class ConversationEntity {
     this.props.updatedAt = new Date()
   }
 
+  returnToBot(): void {
+    if (
+      this.props.status !== 'HUMAN_ACTIVE' &&
+      this.props.status !== 'WAITING_HUMAN'
+    ) {
+      throw ChatErrors.invalidTransition(this.props.status, 'voltar para IA')
+    }
+    this.props.assignedTo = null
+    this.props.assignedToName = null
+    this.props.status = 'BOT_ACTIVE'
+    this.props.updatedAt = new Date()
+  }
+
   escalateToHuman(): void {
     if (this.props.status !== 'BOT_ACTIVE') {
       throw ChatErrors.invalidTransition(
