@@ -11,6 +11,7 @@ import type IORedis from 'ioredis'
 import { Server } from 'socket.io'
 
 import { chatAuthMiddleware } from './infra/http/middleware/chat-auth-middleware.js'
+import { aiAgentRoutes } from './infra/http/routes/ai-agent-routes.js'
 import { channelRoutes } from './infra/http/routes/channel-routes.js'
 import { conversationRoutes } from './infra/http/routes/conversation-routes.js'
 import { webhookRoutes } from './infra/http/routes/webhook-routes.js'
@@ -79,6 +80,7 @@ export async function buildChatApp(
   // Authenticated routes
   await app.register(conversationRoutes)
   await app.register(channelRoutes)
+  await app.register(aiAgentRoutes)
 
   // Socket.IO auth + handlers
   io.use(createSocketAuthMiddleware(app.log))

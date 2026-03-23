@@ -1,14 +1,13 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Skeleton } from '@/components/ui/skeleton'
-import { AlertCircle, Paperclip, Send, Smile } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { Loader2 } from 'lucide-react'
+import { useCallback, useEffect, useRef } from 'react'
 
 import type { ContactData, ConversationData, MessageData } from '../types'
 import { ChatHeader } from './chat-header'
+import { EmptyState, MessagesError, MessagesLoading } from './chat-area-states'
 import { MessageBubble } from './message-bubble'
+import { MessageInput } from './message-input'
 
 interface ChatAreaProps {
   readonly conversation: ConversationData | null
@@ -18,125 +17,14 @@ interface ChatAreaProps {
   readonly typingUser: string | null
   readonly isLoading: boolean
   readonly isError: boolean
+  readonly isLoadingOlder: boolean
+  readonly hasOlderMessages: boolean
   readonly onSendMessage: (text: string) => void
   readonly onEmitTyping: () => void
+  readonly onLoadOlderMessages: () => Promise<void>
   readonly onBack: () => void
   readonly onOpenProfile: () => void
-  readonly onAssign: () => void
   readonly onTransfer: () => void
-  readonly onReturnToQueue: () => void
-  readonly onCloseConversation: () => void
-}
-
-function MessagesLoading() {
-  return (
-    <div className="space-y-4 p-4">
-      {Array.from({ length: 4 }, (_, i) => (
-        <div
-          key={i}
-          className={i % 2 === 0 ? 'flex justify-start' : 'flex justify-end'}
-        >
-          <Skeleton
-            className={`h-12 rounded-2xl ${i % 2 === 0 ? 'w-2/3' : 'w-1/2'}`}
-          />
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function MessagesError() {
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-2">
-      <AlertCircle className="text-destructive h-10 w-10" />
-      <p className="text-muted-foreground text-sm">
-        Erro ao carregar mensagens
-      </p>
-    </div>
-  )
-}
-
-function EmptyState() {
-  return (
-    <div className="bg-(--chat-bg) flex h-full flex-col items-center justify-center">
-      <div className="text-center">
-        <div className="bg-primary/10 mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full">
-          <Send className="text-primary h-10 w-10" />
-        </div>
-        <h2 className="text-foreground mb-2 text-xl font-semibold">
-          Selecione uma conversa
-        </h2>
-        <p className="text-muted-foreground max-w-sm">
-          Escolha uma conversa na lista ao lado para comecar a trocar mensagens
-        </p>
-      </div>
-    </div>
-  )
-}
-
-function MessageInput({
-  onSendMessage,
-  onEmitTyping,
-  disabled,
-}: {
-  readonly onSendMessage: (text: string) => void
-  readonly onEmitTyping: () => void
-  readonly disabled: boolean
-}) {
-  const [inputValue, setInputValue] = useState('')
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (inputValue.trim()) {
-      onSendMessage(inputValue)
-      setInputValue('')
-    }
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value)
-    onEmitTyping()
-  }
-
-  return (
-    <div className="border-border bg-card border-t p-2 md:p-3">
-      <form onSubmit={handleSubmit} className="flex items-center gap-2">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="text-muted-foreground hover:text-foreground hidden h-9 w-9 shrink-0 md:flex"
-          disabled={disabled}
-        >
-          <Smile className="h-5 w-5" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="text-muted-foreground hover:text-foreground hidden h-9 w-9 shrink-0 md:flex"
-          disabled={disabled}
-        >
-          <Paperclip className="h-5 w-5" />
-        </Button>
-        <Input
-          value={inputValue}
-          onChange={handleChange}
-          placeholder="Digite uma mensagem..."
-          className="bg-muted/50 focus-visible:ring-primary flex-1 border-0 focus-visible:ring-1"
-          disabled={disabled}
-        />
-        <Button
-          type="submit"
-          size="icon"
-          disabled={!inputValue.trim() || disabled}
-          className="bg-primary hover:bg-primary/90 h-9 w-9 shrink-0"
-        >
-          <Send className="h-4 w-4" />
-        </Button>
-      </form>
-    </div>
-  )
 }
 
 export function ChatArea({
@@ -147,19 +35,50 @@ export function ChatArea({
   typingUser,
   isLoading,
   isError,
+  isLoadingOlder,
+  hasOlderMessages,
   onSendMessage,
   onEmitTyping,
+  onLoadOlderMessages,
   onBack,
   onOpenProfile,
-  onAssign,
   onTransfer,
-  onReturnToQueue,
-  onCloseConversation,
 }: ChatAreaProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const isAtBottomRef = useRef(true)
+  const observerTargetRef = useRef<HTMLDivElement>(null)
+
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      if (
+        e.currentTarget.scrollTop === 0 &&
+        hasOlderMessages &&
+        !isLoadingOlder
+      ) {
+        void onLoadOlderMessages()
+      }
+    },
+    [hasOlderMessages, isLoadingOlder, onLoadOlderMessages]
+  )
 
   useEffect(() => {
-    if (messagesEndRef.current) {
+    const target = observerTargetRef.current
+    if (!target) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        if (entry) {
+          isAtBottomRef.current = entry.isIntersecting
+        }
+      },
+      { threshold: 0.1 }
+    )
+    observer.observe(target)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (isAtBottomRef.current && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
     }
   }, [messages])
@@ -181,18 +100,23 @@ export function ChatArea({
         typingUser={typingUser}
         onBack={onBack}
         onOpenProfile={onOpenProfile}
-        onAssign={onAssign}
         onTransfer={onTransfer}
-        onReturnToQueue={onReturnToQueue}
-        onClose={onCloseConversation}
       />
 
       {/* Messages */}
-      <div className="chat-scrollbar flex-1 overflow-y-auto p-3 md:p-4">
+      <div
+        className="chat-scrollbar flex-1 overflow-y-auto p-3 md:p-4"
+        onScroll={handleScroll}
+      >
         {isLoading && <MessagesLoading />}
         {isError && !isLoading && <MessagesError />}
         {!isLoading && !isError && (
           <div className="space-y-3">
+            {isLoadingOlder && (
+              <div className="flex justify-center py-2">
+                <Loader2 className="text-muted-foreground h-5 w-5 animate-spin" />
+              </div>
+            )}
             {messages.map((message) => (
               <MessageBubble
                 key={message.id}
@@ -200,6 +124,7 @@ export function ChatArea({
                 isFromCurrentUser={message.senderId === currentUserId}
               />
             ))}
+            <div ref={observerTargetRef} className="h-1" />
             <div ref={messagesEndRef} />
           </div>
         )}

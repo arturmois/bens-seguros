@@ -28,6 +28,7 @@ export interface ConversationData {
   readonly whatsappPhone: string | null
   readonly closedAt: string | null
   readonly closedBy: string | null
+  readonly hasAiAgent?: boolean
   readonly createdAt: string
   readonly updatedAt: string
 }
@@ -42,6 +43,7 @@ export interface MessageData {
   readonly text: string | null
   readonly type: MessageType
   readonly status: MessageStatus
+  readonly mediaUrl: string | null
   readonly externalId: string | null
   readonly createdAt: string
 }

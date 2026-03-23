@@ -1,9 +1,11 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { container } from 'tsyringe'
 import { z } from 'zod'
+import { AiAgent } from '@repo/db-chat'
 
 import { GetConversation } from '../../../application/get-conversation.js'
 import { ListConversations } from '../../../application/list-conversations.js'
+import type { UnreadRepository } from '../../../domain/ports/unread-repository.js'
 import { conversationActionRoutes } from './conversation-action-routes.js'
 import { handleDomainError } from './conversation-error-handler.js'
 
@@ -49,6 +51,24 @@ export async function conversationRoutes(app: FastifyInstance): Promise<void> {
   )
 
   app.get(
+    '/chat/conversations/unread-counts',
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const tenantId = request.organizationId
+      const { userId } = request.user
+
+      const unreadRepo = container.resolve<UnreadRepository>('UnreadRepository')
+      const counts = await unreadRepo.getUnreadCounts(tenantId, userId)
+
+      const data: Record<string, number> = {}
+      for (const entry of counts) {
+        data[entry.conversationId] = entry.count
+      }
+
+      return reply.send({ success: true, data })
+    }
+  )
+
+  app.get(
     '/chat/conversations/:id',
     async (
       request: FastifyRequest<{ Params: z.infer<typeof conversationIdSchema> }>,
@@ -61,7 +81,24 @@ export async function conversationRoutes(app: FastifyInstance): Promise<void> {
         const useCase = container.resolve(GetConversation)
         const result = await useCase.execute(id, tenantId)
 
-        return reply.send({ success: true, data: result })
+        const aiAgent = await AiAgent.findOne({
+          tenantId,
+          channelId: result.conversation.channelId,
+          isActive: true,
+        })
+          .lean()
+          .exec()
+
+        return reply.send({
+          success: true,
+          data: {
+            ...result,
+            conversation: {
+              ...result.conversation,
+              hasAiAgent: Boolean(aiAgent),
+            },
+          },
+        })
       } catch (error: unknown) {
         handleDomainError(error, reply)
       }

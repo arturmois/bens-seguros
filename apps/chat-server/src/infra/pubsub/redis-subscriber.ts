@@ -59,12 +59,21 @@ export class RedisSubscriber {
           typeof payload['conversationId'] === 'string'
             ? payload['conversationId']
             : null
-        if (convId) {
+        const conversationRoom = convId
+          ? `tenant:${tenantId}:conversation:${convId}`
+          : null
+
+        if (conversationRoom) {
           this.io
-            .to(`tenant:${tenantId}:conversation:${convId}`)
+            .to(conversationRoom)
             .emit(SOCKET_EVENTS.INCOMING_MESSAGE, payload)
+          this.io
+            .to(lobbyRoom)
+            .except(conversationRoom)
+            .emit(SOCKET_EVENTS.INCOMING_MESSAGE, payload)
+        } else {
+          this.io.to(lobbyRoom).emit(SOCKET_EVENTS.INCOMING_MESSAGE, payload)
         }
-        this.io.to(lobbyRoom).emit(SOCKET_EVENTS.INCOMING_MESSAGE, payload)
         break
       }
 
@@ -100,9 +109,14 @@ export class RedisSubscriber {
         const userId =
           typeof payload['userId'] === 'string' ? payload['userId'] : null
         if (userId) {
+          const userRoom = `tenant:${tenantId}:user:${userId}`
+          this.io.to(userRoom).emit(SOCKET_EVENTS.UNREAD_UPDATE, payload)
           this.io
-            .to(`tenant:${tenantId}:user:${userId}`)
+            .to(lobbyRoom)
+            .except(userRoom)
             .emit(SOCKET_EVENTS.UNREAD_UPDATE, payload)
+        } else {
+          this.io.to(lobbyRoom).emit(SOCKET_EVENTS.UNREAD_UPDATE, payload)
         }
         break
       }

@@ -3,7 +3,8 @@
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { AlertCircle, Check, CheckCheck } from 'lucide-react'
+import { AlertCircle, Check, CheckCheck, FileText } from 'lucide-react'
+import Image from 'next/image'
 
 import type { MessageData, SenderType } from '../types'
 
@@ -27,6 +28,62 @@ function MessageStatusIcon({
     return <CheckCheck className="h-3.5 w-3.5" />
   }
   return <Check className="h-3.5 w-3.5" />
+}
+
+function MediaContent({ message }: { readonly message: MessageData }) {
+  if (!message.mediaUrl) return null
+
+  if (message.type === 'IMAGE') {
+    return (
+      <div className="mb-1 overflow-hidden rounded-lg">
+        <Image
+          src={message.mediaUrl}
+          alt={message.text ?? 'Imagem'}
+          width={300}
+          height={200}
+          className="max-h-[300px] w-auto object-contain"
+        />
+      </div>
+    )
+  }
+
+  if (message.type === 'AUDIO') {
+    return (
+      <audio controls className="mb-1 max-w-full" preload="metadata">
+        <source src={message.mediaUrl} />
+      </audio>
+    )
+  }
+
+  if (message.type === 'VIDEO') {
+    return (
+      <video
+        controls
+        className="mb-1 max-h-[300px] max-w-full rounded-lg"
+        preload="metadata"
+      >
+        <source src={message.mediaUrl} />
+      </video>
+    )
+  }
+
+  if (message.type === 'DOCUMENT') {
+    return (
+      <a
+        href={message.mediaUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mb-1 flex items-center gap-2 rounded-lg bg-black/5 px-3 py-2 text-sm hover:bg-black/10"
+      >
+        <FileText className="h-4 w-4 shrink-0" />
+        <span className="truncate">Documento</span>
+      </a>
+    )
+  }
+
+  return (
+    <p className="text-muted-foreground text-xs italic">Midia nao suportada</p>
+  )
 }
 
 function isSystemMessage(senderType: SenderType): boolean {
@@ -69,7 +126,10 @@ export function MessageBubble({
             {message.senderName}
           </p>
         )}
-        <p className="wrap-break-word text-sm md:text-base">{message.text}</p>
+        <MediaContent message={message} />
+        {message.text && (
+          <p className="wrap-break-word text-sm md:text-base">{message.text}</p>
+        )}
         <div
           className={cn(
             'mt-1 flex items-center justify-end gap-1',

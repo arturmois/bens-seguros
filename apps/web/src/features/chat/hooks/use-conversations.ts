@@ -150,6 +150,23 @@ export function useConversations(socket: Socket | null) {
     },
   })
 
+  const returnToBot = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await chatApi.post<ConversationData>(
+        `/chat/conversations/${id}/return-to-bot`,
+        {}
+      )
+      return response.data
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_KEY] })
+      toast.success('Conversa devolvida para a IA')
+    },
+    onError: () => {
+      toast.error('Erro ao devolver conversa para a IA')
+    },
+  })
+
   const closeConversation = useMutation({
     mutationFn: async (id: string) => {
       const response = await chatApi.post<ConversationData>(
@@ -177,6 +194,7 @@ export function useConversations(socket: Socket | null) {
     assignConversation,
     transferConversation,
     returnToQueue,
+    returnToBot,
     closeConversation,
   }
 }

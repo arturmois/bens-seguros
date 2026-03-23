@@ -51,6 +51,7 @@ export function setupSocketHandlers(
     const lobbyRoom = `tenant:${user.organizationId}:lobby`
 
     void socket.join(lobbyRoom)
+    void socket.join(`tenant:${user.organizationId}:user:${user.userId}`)
     presence.heartbeat(user.organizationId, user.userId, user.name)
 
     logger.info(
@@ -184,6 +185,30 @@ function registerMessageEvents(
           senderType: 'AGENT',
           text: msgData.text,
         })
+
+        const messagePayload = {
+          id: result.id,
+          conversationId: msgData.conversationId,
+          tenantId: user.organizationId,
+          senderType: 'AGENT',
+          senderName: user.name,
+          senderId: user.userId,
+          text: msgData.text,
+          type: 'TEXT',
+          status: 'PENDING',
+          externalId: null,
+          createdAt: result.createdAt,
+        }
+
+        const lobbyRoom = `tenant:${user.organizationId}:lobby`
+        const convRoom = `tenant:${user.organizationId}:conversation:${msgData.conversationId}`
+
+        socket.to(convRoom).emit(SOCKET_EVENTS.INCOMING_MESSAGE, messagePayload)
+        socket
+          .to(lobbyRoom)
+          .except(convRoom)
+          .emit(SOCKET_EVENTS.INCOMING_MESSAGE, messagePayload)
+
         if (typeof ack === 'function') ack({ success: true, data: result })
       } catch (err: unknown) {
         logger.error({ err }, 'Failed to send message')
@@ -261,7 +286,7 @@ function registerChannelStatusEvents(
 
         if (typeof ack === 'function') {
           ack({
-            ok: true,
+            success: true,
             data: {
               state: state ?? 'disconnected',
               qr: qr ?? null,
@@ -271,7 +296,7 @@ function registerChannelStatusEvents(
       } catch (err: unknown) {
         logger.error({ err }, 'Failed to get channel status')
         if (typeof ack === 'function')
-          ack({ ok: false, error: formatError(err) })
+          ack({ success: false, error: formatError(err) })
       }
     }
   )

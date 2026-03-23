@@ -1,25 +1,13 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/menu'
 import { cn } from '@/lib/utils'
-import {
-  ArrowLeft,
-  LogOut,
-  MoreVertical,
-  RefreshCw,
-  UserCheck,
-  UserPlus,
-} from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 
 import type { ContactData, ConversationData } from '../types'
 import { ConversationStatusBadge } from './conversation-status-badge'
+import { HeaderActions } from './header-actions'
 import { TypingIndicator } from './typing-indicator'
 
 interface ChatHeaderProps {
@@ -29,10 +17,7 @@ interface ChatHeaderProps {
   readonly typingUser: string | null
   readonly onBack: () => void
   readonly onOpenProfile: () => void
-  readonly onAssign: () => void
   readonly onTransfer: () => void
-  readonly onReturnToQueue: () => void
-  readonly onClose: () => void
 }
 
 function getContactDisplayName(
@@ -44,67 +29,6 @@ function getContactDisplayName(
   return 'Contato'
 }
 
-function HeaderActions({
-  conversation,
-  currentUserId,
-  onAssign,
-  onTransfer,
-  onReturnToQueue,
-  onClose,
-}: {
-  readonly conversation: ConversationData
-  readonly currentUserId: string
-  readonly onAssign: () => void
-  readonly onTransfer: () => void
-  readonly onReturnToQueue: () => void
-  readonly onClose: () => void
-}) {
-  if (conversation.status === 'WAITING_HUMAN') {
-    return (
-      <Button size="sm" onClick={onAssign} className="gap-1.5">
-        <UserPlus className="h-4 w-4" />
-        <span className="hidden sm:inline">Assumir</span>
-      </Button>
-    )
-  }
-
-  if (conversation.status === 'HUMAN_ACTIVE') {
-    const isCurrentAgent = conversation.assignedTo === currentUserId
-
-    if (!isCurrentAgent) {
-      return (
-        <span className="text-muted-foreground text-xs">
-          Atendido por {conversation.assignedToName ?? 'outro agente'}
-        </span>
-      )
-    }
-
-    return (
-      <DropdownMenu>
-        <DropdownMenuTrigger className="text-muted-foreground hover:text-foreground hover:bg-accent inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors md:h-9 md:w-9">
-          <MoreVertical className="h-4 w-4 md:h-5 md:w-5" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={onTransfer}>
-            <UserCheck className="mr-2 h-4 w-4" />
-            Transferir
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={onReturnToQueue}>
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Devolver para fila
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={onClose} variant="destructive">
-            <LogOut className="mr-2 h-4 w-4" />
-            Finalizar
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    )
-  }
-
-  return null
-}
-
 export function ChatHeader({
   conversation,
   contact,
@@ -112,10 +36,7 @@ export function ChatHeader({
   typingUser,
   onBack,
   onOpenProfile,
-  onAssign,
   onTransfer,
-  onReturnToQueue,
-  onClose,
 }: ChatHeaderProps) {
   const displayName = getContactDisplayName(contact, conversation)
 
@@ -176,10 +97,7 @@ export function ChatHeader({
           <HeaderActions
             conversation={conversation}
             currentUserId={currentUserId}
-            onAssign={onAssign}
             onTransfer={onTransfer}
-            onReturnToQueue={onReturnToQueue}
-            onClose={onClose}
           />
         </div>
       </div>

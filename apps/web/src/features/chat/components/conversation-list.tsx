@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { AlertCircle, MessageCircle, RefreshCw, Search } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 import type {
   ConversationData,
@@ -21,6 +22,7 @@ interface ConversationListProps {
   readonly isLoading: boolean
   readonly isError: boolean
   readonly filters: ConversationFilters
+  readonly unreadCounts: Record<string, number>
   readonly onSelectConversation: (id: string) => void
   readonly onFiltersChange: (filters: ConversationFilters) => void
   readonly onRetry: () => void
@@ -82,10 +84,12 @@ function ConversationListEmpty() {
 function ConversationItem({
   conversation,
   isActive,
+  unreadCount,
   onSelect,
 }: {
   readonly conversation: ConversationData
   readonly isActive: boolean
+  readonly unreadCount: number
   readonly onSelect: () => void
 }) {
   const displayName = getDisplayName(conversation)
@@ -117,14 +121,21 @@ function ConversationItem({
             </span>
             <ConversationStatusBadge status={conversation.status} />
           </div>
-          {conversation.lastMessageAt && (
-            <span className="text-muted-foreground shrink-0 text-xs">
-              {formatDistanceToNow(new Date(conversation.lastMessageAt), {
-                addSuffix: false,
-                locale: ptBR,
-              })}
-            </span>
-          )}
+          <div className="flex shrink-0 items-center gap-1.5">
+            {conversation.lastMessageAt && (
+              <span className="text-muted-foreground text-xs">
+                {formatDistanceToNow(new Date(conversation.lastMessageAt), {
+                  addSuffix: false,
+                  locale: ptBR,
+                })}
+              </span>
+            )}
+            {unreadCount > 0 && (
+              <span className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-medium">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </div>
         </div>
         <div className="mt-0.5 flex items-center justify-between gap-2">
           <p className="text-muted-foreground truncate text-sm">
@@ -148,10 +159,20 @@ export function ConversationList({
   isLoading,
   isError,
   filters,
+  unreadCounts,
   onSelectConversation,
   onFiltersChange,
   onRetry,
 }: ConversationListProps) {
+  const [searchInput, setSearchInput] = useState(filters.search ?? '')
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    }
+  }, [])
+
   const activeTab: FilterTab = filters.status ?? 'ALL'
 
   const handleTabChange = (tab: FilterTab) => {
@@ -162,10 +183,14 @@ export function ConversationList({
   }
 
   const handleSearchChange = (value: string) => {
-    onFiltersChange({
-      ...filters,
-      search: value.length > 0 ? value : undefined,
-    })
+    setSearchInput(value)
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    searchTimeoutRef.current = setTimeout(() => {
+      onFiltersChange({
+        ...filters,
+        search: value.length > 0 ? value : undefined,
+      })
+    }, 300)
   }
 
   const sortedConversations = [...conversations].sort((a, b) => {
@@ -190,7 +215,7 @@ export function ConversationList({
           <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
           <Input
             placeholder="Buscar conversa..."
-            value={filters.search ?? ''}
+            value={searchInput}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="bg-muted/50 focus-visible:ring-primary border-0 pl-9 focus-visible:ring-1"
           />
@@ -229,6 +254,7 @@ export function ConversationList({
               key={conversation.id}
               conversation={conversation}
               isActive={conversation.id === activeConversationId}
+              unreadCount={unreadCounts[conversation.id] ?? 0}
               onSelect={() => onSelectConversation(conversation.id)}
             />
           ))}

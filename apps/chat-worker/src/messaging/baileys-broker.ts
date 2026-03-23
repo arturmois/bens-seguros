@@ -26,13 +26,21 @@ import type {
 
 const RECONNECT_DELAY_MS = 3_000
 
+function isMessageMetadata(data: unknown): data is Record<string, unknown> {
+  return data !== null && typeof data === 'object' && !Array.isArray(data)
+}
+
 export class BaileysBroker implements Broker {
   private socket: WASocket | null = null
   private connected = false
   private events: BrokerEvents | null = null
   private readonly tenantId: string
   private readonly channelId: string
-  private readonly logger = pino({ level: 'silent' })
+  private reconnectAttempts = 0
+  private readonly maxReconnectAttempts = 20
+  private readonly logger = pino({
+    level: process.env['BAILEYS_LOG_LEVEL'] ?? 'warn',
+  })
 
   /**
    * Retry counter cache lives outside the socket lifecycle
@@ -67,9 +75,14 @@ export class BaileysBroker implements Broker {
 
   async disconnect(): Promise<void> {
     if (!this.socket) return
+    this.socket.ev.removeAllListeners('creds.update')
+    this.socket.ev.removeAllListeners('connection.update')
+    this.socket.ev.removeAllListeners('messages.upsert')
+    this.socket.ev.removeAllListeners('messages.update')
     this.socket.end(undefined)
     this.socket = null
     this.connected = false
+    this.reconnectAttempts = 0
     this.events = null
   }
 
@@ -133,9 +146,9 @@ export class BaileysBroker implements Broker {
     if (!key.id) return undefined
 
     const msg = await Message.findOne({ externalId: key.id }).lean().exec()
-    if (!msg?.metadata || typeof msg.metadata !== 'object') return undefined
+    if (!msg?.metadata || !isMessageMetadata(msg.metadata)) return undefined
 
-    return msg.metadata as Record<string, unknown>
+    return msg.metadata
   }
 
   private setupEventListeners(
@@ -168,6 +181,13 @@ export class BaileysBroker implements Broker {
     })
   }
 
+  private calculateBackoffDelay(): number {
+    const baseDelay = RECONNECT_DELAY_MS * Math.pow(2, this.reconnectAttempts)
+    const maxDelay = 120_000
+    const jitter = Math.random() * 1_000
+    return Math.min(baseDelay, maxDelay) + jitter
+  }
+
   private handleConnectionUpdate(
     update: Partial<ConnectionState>,
     events: BrokerEvents
@@ -179,6 +199,7 @@ export class BaileysBroker implements Broker {
     }
 
     if (update.connection === 'open') {
+      this.reconnectAttempts = 0
       if (!this.connected) {
         this.connected = true
         events.onConnectionUpdate('CONNECTED')
@@ -188,11 +209,26 @@ export class BaileysBroker implements Broker {
 
     if (update.connection === 'close') {
       if (shouldReconnect(update)) {
-        // Transient disconnect (restartRequired 515, timeout, etc.) — reconnect silently
-        // Keep this.connected = true so we don't re-emit CONNECTED on next open
+        this.reconnectAttempts += 1
+
+        if (this.reconnectAttempts > this.maxReconnectAttempts) {
+          this.connected = false
+          this.logger.error(
+            { channelId: this.channelId, attempts: this.reconnectAttempts },
+            'Max reconnect attempts reached, giving up'
+          )
+          events.onConnectionUpdate('DISCONNECTED')
+          return
+        }
+
+        const delay = this.calculateBackoffDelay()
+        this.logger.info(
+          { channelId: this.channelId, attempt: this.reconnectAttempts, delay },
+          'Scheduling reconnect with backoff'
+        )
         globalThis.setTimeout(() => {
           void this.connect({ ...events })
-        }, RECONNECT_DELAY_MS)
+        }, delay)
       } else {
         // Permanent disconnect (loggedOut) — notify frontend
         this.connected = false

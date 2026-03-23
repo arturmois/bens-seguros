@@ -6,7 +6,16 @@ const CHAT_SERVER_URL =
 let socket: Socket | null = null
 
 export function getSocket(token: string): Socket {
-  if (socket?.connected) return socket
+  if (socket?.connected) {
+    socket.auth = { token }
+    return socket
+  }
+
+  if (socket) {
+    socket.auth = { token }
+    socket.connect()
+    return socket
+  }
 
   socket = io(CHAT_SERVER_URL, {
     auth: { token },

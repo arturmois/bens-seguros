@@ -1,49 +1,22 @@
 import { type Job, type Queue } from 'bullmq'
 import pino from 'pino'
-import { generate } from '@repo/ai'
-import type { AIProvider } from '@repo/ai'
+import { generateWithTools } from '@repo/ai'
 import { AiAgent, Conversation, Message, Channel } from '@repo/db-chat'
-import { CHAT_PUBSUB_CHANNELS, CHAT_LIMITS, CHAT_QUEUES } from '@repo/shared'
+import { CHAT_PUBSUB_CHANNELS, CHAT_QUEUES } from '@repo/shared'
 import type { PubsubClient } from '../types/pubsub-client.js'
+import { createEscalarParaHumanoTool } from '../tools/escalar-para-humano.js'
+import { createConsultarProdutosTool } from '../tools/consultar-produtos.js'
+import { createCaptarLeadTool } from '../tools/captar-lead.js'
+import {
+  type AiBotJobData,
+  ESCALATION_TOOL_NAME,
+  buildConversationMessages,
+  buildSystemPrompt,
+  escalateToHuman,
+  getAiAgentConfig,
+} from './ai-bot-helpers.js'
 
 const logger = pino({ name: 'ai-bot-processor' })
-
-const DEFAULT_SYSTEM_PROMPT =
-  'Voce e um assistente de uma corretora de seguros. Responda de forma educada e profissional em portugues brasileiro. Se o cliente quiser falar com um atendente humano, diga que vai transferi-lo.'
-
-const ESCALATION_MESSAGE = 'Transferido para um atendente. Aguarde.'
-
-export interface AiBotJobData {
-  readonly conversationId: string
-  readonly tenantId: string
-  readonly messageId: string
-}
-
-async function escalateToHuman(
-  conversationId: string,
-  tenantId: string,
-  pubsubClient: PubsubClient
-): Promise<void> {
-  await Conversation.updateOne(
-    { _id: conversationId, tenantId },
-    { $set: { status: 'WAITING_HUMAN' } }
-  ).exec()
-
-  await Message.create({
-    conversationId,
-    tenantId,
-    senderType: 'SYSTEM',
-    text: ESCALATION_MESSAGE,
-    type: 'TEXT',
-    status: 'DELIVERED',
-  })
-
-  await pubsubClient.publish(
-    CHAT_PUBSUB_CHANNELS.CONVERSATION_UPDATE,
-    JSON.stringify({ tenantId, conversationId, status: 'WAITING_HUMAN' })
-  )
-}
-
 export function createAiBotProcessor(
   pubsubClient: PubsubClient,
   sendMessageQueue: Queue
@@ -68,86 +41,121 @@ export function createAiBotProcessor(
       return
     }
 
-    // Check max responses per conversation
+    const config = getAiAgentConfig(aiAgent as Record<string, unknown>)
+
     const botMessageCount = await Message.countDocuments({
       conversationId,
       tenantId,
       senderType: 'BOT',
     }).exec()
 
-    const maxResponses =
-      (aiAgent.maxResponsesPerConversation as number | undefined) ??
-      CHAT_LIMITS.MAX_AI_RESPONSES_PER_CONVERSATION
-
-    if (botMessageCount >= maxResponses) {
+    if (botMessageCount >= config.maxResponsesPerConversation) {
       await escalateToHuman(conversationId, tenantId, pubsubClient)
       logger.info(
-        { conversationId, tenantId, botMessageCount, maxResponses },
+        {
+          conversationId,
+          tenantId,
+          botMessageCount,
+          maxResponses: config.maxResponsesPerConversation,
+        },
         'Max AI responses reached, escalated to human'
       )
       return
     }
 
-    // Get recent messages for context
-    const recentMessages = await Message.find({ conversationId })
-      .sort({ createdAt: -1 })
-      .limit(10)
-      .lean()
-      .exec()
+    const [recentMessages, channel] = await Promise.all([
+      Message.find({ conversationId })
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .lean()
+        .exec(),
+      Channel.findById(channelId).lean().exec(),
+    ])
 
-    const context = recentMessages
-      .reverse()
-      .map((m) => {
-        const role =
-          m.senderType === 'CLIENT'
-            ? 'Cliente'
-            : m.senderType === 'BOT'
-              ? 'Assistente'
-              : 'Sistema'
-        return `${role}: ${m.text ?? ''}`
-      })
-      .join('\n')
+    const channelName =
+      typeof channel?.name === 'string' ? channel.name : 'WhatsApp'
 
-    const systemPrompt =
-      (aiAgent.systemPrompt as string | undefined) ?? DEFAULT_SYSTEM_PROMPT
+    const chronologicalMessages = [...recentMessages].reverse()
+    const lastMessage = chronologicalMessages.at(-1)
+    const contactName =
+      typeof lastMessage?.senderName === 'string'
+        ? lastMessage.senderName
+        : 'Cliente'
 
-    const lastMessage = recentMessages.at(-1)
-    const contactName = lastMessage?.senderName ?? 'Cliente'
-    const userMessage = `Contexto da conversa:\n${context}\n\nNova mensagem de ${contactName}: ${lastMessage?.text ?? ''}`
+    const messages = buildConversationMessages(chronologicalMessages)
+    const systemPrompt = buildSystemPrompt(
+      contactName,
+      channelName,
+      config.systemPrompt
+    )
 
-    const response = await generate({
+    const tools = {
+      [ESCALATION_TOOL_NAME]: createEscalarParaHumanoTool(
+        conversationId,
+        tenantId,
+        pubsubClient
+      ),
+      consultarProdutos: createConsultarProdutosTool(),
+      captarLead: createCaptarLeadTool(
+        tenantId,
+        typeof conversation.whatsappPhone === 'string'
+          ? conversation.whatsappPhone
+          : ''
+      ),
+    }
+
+    const result = await generateWithTools({
       systemPrompt,
-      userMessage,
-      provider: ((aiAgent.provider as string | undefined) ??
-        'claude') as AIProvider,
-      maxTokens: (aiAgent.maxTokens as number | undefined) ?? 300,
-      temperature: (aiAgent.temperature as number | undefined) ?? 0.7,
+      messages,
+      tools,
+      provider: config.provider,
+      maxTokens: config.maxTokens,
+      temperature: config.temperature,
+      maxSteps: 3,
     })
 
-    // Save bot response
+    const wasEscalated = result.toolResults.some(
+      (tr) => tr.toolName === ESCALATION_TOOL_NAME
+    )
+
+    if (wasEscalated) {
+      logger.info(
+        { conversationId, tenantId },
+        'AI triggered escalation via tool'
+      )
+      return
+    }
+
+    const responseText = result.text
+    if (!responseText) {
+      logger.warn(
+        { conversationId, tenantId, steps: result.steps },
+        'AI returned empty response'
+      )
+      return
+    }
+
     const savedMessage = await Message.create({
       conversationId,
       tenantId,
       senderType: 'BOT',
       senderName: 'Assistente Virtual',
-      text: response,
+      text: responseText,
       type: 'TEXT',
       status: 'PENDING',
     })
 
-    // Update conversation lastMessage
     await Conversation.updateOne(
       { _id: conversationId, tenantId },
       {
         $set: {
-          lastMessageText: response,
+          lastMessageText: responseText,
           lastMessageAt: savedMessage.createdAt,
           updatedAt: savedMessage.createdAt,
         },
       }
     ).exec()
 
-    // Publish to Socket.IO
     await pubsubClient.publish(
       CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE,
       JSON.stringify({
@@ -157,7 +165,7 @@ export function createAiBotProcessor(
         senderType: 'BOT',
         senderName: 'Assistente Virtual',
         senderId: null,
-        text: response,
+        text: responseText,
         type: 'TEXT',
         status: 'PENDING',
         externalId: null,
@@ -166,21 +174,26 @@ export function createAiBotProcessor(
       })
     )
 
-    // Enqueue for sending via WhatsApp
-    const channel = await Channel.findById(channelId).lean().exec()
     if (channel) {
       await sendMessageQueue.add(CHAT_QUEUES.SEND_MESSAGE, {
         messageId: String(savedMessage._id),
+        conversationId,
         channelId,
         tenantId,
         to: conversation.whatsappPhone,
-        text: response,
+        text: responseText,
         type: 'TEXT',
       })
     }
 
     logger.info(
-      { conversationId, tenantId, responseLength: response.length },
+      {
+        conversationId,
+        tenantId,
+        responseLength: responseText.length,
+        steps: result.steps,
+        toolsCalled: result.toolResults.map((tr) => tr.toolName),
+      },
       'AI bot response generated and enqueued'
     )
   }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { Socket } from 'socket.io-client'
 import { SOCKET_EVENTS, CHAT_LIMITS } from '@repo/shared'
@@ -25,6 +25,9 @@ interface UseMessagesReturn {
   readonly sendMessage: (text: string) => void
   readonly emitTyping: () => void
   readonly typingUser: string | null
+  readonly loadOlderMessages: () => Promise<void>
+  readonly isLoadingOlder: boolean
+  readonly hasOlderMessages: boolean
 }
 
 export function useMessages(
@@ -80,6 +83,7 @@ export function useMessages(
         text: text.trim(),
         type: 'TEXT',
         status: 'PENDING',
+        mediaUrl: null,
         externalId: null,
         createdAt: new Date().toISOString(),
       }
@@ -142,6 +146,46 @@ export function useMessages(
     [sendMessage]
   )
 
+  const [hasOlderMessages, setHasOlderMessages] = useState(true)
+  const [isLoadingOlder, setIsLoadingOlder] = useState(false)
+
+  const loadOlderMessages = useCallback(async () => {
+    if (!conversationId || isLoadingOlder || !hasOlderMessages) return
+    const currentMessages = queryClient.getQueryData<ConversationWithDetails>([
+      MESSAGES_KEY,
+      conversationId,
+    ])
+    const oldestMessage = currentMessages?.messages.data[0]
+    if (!oldestMessage) return
+
+    setIsLoadingOlder(true)
+    try {
+      const response = await chatApi.get<ConversationWithDetails>(
+        `/chat/conversations/${conversationId}?before=${oldestMessage.id}`
+      )
+      const olderMessages = response.data.messages.data
+      if (olderMessages.length === 0) {
+        setHasOlderMessages(false)
+        return
+      }
+      queryClient.setQueryData<ConversationWithDetails>(
+        [MESSAGES_KEY, conversationId],
+        (prev) => {
+          if (!prev) return prev
+          return {
+            ...prev,
+            messages: {
+              ...prev.messages,
+              data: [...olderMessages, ...prev.messages.data],
+            },
+          }
+        }
+      )
+    } finally {
+      setIsLoadingOlder(false)
+    }
+  }, [conversationId, queryClient, isLoadingOlder, hasOlderMessages])
+
   return {
     messages: query.data?.messages.data ?? [],
     contact: query.data?.contact ?? null,
@@ -151,6 +195,9 @@ export function useMessages(
     sendMessage: sendMessageWithTypingReset,
     emitTyping,
     typingUser,
+    loadOlderMessages,
+    isLoadingOlder,
+    hasOlderMessages,
   }
 }
 

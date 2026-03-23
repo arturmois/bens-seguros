@@ -1,6 +1,6 @@
 'use client'
 
-import { MoreHorizontal, Pencil, Power, QrCode } from 'lucide-react'
+import { Brain, MoreHorizontal, Pencil, Power, QrCode } from 'lucide-react'
 
 import {
   DropdownMenu,
@@ -26,6 +26,7 @@ interface ChannelsTableProps {
   readonly onEdit: (channel: ChannelData) => void
   readonly onQrCode: (channel: ChannelData) => void
   readonly onDeactivate: (channel: ChannelData) => void
+  readonly onConfigureAi: (channelId: string) => void
 }
 
 const BROKER_TYPE_LABELS: Record<string, string> = {
@@ -38,6 +39,7 @@ export function ChannelsTable({
   onEdit,
   onQrCode,
   onDeactivate,
+  onConfigureAi,
 }: ChannelsTableProps) {
   return (
     <Table>
@@ -60,6 +62,7 @@ export function ChannelsTable({
             onEdit={onEdit}
             onQrCode={onQrCode}
             onDeactivate={onDeactivate}
+            onConfigureAi={onConfigureAi}
           />
         ))}
       </TableBody>
@@ -72,6 +75,7 @@ interface ChannelRowProps {
   readonly onEdit: (channel: ChannelData) => void
   readonly onQrCode: (channel: ChannelData) => void
   readonly onDeactivate: (channel: ChannelData) => void
+  readonly onConfigureAi: (channelId: string) => void
 }
 
 function ChannelRow({
@@ -79,6 +83,7 @@ function ChannelRow({
   onEdit,
   onQrCode,
   onDeactivate,
+  onConfigureAi,
 }: ChannelRowProps) {
   return (
     <TableRow>
@@ -102,6 +107,10 @@ function ChannelRow({
             <DropdownMenuItem onClick={() => onEdit(channel)}>
               <Pencil />
               Editar
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onConfigureAi(channel.id)}>
+              <Brain />
+              Configurar IA
             </DropdownMenuItem>
             {channel.brokerType === 'BAILEYS' && (
               <DropdownMenuItem onClick={() => onQrCode(channel)}>
