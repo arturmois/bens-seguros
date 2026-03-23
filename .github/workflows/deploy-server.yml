@@ -77,9 +77,8 @@ jobs:
             export TAG=${SHA_SHORT}
             docker compose -f docker-compose.prod.yml pull server worker
 
-            # Run database migrations
-            docker compose -f docker-compose.prod.yml run --rm server \
-              npx prisma migrate deploy --schema=./prisma/schema.prisma
+            # TODO: Add prisma migrate deploy when migration files exist
+            # and prisma CLI is available in the runner image
 
             # Deploy with new images
             docker compose -f docker-compose.prod.yml up -d server worker
