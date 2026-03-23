@@ -7,6 +7,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useConversations } from '../hooks/use-conversations'
 import { useMessages } from '../hooks/use-messages'
 import { useSocket } from '../hooks/use-socket'
+import { useUnreadCounts } from '../hooks/use-unread-counts'
 import { ChatActionsProvider } from './chat-actions-context'
 import { ChatArea } from './chat-area'
 import { ContactProfile } from './contact-profile'
@@ -32,6 +33,8 @@ export function ChatLayout() {
     returnToBot,
     closeConversation,
   } = useConversations(socket)
+
+  const { unreadCounts } = useUnreadCounts(socket)
 
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
@@ -124,6 +127,7 @@ export function ChatLayout() {
               isLoading={isConversationsLoading}
               isError={isConversationsError}
               filters={filters}
+              unreadCounts={unreadCounts}
               onSelectConversation={handleSelectConversation}
               onFiltersChange={setFilters}
               onRetry={handleRetryConversations}
@@ -185,6 +189,7 @@ export function ChatLayout() {
               isLoading={isConversationsLoading}
               isError={isConversationsError}
               filters={filters}
+              unreadCounts={unreadCounts}
               onSelectConversation={handleSelectConversation}
               onFiltersChange={setFilters}
               onRetry={handleRetryConversations}

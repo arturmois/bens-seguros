@@ -22,6 +22,7 @@ interface ConversationListProps {
   readonly isLoading: boolean
   readonly isError: boolean
   readonly filters: ConversationFilters
+  readonly unreadCounts: Record<string, number>
   readonly onSelectConversation: (id: string) => void
   readonly onFiltersChange: (filters: ConversationFilters) => void
   readonly onRetry: () => void
@@ -83,10 +84,12 @@ function ConversationListEmpty() {
 function ConversationItem({
   conversation,
   isActive,
+  unreadCount,
   onSelect,
 }: {
   readonly conversation: ConversationData
   readonly isActive: boolean
+  readonly unreadCount: number
   readonly onSelect: () => void
 }) {
   const displayName = getDisplayName(conversation)
@@ -118,14 +121,21 @@ function ConversationItem({
             </span>
             <ConversationStatusBadge status={conversation.status} />
           </div>
-          {conversation.lastMessageAt && (
-            <span className="text-muted-foreground shrink-0 text-xs">
-              {formatDistanceToNow(new Date(conversation.lastMessageAt), {
-                addSuffix: false,
-                locale: ptBR,
-              })}
-            </span>
-          )}
+          <div className="flex shrink-0 items-center gap-1.5">
+            {conversation.lastMessageAt && (
+              <span className="text-muted-foreground text-xs">
+                {formatDistanceToNow(new Date(conversation.lastMessageAt), {
+                  addSuffix: false,
+                  locale: ptBR,
+                })}
+              </span>
+            )}
+            {unreadCount > 0 && (
+              <span className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-medium">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </div>
         </div>
         <div className="mt-0.5 flex items-center justify-between gap-2">
           <p className="text-muted-foreground truncate text-sm">
@@ -149,6 +159,7 @@ export function ConversationList({
   isLoading,
   isError,
   filters,
+  unreadCounts,
   onSelectConversation,
   onFiltersChange,
   onRetry,
@@ -243,6 +254,7 @@ export function ConversationList({
               key={conversation.id}
               conversation={conversation}
               isActive={conversation.id === activeConversationId}
+              unreadCount={unreadCounts[conversation.id] ?? 0}
               onSelect={() => onSelectConversation(conversation.id)}
             />
           ))}
