@@ -32,36 +32,52 @@ async function upsertContact(
   return String(contact._id)
 }
 
-async function findOrCreateConversation(
-  tenantId: string,
-  channelId: string,
-  contactId: string,
-  phone: string,
-  hasAiUser: boolean
-): Promise<{ id: string; status: string }> {
-  const existing = await Conversation.findOne({
-    tenantId,
-    channelId,
-    contactId,
-    status: { $ne: 'CLOSED' },
-  })
-    .lean()
-    .exec()
+interface FindOrCreateConversationOptions {
+  readonly tenantId: string
+  readonly channelId: string
+  readonly contactId: string
+  readonly phone: string
+  readonly hasAiUser: boolean
+}
 
-  if (existing) {
-    return { id: String(existing._id), status: existing.status }
+interface FindOrCreateConversationResult {
+  readonly id: string
+  readonly status: string
+  readonly isNew: boolean
+}
+
+async function findOrCreateConversationAtomic(
+  options: FindOrCreateConversationOptions
+): Promise<FindOrCreateConversationResult> {
+  const { tenantId, channelId, contactId, phone, hasAiUser } = options
+  const initialStatus = hasAiUser ? 'BOT_ACTIVE' : 'WAITING_HUMAN'
+
+  const result = await Conversation.findOneAndUpdate(
+    { tenantId, channelId, contactId, status: { $ne: 'CLOSED' } },
+    {
+      $setOnInsert: {
+        tenantId,
+        channelId,
+        contactId,
+        whatsappPhone: phone,
+        status: initialStatus,
+      },
+    },
+    { upsert: true, new: true, includeResultMetadata: true }
+  ).exec()
+
+  const isNew = Boolean(result.lastErrorObject?.upserted)
+  const doc = result.value
+
+  if (!doc) {
+    throw new Error('findOneAndUpdate with upsert returned null')
   }
 
-  const initialStatus = hasAiUser ? 'BOT_ACTIVE' : 'WAITING_HUMAN'
-  const created = await Conversation.create({
-    tenantId,
-    channelId,
-    contactId,
-    whatsappPhone: phone,
-    status: initialStatus,
-  })
-
-  return { id: String(created._id), status: initialStatus }
+  return {
+    id: String(doc._id),
+    status: String(doc.status),
+    isNew,
+  }
 }
 
 export function createIncomingMessageProcessor(
@@ -104,14 +120,17 @@ export function createIncomingMessageProcessor(
 
     const contactId = await upsertContact(tenantId, from, pushName)
 
-    const { id: conversationId, status: conversationStatus } =
-      await findOrCreateConversation(
-        tenantId,
-        channelId,
-        contactId,
-        from,
-        Boolean(channel.aiUserId)
-      )
+    const {
+      id: conversationId,
+      status: conversationStatus,
+      isNew,
+    } = await findOrCreateConversationAtomic({
+      tenantId,
+      channelId,
+      contactId,
+      phone: from,
+      hasAiUser: Boolean(channel.aiUserId),
+    })
 
     const savedMessage = await Message.create({
       conversationId,
@@ -157,9 +176,21 @@ export function createIncomingMessageProcessor(
       messagePayload
     )
 
+    if (isNew) {
+      await pubsubClient.publish(
+        CHAT_PUBSUB_CHANNELS.CONVERSATION_UPDATE,
+        JSON.stringify({
+          tenantId,
+          conversationId,
+          status: conversationStatus,
+          isNew: true,
+        })
+      )
+    }
+
     await pubsubClient.publish(
       CHAT_PUBSUB_CHANNELS.UNREAD_UPDATE,
-      JSON.stringify({ tenantId, conversationId })
+      JSON.stringify({ tenantId, conversationId, userId: null })
     )
 
     if (conversationStatus === 'BOT_ACTIVE') {
