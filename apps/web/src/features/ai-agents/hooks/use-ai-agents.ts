@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-import { chatApi } from '@/features/chat/lib/chat-api'
+import { chatApi, ChatApiError } from '@/features/chat/lib/chat-api'
 
 import type {
   AiAgentData,
@@ -52,7 +52,14 @@ export function useCreateAiAgent() {
       queryClient.invalidateQueries({ queryKey: [AI_AGENTS_KEY] })
       toast.success('Agente criado com sucesso')
     },
-    onError: () => {
+    onError: (error) => {
+      if (
+        error instanceof ChatApiError &&
+        error.code === 'AGENT_NAME_ALREADY_EXISTS'
+      ) {
+        toast.error('Ja existe um agente com este nome')
+        return
+      }
       toast.error('Erro ao criar agente')
     },
   })
@@ -79,7 +86,14 @@ export function useUpdateAiAgent() {
       queryClient.invalidateQueries({ queryKey: [AI_AGENTS_KEY] })
       toast.success('Agente atualizado com sucesso')
     },
-    onError: () => {
+    onError: (error) => {
+      if (
+        error instanceof ChatApiError &&
+        error.code === 'AGENT_NAME_ALREADY_EXISTS'
+      ) {
+        toast.error('Ja existe um agente com este nome')
+        return
+      }
       toast.error('Erro ao atualizar agente')
     },
   })

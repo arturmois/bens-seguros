@@ -3,34 +3,13 @@ import { z } from 'zod'
 
 import { AiAgent, Channel } from '@repo/db-chat'
 
-const agentIdSchema = z.object({ id: z.string().min(1) })
-
-const createAgentBodySchema = z.object({
-  name: z.string().min(1).max(100),
-  description: z.string().max(300).nullable().optional(),
-  systemPrompt: z.string().max(2000).optional(),
-  provider: z.enum(['claude', 'openai']).optional(),
-  temperature: z.number().min(0).max(1).optional(),
-  maxTokens: z.number().min(100).max(2000).optional(),
-  maxResponsesPerConversation: z.number().min(5).max(100).optional(),
-  isActive: z.boolean().optional(),
-})
-
-const updateAgentBodySchema = createAgentBodySchema.partial()
-
-function mapAgent(doc: {
-  _id: unknown
-  [key: string]: unknown
-}): Record<string, unknown> {
-  const mapped: Record<string, unknown> = {}
-  for (const [key, value] of Object.entries(doc)) {
-    if (key !== '_id' && key !== '__v') {
-      mapped[key] = value
-    }
-  }
-  mapped['id'] = String(doc['_id'])
-  return mapped
-}
+import {
+  agentIdSchema,
+  createAgentBodySchema,
+  getLinkedChannels,
+  mapAgent,
+  updateAgentBodySchema,
+} from './ai-agent-schemas'
 
 export async function aiAgentRoutes(app: FastifyInstance): Promise<void> {
   app.get(
@@ -43,29 +22,25 @@ export async function aiAgentRoutes(app: FastifyInstance): Promise<void> {
       const channelCounts = await Channel.aggregate<{
         _id: string
         count: number
-        names: string[]
       }>([
         { $match: { tenantId, aiAgentId: { $in: agentIds } } },
         {
           $group: {
             _id: '$aiAgentId',
             count: { $sum: 1 },
-            names: { $push: '$name' },
           },
         },
       ])
 
       const countsByAgentId = new Map(
-        channelCounts.map((c) => [c._id, { count: c.count, names: c.names }])
+        channelCounts.map((c) => [c._id, c.count])
       )
 
       const data = agents.map((agent) => {
         const agentId = String(agent._id)
-        const linked = countsByAgentId.get(agentId)
         return {
           ...mapAgent(agent),
-          linkedChannelCount: linked?.count ?? 0,
-          linkedChannelNames: linked?.names ?? [],
+          linkedChannelCount: countsByAgentId.get(agentId) ?? 0,
         }
       })
 
@@ -119,22 +94,11 @@ export async function aiAgentRoutes(app: FastifyInstance): Promise<void> {
         })
       }
 
-      const linkedChannels = await Channel.find(
-        { tenantId, aiAgentId: id },
-        { name: 1 }
-      )
-        .lean()
-        .exec()
+      const linkedChannels = await getLinkedChannels(tenantId, id)
 
       return reply.send({
         success: true,
-        data: {
-          ...mapAgent(agent),
-          linkedChannels: linkedChannels.map((c) => ({
-            id: String(c._id),
-            name: c.name,
-          })),
-        },
+        data: { ...mapAgent(agent), linkedChannels },
       })
     }
   )
@@ -207,12 +171,7 @@ export async function aiAgentRoutes(app: FastifyInstance): Promise<void> {
         })
       }
 
-      const linkedChannels = await Channel.find(
-        { tenantId, aiAgentId: id },
-        { name: 1 }
-      )
-        .lean()
-        .exec()
+      const linkedChannels = await getLinkedChannels(tenantId, id)
 
       if (linkedChannels.length > 0) {
         return reply.status(409).send({
@@ -220,11 +179,8 @@ export async function aiAgentRoutes(app: FastifyInstance): Promise<void> {
           error: {
             code: 'AGENT_HAS_LINKED_CHANNELS',
             message: 'Cannot delete agent with linked channels',
+            channels: linkedChannels,
           },
-          channels: linkedChannels.map((c) => ({
-            id: String(c._id),
-            name: c.name,
-          })),
         })
       }
 

@@ -1,20 +1,13 @@
 'use client'
 
 import { useEffect } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {
   Sheet,
   SheetContent,
@@ -29,11 +22,10 @@ import { useCreateChannel, useUpdateChannel } from '../hooks/use-channels'
 import { channelFormSchema, EMPTY_CHANNEL_FORM } from '../lib/schemas'
 import type { ChannelFormValues } from '../lib/schemas'
 import { ChannelAiAgentSelect } from './channel-ai-agent-select'
-
-const BROKER_TYPE_OPTIONS = [
-  { value: 'BAILEYS', label: 'Baileys (WhatsApp Web)' },
-  { value: 'META', label: 'Meta (API Oficial)' },
-] as const
+import {
+  ChannelBrokerTypeSelect,
+  ChannelMetaFields,
+} from './channel-meta-fields'
 
 interface ChannelFormSheetProps {
   readonly open: boolean
@@ -139,35 +131,11 @@ export function ChannelFormSheet({
             />
           </FormField>
 
-          <FormField
-            label="Tipo de Conexao"
+          <ChannelBrokerTypeSelect
+            control={form.control}
+            disabled={isEditMode}
             error={form.formState.errors.brokerType?.message}
-            helperText="Baileys conecta via QR Code. Meta usa a API oficial do WhatsApp Business."
-            required
-          >
-            <Controller
-              name="brokerType"
-              control={form.control}
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  disabled={isEditMode}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {BROKER_TYPE_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </FormField>
+          />
 
           <FormField
             label="Numero"
@@ -184,30 +152,10 @@ export function ChannelFormSheet({
           )}
 
           {watchedBrokerType === 'META' && (
-            <>
-              <FormField
-                label="Token"
-                error={form.formState.errors.metaToken?.message}
-                required
-              >
-                <Input
-                  type="password"
-                  placeholder="Token de acesso permanente"
-                  {...form.register('metaToken')}
-                />
-              </FormField>
-
-              <FormField
-                label="Phone Number ID"
-                error={form.formState.errors.phoneNumberId?.message}
-                required
-              >
-                <Input
-                  placeholder="ID do numero no Meta Business"
-                  {...form.register('phoneNumberId')}
-                />
-              </FormField>
-            </>
+            <ChannelMetaFields
+              register={form.register}
+              errors={form.formState.errors}
+            />
           )}
 
           <div className="flex justify-end gap-2 pt-4">

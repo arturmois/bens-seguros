@@ -5,18 +5,9 @@ import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {
   Sheet,
   SheetContent,
@@ -24,7 +15,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
-import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 
 import type { AiAgentData } from '../types'
@@ -38,11 +28,12 @@ import {
   DEFAULT_AGENT_FORM,
   type AiAgentFormValues,
 } from '../lib/schemas'
-
-const PROVIDER_OPTIONS = [
-  { value: 'claude', label: 'Claude (Anthropic)' },
-  { value: 'openai', label: 'OpenAI' },
-] as const
+import {
+  ActiveToggle,
+  AiAgentNumericFields,
+  AiAgentProviderSelect,
+  LinkedChannelsSection,
+} from './ai-agent-form-parts'
 
 interface AiAgentFormSheetProps {
   readonly open: boolean
@@ -156,65 +147,14 @@ export function AiAgentFormSheet({
               {...form.register('systemPrompt')}
             />
           </FormField>
-          <FormField
-            label="Provider"
+          <AiAgentProviderSelect
+            control={form.control}
             error={form.formState.errors.provider?.message}
-            required
-          >
-            <Controller
-              name="provider"
-              control={form.control}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o provider" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PROVIDER_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </FormField>
-          <FormField
-            label="Temperature"
-            error={form.formState.errors.temperature?.message}
-            helperText="Criatividade das respostas (0 = deterministico, 1 = criativo)"
-          >
-            <Input
-              type="number"
-              step={0.1}
-              min={0}
-              max={1}
-              {...form.register('temperature')}
-            />
-          </FormField>
-          <FormField
-            label="Max Tokens"
-            error={form.formState.errors.maxTokens?.message}
-          >
-            <Input
-              type="number"
-              min={100}
-              max={2000}
-              {...form.register('maxTokens')}
-            />
-          </FormField>
-          <FormField
-            label="Max Respostas por Conversa"
-            error={form.formState.errors.maxResponsesPerConversation?.message}
-          >
-            <Input
-              type="number"
-              min={5}
-              max={100}
-              {...form.register('maxResponsesPerConversation')}
-            />
-          </FormField>
+          />
+          <AiAgentNumericFields
+            register={form.register}
+            errors={form.formState.errors}
+          />
           <Controller
             name="isActive"
             control={form.control}
@@ -244,47 +184,5 @@ export function AiAgentFormSheet({
         </form>
       </SheetContent>
     </Sheet>
-  )
-}
-
-interface ActiveToggleProps {
-  readonly checked: boolean
-  readonly onCheckedChange: (checked: boolean) => void
-}
-
-function ActiveToggle({ checked, onCheckedChange }: ActiveToggleProps) {
-  return (
-    <div className="border-border flex items-center justify-between rounded-lg border p-4">
-      <Label htmlFor="isActive" className="cursor-pointer">
-        Ativo
-      </Label>
-      <Switch
-        id="isActive"
-        checked={checked}
-        onCheckedChange={onCheckedChange}
-      />
-    </div>
-  )
-}
-
-interface LinkedChannelsSectionProps {
-  readonly channels: ReadonlyArray<{
-    readonly id: string
-    readonly name: string
-  }>
-}
-
-function LinkedChannelsSection({ channels }: LinkedChannelsSectionProps) {
-  return (
-    <div className="space-y-2">
-      <p className="text-sm font-medium">Canais vinculados</p>
-      <div className="flex flex-wrap gap-2">
-        {channels.map((ch) => (
-          <Badge key={ch.id} variant="secondary">
-            {ch.name}
-          </Badge>
-        ))}
-      </div>
-    </div>
   )
 }
