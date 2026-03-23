@@ -1,3 +1,6 @@
+import { rm } from 'node:fs/promises'
+import { resolve } from 'node:path'
+
 import pino from 'pino'
 import { Channel } from '@repo/db-chat'
 import { CHAT_LIMITS } from '@repo/shared'
@@ -13,6 +16,18 @@ interface ManagedConnection {
 const logger = pino({ level: 'info' }).child({ module: 'baileys-manager' })
 
 const connections = new Map<string, ManagedConnection>()
+
+const SESSIONS_DIR = process.env['BAILEYS_SESSIONS_DIR'] ?? './baileys-sessions'
+
+export async function cleanupSession(channelId: string): Promise<void> {
+  const sessionPath = resolve(SESSIONS_DIR, channelId)
+  try {
+    await rm(sessionPath, { recursive: true, force: true })
+    logger.info({ channelId, sessionPath }, 'Baileys session cleaned up')
+  } catch (err: unknown) {
+    logger.warn({ channelId, err }, 'Failed to cleanup Baileys session')
+  }
+}
 
 function countChannelsForTenant(tenantId: string): number {
   let count = 0
