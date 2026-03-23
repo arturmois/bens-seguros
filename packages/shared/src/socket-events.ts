@@ -11,6 +11,7 @@ export const SOCKET_EVENTS = {
   CLOSE_CONVERSATION: 'chat:close-conversation',
   TRANSFER_CONVERSATION: 'chat:transfer-conversation',
   CONVERSATION_UPDATED: 'chat:conversation-updated',
+  RETURN_TO_BOT: 'chat:return-to-bot',
 
   // Unread
   UNREAD_UPDATE: 'chat:unread-update',
