@@ -1,10 +1,20 @@
+import { AiAgentsPage } from '@/features/ai-agents/components/ai-agents-page'
 import { ChannelsPage } from '@/features/channels/components/channels-page'
 import { SettingsLayout } from '@/features/channels/components/settings-layout'
 
-export default function SettingsPage() {
+interface SettingsPageProps {
+  searchParams: Promise<{ section?: string }>
+}
+
+export default async function SettingsPage({
+  searchParams,
+}: SettingsPageProps) {
+  const params = await searchParams
+  const section = params.section ?? 'canais'
+
   return (
-    <SettingsLayout>
-      <ChannelsPage />
+    <SettingsLayout activeSection={section}>
+      {section === 'agentes-ia' ? <AiAgentsPage /> : <ChannelsPage />}
     </SettingsLayout>
   )
 }
