@@ -76,7 +76,7 @@ jobs:
 
             docker compose -f docker-compose.prod.yml up -d chat-server chat-worker
 
-            sleep 40
+            sleep 70
 
             HEALTHY=$(docker compose -f docker-compose.prod.yml ps chat-server --format json | grep -c '"healthy"' || true)
             if [ "$HEALTHY" -lt 1 ]; then

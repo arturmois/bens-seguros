@@ -83,8 +83,8 @@ jobs:
             # Deploy with new images
             docker compose -f docker-compose.prod.yml up -d server worker
 
-            # Wait for health checks (start_period=30s + margin)
-            sleep 40
+            # Wait for health checks (start_period=30s + interval=30s + margin)
+            sleep 70
 
             # Verify server is healthy
             HEALTHY=$(docker compose -f docker-compose.prod.yml ps server --format json | grep -c '"healthy"' || true)
