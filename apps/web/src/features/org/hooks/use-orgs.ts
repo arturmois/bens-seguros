@@ -98,7 +98,7 @@ export function useOrgs() {
       await authClient.organization.setActive({ organizationId })
       setActiveOrgCookie(organizationId)
       await queryClient.invalidateQueries()
-      router.push('/')
+      router.push('/dashboard')
       router.refresh()
     },
     [queryClient, router]

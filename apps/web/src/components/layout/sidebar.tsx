@@ -29,7 +29,12 @@ interface SidebarProps {
 }
 
 const MAIN_NAV = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard, permission: null },
+  {
+    href: '/dashboard',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    permission: null,
+  },
   {
     href: '/clients',
     label: 'Clientes',

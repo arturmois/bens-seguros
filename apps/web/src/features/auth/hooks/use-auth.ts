@@ -54,7 +54,7 @@ export function useAuth() {
         try {
           await authClient.organization.setActive({ organizationId: lastOrgId })
           setActiveOrgCookie(lastOrgId)
-          router.push('/')
+          router.push('/dashboard')
           return
         } catch {
           // Org no longer valid (removed, deactivated) — fall through to select-org
@@ -133,7 +133,7 @@ export function useAuth() {
     }
 
     queryClient.invalidateQueries({ queryKey: ['auth'] })
-    router.push('/')
+    router.push('/dashboard')
   }
 
   return {

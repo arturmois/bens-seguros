@@ -85,7 +85,7 @@ export function CreateOrgForm() {
 
       queryClient.invalidateQueries({ queryKey: ['auth'] })
       queryClient.invalidateQueries({ queryKey: ['orgs'] })
-      router.push('/')
+      router.push('/dashboard')
     } catch {
       toast.error('Erro ao criar organização')
     } finally {
