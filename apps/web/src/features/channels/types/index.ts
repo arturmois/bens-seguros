@@ -28,3 +28,24 @@ export interface PairingCodeResultEvent {
   readonly code?: string
   readonly error?: string
 }
+
+export interface AiAgentConfig {
+  readonly id?: string
+  readonly channelId: string
+  readonly tenantId: string
+  readonly systemPrompt: string
+  readonly provider: 'claude' | 'openai'
+  readonly temperature: number
+  readonly maxTokens: number
+  readonly maxResponsesPerConversation: number
+  readonly isActive: boolean
+}
+
+export interface UpdateAiAgentPayload {
+  readonly systemPrompt?: string
+  readonly provider?: 'claude' | 'openai'
+  readonly temperature?: number
+  readonly maxTokens?: number
+  readonly maxResponsesPerConversation?: number
+  readonly isActive?: boolean
+}

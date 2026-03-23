@@ -14,6 +14,7 @@ import {
 
 import type { ChannelData } from '../types'
 import { useChannels } from '../hooks/use-channels'
+import { AiAgentConfigSheet } from './ai-agent-config-sheet'
 import { ChannelFormSheet } from './channel-form-sheet'
 import { ChannelQrDialog } from './channel-qr-dialog'
 import { ChannelsTable, ChannelsTableSkeleton } from './channels-table'
@@ -29,6 +30,9 @@ export function ChannelsPage() {
   const [qrChannel, setQrChannel] = useState<ChannelData | null>(null)
   const [deactivateChannel, setDeactivateChannel] =
     useState<ChannelData | null>(null)
+  const [aiConfigChannelId, setAiConfigChannelId] = useState<string | null>(
+    null
+  )
 
   const handleEdit = useCallback((channel: ChannelData) => {
     setEditingChannel(channel)
@@ -46,6 +50,10 @@ export function ChannelsPage() {
 
   const handleDeactivate = useCallback((channel: ChannelData) => {
     setDeactivateChannel(channel)
+  }, [])
+
+  const handleConfigureAi = useCallback((channelId: string) => {
+    setAiConfigChannelId(channelId)
   }, [])
 
   return (
@@ -74,6 +82,7 @@ export function ChannelsPage() {
         onEdit={handleEdit}
         onQrCode={handleQrCode}
         onDeactivate={handleDeactivate}
+        onConfigureAi={handleConfigureAi}
       />
 
       <ChannelFormSheet
@@ -97,6 +106,14 @@ export function ChannelsPage() {
         }}
         channel={deactivateChannel}
       />
+
+      <AiAgentConfigSheet
+        open={aiConfigChannelId !== null}
+        onOpenChange={(open) => {
+          if (!open) setAiConfigChannelId(null)
+        }}
+        channelId={aiConfigChannelId}
+      />
     </div>
   )
 }
@@ -110,6 +127,7 @@ interface ChannelsContentProps {
   readonly onEdit: (channel: ChannelData) => void
   readonly onQrCode: (channel: ChannelData) => void
   readonly onDeactivate: (channel: ChannelData) => void
+  readonly onConfigureAi: (channelId: string) => void
 }
 
 function ChannelsContent({
@@ -121,6 +139,7 @@ function ChannelsContent({
   onEdit,
   onQrCode,
   onDeactivate,
+  onConfigureAi,
 }: ChannelsContentProps) {
   if (isLoading) {
     return <ChannelsTableSkeleton />
@@ -172,6 +191,7 @@ function ChannelsContent({
       onEdit={onEdit}
       onQrCode={onQrCode}
       onDeactivate={onDeactivate}
+      onConfigureAi={onConfigureAi}
     />
   )
 }
