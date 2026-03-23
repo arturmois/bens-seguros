@@ -20,11 +20,12 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/server/node_modules ./apps/server/node_modules
+COPY --from=deps /app/packages/db/node_modules ./packages/db/node_modules
 COPY . .
 
 # Prisma generate (dummy URL — generate only creates client code, no DB connection)
 ARG DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
-RUN cd packages/db && npx prisma generate
+RUN cd packages/db && ./node_modules/.bin/prisma generate
 
 # Build both apps
 RUN cd apps/server && pnpm build
