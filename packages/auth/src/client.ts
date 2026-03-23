@@ -5,5 +5,8 @@ export function createBetterAuthClient(baseURL: string) {
   return createAuthClient({
     baseURL,
     plugins: [organizationClient()],
+    fetchOptions: {
+      credentials: 'include',
+    },
   })
 }
