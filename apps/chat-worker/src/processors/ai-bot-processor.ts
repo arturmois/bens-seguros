@@ -17,7 +17,6 @@ import {
 } from './ai-bot-helpers.js'
 
 const logger = pino({ name: 'ai-bot-processor' })
-
 export function createAiBotProcessor(
   pubsubClient: PubsubClient,
   sendMessageQueue: Queue
