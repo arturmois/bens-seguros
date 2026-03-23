@@ -49,6 +49,9 @@ export function ChatLayout() {
     sendMessage,
     emitTyping,
     typingUser,
+    loadOlderMessages,
+    isLoadingOlder,
+    hasOlderMessages,
   } = useMessages(selectedConversationId, socket, user?.id)
 
   const currentUserId = user?.id ?? ''
@@ -141,8 +144,11 @@ export function ChatLayout() {
               typingUser={typingUser}
               isLoading={isMessagesLoading}
               isError={isMessagesError}
+              isLoadingOlder={isLoadingOlder}
+              hasOlderMessages={hasOlderMessages}
               onSendMessage={sendMessage}
               onEmitTyping={emitTyping}
+              onLoadOlderMessages={loadOlderMessages}
               onBack={handleBack}
               onOpenProfile={handleOpenProfile}
               onTransfer={handleOpenTransferModal}
@@ -199,8 +205,11 @@ export function ChatLayout() {
               typingUser={typingUser}
               isLoading={isMessagesLoading}
               isError={isMessagesError}
+              isLoadingOlder={isLoadingOlder}
+              hasOlderMessages={hasOlderMessages}
               onSendMessage={sendMessage}
               onEmitTyping={emitTyping}
+              onLoadOlderMessages={loadOlderMessages}
               onBack={handleBack}
               onOpenProfile={handleOpenProfile}
               onTransfer={handleOpenTransferModal}

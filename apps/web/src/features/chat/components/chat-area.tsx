@@ -3,8 +3,8 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { AlertCircle, Send } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { AlertCircle, Loader2, Send } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { ContactData, ConversationData, MessageData } from '../types'
 import { ChatHeader } from './chat-header'
@@ -18,8 +18,11 @@ interface ChatAreaProps {
   readonly typingUser: string | null
   readonly isLoading: boolean
   readonly isError: boolean
+  readonly isLoadingOlder: boolean
+  readonly hasOlderMessages: boolean
   readonly onSendMessage: (text: string) => void
   readonly onEmitTyping: () => void
+  readonly onLoadOlderMessages: () => Promise<void>
   readonly onBack: () => void
   readonly onOpenProfile: () => void
   readonly onTransfer: () => void
@@ -126,8 +129,11 @@ export function ChatArea({
   typingUser,
   isLoading,
   isError,
+  isLoadingOlder,
+  hasOlderMessages,
   onSendMessage,
   onEmitTyping,
+  onLoadOlderMessages,
   onBack,
   onOpenProfile,
   onTransfer,
@@ -135,6 +141,19 @@ export function ChatArea({
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const isAtBottomRef = useRef(true)
   const observerTargetRef = useRef<HTMLDivElement>(null)
+
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      if (
+        e.currentTarget.scrollTop === 0 &&
+        hasOlderMessages &&
+        !isLoadingOlder
+      ) {
+        void onLoadOlderMessages()
+      }
+    },
+    [hasOlderMessages, isLoadingOlder, onLoadOlderMessages]
+  )
 
   useEffect(() => {
     const target = observerTargetRef.current
@@ -179,11 +198,19 @@ export function ChatArea({
       />
 
       {/* Messages */}
-      <div className="chat-scrollbar flex-1 overflow-y-auto p-3 md:p-4">
+      <div
+        className="chat-scrollbar flex-1 overflow-y-auto p-3 md:p-4"
+        onScroll={handleScroll}
+      >
         {isLoading && <MessagesLoading />}
         {isError && !isLoading && <MessagesError />}
         {!isLoading && !isError && (
           <div className="space-y-3">
+            {isLoadingOlder && (
+              <div className="flex justify-center py-2">
+                <Loader2 className="text-muted-foreground h-5 w-5 animate-spin" />
+              </div>
+            )}
             {messages.map((message) => (
               <MessageBubble
                 key={message.id}
