@@ -13,6 +13,7 @@ export interface UpdateChannelPayload {
   readonly name?: string
   readonly phoneNumber?: string
   readonly isActive?: boolean
+  readonly aiAgentId?: string | null
 }
 
 export interface ChannelStatusEvent {
