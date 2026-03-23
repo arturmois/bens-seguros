@@ -21,6 +21,8 @@ export default defineConfig({
     'fastify',
     '@fastify/*',
     '@prisma/client',
+    '@prisma/adapter-pg',
+    'pg',
     'prisma',
     'bullmq',
     'ioredis',
@@ -31,5 +33,8 @@ export default defineConfig({
     'tsyringe',
     'reflect-metadata',
     'zod',
+    '@t3-oss/env-core',
+    'resend',
+    '@aws-sdk/*',
   ],
 })
