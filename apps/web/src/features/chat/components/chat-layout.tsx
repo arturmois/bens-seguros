@@ -1,7 +1,6 @@
 'use client'
 
 import { useAuth } from '@/features/auth/hooks/use-auth'
-import { cn } from '@/lib/utils'
 import { useCallback, useMemo, useState } from 'react'
 
 import { useConversations } from '../hooks/use-conversations'
@@ -9,9 +8,8 @@ import { useMessages } from '../hooks/use-messages'
 import { useSocket } from '../hooks/use-socket'
 import { useUnreadCounts } from '../hooks/use-unread-counts'
 import { ChatActionsProvider } from './chat-actions-context'
-import { ChatArea } from './chat-area'
-import { ContactProfile } from './contact-profile'
-import { ConversationList } from './conversation-list'
+import { DesktopChatLayout } from './desktop-chat-layout'
+import { MobileChatLayout } from './mobile-chat-layout'
 import { TransferAgentModal } from './transfer-agent-modal'
 import { WhatsappStatus } from './whatsapp-status'
 
@@ -110,6 +108,35 @@ export function ChatLayout() {
     setFilters({})
   }, [setFilters])
 
+  const sharedLayoutProps = {
+    conversations,
+    activeConversation,
+    contact,
+    messages,
+    currentUserId,
+    typingUser,
+    selectedConversationId,
+    isConversationsLoading,
+    isConversationsError,
+    isMessagesLoading,
+    isMessagesError,
+    isLoadingOlder,
+    hasOlderMessages,
+    showProfile,
+    filters,
+    unreadCounts,
+    onSelectConversation: handleSelectConversation,
+    onFiltersChange: setFilters,
+    onRetryConversations: handleRetryConversations,
+    onSendMessage: sendMessage,
+    onEmitTyping: emitTyping,
+    onLoadOlderMessages: loadOlderMessages,
+    onBack: handleBack,
+    onOpenProfile: handleOpenProfile,
+    onCloseProfile: handleCloseProfile,
+    onTransfer: handleOpenTransferModal,
+  }
+
   return (
     <ChatActionsProvider value={chatActionsValue}>
       <div className="bg-background flex h-full w-full overflow-hidden">
@@ -118,126 +145,8 @@ export function ChatLayout() {
           <WhatsappStatus isConnected={isConnected} />
         </div>
 
-        {/* Desktop Layout */}
-        <div className="hidden w-full md:flex">
-          <div className="border-border w-80 shrink-0 border-r lg:w-96">
-            <ConversationList
-              conversations={conversations}
-              activeConversationId={selectedConversationId}
-              isLoading={isConversationsLoading}
-              isError={isConversationsError}
-              filters={filters}
-              unreadCounts={unreadCounts}
-              onSelectConversation={handleSelectConversation}
-              onFiltersChange={setFilters}
-              onRetry={handleRetryConversations}
-            />
-          </div>
-
-          <div
-            className={cn(
-              'flex-1 transition-all duration-300',
-              showProfile ? 'mr-80' : ''
-            )}
-          >
-            <ChatArea
-              conversation={activeConversation}
-              contact={contact}
-              messages={messages}
-              currentUserId={currentUserId}
-              typingUser={typingUser}
-              isLoading={isMessagesLoading}
-              isError={isMessagesError}
-              isLoadingOlder={isLoadingOlder}
-              hasOlderMessages={hasOlderMessages}
-              onSendMessage={sendMessage}
-              onEmitTyping={emitTyping}
-              onLoadOlderMessages={loadOlderMessages}
-              onBack={handleBack}
-              onOpenProfile={handleOpenProfile}
-              onTransfer={handleOpenTransferModal}
-            />
-          </div>
-
-          <div
-            className={cn(
-              'border-border fixed right-0 top-0 z-40 h-full w-80 border-l transition-transform duration-300',
-              showProfile ? 'translate-x-0' : 'translate-x-full'
-            )}
-          >
-            {activeConversation && (
-              <ContactProfile
-                contact={contact}
-                conversation={activeConversation}
-                onClose={handleCloseProfile}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Mobile Layout */}
-        <div className="flex w-full md:hidden">
-          <div
-            className={cn(
-              'absolute inset-0 z-10 transition-transform duration-300',
-              mobileView === 'list' ? 'translate-x-0' : '-translate-x-full'
-            )}
-          >
-            <ConversationList
-              conversations={conversations}
-              activeConversationId={selectedConversationId}
-              isLoading={isConversationsLoading}
-              isError={isConversationsError}
-              filters={filters}
-              unreadCounts={unreadCounts}
-              onSelectConversation={handleSelectConversation}
-              onFiltersChange={setFilters}
-              onRetry={handleRetryConversations}
-            />
-          </div>
-
-          <div
-            className={cn(
-              'absolute inset-0 z-20 transition-transform duration-300',
-              mobileView === 'chat' ? 'translate-x-0' : 'translate-x-full'
-            )}
-          >
-            <ChatArea
-              conversation={activeConversation}
-              contact={contact}
-              messages={messages}
-              currentUserId={currentUserId}
-              typingUser={typingUser}
-              isLoading={isMessagesLoading}
-              isError={isMessagesError}
-              isLoadingOlder={isLoadingOlder}
-              hasOlderMessages={hasOlderMessages}
-              onSendMessage={sendMessage}
-              onEmitTyping={emitTyping}
-              onLoadOlderMessages={loadOlderMessages}
-              onBack={handleBack}
-              onOpenProfile={handleOpenProfile}
-              onTransfer={handleOpenTransferModal}
-            />
-          </div>
-
-          <div
-            className={cn(
-              'bg-card absolute inset-0 z-30 transition-transform duration-300',
-              showProfile && mobileView === 'chat'
-                ? 'translate-x-0'
-                : 'translate-x-full'
-            )}
-          >
-            {activeConversation && (
-              <ContactProfile
-                contact={contact}
-                conversation={activeConversation}
-                onClose={handleCloseProfile}
-              />
-            )}
-          </div>
-        </div>
+        <DesktopChatLayout {...sharedLayoutProps} />
+        <MobileChatLayout {...sharedLayoutProps} mobileView={mobileView} />
 
         <TransferAgentModal
           open={showTransferModal}

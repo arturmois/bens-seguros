@@ -1,14 +1,13 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Skeleton } from '@/components/ui/skeleton'
-import { AlertCircle, Loader2, Send } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Loader2 } from 'lucide-react'
+import { useCallback, useEffect, useRef } from 'react'
 
 import type { ContactData, ConversationData, MessageData } from '../types'
 import { ChatHeader } from './chat-header'
+import { EmptyState, MessagesError, MessagesLoading } from './chat-area-states'
 import { MessageBubble } from './message-bubble'
+import { MessageInput } from './message-input'
 
 interface ChatAreaProps {
   readonly conversation: ConversationData | null
@@ -26,99 +25,6 @@ interface ChatAreaProps {
   readonly onBack: () => void
   readonly onOpenProfile: () => void
   readonly onTransfer: () => void
-}
-
-function MessagesLoading() {
-  return (
-    <div className="space-y-4 p-4">
-      {Array.from({ length: 4 }, (_, i) => (
-        <div
-          key={i}
-          className={i % 2 === 0 ? 'flex justify-start' : 'flex justify-end'}
-        >
-          <Skeleton
-            className={`h-12 rounded-2xl ${i % 2 === 0 ? 'w-2/3' : 'w-1/2'}`}
-          />
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function MessagesError() {
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-2">
-      <AlertCircle className="text-destructive h-10 w-10" />
-      <p className="text-muted-foreground text-sm">
-        Erro ao carregar mensagens
-      </p>
-    </div>
-  )
-}
-
-function EmptyState() {
-  return (
-    <div className="bg-(--chat-bg) flex h-full flex-col items-center justify-center">
-      <div className="text-center">
-        <div className="bg-primary/10 mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full">
-          <Send className="text-primary h-10 w-10" />
-        </div>
-        <h2 className="text-foreground mb-2 text-xl font-semibold">
-          Selecione uma conversa
-        </h2>
-        <p className="text-muted-foreground max-w-sm">
-          Escolha uma conversa na lista ao lado para comecar a trocar mensagens
-        </p>
-      </div>
-    </div>
-  )
-}
-
-function MessageInput({
-  onSendMessage,
-  onEmitTyping,
-  disabled,
-}: {
-  readonly onSendMessage: (text: string) => void
-  readonly onEmitTyping: () => void
-  readonly disabled: boolean
-}) {
-  const [inputValue, setInputValue] = useState('')
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (inputValue.trim()) {
-      onSendMessage(inputValue)
-      setInputValue('')
-    }
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value)
-    onEmitTyping()
-  }
-
-  return (
-    <div className="border-border bg-card border-t p-2 md:p-3">
-      <form onSubmit={handleSubmit} className="flex items-center gap-2">
-        <Input
-          value={inputValue}
-          onChange={handleChange}
-          placeholder="Digite uma mensagem..."
-          className="bg-muted/50 focus-visible:ring-primary flex-1 border-0 focus-visible:ring-1"
-          disabled={disabled}
-        />
-        <Button
-          type="submit"
-          size="icon"
-          disabled={!inputValue.trim() || disabled}
-          className="bg-primary hover:bg-primary/90 h-9 w-9 shrink-0"
-        >
-          <Send className="h-4 w-4" />
-        </Button>
-      </form>
-    </div>
-  )
 }
 
 export function ChatArea({
