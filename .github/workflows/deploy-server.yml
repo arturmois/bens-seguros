@@ -27,6 +27,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" pnpm --filter @repo/db exec prisma generate
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
