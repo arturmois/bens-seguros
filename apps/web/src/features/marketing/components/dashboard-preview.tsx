@@ -17,7 +17,7 @@ const BAR_HEIGHTS = [40, 65, 50, 80, 60, 90, 55, 75, 85, 70, 95, 68] as const
 export function DashboardPreview(): React.ReactElement {
   return (
     <div className="animate-float mx-auto mt-16 max-w-4xl">
-      <div className="rounded-2xl border border-white/[0.08] bg-slate-900/80 bg-white/[0.03] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.3)] backdrop-blur-xl">
+      <div className="rounded-2xl border border-white/[0.08] bg-slate-900/80 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.3)] backdrop-blur-xl supports-[backdrop-filter]:bg-white/[0.03]">
         <WindowChrome />
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {STATS.map((stat) => (

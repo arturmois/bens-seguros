@@ -10,7 +10,7 @@ interface FeatureCard {
   description: string
   icon: React.ReactNode
   span: string
-  accentBorder: string
+  hoverBorder: string
   extra?: React.ReactNode
 }
 
@@ -21,7 +21,7 @@ const FEATURES: readonly FeatureCard[] = [
       'Fluxo completo de cotacao a emissao, com automacoes inteligentes e historico rastreavel.',
     icon: <FileText className="text-primary-400 size-6" />,
     span: 'lg:col-span-2',
-    accentBorder: 'border-primary-500/20',
+    hoverBorder: 'hover:border-primary-500/20',
     extra: <WorkflowPills />,
   },
   {
@@ -30,7 +30,7 @@ const FEATURES: readonly FeatureCard[] = [
       'Controle automatico de recebimentos, parcelas e repasses. Nunca mais perca uma comissao.',
     icon: <DollarSign className="text-accent-400 size-6" />,
     span: '',
-    accentBorder: 'border-accent-500/20',
+    hoverBorder: 'hover:border-accent-500/20',
   },
   {
     title: 'Chat + WhatsApp',
@@ -38,7 +38,7 @@ const FEATURES: readonly FeatureCard[] = [
       'Atendimento integrado via WhatsApp com IA. Responda clientes em segundos, nao em dias.',
     icon: <MessageCircle className="size-6 text-emerald-400" />,
     span: '',
-    accentBorder: 'border-emerald-500/20',
+    hoverBorder: 'hover:border-emerald-500/20',
   },
   {
     title: 'Dashboard',
@@ -46,7 +46,7 @@ const FEATURES: readonly FeatureCard[] = [
       'Visao completa da operacao em tempo real. KPIs, graficos e insights para tomar decisoes rapidas.',
     icon: <LayoutDashboard className="size-6 text-indigo-400" />,
     span: 'lg:col-span-2',
-    accentBorder: 'border-indigo-500/20',
+    hoverBorder: 'hover:border-indigo-500/20',
   },
 ] as const
 
@@ -94,12 +94,12 @@ function BentoCard({
   description,
   icon,
   span,
-  accentBorder,
+  hoverBorder,
   extra,
 }: FeatureCard): React.ReactElement {
   return (
     <div
-      className={`rounded-xl border border-white/[0.08] bg-white/[0.03] p-5 transition-colors hover:${accentBorder} ${span}`}
+      className={`rounded-xl border border-white/[0.08] bg-white/[0.03] p-5 transition-colors ${hoverBorder} ${span}`}
     >
       <div className="flex items-center gap-3">
         {icon}

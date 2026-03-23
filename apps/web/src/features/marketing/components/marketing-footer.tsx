@@ -4,7 +4,7 @@ import { Logo } from '@/components/shared/logo'
 const FOOTER_LINKS = [
   { label: 'Termos', href: '#' },
   { label: 'Privacidade', href: '#' },
-  { label: 'Contato', href: '#' },
+  { label: 'Contato', href: '#faq' },
 ] as const
 
 export function MarketingFooter(): React.ReactElement {

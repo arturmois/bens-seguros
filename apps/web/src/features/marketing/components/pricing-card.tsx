@@ -99,7 +99,11 @@ function PriceDisplay({
 
   return (
     <p className="mt-4">
-      <span className="text-3xl font-bold text-slate-900">R${price}</span>
+      <span
+        className={`text-3xl font-bold ${dark ? 'text-white' : 'text-slate-900'}`}
+      >
+        R${price}
+      </span>
       <span className="text-sm text-slate-500">/mes</span>
     </p>
   )

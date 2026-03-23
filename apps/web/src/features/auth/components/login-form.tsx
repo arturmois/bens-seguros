@@ -63,9 +63,12 @@ export function LoginForm() {
           <Label htmlFor="password" className="text-slate-400">
             Senha
           </Label>
-          <a href="#" className="text-accent-500 hover:text-accent-400 text-sm">
+          <span
+            className="text-accent-500/50 cursor-default text-sm"
+            title="Em breve"
+          >
             Esqueceu?
-          </a>
+          </span>
         </div>
         <div className="relative">
           <Input

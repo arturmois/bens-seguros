@@ -4,14 +4,19 @@ import type { NextRequest } from 'next/server'
 const PUBLIC_PATHS = ['/login', '/register', '/api/auth']
 const AUTH_ONLY_PATHS = ['/onboarding', '/select-org', '/accept-invitation']
 
+function getSessionToken(request: NextRequest): string | undefined {
+  return (
+    request.cookies.get('__Secure-better-auth.session_token')?.value ??
+    request.cookies.get('better-auth.session_token')?.value
+  )
+}
+
 export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const sessionToken = getSessionToken(request)
 
   // 1. Landing page — public for unauthenticated, redirect for authenticated
   if (pathname === '/') {
-    const sessionToken =
-      request.cookies.get('__Secure-better-auth.session_token')?.value ??
-      request.cookies.get('better-auth.session_token')?.value
     if (sessionToken) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
@@ -24,9 +29,6 @@ export default function proxy(request: NextRequest) {
   }
 
   // 3. No session — redirect to login
-  const sessionToken =
-    request.cookies.get('__Secure-better-auth.session_token')?.value ??
-    request.cookies.get('better-auth.session_token')?.value
   if (!sessionToken) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
