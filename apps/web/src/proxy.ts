@@ -13,7 +13,9 @@ export default function proxy(request: NextRequest) {
   }
 
   // 2. No session — redirect to login
-  const sessionToken = request.cookies.get('better-auth.session_token')?.value
+  const sessionToken =
+    request.cookies.get('__Secure-better-auth.session_token')?.value ??
+    request.cookies.get('better-auth.session_token')?.value
   if (!sessionToken) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
