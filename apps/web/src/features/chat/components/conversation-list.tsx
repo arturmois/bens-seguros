@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { AlertCircle, MessageCircle, RefreshCw, Search } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 import type {
   ConversationData,
@@ -152,6 +153,15 @@ export function ConversationList({
   onFiltersChange,
   onRetry,
 }: ConversationListProps) {
+  const [searchInput, setSearchInput] = useState(filters.search ?? '')
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    }
+  }, [])
+
   const activeTab: FilterTab = filters.status ?? 'ALL'
 
   const handleTabChange = (tab: FilterTab) => {
@@ -162,10 +172,14 @@ export function ConversationList({
   }
 
   const handleSearchChange = (value: string) => {
-    onFiltersChange({
-      ...filters,
-      search: value.length > 0 ? value : undefined,
-    })
+    setSearchInput(value)
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    searchTimeoutRef.current = setTimeout(() => {
+      onFiltersChange({
+        ...filters,
+        search: value.length > 0 ? value : undefined,
+      })
+    }, 300)
   }
 
   const sortedConversations = [...conversations].sort((a, b) => {
@@ -190,7 +204,7 @@ export function ConversationList({
           <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
           <Input
             placeholder="Buscar conversa..."
-            value={filters.search ?? ''}
+            value={searchInput}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="bg-muted/50 focus-visible:ring-primary border-0 pl-9 focus-visible:ring-1"
           />
