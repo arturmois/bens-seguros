@@ -1,3 +1,4 @@
+import { AnimateOnScroll } from '@/features/marketing/components/animate-on-scroll'
 import { HeroSection } from '@/features/marketing/components/hero-section'
 import { LogosSection } from '@/features/marketing/components/logos-section'
 import { ProblemSection } from '@/features/marketing/components/problem-section'
@@ -11,13 +12,27 @@ export default function MarketingPage(): React.ReactElement {
   return (
     <>
       <HeroSection />
-      <LogosSection />
-      <ProblemSection />
-      <FeaturesSection />
-      <HowItWorksSection />
-      <TestimonialsSection />
-      <PricingSection />
-      <FaqCtaSection />
+      <AnimateOnScroll>
+        <LogosSection />
+      </AnimateOnScroll>
+      <AnimateOnScroll>
+        <ProblemSection />
+      </AnimateOnScroll>
+      <AnimateOnScroll>
+        <FeaturesSection />
+      </AnimateOnScroll>
+      <AnimateOnScroll>
+        <HowItWorksSection />
+      </AnimateOnScroll>
+      <AnimateOnScroll>
+        <TestimonialsSection />
+      </AnimateOnScroll>
+      <AnimateOnScroll>
+        <PricingSection />
+      </AnimateOnScroll>
+      <AnimateOnScroll>
+        <FaqCtaSection />
+      </AnimateOnScroll>
     </>
   )
 }
