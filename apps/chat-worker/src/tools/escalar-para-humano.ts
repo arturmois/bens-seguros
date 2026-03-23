@@ -16,8 +16,22 @@ export function createEscalarParaHumanoTool(
       motivo: z.string().describe('Motivo da transferencia para registro'),
     }),
     execute: async ({ motivo }) => {
+      const conversation = await Conversation.findOne({
+        _id: conversationId,
+        tenantId,
+      })
+        .lean()
+        .exec()
+      if (!conversation || conversation.status !== 'BOT_ACTIVE') {
+        return {
+          transferred: false,
+          motivo,
+          reason: 'Conversa nao esta em atendimento por IA',
+        }
+      }
+
       await Conversation.updateOne(
-        { _id: conversationId, tenantId },
+        { _id: conversationId, tenantId, status: 'BOT_ACTIVE' },
         { $set: { status: 'WAITING_HUMAN' } }
       ).exec()
 

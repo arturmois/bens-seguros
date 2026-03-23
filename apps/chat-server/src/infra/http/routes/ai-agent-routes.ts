@@ -23,10 +23,18 @@ const DEFAULT_AI_AGENT = {
   isActive: false,
 }
 
-function mapAiAgent(doc: Record<string, unknown>): Record<string, unknown> {
-  const { _id, ...rest } = doc
-  delete rest['__v']
-  return { id: String(_id), ...rest }
+function mapAiAgent(doc: {
+  _id: unknown
+  [key: string]: unknown
+}): Record<string, unknown> {
+  const mapped: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(doc)) {
+    if (key !== '_id' && key !== '__v') {
+      mapped[key] = value
+    }
+  }
+  mapped['id'] = String(doc['_id'])
+  return mapped
 }
 
 export async function aiAgentRoutes(app: FastifyInstance): Promise<void> {
@@ -54,7 +62,7 @@ export async function aiAgentRoutes(app: FastifyInstance): Promise<void> {
 
       return reply.send({
         success: true,
-        data: mapAiAgent(agent as unknown as Record<string, unknown>),
+        data: mapAiAgent(agent),
       })
     }
   )
@@ -82,7 +90,7 @@ export async function aiAgentRoutes(app: FastifyInstance): Promise<void> {
 
       return reply.send({
         success: true,
-        data: mapAiAgent(agent as unknown as Record<string, unknown>),
+        data: mapAiAgent(agent),
       })
     }
   )

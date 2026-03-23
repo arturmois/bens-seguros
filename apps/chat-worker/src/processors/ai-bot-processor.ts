@@ -258,6 +258,7 @@ export function createAiBotProcessor(
     if (channel) {
       await sendMessageQueue.add(CHAT_QUEUES.SEND_MESSAGE, {
         messageId: String(savedMessage._id),
+        conversationId,
         channelId,
         tenantId,
         to: conversation.whatsappPhone,

@@ -4,8 +4,7 @@ import pino from 'pino'
 
 const logger = pino({ name: 'captar-lead-tool' })
 
-const INTERNAL_API_URL =
-  process.env['INTERNAL_API_URL'] ?? 'http://localhost:3001'
+const INTERNAL_API_URL = process.env['INTERNAL_API_URL'] ?? ''
 const INTERNAL_API_TOKEN = process.env['INTERNAL_API_TOKEN'] ?? ''
 
 export function createCaptarLeadTool(tenantId: string, contactPhone: string) {
@@ -23,6 +22,18 @@ export function createCaptarLeadTool(tenantId: string, contactPhone: string) {
         .describe('Detalhes adicionais como modelo do carro, endereco, etc'),
     }),
     execute: async ({ nomeCliente, tipoSeguro, detalhes }) => {
+      if (!INTERNAL_API_URL || !INTERNAL_API_TOKEN) {
+        logger.warn(
+          { tenantId },
+          'Internal API not configured, skipping lead capture'
+        )
+        return {
+          success: false,
+          message:
+            'Captacao de lead indisponivel no momento. Um atendente vai ajudar.',
+        }
+      }
+
       try {
         const response = await fetch(`${INTERNAL_API_URL}/api/proposals`, {
           method: 'POST',

@@ -5,6 +5,17 @@ import type {
   GenerateWithToolsResult,
 } from './types.js'
 
+interface ToolResultEntry {
+  readonly toolName: string
+  readonly result: unknown
+}
+
+function isToolResultEntry(value: unknown): value is ToolResultEntry {
+  if (typeof value !== 'object' || value === null) return false
+  if (!('toolName' in value) || !('result' in value)) return false
+  return typeof value.toolName === 'string'
+}
+
 export async function generateWithTools(
   options: GenerateWithToolsOptions
 ): Promise<GenerateWithToolsResult> {
@@ -18,12 +29,16 @@ export async function generateWithTools(
     temperature: options.temperature ?? 0.7,
   })
 
-  const toolResults = result.steps
-    .flatMap((step) => step.toolCalls ?? [])
-    .map((call) => ({
-      toolName: call.toolName,
-      result: call.args,
-    }))
+  const toolResults: ReadonlyArray<{ toolName: string; result: unknown }> =
+    result.steps
+      .flatMap((step) => {
+        const results: unknown[] = Array.from(step.toolResults ?? [])
+        return results.filter(isToolResultEntry)
+      })
+      .map((entry) => ({
+        toolName: entry.toolName,
+        result: entry.result,
+      }))
 
   return {
     text: result.text,
