@@ -6,8 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { FormField } from '@/components/ui/form-field'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -217,39 +217,5 @@ export function ChannelFormSheet({
         </form>
       </SheetContent>
     </Sheet>
-  )
-}
-
-interface FormFieldProps {
-  readonly label: string
-  readonly error?: string
-  readonly required?: boolean
-  readonly helperText?: string
-  readonly children: React.ReactNode
-}
-
-function FormField({
-  label,
-  error,
-  required,
-  helperText,
-  children,
-}: FormFieldProps) {
-  return (
-    <div className="space-y-2">
-      <Label>
-        {label}
-        {required && <span className="text-destructive ml-1">*</span>}
-      </Label>
-      <div aria-required={required || undefined}>{children}</div>
-      {helperText && !error && (
-        <p className="text-muted-foreground text-sm">{helperText}</p>
-      )}
-      {error && (
-        <p role="alert" className="text-destructive text-sm">
-          {error}
-        </p>
-      )}
-    </div>
   )
 }
