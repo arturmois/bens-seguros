@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { AlertCircle, Paperclip, Send, Smile } from 'lucide-react'
+import { AlertCircle, Send } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import type { ContactData, ConversationData, MessageData } from '../types'
@@ -98,24 +98,6 @@ function MessageInput({
   return (
     <div className="border-border bg-card border-t p-2 md:p-3">
       <form onSubmit={handleSubmit} className="flex items-center gap-2">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="text-muted-foreground hover:text-foreground hidden h-9 w-9 shrink-0 md:flex"
-          disabled={disabled}
-        >
-          <Smile className="h-5 w-5" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="text-muted-foreground hover:text-foreground hidden h-9 w-9 shrink-0 md:flex"
-          disabled={disabled}
-        >
-          <Paperclip className="h-5 w-5" />
-        </Button>
         <Input
           value={inputValue}
           onChange={handleChange}
@@ -151,9 +133,24 @@ export function ChatArea({
   onTransfer,
 }: ChatAreaProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const isAtBottomRef = useRef(true)
+  const observerTargetRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (messagesEndRef.current) {
+    const target = observerTargetRef.current
+    if (!target) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isAtBottomRef.current = entry.isIntersecting
+      },
+      { threshold: 0.1 }
+    )
+    observer.observe(target)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (isAtBottomRef.current && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
     }
   }, [messages])
@@ -191,6 +188,7 @@ export function ChatArea({
                 isFromCurrentUser={message.senderId === currentUserId}
               />
             ))}
+            <div ref={observerTargetRef} className="h-1" />
             <div ref={messagesEndRef} />
           </div>
         )}
