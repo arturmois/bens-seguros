@@ -42,6 +42,13 @@ export class SendMessage {
       throw ChatErrors.conversationNotFound(input.conversationId)
     }
 
+    if (!conversation.whatsappPhone) {
+      throw ChatErrors.invalidTransition(
+        conversation.status,
+        'enviar mensagem sem numero WhatsApp'
+      )
+    }
+
     const now = new Date()
 
     const message = await this.messageRepo.create({
