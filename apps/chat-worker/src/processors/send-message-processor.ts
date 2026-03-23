@@ -18,6 +18,7 @@ const PERMANENT_ERROR_CODES = [
 
 export interface SendMessageJobData {
   readonly messageId: string
+  readonly conversationId: string
   readonly channelId: string
   readonly tenantId: string
   readonly to: string
@@ -116,6 +117,7 @@ export function createSendMessageProcessor(
       CHAT_PUBSUB_CHANNELS.MESSAGE_STATUS,
       JSON.stringify({
         messageId,
+        conversationId: job.data.conversationId,
         tenantId,
         status: 'SENT',
         externalId: result.externalId,
