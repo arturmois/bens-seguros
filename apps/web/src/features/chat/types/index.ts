@@ -42,6 +42,7 @@ export interface MessageData {
   readonly text: string | null
   readonly type: MessageType
   readonly status: MessageStatus
+  readonly mediaUrl: string | null
   readonly externalId: string | null
   readonly createdAt: string
 }
