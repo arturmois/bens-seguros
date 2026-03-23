@@ -38,6 +38,10 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/server/package.json apps/server/
 COPY apps/worker/package.json apps/worker/
 COPY packages/db/package.json packages/db/
+COPY packages/env/package.json packages/env/
+COPY packages/auth/package.json packages/auth/
+COPY packages/core/package.json packages/core/
+COPY packages/shared/package.json packages/shared/
 RUN pnpm install --frozen-lockfile --prod --ignore-scripts --shamefully-hoist
 
 # --- RUNNER ---
