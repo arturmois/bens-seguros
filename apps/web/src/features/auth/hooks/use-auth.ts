@@ -23,10 +23,11 @@ export function useAuth() {
     queryKey: ['auth', 'session'],
     queryFn: fetchSession,
     retry: false,
+    staleTime: 30_000,
   })
 
   const login = useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       email,
       password,
       invitationId,
@@ -34,10 +35,13 @@ export function useAuth() {
       email: string
       password: string
       invitationId?: string
-    }) =>
-      authClient.signIn
-        .email({ email, password })
-        .then((res) => ({ ...res, invitationId })),
+    }) => {
+      const response = await authClient.signIn.email({ email, password })
+      if (response.error) {
+        throw new Error(response.error.message ?? 'Falha no login')
+      }
+      return { ...response, invitationId }
+    },
     onSuccess: async (response) => {
       const invitationId = response.invitationId
 
@@ -46,14 +50,13 @@ export function useAuth() {
         return
       }
 
-      queryClient.invalidateQueries({ queryKey: ['auth'] })
-
       // Try to restore last active org from cookie (survives logout)
       const lastOrgId = getActiveOrgCookie()
       if (lastOrgId) {
         try {
           await authClient.organization.setActive({ organizationId: lastOrgId })
           setActiveOrgCookie(lastOrgId)
+          await queryClient.invalidateQueries({ queryKey: ['auth'] })
           router.push('/dashboard')
           return
         } catch {
@@ -61,12 +64,13 @@ export function useAuth() {
         }
       }
 
+      await queryClient.invalidateQueries({ queryKey: ['auth'] })
       router.push('/select-org')
     },
   })
 
   const register = useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       email,
       password,
       name,
@@ -76,10 +80,13 @@ export function useAuth() {
       password: string
       name: string
       invitationId?: string
-    }) =>
-      authClient.signUp
-        .email({ email, password, name })
-        .then((res) => ({ ...res, invitationId })),
+    }) => {
+      const response = await authClient.signUp.email({ email, password, name })
+      if (response.error) {
+        throw new Error(response.error.message ?? 'Falha no cadastro')
+      }
+      return { ...response, invitationId }
+    },
     onSuccess: async (response) => {
       const invitationId = response.invitationId
 

@@ -13,7 +13,7 @@ function isRole(value: string): value is Role {
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const { activeOrg, isLoading } = useOrgs()
 
-  if (isLoading) {
+  if (isLoading || !activeOrg) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-muted-foreground text-sm">Carregando...</div>
@@ -21,7 +21,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     )
   }
 
-  const rawRole = activeOrg?.role ?? ''
+  const rawRole = activeOrg.role
   const role: Role = isRole(rawRole) ? rawRole : DEFAULT_ROLE
 
   return <AppShell role={role}>{children}</AppShell>
