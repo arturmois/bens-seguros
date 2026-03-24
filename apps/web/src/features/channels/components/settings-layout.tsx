@@ -29,7 +29,13 @@ const SETTINGS_SECTIONS: readonly SettingsSidebarItem[] = [
     disabled: false,
     href: '/settings?section=agentes-ia',
   },
-  { id: 'membros', label: 'Membros', icon: Users, disabled: true, href: '#' },
+  {
+    id: 'membros',
+    label: 'Membros',
+    icon: Users,
+    disabled: false,
+    href: '/settings?section=membros',
+  },
   {
     id: 'organizacao',
     label: 'Organizacao',

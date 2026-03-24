@@ -26,6 +26,8 @@ export type Subject =
   | 'Document'
   | 'AuditLog'
   | 'Notification'
+  | 'Member'
+  | 'Invitation'
 
 export type AppAbility = MongoAbility<[Action, Subject]>
 
@@ -54,6 +56,8 @@ export function defineAbilitiesFor(role: Role): AppAbility {
       can('manage', 'User')
       can('manage', 'Notification')
       can('read', 'AuditLog')
+      can(['read', 'update', 'delete'], 'Member')
+      can(['create', 'read', 'delete'], 'Invitation')
       break
 
     case 'MANAGER':
@@ -62,6 +66,8 @@ export function defineAbilitiesFor(role: Role): AppAbility {
       can('approve', 'Commission')
       can('read', 'Notification')
       can('read', 'AuditLog')
+      can('read', 'Member')
+      can('read', 'Invitation')
       break
 
     case 'COMMERCIAL':
@@ -69,6 +75,7 @@ export function defineAbilitiesFor(role: Role): AppAbility {
       can('read', ['Policy', 'Commission', 'Claim'])
       can(['read', 'create'], 'Document')
       can('read', 'Notification')
+      can('read', 'Member')
       break
 
     case 'VIEWER':
