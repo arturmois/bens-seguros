@@ -5,6 +5,7 @@ import rateLimit from '@fastify/rate-limit'
 import swagger from '@fastify/swagger'
 import { createAuth } from '@repo/auth'
 import { env } from '@repo/env'
+import { PINO_REDACT_CONFIG } from '@repo/shared/pino-redact'
 import * as Sentry from '@sentry/node'
 import type { FastifyError } from 'fastify'
 import Fastify from 'fastify'
@@ -40,27 +41,7 @@ export async function buildApp() {
   const app = Fastify({
     logger: {
       level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-      redact: {
-        paths: [
-          'cpf',
-          'cnpj',
-          'email',
-          'phone',
-          'password',
-          'token',
-          'birthDate',
-          'document',
-          'req.body.cpf',
-          'req.body.cnpj',
-          'req.body.email',
-          'req.body.phone',
-          'req.body.password',
-          'req.body.document',
-          'req.headers.authorization',
-          'req.headers.cookie',
-        ],
-        censor: '[REDACTED]',
-      },
+      redact: PINO_REDACT_CONFIG,
     },
     bodyLimit: 10 * 1024 * 1024, // S6: 10MB
   })

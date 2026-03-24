@@ -11,6 +11,7 @@ const SENSITIVE_FIELDS = [
   'email',
   'phone',
   'password',
+  'token',
   'birthDate',
   'document',
 ] as const
@@ -45,17 +46,18 @@ function redactRequestData(
   }
 
   try {
-    let parsed: Record<string, unknown>
     if (typeof request.data === 'string') {
-      parsed = JSON.parse(request.data) as Record<string, unknown>
-      redactSensitiveFields(parsed)
-      request.data = JSON.stringify(parsed)
+      const raw: unknown = JSON.parse(request.data)
+      if (typeof raw === 'object' && raw !== null) {
+        redactSensitiveFields(raw as Record<string, unknown>)
+        request.data = JSON.stringify(raw)
+      }
     } else if (typeof request.data === 'object' && request.data !== null) {
-      parsed = request.data as Record<string, unknown>
-      redactSensitiveFields(parsed)
+      redactSensitiveFields(request.data as Record<string, unknown>)
     }
   } catch {
-    // request.data is not valid JSON -- leave as-is
+    // Intentionally swallowed: cannot log inside Sentry beforeSend,
+    // and throwing would lose the error event
   }
 }
 
