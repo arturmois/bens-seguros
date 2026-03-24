@@ -40,6 +40,27 @@ export async function buildApp() {
   const app = Fastify({
     logger: {
       level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+      redact: {
+        paths: [
+          'cpf',
+          'cnpj',
+          'email',
+          'phone',
+          'password',
+          'token',
+          'birthDate',
+          'document',
+          'req.body.cpf',
+          'req.body.cnpj',
+          'req.body.email',
+          'req.body.phone',
+          'req.body.password',
+          'req.body.document',
+          'req.headers.authorization',
+          'req.headers.cookie',
+        ],
+        censor: '[REDACTED]',
+      },
     },
     bodyLimit: 10 * 1024 * 1024, // S6: 10MB
   })
@@ -72,6 +93,18 @@ export async function buildApp() {
   await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } })
 
   registerDependencies()
+
+  // Prevent caching on all API responses to avoid stale data in browsers
+  app.addHook('onSend', async (request, reply, payload) => {
+    if (request.url.startsWith('/api/')) {
+      void reply.header(
+        'Cache-Control',
+        'no-store, no-cache, must-revalidate, max-age=0'
+      )
+      void reply.header('Pragma', 'no-cache')
+    }
+    return payload
+  })
 
   app.get('/health', async () => ({ status: 'ok' }))
 

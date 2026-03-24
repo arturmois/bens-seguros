@@ -10,7 +10,9 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 export const metadata: Metadata = {
   title: 'Bens Seguros',
   description: 'ERP para corretoras de seguros',
-  icons: { icon: '/icon.svg' },
+  icons: {
+    icon: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({

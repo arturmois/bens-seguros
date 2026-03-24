@@ -13,6 +13,13 @@ const logger = pino({ name: 'policy-expiry-processor' })
 const QUEUE_NAME = 'erp-policy-expiry'
 const EXPIRY_DAYS = 30
 
+const DEFAULT_JOB_OPTIONS = {
+  attempts: 3,
+  backoff: { type: 'exponential' as const, delay: 1000 },
+  removeOnComplete: { age: 3600 },
+  removeOnFail: { age: 86_400 },
+}
+
 function formatDate(date: Date): string {
   return date.toLocaleDateString('pt-BR')
 }
@@ -74,24 +81,28 @@ export function setupPolicyExpiryProcessor(
             frontendUrl,
           })
 
-          await notificationQueue.add('notification', {
-            notification: {
-              organizationId: policy.organizationId,
-              userId: policy.salespersonId,
-              type: 'POLICY_EXPIRING',
-              title: 'Apolice expirando',
-              body: `Apolice ${policy.policyNumber} vence em ${daysUntilExpiry} dias`,
-              entityType: 'Policy',
-              entityId: policy.id,
+          await notificationQueue.add(
+            'notification',
+            {
+              notification: {
+                organizationId: policy.organizationId,
+                userId: policy.salespersonId,
+                type: 'POLICY_EXPIRING',
+                title: 'Apolice expirando',
+                body: `Apolice ${policy.policyNumber} vence em ${daysUntilExpiry} dias`,
+                entityType: 'Policy',
+                entityId: policy.id,
+              },
+              email: policy.salesperson.email
+                ? {
+                    to: policy.salesperson.email,
+                    subject: `Apolice ${policy.policyNumber} expira em ${daysUntilExpiry} dias`,
+                    html: emailHtml,
+                  }
+                : undefined,
             },
-            email: policy.salesperson.email
-              ? {
-                  to: policy.salesperson.email,
-                  subject: `Apolice ${policy.policyNumber} expira em ${daysUntilExpiry} dias`,
-                  html: emailHtml,
-                }
-              : undefined,
-          })
+            DEFAULT_JOB_OPTIONS
+          )
         }
 
         // Notify managers
@@ -106,17 +117,21 @@ export function setupPolicyExpiryProcessor(
         for (const manager of managers) {
           if (manager.userId === policy.salespersonId) continue
 
-          await notificationQueue.add('notification', {
-            notification: {
-              organizationId: policy.organizationId,
-              userId: manager.userId,
-              type: 'POLICY_EXPIRING',
-              title: 'Apolice expirando',
-              body: `Apolice ${policy.policyNumber} vence em ${daysUntilExpiry} dias`,
-              entityType: 'Policy',
-              entityId: policy.id,
+          await notificationQueue.add(
+            'notification',
+            {
+              notification: {
+                organizationId: policy.organizationId,
+                userId: manager.userId,
+                type: 'POLICY_EXPIRING',
+                title: 'Apolice expirando',
+                body: `Apolice ${policy.policyNumber} vence em ${daysUntilExpiry} dias`,
+                entityType: 'Policy',
+                entityId: policy.id,
+              },
             },
-          })
+            DEFAULT_JOB_OPTIONS
+          )
         }
       }
 

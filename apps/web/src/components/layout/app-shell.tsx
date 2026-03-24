@@ -1,7 +1,8 @@
 'use client'
 
 import type { Role } from '@repo/auth/roles'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
+import { useMediaQuery } from '@/hooks/use-media-query'
 import { Header } from './header'
 import { Sidebar } from './sidebar'
 
@@ -11,16 +12,12 @@ interface AppShellProps {
 }
 
 export function AppShell({ role, children }: AppShellProps) {
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return window.innerWidth < 800
+  })
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768)
-    check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
+  const isMobile = useMediaQuery('max-md')
 
   const handleToggle = useCallback(() => {
     if (isMobile) {

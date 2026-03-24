@@ -17,6 +17,13 @@ import {
 } from './ai-bot-helpers.js'
 
 const logger = pino({ name: 'ai-bot-processor' })
+
+const DEFAULT_JOB_OPTIONS = {
+  attempts: 3,
+  backoff: { type: 'exponential' as const, delay: 1000 },
+  removeOnComplete: { age: 3600 },
+  removeOnFail: { age: 86_400 },
+}
 export function createAiBotProcessor(
   pubsubClient: PubsubClient,
   sendMessageQueue: Queue
@@ -191,15 +198,19 @@ export function createAiBotProcessor(
     )
 
     if (channel) {
-      await sendMessageQueue.add(CHAT_QUEUES.SEND_MESSAGE, {
-        messageId: String(savedMessage._id),
-        conversationId,
-        channelId,
-        tenantId,
-        to: conversation.whatsappPhone,
-        text: responseText,
-        type: 'TEXT',
-      })
+      await sendMessageQueue.add(
+        CHAT_QUEUES.SEND_MESSAGE,
+        {
+          messageId: String(savedMessage._id),
+          conversationId,
+          channelId,
+          tenantId,
+          to: conversation.whatsappPhone,
+          text: responseText,
+          type: 'TEXT',
+        },
+        DEFAULT_JOB_OPTIONS
+      )
     }
 
     logger.info(
