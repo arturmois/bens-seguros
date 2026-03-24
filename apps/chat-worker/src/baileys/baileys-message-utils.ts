@@ -7,7 +7,7 @@ import type {
   StatusUpdate,
 } from '../messaging/broker.js'
 
-const WHATSAPP_JID_SUFFIX = '@s.whatsapp.net'
+export const WHATSAPP_JID_SUFFIX = '@s.whatsapp.net'
 
 type MessageContentType =
   | 'TEXT'

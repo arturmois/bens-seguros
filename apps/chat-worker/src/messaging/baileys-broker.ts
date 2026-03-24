@@ -16,6 +16,7 @@ import {
   toIncomingMessage,
   mapWAStatusUpdate,
   shouldReconnect,
+  WHATSAPP_JID_SUFFIX,
 } from '../baileys/baileys-message-utils.js'
 import type {
   Broker,
@@ -167,7 +168,7 @@ export class BaileysBroker implements Broker {
 
       for (const msg of messages) {
         if (msg.key.fromMe) continue
-        if (msg.key.remoteJid?.endsWith('@g.us')) continue
+        if (!msg.key.remoteJid?.endsWith(WHATSAPP_JID_SUFFIX)) continue
 
         events.onMessage(toIncomingMessage(msg))
       }
