@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { container } from 'tsyringe'
 import { z } from 'zod'
-import { AiAgent } from '@repo/db-chat'
+import { Channel } from '@repo/db-chat'
 
 import { GetConversation } from '../../../application/get-conversation.js'
 import { ListConversations } from '../../../application/list-conversations.js'
@@ -81,10 +81,9 @@ export async function conversationRoutes(app: FastifyInstance): Promise<void> {
         const useCase = container.resolve(GetConversation)
         const result = await useCase.execute(id, tenantId)
 
-        const aiAgent = await AiAgent.findOne({
+        const channel = await Channel.findOne({
+          _id: result.conversation.channelId,
           tenantId,
-          channelId: result.conversation.channelId,
-          isActive: true,
         })
           .lean()
           .exec()
@@ -95,7 +94,7 @@ export async function conversationRoutes(app: FastifyInstance): Promise<void> {
             ...result,
             conversation: {
               ...result.conversation,
-              hasAiAgent: Boolean(aiAgent),
+              hasAiAgent: Boolean(channel?.aiAgentId),
             },
           },
         })

@@ -18,7 +18,6 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import {
-  Bot,
   LogOut,
   MoreVertical,
   RefreshCw,
@@ -40,7 +39,7 @@ export function HeaderActions({
   currentUserId,
   onTransfer,
 }: HeaderActionsProps) {
-  const { assignConversation, returnToBot, returnToQueue, closeConversation } =
+  const { assignConversation, returnToQueue, closeConversation } =
     useChatActions()
   const [showCloseConfirm, setShowCloseConfirm] = useState(false)
 
@@ -79,14 +78,6 @@ export function HeaderActions({
               <UserCheck className="mr-2 h-4 w-4" />
               Transferir
             </DropdownMenuItem>
-            {conversation.hasAiAgent && (
-              <DropdownMenuItem
-                onClick={() => returnToBot.mutate(conversation.id)}
-              >
-                <Bot className="mr-2 h-4 w-4" />
-                Voltar para IA
-              </DropdownMenuItem>
-            )}
             <DropdownMenuItem
               onClick={() => returnToQueue.mutate(conversation.id)}
             >

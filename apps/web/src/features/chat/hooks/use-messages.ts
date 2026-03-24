@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { Socket } from 'socket.io-client'
 import { SOCKET_EVENTS, CHAT_LIMITS } from '@repo/shared'
@@ -186,8 +186,18 @@ export function useMessages(
     }
   }, [conversationId, queryClient, isLoadingOlder, hasOlderMessages])
 
+  const rawMessages = query.data?.messages.data ?? []
+  const messages = useMemo(() => {
+    const seen = new Set<string>()
+    return rawMessages.filter((msg) => {
+      if (seen.has(msg.id)) return false
+      seen.add(msg.id)
+      return true
+    })
+  }, [rawMessages])
+
   return {
-    messages: query.data?.messages.data ?? [],
+    messages,
     contact: query.data?.contact ?? null,
     conversation: query.data?.conversation ?? null,
     isLoading: query.isLoading,

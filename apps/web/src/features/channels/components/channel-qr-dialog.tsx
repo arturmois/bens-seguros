@@ -3,6 +3,7 @@
 import { SOCKET_EVENTS } from '@repo/shared'
 import { QrCode, Smartphone } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -80,6 +81,7 @@ export function ChannelQrDialog({
   channel,
 }: ChannelQrDialogProps) {
   const { socket } = useSocket()
+  const queryClient = useQueryClient()
   const [qrData, setQrData] = useState<string | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -113,13 +115,14 @@ export function ChannelQrDialog({
         setPairingCode(null)
         setPairingLoading(false)
         toast.success('Canal conectado com sucesso')
+        void queryClient.invalidateQueries({ queryKey: ['channels'] })
 
         autoCloseTimerRef.current = globalThis.setTimeout(() => {
           onOpenChange(false)
         }, AUTO_CLOSE_DELAY_MS)
       }
     },
-    [channel, onOpenChange]
+    [channel, onOpenChange, queryClient]
   )
 
   const handlePairingCodeResult = useCallback(
