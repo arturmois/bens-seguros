@@ -57,6 +57,11 @@ function handleMemberError(error: unknown, reply: FastifyReply): FastifyReply {
   throw error
 }
 
+function toRole(value: string): Role {
+  if (value in ROLE_HIERARCHY) return value as Role
+  throw new RoleHierarchyError()
+}
+
 function assertCanManageRole(callerRole: Role, targetRole: Role): void {
   if (ROLE_HIERARCHY[callerRole] <= ROLE_HIERARCHY[targetRole]) {
     throw new RoleHierarchyError()
@@ -119,34 +124,34 @@ export async function memberRoutes(app: FastifyInstance) {
     '/api/v1/members/:id/role',
     { preHandler: [requireAbility('update', 'Member')] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { id } = idParamSchema.parse(request.params)
-      const { role: newRole } = changeMemberRoleBodySchema.parse(request.body)
-      const organizationId = request.organizationId!
-      const callerRole = request.role!
-
-      const member = await prisma.member.findFirst({
-        where: { id, organizationId, active: true },
-      })
-
-      if (!member) throw new MemberNotFoundError(id)
-      if (member.userId === request.user!.id) throw new SelfRemovalError()
-
-      assertCanManageRole(callerRole, member.role as Role)
-      assertCanManageRole(callerRole, newRole as Role)
-
-      if (member.role === 'OWNER') {
-        const ownerCount = await prisma.member.count({
-          where: { organizationId, role: 'OWNER', active: true },
-        })
-        if (ownerCount <= 1) throw new LastOwnerError()
-      }
-
-      const updated = await prisma.member.update({
-        where: { id },
-        data: { role: newRole },
-      })
-
       try {
+        const { id } = idParamSchema.parse(request.params)
+        const { role: newRole } = changeMemberRoleBodySchema.parse(request.body)
+        const organizationId = request.organizationId!
+        const callerRole = request.role!
+
+        const member = await prisma.member.findFirst({
+          where: { id, organizationId, active: true },
+        })
+
+        if (!member) throw new MemberNotFoundError(id)
+        if (member.userId === request.user!.id) throw new SelfRemovalError()
+
+        assertCanManageRole(callerRole, toRole(member.role))
+        assertCanManageRole(callerRole, toRole(newRole))
+
+        if (member.role === 'OWNER') {
+          const ownerCount = await prisma.member.count({
+            where: { organizationId, role: 'OWNER', active: true },
+          })
+          if (ownerCount <= 1) throw new LastOwnerError()
+        }
+
+        const updated = await prisma.member.update({
+          where: { id },
+          data: { role: newRole },
+        })
+
         auditUpdate({
           request,
           entityType: 'Member',
@@ -154,11 +159,11 @@ export async function memberRoutes(app: FastifyInstance) {
           before: { role: member.role },
           after: { role: newRole },
         })
-      } catch {
-        // audit is non-critical
-      }
 
-      return reply.send({ success: true, data: updated })
+        return reply.send({ success: true, data: updated })
+      } catch (error) {
+        return handleMemberError(error, reply)
+      }
     }
   )
 
@@ -167,42 +172,42 @@ export async function memberRoutes(app: FastifyInstance) {
     '/api/v1/members/:id',
     { preHandler: [requireAbility('delete', 'Member')] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { id } = idParamSchema.parse(request.params)
-      const organizationId = request.organizationId!
-      const callerRole = request.role!
-
-      const member = await prisma.member.findFirst({
-        where: { id, organizationId, active: true },
-      })
-
-      if (!member) throw new MemberNotFoundError(id)
-      if (member.userId === request.user!.id) throw new SelfRemovalError()
-      assertCanManageRole(callerRole, member.role as Role)
-
-      if (member.role === 'OWNER') {
-        const ownerCount = await prisma.member.count({
-          where: { organizationId, role: 'OWNER', active: true },
-        })
-        if (ownerCount <= 1) throw new LastOwnerError()
-      }
-
-      await prisma.member.update({
-        where: { id },
-        data: { active: false },
-      })
-
       try {
+        const { id } = idParamSchema.parse(request.params)
+        const organizationId = request.organizationId!
+        const callerRole = request.role!
+
+        const member = await prisma.member.findFirst({
+          where: { id, organizationId, active: true },
+        })
+
+        if (!member) throw new MemberNotFoundError(id)
+        if (member.userId === request.user!.id) throw new SelfRemovalError()
+        assertCanManageRole(callerRole, toRole(member.role))
+
+        if (member.role === 'OWNER') {
+          const ownerCount = await prisma.member.count({
+            where: { organizationId, role: 'OWNER', active: true },
+          })
+          if (ownerCount <= 1) throw new LastOwnerError()
+        }
+
+        await prisma.member.update({
+          where: { id },
+          data: { active: false },
+        })
+
         auditDelete({
           request,
           entityType: 'Member',
           entityId: id,
           before: { role: member.role, userId: member.userId },
         })
-      } catch {
-        // audit is non-critical
-      }
 
-      return reply.send({ success: true, data: { id } })
+        return reply.send({ success: true, data: { id } })
+      } catch (error) {
+        return handleMemberError(error, reply)
+      }
     }
   )
 
@@ -257,7 +262,7 @@ export async function memberRoutes(app: FastifyInstance) {
       const callerRole = request.role!
 
       try {
-        assertCanManageRole(callerRole, role as Role)
+        assertCanManageRole(callerRole, toRole(role))
 
         const existingMember = await prisma.member.findFirst({
           where: {
@@ -340,32 +345,32 @@ export async function memberRoutes(app: FastifyInstance) {
     '/api/v1/invitations/:id',
     { preHandler: [requireAbility('delete', 'Invitation')] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { id } = idParamSchema.parse(request.params)
-      const organizationId = request.organizationId!
-
-      const invitation = await prisma.invitation.findFirst({
-        where: { id, organizationId, status: 'pending' },
-      })
-
-      if (!invitation) throw new InvitationNotFoundError(id)
-
-      await prisma.invitation.update({
-        where: { id },
-        data: { status: 'canceled' },
-      })
-
       try {
+        const { id } = idParamSchema.parse(request.params)
+        const organizationId = request.organizationId!
+
+        const invitation = await prisma.invitation.findFirst({
+          where: { id, organizationId, status: 'pending' },
+        })
+
+        if (!invitation) throw new InvitationNotFoundError(id)
+
+        await prisma.invitation.update({
+          where: { id },
+          data: { status: 'canceled' },
+        })
+
         auditDelete({
           request,
           entityType: 'Invitation',
           entityId: id,
           before: { email: invitation.email, role: invitation.role },
         })
-      } catch {
-        // audit is non-critical
-      }
 
-      return reply.send({ success: true, data: { id } })
+        return reply.send({ success: true, data: { id } })
+      } catch (error) {
+        return handleMemberError(error, reply)
+      }
     }
   )
 }

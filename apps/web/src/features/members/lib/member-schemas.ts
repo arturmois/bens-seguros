@@ -1,3 +1,4 @@
+import { ROLE_HIERARCHY } from '@repo/auth/roles'
 import { z } from 'zod'
 
 export const inviteMemberSchema = z.object({
@@ -24,10 +25,11 @@ export const ASSIGNABLE_ROLES = [
   'VIEWER',
 ] as const
 
-export const ROLE_HIERARCHY: Record<string, number> = {
-  OWNER: 5,
-  ADMIN: 4,
-  MANAGER: 3,
-  COMMERCIAL: 2,
-  VIEWER: 1,
+export { ROLE_HIERARCHY } from '@repo/auth/roles'
+
+export function getRoleLevel(role: string): number {
+  if (role in ROLE_HIERARCHY) {
+    return ROLE_HIERARCHY[role as keyof typeof ROLE_HIERARCHY]
+  }
+  return 0
 }

@@ -13,7 +13,7 @@ import {
 import { useChangeMemberRole } from '../hooks/use-members'
 import {
   ASSIGNABLE_ROLES,
-  ROLE_HIERARCHY,
+  getRoleLevel,
   ROLE_LABELS,
 } from '../lib/member-schemas'
 
@@ -24,10 +24,8 @@ interface ChangeRoleSelectProps {
 }
 
 function getAvailableRoles(callerRole: string): readonly string[] {
-  const callerLevel = ROLE_HIERARCHY[callerRole] ?? 0
-  return ASSIGNABLE_ROLES.filter(
-    (role) => (ROLE_HIERARCHY[role] ?? 0) < callerLevel
-  )
+  const callerLevel = getRoleLevel(callerRole)
+  return ASSIGNABLE_ROLES.filter((role) => getRoleLevel(role) < callerLevel)
 }
 
 export function ChangeRoleSelect({

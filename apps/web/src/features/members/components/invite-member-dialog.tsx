@@ -28,7 +28,7 @@ import {
   ASSIGNABLE_ROLES,
   inviteMemberSchema,
   type InviteMemberFormValues,
-  ROLE_HIERARCHY,
+  getRoleLevel,
   ROLE_LABELS,
 } from '../lib/member-schemas'
 
@@ -39,10 +39,8 @@ interface InviteMemberDialogProps {
 }
 
 function getAssignableRolesForCaller(callerRole: string) {
-  const callerLevel = ROLE_HIERARCHY[callerRole] ?? 0
-  return ASSIGNABLE_ROLES.filter(
-    (role) => (ROLE_HIERARCHY[role] ?? 0) < callerLevel
-  )
+  const callerLevel = getRoleLevel(callerRole)
+  return ASSIGNABLE_ROLES.filter((role) => getRoleLevel(role) < callerLevel)
 }
 
 const DEFAULT_VALUES: InviteMemberFormValues = {
