@@ -11,7 +11,7 @@ import type {
   UploadResult,
 } from '../domain/storage-provider.js'
 
-const DEFAULT_SIGNED_URL_EXPIRY = 3600
+const DEFAULT_SIGNED_URL_EXPIRY = 900
 
 export class R2StorageProvider implements StorageProvider {
   private readonly client: S3Client

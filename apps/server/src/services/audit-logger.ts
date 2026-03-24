@@ -46,7 +46,10 @@ export function auditCreate(ctx: AuditContext): void {
     entityId: ctx.entityId,
     after: toJson(ctx.after),
   }).catch((err: unknown) => {
-    ctx.request.log.warn({ err }, 'Audit logging failed (non-critical)')
+    ctx.request.log.warn(
+      { err, operation: 'audit-create' },
+      'Audit logging failed (non-critical)'
+    )
   })
 }
 
@@ -58,7 +61,10 @@ export function auditUpdate(ctx: AuditContext): void {
     before: toJson(ctx.before),
     after: toJson(ctx.after),
   }).catch((err: unknown) => {
-    ctx.request.log.warn({ err }, 'Audit logging failed (non-critical)')
+    ctx.request.log.warn(
+      { err, operation: 'audit-update' },
+      'Audit logging failed (non-critical)'
+    )
   })
 }
 
@@ -69,7 +75,10 @@ export function auditDelete(ctx: AuditContext): void {
     entityId: ctx.entityId,
     before: toJson(ctx.before),
   }).catch((err: unknown) => {
-    ctx.request.log.warn({ err }, 'Audit logging failed (non-critical)')
+    ctx.request.log.warn(
+      { err, operation: 'audit-delete' },
+      'Audit logging failed (non-critical)'
+    )
   })
 }
 
@@ -80,7 +89,10 @@ export function auditApprove(ctx: AuditContext): void {
     entityId: ctx.entityId,
     after: toJson(ctx.after),
   }).catch((err: unknown) => {
-    ctx.request.log.warn({ err }, 'Audit logging failed (non-critical)')
+    ctx.request.log.warn(
+      { err, operation: 'audit-approve' },
+      'Audit logging failed (non-critical)'
+    )
   })
 }
 
@@ -91,6 +103,9 @@ export function auditReject(ctx: AuditContext): void {
     entityId: ctx.entityId,
     after: toJson(ctx.after),
   }).catch((err: unknown) => {
-    ctx.request.log.warn({ err }, 'Audit logging failed (non-critical)')
+    ctx.request.log.warn(
+      { err, operation: 'audit-reject' },
+      'Audit logging failed (non-critical)'
+    )
   })
 }

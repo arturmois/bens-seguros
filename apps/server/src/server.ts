@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/node'
+import { stripPiiFromEvent } from '@repo/shared/sentry-pii'
 import { buildApp } from './app.js'
 
 if (process.env.SENTRY_DSN) {
@@ -6,6 +7,9 @@ if (process.env.SENTRY_DSN) {
     dsn: process.env.SENTRY_DSN,
     environment: process.env.NODE_ENV,
     tracesSampleRate: 0.2,
+    beforeSend(event) {
+      return stripPiiFromEvent(event)
+    },
   })
 }
 

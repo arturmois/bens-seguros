@@ -1,9 +1,17 @@
 import type { NotificationJobData } from '@repo/core'
 import { env } from '@repo/env'
+import type { BulkJobOptions } from 'bullmq'
 import { Queue } from 'bullmq'
 import pino from 'pino'
 
 const logger = pino({ name: 'notification-enqueuer' })
+
+const DEFAULT_JOB_OPTIONS: BulkJobOptions = {
+  attempts: 3,
+  backoff: { type: 'exponential', delay: 1000 },
+  removeOnComplete: { age: 3600 },
+  removeOnFail: { age: 86_400 },
+}
 
 let notificationQueue: Queue<NotificationJobData> | null = null
 
@@ -40,7 +48,7 @@ export async function enqueueNotification(
   data: NotificationJobData
 ): Promise<void> {
   try {
-    await getQueue().add('notification', data)
+    await getQueue().add('notification', data, DEFAULT_JOB_OPTIONS)
   } catch (err: unknown) {
     logger.error(
       { err, type: data.notification.type },
@@ -54,7 +62,13 @@ export async function enqueueNotifications(
 ): Promise<void> {
   const queue = getQueue()
   try {
-    await queue.addBulk(items.map((data) => ({ name: 'notification', data })))
+    await queue.addBulk(
+      items.map((data) => ({
+        name: 'notification',
+        data,
+        opts: DEFAULT_JOB_OPTIONS,
+      }))
+    )
   } catch (err: unknown) {
     logger.error(
       { err, count: items.length },

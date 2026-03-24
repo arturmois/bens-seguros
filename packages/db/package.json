@@ -15,12 +15,12 @@
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.0.0",
-    "@prisma/client": "^7.4.0",
+    "@prisma/client": "^7.5.0",
     "pg": "^8.13.0"
   },
   "devDependencies": {
     "@config/typescript-config": "workspace:*",
-    "prisma": "^7.4.0",
+    "prisma": "^7.5.0",
     "typescript": "^5.9.0"
   }
 }

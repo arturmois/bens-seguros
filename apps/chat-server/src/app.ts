@@ -11,6 +11,7 @@ import type IORedis from 'ioredis'
 import { Server } from 'socket.io'
 
 import { chatAuthMiddleware } from './infra/http/middleware/chat-auth-middleware.js'
+import { PINO_REDACT_CONFIG } from './infra/logger.js'
 import { aiAgentRoutes } from './infra/http/routes/ai-agent-routes.js'
 import { channelRoutes } from './infra/http/routes/channel-routes.js'
 import { conversationRoutes } from './infra/http/routes/conversation-routes.js'
@@ -39,6 +40,7 @@ export async function buildChatApp(
   const app = Fastify({
     logger: {
       level: env.NODE_ENV === 'production' ? 'info' : 'debug',
+      redact: PINO_REDACT_CONFIG,
     },
   })
 

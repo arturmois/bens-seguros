@@ -5,6 +5,7 @@ import rateLimit from '@fastify/rate-limit'
 import swagger from '@fastify/swagger'
 import { createAuth } from '@repo/auth'
 import { env } from '@repo/env'
+import { PINO_REDACT_CONFIG } from '@repo/shared/pino-redact'
 import * as Sentry from '@sentry/node'
 import type { FastifyError } from 'fastify'
 import Fastify from 'fastify'
@@ -40,6 +41,7 @@ export async function buildApp() {
   const app = Fastify({
     logger: {
       level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+      redact: PINO_REDACT_CONFIG,
     },
     bodyLimit: 10 * 1024 * 1024, // S6: 10MB
   })
@@ -72,6 +74,18 @@ export async function buildApp() {
   await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } })
 
   registerDependencies()
+
+  // Prevent caching on all API responses to avoid stale data in browsers
+  app.addHook('onSend', async (request, reply, payload) => {
+    if (request.url.startsWith('/api/')) {
+      void reply.header(
+        'Cache-Control',
+        'no-store, no-cache, must-revalidate, max-age=0'
+      )
+      void reply.header('Pragma', 'no-cache')
+    }
+    return payload
+  })
 
   app.get('/health', async () => ({ status: 'ok' }))
 

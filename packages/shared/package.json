@@ -6,7 +6,9 @@
   "exports": {
     ".": "./src/index.ts",
     "./api-types": "./src/api-types.ts",
-    "./socket-events": "./src/socket-events.ts"
+    "./socket-events": "./src/socket-events.ts",
+    "./sentry-pii": "./src/sentry-pii.ts",
+    "./pino-redact": "./src/pino-redact.ts"
   },
   "dependencies": {
     "zod": "^3.24.0"

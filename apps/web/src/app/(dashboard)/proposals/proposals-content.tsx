@@ -1,11 +1,38 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useState } from 'react'
 import { Columns3, List } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { ProposalKanban } from '@/features/proposals/components/proposal-kanban'
+import { Skeleton } from '@/components/ui/skeleton'
 import { ProposalsTable } from '@/features/proposals/components/proposals-table'
+
+function KanbanSkeleton() {
+  return (
+    <div className="flex gap-4 overflow-x-auto pb-4">
+      {Array.from({ length: 4 }, (_, i) => (
+        <div key={i} className="w-72 shrink-0 space-y-3">
+          <Skeleton className="h-8 w-full rounded-md" />
+          <Skeleton className="h-28 w-full rounded-md" />
+          <Skeleton className="h-28 w-full rounded-md" />
+          <Skeleton className="h-28 w-full rounded-md" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+const ProposalKanban = dynamic(
+  () =>
+    import('@/features/proposals/components/proposal-kanban').then(
+      (m) => m.ProposalKanban
+    ),
+  {
+    loading: () => <KanbanSkeleton />,
+    ssr: false,
+  }
+)
 
 type ViewMode = 'table' | 'kanban'
 

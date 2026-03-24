@@ -48,6 +48,13 @@ const bullmqConnection = {
   maxRetriesPerRequest: null as null,
 }
 
+const DEFAULT_JOB_OPTIONS = {
+  attempts: 3,
+  backoff: { type: 'exponential' as const, delay: 1000 },
+  removeOnComplete: { age: 3600 },
+  removeOnFail: { age: 86_400 },
+}
+
 // IORedis instance used only for pub/sub publishing
 const pubsubRedis = new IORedis(REDIS_URL, { maxRetriesPerRequest: null })
 
@@ -60,17 +67,21 @@ function buildChannelEvents(
   return {
     onMessage: (msg: IncomingMessage) => {
       incomingQueue
-        .add('incoming', {
-          channelId,
-          tenantId,
-          from: msg.from,
-          pushName: msg.pushName,
-          text: msg.text,
-          type: msg.type,
-          mediaUrl: msg.mediaUrl,
-          externalId: msg.externalId,
-          timestamp: msg.timestamp.toISOString(),
-        })
+        .add(
+          'incoming',
+          {
+            channelId,
+            tenantId,
+            from: msg.from,
+            pushName: msg.pushName,
+            text: msg.text,
+            type: msg.type,
+            mediaUrl: msg.mediaUrl,
+            externalId: msg.externalId,
+            timestamp: msg.timestamp.toISOString(),
+          },
+          DEFAULT_JOB_OPTIONS
+        )
         .catch((err: unknown) => {
           logger.error(
             { err, channelId, tenantId },
@@ -147,7 +158,11 @@ async function bootstrap(): Promise<void> {
   await autoCloseQueue.add(
     'auto-close',
     {},
-    { repeat: { pattern: '0 * * * *' }, jobId: 'auto-close-repeatable' }
+    {
+      ...DEFAULT_JOB_OPTIONS,
+      repeat: { pattern: '0 * * * *' },
+      jobId: 'auto-close-repeatable',
+    }
   )
 
   const workerDefaults = {

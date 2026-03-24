@@ -6,6 +6,13 @@ import type { PubsubClient } from '../types/pubsub-client.js'
 
 const logger = pino({ name: 'incoming-message-processor' })
 
+const DEFAULT_JOB_OPTIONS = {
+  attempts: 3,
+  backoff: { type: 'exponential' as const, delay: 1000 },
+  removeOnComplete: { age: 3600 },
+  removeOnFail: { age: 86_400 },
+}
+
 export interface IncomingMessageJobData {
   readonly channelId: string
   readonly tenantId: string
@@ -194,11 +201,15 @@ export function createIncomingMessageProcessor(
     )
 
     if (conversationStatus === 'BOT_ACTIVE') {
-      await aiBotQueue.add('ai-bot', {
-        conversationId,
-        tenantId,
-        messageId: String(savedMessage._id),
-      })
+      await aiBotQueue.add(
+        'ai-bot',
+        {
+          conversationId,
+          tenantId,
+          messageId: String(savedMessage._id),
+        },
+        DEFAULT_JOB_OPTIONS
+      )
     }
 
     logger.info(

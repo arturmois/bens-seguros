@@ -11,3 +11,5 @@ export interface AppLogger {
   fatal(msg: string): void
   fatal(obj: Record<string, unknown>, msg: string): void
 }
+
+export { PINO_REDACT_CONFIG } from '@repo/shared/pino-redact'

@@ -1,5 +1,6 @@
 import { connectMongoDB } from '@repo/db-chat'
 import { env } from '@repo/env'
+import { stripPiiFromEvent } from '@repo/shared/sentry-pii'
 import * as Sentry from '@sentry/node'
 import IORedis from 'ioredis'
 import pino from 'pino'
@@ -10,15 +11,20 @@ if (process.env.SENTRY_DSN) {
     dsn: process.env.SENTRY_DSN,
     environment: process.env.NODE_ENV,
     tracesSampleRate: 0.2,
+    beforeSend(event) {
+      return stripPiiFromEvent(event)
+    },
   })
 }
 
 import { buildChatApp } from './app.js'
 import { registerDependencies } from './infra/di/registry.js'
+import { PINO_REDACT_CONFIG } from './infra/logger.js'
 import { RedisSubscriber } from './infra/pubsub/redis-subscriber.js'
 
 const logger = pino({
   level: env.NODE_ENV === 'production' ? 'info' : 'debug',
+  redact: PINO_REDACT_CONFIG,
 })
 
 function parseRedisUrl(url: string): {
