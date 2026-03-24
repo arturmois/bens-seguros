@@ -10,7 +10,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from '@/components/ui/select'
 import type { AiAgentData } from '@/features/ai-agents/types'
 import type { ChannelFormValues } from '../lib/schemas'
@@ -18,6 +17,14 @@ import type { ChannelFormValues } from '../lib/schemas'
 interface ChannelAiAgentSelectProps {
   readonly control: Control<ChannelFormValues>
   readonly agents: AiAgentData[] | undefined
+}
+
+function getDisplayLabel(
+  value: string | null | undefined,
+  agents: AiAgentData[] | undefined
+): string {
+  if (!value || value === 'none') return 'Nenhum'
+  return agents?.find((a) => a.id === value)?.name ?? 'Selecione um agente'
 }
 
 export function ChannelAiAgentSelect({
@@ -35,7 +42,9 @@ export function ChannelAiAgentSelect({
             onValueChange={(v) => field.onChange(v === 'none' ? null : v)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Selecione um agente" />
+              <span className="flex-1 truncate">
+                {getDisplayLabel(field.value, agents)}
+              </span>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="none">Nenhum</SelectItem>

@@ -1,7 +1,6 @@
 import 'reflect-metadata'
 import { inject, injectable } from 'tsyringe'
 
-import { ConversationEntity } from '../domain/conversation.js'
 import { ChatErrors } from '../domain/errors.js'
 import type { ConversationRepository } from '../domain/ports/conversation-repository.js'
 import type { MessageRepository } from '../domain/ports/message-repository.js'
@@ -24,29 +23,21 @@ export class CloseConversation {
   ) {}
 
   async execute(input: CloseConversationInput): Promise<ConversationData> {
-    const existing = await this.conversationRepo.findById(
-      input.conversationId,
-      input.tenantId
-    )
-
-    if (!existing) {
-      throw ChatErrors.conversationNotFound(input.conversationId)
-    }
-
-    const entity = ConversationEntity.restore(existing)
-    entity.close(input.closedBy)
-
     const now = new Date()
 
-    const updated = await this.conversationRepo.updateStatus(
+    const updated = await this.conversationRepo.atomicTransition(
       input.conversationId,
       input.tenantId,
+      ['BOT_ACTIVE', 'WAITING_HUMAN', 'HUMAN_ACTIVE'],
       'CLOSED',
       { closedAt: now, closedBy: input.closedBy }
     )
 
     if (!updated) {
-      throw ChatErrors.conversationNotFound(input.conversationId)
+      throw ChatErrors.invalidTransition(
+        'CLOSED',
+        'fechar conversa (ja fechada ou estado alterado concorrentemente)'
+      )
     }
 
     await this.messageRepo.create({

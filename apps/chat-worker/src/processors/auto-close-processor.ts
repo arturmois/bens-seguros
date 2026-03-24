@@ -21,8 +21,8 @@ async function closeConversation(
 ): Promise<void> {
   const closedAt = new Date()
 
-  await Conversation.updateOne(
-    { _id: conversationId, tenantId },
+  const result = await Conversation.updateOne(
+    { _id: conversationId, tenantId, status: { $ne: 'CLOSED' } },
     {
       $set: {
         status: 'CLOSED',
@@ -31,6 +31,11 @@ async function closeConversation(
       },
     }
   ).exec()
+
+  if (result.modifiedCount === 0) {
+    logger.debug({ conversationId }, 'Conversation already closed, skipping')
+    return
+  }
 
   await Message.create({
     conversationId,

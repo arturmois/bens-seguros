@@ -43,7 +43,9 @@ export class GetConversation {
     }
 
     const [messages, contact] = await Promise.all([
-      this.messageRepo.findByConversation(conversationId, { limit: 50 }),
+      this.messageRepo.findByConversation(conversationId, tenantId, {
+        limit: 50,
+      }),
       this.contactRepo.findById(conversation.contactId, tenantId),
     ])
 

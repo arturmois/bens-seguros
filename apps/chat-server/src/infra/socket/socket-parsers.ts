@@ -30,11 +30,15 @@ interface SendMessageData {
   readonly text: string
 }
 
+const MAX_MESSAGE_TEXT_LENGTH = 4096
+
 export function parseSendMessageData(data: unknown): SendMessageData | null {
   if (!isRecord(data)) return null
   if (typeof data['conversationId'] !== 'string') return null
   if (typeof data['text'] !== 'string') return null
-  return { conversationId: data['conversationId'], text: data['text'] }
+  const text = data['text']
+  if (text.length === 0 || text.length > MAX_MESSAGE_TEXT_LENGTH) return null
+  return { conversationId: data['conversationId'], text }
 }
 
 interface CatchUpData {
@@ -51,6 +55,7 @@ export function parseCatchUpData(data: unknown): CatchUpData | null {
   const ids = (data['conversationIds'] as unknown[]).filter(
     (id): id is string => typeof id === 'string'
   )
+  if (ids.length === 0 || ids.length > 100) return null
   return { conversationIds: ids, after: new Date(timestamp) }
 }
 

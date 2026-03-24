@@ -255,6 +255,7 @@ function registerCatchUpEvent(
         container.resolve<MessageRepository>('MessageRepository')
       const messages = await messageRepo.findAfterTimestamp(
         catchUpData.conversationIds,
+        user.organizationId,
         catchUpData.after,
         CHAT_LIMITS.CATCH_UP_MAX_MESSAGES
       )

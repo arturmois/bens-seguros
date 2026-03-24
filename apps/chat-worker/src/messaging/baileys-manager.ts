@@ -146,6 +146,8 @@ export async function disconnectAll(): Promise<void> {
   await Promise.all(tasks)
 }
 
+// Cross-tenant by design: worker reconnects all tenants' Baileys channels on startup.
+// Each channel includes tenantId for tenant-scoped event routing.
 export async function loadActiveChannels(
   createEvents: (channelId: string, tenantId: string) => BrokerEvents
 ): Promise<void> {

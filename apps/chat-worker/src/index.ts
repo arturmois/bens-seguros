@@ -222,12 +222,28 @@ async function bootstrap(): Promise<void> {
     { ...workerDefaults, concurrency: 1 }
   )
 
+  const disconnectChannelWorker = new Worker(
+    CHAT_QUEUES.DISCONNECT_CHANNEL,
+    async (job) => {
+      const channelId = String(job.data['channelId'] ?? '')
+      logger.info({ channelId }, 'Disconnecting deactivated channel')
+      await BaileysManager.disconnectChannel(channelId)
+      await BaileysManager.cleanupSession(channelId)
+      await qrStateManager.clearState(channelId)
+    },
+    { ...workerDefaults, concurrency: 2 }
+  )
+
   attachWorkerErrorLogger(sendWorker, CHAT_QUEUES.SEND_MESSAGE)
   attachWorkerErrorLogger(incomingWorker, CHAT_QUEUES.PROCESS_INCOMING)
   attachWorkerErrorLogger(aiBotWorker, CHAT_QUEUES.AI_BOT)
   attachWorkerErrorLogger(autoCloseWorker, CHAT_QUEUES.AUTO_CLOSE)
   attachWorkerErrorLogger(connectChannelWorker, CHAT_QUEUES.CONNECT_CHANNEL)
   attachWorkerErrorLogger(pairChannelWorker, CHAT_QUEUES.PAIR_CHANNEL)
+  attachWorkerErrorLogger(
+    disconnectChannelWorker,
+    CHAT_QUEUES.DISCONNECT_CHANNEL
+  )
 
   // Media migration: weekly cron to move old media to R2
   const mediaMigrationQueue = new Queue('chat-media-migration', {
@@ -264,6 +280,7 @@ async function bootstrap(): Promise<void> {
       autoCloseWorker.close(),
       connectChannelWorker.close(),
       pairChannelWorker.close(),
+      disconnectChannelWorker.close(),
       mediaMigrationWorker.close(),
     ])
 

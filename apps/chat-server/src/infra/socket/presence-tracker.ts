@@ -88,7 +88,7 @@ export class PresenceTracker {
   private broadcastStatus(orgId: string): void {
     const agents = this.getOnlineAgents(orgId)
     this.io
-      .to(`lobby:${orgId}`)
+      .to(`tenant:${orgId}:lobby`)
       .emit(SOCKET_EVENTS.AGENT_STATUS_UPDATE, { agents })
   }
 }

@@ -166,6 +166,38 @@ export class MongooseConversationRepository implements ConversationRepository {
     return toConversationData(doc as unknown as MongooseConversationDoc)
   }
 
+  async atomicTransition(
+    id: string,
+    tenantId: string,
+    fromStatus: ConversationStatus | ReadonlyArray<ConversationStatus>,
+    toStatus: ConversationStatus,
+    fields?: Partial<ConversationData>
+  ): Promise<ConversationData | null> {
+    const statusFilter = Array.isArray(fromStatus)
+      ? { $in: fromStatus }
+      : fromStatus
+
+    const updateFields: Record<string, unknown> = { status: toStatus }
+
+    if (fields?.assignedTo !== undefined)
+      updateFields['assignedTo'] = fields.assignedTo
+    if (fields?.assignedToName !== undefined)
+      updateFields['assignedToName'] = fields.assignedToName
+    if (fields?.closedAt !== undefined)
+      updateFields['closedAt'] = fields.closedAt
+    if (fields?.closedBy !== undefined)
+      updateFields['closedBy'] = fields.closedBy
+
+    const doc = await Conversation.findOneAndUpdate(
+      { _id: id, tenantId, status: statusFilter },
+      { $set: updateFields },
+      { returnDocument: 'after' }
+    ).lean()
+
+    if (!doc) return null
+    return toConversationData(doc as unknown as MongooseConversationDoc)
+  }
+
   async atomicAssign(
     id: string,
     tenantId: string,
@@ -205,6 +237,8 @@ export class MongooseConversationRepository implements ConversationRepository {
     )
   }
 
+  // Cross-tenant by design: auto-close cron job processes all tenants' stale conversations.
+  // Each returned conversation includes tenantId for downstream tenant-scoped operations.
   async findStaleConversations(
     olderThan: Date,
     limit: number

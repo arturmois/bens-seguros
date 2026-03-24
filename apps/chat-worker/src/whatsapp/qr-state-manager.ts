@@ -66,4 +66,12 @@ export class QrStateManager {
       ),
     ])
   }
+
+  /** Remove all Redis state for a deactivated channel */
+  async clearState(channelId: string): Promise<void> {
+    await Promise.all([
+      this.redis.del(WHATSAPP_STATE_KEYS.state(channelId)),
+      this.redis.del(WHATSAPP_STATE_KEYS.lastQr(channelId)),
+    ])
+  }
 }

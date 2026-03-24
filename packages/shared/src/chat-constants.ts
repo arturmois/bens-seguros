@@ -4,6 +4,7 @@ export const CHAT_QUEUES = {
   AI_BOT: 'chat-ai-bot',
   AUTO_CLOSE: 'chat-auto-close',
   CONNECT_CHANNEL: 'chat-connect-channel',
+  DISCONNECT_CHANNEL: 'chat-disconnect-channel',
   PAIR_CHANNEL: 'chat-pair-channel',
   DEAD_LETTER: 'chat-dead-letter',
 } as const

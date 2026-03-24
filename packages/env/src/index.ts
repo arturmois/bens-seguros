@@ -32,6 +32,9 @@ export const env = createEnv({
     STORAGE_PROVIDER: z.enum(['local', 'r2']).default('local'),
     // SEC-1: PII encryption key (see SECURITY-SPEC.md)
     ENCRYPTION_KEY: z.string().min(32).optional(),
+    // Internal API for lead capture from AI bot
+    INTERNAL_API_URL: z.string().url().optional(),
+    INTERNAL_API_TOKEN: z.string().min(1).optional(),
   },
   clientPrefix: 'NEXT_PUBLIC_',
   client: {

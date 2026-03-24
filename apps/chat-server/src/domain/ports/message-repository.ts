@@ -5,6 +5,7 @@ export interface MessageRepository {
 
   findByConversation(
     conversationId: string,
+    tenantId: string,
     page: CursorPage
   ): Promise<Page<MessageData>>
 
@@ -13,10 +14,15 @@ export interface MessageRepository {
     tenantId: string
   ): Promise<MessageData | null>
 
-  updateStatus(id: string, status: MessageStatus): Promise<void>
+  updateStatus(
+    id: string,
+    tenantId: string,
+    status: MessageStatus
+  ): Promise<void>
 
   findAfterTimestamp(
     conversationIds: string[],
+    tenantId: string,
     after: Date,
     limit: number
   ): Promise<MessageData[]>

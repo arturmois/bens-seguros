@@ -136,7 +136,7 @@ export function createIncomingMessageProcessor(
       channelId,
       contactId,
       phone: from,
-      hasAiUser: Boolean(channel.aiUserId),
+      hasAiUser: Boolean(channel.aiAgentId),
     })
 
     const savedMessage = await Message.create({
@@ -208,7 +208,15 @@ export function createIncomingMessageProcessor(
           tenantId,
           messageId: String(savedMessage._id),
         },
-        DEFAULT_JOB_OPTIONS
+        {
+          ...DEFAULT_JOB_OPTIONS,
+          // Deduplicate: only one AI bot job per conversation at a time.
+          // removeOnComplete/removeOnFail: true ensures the jobId is freed
+          // immediately so subsequent messages can trigger new AI jobs.
+          jobId: `ai-bot-${conversationId}`,
+          removeOnComplete: true,
+          removeOnFail: true,
+        }
       )
     }
 

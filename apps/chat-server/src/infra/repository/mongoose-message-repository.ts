@@ -66,9 +66,10 @@ export class MongooseMessageRepository implements MessageRepository {
 
   async findByConversation(
     conversationId: string,
+    tenantId: string,
     page: CursorPage
   ): Promise<Page<MessageData>> {
-    const query: Record<string, unknown> = { conversationId }
+    const query: Record<string, unknown> = { conversationId, tenantId }
 
     if (page.cursor) {
       query['_id'] = { $lt: page.cursor }
@@ -79,7 +80,7 @@ export class MongooseMessageRepository implements MessageRepository {
         .sort({ createdAt: -1, _id: -1 })
         .limit(page.limit)
         .lean(),
-      Message.countDocuments({ conversationId }),
+      Message.countDocuments({ conversationId, tenantId }),
     ])
 
     const items = (docs as unknown as MongooseMessageDoc[]).map(toMessageData)
@@ -107,17 +108,23 @@ export class MongooseMessageRepository implements MessageRepository {
     return toMessageData(doc as unknown as MongooseMessageDoc)
   }
 
-  async updateStatus(id: string, status: MessageStatus): Promise<void> {
-    await Message.updateOne({ _id: id }, { $set: { status } })
+  async updateStatus(
+    id: string,
+    tenantId: string,
+    status: MessageStatus
+  ): Promise<void> {
+    await Message.updateOne({ _id: id, tenantId }, { $set: { status } })
   }
 
   async findAfterTimestamp(
     conversationIds: string[],
+    tenantId: string,
     after: Date,
     limit: number
   ): Promise<MessageData[]> {
     const docs = await Message.find({
       conversationId: { $in: conversationIds },
+      tenantId,
       createdAt: { $gt: after },
     })
       .sort({ createdAt: 1 })

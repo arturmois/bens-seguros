@@ -21,7 +21,7 @@ const updateChannelBodySchema = z.object({
   phoneNumber: z.string().optional(),
   isActive: z.boolean().optional(),
   aiUserId: z.string().optional(),
-  aiAgentId: z.string().nullable().optional(),
+  aiAgentId: z.string().min(1).nullable().optional(),
 })
 
 const pairChannelBodySchema = z.object({
@@ -52,7 +52,7 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
     async (request: FastifyRequest, reply: FastifyReply) => {
       const tenantId = request.organizationId
 
-      const docs = await Channel.find({ tenantId })
+      const docs = await Channel.find({ tenantId, isActive: { $ne: false } })
         .sort({ createdAt: -1 })
         .lean()
       const channels = docs.map((doc) =>
@@ -153,6 +153,14 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
 
       if (!channel) {
         return reply.status(404).send(buildChannelNotFoundResponse(id))
+      }
+
+      if (channel.brokerType === 'BAILEYS') {
+        const queueProducer = container.resolve<QueueProducer>('QueueProducer')
+        await queueProducer.enqueue(CHAT_QUEUES.DISCONNECT_CHANNEL, {
+          channelId: id,
+          tenantId,
+        })
       }
 
       return reply.send({

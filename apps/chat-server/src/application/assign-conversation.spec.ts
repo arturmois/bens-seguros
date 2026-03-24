@@ -38,6 +38,7 @@ function createMockRepo(
     findMany: vi.fn(),
     create: vi.fn(),
     updateStatus: vi.fn(),
+    atomicTransition: vi.fn(),
     atomicAssign: vi.fn().mockResolvedValue(atomicAssignResult),
     updateLastMessage: vi.fn(),
     findStaleConversations: vi.fn(),

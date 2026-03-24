@@ -1,11 +1,11 @@
 import { tool } from 'ai'
 import { z } from 'zod'
 import pino from 'pino'
+import { env } from '@repo/env'
 
 const logger = pino({ name: 'captar-lead-tool' })
 
-const INTERNAL_API_URL = process.env['INTERNAL_API_URL'] ?? ''
-const INTERNAL_API_TOKEN = process.env['INTERNAL_API_TOKEN'] ?? ''
+const FETCH_TIMEOUT_MS = 10_000
 
 export function createCaptarLeadTool(tenantId: string, contactPhone: string) {
   return tool({
@@ -22,7 +22,7 @@ export function createCaptarLeadTool(tenantId: string, contactPhone: string) {
         .describe('Detalhes adicionais como modelo do carro, endereco, etc'),
     }),
     execute: async ({ nomeCliente, tipoSeguro, detalhes }) => {
-      if (!INTERNAL_API_URL || !INTERNAL_API_TOKEN) {
+      if (!env.INTERNAL_API_URL || !env.INTERNAL_API_TOKEN) {
         logger.warn(
           { tenantId },
           'Internal API not configured, skipping lead capture'
@@ -35,21 +35,25 @@ export function createCaptarLeadTool(tenantId: string, contactPhone: string) {
       }
 
       try {
-        const response = await fetch(`${INTERNAL_API_URL}/api/internal/leads`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Internal-Token': INTERNAL_API_TOKEN,
-            'X-Tenant-Id': tenantId,
-          },
-          body: JSON.stringify({
-            clientName: nomeCliente,
-            clientPhone: contactPhone,
-            insuranceType: tipoSeguro,
-            notes: detalhes ?? '',
-            source: 'WHATSAPP_BOT',
-          }),
-        })
+        const response = await fetch(
+          `${env.INTERNAL_API_URL}/api/internal/leads`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Internal-Token': env.INTERNAL_API_TOKEN,
+              'X-Tenant-Id': tenantId,
+            },
+            body: JSON.stringify({
+              clientName: nomeCliente,
+              clientPhone: contactPhone,
+              insuranceType: tipoSeguro,
+              notes: detalhes ?? '',
+              source: 'WHATSAPP_BOT',
+            }),
+            signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+          }
+        )
 
         if (!response.ok) {
           logger.error(

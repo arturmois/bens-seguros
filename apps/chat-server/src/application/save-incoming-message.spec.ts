@@ -78,6 +78,7 @@ function createMockConversationRepo(
     findMany: vi.fn(),
     create: vi.fn().mockImplementation(async (data) => data),
     updateStatus: vi.fn(),
+    atomicTransition: vi.fn(),
     atomicAssign: vi.fn(),
     updateLastMessage: vi.fn().mockResolvedValue(undefined),
     findStaleConversations: vi.fn(),

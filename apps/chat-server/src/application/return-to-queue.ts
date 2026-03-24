@@ -1,7 +1,6 @@
 import 'reflect-metadata'
 import { inject, injectable } from 'tsyringe'
 
-import { ConversationEntity } from '../domain/conversation.js'
 import { ChatErrors } from '../domain/errors.js'
 import type { ConversationRepository } from '../domain/ports/conversation-repository.js'
 import type { MessageRepository } from '../domain/ports/message-repository.js'
@@ -22,27 +21,19 @@ export class ReturnToQueue {
   ) {}
 
   async execute(input: ReturnToQueueInput): Promise<ConversationData> {
-    const existing = await this.conversationRepo.findById(
-      input.conversationId,
-      input.tenantId
-    )
-
-    if (!existing) {
-      throw ChatErrors.conversationNotFound(input.conversationId)
-    }
-
-    const entity = ConversationEntity.restore(existing)
-    entity.returnToQueue()
-
-    const updated = await this.conversationRepo.updateStatus(
+    const updated = await this.conversationRepo.atomicTransition(
       input.conversationId,
       input.tenantId,
+      'HUMAN_ACTIVE',
       'WAITING_HUMAN',
       { assignedTo: null, assignedToName: null }
     )
 
     if (!updated) {
-      throw ChatErrors.conversationNotFound(input.conversationId)
+      throw ChatErrors.invalidTransition(
+        'HUMAN_ACTIVE',
+        'devolver para fila (nao encontrada ou estado alterado concorrentemente)'
+      )
     }
 
     await this.messageRepo.create({

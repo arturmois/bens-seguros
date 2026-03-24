@@ -127,15 +127,25 @@ export function createAiBotProcessor(
       ),
     }
 
-    const result = await generateWithTools({
-      systemPrompt,
-      messages,
-      tools,
-      provider: config.provider,
-      maxTokens: config.maxTokens,
-      temperature: config.temperature,
-      maxSteps: 3,
-    })
+    let result: Awaited<ReturnType<typeof generateWithTools>>
+    try {
+      result = await generateWithTools({
+        systemPrompt,
+        messages,
+        tools,
+        provider: config.provider,
+        maxTokens: config.maxTokens,
+        temperature: config.temperature,
+        maxSteps: 3,
+      })
+    } catch (err: unknown) {
+      logger.error(
+        { err, conversationId, tenantId },
+        'AI generation failed, escalating to human'
+      )
+      await escalateToHuman(conversationId, tenantId, pubsubClient)
+      return
+    }
 
     const wasEscalated = result.toolResults.some(
       (tr) => tr.toolName === ESCALATION_TOOL_NAME
@@ -153,8 +163,9 @@ export function createAiBotProcessor(
     if (!responseText) {
       logger.warn(
         { conversationId, tenantId, steps: result.steps },
-        'AI returned empty response'
+        'AI returned empty response, escalating to human'
       )
+      await escalateToHuman(conversationId, tenantId, pubsubClient)
       return
     }
 
@@ -197,21 +208,19 @@ export function createAiBotProcessor(
       })
     )
 
-    if (channel) {
-      await sendMessageQueue.add(
-        CHAT_QUEUES.SEND_MESSAGE,
-        {
-          messageId: String(savedMessage._id),
-          conversationId,
-          channelId,
-          tenantId,
-          to: conversation.whatsappPhone,
-          text: responseText,
-          type: 'TEXT',
-        },
-        DEFAULT_JOB_OPTIONS
-      )
-    }
+    await sendMessageQueue.add(
+      CHAT_QUEUES.SEND_MESSAGE,
+      {
+        messageId: String(savedMessage._id),
+        conversationId,
+        channelId,
+        tenantId,
+        to: conversation.whatsappPhone,
+        text: responseText,
+        type: 'TEXT',
+      },
+      DEFAULT_JOB_OPTIONS
+    )
 
     logger.info(
       {

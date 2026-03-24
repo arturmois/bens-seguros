@@ -29,6 +29,14 @@ export interface ConversationRepository {
     fields?: Partial<ConversationData>
   ): Promise<ConversationData | null>
 
+  atomicTransition(
+    id: string,
+    tenantId: string,
+    fromStatus: ConversationStatus | ReadonlyArray<ConversationStatus>,
+    toStatus: ConversationStatus,
+    fields?: Partial<ConversationData>
+  ): Promise<ConversationData | null>
+
   atomicAssign(
     id: string,
     tenantId: string,

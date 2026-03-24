@@ -1,7 +1,6 @@
 import 'reflect-metadata'
 import { inject, injectable } from 'tsyringe'
 
-import { ConversationEntity } from '../domain/conversation.js'
 import { ChatErrors } from '../domain/errors.js'
 import type { ConversationRepository } from '../domain/ports/conversation-repository.js'
 import type { MessageRepository } from '../domain/ports/message-repository.js'
@@ -31,21 +30,10 @@ export class TransferConversation {
       )
     }
 
-    const existing = await this.conversationRepo.findById(
-      input.conversationId,
-      input.tenantId
-    )
-
-    if (!existing) {
-      throw ChatErrors.conversationNotFound(input.conversationId)
-    }
-
-    const entity = ConversationEntity.restore(existing)
-    entity.transfer(input.targetAgentId, input.targetAgentName)
-
-    const updated = await this.conversationRepo.updateStatus(
+    const updated = await this.conversationRepo.atomicTransition(
       input.conversationId,
       input.tenantId,
+      'HUMAN_ACTIVE',
       'HUMAN_ACTIVE',
       {
         assignedTo: input.targetAgentId,
@@ -54,7 +42,10 @@ export class TransferConversation {
     )
 
     if (!updated) {
-      throw ChatErrors.conversationNotFound(input.conversationId)
+      throw ChatErrors.invalidTransition(
+        'HUMAN_ACTIVE',
+        'transferir conversa (nao encontrada ou estado alterado concorrentemente)'
+      )
     }
 
     await this.messageRepo.create({

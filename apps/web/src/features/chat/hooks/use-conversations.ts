@@ -7,7 +7,7 @@ import { SOCKET_EVENTS } from '@repo/shared'
 import { toast } from 'sonner'
 
 import { chatApi } from '../lib/chat-api'
-import { CONVERSATIONS_KEY } from '../lib/constants'
+import { CONVERSATIONS_KEY, MESSAGES_KEY } from '../lib/constants'
 import { isRecord } from '../lib/type-guards'
 import type { ConversationData, ConversationFilters, ListMeta } from '../types'
 
@@ -47,9 +47,18 @@ export function useConversations(socket: Socket | null) {
     staleTime: 60_000,
   })
 
-  const handleConversationUpdated = useCallback(() => {
-    void queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_KEY] })
-  }, [queryClient])
+  const handleConversationUpdated = useCallback(
+    (payload: unknown) => {
+      void queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_KEY] })
+
+      if (isRecord(payload) && typeof payload['conversationId'] === 'string') {
+        void queryClient.invalidateQueries({
+          queryKey: [MESSAGES_KEY, payload['conversationId']],
+        })
+      }
+    },
+    [queryClient]
+  )
 
   const handleIncomingMessage = useCallback(
     (payload: unknown) => {
@@ -96,8 +105,9 @@ export function useConversations(socket: Socket | null) {
       )
       return response.data
     },
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       void queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_KEY] })
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES_KEY, id] })
       toast.success('Conversa atribuída com sucesso')
     },
     onError: () => {
@@ -124,8 +134,9 @@ export function useConversations(socket: Socket | null) {
       )
       return response.data
     },
-    onSuccess: () => {
+    onSuccess: (_data, { id }) => {
       void queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_KEY] })
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES_KEY, id] })
       toast.success('Conversa transferida com sucesso')
     },
     onError: () => {
@@ -141,8 +152,9 @@ export function useConversations(socket: Socket | null) {
       )
       return response.data
     },
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       void queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_KEY] })
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES_KEY, id] })
       toast.success('Conversa devolvida à fila')
     },
     onError: () => {
@@ -158,8 +170,9 @@ export function useConversations(socket: Socket | null) {
       )
       return response.data
     },
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       void queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_KEY] })
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES_KEY, id] })
       toast.success('Conversa devolvida para a IA')
     },
     onError: () => {
@@ -175,8 +188,9 @@ export function useConversations(socket: Socket | null) {
       )
       return response.data
     },
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       void queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_KEY] })
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES_KEY, id] })
       toast.success('Conversa encerrada com sucesso')
     },
     onError: () => {
