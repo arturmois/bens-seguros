@@ -53,9 +53,12 @@ export function createAuth(
       minPasswordLength: 8,
     },
     advanced: {
-      crossSubDomainCookies: isProduction
-        ? { enabled: true, domain: cookieDomain }
-        : undefined,
+      crossSubDomainCookies:
+        isProduction && cookieDomain
+          ? { enabled: true, domain: cookieDomain }
+          : undefined,
+      defaultCookieAttributes:
+        isProduction && cookieDomain ? { domain: cookieDomain } : undefined,
     },
     session: {
       expiresIn: 60 * 60 * 24 * 7, // 7 days
