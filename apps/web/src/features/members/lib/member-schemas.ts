@@ -1,0 +1,33 @@
+import { z } from 'zod'
+
+export const inviteMemberSchema = z.object({
+  email: z.string().email('Email invalido'),
+  role: z.enum(['ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'], {
+    required_error: 'Selecione um cargo',
+  }),
+})
+
+export type InviteMemberFormValues = z.infer<typeof inviteMemberSchema>
+
+export const ROLE_LABELS: Record<string, string> = {
+  OWNER: 'Proprietario',
+  ADMIN: 'Administrador',
+  MANAGER: 'Gerente',
+  COMMERCIAL: 'Comercial',
+  VIEWER: 'Visualizador',
+}
+
+export const ASSIGNABLE_ROLES = [
+  'ADMIN',
+  'MANAGER',
+  'COMMERCIAL',
+  'VIEWER',
+] as const
+
+export const ROLE_HIERARCHY: Record<string, number> = {
+  OWNER: 5,
+  ADMIN: 4,
+  MANAGER: 3,
+  COMMERCIAL: 2,
+  VIEWER: 1,
+}
