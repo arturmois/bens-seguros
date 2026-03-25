@@ -16,6 +16,7 @@ import { TransferConversation } from '../../application/transfer-conversation.js
 import type { MessageRepository } from '../../domain/ports/message-repository.js'
 import { PresenceTracker } from './presence-tracker.js'
 import type { SocketUserData } from './socket-auth.js'
+import { isMessageAllowed } from './message-rate-limiter.js'
 import {
   formatError,
   parseCatchUpData,
@@ -173,6 +174,18 @@ function registerMessageEvents(
   socket.on(
     SOCKET_EVENTS.SEND_MESSAGE,
     async (data: unknown, ack?: unknown) => {
+      if (!isMessageAllowed(user.userId)) {
+        logger.warn({ userId: user.userId }, 'Message rate limit exceeded')
+        if (typeof ack === 'function')
+          ack({
+            success: false,
+            error: {
+              code: 'RATE_LIMIT_EXCEEDED',
+              message: 'Too many messages. Slow down.',
+            },
+          })
+        return
+      }
       try {
         const msgData = parseSendMessageData(data)
         if (!msgData) return
