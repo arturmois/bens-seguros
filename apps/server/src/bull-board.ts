@@ -11,6 +11,7 @@ const QUEUE_NAMES = [
   'chat-send-message',
   'chat-incoming-message',
   'chat-ai-bot',
+  'csv-import',
 ]
 
 function parseRedisUrl(url: string): {

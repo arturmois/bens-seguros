@@ -3,6 +3,9 @@ import { container } from '@repo/core'
 import {
   CreateClient,
   ExportClientsCsv,
+  ParseClientImport,
+  CsvImportError,
+  MAX_IMPORT_FILE_SIZE,
   ListClients,
   GetClient,
   UpdateClient,
@@ -23,6 +26,14 @@ import {
   listClientsQuerySchema,
   idParamSchema,
 } from '../../schemas/client.schemas.js'
+import { importJobIdParamSchema } from '../../schemas/import.schemas.js'
+import {
+  stageImportData,
+  retrieveStagedData,
+  removeStagedData,
+  enqueueImportJob,
+  getImportJobStatus,
+} from '../../services/csv-import-enqueuer.js'
 
 function handleClientError(error: unknown, reply: FastifyReply) {
   if (error instanceof ClientNotFoundError) {
@@ -83,6 +94,142 @@ export async function clientRoutes(app: FastifyInstance) {
         .header('Content-Type', 'text/csv')
         .header('Content-Disposition', 'attachment; filename="clientes.csv"')
         .send(csv)
+    }
+  )
+
+  // --- Import routes (must be before /:id) ---
+
+  app.get(
+    '/api/v1/clients/import/template',
+    { preHandler: [requireAbility('read', 'Client')] },
+    async (_request: FastifyRequest, reply: FastifyReply) => {
+      const template =
+        'Nome,CPF/CNPJ,Tipo,Email,Telefone,Data Nascimento,Profissao,Estado Civil,Tags\n' +
+        'Joao Silva,12345678901,CLIENT,joao@email.com,11999999999,1990-01-15,Engenheiro,MARRIED,vip;indicacao\n'
+      return reply
+        .header('Content-Type', 'text/csv')
+        .header(
+          'Content-Disposition',
+          'attachment; filename="modelo-clientes.csv"'
+        )
+        .send(template)
+    }
+  )
+
+  app.post(
+    '/api/v1/clients/import',
+    { preHandler: [requireAbility('manage', 'Client')] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const file = await request.file()
+      if (!file) {
+        return reply.status(400).send({
+          success: false,
+          error: { code: 'NO_FILE', message: 'Nenhum arquivo enviado' },
+        })
+      }
+
+      if (!file.filename.endsWith('.csv')) {
+        return reply.status(400).send({
+          success: false,
+          error: {
+            code: 'INVALID_FORMAT',
+            message: 'Apenas arquivos CSV sao aceitos',
+          },
+        })
+      }
+
+      const buffer = await file.toBuffer()
+      if (buffer.length > MAX_IMPORT_FILE_SIZE) {
+        return reply.status(413).send({
+          success: false,
+          error: {
+            code: 'FILE_TOO_LARGE',
+            message: 'Arquivo excede o limite de 5MB',
+          },
+        })
+      }
+
+      const csvContent = buffer.toString('utf-8')
+      const useCase = container.resolve(ParseClientImport)
+
+      try {
+        const result = await useCase.execute(
+          csvContent,
+          request.organizationId!
+        )
+        await stageImportData(result.jobId, result.validRows)
+        return reply.send({
+          success: true,
+          data: {
+            jobId: result.jobId,
+            preview: result.preview,
+            validationSummary: result.validationSummary,
+          },
+        })
+      } catch (error) {
+        if (error instanceof CsvImportError) {
+          return reply.status(422).send({
+            success: false,
+            error: { code: error.code, message: error.message },
+          })
+        }
+        throw error
+      }
+    }
+  )
+
+  app.post(
+    '/api/v1/clients/import/:jobId/confirm',
+    { preHandler: [requireAbility('manage', 'Client')] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { jobId } = importJobIdParamSchema.parse(request.params)
+      const rows = await retrieveStagedData(jobId)
+      if (!rows) {
+        return reply.status(404).send({
+          success: false,
+          error: {
+            code: 'JOB_NOT_FOUND',
+            message:
+              'Dados de importacao nao encontrados ou expirados. Faca o upload novamente.',
+          },
+        })
+      }
+
+      await enqueueImportJob(jobId, {
+        entityType: 'client',
+        organizationId: request.organizationId!,
+        userId: request.user!.id,
+        rows,
+        totalRows: rows.length,
+      })
+
+      await removeStagedData(jobId)
+
+      return reply.send({ success: true, data: { jobId } })
+    }
+  )
+
+  app.get(
+    '/api/v1/clients/import/:jobId/status',
+    { preHandler: [requireAbility('manage', 'Client')] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { jobId } = importJobIdParamSchema.parse(request.params)
+      const { status, progress, result } = await getImportJobStatus(jobId)
+
+      if (status === 'not_found') {
+        return reply.status(404).send({
+          success: false,
+          error: { code: 'JOB_NOT_FOUND', message: 'Job nao encontrado' },
+        })
+      }
+
+      return reply.send({
+        success: true,
+        data: {
+          status,
+          progress: status === 'completed' ? result : progress,
+        },
+      })
     }
   )
 

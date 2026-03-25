@@ -2,6 +2,9 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { container } from '@repo/core'
 import {
   ExportPoliciesCsv,
+  ParsePolicyImport,
+  CsvImportError,
+  MAX_IMPORT_FILE_SIZE,
   IssuePolicy,
   ListPolicies,
   GetPolicy,
@@ -20,6 +23,14 @@ import {
   cancelPolicyBodySchema,
 } from '../../schemas/policy.schemas.js'
 import { idParamSchema } from '../../schemas/client.schemas.js'
+import { importJobIdParamSchema } from '../../schemas/import.schemas.js'
+import {
+  stageImportData,
+  retrieveStagedData,
+  removeStagedData,
+  enqueueImportJob,
+  getImportJobStatus,
+} from '../../services/csv-import-enqueuer.js'
 
 function handlePolicyError(error: unknown, reply: FastifyReply) {
   if (error instanceof PolicyNotFoundError) {
@@ -100,6 +111,142 @@ export async function policyRoutes(app: FastifyInstance) {
         .header('Content-Type', 'text/csv')
         .header('Content-Disposition', 'attachment; filename="apolices.csv"')
         .send(csv)
+    }
+  )
+
+  // --- Import routes (must be before /:id) ---
+
+  app.get(
+    '/api/v1/policies/import/template',
+    { preHandler: [requireAbility('read', 'Policy')] },
+    async (_request: FastifyRequest, reply: FastifyReply) => {
+      const template =
+        'Numero Apolice,CPF/CNPJ Cliente,Ramo,Premio (R$),Inicio Vigencia,Fim Vigencia,Seguradora,Status\n' +
+        'APL-001,12345678901,AUTO,1500.00,2026-01-01,2027-01-01,Porto Seguro,ACTIVE\n'
+      return reply
+        .header('Content-Type', 'text/csv')
+        .header(
+          'Content-Disposition',
+          'attachment; filename="modelo-apolices.csv"'
+        )
+        .send(template)
+    }
+  )
+
+  app.post(
+    '/api/v1/policies/import',
+    { preHandler: [requireAbility('manage', 'Policy')] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const file = await request.file()
+      if (!file) {
+        return reply.status(400).send({
+          success: false,
+          error: { code: 'NO_FILE', message: 'Nenhum arquivo enviado' },
+        })
+      }
+
+      if (!file.filename.endsWith('.csv')) {
+        return reply.status(400).send({
+          success: false,
+          error: {
+            code: 'INVALID_FORMAT',
+            message: 'Apenas arquivos CSV sao aceitos',
+          },
+        })
+      }
+
+      const buffer = await file.toBuffer()
+      if (buffer.length > MAX_IMPORT_FILE_SIZE) {
+        return reply.status(413).send({
+          success: false,
+          error: {
+            code: 'FILE_TOO_LARGE',
+            message: 'Arquivo excede o limite de 5MB',
+          },
+        })
+      }
+
+      const csvContent = buffer.toString('utf-8')
+      const useCase = container.resolve(ParsePolicyImport)
+
+      try {
+        const result = await useCase.execute(
+          csvContent,
+          request.organizationId!
+        )
+        await stageImportData(result.jobId, result.validRows)
+        return reply.send({
+          success: true,
+          data: {
+            jobId: result.jobId,
+            preview: result.preview,
+            validationSummary: result.validationSummary,
+          },
+        })
+      } catch (error) {
+        if (error instanceof CsvImportError) {
+          return reply.status(422).send({
+            success: false,
+            error: { code: error.code, message: error.message },
+          })
+        }
+        throw error
+      }
+    }
+  )
+
+  app.post(
+    '/api/v1/policies/import/:jobId/confirm',
+    { preHandler: [requireAbility('manage', 'Policy')] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { jobId } = importJobIdParamSchema.parse(request.params)
+      const rows = await retrieveStagedData(jobId)
+      if (!rows) {
+        return reply.status(404).send({
+          success: false,
+          error: {
+            code: 'JOB_NOT_FOUND',
+            message:
+              'Dados de importacao nao encontrados ou expirados. Faca o upload novamente.',
+          },
+        })
+      }
+
+      await enqueueImportJob(jobId, {
+        entityType: 'policy',
+        organizationId: request.organizationId!,
+        userId: request.user!.id,
+        rows,
+        totalRows: rows.length,
+      })
+
+      await removeStagedData(jobId)
+
+      return reply.send({ success: true, data: { jobId } })
+    }
+  )
+
+  app.get(
+    '/api/v1/policies/import/:jobId/status',
+    { preHandler: [requireAbility('manage', 'Policy')] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { jobId } = importJobIdParamSchema.parse(request.params)
+      const { status, progress, result } = await getImportJobStatus(jobId)
+
+      if (status === 'not_found') {
+        return reply.status(404).send({
+          success: false,
+          error: { code: 'JOB_NOT_FOUND', message: 'Job nao encontrado' },
+        })
+      }
+
+      return reply.send({
+        success: true,
+        data: {
+          status,
+          progress: status === 'completed' ? result : progress,
+        },
+      })
     }
   )
 
