@@ -1,6 +1,7 @@
 import { maskDocument } from '@repo/shared'
 import type { ClientData } from '../domain/client-repository.js'
 
+/** Mirrors Role from @repo/auth/roles — duplicated to avoid cross-package dependency */
 type Role = 'OWNER' | 'ADMIN' | 'MANAGER' | 'COMMERCIAL' | 'VIEWER'
 
 interface PresenterContext {

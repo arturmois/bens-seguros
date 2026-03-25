@@ -65,7 +65,8 @@ export async function clientRoutes(app: FastifyInstance) {
         const client = await useCase.execute({
           organizationId: request.organizationId!,
           ...body,
-          salespersonId: request.user!.id,
+          salespersonId:
+            request.role === 'COMMERCIAL' ? request.user!.id : null,
         })
         auditCreate({
           request,
