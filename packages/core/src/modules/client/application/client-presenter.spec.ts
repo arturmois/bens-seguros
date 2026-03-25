@@ -55,6 +55,16 @@ describe('ClientPresenter.toList', () => {
 
     expect(result.document).toBe('**.***.***/0001-95')
   })
+
+  it('never includes documentEncrypted or documentHash', () => {
+    const client = makeClient()
+    const result = ClientPresenter.toList(client)
+    const keys = Object.keys(result)
+
+    expect(keys).not.toContain('documentEncrypted')
+    expect(keys).not.toContain('documentHash')
+    expect(keys).not.toContain('organizationId')
+  })
 })
 
 describe('ClientPresenter.toDetail', () => {
@@ -160,5 +170,17 @@ describe('ClientPresenter.toDetail', () => {
     })
 
     expect(result).not.toHaveProperty('salespersonId')
+  })
+
+  it('never includes documentEncrypted or documentHash even for OWNER', () => {
+    const client = makeClient()
+    const result = ClientPresenter.toDetail(client, {
+      role: 'OWNER',
+      userId: 'user-1',
+    })
+    const keys = Object.keys(result)
+
+    expect(keys).not.toContain('documentEncrypted')
+    expect(keys).not.toContain('documentHash')
   })
 })
