@@ -13,6 +13,7 @@ on:
       - 'packages/shared/**'
       - 'Dockerfile.server'
       - 'pnpm-lock.yaml'
+      - 'nginx/**'
   workflow_dispatch:
 
 jobs:
@@ -62,6 +63,16 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: nginx
+      - uses: appleboy/scp-action@v0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: nginx/prod.conf
+          target: /opt/bens-seguros
       - uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -84,8 +95,11 @@ jobs:
             # Deploy with new images
             docker compose -f docker-compose.prod.yml up -d server worker
 
-            # Restart nginx to refresh Docker DNS cache (prevents CORS/502 from stale IPs)
-            docker restart bens-seguros-nginx-1
+            # Update nginx config and reload (resolver fix prevents 502 after container IP change)
+            if [ -f nginx/prod.conf ]; then
+              docker cp nginx/prod.conf bens-seguros-nginx-1:/etc/nginx/conf.d/prod.conf
+              docker exec bens-seguros-nginx-1 nginx -t && docker exec bens-seguros-nginx-1 nginx -s reload
+            fi
 
             # Wait for health checks (start_period=30s + interval=30s + margin)
             sleep 70
