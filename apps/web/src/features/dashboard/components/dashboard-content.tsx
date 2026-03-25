@@ -8,7 +8,6 @@ import { Card, CardPanel } from '@/components/ui/card'
 
 import { useDashboardStats } from '../hooks/use-dashboard-stats'
 import { ConversionRate } from './conversion-rate'
-import { PoliciesExpiring } from './policies-expiring'
 import { StatsCards } from './stats-cards'
 
 function ChartSkeleton() {
@@ -39,6 +38,14 @@ const CommissionsSummary = dynamic(
 
 const ClaimsByPriority = dynamic(
   () => import('./claims-by-priority').then((m) => m.ClaimsByPriority),
+  {
+    loading: () => <ChartSkeleton />,
+    ssr: false,
+  }
+)
+
+const AlertsWidget = dynamic(
+  () => import('./alerts-widget').then((m) => m.AlertsWidget),
   {
     loading: () => <ChartSkeleton />,
     ssr: false,
@@ -85,10 +92,7 @@ export function DashboardContent() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <ConversionRate data={data?.conversionRate} isLoading={isLoading} />
         <ClaimsByPriority data={data?.claimsByPriority} isLoading={isLoading} />
-        <PoliciesExpiring
-          count={data?.expiringPolicies}
-          isLoading={isLoading}
-        />
+        <AlertsWidget />
       </div>
       <TrendChart data={data?.monthlyTrends} isLoading={isLoading} />
     </div>
