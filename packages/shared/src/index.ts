@@ -7,3 +7,4 @@ export {
   WHATSAPP_STATE_KEYS,
 } from './chat-constants'
 export { isRecord } from './type-guards'
+export { RATE_LIMITS } from './rate-limit-constants'

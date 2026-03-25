@@ -5,8 +5,10 @@ import rateLimit from '@fastify/rate-limit'
 import swagger from '@fastify/swagger'
 import { createAuth } from '@repo/auth'
 import { env } from '@repo/env'
+import { RATE_LIMITS } from '@repo/shared'
 import { PINO_REDACT_CONFIG } from '@repo/shared/pino-redact'
 import * as Sentry from '@sentry/node'
+import IORedis from 'ioredis'
 import type { FastifyError } from 'fastify'
 import Fastify from 'fastify'
 import {
@@ -40,6 +42,8 @@ import { internalLeadRoutes } from './routes/internal/lead-routes.js'
 import { tenantRoutes } from './routes/v1/tenant-routes.js'
 
 export async function buildApp() {
+  const redis = new IORedis(env.REDIS_URL)
+
   const app = Fastify({
     logger: {
       level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
@@ -60,8 +64,18 @@ export async function buildApp() {
   await app.register(helmet)
 
   await app.register(rateLimit, {
-    max: 100,
-    timeWindow: '1 minute',
+    max: RATE_LIMITS.GLOBAL.max,
+    timeWindow: `${String(RATE_LIMITS.GLOBAL.windowSeconds)} seconds`,
+    redis,
+    nameSpace: 'rl:',
+    errorResponseBuilder: (_request, context) => ({
+      success: false,
+      error: {
+        code: 'RATE_LIMIT_EXCEEDED',
+        message: `Too many requests. Try again in ${String(Math.ceil(context.ttl / 1000))} seconds.`,
+        retryAfter: Math.ceil(context.ttl / 1000),
+      },
+    }),
   })
 
   await app.register(swagger, {
@@ -100,7 +114,7 @@ export async function buildApp() {
     [frontendUrl],
     cookieDomain
   )
-  registerAuthRoutes(app, auth)
+  registerAuthRoutes(app, auth, redis)
 
   // API v1 routes (authenticated)
   const authMiddleware = createAuthMiddleware(auth)
