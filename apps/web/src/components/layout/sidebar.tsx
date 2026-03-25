@@ -2,6 +2,7 @@
 
 import { UserMenu } from '@/components/layout/user-menu'
 import { OrgSwitcher } from '@/features/org/components/org-switcher'
+import { useAlertCounts } from '@/features/notifications/hooks/use-alert-counts'
 import { hasPermission } from '@/lib/permissions'
 import { cn } from '@/lib/utils'
 import type { Role } from '@repo/auth/roles'
@@ -89,6 +90,13 @@ const SECONDARY_NAV = [
   },
 ] as const
 
+const ALERT_BADGE_MAP: Record<string, string> = {
+  '/policies': 'Policy',
+  '/claims': 'Claim',
+  '/commissions': 'Commission',
+  '/proposals': 'Proposal',
+}
+
 export function Sidebar({
   role,
   collapsed,
@@ -96,6 +104,7 @@ export function Sidebar({
   onMobileClose,
 }: SidebarProps) {
   const pathname = usePathname()
+  const { data: alertCounts } = useAlertCounts()
 
   const mainItems = MAIN_NAV.filter(
     (item) => !item.permission || hasPermission(role, item.permission)
@@ -139,6 +148,7 @@ export function Sidebar({
             secondaryItems={secondaryItems}
             pathname={pathname}
             collapsed={false}
+            alertCounts={alertCounts}
             onNavigate={onMobileClose}
           />
 
@@ -162,6 +172,7 @@ export function Sidebar({
         secondaryItems={secondaryItems}
         pathname={pathname}
         collapsed={collapsed}
+        alertCounts={alertCounts}
       />
 
       <UserMenu collapsed={collapsed} />
@@ -174,6 +185,7 @@ function SidebarNav({
   secondaryItems,
   pathname,
   collapsed,
+  alertCounts,
   onNavigate,
 }: {
   mainItems: ReadonlyArray<{
@@ -188,22 +200,29 @@ function SidebarNav({
   }>
   pathname: string
   collapsed: boolean
+  alertCounts?: Record<string, number>
   onNavigate?: () => void
 }) {
   return (
     <nav aria-label="Menu principal" className="flex-1 overflow-y-auto p-2">
       <div className="space-y-1">
-        {mainItems.map((item) => (
-          <NavItem
-            key={item.href}
-            href={item.href}
-            label={item.label}
-            icon={item.icon}
-            isActive={pathname === item.href}
-            collapsed={collapsed}
-            onClick={onNavigate}
-          />
-        ))}
+        {mainItems.map((item) => {
+          const entityType = ALERT_BADGE_MAP[item.href]
+          const badgeCount = entityType ? (alertCounts?.[entityType] ?? 0) : 0
+
+          return (
+            <NavItem
+              key={item.href}
+              href={item.href}
+              label={item.label}
+              icon={item.icon}
+              isActive={pathname === item.href}
+              collapsed={collapsed}
+              badgeCount={badgeCount}
+              onClick={onNavigate}
+            />
+          )
+        })}
       </div>
 
       {secondaryItems.length > 0 && (
@@ -234,6 +253,7 @@ function NavItem({
   icon: Icon,
   isActive,
   collapsed,
+  badgeCount = 0,
   onClick,
 }: {
   href: string
@@ -241,6 +261,7 @@ function NavItem({
   icon: React.ComponentType<{ className?: string }>
   isActive: boolean
   collapsed: boolean
+  badgeCount?: number
   onClick?: () => void
 }) {
   return (
@@ -250,7 +271,7 @@ function NavItem({
       aria-current={isActive ? 'page' : undefined}
       aria-label={collapsed ? label : undefined}
       className={cn(
-        'flex min-h-10 items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
+        'relative flex min-h-10 items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
         isActive
           ? 'bg-primary/10 text-primary'
           : 'text-muted-foreground hover:bg-muted',
@@ -260,6 +281,14 @@ function NavItem({
     >
       <Icon className="size-4 shrink-0" />
       {!collapsed && <span>{label}</span>}
+      {badgeCount > 0 && !collapsed && (
+        <span className="bg-destructive text-destructive-foreground ml-auto inline-flex size-5 shrink-0 items-center justify-center rounded-full text-xs font-medium">
+          {badgeCount > 99 ? '99+' : badgeCount}
+        </span>
+      )}
+      {badgeCount > 0 && collapsed && (
+        <span className="bg-destructive absolute -right-0.5 -top-0.5 size-2 rounded-full" />
+      )}
     </Link>
   )
 }
