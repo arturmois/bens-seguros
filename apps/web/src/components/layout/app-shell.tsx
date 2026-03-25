@@ -3,6 +3,7 @@
 import type { Role } from '@repo/auth/roles'
 import { useCallback, useState } from 'react'
 import { useMediaQuery } from '@/hooks/use-media-query'
+import { CommandPalette } from '@/components/shared/command-palette'
 import { Header } from './header'
 import { Sidebar } from './sidebar'
 
@@ -48,6 +49,7 @@ export function AppShell({ role, children }: AppShellProps) {
         />
         <main className="flex-1 overflow-auto p-4 sm:p-6">{children}</main>
       </div>
+      <CommandPalette />
     </div>
   )
 }
