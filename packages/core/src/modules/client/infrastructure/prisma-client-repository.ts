@@ -39,6 +39,7 @@ export class PrismaClientRepository implements ClientRepository {
             : data.address,
         tags: data.tags ?? [],
         consentLgpd: data.consentLgpd ?? false,
+        salespersonId: data.salespersonId ?? null,
       },
     })
 

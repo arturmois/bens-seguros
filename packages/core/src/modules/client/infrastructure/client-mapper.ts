@@ -77,6 +77,7 @@ export class ClientMapper {
       address: isAddressObject(row.address) ? row.address : null,
       tags: row.tags,
       consentLgpd: row.consentLgpd,
+      salespersonId: row.salespersonId ?? null,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     }

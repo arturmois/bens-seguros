@@ -22,6 +22,7 @@ function makeClientData(overrides: Partial<ClientData> = {}): ClientData {
     address: null,
     tags: [],
     consentLgpd: false,
+    salespersonId: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,

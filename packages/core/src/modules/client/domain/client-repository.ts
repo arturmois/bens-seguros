@@ -12,6 +12,7 @@ export interface ClientData {
   address: ClientAddress | null
   tags: string[]
   consentLgpd: boolean
+  salespersonId: string | null
   createdAt: Date
   updatedAt: Date
 }
@@ -57,6 +58,7 @@ export interface CreateClientInput {
   address?: ClientAddress | null
   tags?: string[]
   consentLgpd?: boolean
+  salespersonId?: string | null
 }
 
 /**
