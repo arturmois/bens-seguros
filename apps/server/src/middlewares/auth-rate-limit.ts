@@ -1,4 +1,4 @@
-import { RATE_LIMITS } from '@repo/shared'
+import { isRecord, RATE_LIMITS } from '@repo/shared'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import type IORedis from 'ioredis'
 
@@ -18,7 +18,7 @@ const AUTH_RATE_LIMIT_PATHS: readonly AuthRateLimitPath[] = [
     suffix: '/sign-in/email',
     config: RATE_LIMITS.AUTH.LOGIN,
     keyExtractor: (request) => {
-      const body = request.body as Record<string, unknown> | undefined
+      const body = isRecord(request.body) ? request.body : undefined
       const email =
         typeof body?.['email'] === 'string' ? body['email'] : 'unknown'
       return `auth:login:${email.toLowerCase()}`
@@ -28,7 +28,7 @@ const AUTH_RATE_LIMIT_PATHS: readonly AuthRateLimitPath[] = [
     suffix: '/forget-password',
     config: RATE_LIMITS.AUTH.FORGOT_PASSWORD,
     keyExtractor: (request) => {
-      const body = request.body as Record<string, unknown> | undefined
+      const body = isRecord(request.body) ? request.body : undefined
       const email =
         typeof body?.['email'] === 'string' ? body['email'] : 'unknown'
       return `auth:forgot:${email.toLowerCase()}`
@@ -50,17 +50,20 @@ async function checkRateLimit(
   const windowMs = config.windowSeconds * 1000
   const windowStart = now - windowMs
 
+  const entryKey = `${String(now)}:${String(Math.random())}`
+
   const pipeline = redis.pipeline()
   pipeline.zremrangebyscore(key, 0, windowStart)
+  pipeline.zadd(key, String(now), entryKey)
   pipeline.zcard(key)
-  pipeline.zadd(key, String(now), `${String(now)}:${String(Math.random())}`)
   pipeline.expire(key, config.windowSeconds)
 
   const results = await pipeline.exec()
-  const countResult = results?.[1]
+  const countResult = results?.[2]
   const currentCount = Number(countResult?.[1] ?? 0)
 
-  if (currentCount >= config.max) {
+  if (currentCount > config.max) {
+    await redis.zrem(key, entryKey)
     const oldestEntry = await redis.zrange(key, 0, 0, 'WITHSCORES')
     const oldestTimestamp = Number(oldestEntry[1] ?? now)
     const retryAfter = Math.ceil((oldestTimestamp + windowMs - now) / 1000)
@@ -84,14 +87,17 @@ export function createAuthRateLimitHook(
     const result = await checkRateLimit(redis, key, matchedPath.config)
 
     if (!result.allowed) {
-      void reply.status(429).send({
-        success: false,
-        error: {
-          code: 'RATE_LIMIT_EXCEEDED',
-          message: `Too many requests. Try again in ${String(result.retryAfter)} seconds.`,
-          retryAfter: result.retryAfter,
-        },
-      })
+      void reply
+        .status(429)
+        .header('Retry-After', String(result.retryAfter))
+        .send({
+          success: false,
+          error: {
+            code: 'RATE_LIMIT_EXCEEDED',
+            message: `Too many requests. Try again in ${String(result.retryAfter)} seconds.`,
+            retryAfter: result.retryAfter,
+          },
+        })
     }
   }
 }
