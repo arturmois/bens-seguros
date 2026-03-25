@@ -1,5 +1,5 @@
 import { injectable, inject } from 'tsyringe'
-import { parse } from 'papaparse'
+import Papa from 'papaparse'
 import { randomUUID } from 'node:crypto'
 import type { ClientRepository } from '../domain/client-repository.js'
 import { clientImportRowSchema } from './client-import-schema.js'
@@ -24,7 +24,7 @@ export class ParseClientImport {
     csvContent: string,
     _organizationId: string
   ): Promise<CsvImportParseResult> {
-    const parsed = parse<Record<string, string>>(csvContent, {
+    const parsed = Papa.parse<Record<string, string>>(csvContent, {
       header: true,
       skipEmptyLines: true,
     })
