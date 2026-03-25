@@ -2,7 +2,7 @@ import pino from 'pino'
 import 'reflect-metadata'
 import { setupAuditArchiveProcessor } from './processors/audit-archive-processor.js'
 import { setupNotificationProcessor } from './processors/notification-processor.js'
-import { setupPolicyExpiryProcessor } from './processors/policy-expiry-processor.js'
+import { setupProactiveAlertsProcessor } from './processors/alerts/index.js'
 
 const logger = pino({
   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
@@ -35,10 +35,13 @@ const connection = {
 
 const auditArchive = setupAuditArchiveProcessor(connection)
 const notifications = setupNotificationProcessor(connection)
-const policyExpiry = setupPolicyExpiryProcessor(connection, notifications.queue)
+const proactiveAlerts = setupProactiveAlertsProcessor(
+  connection,
+  notifications.queue
+)
 
 logger.info(
-  'ERP Worker started. Active processors: audit-archive, notifications, policy-expiry'
+  'ERP Worker started. Active processors: audit-archive, notifications, proactive-alerts'
 )
 
 const gracefulShutdown = async () => {
@@ -46,12 +49,12 @@ const gracefulShutdown = async () => {
   await Promise.all([
     auditArchive.worker.close(),
     notifications.worker.close(),
-    policyExpiry.worker.close(),
+    proactiveAlerts.worker.close(),
   ])
   await Promise.all([
     auditArchive.queue.close(),
     notifications.queue.close(),
-    policyExpiry.queue.close(),
+    proactiveAlerts.queue.close(),
   ])
   process.exit(0)
 }
