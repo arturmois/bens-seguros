@@ -1,4 +1,4 @@
-import type { AnyMessageContent, WAMessage, ConnectionState } from 'baileys'
+import type { AnyMessageContent, ConnectionState, WAMessage } from 'baileys'
 import { DisconnectReason } from 'baileys'
 
 import type {
@@ -8,6 +8,7 @@ import type {
 } from '../messaging/broker.js'
 
 export const WHATSAPP_JID_SUFFIX = '@s.whatsapp.net'
+export const WHATSAPP_LID_SUFFIX = '@lid'
 
 type MessageContentType =
   | 'TEXT'
@@ -66,9 +67,24 @@ export function extractMessageText(msg: WAMessage): string | undefined {
   )
 }
 
+/** Returns true if the JID is a personal chat (not group, broadcast, etc.) */
+export function isPersonalJid(jid: string | null | undefined): boolean {
+  if (!jid) return false
+  return jid.endsWith(WHATSAPP_JID_SUFFIX) || jid.endsWith(WHATSAPP_LID_SUFFIX)
+}
+
+/**
+ * Extract the phone number from a WAMessage.
+ * Prefers remoteJidAlt (@s.whatsapp.net) over remoteJid (@lid) when available,
+ * since LID-based JIDs don't contain the real phone number.
+ */
 export function extractFrom(msg: WAMessage): string {
+  const altJid = (msg.key as Record<string, unknown>)['remoteJidAlt']
+  if (typeof altJid === 'string' && altJid.endsWith(WHATSAPP_JID_SUFFIX)) {
+    return altJid.replace(WHATSAPP_JID_SUFFIX, '')
+  }
   const jid = msg.key.remoteJid ?? ''
-  return jid.replace(WHATSAPP_JID_SUFFIX, '')
+  return jid.replace(WHATSAPP_JID_SUFFIX, '').replace(WHATSAPP_LID_SUFFIX, '')
 }
 
 interface MappedConnectionState {

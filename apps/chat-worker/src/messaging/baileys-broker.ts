@@ -1,22 +1,22 @@
+import { Message } from '@repo/db-chat'
 import makeWASocket, {
-  type WASocket,
   type ConnectionState,
   type WAMessageKey,
-  makeCacheableSignalKeyStore,
+  type WASocket,
   fetchLatestBaileysVersion,
+  makeCacheableSignalKeyStore,
   useMultiFileAuthState,
 } from 'baileys'
 import pino from 'pino'
-import { Message } from '@repo/db-chat'
 
 import { createBaileysCacheStore } from '../baileys/baileys-cache-store.js'
 import {
-  phoneToJid,
   buildMessageContent,
-  toIncomingMessage,
+  isPersonalJid,
   mapWAStatusUpdate,
+  phoneToJid,
   shouldReconnect,
-  WHATSAPP_JID_SUFFIX,
+  toIncomingMessage,
 } from '../baileys/baileys-message-utils.js'
 import type {
   Broker,
@@ -168,7 +168,7 @@ export class BaileysBroker implements Broker {
 
       for (const msg of messages) {
         if (msg.key.fromMe) continue
-        if (!msg.key.remoteJid?.endsWith(WHATSAPP_JID_SUFFIX)) continue
+        if (!isPersonalJid(msg.key.remoteJid)) continue
 
         events.onMessage(toIncomingMessage(msg))
       }

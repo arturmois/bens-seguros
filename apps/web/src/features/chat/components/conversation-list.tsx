@@ -223,20 +223,21 @@ export function ConversationList({
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex gap-1 px-3 pb-2">
+      <div className="flex justify-between gap-1 px-3 pb-2">
         {FILTER_TABS.map((tab) => (
-          <button
+          <Button
             key={tab.value}
             onClick={() => handleTabChange(tab.value)}
+            variant={activeTab === tab.value ? 'default' : 'outline'}
             className={cn(
-              'rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
+              'max-w-full rounded-md text-xs font-medium transition-colors',
               activeTab === tab.value
                 ? 'bg-primary text-primary-foreground'
                 : 'text-muted-foreground hover:bg-muted'
             )}
           >
             {tab.label}
-          </button>
+          </Button>
         ))}
       </div>
 
