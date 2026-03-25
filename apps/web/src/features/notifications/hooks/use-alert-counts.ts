@@ -3,11 +3,12 @@
 import { api } from '@/lib/api-client'
 import { useQuery } from '@tanstack/react-query'
 
-interface AlertCounts {
+export interface AlertCounts {
   readonly Policy: number
   readonly Claim: number
   readonly Commission: number
   readonly Proposal: number
+  readonly [key: string]: number
 }
 
 export function useAlertCounts() {

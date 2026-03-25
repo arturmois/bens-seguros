@@ -6,7 +6,7 @@ import type { FastifyInstance } from 'fastify'
 
 const QUEUE_NAMES = [
   'erp-notifications',
-  'erp-policy-expiry',
+  'erp-proactive-alerts',
   'erp-audit-archive',
   'chat-send-message',
   'chat-incoming-message',
