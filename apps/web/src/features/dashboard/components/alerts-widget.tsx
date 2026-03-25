@@ -14,7 +14,7 @@ import {
 import Link from 'next/link'
 
 interface AlertRow {
-  readonly entityType: string
+  readonly entityType: 'Policy' | 'Claim' | 'Commission' | 'Proposal'
   readonly label: string
   readonly icon: React.ElementType
   readonly color: string
@@ -119,7 +119,7 @@ export function AlertsWidget() {
   }
 
   const activeRows = ALERT_ROWS.filter(
-    (row) => (counts[row.entityType as keyof typeof counts] ?? 0) > 0
+    (row) => (counts[row.entityType] ?? 0) > 0
   )
 
   return (
@@ -129,7 +129,7 @@ export function AlertsWidget() {
       </CardHeader>
       <CardPanel className="space-y-3">
         {activeRows.map((row) => {
-          const count = counts[row.entityType as keyof typeof counts] ?? 0
+          const count = counts[row.entityType] ?? 0
           const Icon = row.icon
           return (
             <div key={row.entityType} className="flex items-center gap-3">

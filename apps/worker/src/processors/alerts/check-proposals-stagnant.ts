@@ -2,17 +2,11 @@ import type { NotificationJobData } from '@repo/core/notification'
 import { prisma } from '@repo/db'
 import type { Queue } from 'bullmq'
 import type { Logger } from 'pino'
+import { DEFAULT_JOB_OPTIONS } from './constants.js'
 import { hasExistingAlert } from './idempotency.js'
 
 const STAGNANT_DAYS = 15
 const TERMINAL_STAGES = ['POLICY_ISSUED', 'LOST'] as const
-
-const DEFAULT_JOB_OPTIONS = {
-  attempts: 3,
-  backoff: { type: 'exponential' as const, delay: 1000 },
-  removeOnComplete: { age: 3600 },
-  removeOnFail: { age: 86_400 },
-}
 
 export async function checkProposalsStagnant(
   organizationId: string,
@@ -21,6 +15,13 @@ export async function checkProposalsStagnant(
 ): Promise<void> {
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - STAGNANT_DAYS)
+
+  const managers = await prisma.member.findMany({
+    where: {
+      organizationId,
+      role: 'MANAGER',
+    },
+  })
 
   const proposals = await prisma.proposal.findMany({
     where: {
@@ -70,13 +71,6 @@ export async function checkProposalsStagnant(
     )
 
     // Notify MANAGERs
-    const managers = await prisma.member.findMany({
-      where: {
-        organizationId,
-        role: 'MANAGER',
-      },
-    })
-
     for (const manager of managers) {
       if (manager.userId === proposal.salespersonId) {
         continue

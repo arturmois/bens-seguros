@@ -2,16 +2,10 @@ import type { NotificationJobData } from '@repo/core/notification'
 import { prisma } from '@repo/db'
 import type { Queue } from 'bullmq'
 import type { Logger } from 'pino'
+import { DEFAULT_JOB_OPTIONS } from './constants.js'
 import { hasExistingAlert } from './idempotency.js'
 
 const THRESHOLDS = [30, 15, 7] as const
-
-const DEFAULT_JOB_OPTIONS = {
-  attempts: 3,
-  backoff: { type: 'exponential' as const, delay: 1000 },
-  removeOnComplete: { age: 3600 },
-  removeOnFail: { age: 86_400 },
-}
 
 function severityForDays(days: number): string {
   return days <= 7 ? 'CRITICAL' : 'HIGH'
@@ -23,6 +17,13 @@ export async function checkPoliciesExpiring(
   logger: Logger
 ): Promise<void> {
   const now = new Date()
+
+  const managers = await prisma.member.findMany({
+    where: {
+      organizationId,
+      role: { in: ['MANAGER', 'ADMIN', 'OWNER'] },
+    },
+  })
 
   for (const days of THRESHOLDS) {
     const targetDate = new Date(now)
@@ -85,13 +86,6 @@ export async function checkPoliciesExpiring(
       }
 
       // Notify MANAGER/ADMIN/OWNER (excluding salesperson)
-      const managers = await prisma.member.findMany({
-        where: {
-          organizationId,
-          role: { in: ['MANAGER', 'ADMIN', 'OWNER'] },
-        },
-      })
-
       for (const manager of managers) {
         if (manager.userId === policy.salespersonId) {
           continue

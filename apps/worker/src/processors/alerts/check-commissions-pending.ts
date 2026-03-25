@@ -2,16 +2,10 @@ import type { NotificationJobData } from '@repo/core/notification'
 import { prisma } from '@repo/db'
 import type { Queue } from 'bullmq'
 import type { Logger } from 'pino'
+import { DEFAULT_JOB_OPTIONS } from './constants.js'
 import { hasExistingAlert } from './idempotency.js'
 
 const PENDING_DAYS = 7
-
-const DEFAULT_JOB_OPTIONS = {
-  attempts: 3,
-  backoff: { type: 'exponential' as const, delay: 1000 },
-  removeOnComplete: { age: 3600 },
-  removeOnFail: { age: 86_400 },
-}
 
 export async function checkCommissionsPending(
   organizationId: string,
@@ -20,6 +14,13 @@ export async function checkCommissionsPending(
 ): Promise<void> {
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - PENDING_DAYS)
+
+  const admins = await prisma.member.findMany({
+    where: {
+      organizationId,
+      role: { in: ['ADMIN', 'OWNER'] },
+    },
+  })
 
   const commissions = await prisma.commission.findMany({
     where: {
@@ -69,13 +70,6 @@ export async function checkCommissionsPending(
     )
 
     // Notify ADMIN/OWNER
-    const admins = await prisma.member.findMany({
-      where: {
-        organizationId,
-        role: { in: ['ADMIN', 'OWNER'] },
-      },
-    })
-
     for (const admin of admins) {
       if (admin.userId === commission.salespersonId) {
         continue

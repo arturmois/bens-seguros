@@ -2,6 +2,7 @@ import type { NotificationJobData } from '@repo/core/notification'
 import { prisma } from '@repo/db'
 import type { Queue } from 'bullmq'
 import type { Logger } from 'pino'
+import { DEFAULT_JOB_OPTIONS } from './constants.js'
 import { hasExistingAlert } from './idempotency.js'
 
 const STALLED_DAYS = 7
@@ -12,13 +13,6 @@ const STALLED_STATUSES = [
   'PENDING_INSPECTION',
 ] as const
 
-const DEFAULT_JOB_OPTIONS = {
-  attempts: 3,
-  backoff: { type: 'exponential' as const, delay: 1000 },
-  removeOnComplete: { age: 3600 },
-  removeOnFail: { age: 86_400 },
-}
-
 export async function checkClaimsStalled(
   organizationId: string,
   notificationQueue: Queue<NotificationJobData>,
@@ -26,6 +20,13 @@ export async function checkClaimsStalled(
 ): Promise<void> {
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - STALLED_DAYS)
+
+  const managers = await prisma.member.findMany({
+    where: {
+      organizationId,
+      role: 'MANAGER',
+    },
+  })
 
   const claims = await prisma.claim.findMany({
     where: {
@@ -73,13 +74,6 @@ export async function checkClaimsStalled(
     }
 
     // Notify MANAGERs
-    const managers = await prisma.member.findMany({
-      where: {
-        organizationId,
-        role: 'MANAGER',
-      },
-    })
-
     for (const manager of managers) {
       if (manager.userId === claim.assignedToId) {
         continue
