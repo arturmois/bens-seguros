@@ -22,6 +22,12 @@ export { ListClients } from './application/list-clients.js'
 export { GetClient } from './application/get-client.js'
 export { UpdateClient } from './application/update-client.js'
 export { DeleteClient } from './application/delete-client.js'
+export { ClientPresenter } from './application/client-presenter.js'
+export type {
+  ClientListItem,
+  ClientDetail,
+  PresenterContext,
+} from './application/client-presenter.js'
 
 export { ParseClientImport } from './application/parse-client-import.js'
 export { clientImportRowSchema } from './application/client-import-schema.js'
