@@ -15,6 +15,7 @@ import {
 import { TYPE_OPTIONS } from '../lib/constants'
 import type { ClientFilters } from '../types'
 import { ClientExportButton } from './client-export-button'
+import { ClientImportButton } from './client-import-button'
 
 const TYPE_FILTER_OPTIONS = [{ value: 'ALL', label: 'Todos' }, ...TYPE_OPTIONS]
 
@@ -68,6 +69,7 @@ export function ClientsToolbar({
         </Select>
       </div>
       <div className="flex items-center gap-2">
+        <ClientImportButton />
         <ClientExportButton filters={currentFilters} />
         <Button onClick={onNewClient}>
           <Plus className="mr-2 h-4 w-4" />
