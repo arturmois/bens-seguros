@@ -1,25 +1,25 @@
-interface ClientSearchResult {
+export interface ClientSearchResult {
   readonly id: string
   readonly name: string
   readonly document: string
   readonly type: 'PF' | 'PJ' | 'LEAD'
 }
 
-interface ProposalSearchResult {
+export interface ProposalSearchResult {
   readonly id: string
   readonly stage: string
   readonly branch: string
   readonly clientName: string
 }
 
-interface PolicySearchResult {
+export interface PolicySearchResult {
   readonly id: string
   readonly policyNumber: string
   readonly branch: string
   readonly clientName: string
 }
 
-interface ClaimSearchResult {
+export interface ClaimSearchResult {
   readonly id: string
   readonly claimNumber: number
   readonly status: string

@@ -27,7 +27,13 @@ import {
   CommandFooter,
 } from '@/components/ui/command'
 import { useGlobalSearch } from '@/hooks/use-global-search'
-import type { GlobalSearchResults } from './command-palette.types'
+import type {
+  ClientSearchResult,
+  ClaimSearchResult,
+  GlobalSearchResults,
+  PolicySearchResult,
+  ProposalSearchResult,
+} from './command-palette.types'
 
 const QUICK_ACTIONS = [
   { label: 'Novo Cliente', icon: UserPlus, route: '/clients/new' },
@@ -67,13 +73,57 @@ function QuickActionsGroup({
   )
 }
 
-function getResultLabel(key: EntityKey, item: Record<string, unknown>): string {
-  if (key === 'clients') return item.name as string
-  if (key === 'proposals')
-    return `${String(item.branch)} — ${String(item.clientName)}`
-  if (key === 'policies')
-    return `${String(item.policyNumber)} — ${String(item.clientName)}`
-  return `#${String(item.claimNumber)} — ${String(item.clientName)}`
+function getClientLabel(item: ClientSearchResult): string {
+  return item.name
+}
+
+function getProposalLabel(item: ProposalSearchResult): string {
+  return `${item.branch} — ${item.clientName}`
+}
+
+function getPolicyLabel(item: PolicySearchResult): string {
+  return `${item.policyNumber} — ${item.clientName}`
+}
+
+function getClaimLabel(item: ClaimSearchResult): string {
+  return `#${String(item.claimNumber)} — ${item.clientName}`
+}
+
+interface ResultGroupProps<TItem extends { readonly id: string }> {
+  readonly entityKey: EntityKey
+  readonly items: readonly TItem[]
+  readonly getLabel: (item: TItem) => string
+  readonly onSelect: (route: string) => void
+}
+
+function ResultGroup<TItem extends { readonly id: string }>({
+  entityKey,
+  items,
+  getLabel,
+  onSelect,
+}: ResultGroupProps<TItem>) {
+  if (items.length === 0) return null
+  const config = ENTITY_CONFIG[entityKey]
+  const Icon = config.icon
+
+  return (
+    <CommandGroup>
+      <CommandGroupLabel>{config.label}</CommandGroupLabel>
+      {items.map((item) => {
+        const label = getLabel(item)
+        return (
+          <CommandItem
+            key={item.id}
+            onClick={() => onSelect(`${config.prefix}/${item.id}`)}
+            value={`${config.label} ${label}`}
+          >
+            <Icon className="mr-2 size-4 shrink-0" />
+            <span className="truncate">{label}</span>
+          </CommandItem>
+        )
+      })}
+    </CommandGroup>
+  )
 }
 
 function SearchResultsGroups({
@@ -83,36 +133,32 @@ function SearchResultsGroups({
   results: GlobalSearchResults
   onSelect: (route: string) => void
 }) {
-  const entityKeys = Object.keys(ENTITY_CONFIG) as readonly EntityKey[]
-
   return (
     <>
-      {entityKeys.map((key) => {
-        const items = results[key]
-        if (items.length === 0) return null
-        const config = ENTITY_CONFIG[key]
-        const Icon = config.icon
-
-        return (
-          <CommandGroup key={key}>
-            <CommandGroupLabel>{config.label}</CommandGroupLabel>
-            {items.map((item) => {
-              const record = item as unknown as Record<string, unknown>
-              const label = getResultLabel(key, record)
-              return (
-                <CommandItem
-                  key={item.id}
-                  onClick={() => onSelect(`${config.prefix}/${item.id}`)}
-                  value={`${config.label} ${label}`}
-                >
-                  <Icon className="mr-2 size-4 shrink-0" />
-                  <span className="truncate">{label}</span>
-                </CommandItem>
-              )
-            })}
-          </CommandGroup>
-        )
-      })}
+      <ResultGroup
+        entityKey="clients"
+        items={results.clients}
+        getLabel={getClientLabel}
+        onSelect={onSelect}
+      />
+      <ResultGroup
+        entityKey="proposals"
+        items={results.proposals}
+        getLabel={getProposalLabel}
+        onSelect={onSelect}
+      />
+      <ResultGroup
+        entityKey="policies"
+        items={results.policies}
+        getLabel={getPolicyLabel}
+        onSelect={onSelect}
+      />
+      <ResultGroup
+        entityKey="claims"
+        items={results.claims}
+        getLabel={getClaimLabel}
+        onSelect={onSelect}
+      />
     </>
   )
 }
