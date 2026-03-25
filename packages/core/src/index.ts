@@ -7,6 +7,20 @@ export {
   MAX_EXPORT_ROWS,
 } from './shared/csv-utils.js'
 
+export type {
+  CsvRowError,
+  CsvValidationSummary,
+  CsvImportParseResult,
+  CsvImportJobData,
+  CsvImportProgress,
+} from './shared/csv-import-types.js'
+export {
+  MAX_IMPORT_FILE_SIZE,
+  MAX_IMPORT_ROWS,
+  IMPORT_BATCH_SIZE,
+  MAX_IMPORT_ERRORS,
+} from './shared/csv-import-types.js'
+
 // Domain modules
 export * from './modules/assistance/index.js'
 export {

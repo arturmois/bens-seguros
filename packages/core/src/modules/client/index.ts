@@ -23,6 +23,9 @@ export { GetClient } from './application/get-client.js'
 export { UpdateClient } from './application/update-client.js'
 export { DeleteClient } from './application/delete-client.js'
 
+export { clientImportRowSchema } from './application/client-import-schema.js'
+export type { ClientImportRow } from './application/client-import-schema.js'
+
 // Infrastructure
 export { ClientMapper } from './infrastructure/client-mapper.js'
 export { PrismaClientRepository } from './infrastructure/prisma-client-repository.js'
