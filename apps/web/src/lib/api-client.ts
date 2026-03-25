@@ -41,7 +41,7 @@ async function request<TData>(
       Object.entries(options.headers ?? {}).filter(([, v]) => v !== '')
     ),
   }
-  if (options.body) {
+  if (options.body && !(options.body instanceof FormData)) {
     headers['Content-Type'] = 'application/json'
   }
 
@@ -89,4 +89,10 @@ export const api = {
     }),
 
   delete: (path: string) => request(path, { method: 'DELETE' }),
+
+  upload: <TData>(path: string, formData: FormData) =>
+    request<TData>(path, {
+      method: 'PUT',
+      body: formData,
+    }),
 }
