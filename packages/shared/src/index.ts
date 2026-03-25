@@ -8,3 +8,11 @@ export {
 } from './chat-constants'
 export { isRecord } from './type-guards'
 export { RATE_LIMITS } from './rate-limit-constants'
+export {
+  encrypt,
+  decrypt,
+  hashDocument,
+  maskDocument,
+  getEncryptionKey,
+} from './crypto'
+export type { EncryptedField } from './crypto'

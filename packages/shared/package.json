@@ -10,11 +10,16 @@
     "./sentry-pii": "./src/sentry-pii.ts",
     "./pino-redact": "./src/pino-redact.ts"
   },
+  "scripts": {
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest watch"
+  },
   "dependencies": {
     "zod": "^3.24.0"
   },
   "devDependencies": {
     "@config/typescript-config": "workspace:*",
-    "typescript": "^5.9.0"
+    "typescript": "^5.9.0",
+    "vitest": "^3.0.0"
   }
 }
