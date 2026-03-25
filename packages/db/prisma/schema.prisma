@@ -241,29 +241,31 @@ enum CommissionStatus {
 // === ERP MODELS ===
 
 model Client {
-  id             String         @id @default(cuid())
-  organizationId String
-  name           String
-  document       String
-  type           ClientType     @default(LEAD)
-  email          String?
-  phone          String?
-  birthDate      DateTime?
-  profession     String?
-  maritalStatus  MaritalStatus?
-  address        Json?
-  tags           String[]       @default([])
-  consentLgpd    Boolean        @default(false)
-  deletedAt      DateTime?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id                String         @id @default(cuid())
+  organizationId    String
+  name              String
+  document          String         // Masked value (e.g. "***.***.789-01") for backward compat
+  documentEncrypted String         @default("") // AES-256-GCM JSON {ciphertext, iv, tag}
+  documentHash      String         @default("") // SHA-256 hex for uniqueness + lookup
+  type              ClientType     @default(LEAD)
+  email             String?
+  phone             String?
+  birthDate         DateTime?
+  profession        String?
+  maritalStatus     MaritalStatus?
+  address           Json?
+  tags              String[]       @default([])
+  consentLgpd       Boolean        @default(false)
+  deletedAt         DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
 
   proposals   Proposal[]
   policies    Policy[]
   claims      Claim[]
   assistances Assistance[]
 
-  @@unique([organizationId, document])
+  @@unique([organizationId, documentHash])
   @@index([organizationId, type])
   @@index([organizationId, createdAt(sort: Desc)])
 }
