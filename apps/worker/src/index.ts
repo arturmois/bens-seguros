@@ -1,6 +1,7 @@
 import pino from 'pino'
 import 'reflect-metadata'
 import { setupAuditArchiveProcessor } from './processors/audit-archive-processor.js'
+import { setupCsvImportProcessor } from './processors/csv-import-processor.js'
 import { setupNotificationProcessor } from './processors/notification-processor.js'
 import { setupProactiveAlertsProcessor } from './processors/alerts/index.js'
 
@@ -34,6 +35,7 @@ const connection = {
 }
 
 const auditArchive = setupAuditArchiveProcessor(connection)
+const csvImport = setupCsvImportProcessor(connection)
 const notifications = setupNotificationProcessor(connection)
 const proactiveAlerts = setupProactiveAlertsProcessor(
   connection,
@@ -41,18 +43,20 @@ const proactiveAlerts = setupProactiveAlertsProcessor(
 )
 
 logger.info(
-  'ERP Worker started. Active processors: audit-archive, notifications, proactive-alerts'
+  'ERP Worker started. Active processors: audit-archive, csv-import, notifications, proactive-alerts'
 )
 
 const gracefulShutdown = async () => {
   logger.info('Shutting down worker...')
   await Promise.all([
     auditArchive.worker.close(),
+    csvImport.worker.close(),
     notifications.worker.close(),
     proactiveAlerts.worker.close(),
   ])
   await Promise.all([
     auditArchive.queue.close(),
+    csvImport.queue.close(),
     notifications.queue.close(),
     proactiveAlerts.queue.close(),
   ])
