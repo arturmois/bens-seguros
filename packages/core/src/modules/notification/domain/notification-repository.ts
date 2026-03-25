@@ -15,4 +15,9 @@ export interface NotificationRepository {
   markAsRead(id: string, organizationId: string, userId: string): Promise<void>
   markAllAsRead(organizationId: string, userId: string): Promise<number>
   countUnread(organizationId: string, userId: string): Promise<number>
+  countAlertsByEntityType(
+    organizationId: string,
+    userId: string,
+    types: readonly string[]
+  ): Promise<Record<string, number>>
 }

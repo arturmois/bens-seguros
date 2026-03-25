@@ -5,6 +5,7 @@ import {
   CancelPolicy,
   CompleteChecklistByAttachment,
   container,
+  CountAlertsByEntityType,
   CountUnreadNotifications,
   CreateAssistance,
   CreateClaim,
@@ -281,5 +282,8 @@ export function registerDependencies() {
   })
   container.register(CountUnreadNotifications, {
     useFactory: () => new CountUnreadNotifications(notificationRepo),
+  })
+  container.register(CountAlertsByEntityType, {
+    useFactory: () => new CountAlertsByEntityType(notificationRepo),
   })
 }

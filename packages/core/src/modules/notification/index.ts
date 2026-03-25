@@ -1,3 +1,4 @@
+export { CountAlertsByEntityType } from './application/count-alerts-by-entity-type.js'
 export { CountUnreadNotifications } from './application/count-unread-notifications.js'
 export { CreateNotification } from './application/create-notification.js'
 export { ListNotifications } from './application/list-notifications.js'

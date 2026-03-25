@@ -1,4 +1,5 @@
 import {
+  CountAlertsByEntityType,
   CountUnreadNotifications,
   ListNotifications,
   MarkAllNotificationsAsRead,
@@ -47,6 +48,20 @@ export async function notificationRoutes(app: FastifyInstance) {
     { preHandler: [requireAbility('read', 'Notification')] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const useCase = container.resolve(CountUnreadNotifications)
+      const result = await useCase.execute(
+        request.organizationId!,
+        request.user!.id
+      )
+      return reply.send({ success: true, data: result })
+    }
+  )
+
+  // GET /api/v1/notifications/alert-counts
+  app.get(
+    '/api/v1/notifications/alert-counts',
+    { preHandler: [requireAbility('read', 'Notification')] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const useCase = container.resolve(CountAlertsByEntityType)
       const result = await useCase.execute(
         request.organizationId!,
         request.user!.id

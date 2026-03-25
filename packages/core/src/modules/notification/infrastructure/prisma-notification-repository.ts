@@ -106,4 +106,37 @@ export class PrismaNotificationRepository implements NotificationRepository {
       where: { organizationId, userId, read: false },
     })
   }
+
+  async countAlertsByEntityType(
+    organizationId: string,
+    userId: string,
+    types: readonly string[]
+  ): Promise<Record<string, number>> {
+    const results = await this.prisma.notification.groupBy({
+      by: ['entityType'],
+      where: {
+        organizationId,
+        userId,
+        read: false,
+        type: { in: [...types] },
+        entityType: { not: null },
+      },
+      _count: { id: true },
+    })
+
+    const counts: Record<string, number> = {
+      Policy: 0,
+      Claim: 0,
+      Commission: 0,
+      Proposal: 0,
+    }
+
+    for (const row of results) {
+      if (row.entityType) {
+        counts[row.entityType] = row._count.id
+      }
+    }
+
+    return counts
+  }
 }
