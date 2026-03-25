@@ -524,7 +524,7 @@ model Notification {
   id             String    @id @default(cuid())
   organizationId String
   userId         String
-  type           String // CLAIM_OPENED, COMMISSION_APPROVED, COMMISSION_REJECTED, POLICY_EXPIRING, INVITATION_ACCEPTED
+  type           String // CLAIM_OPENED, COMMISSION_APPROVED, COMMISSION_REJECTED, POLICY_EXPIRING, INVITATION_ACCEPTED, CLAIM_STALLED, COMMISSION_PENDING, PROPOSAL_STAGNANT
   title          String
   body           String
   entityType     String? // Claim, Commission, Policy
@@ -538,6 +538,7 @@ model Notification {
 
   @@index([organizationId, userId, read])
   @@index([organizationId, createdAt(sort: Desc)])
+  @@index([organizationId, entityType, entityId, type, createdAt])
 }
 
 // === AUDIT LOG ===
