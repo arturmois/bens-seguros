@@ -1,4 +1,5 @@
 import { injectable, inject } from 'tsyringe'
+import { maskDocument } from '@repo/shared'
 import type {
   ClientRepository,
   ClientFilters,
@@ -42,7 +43,7 @@ export class ExportClientsCsv {
         formatCsvRow([
           c.id,
           c.name,
-          c.document,
+          maskDocument(c.document),
           c.type,
           c.email ?? '',
           c.phone ?? '',
