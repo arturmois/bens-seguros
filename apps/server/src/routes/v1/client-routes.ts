@@ -12,6 +12,7 @@ import {
   DeleteClient,
   ClientAlreadyExistsError,
   ClientNotFoundError,
+  ClientPresenter,
 } from '@repo/core'
 import {
   auditCreate,
@@ -64,6 +65,7 @@ export async function clientRoutes(app: FastifyInstance) {
         const client = await useCase.execute({
           organizationId: request.organizationId!,
           ...body,
+          salespersonId: request.user!.id,
         })
         auditCreate({
           request,
@@ -71,7 +73,13 @@ export async function clientRoutes(app: FastifyInstance) {
           entityId: client.id,
           after: client,
         })
-        return reply.status(201).send({ success: true, data: client })
+        return reply.status(201).send({
+          success: true,
+          data: ClientPresenter.toDetail(client, {
+            role: request.role!,
+            userId: request.user!.id,
+          }),
+        })
       } catch (error) {
         return handleClientError(error, reply)
       }
@@ -250,7 +258,7 @@ export async function clientRoutes(app: FastifyInstance) {
       )
       return reply.send({
         success: true,
-        data: result.items,
+        data: result.items.map((c) => ClientPresenter.toList(c)),
         meta: { total: result.total, nextCursor: result.nextCursor },
       })
     }
@@ -264,7 +272,13 @@ export async function clientRoutes(app: FastifyInstance) {
       const useCase = container.resolve(GetClient)
       try {
         const client = await useCase.execute(id, request.organizationId!)
-        return reply.send({ success: true, data: client })
+        return reply.send({
+          success: true,
+          data: ClientPresenter.toDetail(client, {
+            role: request.role!,
+            userId: request.user!.id,
+          }),
+        })
       } catch (error) {
         return handleClientError(error, reply)
       }
@@ -286,7 +300,13 @@ export async function clientRoutes(app: FastifyInstance) {
           entityId: id,
           after: updated,
         })
-        return reply.send({ success: true, data: updated })
+        return reply.send({
+          success: true,
+          data: ClientPresenter.toDetail(updated, {
+            role: request.role!,
+            userId: request.user!.id,
+          }),
+        })
       } catch (error) {
         return handleClientError(error, reply)
       }
