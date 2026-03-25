@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { container } from '@repo/core'
 import {
+  ExportPoliciesCsv,
   IssuePolicy,
   ListPolicies,
   GetPolicy,
@@ -76,6 +77,29 @@ export async function policyRoutes(app: FastifyInstance) {
       } catch (error) {
         return handlePolicyError(error, reply)
       }
+    }
+  )
+
+  // IMPORTANT: export route must be registered BEFORE /:id to avoid route conflict
+  app.get(
+    '/api/v1/policies/export',
+    { preHandler: [requireAbility('read', 'Policy')] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { status, clientId, proposalId, branch, search } =
+        listPoliciesQuerySchema.parse(request.query)
+      const useCase = container.resolve(ExportPoliciesCsv)
+      const csv = await useCase.execute({
+        organizationId: request.organizationId!,
+        status,
+        clientId,
+        proposalId,
+        branch,
+        search,
+      })
+      return reply
+        .header('Content-Type', 'text/csv')
+        .header('Content-Disposition', 'attachment; filename="apolices.csv"')
+        .send(csv)
     }
   )
 

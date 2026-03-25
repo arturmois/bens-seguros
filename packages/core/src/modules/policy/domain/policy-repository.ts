@@ -28,7 +28,9 @@ export interface PolicyData {
   createdAt: Date
   updatedAt: Date
   clientName?: string
+  clientDocument?: string
   salespersonName?: string
+  insurerName?: string
   proposalIdentifier?: string
 }
 

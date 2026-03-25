@@ -5,6 +5,7 @@ import {
   CompleteChecklistByAttachment,
   container,
   CreateProposal,
+  ExportProposalsCsv,
   GetProposal,
   InvalidStageTransitionError,
   ListChecklistItems,
@@ -82,6 +83,28 @@ export async function proposalRoutes(app: FastifyInstance) {
         after: proposal,
       })
       return reply.status(201).send({ success: true, data: proposal.toJSON() })
+    }
+  )
+
+  // IMPORTANT: export route must be registered BEFORE /:id to avoid route conflict
+  app.get(
+    '/api/v1/proposals/export',
+    { preHandler: [requireAbility('read', 'Proposal')] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { stage, clientId, boardType, search } =
+        listProposalsQuerySchema.parse(request.query)
+      const useCase = container.resolve(ExportProposalsCsv)
+      const csv = await useCase.execute({
+        organizationId: request.organizationId!,
+        stage,
+        clientId,
+        boardType,
+        search,
+      })
+      return reply
+        .header('Content-Type', 'text/csv')
+        .header('Content-Disposition', 'attachment; filename="propostas.csv"')
+        .send(csv)
     }
   )
 

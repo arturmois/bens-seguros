@@ -45,7 +45,9 @@ export interface ProposalProps {
   readonly createdAt: Date
   updatedAt: Date
   clientName?: string
+  clientDocument?: string
   salespersonName?: string
+  insurerName?: string
 }
 
 interface CreateProposalInput {
@@ -175,6 +177,18 @@ export class Proposal {
   }
   get updatedAt(): Date {
     return this.props.updatedAt
+  }
+  get clientName(): string | undefined {
+    return this.props.clientName
+  }
+  get clientDocument(): string | undefined {
+    return this.props.clientDocument
+  }
+  get salespersonName(): string | undefined {
+    return this.props.salespersonName
+  }
+  get insurerName(): string | undefined {
+    return this.props.insurerName
   }
 
   toJSON(): ProposalProps {

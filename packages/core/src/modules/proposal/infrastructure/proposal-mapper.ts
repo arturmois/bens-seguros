@@ -5,8 +5,9 @@ import type { ProposalProps } from '../domain/proposal.js'
 import { isInsuredObjectDetails } from '../domain/insured-object-details.js'
 
 interface ProposalRelations {
-  client?: { name: string } | null
+  client?: { name: string; document: string } | null
   salesperson?: { name: string } | null
+  insurer?: { name: string } | null
 }
 
 type ProposalWithRelations = PrismaProposalRecord & ProposalRelations
@@ -34,7 +35,9 @@ export class ProposalMapper {
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
       clientName: row.client?.name,
+      clientDocument: row.client?.document,
       salespersonName: row.salesperson?.name,
+      insurerName: row.insurer?.name,
     })
   }
 

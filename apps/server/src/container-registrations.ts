@@ -20,6 +20,8 @@ import {
   DeleteDocument,
   ExportClientsCsv,
   ExportCommissionsCsv,
+  ExportPoliciesCsv,
+  ExportProposalsCsv,
   GetAssistance,
   GetClaim,
   GetClient,
@@ -148,6 +150,9 @@ export function registerDependencies() {
   container.register(ListChecklistItems, {
     useFactory: () => new ListChecklistItems(checklistRepo, proposalRepo),
   })
+  container.register(ExportProposalsCsv, {
+    useFactory: () => new ExportProposalsCsv(proposalRepo),
+  })
   container.register(CompleteChecklistByAttachment, {
     useFactory: () =>
       new CompleteChecklistByAttachment(checklistRepo, proposalRepo),
@@ -171,6 +176,9 @@ export function registerDependencies() {
   container.register(GetPolicy, { useFactory: () => new GetPolicy(policyRepo) })
   container.register(CancelPolicy, {
     useFactory: () => new CancelPolicy(policyRepo),
+  })
+  container.register(ExportPoliciesCsv, {
+    useFactory: () => new ExportPoliciesCsv(policyRepo),
   })
 
   // Claim use cases

@@ -11,8 +11,9 @@ import type {
 import { ProposalMapper } from './proposal-mapper.js'
 
 const PROPOSAL_INCLUDE = {
-  client: { select: { name: true } },
+  client: { select: { name: true, document: true } },
   salesperson: { select: { name: true } },
+  insurer: { select: { name: true } },
 } satisfies Prisma.ProposalInclude
 
 @injectable()

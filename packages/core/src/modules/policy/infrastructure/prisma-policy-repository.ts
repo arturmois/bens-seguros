@@ -12,8 +12,9 @@ import type {
 import { PolicyMapper } from './policy-mapper.js'
 
 const POLICY_INCLUDE = {
-  client: { select: { name: true } },
+  client: { select: { name: true, document: true } },
   salesperson: { select: { name: true } },
+  insurer: { select: { name: true } },
   proposal: { select: { id: true } },
 } satisfies Prisma.PolicyInclude
 

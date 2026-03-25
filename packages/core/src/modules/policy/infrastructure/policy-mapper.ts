@@ -5,8 +5,9 @@ import type {
 } from '../domain/policy-repository.js'
 
 interface PolicyRelations {
-  client?: { name: string } | null
+  client?: { name: string; document: string } | null
   salesperson?: { name: string } | null
+  insurer?: { name: string } | null
   proposal?: { id: string } | null
 }
 
@@ -38,7 +39,9 @@ export class PolicyMapper {
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
       clientName: row.client?.name,
+      clientDocument: row.client?.document,
       salespersonName: row.salesperson?.name,
+      insurerName: row.insurer?.name,
       proposalIdentifier: row.proposal?.id,
     }
   }

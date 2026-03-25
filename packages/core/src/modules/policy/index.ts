@@ -17,6 +17,7 @@ export {
 } from './domain/policy-errors.js'
 
 // Application
+export { ExportPoliciesCsv } from './application/export-policies-csv.js'
 export { IssuePolicy } from './application/issue-policy.js'
 export { ListPolicies } from './application/list-policies.js'
 export { GetPolicy } from './application/get-policy.js'
