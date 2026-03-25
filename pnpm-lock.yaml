@@ -488,6 +488,9 @@ importers:
       '@repo/env':
         specifier: workspace:^
         version: link:../env
+      '@repo/shared':
+        specifier: workspace:*
+        version: link:../shared
       papaparse:
         specifier: ^5.5.3
         version: 5.5.3

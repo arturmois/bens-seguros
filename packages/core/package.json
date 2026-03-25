@@ -17,6 +17,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1014.0",
     "@repo/db": "workspace:*",
     "@repo/env": "workspace:^",
+    "@repo/shared": "workspace:*",
     "papaparse": "^5.5.3",
     "pino": "^9.0.0",
     "reflect-metadata": "^0.2.0",

@@ -1,6 +1,7 @@
 import { injectable, inject } from 'tsyringe'
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
+import { hashDocument } from '@repo/shared'
 import type {
   ClientRepository,
   ClientData,
@@ -17,11 +18,15 @@ export class PrismaClientRepository implements ClientRepository {
   constructor(@inject('PrismaClient') private readonly prisma: PrismaClient) {}
 
   async create(data: CreateClientInput): Promise<ClientData> {
+    const persistence = ClientMapper.toPersistence(data.document)
+
     const row = await this.prisma.client.create({
       data: {
         organizationId: data.organizationId,
         name: data.name,
-        document: data.document,
+        document: persistence.document,
+        documentEncrypted: persistence.documentEncrypted,
+        documentHash: persistence.documentHash,
         type: data.type ?? 'LEAD',
         email: data.email ?? null,
         phone: data.phone ?? null,
@@ -54,8 +59,9 @@ export class PrismaClientRepository implements ClientRepository {
     document: string,
     organizationId: string
   ): Promise<ClientData | null> {
+    const hash = hashDocument(document)
     const row = await this.prisma.client.findFirst({
-      where: { document, organizationId, deletedAt: null },
+      where: { documentHash: hash, organizationId, deletedAt: null },
     })
     return row ? ClientMapper.toDomain(row) : null
   }
@@ -71,8 +77,11 @@ export class PrismaClientRepository implements ClientRepository {
       ...(filters.search && {
         OR: [
           { name: { contains: filters.search, mode: 'insensitive' } },
-          { document: { contains: filters.search } },
           { email: { contains: filters.search, mode: 'insensitive' } },
+          // Exact document match via hash (partial CPF search not supported — encrypted)
+          ...(filters.search.replace(/\D/g, '').length >= 11
+            ? [{ documentHash: hashDocument(filters.search) }]
+            : []),
         ],
       }),
     }
