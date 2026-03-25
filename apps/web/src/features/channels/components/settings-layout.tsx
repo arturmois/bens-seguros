@@ -40,8 +40,8 @@ const SETTINGS_SECTIONS: readonly SettingsSidebarItem[] = [
     id: 'organizacao',
     label: 'Organizacao',
     icon: Building2,
-    disabled: true,
-    href: '#',
+    disabled: false,
+    href: '/settings?section=organizacao',
   },
 ] as const
 

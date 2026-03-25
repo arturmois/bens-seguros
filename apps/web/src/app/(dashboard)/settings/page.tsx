@@ -2,6 +2,7 @@ import { AiAgentsPage } from '@/features/ai-agents/components/ai-agents-page'
 import { ChannelsPage } from '@/features/channels/components/channels-page'
 import { SettingsLayout } from '@/features/channels/components/settings-layout'
 import { MembersPage } from '@/features/members/components/members-page'
+import { OrganizationPage } from '@/features/organization/components/organization-page'
 
 interface SettingsPageProps {
   searchParams: Promise<{ section?: string }>
@@ -13,6 +14,8 @@ function SettingsContent({ section }: { readonly section: string }) {
       return <AiAgentsPage />
     case 'membros':
       return <MembersPage />
+    case 'organizacao':
+      return <OrganizationPage />
     default:
       return <ChannelsPage />
   }
