@@ -2,12 +2,15 @@
 
 import { cn } from '@/lib/utils'
 import {
+  AlertTriangle,
   Bell,
-  FileWarning,
   CheckCircle,
-  XCircle,
   Clock,
+  DollarSign,
+  FileWarning,
+  PauseCircle,
   UserCheck,
+  XCircle,
 } from 'lucide-react'
 import type { NotificationData } from '../types/index'
 
@@ -17,6 +20,9 @@ const ICON_MAP: Record<string, React.ElementType> = {
   COMMISSION_REJECTED: XCircle,
   POLICY_EXPIRING: Clock,
   INVITATION_ACCEPTED: UserCheck,
+  CLAIM_STALLED: AlertTriangle,
+  COMMISSION_PENDING: DollarSign,
+  PROPOSAL_STAGNANT: PauseCircle,
 }
 
 const COLOR_MAP: Record<string, string> = {
@@ -25,6 +31,9 @@ const COLOR_MAP: Record<string, string> = {
   COMMISSION_REJECTED: 'text-red-500',
   POLICY_EXPIRING: 'text-orange-500',
   INVITATION_ACCEPTED: 'text-blue-500',
+  CLAIM_STALLED: 'text-amber-600',
+  COMMISSION_PENDING: 'text-yellow-500',
+  PROPOSAL_STAGNANT: 'text-slate-500',
 }
 
 function formatRelativeTime(dateStr: string): string {
