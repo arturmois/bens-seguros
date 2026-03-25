@@ -88,8 +88,10 @@ jobs:
             docker compose -f docker-compose.prod.yml up -d chat-server chat-worker
 
             # Update nginx config and reload (resolver fix prevents 502 after container IP change)
+            # Copy as default.conf to match docker-compose volume mount — avoids duplicate resolver directive
             if [ -f nginx/prod.conf ]; then
-              docker cp nginx/prod.conf bens-seguros-nginx-1:/etc/nginx/conf.d/prod.conf
+              docker exec bens-seguros-nginx-1 rm -f /etc/nginx/conf.d/prod.conf 2>/dev/null || true
+              docker cp nginx/prod.conf bens-seguros-nginx-1:/etc/nginx/conf.d/default.conf
               docker exec bens-seguros-nginx-1 nginx -t && docker exec bens-seguros-nginx-1 nginx -s reload
             fi
 
