@@ -92,6 +92,10 @@ export function ClientsContent() {
           setEditingClient(null)
           setFormOpen(true)
         }}
+        currentFilters={{
+          search: debouncedSearch || undefined,
+          type: typeFilter === 'ALL' ? undefined : (typeFilter as ClientType),
+        }}
       />
 
       <div className="rounded-md border">

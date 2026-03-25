@@ -43,6 +43,7 @@ import {
   POLICY_STATUSES,
 } from '../types'
 import { CancelPolicyDialog } from './cancel-policy-dialog'
+import { PolicyExportButton } from './policy-export-button'
 
 export function PoliciesTable() {
   const router = useRouter()
@@ -119,6 +120,12 @@ export function PoliciesTable() {
             ))}
           </SelectContent>
         </Select>
+        <PolicyExportButton
+          filters={{
+            search: debouncedSearch || undefined,
+            status: statusFilter === 'ALL' ? undefined : statusFilter,
+          }}
+        />
       </div>
 
       {isLoading ? (

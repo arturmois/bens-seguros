@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/select'
 
 import { TYPE_OPTIONS } from '../lib/constants'
+import type { ClientFilters } from '../types'
+import { ClientExportButton } from './client-export-button'
 
 const TYPE_FILTER_OPTIONS = [{ value: 'ALL', label: 'Todos' }, ...TYPE_OPTIONS]
 
@@ -22,6 +24,7 @@ interface ClientsToolbarProps {
   readonly typeFilter: string
   readonly onTypeFilterChange: (value: string) => void
   readonly onNewClient: () => void
+  readonly currentFilters: ClientFilters
 }
 
 export function ClientsToolbar({
@@ -30,6 +33,7 @@ export function ClientsToolbar({
   typeFilter,
   onTypeFilterChange,
   onNewClient,
+  currentFilters,
 }: ClientsToolbarProps) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -63,10 +67,13 @@ export function ClientsToolbar({
           </SelectContent>
         </Select>
       </div>
-      <Button onClick={onNewClient}>
-        <Plus className="mr-2 h-4 w-4" />
-        Novo Cliente
-      </Button>
+      <div className="flex items-center gap-2">
+        <ClientExportButton filters={currentFilters} />
+        <Button onClick={onNewClient}>
+          <Plus className="mr-2 h-4 w-4" />
+          Novo Cliente
+        </Button>
+      </div>
     </div>
   )
 }

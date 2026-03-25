@@ -1,0 +1,47 @@
+'use client'
+
+import { Download, Loader2 } from 'lucide-react'
+import { useMutation } from '@tanstack/react-query'
+import { toast } from 'sonner'
+
+import { Button } from '@/components/ui/button'
+import { downloadCsvBlob } from '@/lib/csv-download'
+
+import type { ClientFilters } from '../types'
+
+interface ClientExportButtonProps {
+  readonly filters: ClientFilters
+}
+
+export function ClientExportButton({ filters }: ClientExportButtonProps) {
+  const exportCsv = useMutation({
+    mutationFn: async (f: ClientFilters) => {
+      const params = new URLSearchParams()
+      if (f.search) params.set('search', f.search)
+      if (f.type) params.set('type', f.type)
+      await downloadCsvBlob(
+        `/api/v1/clients/export?${params.toString()}`,
+        'clientes.csv'
+      )
+    },
+    onSuccess: () => toast.success('Exportacao concluida'),
+    onError: () => toast.error('Erro ao exportar clientes'),
+  })
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => exportCsv.mutate(filters)}
+      disabled={exportCsv.isPending}
+      aria-label="Exportar clientes em CSV"
+    >
+      {exportCsv.isPending ? (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      ) : (
+        <Download className="mr-2 h-4 w-4" />
+      )}
+      Exportar CSV
+    </Button>
+  )
+}

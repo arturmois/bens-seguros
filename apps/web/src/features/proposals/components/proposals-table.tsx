@@ -37,6 +37,7 @@ import {
 } from '../types'
 import { LostReasonDialog } from './lost-reason-dialog'
 import { ProposalActionButtons } from './proposal-action-buttons'
+import { ProposalExportButton } from './proposal-export-button'
 import {
   ProposalsEmptyState,
   ProposalsTableSkeleton,
@@ -154,6 +155,19 @@ export function ProposalsTable() {
             ))}
           </SelectContent>
         </Select>
+        <ProposalExportButton
+          filters={{
+            search: debouncedSearch || undefined,
+            stage:
+              stageFilter !== ALL_VALUE
+                ? (stageFilter as ProposalStage)
+                : undefined,
+            boardType:
+              boardTypeFilter !== ALL_VALUE
+                ? (boardTypeFilter as BoardType)
+                : undefined,
+          }}
+        />
         <Button onClick={() => router.push('/proposals/new')}>
           <Plus className="mr-2 h-4 w-4" />
           Nova Proposta

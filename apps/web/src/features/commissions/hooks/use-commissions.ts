@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import { api } from '@/lib/api-client'
+import { downloadCsvBlob } from '@/lib/csv-download'
 
 import type {
   CommissionData,
@@ -13,8 +14,6 @@ import type {
 
 const COMMISSIONS_KEY = 'commissions'
 const COMMISSION_KEY = 'commission'
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
 function buildFilterParams(filters: CommissionFilters): URLSearchParams {
   const params = new URLSearchParams()
@@ -182,24 +181,10 @@ export function useExportCommissionsCsv() {
   return useMutation({
     mutationFn: async (filters: CommissionFilters) => {
       const params = buildFilterParams(filters)
-      const response = await fetch(
-        `${API_URL}/api/v1/commissions/export?${params.toString()}`,
-        {
-          credentials: 'include',
-        }
+      await downloadCsvBlob(
+        `/api/v1/commissions/export?${params.toString()}`,
+        'comissoes.csv'
       )
-
-      if (!response.ok) {
-        throw new Error('Falha ao exportar comissões')
-      }
-
-      const blob = await response.blob()
-      const url = URL.createObjectURL(blob)
-      const anchor = document.createElement('a')
-      anchor.href = url
-      anchor.download = 'comissoes.csv'
-      anchor.click()
-      URL.revokeObjectURL(url)
     },
     onSuccess: () => {
       toast.success('Exportação concluída')
