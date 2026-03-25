@@ -18,6 +18,7 @@ import {
   DeleteClaim,
   DeleteClient,
   DeleteDocument,
+  ExportClientsCsv,
   ExportCommissionsCsv,
   GetAssistance,
   GetClaim,
@@ -118,6 +119,9 @@ export function registerDependencies() {
   })
   container.register(DeleteClient, {
     useFactory: () => new DeleteClient(clientRepo),
+  })
+  container.register(ExportClientsCsv, {
+    useFactory: () => new ExportClientsCsv(clientRepo),
   })
 
   // Proposal use cases

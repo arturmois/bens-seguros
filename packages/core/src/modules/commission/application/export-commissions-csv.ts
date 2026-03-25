@@ -3,15 +3,7 @@ import type {
   CommissionRepository,
   CommissionFilters,
 } from '../domain/commission-repository.js'
-
-const MAX_EXPORT_ROWS = 10000
-
-function escapeCsvField(value: string): string {
-  if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-    return `"${value.replace(/"/g, '""')}"`
-  }
-  return value
-}
+import { MAX_EXPORT_ROWS, escapeCsvField } from '../../../shared/csv-utils.js'
 
 @injectable()
 export class ExportCommissionsCsv {

@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { container } from '@repo/core'
 import {
   CreateClient,
+  ExportClientsCsv,
   ListClients,
   GetClient,
   UpdateClient,
@@ -63,6 +64,25 @@ export async function clientRoutes(app: FastifyInstance) {
       } catch (error) {
         return handleClientError(error, reply)
       }
+    }
+  )
+
+  // IMPORTANT: export route must be registered BEFORE /:id to avoid route conflict
+  app.get(
+    '/api/v1/clients/export',
+    { preHandler: [requireAbility('read', 'Client')] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { type, search } = listClientsQuerySchema.parse(request.query)
+      const useCase = container.resolve(ExportClientsCsv)
+      const csv = await useCase.execute({
+        organizationId: request.organizationId!,
+        type,
+        search,
+      })
+      return reply
+        .header('Content-Type', 'text/csv')
+        .header('Content-Disposition', 'attachment; filename="clientes.csv"')
+        .send(csv)
     }
   )
 

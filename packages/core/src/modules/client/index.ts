@@ -16,6 +16,7 @@ export {
 } from './domain/client-errors.js'
 
 // Application
+export { ExportClientsCsv } from './application/export-clients-csv.js'
 export { CreateClient } from './application/create-client.js'
 export { ListClients } from './application/list-clients.js'
 export { GetClient } from './application/get-client.js'

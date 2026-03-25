@@ -1,5 +1,12 @@
 export { container, inject, injectable, singleton } from './container.js'
 
+// Shared utilities
+export {
+  escapeCsvField,
+  formatCsvRow,
+  MAX_EXPORT_ROWS,
+} from './shared/csv-utils.js'
+
 // Domain modules
 export * from './modules/assistance/index.js'
 export {
