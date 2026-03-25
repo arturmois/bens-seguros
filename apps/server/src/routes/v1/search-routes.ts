@@ -1,11 +1,19 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
-import { prisma } from '@repo/db'
+import { prisma, InsuranceBranch } from '@repo/db'
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
 import { searchQuerySchema } from '../../schemas/search.schemas.js'
 
 function stripNonDigits(value: string): string {
   return value.replace(/\D/g, '')
+}
+
+function toInsuranceBranch(value: string): InsuranceBranch | null {
+  const upper = value.toUpperCase()
+  if (Object.values(InsuranceBranch).includes(upper as InsuranceBranch)) {
+    return upper as InsuranceBranch
+  }
+  return null
 }
 
 export async function searchRoutes(app: FastifyInstance) {
@@ -23,6 +31,7 @@ export async function searchRoutes(app: FastifyInstance) {
         documentQuery.length >= 2 ? `%${documentQuery}%` : null
       const numericQuery = Number.parseInt(q, 10)
       const isNumeric = !Number.isNaN(numericQuery)
+      const branchMatch = toInsuranceBranch(q)
 
       const [clients, proposals, policies, claims] = await Promise.all([
         prisma.client.findMany({
@@ -53,10 +62,15 @@ export async function searchRoutes(app: FastifyInstance) {
           where: {
             organizationId,
             deletedAt: null,
-            client: {
-              name: { contains: q, mode: 'insensitive' },
-              deletedAt: null,
-            },
+            OR: [
+              {
+                client: {
+                  name: { contains: q, mode: 'insensitive' },
+                  deletedAt: null,
+                },
+              },
+              ...(branchMatch ? [{ branch: { equals: branchMatch } }] : []),
+            ],
           },
           select: {
             id: true,

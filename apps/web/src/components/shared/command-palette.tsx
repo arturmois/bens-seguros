@@ -167,7 +167,7 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const router = useRouter()
-  const { results, isLoading } = useGlobalSearch(query)
+  const { results, isLoading, isError } = useGlobalSearch(query)
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -220,7 +220,10 @@ export function CommandPalette() {
                   onSelect={handleSelect}
                 />
               )}
-              {hasQuery && !isLoading && !hasResults && (
+              {hasQuery && isError && (
+                <CommandEmpty>Erro ao buscar. Tente novamente.</CommandEmpty>
+              )}
+              {hasQuery && !isLoading && !isError && !hasResults && (
                 <CommandEmpty>Nenhum resultado encontrado.</CommandEmpty>
               )}
               {hasQuery && isLoading && (
