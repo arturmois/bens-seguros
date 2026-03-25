@@ -14,5 +14,6 @@ export {
   hashDocument,
   maskDocument,
   getEncryptionKey,
+  stripNonDigits,
 } from './crypto'
 export type { EncryptedField } from './crypto'

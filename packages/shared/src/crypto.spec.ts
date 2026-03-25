@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   encrypt,
   decrypt,
@@ -7,8 +7,18 @@ import {
   getEncryptionKey,
 } from './crypto.js'
 
+const TEST_KEY_HEX = 'a'.repeat(64)
+
 describe('crypto', () => {
-  const key = Buffer.from('a'.repeat(64), 'hex')
+  const key = Buffer.from(TEST_KEY_HEX, 'hex')
+
+  beforeEach(() => {
+    vi.stubEnv('ENCRYPTION_KEY', TEST_KEY_HEX)
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
 
   describe('encrypt/decrypt roundtrip', () => {
     it('encrypts and decrypts a CPF', () => {
@@ -52,7 +62,7 @@ describe('crypto', () => {
       expect(formatted).toBe(raw)
     })
 
-    it('returns consistent SHA-256 hex', () => {
+    it('returns consistent HMAC-SHA-256 hex', () => {
       const hash = hashDocument('12345678901')
 
       expect(hash).toMatch(/^[0-9a-f]{64}$/)
@@ -80,6 +90,22 @@ describe('crypto', () => {
 
       expect(Buffer.isBuffer(result)).toBe(true)
       expect(result.length).toBe(32)
+    })
+
+    it('throws when ENCRYPTION_KEY is missing', () => {
+      vi.stubEnv('ENCRYPTION_KEY', '')
+
+      expect(() => getEncryptionKey()).toThrow(
+        'ENCRYPTION_KEY must decode to exactly 32 bytes'
+      )
+    })
+
+    it('throws when ENCRYPTION_KEY has wrong length', () => {
+      vi.stubEnv('ENCRYPTION_KEY', 'abcd')
+
+      expect(() => getEncryptionKey()).toThrow(
+        'ENCRYPTION_KEY must decode to exactly 32 bytes'
+      )
     })
   })
 })

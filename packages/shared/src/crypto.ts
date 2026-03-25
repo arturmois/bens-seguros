@@ -1,16 +1,13 @@
 import {
   createCipheriv,
   createDecipheriv,
-  createHash,
+  createHmac,
   randomBytes,
 } from 'node:crypto'
 
 const ALGORITHM = 'aes-256-gcm'
 const IV_LENGTH = 12
 const TAG_LENGTH = 16
-
-// Dev-only fallback key (never used in production — env validation enforces ENCRYPTION_KEY)
-const DEV_FALLBACK_KEY = '0'.repeat(64)
 
 export interface EncryptedField {
   readonly ciphertext: string
@@ -19,8 +16,14 @@ export interface EncryptedField {
 }
 
 export function getEncryptionKey(): Buffer {
-  const keyHex = process.env.ENCRYPTION_KEY ?? DEV_FALLBACK_KEY
-  return Buffer.from(keyHex, 'hex')
+  const keyHex = process.env.ENCRYPTION_KEY ?? ''
+  const key = Buffer.from(keyHex, 'hex')
+  if (key.length !== 32) {
+    throw new Error(
+      `ENCRYPTION_KEY must decode to exactly 32 bytes (got ${key.length}). Provide a 64-character hex string.`
+    )
+  }
+  return key
 }
 
 export function encrypt(plaintext: string, key: Buffer): EncryptedField {
@@ -61,13 +64,14 @@ export function decrypt(encrypted: EncryptedField, key: Buffer): string {
   return decrypted.toString('utf8')
 }
 
-function stripNonDigits(value: string): string {
+export function stripNonDigits(value: string): string {
   return value.replace(/\D/g, '')
 }
 
 export function hashDocument(document: string): string {
   const digits = stripNonDigits(document)
-  return createHash('sha256').update(digits).digest('hex')
+  const key = getEncryptionKey()
+  return createHmac('sha256', key).update(digits).digest('hex')
 }
 
 export function maskDocument(document: string): string {

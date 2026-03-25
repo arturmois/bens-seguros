@@ -59,6 +59,11 @@ export interface CreateClientInput {
   consentLgpd?: boolean
 }
 
+/**
+ * Fields allowed for client updates. The `document` (CPF/CNPJ) field is
+ * intentionally omitted — it is immutable after creation because it serves
+ * as the encryption/hashing anchor for PII lookup and deduplication.
+ */
 export interface UpdateClientInput {
   name?: string
   email?: string | null

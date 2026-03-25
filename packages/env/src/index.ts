@@ -1,6 +1,13 @@
 import { createEnv } from '@t3-oss/env-core'
 import { z } from 'zod'
 
+const isProduction = process.env.NODE_ENV === 'production'
+
+const encryptionKeySchema = z
+  .string()
+  .length(64, 'ENCRYPTION_KEY must be exactly 64 hex characters (32 bytes)')
+  .regex(/^[0-9a-f]+$/i, 'ENCRYPTION_KEY must be hex-encoded')
+
 export const env = createEnv({
   server: {
     NODE_ENV: z
@@ -31,11 +38,10 @@ export const env = createEnv({
     META_WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
     STORAGE_PROVIDER: z.enum(['local', 'r2']).default('local'),
     // SEC-1: PII encryption key — hex-encoded 32-byte key (64 hex chars)
-    ENCRYPTION_KEY: z
-      .string()
-      .min(64)
-      .regex(/^[0-9a-f]+$/i, 'ENCRYPTION_KEY must be hex-encoded')
-      .optional(),
+    // Required in production; defaults to a zero-key in development/test only
+    ENCRYPTION_KEY: isProduction
+      ? encryptionKeySchema
+      : encryptionKeySchema.default('0'.repeat(64)),
     // Internal API for lead capture from AI bot
     INTERNAL_API_URL: z.string().url().optional(),
     INTERNAL_API_TOKEN: z.string().min(1).optional(),

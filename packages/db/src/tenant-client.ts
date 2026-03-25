@@ -7,9 +7,7 @@ export function createTenantClient(organizationId: string) {
     query: {
       $allOperations({ args, query }) {
         return prisma.$transaction(async (tx) => {
-          await tx.$executeRawUnsafe(
-            `SET LOCAL app.current_tenant = '${organizationId.replace(/'/g, "''")}'`
-          )
+          await tx.$executeRaw`SELECT set_config('app.current_tenant', ${organizationId}, true)`
           return query(args)
         })
       },

@@ -1,13 +1,9 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { InsuranceBranch } from '@repo/db'
-import { hashDocument } from '@repo/shared'
+import { hashDocument, stripNonDigits } from '@repo/shared'
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
 import { searchQuerySchema } from '../../schemas/search.schemas.js'
-
-function stripNonDigits(value: string): string {
-  return value.replace(/\D/g, '')
-}
 
 function toInsuranceBranch(value: string): InsuranceBranch | null {
   const upper = value.toUpperCase()

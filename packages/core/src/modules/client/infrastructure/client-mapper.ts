@@ -20,8 +20,7 @@ function isEncryptedField(value: unknown): value is EncryptedField {
   if (value === null || typeof value !== 'object') {
     return false
   }
-  const record = value as Record<string, unknown>
-  return 'ciphertext' in record && 'iv' in record && 'tag' in record
+  return 'ciphertext' in value && 'iv' in value && 'tag' in value
 }
 
 interface PersistenceData {
