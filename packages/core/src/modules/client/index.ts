@@ -23,6 +23,7 @@ export { GetClient } from './application/get-client.js'
 export { UpdateClient } from './application/update-client.js'
 export { DeleteClient } from './application/delete-client.js'
 
+export { ParseClientImport } from './application/parse-client-import.js'
 export { clientImportRowSchema } from './application/client-import-schema.js'
 export type { ClientImportRow } from './application/client-import-schema.js'
 

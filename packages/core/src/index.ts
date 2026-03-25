@@ -15,6 +15,7 @@ export type {
   CsvImportProgress,
 } from './shared/csv-import-types.js'
 export {
+  CsvImportError,
   MAX_IMPORT_FILE_SIZE,
   MAX_IMPORT_ROWS,
   IMPORT_BATCH_SIZE,

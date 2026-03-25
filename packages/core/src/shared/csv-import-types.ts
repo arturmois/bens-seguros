@@ -36,6 +36,16 @@ export interface CsvImportProgress {
   errors: Array<{ row: number; message: string }>
 }
 
+export class CsvImportError extends Error {
+  constructor(
+    readonly code: string,
+    message: string
+  ) {
+    super(message)
+    this.name = 'CsvImportError'
+  }
+}
+
 export const MAX_IMPORT_FILE_SIZE = 5 * 1024 * 1024 // 5 MB
 export const MAX_IMPORT_ROWS = 50_000
 export const IMPORT_BATCH_SIZE = 50

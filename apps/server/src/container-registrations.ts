@@ -19,8 +19,10 @@ import {
   DeleteClient,
   DeleteDocument,
   ExportClientsCsv,
+  ParseClientImport,
   ExportCommissionsCsv,
   ExportPoliciesCsv,
+  ParsePolicyImport,
   ExportProposalsCsv,
   GetAssistance,
   GetClaim,
@@ -125,6 +127,9 @@ export function registerDependencies() {
   container.register(ExportClientsCsv, {
     useFactory: () => new ExportClientsCsv(clientRepo),
   })
+  container.register(ParseClientImport, {
+    useFactory: () => new ParseClientImport(clientRepo),
+  })
 
   // Proposal use cases
   container.register(CreateProposal, {
@@ -179,6 +184,9 @@ export function registerDependencies() {
   })
   container.register(ExportPoliciesCsv, {
     useFactory: () => new ExportPoliciesCsv(policyRepo),
+  })
+  container.register(ParsePolicyImport, {
+    useFactory: () => new ParsePolicyImport(policyRepo),
   })
 
   // Claim use cases
