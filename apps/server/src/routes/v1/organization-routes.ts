@@ -13,6 +13,13 @@ const ALLOWED_IMAGE_TYPES = new Set([
   'image/gif',
 ])
 
+const MIME_TO_EXT: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+}
+
 const MAX_LOGO_SIZE = 2 * 1024 * 1024 // 2MB
 
 export async function organizationRoutes(app: FastifyInstance) {
@@ -194,7 +201,7 @@ export async function organizationRoutes(app: FastifyInstance) {
         })
       }
 
-      const extension = file.filename.split('.').pop() ?? 'png'
+      const extension = MIME_TO_EXT[file.mimetype] ?? 'png'
       const storageKey = `organizations/${organizationId}/logo.${extension}`
 
       await storage.upload(storageKey, buffer, file.mimetype)

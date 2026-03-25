@@ -34,7 +34,7 @@ function isErrorResponse(body: unknown): body is ApiErrorResponse {
 
 async function request<TData>(
   path: string,
-  options: RequestInit = {}
+  options: Omit<RequestInit, 'body'> & { body?: unknown } = {}
 ): Promise<ApiResponse<TData>> {
   const headers: Record<string, string> = {
     ...Object.fromEntries(
@@ -45,10 +45,18 @@ async function request<TData>(
     headers['Content-Type'] = 'application/json'
   }
 
+  const fetchBody =
+    options.body instanceof FormData
+      ? options.body
+      : options.body != null
+        ? JSON.stringify(options.body)
+        : undefined
+
   const res = await fetch(`${API_URL}${path}`, {
     credentials: 'include',
     ...options,
     headers,
+    body: fetchBody,
   })
 
   if (res.status === 204) {
@@ -71,22 +79,13 @@ export const api = {
   get: <TData>(path: string) => request<TData>(path),
 
   post: <TData>(path: string, data: unknown) =>
-    request<TData>(path, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
+    request<TData>(path, { method: 'POST', body: data }),
 
   put: <TData>(path: string, data: unknown) =>
-    request<TData>(path, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    }),
+    request<TData>(path, { method: 'PUT', body: data }),
 
   patch: <TData>(path: string, data: unknown) =>
-    request<TData>(path, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    }),
+    request<TData>(path, { method: 'PATCH', body: data }),
 
   delete: (path: string) => request(path, { method: 'DELETE' }),
 
