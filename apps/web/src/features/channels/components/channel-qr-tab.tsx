@@ -1,5 +1,15 @@
+import dynamic from 'next/dynamic'
 import { CheckCircle2, Loader2, QrCode } from 'lucide-react'
-import { QRCodeSVG } from 'qrcode.react'
+
+const QRCodeSVG = dynamic(
+  () => import('qrcode.react').then((mod) => ({ default: mod.QRCodeSVG })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-muted size-64 animate-pulse rounded-lg" />
+    ),
+  }
+)
 
 interface QrCodeDisplayProps {
   readonly qrData: string

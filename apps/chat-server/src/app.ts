@@ -79,6 +79,18 @@ export async function buildChatApp(
     }
   )
 
+  // Cache-Control: prevent browser caching of API responses
+  app.addHook('onSend', async (request, reply, payload) => {
+    if (request.url.startsWith('/chat/')) {
+      void reply.header(
+        'Cache-Control',
+        'no-store, no-cache, must-revalidate, max-age=0'
+      )
+      void reply.header('Pragma', 'no-cache')
+    }
+    return payload
+  })
+
   // Authenticated routes
   await app.register(conversationRoutes)
   await app.register(channelRoutes)
