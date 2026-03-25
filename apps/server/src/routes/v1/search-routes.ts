@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { prisma, InsuranceBranch } from '@repo/db'
+import { hashDocument } from '@repo/shared'
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
 import { searchQuerySchema } from '../../schemas/search.schemas.js'
@@ -27,8 +28,6 @@ export async function searchRoutes(app: FastifyInstance) {
       const organizationId = request.organizationId!
       const perEntity = Math.ceil(limit / 4)
       const documentQuery = stripNonDigits(q)
-      const documentPattern =
-        documentQuery.length >= 2 ? `%${documentQuery}%` : null
       const numericQuery = Number.parseInt(q, 10)
       const isNumeric = !Number.isNaN(numericQuery)
       const branchMatch = toInsuranceBranch(q)
@@ -41,15 +40,9 @@ export async function searchRoutes(app: FastifyInstance) {
             OR: [
               { name: { contains: q, mode: 'insensitive' } },
               { email: { contains: q, mode: 'insensitive' } },
-              ...(documentPattern
-                ? [
-                    {
-                      document: {
-                        contains: documentQuery,
-                        mode: 'insensitive' as const,
-                      },
-                    },
-                  ]
+              // Exact CPF/CNPJ match via hash (partial search not supported — field is encrypted)
+              ...(documentQuery.length >= 11
+                ? [{ documentHash: hashDocument(documentQuery) }]
                 : []),
             ],
           },
