@@ -1,6 +1,7 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useRef, useCallback } from 'react'
 import { toast } from 'sonner'
 
 import { api } from '@/lib/api-client'
@@ -30,18 +31,13 @@ export function useUploadCsv() {
 }
 
 export function useConfirmImport() {
-  const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (jobId: string) => {
       const response = await api.post<{ jobId: string }>(
-        '/api/v1/clients/import/confirm',
-        { jobId }
+        `/api/v1/clients/import/${jobId}/confirm`,
+        {}
       )
       return response.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [CLIENTS_KEY] })
     },
     onError: () => {
       toast.error('Erro ao confirmar importacao')
@@ -50,13 +46,26 @@ export function useConfirmImport() {
 }
 
 export function useImportStatus(jobId: string, enabled: boolean) {
+  const queryClient = useQueryClient()
+  const didInvalidate = useRef(false)
+
+  const handleCompleted = useCallback(() => {
+    if (didInvalidate.current) return
+    didInvalidate.current = true
+    queryClient.invalidateQueries({ queryKey: [CLIENTS_KEY] })
+  }, [queryClient])
+
   return useQuery({
     queryKey: ['import-status', jobId],
     queryFn: async () => {
       const response = await api.get<ImportStatusResponse>(
-        `/api/v1/clients/import/status/${jobId}`
+        `/api/v1/clients/import/${jobId}/status`
       )
-      return response.data
+      const data = response.data
+      if (data.status === 'completed') {
+        handleCompleted()
+      }
+      return data
     },
     enabled: enabled && jobId.length > 0,
     refetchInterval: 2_000,

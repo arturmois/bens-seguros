@@ -3,7 +3,11 @@ import type {
   PolicyRepository,
   PolicyFilters,
 } from '../domain/policy-repository.js'
-import { MAX_EXPORT_ROWS, formatCsvRow } from '../../../shared/csv-utils.js'
+import {
+  MAX_EXPORT_ROWS,
+  CSV_BOM,
+  formatCsvRow,
+} from '../../../shared/csv-utils.js'
 
 const POLICY_CSV_COLUMNS = [
   'ID',
@@ -52,6 +56,6 @@ export class ExportPoliciesCsv {
       )
       .join('\n')
 
-    return header + rows
+    return CSV_BOM + header + rows
   }
 }

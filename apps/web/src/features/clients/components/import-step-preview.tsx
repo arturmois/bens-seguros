@@ -27,40 +27,43 @@ export function ImportStepPreview({
   onCancel,
   isConfirming,
 }: ImportStepPreviewProps) {
+  const { validationSummary } = preview
   const firstRow = preview.preview[0]
-  const columns = firstRow ? Object.keys(firstRow.data) : []
+  const columns = firstRow ? Object.keys(firstRow) : []
 
   return (
     <div className="flex flex-col gap-4 overflow-hidden p-4">
       <div className="flex items-center gap-4 text-sm">
         <span className="flex items-center gap-1">
           <CheckCircle2 className="h-4 w-4 text-green-500" />
-          {preview.validRows} validos
+          {validationSummary.valid} validos
         </span>
         <span className="flex items-center gap-1">
           <AlertCircle className="text-destructive h-4 w-4" />
-          {preview.errorRows} com erros
+          {validationSummary.invalid} com erros
         </span>
-        <span className="text-muted-foreground">{preview.totalRows} total</span>
+        <span className="text-muted-foreground">
+          {validationSummary.total} total
+        </span>
       </div>
 
-      {preview.errors.length > 0 && (
+      {validationSummary.errors.length > 0 && (
         <div className="bg-destructive/10 rounded-md p-3">
           <p className="text-destructive text-sm font-medium">
             Erros encontrados:
           </p>
           <ul className="mt-1 list-inside list-disc text-sm">
-            {preview.errors.slice(0, 5).map((err) => (
+            {validationSummary.errors.slice(0, 5).map((err) => (
               <li
-                key={`${err.row}-${err.message}`}
+                key={`${err.row}-${err.field}-${err.message}`}
                 className="text-destructive"
               >
-                Linha {err.row}: {err.message}
+                Linha {err.row} ({err.field}): {err.message}
               </li>
             ))}
-            {preview.errors.length > 5 && (
+            {validationSummary.errors.length > 5 && (
               <li className="text-muted-foreground">
-                e mais {preview.errors.length - 5} erros...
+                e mais {validationSummary.errors.length - 5} erros...
               </li>
             )}
           </ul>
@@ -78,17 +81,17 @@ export function ImportStepPreview({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {preview.preview.slice(0, 5).map((row) => (
-              <TableRow key={row.row}>
+            {preview.preview.slice(0, 5).map((row, index) => (
+              <TableRow key={index}>
                 <TableCell className="text-muted-foreground">
-                  {row.row}
+                  {index + 1}
                 </TableCell>
                 {columns.map((col) => (
                   <TableCell
-                    key={`${row.row}-${col}`}
+                    key={`${index}-${col}`}
                     className="max-w-[150px] truncate"
                   >
-                    {row.data[col]}
+                    {row[col]}
                   </TableCell>
                 ))}
               </TableRow>
@@ -103,10 +106,10 @@ export function ImportStepPreview({
         </Button>
         <Button
           onClick={onConfirm}
-          disabled={isConfirming || preview.validRows === 0}
+          disabled={isConfirming || validationSummary.valid === 0}
         >
           {isConfirming && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Importar {preview.validRows} clientes
+          Importar {validationSummary.valid} clientes
         </Button>
       </div>
     </div>

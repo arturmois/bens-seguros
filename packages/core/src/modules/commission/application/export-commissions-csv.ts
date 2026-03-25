@@ -3,7 +3,11 @@ import type {
   CommissionRepository,
   CommissionFilters,
 } from '../domain/commission-repository.js'
-import { MAX_EXPORT_ROWS, escapeCsvField } from '../../../shared/csv-utils.js'
+import {
+  MAX_EXPORT_ROWS,
+  CSV_BOM,
+  escapeCsvField,
+} from '../../../shared/csv-utils.js'
 
 @injectable()
 export class ExportCommissionsCsv {
@@ -33,6 +37,6 @@ export class ExportCommissionsCsv {
       )
       .join('\n')
 
-    return header + rows
+    return CSV_BOM + header + rows
   }
 }

@@ -1,20 +1,23 @@
-export interface ImportPreviewRow {
+export interface CsvRowError {
   readonly row: number
-  readonly data: Record<string, string>
-  readonly errors: ReadonlyArray<{ field: string; message: string }>
+  readonly field: string
+  readonly message: string
+  readonly value?: string
 }
 
 export interface ImportPreviewResponse {
   readonly jobId: string
-  readonly totalRows: number
-  readonly validRows: number
-  readonly errorRows: number
-  readonly preview: ReadonlyArray<ImportPreviewRow>
-  readonly errors: ReadonlyArray<{ row: number; message: string }>
+  readonly preview: ReadonlyArray<Record<string, string>>
+  readonly validationSummary: {
+    readonly total: number
+    readonly valid: number
+    readonly invalid: number
+    readonly errors: ReadonlyArray<CsvRowError>
+  }
 }
 
 export interface ImportStatusResponse {
-  readonly status: 'processing' | 'completed' | 'failed'
+  readonly status: 'active' | 'waiting' | 'completed' | 'failed'
   readonly progress: {
     readonly processed: number
     readonly created: number

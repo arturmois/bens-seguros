@@ -2,6 +2,7 @@ export { container, inject, injectable, singleton } from './container.js'
 
 // Shared utilities
 export {
+  CSV_BOM,
   escapeCsvField,
   formatCsvRow,
   MAX_EXPORT_ROWS,

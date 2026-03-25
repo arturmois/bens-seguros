@@ -104,7 +104,7 @@ export async function clientRoutes(app: FastifyInstance) {
     { preHandler: [requireAbility('read', 'Client')] },
     async (_request: FastifyRequest, reply: FastifyReply) => {
       const template =
-        'Nome,CPF/CNPJ,Tipo,Email,Telefone,Data Nascimento,Profissao,Estado Civil,Tags\n' +
+        '\uFEFFNome,CPF/CNPJ,Tipo,Email,Telefone,Data Nascimento,Profissao,Estado Civil,Tags\n' +
         'Joao Silva,12345678901,CLIENT,joao@email.com,11999999999,1990-01-15,Engenheiro,MARRIED,vip;indicacao\n'
       return reply
         .header('Content-Type', 'text/csv')

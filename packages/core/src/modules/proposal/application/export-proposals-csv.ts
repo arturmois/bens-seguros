@@ -3,7 +3,11 @@ import type {
   ProposalRepository,
   ProposalFilters,
 } from '../domain/proposal-repository.js'
-import { MAX_EXPORT_ROWS, formatCsvRow } from '../../../shared/csv-utils.js'
+import {
+  MAX_EXPORT_ROWS,
+  CSV_BOM,
+  formatCsvRow,
+} from '../../../shared/csv-utils.js'
 
 const PROPOSAL_CSV_COLUMNS = [
   'ID',
@@ -50,6 +54,6 @@ export class ExportProposalsCsv {
       )
       .join('\n')
 
-    return header + rows
+    return CSV_BOM + header + rows
   }
 }
