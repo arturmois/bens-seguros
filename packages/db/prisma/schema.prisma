@@ -33,11 +33,12 @@ model User {
   accounts Account[]
   members  Member[]
 
-  proposalsAsSalesperson Proposal[] @relation("ProposalSalesperson")
-  policiesAsSalesperson  Policy[]   @relation("PolicySalesperson")
-  claimsAssigned              Claim[]      @relation("ClaimAssignee")
-  commissionsAsSalesperson    Commission[] @relation("CommissionSalesperson")
-  notifications               Notification[]
+  proposalsAsSalesperson   Proposal[] @relation("ProposalSalesperson")
+  policiesAsSalesperson    Policy[]   @relation("PolicySalesperson")
+  claimsAssigned           Claim[]    @relation("ClaimAssignee")
+  commissionsAsSalesperson Commission[] @relation("CommissionSalesperson")
+  clientsAsSalesperson     Client[]   @relation("ClientSalesperson")
+  notifications            Notification[]
 }
 
 model Session {
@@ -256,6 +257,7 @@ model Client {
   address           Json?
   tags              String[]       @default([])
   consentLgpd       Boolean        @default(false)
+  salespersonId     String?
   deletedAt         DateTime?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
@@ -264,10 +266,12 @@ model Client {
   policies    Policy[]
   claims      Claim[]
   assistances Assistance[]
+  salesperson User?          @relation("ClientSalesperson", fields: [salespersonId], references: [id])
 
   @@unique([organizationId, documentHash])
   @@index([organizationId, type])
   @@index([organizationId, createdAt(sort: Desc)])
+  @@index([organizationId, salespersonId])
 }
 
 model Proposal {
