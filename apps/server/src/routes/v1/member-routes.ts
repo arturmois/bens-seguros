@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { ROLE_HIERARCHY, type Role } from '@repo/auth/roles'
+import { RATE_LIMITS } from '@repo/shared'
 import { ResendEmailProvider, invitationEmail } from '@repo/core/notification'
 import { prisma } from '@repo/db'
 import { env } from '@repo/env'
@@ -255,7 +256,17 @@ export async function memberRoutes(app: FastifyInstance) {
   // POST /api/v1/invitations — create invitation + send email
   app.post(
     '/api/v1/invitations',
-    { preHandler: [requireAbility('create', 'Invitation')] },
+    {
+      preHandler: [requireAbility('create', 'Invitation')],
+      config: {
+        rateLimit: {
+          max: RATE_LIMITS.INVITATION.max,
+          timeWindow: `${String(RATE_LIMITS.INVITATION.windowSeconds)} seconds`,
+          keyGenerator: (request: FastifyRequest) =>
+            `invite:${String(request.organizationId)}`,
+        },
+      },
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { email, role } = createInvitationBodySchema.parse(request.body)
       const organizationId = request.organizationId!
