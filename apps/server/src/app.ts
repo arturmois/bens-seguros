@@ -31,6 +31,7 @@ import { documentRoutes } from './routes/v1/document-routes.js'
 import { endorsementRoutes } from './routes/v1/endorsement-routes.js'
 import { insurerRoutes } from './routes/v1/insurer-routes.js'
 import { memberRoutes } from './routes/v1/member-routes.js'
+import { organizationRoutes } from './routes/v1/organization-routes.js'
 import { notificationRoutes } from './routes/v1/notification-routes.js'
 import { policyRoutes } from './routes/v1/policy-routes.js'
 import { proposalRoutes } from './routes/v1/proposal-routes.js'
@@ -115,6 +116,7 @@ export async function buildApp() {
     await authenticatedApp.register(documentRoutes)
     await authenticatedApp.register(insurerRoutes)
     await authenticatedApp.register(memberRoutes)
+    await authenticatedApp.register(organizationRoutes)
     await authenticatedApp.register(commissionRoutes)
     await authenticatedApp.register(chatTokenRoute)
     await authenticatedApp.register(statsRoutes)
