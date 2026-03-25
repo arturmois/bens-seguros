@@ -1,5 +1,6 @@
 import type { AuthUser, AuthSession } from '@repo/auth/types'
 import type { Role } from '@repo/auth/roles'
+import type { TenantPrismaClient } from '@repo/db'
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -7,5 +8,6 @@ declare module 'fastify' {
     session?: AuthSession
     organizationId?: string
     role?: Role
+    tenantPrisma?: TenantPrismaClient
   }
 }

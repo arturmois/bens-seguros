@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
-import { prisma, InsuranceBranch } from '@repo/db'
+import { InsuranceBranch } from '@repo/db'
 import { hashDocument } from '@repo/shared'
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
@@ -32,8 +32,9 @@ export async function searchRoutes(app: FastifyInstance) {
       const isNumeric = !Number.isNaN(numericQuery)
       const branchMatch = toInsuranceBranch(q)
 
+      const tenantDb = request.tenantPrisma!
       const [clients, proposals, policies, claims] = await Promise.all([
-        prisma.client.findMany({
+        tenantDb.client.findMany({
           where: {
             organizationId,
             deletedAt: null,
@@ -51,7 +52,7 @@ export async function searchRoutes(app: FastifyInstance) {
           orderBy: { name: 'asc' },
         }),
 
-        prisma.proposal.findMany({
+        tenantDb.proposal.findMany({
           where: {
             organizationId,
             deletedAt: null,
@@ -75,7 +76,7 @@ export async function searchRoutes(app: FastifyInstance) {
           orderBy: { createdAt: 'desc' },
         }),
 
-        prisma.policy.findMany({
+        tenantDb.policy.findMany({
           where: {
             organizationId,
             deletedAt: null,
@@ -99,7 +100,7 @@ export async function searchRoutes(app: FastifyInstance) {
           orderBy: { createdAt: 'desc' },
         }),
 
-        prisma.claim.findMany({
+        tenantDb.claim.findMany({
           where: {
             organizationId,
             deletedAt: null,

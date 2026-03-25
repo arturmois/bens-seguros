@@ -18,3 +18,5 @@ if (process.env.NODE_ENV !== 'production') {
 export { PrismaClient, Prisma } from '../generated/client/client.js'
 export type * from '../generated/client/client.js'
 export { InsuranceBranch } from '../generated/client/enums.js'
+export { createTenantClient } from './tenant-client.js'
+export type { TenantPrismaClient } from './tenant-client.js'

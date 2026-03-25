@@ -1,5 +1,5 @@
 import type { FastifyRequest, FastifyReply } from 'fastify'
-import { prisma } from '@repo/db'
+import { prisma, createTenantClient } from '@repo/db'
 
 export async function tenantMiddleware(
   request: FastifyRequest,
@@ -45,4 +45,5 @@ export async function tenantMiddleware(
 
   request.organizationId = organizationId
   request.role = member.role
+  request.tenantPrisma = createTenantClient(organizationId)
 }
