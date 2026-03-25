@@ -58,7 +58,7 @@ export class ParsePolicyImport {
               row: i + 2,
               field: issue.path.join('.'),
               message: issue.message,
-              value: String(row[issue.path[0] as string] ?? ''),
+              value: String(row[String(issue.path[0] ?? '')] ?? ''),
             })
           }
         }

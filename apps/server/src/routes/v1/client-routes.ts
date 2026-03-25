@@ -157,7 +157,11 @@ export async function clientRoutes(app: FastifyInstance) {
           csvContent,
           request.organizationId!
         )
-        await stageImportData(result.jobId, result.validRows)
+        await stageImportData(
+          result.jobId,
+          request.organizationId!,
+          result.validRows
+        )
         return reply.send({
           success: true,
           data: {
@@ -183,7 +187,7 @@ export async function clientRoutes(app: FastifyInstance) {
     { preHandler: [requireAbility('manage', 'Client')] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { jobId } = importJobIdParamSchema.parse(request.params)
-      const rows = await retrieveStagedData(jobId)
+      const rows = await retrieveStagedData(jobId, request.organizationId!)
       if (!rows) {
         return reply.status(404).send({
           success: false,

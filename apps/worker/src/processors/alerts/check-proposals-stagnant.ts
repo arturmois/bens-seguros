@@ -19,7 +19,7 @@ export async function checkProposalsStagnant(
   const managers = await prisma.member.findMany({
     where: {
       organizationId,
-      role: 'MANAGER',
+      role: { in: ['MANAGER', 'ADMIN', 'OWNER'] },
     },
   })
 

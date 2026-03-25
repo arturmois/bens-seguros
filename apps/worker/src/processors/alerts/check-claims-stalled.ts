@@ -24,7 +24,7 @@ export async function checkClaimsStalled(
   const managers = await prisma.member.findMany({
     where: {
       organizationId,
-      role: 'MANAGER',
+      role: { in: ['MANAGER', 'ADMIN', 'OWNER'] },
     },
   })
 

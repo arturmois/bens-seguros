@@ -51,24 +51,52 @@ function getQueue(): Queue<CsvImportJobData> {
 
 export async function stageImportData(
   jobId: string,
+  organizationId: string,
   rows: ReadonlyArray<Record<string, unknown>>
 ): Promise<void> {
   const redis = getRedis()
   await redis.set(
     `${REDIS_PREFIX}${jobId}`,
-    JSON.stringify(rows),
+    JSON.stringify({ organizationId, rows }),
     'EX',
     STAGING_TTL_SECONDS
   )
 }
 
+interface StagedImportData {
+  readonly organizationId: string
+  readonly rows: ReadonlyArray<Record<string, unknown>>
+}
+
 export async function retrieveStagedData(
-  jobId: string
+  jobId: string,
+  organizationId: string
 ): Promise<ReadonlyArray<Record<string, unknown>> | null> {
   const redis = getRedis()
   const data = await redis.get(`${REDIS_PREFIX}${jobId}`)
   if (!data) return null
-  return JSON.parse(data) as ReadonlyArray<Record<string, unknown>>
+
+  const staged: unknown = JSON.parse(data)
+  if (
+    typeof staged !== 'object' ||
+    staged === null ||
+    !('organizationId' in staged) ||
+    !('rows' in staged)
+  ) {
+    logger.warn({ jobId }, 'Staged data missing organizationId structure')
+    return null
+  }
+
+  const typedStaged = staged as StagedImportData
+  if (typedStaged.organizationId !== organizationId) {
+    logger.warn(
+      { jobId, expected: organizationId, actual: typedStaged.organizationId },
+      'Cross-tenant import data access attempt blocked'
+    )
+    return null
+  }
+
+  return typedStaged.rows
 }
 
 export async function removeStagedData(jobId: string): Promise<void> {

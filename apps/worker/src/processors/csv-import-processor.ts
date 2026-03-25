@@ -8,27 +8,78 @@ import { IMPORT_BATCH_SIZE, MAX_IMPORT_ERRORS } from '@repo/core'
 const logger = pino({ name: 'csv-import-processor' })
 const QUEUE_NAME = 'csv-import'
 
-interface ClientImportRow {
-  readonly Nome: string
-  readonly 'CPF/CNPJ': string
-  readonly Tipo?: string
-  readonly Email?: string
-  readonly Telefone?: string
-  readonly 'Data Nascimento'?: Date | string
-  readonly Profissao?: string
-  readonly 'Estado Civil'?: string
-  readonly Tags?: string
+const CLIENT_TYPES = new Set(['LEAD', 'CLIENT', 'FORMER_CLIENT'])
+const MARITAL_STATUSES = new Set([
+  'SINGLE',
+  'MARRIED',
+  'DIVORCED',
+  'WIDOWED',
+  'OTHER',
+])
+const POLICY_BRANCHES = new Set([
+  'AUTO',
+  'RESIDENTIAL',
+  'CONDOMINIUM',
+  'BUSINESS',
+  'LIFE',
+  'OTHER',
+])
+const POLICY_STATUSES = new Set(['ACTIVE', 'CANCELLED', 'EXPIRED'])
+
+function extractClientRow(raw: Record<string, unknown>) {
+  const tipo = String(raw['Tipo'] ?? 'CLIENT')
+  const estadoCivil = raw['Estado Civil'] ? String(raw['Estado Civil']) : null
+  const tags = raw['Tags'] ? String(raw['Tags']).split(';').filter(Boolean) : []
+  const birthDateRaw = raw['Data Nascimento']
+  const birthDate = birthDateRaw ? new Date(String(birthDateRaw)) : null
+
+  return {
+    nome: String(raw['Nome'] ?? ''),
+    cpfCnpj: String(raw['CPF/CNPJ'] ?? ''),
+    tipo: CLIENT_TYPES.has(tipo)
+      ? (tipo as 'LEAD' | 'CLIENT' | 'FORMER_CLIENT')
+      : ('CLIENT' as const),
+    email: raw['Email'] ? String(raw['Email']) : null,
+    telefone: raw['Telefone'] ? String(raw['Telefone']) : null,
+    birthDate: birthDate && !isNaN(birthDate.getTime()) ? birthDate : null,
+    profissao: raw['Profissao'] ? String(raw['Profissao']) : null,
+    estadoCivil:
+      estadoCivil && MARITAL_STATUSES.has(estadoCivil)
+        ? (estadoCivil as
+            | 'SINGLE'
+            | 'MARRIED'
+            | 'DIVORCED'
+            | 'WIDOWED'
+            | 'OTHER')
+        : null,
+    tags,
+  }
 }
 
-interface PolicyImportRow {
-  readonly 'Numero Apolice': string
-  readonly 'CPF/CNPJ Cliente': string
-  readonly Ramo: string
-  readonly 'Premio (R$)': number
-  readonly 'Inicio Vigencia': Date | string
-  readonly 'Fim Vigencia': Date | string
-  readonly Seguradora?: string
-  readonly Status?: string
+function extractPolicyRow(raw: Record<string, unknown>) {
+  const ramo = String(raw['Ramo'] ?? 'OTHER')
+  const status = String(raw['Status'] ?? 'ACTIVE')
+
+  return {
+    numeroApolice: String(raw['Numero Apolice'] ?? ''),
+    cpfCnpjCliente: String(raw['CPF/CNPJ Cliente'] ?? ''),
+    ramo: POLICY_BRANCHES.has(ramo)
+      ? (ramo as
+          | 'AUTO'
+          | 'RESIDENTIAL'
+          | 'CONDOMINIUM'
+          | 'BUSINESS'
+          | 'LIFE'
+          | 'OTHER')
+      : ('OTHER' as const),
+    premioReais: Number(raw['Premio (R$)'] ?? 0),
+    inicioVigencia: new Date(String(raw['Inicio Vigencia'] ?? '')),
+    fimVigencia: new Date(String(raw['Fim Vigencia'] ?? '')),
+    seguradora: raw['Seguradora'] ? String(raw['Seguradora']) : null,
+    status: POLICY_STATUSES.has(status)
+      ? (status as 'ACTIVE' | 'CANCELLED' | 'EXPIRED')
+      : ('ACTIVE' as const),
+  }
 }
 
 async function processClientBatch(
@@ -38,29 +89,19 @@ async function processClientBatch(
   batchStartIndex: number
 ): Promise<void> {
   const mappedData = batch.map((raw) => {
-    const row = raw as unknown as ClientImportRow
-    const tags = row.Tags ? row.Tags.split(';').filter(Boolean) : []
-    const birthDate = row['Data Nascimento']
-      ? new Date(row['Data Nascimento'])
-      : null
+    const row = extractClientRow(raw)
 
     return {
       organizationId,
-      name: row.Nome,
-      document: row['CPF/CNPJ'],
-      type: (row.Tipo ?? 'CLIENT') as 'LEAD' | 'CLIENT' | 'FORMER_CLIENT',
-      email: row.Email || null,
-      phone: row.Telefone || null,
-      birthDate: birthDate && !isNaN(birthDate.getTime()) ? birthDate : null,
-      profession: row.Profissao || null,
-      maritalStatus: (row['Estado Civil'] || null) as
-        | 'SINGLE'
-        | 'MARRIED'
-        | 'DIVORCED'
-        | 'WIDOWED'
-        | 'OTHER'
-        | null,
-      tags,
+      name: row.nome,
+      document: row.cpfCnpj,
+      type: row.tipo,
+      email: row.email,
+      phone: row.telefone,
+      birthDate: row.birthDate,
+      profession: row.profissao,
+      maritalStatus: row.estadoCivil,
+      tags: row.tags,
     }
   })
 
@@ -104,14 +145,14 @@ async function processPolicyBatch(
   for (let i = 0; i < batch.length; i++) {
     const raw = batch[i]
     if (!raw) continue
-    const row = raw as unknown as PolicyImportRow
+    const row = extractPolicyRow(raw)
 
     try {
       // Look up client by document
       const client = await prisma.client.findFirst({
         where: {
           organizationId,
-          document: row['CPF/CNPJ Cliente'],
+          document: row.cpfCnpjCliente,
           deletedAt: null,
         },
         select: { id: true },
@@ -122,7 +163,7 @@ async function processPolicyBatch(
         if (progress.errors.length < MAX_IMPORT_ERRORS) {
           progress.errors.push({
             row: batchStartIndex + i + 2,
-            message: `Cliente com CPF/CNPJ ${row['CPF/CNPJ Cliente']} nao encontrado`,
+            message: `Cliente com CPF/CNPJ ${row.cpfCnpjCliente} nao encontrado`,
           })
         }
         continue
@@ -132,7 +173,7 @@ async function processPolicyBatch(
       const existing = await prisma.policy.findFirst({
         where: {
           organizationId,
-          policyNumber: row['Numero Apolice'],
+          policyNumber: row.numeroApolice,
         },
         select: { id: true },
       })
@@ -142,6 +183,8 @@ async function processPolicyBatch(
         continue
       }
 
+      const premiumInCents = Math.round(row.premioReais * 100)
+
       // Create a stub proposal for the policy (required by schema)
       const proposal = await prisma.proposal.create({
         data: {
@@ -150,14 +193,8 @@ async function processPolicyBatch(
           salespersonId: userId,
           stage: 'POLICY_ISSUED',
           boardType: 'NEW_INSURANCE',
-          branch: row.Ramo as
-            | 'AUTO'
-            | 'RESIDENTIAL'
-            | 'CONDOMINIUM'
-            | 'BUSINESS'
-            | 'LIFE'
-            | 'OTHER',
-          premiumValueInCents: Math.round(Number(row['Premio (R$)']) * 100),
+          branch: row.ramo,
+          premiumValueInCents: premiumInCents,
           commissionPercentageInCents: 0,
         },
       })
@@ -168,21 +205,12 @@ async function processPolicyBatch(
           proposalId: proposal.id,
           clientId: client.id,
           salespersonId: userId,
-          policyNumber: row['Numero Apolice'],
-          status: (row.Status ?? 'ACTIVE') as
-            | 'ACTIVE'
-            | 'CANCELLED'
-            | 'EXPIRED',
-          branch: row.Ramo as
-            | 'AUTO'
-            | 'RESIDENTIAL'
-            | 'CONDOMINIUM'
-            | 'BUSINESS'
-            | 'LIFE'
-            | 'OTHER',
-          premiumValueInCents: Math.round(Number(row['Premio (R$)']) * 100),
-          startDate: new Date(row['Inicio Vigencia']),
-          endDate: new Date(row['Fim Vigencia']),
+          policyNumber: row.numeroApolice,
+          status: row.status,
+          branch: row.ramo,
+          premiumValueInCents: premiumInCents,
+          startDate: row.inicioVigencia,
+          endDate: row.fimVigencia,
         },
       })
 
