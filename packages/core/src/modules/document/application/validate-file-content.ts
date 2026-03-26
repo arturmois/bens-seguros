@@ -37,10 +37,11 @@ export async function validateFileContent(
   buffer: Buffer,
   fileName: string
 ): Promise<void> {
-  const ext = fileName.split('.').pop()?.toLowerCase() ?? ''
+  const parts = fileName.toLowerCase().split('.')
+  const blockedPart = parts.find((part) => BLOCKED_EXTENSIONS.has(part))
 
-  if (BLOCKED_EXTENSIONS.has(ext)) {
-    throw new InvalidFileTypeError(ext)
+  if (blockedPart) {
+    throw new InvalidFileTypeError(blockedPart)
   }
 
   const detected = await fileTypeFromBuffer(buffer)

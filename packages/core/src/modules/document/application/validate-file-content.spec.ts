@@ -73,4 +73,18 @@ describe('validateFileContent', () => {
       validateFileContent(Buffer.from('Write-Host "hi"'), 'script.ps1')
     ).rejects.toThrow(InvalidFileTypeError)
   })
+
+  it('rejects double-extension bypass like malware.bat.csv', async () => {
+    await expect(
+      validateFileContent(Buffer.from('echo rm -rf /'), 'malware.bat.csv')
+    ).rejects.toThrow(InvalidFileTypeError)
+  })
+
+  it('rejects a file with disallowed detected MIME type', async () => {
+    // ZIP magic bytes: PK (50 4B 03 04)
+    const zipHeader = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00, 0x00])
+    await expect(validateFileContent(zipHeader, 'archive.zip')).rejects.toThrow(
+      InvalidFileTypeError
+    )
+  })
 })
