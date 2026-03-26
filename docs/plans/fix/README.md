@@ -29,16 +29,11 @@ Os seguintes itens da auditoria ja foram corrigidos:
 | M1     | Next.js Image no chat (zero `<img>` tags)                                                                                | Corrigido         |
 | L1     | Index composto (organizationId, role) no Member                                                                          | Corrigido         |
 | SEC-09 | Magic bytes validation (file-type + extension blocklist + MIME allowlist)                                                | Corrigido         |
+| SEC-10 | Internal API HMAC security (signRequest/verifyRequest + timingSafeEqual + 20 req/min rate limit)                         | Corrigido         |
 
 ---
 
 ## Pendentes
-
-### Seguranca (Prioridade Alta)
-
-| Arquivo                                                            | Severidade | Esforco | Descricao                       |
-| ------------------------------------------------------------------ | ---------- | ------- | ------------------------------- |
-| [SEC-10-internal-api-security.md](SEC-10-internal-api-security.md) | MEDIO      | M (1d)  | Internal API com token estatico |
 
 ### Performance e Quality
 
@@ -52,4 +47,4 @@ Os seguintes itens da auditoria ja foram corrigidos:
 
 ---
 
-**Total pendente:** 6 itens | 1 Seguranca | 5 Quality/Performance
+**Total pendente:** 5 itens | 0 Seguranca | 5 Quality/Performance
