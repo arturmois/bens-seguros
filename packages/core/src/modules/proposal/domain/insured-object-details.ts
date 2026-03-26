@@ -47,6 +47,8 @@ export interface LifeDetails {
   rendaMensalCentavos?: number
   fumante?: boolean
   esportesRadicais?: boolean
+  alturaEmCentimetros?: number
+  pesoEmGramas?: number
   beneficiarios?: string
 }
 
