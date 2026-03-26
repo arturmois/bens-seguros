@@ -40,7 +40,10 @@ export const env = createEnv({
     ENCRYPTION_KEY: encryptionKeySchema.default('0'.repeat(64)),
     // Internal API for lead capture from AI bot
     INTERNAL_API_URL: z.string().url().optional(),
-    INTERNAL_API_TOKEN: z.string().min(1).optional(),
+    INTERNAL_API_SECRET: z
+      .string()
+      .min(32, 'INTERNAL_API_SECRET must be at least 32 characters')
+      .optional(),
   },
   clientPrefix: 'NEXT_PUBLIC_',
   client: {
