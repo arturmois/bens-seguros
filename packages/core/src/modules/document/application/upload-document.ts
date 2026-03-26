@@ -7,6 +7,7 @@ import type {
   DocumentType,
 } from '../domain/document-repository.js'
 import type { StorageProvider } from '../domain/storage-provider.js'
+import { validateFileContent } from './validate-file-content.js'
 
 interface UploadDocumentInput {
   organizationId: string
@@ -29,6 +30,8 @@ export class UploadDocument {
   ) {}
 
   async execute(dto: UploadDocumentInput): Promise<DocumentData> {
+    await validateFileContent(dto.buffer, dto.fileName)
+
     const storageKey = `${dto.organizationId}/${dto.entityType}/${dto.entityId}/${randomUUID()}-${dto.fileName}`
 
     await this.storage.upload(storageKey, dto.buffer, dto.mimeType)
