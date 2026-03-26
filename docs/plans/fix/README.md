@@ -34,17 +34,14 @@ Os seguintes itens da auditoria ja foram corrigidos:
 | L2     | Claim number via Redis INCR atomico com fallback para aggregate                                                          | Corrigido         |
 | M5     | Component decomposition — 4 componentes decompostos (client-form, policies-table, conversation-list, proposals-table)    | Corrigido         |
 | L3     | Route files — member-routes split into member + invitation routes (387→194+232 lines)                                    | Corrigido         |
+| M2     | Redis cache — insurers (24h TTL), members (1h TTL), org details (1h TTL) com silent fallback                             | Corrigido         |
 
 ---
 
 ## Pendentes
 
-### Performance e Quality
-
-| Arquivo                                | Severidade | Esforco  | Descricao                      |
-| -------------------------------------- | ---------- | -------- | ------------------------------ |
-| [M2-redis-cache.md](M2-redis-cache.md) | MEDIO      | M (1-2d) | Sem cache para dados estaticos |
+Nenhum item pendente.
 
 ---
 
-**Total pendente:** 1 item | 0 Seguranca | 1 Performance
+**Total pendente:** 0 itens
