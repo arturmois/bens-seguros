@@ -6,6 +6,7 @@ import {
   GetDocumentUrl,
   DeleteDocument,
   DocumentNotFoundError,
+  InvalidFileTypeError,
 } from '@repo/core'
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
@@ -19,6 +20,12 @@ import { auditCreate, auditDelete } from '../../services/audit-logger.js'
 function handleDocumentError(error: unknown, reply: FastifyReply) {
   if (error instanceof DocumentNotFoundError) {
     return reply.status(404).send({
+      success: false,
+      error: { code: error.code, message: error.message },
+    })
+  }
+  if (error instanceof InvalidFileTypeError) {
+    return reply.status(422).send({
       success: false,
       error: { code: error.code, message: error.message },
     })
