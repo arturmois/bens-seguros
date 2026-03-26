@@ -1,6 +1,9 @@
 export { container, inject, injectable, singleton } from './container.js'
 
 // Shared utilities
+export { RedisCacheService } from './shared/cache-service.js'
+export type { CacheService } from './shared/cache-service.js'
+
 export {
   CSV_BOM,
   escapeCsvField,
