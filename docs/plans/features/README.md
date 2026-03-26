@@ -1,25 +1,20 @@
 # Features Backlog — Bens Seguros
 
-> Atualizado: 25/03/2026
+> Atualizado: 26/03/2026
 
 ## Concluidas
 
-| Feature | Descricao                                                               |
-| ------- | ----------------------------------------------------------------------- |
-| F01     | Kanban propostas — removido (drag & drop sem valor real para o dominio) |
-| F11     | Settings > Membros — 100% implementado (6 rotas, 5 componentes, email)  |
-| F13     | AI Agent Config — 100% implementado (CRUD + channel integration)        |
+| Feature | Descricao                                                                                                        |
+| ------- | ---------------------------------------------------------------------------------------------------------------- |
+| F01     | Kanban propostas — removido (drag & drop sem valor real para o dominio)                                          |
+| F02     | Import/Export CSV — 100% implementado (import clients via worker, export clients/policies/proposals/commissions) |
+| F04     | Alertas Proativos — 100% implementado (job diario BullMQ, 4 checks, dashboard widget, alert counts API)          |
+| F05     | Global Search — 100% implementado (Cmd+K command palette, search API)                                            |
+| F11     | Settings > Membros — 100% implementado (6 rotas, 5 componentes, email)                                           |
+| F12     | Settings > Organizacao — 100% implementado (3 rotas, 3 componentes, logo upload R2)                              |
+| F13     | AI Agent Config — 100% implementado (CRUD + channel integration)                                                 |
 
-## Proximas (em design)
-
-| Arquivo                                                    | Esforco    | Impacto       | Descricao                                  |
-| ---------------------------------------------------------- | ---------- | ------------- | ------------------------------------------ |
-| [F12-settings-organizacao.md](F12-settings-organizacao.md) | P-M (1-2d) | Medio         | Editar nome, slug, logo da org             |
-| [F04-proactive-alerts.md](F04-proactive-alerts.md)         | M (3-5d)   | Retencao      | Alertas: apolice vencendo, sinistro parado |
-| [F05-global-search.md](F05-global-search.md)               | M (3-5d)   | Retencao      | Command palette Cmd+K                      |
-| [F02-import-export-csv.md](F02-import-export-csv.md)       | G (1-2sem) | **Aquisicao** | Import/export de clientes e apolices       |
-
-## Longo Prazo (Mes 3-6)
+## Proximas (Longo Prazo)
 
 | Arquivo                                                  | Esforco          | Impacto           | Descricao                            |
 | -------------------------------------------------------- | ---------------- | ----------------- | ------------------------------------ |
@@ -32,7 +27,7 @@
 
 ---
 
-**Total:** 10 features | 3 concluidas/removidas | 4 em design | 6 longo prazo
+**Total:** 10 features | 7 concluidas/removidas | 0 em design | 6 longo prazo
 
 ## Legenda de Impacto
 
