@@ -4,23 +4,39 @@ import { signRequest, verifyRequest } from './internal-auth.js'
 const SECRET = 'a'.repeat(64)
 const METHOD = 'POST'
 const PATH = '/api/internal/leads'
+const TENANT = 'org-1'
 const BODY = '{"clientName":"Maria"}'
+
+const baseInput = {
+  secret: SECRET,
+  method: METHOD,
+  path: PATH,
+  tenantId: TENANT,
+  body: BODY,
+  timestamp: 1000000,
+}
 
 describe('signRequest', () => {
   it('returns a hex string', () => {
-    const sig = signRequest(SECRET, METHOD, PATH, BODY, 1000000)
+    const sig = signRequest(baseInput)
     expect(sig).toMatch(/^[0-9a-f]{64}$/)
   })
 
   it('produces different signatures for different bodies', () => {
-    const sig1 = signRequest(SECRET, METHOD, PATH, '{"a":1}', 1000000)
-    const sig2 = signRequest(SECRET, METHOD, PATH, '{"a":2}', 1000000)
+    const sig1 = signRequest({ ...baseInput, body: '{"a":1}' })
+    const sig2 = signRequest({ ...baseInput, body: '{"a":2}' })
     expect(sig1).not.toBe(sig2)
   })
 
   it('produces different signatures for different timestamps', () => {
-    const sig1 = signRequest(SECRET, METHOD, PATH, BODY, 1000000)
-    const sig2 = signRequest(SECRET, METHOD, PATH, BODY, 1000001)
+    const sig1 = signRequest(baseInput)
+    const sig2 = signRequest({ ...baseInput, timestamp: 1000001 })
+    expect(sig1).not.toBe(sig2)
+  })
+
+  it('produces different signatures for different tenants', () => {
+    const sig1 = signRequest(baseInput)
+    const sig2 = signRequest({ ...baseInput, tenantId: 'org-2' })
     expect(sig1).not.toBe(sig2)
   })
 })
@@ -36,44 +52,42 @@ describe('verifyRequest', () => {
   })
 
   it('accepts a valid signature within time window', () => {
-    const timestamp = 1000000
-    const sig = signRequest(SECRET, METHOD, PATH, BODY, timestamp)
-    expect(verifyRequest(SECRET, sig, METHOD, PATH, BODY, timestamp)).toBe(true)
+    const sig = signRequest(baseInput)
+    expect(verifyRequest({ ...baseInput, signature: sig })).toBe(true)
   })
 
   it('rejects an invalid signature', () => {
     expect(
-      verifyRequest(SECRET, 'bad'.repeat(21) + 'x', METHOD, PATH, BODY, 1000000)
+      verifyRequest({ ...baseInput, signature: 'bad'.repeat(21) + 'x' })
     ).toBe(false)
   })
 
   it('rejects a request older than maxAge (default 300s)', () => {
-    const oldTimestamp = 1000000 - 301
-    const sig = signRequest(SECRET, METHOD, PATH, BODY, oldTimestamp)
-    expect(verifyRequest(SECRET, sig, METHOD, PATH, BODY, oldTimestamp)).toBe(
-      false
-    )
+    const old = { ...baseInput, timestamp: 1000000 - 301 }
+    const sig = signRequest(old)
+    expect(verifyRequest({ ...old, signature: sig })).toBe(false)
   })
 
   it('accepts a request within maxAge window', () => {
-    const recentTimestamp = 1000000 - 60
-    const sig = signRequest(SECRET, METHOD, PATH, BODY, recentTimestamp)
-    expect(
-      verifyRequest(SECRET, sig, METHOD, PATH, BODY, recentTimestamp)
-    ).toBe(true)
+    const recent = { ...baseInput, timestamp: 1000000 - 60 }
+    const sig = signRequest(recent)
+    expect(verifyRequest({ ...recent, signature: sig })).toBe(true)
   })
 
   it('rejects a future timestamp beyond maxAge', () => {
-    const futureTimestamp = 1000000 + 301
-    const sig = signRequest(SECRET, METHOD, PATH, BODY, futureTimestamp)
-    expect(
-      verifyRequest(SECRET, sig, METHOD, PATH, BODY, futureTimestamp)
-    ).toBe(false)
+    const future = { ...baseInput, timestamp: 1000000 + 301 }
+    const sig = signRequest(future)
+    expect(verifyRequest({ ...future, signature: sig })).toBe(false)
   })
 
   it('rejects when signature length does not match', () => {
-    expect(verifyRequest(SECRET, 'short', METHOD, PATH, BODY, 1000000)).toBe(
-      false
-    )
+    expect(verifyRequest({ ...baseInput, signature: 'short' })).toBe(false)
+  })
+
+  it('rejects when tenantId differs from signed value', () => {
+    const sig = signRequest(baseInput)
+    expect(
+      verifyRequest({ ...baseInput, tenantId: 'org-hacked', signature: sig })
+    ).toBe(false)
   })
 })

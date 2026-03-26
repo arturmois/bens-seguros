@@ -5,13 +5,20 @@ import pino from 'pino'
 
 const logger = pino({ name: 'internal-auth' })
 
+function headerAsString(
+  value: string | string[] | undefined
+): string | undefined {
+  if (typeof value === 'string') return value
+  return undefined
+}
+
 export async function internalAuthMiddleware(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
-  const signature = request.headers['x-signature'] as string | undefined
-  const timestampHeader = request.headers['x-timestamp'] as string | undefined
-  const tenantId = request.headers['x-tenant-id'] as string | undefined
+  const signature = headerAsString(request.headers['x-signature'])
+  const timestampHeader = headerAsString(request.headers['x-timestamp'])
+  const tenantId = headerAsString(request.headers['x-tenant-id'])
 
   const secret = env.INTERNAL_API_SECRET
 
@@ -26,12 +33,12 @@ export async function internalAuthMiddleware(
     })
   }
 
-  if (!signature || !timestampHeader) {
+  if (!signature || !timestampHeader || !tenantId) {
     return reply.status(401).send({
       success: false,
       error: {
         code: 'UNAUTHORIZED',
-        message: 'Missing signature or timestamp',
+        message: 'Missing signature, timestamp, or tenant ID',
       },
     })
   }
@@ -45,19 +52,22 @@ export async function internalAuthMiddleware(
     })
   }
 
+  // Signer sends JSON.stringify(obj); Fastify parses it back to object.
+  // Re-serializing produces identical output because both use simple flat objects.
   const rawBody =
     typeof request.body === 'string'
       ? request.body
       : JSON.stringify(request.body ?? '')
 
-  const isValid = verifyRequest(
+  const isValid = verifyRequest({
     secret,
     signature,
-    request.method,
-    request.url.split('?')[0] ?? request.url,
-    rawBody,
-    timestamp
-  )
+    method: request.method,
+    path: request.url.split('?')[0] ?? request.url,
+    tenantId,
+    body: rawBody,
+    timestamp,
+  })
 
   if (!isValid) {
     logger.warn(
@@ -67,13 +77,6 @@ export async function internalAuthMiddleware(
     return reply.status(403).send({
       success: false,
       error: { code: 'FORBIDDEN', message: 'Invalid or expired signature' },
-    })
-  }
-
-  if (typeof tenantId !== 'string' || tenantId.length === 0) {
-    return reply.status(400).send({
-      success: false,
-      error: { code: 'BAD_REQUEST', message: 'X-Tenant-Id header required' },
     })
   }
 

@@ -2,37 +2,38 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 
 const SIGNATURE_LENGTH = 64
 
-export function signRequest(
-  secret: string,
-  method: string,
-  path: string,
-  body: string,
+interface SignRequestInput {
+  secret: string
+  method: string
+  path: string
+  tenantId: string
+  body: string
   timestamp: number
-): string {
-  const payload = `${String(timestamp)}.${method}.${path}.${body}`
-  return createHmac('sha256', secret).update(payload).digest('hex')
 }
 
-export function verifyRequest(
-  secret: string,
-  signature: string,
-  method: string,
-  path: string,
-  body: string,
-  timestamp: number,
-  maxAge: number = 300
-): boolean {
+export function signRequest(input: SignRequestInput): string {
+  const payload = `${String(input.timestamp)}.${input.method}.${input.path}.${input.tenantId}.${input.body}`
+  return createHmac('sha256', input.secret).update(payload).digest('hex')
+}
+
+interface VerifyRequestInput extends SignRequestInput {
+  signature: string
+  maxAge?: number
+}
+
+export function verifyRequest(input: VerifyRequestInput): boolean {
+  const maxAge = input.maxAge ?? 300
   const now = Math.floor(Date.now() / 1000)
 
-  if (Math.abs(now - timestamp) > maxAge) {
+  if (Math.abs(now - input.timestamp) > maxAge) {
     return false
   }
 
-  if (signature.length !== SIGNATURE_LENGTH) {
+  if (input.signature.length !== SIGNATURE_LENGTH) {
     return false
   }
 
-  const expected = signRequest(secret, method, path, body, timestamp)
+  const expected = signRequest(input)
 
-  return timingSafeEqual(Buffer.from(signature), Buffer.from(expected))
+  return timingSafeEqual(Buffer.from(input.signature), Buffer.from(expected))
 }

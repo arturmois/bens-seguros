@@ -46,13 +46,14 @@ export function createCaptarLeadTool(tenantId: string, contactPhone: string) {
 
         const path = '/api/internal/leads'
         const timestamp = Math.floor(Date.now() / 1000)
-        const signature = signRequest(
-          env.INTERNAL_API_SECRET,
-          'POST',
+        const signature = signRequest({
+          secret: env.INTERNAL_API_SECRET,
+          method: 'POST',
           path,
+          tenantId,
           body,
-          timestamp
-        )
+          timestamp,
+        })
 
         const response = await fetch(`${env.INTERNAL_API_URL}${path}`, {
           method: 'POST',
