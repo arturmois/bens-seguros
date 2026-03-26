@@ -13,7 +13,9 @@ export async function internalAuthMiddleware(
   const timestampHeader = request.headers['x-timestamp'] as string | undefined
   const tenantId = request.headers['x-tenant-id'] as string | undefined
 
-  if (!env.INTERNAL_API_SECRET) {
+  const secret = env.INTERNAL_API_SECRET
+
+  if (!secret) {
     logger.error('INTERNAL_API_SECRET not configured')
     return reply.status(503).send({
       success: false,
@@ -49,10 +51,10 @@ export async function internalAuthMiddleware(
       : JSON.stringify(request.body ?? '')
 
   const isValid = verifyRequest(
-    env.INTERNAL_API_SECRET,
+    secret,
     signature,
     request.method,
-    request.url.split('?')[0],
+    request.url.split('?')[0] ?? request.url,
     rawBody,
     timestamp
   )
