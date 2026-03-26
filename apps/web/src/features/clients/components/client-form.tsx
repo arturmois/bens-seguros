@@ -49,14 +49,19 @@ interface ClientFormProps {
 
 function parseDateString(value: string | undefined): Date | undefined {
   if (!value) return undefined
-  const date = new Date(value)
+  const [year, month, day] = value.split('-').map(Number)
+  if (!year || !month || !day) return undefined
+  const date = new Date(year, month - 1, day)
   if (Number.isNaN(date.getTime())) return undefined
   return date
 }
 
 function formatDateToISO(date: Date | undefined): string {
   if (!date) return ''
-  return date.toISOString().slice(0, 10)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 export function ClientForm({
