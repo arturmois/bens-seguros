@@ -106,6 +106,12 @@ function buildDetails(
           : undefined,
         fumante: fields.fumante === true ? true : undefined,
         esportesRadicais: fields.esportesRadicais === true ? true : undefined,
+        alturaEmCentimetros: fields.alturaEmCentimetros
+          ? Number(fields.alturaEmCentimetros)
+          : undefined,
+        pesoEmGramas: fields.pesoEmGramas
+          ? Number(fields.pesoEmGramas)
+          : undefined,
         beneficiarios: fields.beneficiarios
           ? String(fields.beneficiarios)
           : undefined,
