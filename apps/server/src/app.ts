@@ -9,7 +9,7 @@ import { RATE_LIMITS } from '@repo/shared'
 import { PINO_REDACT_CONFIG } from '@repo/shared/pino-redact'
 import * as Sentry from '@sentry/node'
 import IORedis from 'ioredis'
-import type { FastifyError } from 'fastify'
+import type { FastifyError, FastifyRequest } from 'fastify'
 import Fastify from 'fastify'
 import {
   serializerCompiler,
@@ -140,8 +140,28 @@ export async function buildApp() {
     await authenticatedApp.register(searchRoutes)
   })
 
-  // Internal API routes (token-authenticated, no session required)
-  await app.register(internalLeadRoutes)
+  // Internal API routes (HMAC-authenticated, no session required)
+  await app.register(async (internalApp) => {
+    await internalApp.register(rateLimit, {
+      max: RATE_LIMITS.INTERNAL.max,
+      timeWindow: `${String(RATE_LIMITS.INTERNAL.windowSeconds)} seconds`,
+      redis,
+      nameSpace: 'rl:internal:',
+      keyGenerator: (request: FastifyRequest) => request.ip,
+      errorResponseBuilder: (
+        _request: FastifyRequest,
+        context: { ttl: number }
+      ) => ({
+        success: false,
+        error: {
+          code: 'RATE_LIMIT_EXCEEDED',
+          message: `Too many requests. Try again in ${String(Math.ceil(context.ttl / 1000))} seconds.`,
+          retryAfter: Math.ceil(context.ttl / 1000),
+        },
+      }),
+    })
+    await internalApp.register(internalLeadRoutes)
+  })
 
   // Bull Board (owner-only, inside authenticated + tenant scope)
   await app.register(async (adminApp) => {
