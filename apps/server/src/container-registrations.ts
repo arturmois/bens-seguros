@@ -66,6 +66,7 @@ import {
   R2StorageProvider,
   RejectCommission,
   ReverseCommission,
+  RedisCacheService,
   StaticChecklistConfig,
   UpdateAssistanceStatus,
   UpdateClaimStatus,
@@ -78,6 +79,11 @@ import { env } from '@repo/env'
 import type { Redis } from 'ioredis'
 
 export function registerDependencies(redis: Redis | null = null) {
+  if (redis) {
+    const cacheService = new RedisCacheService(redis)
+    container.register('CacheService', { useValue: cacheService })
+  }
+
   const clientRepo = new PrismaClientRepository(prisma)
   const proposalRepo = new PrismaProposalRepository(prisma)
   const checklistRepo = new PrismaChecklistRepository(prisma)
