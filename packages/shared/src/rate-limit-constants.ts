@@ -5,6 +5,7 @@ export const RATE_LIMITS = {
     REGISTRATION: { max: 3, windowSeconds: 3600 },
   },
   INVITATION: { max: 20, windowSeconds: 3600 },
+  INTERNAL: { max: 20, windowSeconds: 60 },
   MESSAGE: { max: 10, windowMs: 1_000 },
   GLOBAL: { max: 100, windowSeconds: 60 },
 } as const
