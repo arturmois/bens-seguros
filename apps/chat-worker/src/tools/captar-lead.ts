@@ -2,6 +2,7 @@ import { tool } from 'ai'
 import { z } from 'zod'
 import pino from 'pino'
 import { env } from '@repo/env'
+import { signRequest } from '@repo/shared'
 
 const logger = pino({ name: 'captar-lead-tool' })
 
@@ -22,7 +23,7 @@ export function createCaptarLeadTool(tenantId: string, contactPhone: string) {
         .describe('Detalhes adicionais como modelo do carro, endereco, etc'),
     }),
     execute: async ({ nomeCliente, tipoSeguro, detalhes }) => {
-      if (!env.INTERNAL_API_URL || !env.INTERNAL_API_TOKEN) {
+      if (!env.INTERNAL_API_URL || !env.INTERNAL_API_SECRET) {
         logger.warn(
           { tenantId },
           'Internal API not configured, skipping lead capture'
@@ -35,25 +36,35 @@ export function createCaptarLeadTool(tenantId: string, contactPhone: string) {
       }
 
       try {
-        const response = await fetch(
-          `${env.INTERNAL_API_URL}/api/internal/leads`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Internal-Token': env.INTERNAL_API_TOKEN,
-              'X-Tenant-Id': tenantId,
-            },
-            body: JSON.stringify({
-              clientName: nomeCliente,
-              clientPhone: contactPhone,
-              insuranceType: tipoSeguro,
-              notes: detalhes ?? '',
-              source: 'WHATSAPP_BOT',
-            }),
-            signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-          }
+        const body = JSON.stringify({
+          clientName: nomeCliente,
+          clientPhone: contactPhone,
+          insuranceType: tipoSeguro,
+          notes: detalhes ?? '',
+          source: 'WHATSAPP_BOT',
+        })
+
+        const path = '/api/internal/leads'
+        const timestamp = Math.floor(Date.now() / 1000)
+        const signature = signRequest(
+          env.INTERNAL_API_SECRET,
+          'POST',
+          path,
+          body,
+          timestamp
         )
+
+        const response = await fetch(`${env.INTERNAL_API_URL}${path}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Signature': signature,
+            'X-Timestamp': String(timestamp),
+            'X-Tenant-Id': tenantId,
+          },
+          body,
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        })
 
         if (!response.ok) {
           logger.error(
