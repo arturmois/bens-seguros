@@ -170,6 +170,11 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
           type: client.type,
           email: client.email ?? '',
           phone: client.phone ?? '',
+          birthDate: client.birthDate
+            ? new Date(client.birthDate).toISOString().slice(0, 10)
+            : '',
+          profession: client.profession ?? '',
+          maritalStatus: client.maritalStatus ?? undefined,
         }}
       />
 

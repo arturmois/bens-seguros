@@ -61,6 +61,9 @@ export function DatePicker({
         <div className="bg-popover absolute left-0 top-full z-50 mt-1 rounded-xl border p-2 shadow-lg">
           <Calendar
             mode="single"
+            captionLayout="dropdown"
+            startMonth={new Date(1920, 0)}
+            endMonth={new Date(new Date().getFullYear(), 11)}
             selected={value}
             onSelect={(date) => {
               if (date) {
