@@ -131,19 +131,28 @@ export function AutoFields({ register, control }: FieldHelperProps) {
   )
 }
 
+// WHO BMI classification thresholds (https://www.who.int/data/gho/data/themes/theme-details/GHO/body-mass-index)
+const BMI_UNDERWEIGHT_THRESHOLD = 18.5
+const BMI_NORMAL_THRESHOLD = 25
+const BMI_OVERWEIGHT_THRESHOLD = 30
+
+const ALTURA_MIN_CM = 100
+const ALTURA_MAX_CM = 250
+const PESO_MIN_KG = 20
+const PESO_MAX_KG = 300
 const IMC_RANGES = [
   {
-    max: 18.5,
+    max: BMI_UNDERWEIGHT_THRESHOLD,
     label: 'Abaixo do peso',
     color: 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-950',
   },
   {
-    max: 25,
+    max: BMI_NORMAL_THRESHOLD,
     label: 'Normal',
     color: 'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-950',
   },
   {
-    max: 30,
+    max: BMI_OVERWEIGHT_THRESHOLD,
     label: 'Sobrepeso',
     color:
       'text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-950',
@@ -157,24 +166,23 @@ const IMC_RANGES = [
 
 function ImcBadge({ control }: { readonly control: Control<FieldValues> }) {
   const altura = useWatch({ control, name: 'alturaEmCentimetros' })
-  const peso = useWatch({ control, name: 'pesoEmGramas' })
+  const peso = useWatch({ control, name: 'pesoKg' })
 
   const alturaNum = Number(altura)
-  const pesoNum = Number(peso)
+  const pesoKg = Number(peso)
 
   if (
     !alturaNum ||
-    !pesoNum ||
-    alturaNum < 100 ||
-    alturaNum > 250 ||
-    pesoNum < 20000 ||
-    pesoNum > 300000
+    !pesoKg ||
+    alturaNum < ALTURA_MIN_CM ||
+    alturaNum > ALTURA_MAX_CM ||
+    pesoKg < PESO_MIN_KG ||
+    pesoKg > PESO_MAX_KG
   ) {
     return null
   }
 
   const alturaM = alturaNum / 100
-  const pesoKg = pesoNum / 1000
   const imc = pesoKg / (alturaM * alturaM)
   const range = IMC_RANGES.find((r) => imc < r.max)
 
@@ -182,6 +190,8 @@ function ImcBadge({ control }: { readonly control: Control<FieldValues> }) {
 
   return (
     <div
+      role="status"
+      aria-live="polite"
       className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-medium ${range.color}`}
     >
       IMC: {imc.toFixed(1)} — {range.label}
@@ -233,14 +243,12 @@ export function LifeFields({ register, control }: FieldHelperProps) {
           {...register('alturaEmCentimetros', { valueAsNumber: true })}
         />
       </FieldWrapper>
-      <FieldWrapper
-        label="Peso (kg)"
-        hint="Em gramas internamente (ex: 70.5 kg = 70500)"
-      >
+      <FieldWrapper label="Peso (kg)">
         <Input
           type="number"
-          placeholder="70500"
-          {...register('pesoEmGramas', { valueAsNumber: true })}
+          step="0.1"
+          placeholder="70.5"
+          {...register('pesoKg', { valueAsNumber: true })}
         />
       </FieldWrapper>
       <div className="sm:col-span-2">

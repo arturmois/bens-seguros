@@ -109,8 +109,8 @@ function buildDetails(
         alturaEmCentimetros: fields.alturaEmCentimetros
           ? Number(fields.alturaEmCentimetros)
           : undefined,
-        pesoEmGramas: fields.pesoEmGramas
-          ? Number(fields.pesoEmGramas)
+        pesoEmGramas: fields.pesoKg
+          ? Math.round(Number(fields.pesoKg) * 1000)
           : undefined,
         beneficiarios: fields.beneficiarios
           ? String(fields.beneficiarios)
@@ -129,13 +129,22 @@ export function BranchFields({
   onSubmit,
   isLoading,
 }: BranchFieldsProps) {
-  const form = useForm<FieldValues>({
-    defaultValues: {
-      ...(defaultValues ?? {}),
-      premiumValueInCents: defaultPremium ?? 0,
-      commissionBasisPoints: defaultCommission ?? 0,
-    },
-  })
+  const defaults = defaultValues ?? {}
+  const formDefaults: Record<string, unknown> = {
+    ...defaults,
+    premiumValueInCents: defaultPremium ?? 0,
+    commissionBasisPoints: defaultCommission ?? 0,
+  }
+  if (
+    'branch' in defaults &&
+    defaults.branch === 'LIFE' &&
+    'pesoEmGramas' in defaults &&
+    typeof defaults.pesoEmGramas === 'number' &&
+    defaults.pesoEmGramas > 0
+  ) {
+    formDefaults.pesoKg = defaults.pesoEmGramas / 1000
+  }
+  const form = useForm<FieldValues>({ defaultValues: formDefaults })
 
   function handleFormSubmit(values: FieldValues) {
     const { premiumValueInCents, commissionBasisPoints, ...rest } = values
