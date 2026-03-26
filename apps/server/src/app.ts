@@ -32,6 +32,7 @@ import { commissionRoutes } from './routes/v1/commission-routes.js'
 import { documentRoutes } from './routes/v1/document-routes.js'
 import { endorsementRoutes } from './routes/v1/endorsement-routes.js'
 import { insurerRoutes } from './routes/v1/insurer-routes.js'
+import { invitationRoutes } from './routes/v1/invitation-routes.js'
 import { memberRoutes } from './routes/v1/member-routes.js'
 import { organizationRoutes } from './routes/v1/organization-routes.js'
 import { notificationRoutes } from './routes/v1/notification-routes.js'
@@ -90,7 +91,7 @@ export async function buildApp() {
 
   await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } })
 
-  registerDependencies()
+  registerDependencies(redis)
 
   // Prevent caching on all API responses to avoid stale data in browsers
   app.addHook('onSend', async (request, reply, payload) => {
@@ -131,6 +132,7 @@ export async function buildApp() {
     await authenticatedApp.register(documentRoutes)
     await authenticatedApp.register(insurerRoutes)
     await authenticatedApp.register(memberRoutes)
+    await authenticatedApp.register(invitationRoutes)
     await authenticatedApp.register(organizationRoutes)
     await authenticatedApp.register(commissionRoutes)
     await authenticatedApp.register(chatTokenRoute)

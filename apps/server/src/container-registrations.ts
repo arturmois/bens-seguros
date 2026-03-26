@@ -75,14 +75,15 @@ import {
 } from '@repo/core'
 import { prisma } from '@repo/db'
 import { env } from '@repo/env'
+import type { Redis } from 'ioredis'
 
-export function registerDependencies() {
+export function registerDependencies(redis: Redis | null = null) {
   const clientRepo = new PrismaClientRepository(prisma)
   const proposalRepo = new PrismaProposalRepository(prisma)
   const checklistRepo = new PrismaChecklistRepository(prisma)
   const checklistConfig = new StaticChecklistConfig()
   const policyRepo = new PrismaPolicyRepository(prisma)
-  const claimRepo = new PrismaClaimRepository(prisma)
+  const claimRepo = new PrismaClaimRepository(prisma, redis)
   const occurrenceRepo = new PrismaOccurrenceRepository(prisma)
   const endorsementRepo = new PrismaEndorsementRepository(prisma)
   const assistanceRepo = new PrismaAssistanceRepository(prisma)

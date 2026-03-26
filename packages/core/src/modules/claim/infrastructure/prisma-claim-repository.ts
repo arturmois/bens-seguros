@@ -1,6 +1,7 @@
 import { injectable, inject } from 'tsyringe'
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
+import type { Redis } from 'ioredis'
 import type { CursorPage, Page } from '../../client/domain/client-repository.js'
 import type {
   ClaimRepository,
@@ -18,34 +19,67 @@ const CLAIM_INCLUDE = {
   assignedTo: { select: { name: true } },
 } satisfies Prisma.ClaimInclude
 
+const CLAIM_SEQ_KEY_PREFIX = 'claim:seq:'
+
 @injectable()
 export class PrismaClaimRepository implements ClaimRepository {
-  constructor(@inject('PrismaClient') private readonly prisma: PrismaClient) {}
+  constructor(
+    @inject('PrismaClient') private readonly prisma: PrismaClient,
+    private readonly redis: Redis | null = null
+  ) {}
 
-  async create(data: CreateClaimInput): Promise<ClaimData> {
-    const row = await this.prisma.$transaction(async (tx) => {
-      const aggregate = await tx.claim.aggregate({
-        where: { organizationId: data.organizationId },
+  private async getNextViaRedis(organizationId: string): Promise<number> {
+    const key = `${CLAIM_SEQ_KEY_PREFIX}${organizationId}`
+    const exists = await this.redis!.exists(key)
+
+    if (!exists) {
+      const aggregate = await this.prisma.claim.aggregate({
+        where: { organizationId },
         _max: { claimNumber: true },
       })
+      const currentMax = aggregate._max.claimNumber ?? 0
+      await this.redis!.set(key, currentMax)
+    }
 
-      const nextNumber = (aggregate._max.claimNumber ?? 0) + 1
+    return this.redis!.incr(key)
+  }
 
-      return tx.claim.create({
-        data: {
-          organizationId: data.organizationId,
-          claimNumber: nextNumber,
-          policyId: data.policyId,
-          clientId: data.clientId,
-          insurerId: data.insurerId ?? null,
-          assignedToId: data.assignedToId ?? null,
-          priority: data.priority ?? 'NORMAL',
-          description: data.description,
-          incidentDate: data.incidentDate ?? null,
-          incidentLocation: data.incidentLocation ?? null,
-        },
-        include: CLAIM_INCLUDE,
-      })
+  private async getNextViaAggregate(organizationId: string): Promise<number> {
+    const aggregate = await this.prisma.claim.aggregate({
+      where: { organizationId },
+      _max: { claimNumber: true },
+    })
+    return (aggregate._max.claimNumber ?? 0) + 1
+  }
+
+  private async getNextClaimNumber(organizationId: string): Promise<number> {
+    if (this.redis !== null) {
+      try {
+        return await this.getNextViaRedis(organizationId)
+      } catch {
+        return this.getNextViaAggregate(organizationId)
+      }
+    }
+    return this.getNextViaAggregate(organizationId)
+  }
+
+  async create(data: CreateClaimInput): Promise<ClaimData> {
+    const nextNumber = await this.getNextClaimNumber(data.organizationId)
+
+    const row = await this.prisma.claim.create({
+      data: {
+        organizationId: data.organizationId,
+        claimNumber: nextNumber,
+        policyId: data.policyId,
+        clientId: data.clientId,
+        insurerId: data.insurerId ?? null,
+        assignedToId: data.assignedToId ?? null,
+        priority: data.priority ?? 'NORMAL',
+        description: data.description,
+        incidentDate: data.incidentDate ?? null,
+        incidentLocation: data.incidentLocation ?? null,
+      },
+      include: CLAIM_INCLUDE,
     })
 
     return ClaimMapper.toDomain(row)
