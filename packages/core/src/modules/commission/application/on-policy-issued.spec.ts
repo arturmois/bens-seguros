@@ -31,6 +31,9 @@ describe('OnPolicyIssued', () => {
     expect(saved?.policyId).toBe('pol-1')
     expect(saved?.salespersonId).toBe('user-1')
     expect(saved?.status).toBe('PENDING_COMMERCIAL')
+    expect(saved?.premiumValueInCents).toBe(100000)
+    expect(saved?.percentageInBasisPoints).toBe(1500)
+    expect(saved?.commissionValueInCents).toBe(15000)
   })
 
   it('skips commission creation when percentage is zero', async () => {

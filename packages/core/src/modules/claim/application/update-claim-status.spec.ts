@@ -1,4 +1,3 @@
-// packages/core/src/modules/claim/application/update-claim-status.spec.ts
 import { describe, expect, it, vi } from 'vitest'
 import type { ClaimData, ClaimRepository } from '../domain/claim-repository.js'
 import {

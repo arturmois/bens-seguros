@@ -77,6 +77,16 @@ describe('PayCommission', () => {
     )
   })
 
+  it('rejects double payment from PAID status', async () => {
+    const data = makeCommissionData({ status: 'PAID', paidAt: new Date() })
+    const repo = createMockRepo(data)
+    const useCase = new PayCommission(repo)
+
+    await expect(useCase.execute('comm-1', 'org-1')).rejects.toThrow(
+      InvalidCommissionTransitionError
+    )
+  })
+
   it('throws CommissionNotFoundError when commission does not exist', async () => {
     const repo = createMockRepo(null)
     const useCase = new PayCommission(repo)
