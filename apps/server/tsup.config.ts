@@ -36,5 +36,6 @@ export default defineConfig({
     '@t3-oss/env-core',
     'resend',
     '@aws-sdk/*',
+    'file-type',
   ],
 })
