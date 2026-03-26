@@ -13,6 +13,7 @@ export type {
 } from './domain/storage-provider.js'
 export {
   DocumentNotFoundError,
+  InvalidFileTypeError,
   DocumentErrors,
 } from './domain/document-errors.js'
 
