@@ -49,6 +49,8 @@ const lifeDetailsSchema = z.object({
   rendaMensalCentavos: z.number().int().min(0).optional(),
   fumante: z.boolean().optional(),
   esportesRadicais: z.boolean().optional(),
+  alturaEmCentimetros: z.number().int().min(100).max(250).optional(),
+  pesoEmGramas: z.number().int().min(20000).max(300000).optional(),
   beneficiarios: z.string().optional(),
 })
 
