@@ -49,9 +49,7 @@ interface ClientFormProps {
 
 function parseDateString(value: string | undefined): Date | undefined {
   if (!value) return undefined
-  const [year, month, day] = value.split('-').map(Number)
-  if (!year || !month || !day) return undefined
-  const date = new Date(year, month - 1, day)
+  const date = new Date(`${value}T00:00:00Z`)
   if (Number.isNaN(date.getTime())) return undefined
   return date
 }

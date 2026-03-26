@@ -17,7 +17,7 @@ interface DatePickerProps {
 function formatDatePtBR(date: Date): string {
   return new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
-    timeZone: 'America/Sao_Paulo',
+    timeZone: 'UTC',
   }).format(date)
 }
 
