@@ -17,3 +17,4 @@ export {
   stripNonDigits,
 } from './crypto'
 export type { EncryptedField } from './crypto'
+export { signRequest, verifyRequest } from './internal-auth'
