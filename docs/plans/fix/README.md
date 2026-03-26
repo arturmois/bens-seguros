@@ -30,6 +30,7 @@ Os seguintes itens da auditoria ja foram corrigidos:
 | L1     | Index composto (organizationId, role) no Member                                                                          | Corrigido         |
 | SEC-09 | Magic bytes validation (file-type + extension blocklist + MIME allowlist)                                                | Corrigido         |
 | SEC-10 | Internal API HMAC security (signRequest/verifyRequest + timingSafeEqual + 20 req/min rate limit)                         | Corrigido         |
+| H4     | Test coverage — 22 test files adicionados, 23 use cases cobertos (state machines, financeiro, validacao, dominio)        | Corrigido         |
 
 ---
 
@@ -40,11 +41,10 @@ Os seguintes itens da auditoria ja foram corrigidos:
 | Arquivo                                                        | Severidade | Esforco  | Descricao                      |
 | -------------------------------------------------------------- | ---------- | -------- | ------------------------------ |
 | [M2-redis-cache.md](M2-redis-cache.md)                         | MEDIO      | M (1-2d) | Sem cache para dados estaticos |
-| [H4-test-coverage.md](H4-test-coverage.md)                     | HIGH       | G (3-5d) | ~40 use cases sem testes       |
 | [M5-component-decomposition.md](M5-component-decomposition.md) | MEDIO      | M (1-2d) | 6 componentes >200 linhas      |
 | [L2-claim-number-sequence.md](L2-claim-number-sequence.md)     | LOW        | P (1h)   | Claim number via aggregate     |
 | [L3-route-files-size.md](L3-route-files-size.md)               | LOW        | M (1d)   | Route files >200 linhas        |
 
 ---
 
-**Total pendente:** 5 itens | 0 Seguranca | 5 Quality/Performance
+**Total pendente:** 4 itens | 0 Seguranca | 4 Quality/Performance
