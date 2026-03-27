@@ -8,6 +8,14 @@ const DOCUMENT_TYPE_COLORS: Record<DocumentType, string> = {
     'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
   VEHICLE_REGISTRATION:
     'bg-cyan-100 text-cyan-700 dark:bg-cyan-900 dark:text-cyan-300',
+  HEALTH_DECLARATION:
+    'bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300',
+  PROOF_OF_ADDRESS:
+    'bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300',
+  SOCIAL_CONTRACT:
+    'bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300',
+  CNPJ_CARD:
+    'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900 dark:text-fuchsia-300',
   POLICY_PDF:
     'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
   CLAIM_PHOTO:

@@ -203,7 +203,11 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
         </TabsContent>
 
         <TabsContent value="documents" className="mt-4 space-y-4">
-          <DocumentUpload entityType="PROPOSAL" entityId={proposalId} />
+          <DocumentUpload
+            entityType="PROPOSAL"
+            entityId={proposalId}
+            branch={proposal.branch}
+          />
           <DocumentList entityType="PROPOSAL" entityId={proposalId} />
         </TabsContent>
       </Tabs>

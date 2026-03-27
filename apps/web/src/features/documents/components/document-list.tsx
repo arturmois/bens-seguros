@@ -20,17 +20,12 @@ import { api } from '@/lib/api-client'
 
 import type { DocumentData, DocumentEntityType } from '../types'
 import { useDeleteDocument, useDocuments } from '../hooks/use-documents'
+import { formatFileSize } from '../lib/format-file-size'
 import { DocumentTypeBadge } from './document-type-badge'
 
 interface DocumentListProps {
   readonly entityType: DocumentEntityType
   readonly entityId: string
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${String(bytes)} B`
-  if (bytes < 1024 * 1024) return `${String(Math.round(bytes / 1024))} KB`
-  return `${String((bytes / (1024 * 1024)).toFixed(1))} MB`
 }
 
 function formatDate(dateStr: string): string {

@@ -3,6 +3,10 @@ import type { DocumentEntityType, DocumentType } from '../types'
 export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
   DRIVER_LICENSE: 'CNH',
   VEHICLE_REGISTRATION: 'CRLV',
+  HEALTH_DECLARATION: 'Declaração de Saúde',
+  PROOF_OF_ADDRESS: 'Comprovante de Endereço',
+  SOCIAL_CONTRACT: 'Contrato Social',
+  CNPJ_CARD: 'Cartão CNPJ',
   POLICY_PDF: 'Apólice PDF',
   CLAIM_PHOTO: 'Foto Sinistro',
   CLAIM_REPORT: 'Laudo Sinistro',
