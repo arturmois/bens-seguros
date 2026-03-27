@@ -19,61 +19,61 @@ export type BoardType = 'NEW_INSURANCE' | 'RENEWAL'
 
 export interface AutoDetails {
   branch: 'AUTO'
-  marca: string
-  modelo: string
-  anoFabricacao: number
-  anoModelo: number
-  placa?: string
-  chassi?: string
-  cor?: string
-  combustivel?: string
-  usoVeiculo?: string
+  brand: string
+  model: string
+  manufacturingYear: number
+  modelYear: number
+  licensePlate?: string
+  vin?: string
+  color?: string
+  fuelType?: string
+  vehicleUsage?: string
 }
 
 export interface ResidentialDetails {
   branch: 'RESIDENTIAL'
-  tipoImovel: string
-  usoImovel: string
+  propertyType: string
+  propertyUsage: string
   cep: string
-  endereco?: string
-  construcao?: string
+  address?: string
+  construction?: string
   areaM2?: number
 }
 
 export interface CondominiumDetails {
   branch: 'CONDOMINIUM'
-  nomeCondominio: string
-  numeroUnidades: number
+  condominiumName: string
+  unitCount: number
   cep: string
-  endereco?: string
-  anoConstrucao?: number
-  numeroAndares?: number
+  address?: string
+  constructionYear?: number
+  floorCount?: number
 }
 
 export interface BusinessDetails {
   branch: 'BUSINESS'
-  razaoSocial: string
+  legalName: string
   cnpj: string
-  atividade: string
+  businessActivity: string
   cep?: string
-  endereco?: string
+  address?: string
   areaM2?: number
 }
 
 export interface LifeDetails {
   branch: 'LIFE'
-  profissao: string
-  rendaMensalCentavos?: number
-  fumante?: boolean
-  esportesRadicais?: boolean
-  alturaEmCentimetros?: number
-  pesoEmGramas?: number
-  beneficiarios?: string
+  occupation: string
+  monthlyIncomeCents?: number
+  isSmoker?: boolean
+  extremeSports?: boolean
+  heightInCentimeters?: number
+  weightInGrams?: number
+  beneficiaries?: string
 }
 
 export interface OtherDetails {
   branch: 'OTHER'
-  descricao: string
+  description: string
 }
 
 export type InsuredObjectDetails =
