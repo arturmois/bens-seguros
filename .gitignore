@@ -17,3 +17,6 @@ next-env.d.ts
 .code-review-graph/
 qa-*.png
 task*.png
+.agents/
+.claude/
+skills-lock.json
