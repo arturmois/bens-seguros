@@ -1,3 +1,4 @@
+import { renderToBuffer } from '@react-pdf/renderer'
 import {
   AdvanceProposalStage,
   BranchMismatchError,
@@ -21,6 +22,7 @@ import { prisma } from '@repo/db'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
+import { ProposalQuotePdf } from '../../pdf-templates/proposal-quote-pdf.js'
 import { idParamSchema } from '../../schemas/client.schemas.js'
 import { updateProposalDetailsBodySchema } from '../../schemas/proposal-details.schemas.js'
 import {
@@ -190,10 +192,6 @@ export async function proposalRoutes(app: FastifyInstance) {
         name: org.name,
         logo: logoUrl,
       }
-
-      const { renderToBuffer } = await import('@react-pdf/renderer')
-      const { ProposalQuotePdf } =
-        await import('../../pdf-templates/proposal-quote-pdf.js')
 
       const buffer = Buffer.from(
         await renderToBuffer(

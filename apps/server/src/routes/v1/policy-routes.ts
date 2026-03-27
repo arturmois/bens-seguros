@@ -1,38 +1,40 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import { container } from '@repo/core'
+import { renderToBuffer } from '@react-pdf/renderer'
 import {
-  ExportPoliciesCsv,
-  ParsePolicyImport,
+  CancelPolicy,
+  container,
   CsvImportError,
-  MAX_IMPORT_FILE_SIZE,
+  ExportPoliciesCsv,
+  GetPolicy,
   IssuePolicy,
   ListPolicies,
-  GetPolicy,
-  CancelPolicy,
-  PolicyNotFoundError,
+  MAX_IMPORT_FILE_SIZE,
+  ParsePolicyImport,
   PolicyAlreadyCancelledError,
+  PolicyNotFoundError,
   PolicyNotIssuableError,
+  ProposalNotFoundError,
   type DocumentRepository,
   type StorageProvider,
 } from '@repo/core'
-import { ProposalNotFoundError } from '@repo/core'
 import { prisma } from '@repo/db'
-import { auditCreate, auditUpdate } from '../../services/audit-logger.js'
-import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
-import {
-  issuePolicyBodySchema,
-  listPoliciesQuerySchema,
-  cancelPolicyBodySchema,
-} from '../../schemas/policy.schemas.js'
+import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
+import { PolicySummaryPdf } from '../../pdf-templates/policy-summary-pdf.js'
 import { idParamSchema } from '../../schemas/client.schemas.js'
 import { importJobIdParamSchema } from '../../schemas/import.schemas.js'
 import {
-  stageImportData,
-  retrieveStagedData,
-  removeStagedData,
+  cancelPolicyBodySchema,
+  issuePolicyBodySchema,
+  listPoliciesQuerySchema,
+} from '../../schemas/policy.schemas.js'
+import { auditCreate, auditUpdate } from '../../services/audit-logger.js'
+import {
   enqueueImportJob,
   getImportJobStatus,
+  removeStagedData,
+  retrieveStagedData,
+  stageImportData,
 } from '../../services/csv-import-enqueuer.js'
 
 function handlePolicyError(error: unknown, reply: FastifyReply) {
@@ -336,10 +338,6 @@ export async function policyRoutes(app: FastifyInstance) {
         name: org.name,
         logo: logoUrl,
       }
-
-      const { renderToBuffer } = await import('@react-pdf/renderer')
-      const { PolicySummaryPdf } =
-        await import('../../pdf-templates/policy-summary-pdf.js')
 
       const buffer = Buffer.from(
         await renderToBuffer(
