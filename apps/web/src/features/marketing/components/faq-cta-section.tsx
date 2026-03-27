@@ -1,12 +1,12 @@
 'use client'
 
-import Link from 'next/link'
 import {
   Accordion,
+  AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  AccordionContent,
 } from '@/components/ui/accordion'
+import Link from 'next/link'
 
 interface FaqItem {
   question: string
@@ -80,7 +80,7 @@ function FaqAccordion(): React.ReactElement {
       {FAQ_ITEMS.map((item, index) => (
         <AccordionItem
           key={index}
-          className="data-[open]:border-accent-500/30 rounded-xl border border-white/[0.08] bg-white/[0.03] px-5"
+          className="data-open:border-accent-500/30 border-white/8 bg-white/3 rounded-xl border px-5"
         >
           <AccordionTrigger className="hover:text-accent-400 py-5 text-base font-medium text-white">
             {item.question}
@@ -96,7 +96,7 @@ function FaqAccordion(): React.ReactElement {
 
 function CtaFinal(): React.ReactElement {
   return (
-    <div className="border-accent-500/20 from-accent-500/[0.08] to-primary-500/[0.08] mt-16 rounded-2xl border bg-gradient-to-r p-8 text-center sm:p-12">
+    <div className="border-accent-500/20 from-accent-500/8 to-primary-500/8 bg-linear-to-r mt-16 rounded-2xl border p-8 text-center sm:p-12">
       <h3 className="text-2xl font-bold text-white sm:text-3xl">
         Pronto para transformar sua corretora?
       </h3>
@@ -105,7 +105,7 @@ function CtaFinal(): React.ReactElement {
       </p>
       <Link
         href="/register"
-        className="from-accent-500 to-accent-600 shadow-accent-500/25 hover:shadow-accent-500/40 mt-8 inline-block rounded-xl bg-gradient-to-r px-8 py-3 text-base font-semibold text-slate-900 shadow-lg transition-all"
+        className="from-accent-500 to-accent-600 shadow-accent-500/25 hover:shadow-accent-500/40 bg-linear-to-r mt-8 inline-block rounded-xl px-8 py-3 text-base font-semibold text-slate-900 shadow-lg transition-all"
       >
         Comecar Gratis
       </Link>

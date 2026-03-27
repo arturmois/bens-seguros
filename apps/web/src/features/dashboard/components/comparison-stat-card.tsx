@@ -39,7 +39,8 @@ export function ComparisonStatCard({
   }
 
   const isPositive = comparison ? comparison.changePercent >= 0 : true
-  const showComparison = comparison && comparison.previous > 0
+  const showComparison =
+    comparison && (comparison.current > 0 || comparison.previous > 0)
 
   return (
     <Card>

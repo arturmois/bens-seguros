@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { PricingToggle } from './pricing-toggle'
 import { PricingCard } from './pricing-card'
+import { PricingToggle } from './pricing-toggle'
 
 interface PlanConfig {
   name: string

@@ -55,7 +55,7 @@ export function HowItWorksSection(): React.ReactElement {
 function ConnectingLine(): React.ReactElement {
   return (
     <div
-      className="from-primary-500 via-accent-500 absolute left-0 right-0 top-6 hidden h-0.5 bg-gradient-to-r to-emerald-500 md:block"
+      className="from-primary-500 via-accent-500 bg-linear-to-r absolute left-0 right-0 top-6 hidden h-0.5 to-emerald-500 md:block"
       aria-hidden="true"
     />
   )
@@ -70,7 +70,7 @@ function StepCard({
   return (
     <div className="relative flex flex-col items-center text-center">
       <div
-        className={`flex size-12 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-lg font-bold text-white shadow-lg`}
+        className={`bg-linear-to-br flex size-12 items-center justify-center rounded-full ${gradient} text-lg font-bold text-white shadow-lg`}
       >
         {number}
       </div>

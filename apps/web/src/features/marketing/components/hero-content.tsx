@@ -6,7 +6,7 @@ export function HeroContent(): React.ReactElement {
       <BadgePill />
       <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl">
         Tudo que sua corretora{' '}
-        <span className="from-accent-400 to-accent-500 bg-gradient-to-r bg-clip-text text-transparent">
+        <span className="from-accent-400 to-accent-500 bg-linear-to-r bg-clip-text text-transparent">
           precisa para crescer
         </span>
       </h1>
@@ -32,7 +32,7 @@ function HeroActions(): React.ReactElement {
     <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
       <Link
         href="/register"
-        className="from-accent-500 to-accent-600 shadow-accent-500/25 hover:shadow-accent-500/40 rounded-xl bg-gradient-to-r px-8 py-3 text-base font-semibold text-slate-900 shadow-lg transition-all"
+        className="from-accent-500 to-accent-600 shadow-accent-500/25 hover:shadow-accent-500/40 bg-linear-to-r rounded-xl px-8 py-3 text-base font-semibold text-slate-900 shadow-lg transition-all"
       >
         Comecar Gratis
       </Link>
