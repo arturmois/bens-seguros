@@ -1,8 +1,10 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { RATE_LIMITS } from '@repo/shared'
 import { ResendEmailProvider, invitationEmail } from '@repo/core/notification'
+import { container, type CacheService } from '@repo/core'
 import { prisma } from '@repo/db'
 import { env } from '@repo/env'
+import { ROLE_HIERARCHY, type Role } from '@repo/auth/roles'
 import { idParamSchema } from '../../schemas/client.schemas.js'
 import {
   createInvitationBodySchema,
@@ -16,7 +18,14 @@ import {
   InvitationNotFoundError,
   RoleHierarchyError,
 } from './member-errors.js'
-import { ROLE_HIERARCHY, type Role } from '@repo/auth/roles'
+
+function resolveCache(): CacheService | null {
+  try {
+    return container.resolve<CacheService>('CacheService')
+  } catch {
+    return null
+  }
+}
 
 function handleInvitationError(
   error: unknown,
@@ -188,6 +197,11 @@ export async function invitationRoutes(app: FastifyInstance) {
           entityId: invitation.id,
           after: { email, role },
         })
+
+        const cacheService = resolveCache()
+        if (cacheService) {
+          await cacheService.delete(`cache:${organizationId}:members`)
+        }
 
         return reply.status(201).send({ success: true, data: invitation })
       } catch (error) {

@@ -1,10 +1,28 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
-import { container, type StorageProvider } from '@repo/core'
+import { container, type StorageProvider, type CacheService } from '@repo/core'
 import { prisma } from '@repo/db'
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
 import { updateOrganizationSchema } from '../../schemas/organization.schemas.js'
 import { auditUpdate } from '../../services/audit-logger.js'
+
+const ORG_CACHE_TTL = 3600 // 1h
+
+interface OrgCacheData {
+  id: string
+  name: string
+  slug: string
+  logoKey: string | null
+  createdAt: string
+}
+
+function resolveCache(): CacheService | null {
+  try {
+    return container.resolve<CacheService>('CacheService')
+  } catch {
+    return null
+  }
+}
 
 const ALLOWED_IMAGE_TYPES = new Set([
   'image/jpeg',
@@ -30,6 +48,30 @@ export async function organizationRoutes(app: FastifyInstance) {
     '/api/v1/organization',
     async (request: FastifyRequest, reply: FastifyReply) => {
       const organizationId = request.organizationId!
+      const cacheKey = `cache:${organizationId}:org`
+
+      const cacheService = resolveCache()
+      if (cacheService) {
+        const cached = await cacheService.get<OrgCacheData>(cacheKey)
+        if (cached) {
+          let logoUrl: string | null = null
+          if (cached.logoKey) {
+            const storage =
+              container.resolve<StorageProvider>('StorageProvider')
+            logoUrl = await storage.getSignedUrl(cached.logoKey)
+          }
+          return reply.send({
+            success: true,
+            data: {
+              id: cached.id,
+              name: cached.name,
+              slug: cached.slug,
+              logo: logoUrl,
+              createdAt: cached.createdAt,
+            },
+          })
+        }
+      }
 
       const org = await prisma.organization.findUnique({
         where: { id: organizationId },
@@ -50,6 +92,20 @@ export async function organizationRoutes(app: FastifyInstance) {
             message: 'Organizacao nao encontrada',
           },
         })
+      }
+
+      if (cacheService) {
+        await cacheService.set(
+          cacheKey,
+          {
+            id: org.id,
+            name: org.name,
+            slug: org.slug,
+            logoKey: org.logo,
+            createdAt: org.createdAt.toISOString(),
+          } satisfies OrgCacheData,
+          ORG_CACHE_TTL
+        )
       }
 
       let logoUrl: string | null = null
@@ -122,6 +178,11 @@ export async function organizationRoutes(app: FastifyInstance) {
         before,
         after: { name: body.name, slug: body.slug },
       })
+
+      const cacheService = resolveCache()
+      if (cacheService) {
+        await cacheService.delete(`cache:${organizationId}:org`)
+      }
 
       let logoUrl: string | null = null
       if (updated.logo) {
@@ -225,6 +286,11 @@ export async function organizationRoutes(app: FastifyInstance) {
         before: { logo: currentOrg?.logo },
         after: { logo: storageKey },
       })
+
+      const cacheService = resolveCache()
+      if (cacheService) {
+        await cacheService.delete(`cache:${organizationId}:org`)
+      }
 
       const logoUrl = await storage.getSignedUrl(storageKey)
 

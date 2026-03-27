@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { ROLE_HIERARCHY, type Role } from '@repo/auth/roles'
 import { prisma } from '@repo/db'
+import { container, type CacheService } from '@repo/core'
 import { idParamSchema } from '../../schemas/client.schemas.js'
 import {
   changeMemberRoleBodySchema,
@@ -15,6 +16,29 @@ import {
   RoleHierarchyError,
   SelfRemovalError,
 } from './member-errors.js'
+
+const MEMBER_CACHE_TTL = 3600 // 1h
+
+interface MemberListCache {
+  readonly data: {
+    id: string
+    userId: string
+    name: string | null
+    email: string
+    role: string
+    active: boolean
+    createdAt: string
+  }[]
+  readonly meta: { total: number; nextCursor: string | null }
+}
+
+function resolveCache(): CacheService | null {
+  try {
+    return container.resolve<CacheService>('CacheService')
+  } catch {
+    return null
+  }
+}
 
 function handleMemberError(error: unknown, reply: FastifyReply): FastifyReply {
   if (error instanceof MemberNotFoundError) {
@@ -59,6 +83,15 @@ export async function memberRoutes(app: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { cursor, limit } = listMembersQuerySchema.parse(request.query)
       const organizationId = request.organizationId!
+      const cacheKey = `cache:${organizationId}:members`
+
+      const cacheService = resolveCache()
+      if (cacheService && !cursor) {
+        const cached = await cacheService.get<MemberListCache>(cacheKey)
+        if (cached) {
+          return reply.send({ success: true, ...cached })
+        }
+      }
 
       const where = {
         organizationId,
@@ -89,14 +122,16 @@ export async function memberRoutes(app: FastifyInstance) {
         createdAt: m.createdAt.toISOString(),
       }))
 
-      return reply.send({
-        success: true,
-        data,
-        meta: {
-          total,
-          nextCursor: hasMore ? members[members.length - 1]?.id : null,
-        },
-      })
+      const meta = {
+        total,
+        nextCursor: hasMore ? members[members.length - 1]?.id : null,
+      }
+
+      if (cacheService && !cursor) {
+        await cacheService.set(cacheKey, { data, meta }, MEMBER_CACHE_TTL)
+      }
+
+      return reply.send({ success: true, data, meta })
     }
   )
 
@@ -141,6 +176,11 @@ export async function memberRoutes(app: FastifyInstance) {
           after: { role: newRole },
         })
 
+        const cacheService = resolveCache()
+        if (cacheService) {
+          await cacheService.delete(`cache:${organizationId}:members`)
+        }
+
         return reply.send({ success: true, data: updated })
       } catch (error) {
         return handleMemberError(error, reply)
@@ -184,6 +224,11 @@ export async function memberRoutes(app: FastifyInstance) {
           entityId: id,
           before: { role: member.role, userId: member.userId },
         })
+
+        const cacheService = resolveCache()
+        if (cacheService) {
+          await cacheService.delete(`cache:${organizationId}:members`)
+        }
 
         return reply.send({ success: true, data: { id } })
       } catch (error) {
