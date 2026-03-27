@@ -42,7 +42,7 @@ export function EmptyState() {
           Selecione uma conversa
         </h2>
         <p className="text-muted-foreground max-w-sm">
-          Escolha uma conversa na lista ao lado para comecar a trocar mensagens
+          Escolha uma conversa na lista ao lado para começar a trocar mensagens
         </p>
       </div>
     </div>

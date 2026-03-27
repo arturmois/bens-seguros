@@ -28,7 +28,7 @@ export function ImportStepProcessing({ status }: ImportStepProcessingProps) {
         <Progress value={percentage} />
       </div>
       <p className="text-muted-foreground text-sm">
-        Nao feche esta janela enquanto a importacao esta em andamento.
+        Não feche esta janela enquanto a importação está em andamento.
       </p>
     </div>
   )

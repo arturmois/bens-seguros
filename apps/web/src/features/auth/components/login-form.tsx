@@ -13,8 +13,8 @@ import { Label } from '@/components/ui/label'
 import { useSearchParams } from 'next/navigation'
 
 const loginSchema = z.object({
-  email: z.string().email('Email invalido'),
-  password: z.string().min(8, 'Minimo 8 caracteres'),
+  email: z.string().email('Email inválido'),
+  password: z.string().min(8, 'Mínimo 8 caracteres'),
 })
 
 type LoginFormData = z.infer<typeof loginSchema>

@@ -17,7 +17,7 @@ export function ConversionRate({ data, isLoading }: ConversionRateProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Taxa de conversao</CardTitle>
+          <CardTitle className="text-sm">Taxa de conversão</CardTitle>
         </CardHeader>
         <CardPanel>
           <Skeleton className="h-24 w-full" />
@@ -31,7 +31,7 @@ export function ConversionRate({ data, isLoading }: ConversionRateProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Taxa de conversao</CardTitle>
+        <CardTitle className="text-sm">Taxa de conversão</CardTitle>
       </CardHeader>
       <CardPanel className="flex items-center gap-4">
         <div className="flex items-baseline gap-1">

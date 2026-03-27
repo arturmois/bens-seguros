@@ -33,8 +33,8 @@ const STEP_TITLES: Record<ImportStep, string> = {
 const STEP_DESCRIPTIONS: Record<ImportStep, string> = {
   upload: 'Envie um arquivo CSV com os dados dos clientes.',
   preview: 'Confira os dados antes de importar.',
-  processing: 'Aguarde enquanto os clientes sao importados.',
-  results: 'Veja o resultado da importacao.',
+  processing: 'Aguarde enquanto os clientes são importados.',
+  results: 'Veja o resultado da importação.',
 }
 
 interface ImportDialogProps {

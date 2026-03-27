@@ -145,10 +145,10 @@ export function ClientFormFields({ form, isReadOnly }: ClientFormFieldsProps) {
       </FormField>
 
       <FormField
-        label="Profissao"
+        label="Profissão"
         error={form.formState.errors.profession?.message}
       >
-        <Input placeholder="Profissao" {...form.register('profession')} />
+        <Input placeholder="Profissão" {...form.register('profession')} />
       </FormField>
 
       <FormField
