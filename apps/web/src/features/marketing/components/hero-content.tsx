@@ -11,7 +11,7 @@ export function HeroContent(): React.ReactElement {
         </span>
       </h1>
       <p className="mt-6 text-lg leading-relaxed text-slate-400">
-        Gerencie propostas, apolices, comissoes e atenda clientes pelo WhatsApp.
+        Gerencie propostas, apólices, comissões e atenda clientes pelo WhatsApp.
         O ERP completo para corretoras de seguros brasileiras.
       </p>
       <HeroActions />
@@ -22,7 +22,7 @@ export function HeroContent(): React.ReactElement {
 function BadgePill(): React.ReactElement {
   return (
     <span className="border-accent-500/30 bg-accent-500/10 text-accent-400 inline-flex items-center rounded-full border px-4 py-1.5 text-sm font-medium">
-      2.000+ corretoras ja usam
+      2.000+ corretoras já usam
     </span>
   )
 }
@@ -34,7 +34,7 @@ function HeroActions(): React.ReactElement {
         href="/register"
         className="from-accent-500 to-accent-600 shadow-accent-500/25 hover:shadow-accent-500/40 bg-linear-to-r rounded-xl px-8 py-3 text-base font-semibold text-slate-900 shadow-lg transition-all"
       >
-        Comecar Gratis
+        Começar Grátis
       </Link>
       <a
         href="#recursos"

@@ -10,7 +10,7 @@ const STEPS: readonly Step[] = [
     number: 1,
     title: 'Cadastre-se',
     description:
-      'Crie sua conta em menos de 2 minutos. Sem cartao de credito, sem burocracia.',
+      'Crie sua conta em menos de 2 minutos. Sem cartão de crédito, sem burocracia.',
     gradient: 'from-primary-500 to-primary-600',
   },
   {
@@ -24,7 +24,7 @@ const STEPS: readonly Step[] = [
     number: 3,
     title: 'Use',
     description:
-      'Gerencie propostas, apolices e comissoes em um unico lugar, com inteligencia artificial.',
+      'Gerencie propostas, apólices e comissões em um único lugar, com inteligência artificial.',
     gradient: 'from-emerald-500 to-emerald-600',
   },
 ] as const
@@ -37,7 +37,7 @@ export function HowItWorksSection(): React.ReactElement {
           Como Funciona
         </p>
         <h2 className="mt-4 text-center text-2xl font-bold text-slate-900 sm:text-3xl">
-          Simples de comecar, poderoso para escalar
+          Simples de começar, poderoso para escalar
         </h2>
         <div className="relative mt-16">
           <ConnectingLine />

@@ -21,14 +21,14 @@ const PLANS: readonly PlanConfig[] = [
     monthlyPrice: 97,
     annualPrice: 78,
     features: [
-      'Ate 500 clientes',
-      'Propostas e apolices',
-      'Controle de comissoes',
+      'Até 500 clientes',
+      'Propostas e apólices',
+      'Controle de comissões',
       'Suporte por email',
     ],
     popular: false,
     dark: false,
-    ctaLabel: 'Comecar Gratis',
+    ctaLabel: 'Começar Grátis',
     ctaHref: '/register',
   },
   {
@@ -38,13 +38,13 @@ const PLANS: readonly PlanConfig[] = [
     features: [
       'Clientes ilimitados',
       'Chat + WhatsApp integrado',
-      'Dashboard avancado',
+      'Dashboard avançado',
       'IA para atendimento',
       'Suporte prioritario',
     ],
     popular: true,
     dark: false,
-    ctaLabel: 'Comecar Gratis',
+    ctaLabel: 'Começar Grátis',
     ctaHref: '/register',
   },
   {
@@ -72,7 +72,7 @@ export function PricingSection(): React.ReactElement {
     <section id="precos" className="bg-white px-6 py-20">
       <div className="mx-auto max-w-6xl">
         <p className="text-accent-700 text-center text-xs font-semibold uppercase tracking-widest">
-          Precos
+          Preços
         </p>
         <h2 className="mt-4 text-center text-2xl font-bold text-slate-900 sm:text-3xl">
           Planos que cabem no seu bolso
