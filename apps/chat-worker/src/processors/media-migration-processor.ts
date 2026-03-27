@@ -1,6 +1,7 @@
 import { type Job } from 'bullmq'
 import pino from 'pino'
 import { Message } from '@repo/db-chat'
+import { env } from '@repo/env'
 
 const logger = pino({ name: 'media-migration-processor' })
 
@@ -8,15 +9,17 @@ const BATCH_SIZE = 100
 const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1_000
 
 export async function processMediaMigration(_job: Job): Promise<void> {
-  const r2Url = process.env.R2_ENDPOINT
-  const r2Bucket = process.env.R2_BUCKET
-
-  if (!r2Url || !r2Bucket) {
-    logger.warn(
-      'R2_ENDPOINT or R2_BUCKET not configured, skipping media migration'
-    )
+  if (
+    !env.R2_ACCOUNT_ID ||
+    !env.R2_ACCESS_KEY_ID ||
+    !env.R2_SECRET_ACCESS_KEY
+  ) {
+    logger.warn('R2 credentials not configured, skipping media migration')
     return
   }
+
+  const r2Endpoint = `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`
+  const r2Bucket = env.R2_BUCKET_NAME
 
   const cutoff = new Date(Date.now() - NINETY_DAYS_MS)
 
@@ -61,7 +64,7 @@ export async function processMediaMigration(_job: Job): Promise<void> {
       const ext = contentType.split('/').at(1) ?? 'bin'
       const storageKey = `chat-media/${msg.tenantId}/${String(msg._id)}.${ext}`
 
-      const uploadUrl = `${r2Url}/${r2Bucket}/${storageKey}`
+      const uploadUrl = `${r2Endpoint}/${r2Bucket}/${storageKey}`
       const uploadRes = await fetch(uploadUrl, {
         method: 'PUT',
         body: buffer,

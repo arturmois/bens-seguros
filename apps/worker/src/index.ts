@@ -4,9 +4,10 @@ import { setupAuditArchiveProcessor } from './processors/audit-archive-processor
 import { setupCsvImportProcessor } from './processors/csv-import-processor.js'
 import { setupNotificationProcessor } from './processors/notification-processor.js'
 import { setupProactiveAlertsProcessor } from './processors/alerts/index.js'
+import { env } from '@repo/env'
 
 const logger = pino({
-  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+  level: env.NODE_ENV === 'production' ? 'info' : 'debug',
 })
 
 function parseRedisUrl(url: string): {
@@ -24,9 +25,7 @@ function parseRedisUrl(url: string): {
   }
 }
 
-const redisInfo = parseRedisUrl(
-  process.env.REDIS_URL ?? 'redis://localhost:6379'
-)
+const redisInfo = parseRedisUrl(env.REDIS_URL)
 const connection = {
   host: redisInfo.host,
   port: redisInfo.port,

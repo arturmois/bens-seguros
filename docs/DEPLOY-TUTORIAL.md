@@ -165,6 +165,7 @@ echo "MONGO_PASSWORD: $(openssl rand -base64 32)"
 echo "REDIS_PASSWORD: $(openssl rand -base64 32)"
 echo "AUTH_SECRET: $(openssl rand -base64 32)"
 echo "SOCKET_JWT_SECRET: $(openssl rand -base64 24)"
+echo "ENCRYPTION_KEY: $(openssl rand -hex 32)"
 ```
 
 Copie as senhas geradas e crie o arquivo `.env`:
@@ -199,6 +200,12 @@ REDIS_PASSWORD=<COLE_AQUI>
 AUTH_SECRET=<COLE_AQUI>
 SOCKET_JWT_SECRET=<COLE_AQUI>
 
+# === COOKIES (obrigatorio para auth cross-subdomain) ===
+COOKIE_DOMAIN=.bensseg.com
+
+# === SECURITY (obrigatorio - criptografia PII) ===
+ENCRYPTION_KEY=<COLE_AQUI>
+
 # === STORAGE (Cloudflare R2) ===
 STORAGE_PROVIDER=r2
 R2_ACCOUNT_ID=<seu-account-id>
@@ -213,9 +220,16 @@ TAG=latest
 
 # === OPCIONAL ===
 # ANTHROPIC_API_KEY=
+# OPENAI_API_KEY=
 # RESEND_API_KEY=
+# RESEND_FROM_ADDRESS=Bens Seguros <noreply@bensseg.com>
 # SENTRY_DSN=
-# ENCRYPTION_KEY=
+# NEXT_PUBLIC_SENTRY_DSN=
+# INTERNAL_API_URL=http://server:3001
+# INTERNAL_API_SECRET=<gere-com-openssl-rand-base64-32>
+# META_WHATSAPP_TOKEN=
+# META_WHATSAPP_VERIFY_TOKEN=
+# META_WHATSAPP_PHONE_NUMBER_ID=
 ```
 
 Proteger o arquivo:
@@ -340,6 +354,10 @@ Em Settings → Environment Variables:
 | ----------------------------- | -------------------------- | ---------- |
 | `NEXT_PUBLIC_API_URL`         | `https://api.bensseg.com`  | Production |
 | `NEXT_PUBLIC_CHAT_SERVER_URL` | `https://chat.bensseg.com` | Production |
+| `NEXT_PUBLIC_SENTRY_DSN`      | `<seu-dsn-sentry>`         | Production |
+| `SENTRY_ORG`                  | `<sua-org-sentry>`         | Production |
+| `SENTRY_PROJECT`              | `<seu-project-sentry>`     | Production |
+| `SENTRY_AUTH_TOKEN`           | `<seu-auth-token-sentry>`  | Production |
 
 ### 4.3 Configurar dominio custom
 

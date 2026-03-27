@@ -31,6 +31,7 @@ export const env = createEnv({
       .string()
       .default('Bens Seguros <noreply@bens.com.br>'),
     SENTRY_DSN: z.string().url().optional(),
+    COOKIE_DOMAIN: z.string().optional(),
     META_WHATSAPP_TOKEN: z.string().optional(),
     META_WHATSAPP_VERIFY_TOKEN: z.string().optional(),
     META_WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
@@ -52,6 +53,7 @@ export const env = createEnv({
       .string()
       .url()
       .default('http://localhost:3002'),
+    NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

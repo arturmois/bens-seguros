@@ -1,6 +1,7 @@
 import { createBullBoard } from '@bull-board/api'
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
 import { FastifyAdapter } from '@bull-board/fastify'
+import { env } from '@repo/env'
 import { Queue } from 'bullmq'
 import type { FastifyInstance } from 'fastify'
 
@@ -30,9 +31,7 @@ function parseRedisUrl(url: string): {
 }
 
 export function setupBullBoard(app: FastifyInstance) {
-  const redisInfo = parseRedisUrl(
-    process.env.REDIS_URL ?? 'redis://localhost:6379'
-  )
+  const redisInfo = parseRedisUrl(env.REDIS_URL)
   const connection = {
     host: redisInfo.host,
     port: redisInfo.port,
