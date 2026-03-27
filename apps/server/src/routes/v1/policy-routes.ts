@@ -341,10 +341,9 @@ export async function policyRoutes(app: FastifyInstance) {
       const { PolicySummaryPdf } =
         await import('../../pdf-templates/policy-summary-pdf.js')
 
-      const React = await import('react')
       const buffer = Buffer.from(
         await renderToBuffer(
-          React.createElement(PolicySummaryPdf, {
+          PolicySummaryPdf({
             policy,
             organization: organizationData,
           })

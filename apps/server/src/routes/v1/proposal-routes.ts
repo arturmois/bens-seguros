@@ -195,10 +195,9 @@ export async function proposalRoutes(app: FastifyInstance) {
       const { ProposalQuotePdf } =
         await import('../../pdf-templates/proposal-quote-pdf.js')
 
-      const React = await import('react')
       const buffer = Buffer.from(
         await renderToBuffer(
-          React.createElement(ProposalQuotePdf, {
+          ProposalQuotePdf({
             proposal: proposal.toJSON(),
             organization: organizationData,
           })
