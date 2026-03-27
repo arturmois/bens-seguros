@@ -127,15 +127,13 @@ export async function buildApp() {
       async (request, reply) => {
         const filePath = join(uploadsDir, request.params['*'])
         if (!existsSync(filePath)) {
-          return reply
-            .status(404)
-            .send({
-              success: false,
-              error: {
-                code: 'FILE_NOT_FOUND',
-                message: 'Arquivo nao encontrado',
-              },
-            })
+          return reply.status(404).send({
+            success: false,
+            error: {
+              code: 'FILE_NOT_FOUND',
+              message: 'Arquivo nao encontrado',
+            },
+          })
         }
         const ext = extname(filePath)
         const contentType = MIME_MAP[ext] ?? 'application/octet-stream'
