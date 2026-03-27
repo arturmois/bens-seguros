@@ -40,7 +40,7 @@ const PLANS: readonly PlanConfig[] = [
       'Chat + WhatsApp integrado',
       'Dashboard avançado',
       'IA para atendimento',
-      'Suporte prioritario',
+      'Suporte prioritário',
     ],
     popular: true,
     dark: false,

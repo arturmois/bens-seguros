@@ -42,7 +42,7 @@ export function MembersPage() {
             Membros da Equipe
           </h2>
           <p className="text-muted-foreground text-sm">
-            Gerencie os membros e convites da sua organizacao.
+            Gerencie os membros e convites da sua organização.
           </p>
         </div>
         {canManage && (

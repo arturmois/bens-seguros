@@ -82,7 +82,7 @@ function MediaContent({ message }: { readonly message: MessageData }) {
   }
 
   return (
-    <p className="text-muted-foreground text-xs italic">Midia nao suportada</p>
+    <p className="text-muted-foreground text-xs italic">Mídia não suportada</p>
   )
 }
 

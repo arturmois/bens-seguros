@@ -239,7 +239,7 @@ function DeleteDocumentDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Excluir documento</AlertDialogTitle>
           <AlertDialogDescription>
-            Tem certeza que deseja excluir este documento? Esta acao nao pode
+            Tem certeza que deseja excluir este documento? Esta ação não pode
             ser desfeita.
           </AlertDialogDescription>
         </AlertDialogHeader>

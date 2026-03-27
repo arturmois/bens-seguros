@@ -24,14 +24,14 @@ export function useUpdateOrganization() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ORGANIZATION_KEY })
       queryClient.invalidateQueries({ queryKey: ORGS_KEY })
-      toast.success('Organizacao atualizada com sucesso')
+      toast.success('Organização atualizada com sucesso')
     },
     onError: (error) => {
       if (error instanceof ApiError && error.code === 'SLUG_CONFLICT') {
-        toast.error('Este slug ja esta em uso por outra organizacao')
+        toast.error('Este slug já está em uso por outra organização')
         return
       }
-      toast.error('Erro ao atualizar organizacao')
+      toast.error('Erro ao atualizar organização')
     },
   })
 }

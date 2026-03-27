@@ -44,13 +44,13 @@ export function ProposalStageActions({
                   ) : (
                     <ChevronRight className="mr-2 h-4 w-4" />
                   )}
-                  Avancar Estagio
+                  Avançar Estágio
                 </Button>
               </span>
             </TooltipTrigger>
             {checklistBlocking && (
               <TooltipContent side="top">
-                Complete os itens obrigatorios do checklist
+                Complete os itens obrigatórios do checklist
               </TooltipContent>
             )}
           </Tooltip>

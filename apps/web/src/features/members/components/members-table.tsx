@@ -59,7 +59,7 @@ const TABLE_HEADERS = (
       <TableHead>Email</TableHead>
       <TableHead>Cargo</TableHead>
       <TableHead className="w-12">
-        <span className="sr-only">Acoes</span>
+        <span className="sr-only">Ações</span>
       </TableHead>
     </TableRow>
   </TableHeader>
@@ -84,7 +84,7 @@ export function MembersTable({
           </EmptyMedia>
           <EmptyTitle>Erro ao carregar membros</EmptyTitle>
           <EmptyDescription>
-            Nao foi possivel carregar os membros. Tente novamente.
+            Não foi possível carregar os membros. Tente novamente.
           </EmptyDescription>
         </EmptyHeader>
         <Button variant="outline" onClick={() => void refetch()}>
@@ -112,7 +112,7 @@ export function MembersTable({
 
   function handleRemove(member: MemberData) {
     const confirmed = window.confirm(
-      `Deseja remover ${member.name} da organizacao?`
+      `Deseja remover ${member.name} da organização?`
     )
     if (!confirmed) return
     removeMember.mutate(member.id)

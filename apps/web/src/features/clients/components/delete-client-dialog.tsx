@@ -31,7 +31,7 @@ export function DeleteClientDialog({
         <DialogHeader>
           <DialogTitle>Excluir cliente</DialogTitle>
           <DialogDescription>
-            Tem certeza que deseja excluir este cliente? Esta acao nao pode ser
+            Tem certeza que deseja excluir este cliente? Esta ação não pode ser
             desfeita.
           </DialogDescription>
         </DialogHeader>

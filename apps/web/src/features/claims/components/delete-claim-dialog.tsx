@@ -31,7 +31,7 @@ export function DeleteClaimDialog({
         <DialogHeader>
           <DialogTitle>Excluir sinistro</DialogTitle>
           <DialogDescription>
-            Tem certeza que deseja excluir este sinistro? Esta acao nao pode ser
+            Tem certeza que deseja excluir este sinistro? Esta ação não pode ser
             desfeita.
           </DialogDescription>
         </DialogHeader>
