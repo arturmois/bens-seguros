@@ -2,7 +2,15 @@ import { prisma } from '@repo/db'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
-import { dashboardStatsQuerySchema } from '../../schemas/stats.schemas.js'
+import {
+  dashboardStatsQuerySchema,
+  presetToDays,
+} from '../../schemas/stats.schemas.js'
+
+function calculateChangePercent(current: number, previous: number): number {
+  if (previous === 0) return current > 0 ? 100 : 0
+  return Math.round(((current - previous) / previous) * 100)
+}
 
 export async function statsRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
@@ -11,14 +19,19 @@ export async function statsRoutes(app: FastifyInstance) {
     '/api/v1/stats/dashboard',
     { preHandler: [requireAbility('read', 'Client')] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { months } = dashboardStatsQuerySchema.parse(request.query)
+      const { preset } = dashboardStatsQuerySchema.parse(request.query)
       const orgId = request.organizationId!
       const now = new Date()
+      const days = presetToDays(preset)
+
+      const currentFrom = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
+      const previousFrom = new Date(
+        now.getTime() - 2 * days * 24 * 60 * 60 * 1000
+      )
+      const previousTo = currentFrom
+
       const thirtyDaysFromNow = new Date(
         now.getTime() + 30 * 24 * 60 * 60 * 1000
-      )
-      const cutoffDate = new Date(
-        now.getTime() - months * 30 * 24 * 60 * 60 * 1000
       )
 
       const [
@@ -67,7 +80,7 @@ export async function statsRoutes(app: FastifyInstance) {
           by: ['status'],
           where: {
             organizationId: orgId,
-            createdAt: { gte: new Date(now.getFullYear(), now.getMonth(), 1) },
+            createdAt: { gte: currentFrom },
             deletedAt: null,
           },
           _sum: { commissionValueInCents: true },
@@ -78,7 +91,7 @@ export async function statsRoutes(app: FastifyInstance) {
           prisma.proposal.count({
             where: {
               organizationId: orgId,
-              createdAt: { gte: cutoffDate },
+              createdAt: { gte: currentFrom },
               deletedAt: null,
             },
           }),
@@ -86,7 +99,7 @@ export async function statsRoutes(app: FastifyInstance) {
             where: {
               organizationId: orgId,
               stage: 'POLICY_ISSUED',
-              createdAt: { gte: cutoffDate },
+              createdAt: { gte: currentFrom },
               deletedAt: null,
             },
           }),
@@ -103,12 +116,131 @@ export async function statsRoutes(app: FastifyInstance) {
             COUNT(*) FILTER (WHERE "stage" = 'POLICY_ISSUED')::int as issued
           FROM "Proposal"
           WHERE "organizationId" = ${orgId}
-            AND "createdAt" >= ${cutoffDate}
+            AND "createdAt" >= ${currentFrom}
             AND "deletedAt" IS NULL
           GROUP BY DATE_TRUNC('month', "createdAt")
           ORDER BY month
         `,
       ])
+
+      const [
+        currentProposals,
+        previousProposals,
+        currentPolicies,
+        previousPolicies,
+        currentClaims,
+        previousClaims,
+        currentPendingCommissions,
+        previousPendingCommissions,
+        currentPremium,
+        previousPremium,
+        commissionsReceivable,
+      ] = await Promise.all([
+        prisma.proposal.count({
+          where: {
+            organizationId: orgId,
+            createdAt: { gte: currentFrom, lte: now },
+            deletedAt: null,
+          },
+        }),
+        prisma.proposal.count({
+          where: {
+            organizationId: orgId,
+            createdAt: { gte: previousFrom, lt: previousTo },
+            deletedAt: null,
+          },
+        }),
+        prisma.policy.count({
+          where: {
+            organizationId: orgId,
+            createdAt: { gte: currentFrom, lte: now },
+            deletedAt: null,
+          },
+        }),
+        prisma.policy.count({
+          where: {
+            organizationId: orgId,
+            createdAt: { gte: previousFrom, lt: previousTo },
+            deletedAt: null,
+          },
+        }),
+        prisma.claim.count({
+          where: {
+            organizationId: orgId,
+            createdAt: { gte: currentFrom, lte: now },
+            deletedAt: null,
+          },
+        }),
+        prisma.claim.count({
+          where: {
+            organizationId: orgId,
+            createdAt: { gte: previousFrom, lt: previousTo },
+            deletedAt: null,
+          },
+        }),
+        prisma.commission.aggregate({
+          where: {
+            organizationId: orgId,
+            status: { in: ['PENDING_COMMERCIAL', 'PENDING_ADMIN'] },
+            createdAt: { gte: currentFrom, lte: now },
+            deletedAt: null,
+          },
+          _sum: { commissionValueInCents: true },
+        }),
+        prisma.commission.aggregate({
+          where: {
+            organizationId: orgId,
+            status: { in: ['PENDING_COMMERCIAL', 'PENDING_ADMIN'] },
+            createdAt: { gte: previousFrom, lt: previousTo },
+            deletedAt: null,
+          },
+          _sum: { commissionValueInCents: true },
+        }),
+        prisma.policy.aggregate({
+          where: {
+            organizationId: orgId,
+            createdAt: { gte: currentFrom, lte: now },
+            deletedAt: null,
+          },
+          _sum: { premiumValueInCents: true },
+          _count: true,
+        }),
+        prisma.policy.aggregate({
+          where: {
+            organizationId: orgId,
+            createdAt: { gte: previousFrom, lt: previousTo },
+            deletedAt: null,
+          },
+          _sum: { premiumValueInCents: true },
+          _count: true,
+        }),
+        prisma.commission.aggregate({
+          where: {
+            organizationId: orgId,
+            status: 'APPROVED',
+            paidAt: null,
+            deletedAt: null,
+          },
+          _sum: { commissionValueInCents: true },
+        }),
+      ])
+
+      const currentPendingCents =
+        currentPendingCommissions._sum.commissionValueInCents ?? 0
+      const previousPendingCents =
+        previousPendingCommissions._sum.commissionValueInCents ?? 0
+      const currentPremiumCents = currentPremium._sum.premiumValueInCents ?? 0
+      const previousPremiumCents = previousPremium._sum.premiumValueInCents ?? 0
+      const currentPolicyCount = currentPremium._count
+      const previousPolicyCount = previousPremium._count
+      const currentTicket =
+        currentPolicyCount > 0
+          ? Math.round(currentPremiumCents / currentPolicyCount)
+          : 0
+      const previousTicket =
+        previousPolicyCount > 0
+          ? Math.round(previousPremiumCents / previousPolicyCount)
+          : 0
 
       return reply.send({
         success: true,
@@ -120,6 +252,58 @@ export async function statsRoutes(app: FastifyInstance) {
           commissionsThisMonth,
           conversionRate,
           monthlyTrends,
+          comparison: {
+            proposals: {
+              current: currentProposals,
+              previous: previousProposals,
+              changePercent: calculateChangePercent(
+                currentProposals,
+                previousProposals
+              ),
+            },
+            policies: {
+              current: currentPolicies,
+              previous: previousPolicies,
+              changePercent: calculateChangePercent(
+                currentPolicies,
+                previousPolicies
+              ),
+            },
+            claims: {
+              current: currentClaims,
+              previous: previousClaims,
+              changePercent: calculateChangePercent(
+                currentClaims,
+                previousClaims
+              ),
+            },
+            commissionsPending: {
+              current: currentPendingCents,
+              previous: previousPendingCents,
+              changePercent: calculateChangePercent(
+                currentPendingCents,
+                previousPendingCents
+              ),
+            },
+          },
+          totalPremium: {
+            current: currentPremiumCents,
+            previous: previousPremiumCents,
+            changePercent: calculateChangePercent(
+              currentPremiumCents,
+              previousPremiumCents
+            ),
+          },
+          averageTicket: {
+            current: currentTicket,
+            previous: previousTicket,
+            changePercent: calculateChangePercent(
+              currentTicket,
+              previousTicket
+            ),
+          },
+          commissionsReceivable:
+            commissionsReceivable._sum.commissionValueInCents ?? 0,
         },
       })
     }
