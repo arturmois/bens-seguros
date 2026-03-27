@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ExternalLink, File, Trash2 } from 'lucide-react'
+import { Download, Eye, File, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -115,7 +115,11 @@ function DocumentRow({
       </div>
 
       <div className="flex shrink-0 items-center gap-1">
-        <OpenDocumentButton
+        <ViewDocumentButton
+          documentId={document.id}
+          fileName={document.fileName}
+        />
+        <DownloadDocumentButton
           documentId={document.id}
           fileName={document.fileName}
         />
@@ -132,7 +136,7 @@ function DocumentRow({
   )
 }
 
-function OpenDocumentButton({
+function ViewDocumentButton({
   documentId,
   fileName,
 }: {
@@ -141,7 +145,7 @@ function OpenDocumentButton({
 }) {
   const [isLoading, setIsLoading] = useState(false)
 
-  async function handleOpen() {
+  async function handleView() {
     setIsLoading(true)
     try {
       const response = await api.get<{ url: string }>(
@@ -159,11 +163,54 @@ function OpenDocumentButton({
     <Button
       variant="ghost"
       size="sm"
-      onClick={handleOpen}
+      onClick={handleView}
       disabled={isLoading}
-      aria-label={`Abrir ${fileName}`}
+      aria-label={`Visualizar ${fileName}`}
     >
-      <ExternalLink className="size-4" />
+      <Eye className="size-4" />
+    </Button>
+  )
+}
+
+function DownloadDocumentButton({
+  documentId,
+  fileName,
+}: {
+  readonly documentId: string
+  readonly fileName: string
+}) {
+  const [isLoading, setIsLoading] = useState(false)
+
+  async function handleDownload() {
+    setIsLoading(true)
+    try {
+      const response = await api.get<{ url: string }>(
+        `/api/v1/documents/${documentId}/url`
+      )
+      const fileResponse = await fetch(response.data.url)
+      const blob = await fileResponse.blob()
+      const objectUrl = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = objectUrl
+      link.download = fileName
+      link.click()
+      URL.revokeObjectURL(objectUrl)
+    } catch {
+      toast.error('Erro ao baixar documento')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={handleDownload}
+      disabled={isLoading}
+      aria-label={`Baixar ${fileName}`}
+    >
+      <Download className="size-4" />
     </Button>
   )
 }
