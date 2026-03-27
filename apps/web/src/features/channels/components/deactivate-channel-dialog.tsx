@@ -43,7 +43,7 @@ export function DeactivateChannelDialog({
           <DialogTitle>Desativar Canal</DialogTitle>
           <DialogDescription>
             Deseja desativar o canal {channel?.name}? Conversas em andamento
-            serao encerradas.
+            serão encerradas.
           </DialogDescription>
         </DialogHeader>
 

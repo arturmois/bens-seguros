@@ -35,13 +35,13 @@ export function useUploadLogo() {
       }
 
       if (error.code === 'FILE_TOO_LARGE') {
-        toast.error('Arquivo excede o tamanho maximo de 2MB')
+        toast.error('Arquivo excede o tamanho máximo de 2MB')
         return
       }
 
       if (error.code === 'INVALID_FILE_TYPE') {
         toast.error(
-          'Tipo de arquivo invalido. Permitidos: JPEG, PNG, WebP, GIF'
+          'Tipo de arquivo inválido. Permitidos: JPEG, PNG, WebP, GIF'
         )
         return
       }
