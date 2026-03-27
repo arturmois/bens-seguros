@@ -1,17 +1,9 @@
 'use client'
 
 import { useCallback, useRef, useState } from 'react'
-import { FileText, Upload, X } from 'lucide-react'
+import { Upload } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 import { useUploadDocument } from '../hooks/use-documents'
@@ -20,8 +12,10 @@ import {
   type InsuranceBranch,
 } from '../lib/branch-document-types'
 import type { DocumentEntityType, DocumentType } from '../types'
+import { PendingFileCard } from './pending-file-card'
 
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
+const MAX_FILE_SIZE_MB = 10
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 const ALLOWED_MIME_TYPES = [
   'image/jpeg',
   'image/png',
@@ -52,86 +46,6 @@ function isAllowedMimeType(mimeType: string): boolean {
   return (ALLOWED_MIME_TYPES as readonly string[]).includes(mimeType)
 }
 
-interface PendingFileCardProps {
-  readonly file: File
-  readonly branch: InsuranceBranch
-  readonly selectedType: DocumentType | ''
-  readonly isUploading: boolean
-  readonly onTypeChange: (value: DocumentType) => void
-  readonly onConfirm: () => void
-  readonly onCancel: () => void
-}
-
-function PendingFileCard({
-  file,
-  branch,
-  selectedType,
-  isUploading,
-  onTypeChange,
-  onConfirm,
-  onCancel,
-}: PendingFileCardProps) {
-  const typeOptions = getDocumentTypesForBranch(branch)
-
-  return (
-    <div className="bg-muted/30 mt-3 flex items-start gap-3 rounded-lg border p-3">
-      <FileText className="text-muted-foreground mt-0.5 size-5 shrink-0" />
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <div className="min-w-0">
-          <p className="truncate text-sm font-medium">{file.name}</p>
-          <p className="text-muted-foreground text-xs">
-            {formatFileSize(file.size)}
-          </p>
-        </div>
-        <Select
-          value={selectedType}
-          onValueChange={(val) => {
-            if (val) onTypeChange(val)
-          }}
-        >
-          <SelectTrigger size="sm">
-            <SelectValue placeholder="Tipo do documento" />
-          </SelectTrigger>
-          <SelectContent>
-            {typeOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            disabled={selectedType === '' || isUploading}
-            onClick={onConfirm}
-          >
-            {isUploading ? 'Enviando...' : 'Enviar documento'}
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={isUploading}
-            onClick={onCancel}
-          >
-            <X className="mr-1 size-3.5" />
-            Cancelar
-          </Button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function UploadingIndicator() {
-  return (
-    <>
-      <div className="size-8 animate-spin rounded-full border-2 border-current border-t-transparent" />
-      <p className="text-sm font-medium">Enviando documento...</p>
-    </>
-  )
-}
-
 export function DocumentUpload({
   entityType,
   entityId,
@@ -145,14 +59,13 @@ export function DocumentUpload({
   const uploadDocument = useUploadDocument()
 
   const hasPendingFile = pendingFile !== null
-  const branchHasSingleType = branch
-    ? getDocumentTypesForBranch(branch).length === 1
-    : false
+  const branchHasSingleType =
+    branch !== undefined && getDocumentTypesForBranch(branch).length === 1
 
-  const clearPending = useCallback(() => {
+  function clearPending() {
     setPendingFile(null)
     setSelectedType('')
-  }, [])
+  }
 
   const uploadFile = useCallback(
     (file: File, type: DocumentType) => {
@@ -166,7 +79,7 @@ export function DocumentUpload({
         }
       )
     },
-    [entityType, entityId, uploadDocument, clearPending, onUploadSuccess]
+    [entityType, entityId, uploadDocument, onUploadSuccess]
   )
 
   const validateAndStage = useCallback(
@@ -198,21 +111,10 @@ export function DocumentUpload({
     [branch, branchHasSingleType, uploadFile]
   )
 
-  function handleDragOver(e: React.DragEvent) {
-    e.preventDefault()
-    if (!hasPendingFile) setIsDragOver(true)
-  }
-
-  function handleDragLeave(e: React.DragEvent) {
-    e.preventDefault()
-    setIsDragOver(false)
-  }
-
   function handleDrop(e: React.DragEvent) {
     e.preventDefault()
     setIsDragOver(false)
     if (hasPendingFile) return
-
     const file = e.dataTransfer.files[0]
     if (file) validateAndStage(file)
   }
@@ -221,11 +123,6 @@ export function DocumentUpload({
     const file = e.target.files?.[0]
     if (file) validateAndStage(file)
     if (fileInputRef.current) fileInputRef.current.value = ''
-  }
-
-  function handleClick() {
-    if (hasPendingFile) return
-    fileInputRef.current?.click()
   }
 
   function handleConfirm() {
@@ -250,14 +147,22 @@ export function DocumentUpload({
           (hasPendingFile || isUploadingWithoutPending) &&
             'pointer-events-none opacity-60'
         )}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
+        onDragOver={(e) => {
+          e.preventDefault()
+          if (!hasPendingFile) setIsDragOver(true)
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault()
+          setIsDragOver(false)
+        }}
         onDrop={handleDrop}
-        onClick={handleClick}
+        onClick={() => {
+          if (!hasPendingFile) fileInputRef.current?.click()
+        }}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
-            handleClick()
+            if (!hasPendingFile) fileInputRef.current?.click()
           }
         }}
       >
@@ -270,7 +175,10 @@ export function DocumentUpload({
         />
 
         {isUploadingWithoutPending ? (
-          <UploadingIndicator />
+          <>
+            <div className="size-8 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            <p className="text-sm font-medium">Enviando documento...</p>
+          </>
         ) : (
           <>
             <Upload className="text-muted-foreground size-8" />
