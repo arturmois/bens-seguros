@@ -131,7 +131,7 @@ export async function buildApp() {
             success: false,
             error: {
               code: 'FILE_NOT_FOUND',
-              message: 'Arquivo nao encontrado',
+              message: 'Arquivo não encontrado',
             },
           })
         }
