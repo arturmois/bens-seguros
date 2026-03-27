@@ -7,9 +7,9 @@ interface StatCardProps {
 }
 
 const STATS: readonly StatCardProps[] = [
-  { label: 'Premios Total', value: 'R$ 2,4M', change: '+12%' },
-  { label: 'Comissoes', value: 'R$ 360K', change: '+8%' },
-  { label: 'Apolices Ativas', value: '1.247', change: '+5%' },
+  { label: 'Prêmios Total', value: 'R$ 2,4M', change: '+12%' },
+  { label: 'Comissões', value: 'R$ 360K', change: '+8%' },
+  { label: 'Apólices Ativas', value: '1.247', change: '+5%' },
 ] as const
 
 const BAR_HEIGHTS = [40, 65, 50, 80, 60, 90, 55, 75, 85, 70, 95, 68] as const

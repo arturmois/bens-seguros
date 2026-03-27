@@ -30,7 +30,7 @@ const FAQ_ITEMS: readonly FaqItem[] = [
       'Sim! Oferecemos importação via planilha (CSV/Excel) e integração direta com os principais sistemas do mercado. Nossa equipe auxilia na migração sem custo adicional.',
   },
   {
-    question: 'Tem periodo de teste gratis?',
+    question: 'Tem período de teste grátis?',
     answer:
       'Sim! Você pode testar o plano Pro completo por 14 dias, sem precisar cadastrar cartão de crédito. Cancele a qualquer momento.',
   },
