@@ -3,7 +3,7 @@ export function HeroBackground(): React.ReactElement {
     <>
       {/* Grid dots */}
       <div
-        className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[length:24px_24px]"
+        className="bg-size-[24px_24px] absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.03)_1px,transparent_1px)]"
         aria-hidden="true"
       />
 

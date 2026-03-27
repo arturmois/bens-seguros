@@ -26,6 +26,12 @@ export interface MonthlyTrend {
   issued: string
 }
 
+export interface ComparisonMetric {
+  readonly current: number
+  readonly previous: number
+  readonly changePercent: number
+}
+
 export interface DashboardStats {
   proposalsByStage: ProposalByStage[]
   activePolicies: number
@@ -34,4 +40,15 @@ export interface DashboardStats {
   commissionsThisMonth: CommissionByStatus[]
   conversionRate: ConversionRate
   monthlyTrends: MonthlyTrend[]
+  comparison: {
+    proposals: ComparisonMetric
+    policies: ComparisonMetric
+    claims: ComparisonMetric
+    commissionsPending: ComparisonMetric
+  }
+  totalPremium: ComparisonMetric
+  averageTicket: ComparisonMetric
+  commissionsReceivable: number
 }
+
+export type DashboardPreset = '7d' | '30d' | '90d' | '6m'

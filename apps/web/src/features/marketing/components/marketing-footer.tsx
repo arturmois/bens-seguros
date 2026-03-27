@@ -1,5 +1,5 @@
-import Link from 'next/link'
 import { Logo } from '@/components/shared/logo'
+import Link from 'next/link'
 
 const FOOTER_LINKS = [
   { label: 'Termos', href: '#' },

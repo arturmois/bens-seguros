@@ -1,16 +1,16 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { Menu } from 'lucide-react'
 import { Logo } from '@/components/shared/logo'
 import {
   Sheet,
-  SheetTrigger,
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetTrigger,
 } from '@/components/ui/sheet'
+import { Menu } from 'lucide-react'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 const NAV_LINKS = [
   { label: 'Recursos', href: '#recursos' },
@@ -35,7 +35,7 @@ export function MarketingNav(): React.ReactElement {
     <header
       className={`fixed left-0 right-0 top-0 z-50 transition-colors duration-300 ${
         scrolled
-          ? 'border-b border-white/[0.06] bg-[#0a101f]/80 backdrop-blur-xl'
+          ? 'border-white/6 border-b bg-[#0a101f]/80 backdrop-blur-xl'
           : 'bg-transparent'
       }`}
     >
@@ -83,7 +83,7 @@ function DesktopActions(): React.ReactElement {
       </Link>
       <Link
         href="/register"
-        className="from-accent-500 to-accent-600 shadow-accent-500/20 hover:shadow-accent-500/30 rounded-lg bg-gradient-to-r px-5 py-2 text-sm font-semibold text-slate-900 shadow-lg transition-all"
+        className="from-accent-500 to-accent-600 shadow-accent-500/20 hover:shadow-accent-500/30 bg-linear-to-r rounded-lg px-5 py-2 text-sm font-semibold text-slate-900 shadow-lg transition-all"
       >
         Comecar Gratis
       </Link>
@@ -135,7 +135,7 @@ function MobileMenu({
             <Link
               href="/register"
               onClick={() => onOpenChange(false)}
-              className="from-accent-500 to-accent-600 mt-2 rounded-lg bg-gradient-to-r px-5 py-2.5 text-center text-sm font-semibold text-slate-900 transition-all"
+              className="from-accent-500 to-accent-600 bg-linear-to-r mt-2 rounded-lg px-5 py-2.5 text-center text-sm font-semibold text-slate-900 transition-all"
             >
               Comecar Gratis
             </Link>

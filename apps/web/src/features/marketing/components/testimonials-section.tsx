@@ -59,7 +59,7 @@ export function TestimonialsSection(): React.ReactElement {
   return (
     <section
       id="depoimentos"
-      className="relative overflow-hidden bg-gradient-to-b from-[#0f172a] to-[#111827] px-6 py-20"
+      className="bg-linear-to-b relative overflow-hidden from-[#0f172a] to-[#111827] px-6 py-20"
     >
       <GoldOrb />
       <div className="relative z-10 mx-auto max-w-6xl">
@@ -114,8 +114,8 @@ function TestimonialCard({
 }: Testimonial): React.ReactElement {
   return (
     <div
-      className={`rounded-xl border bg-white/[0.03] p-6 backdrop-blur-sm ${
-        highlighted ? 'border-accent-500/20' : 'border-white/[0.08]'
+      className={`bg-white/3 rounded-xl border p-6 backdrop-blur-sm ${
+        highlighted ? 'border-accent-500/20' : 'border-white/8'
       }`}
     >
       <Stars />
@@ -125,7 +125,7 @@ function TestimonialCard({
       <hr className="my-4 border-white/10" />
       <div className="flex items-center gap-3">
         <div
-          className={`flex size-10 items-center justify-center rounded-full bg-gradient-to-br ${initialsGradient} text-xs font-bold text-white`}
+          className={`bg-linear-to-br flex size-10 items-center justify-center rounded-full ${initialsGradient} text-xs font-bold text-white`}
         >
           {initials}
         </div>

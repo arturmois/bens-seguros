@@ -1,8 +1,8 @@
 import {
-  FileText,
   DollarSign,
-  MessageCircle,
+  FileText,
   LayoutDashboard,
+  MessageCircle,
 } from 'lucide-react'
 
 interface FeatureCard {
@@ -78,7 +78,7 @@ function FeaturesBackground(): React.ReactElement {
   return (
     <>
       <div
-        className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[length:24px_24px]"
+        className="bg-size-[24px_24px] absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.03)_1px,transparent_1px)]"
         aria-hidden="true"
       />
       <div
@@ -99,7 +99,7 @@ function BentoCard({
 }: FeatureCard): React.ReactElement {
   return (
     <div
-      className={`rounded-xl border border-white/[0.08] bg-white/[0.03] p-5 transition-colors ${hoverBorder} ${span}`}
+      className={`border-white/8 bg-white/3 rounded-xl border p-5 transition-colors ${hoverBorder} ${span}`}
     >
       <div className="flex items-center gap-3">
         {icon}

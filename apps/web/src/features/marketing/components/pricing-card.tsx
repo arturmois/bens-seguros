@@ -1,5 +1,5 @@
-import Link from 'next/link'
 import { Check } from 'lucide-react'
+import Link from 'next/link'
 
 interface PricingCardProps {
   name: string
@@ -29,7 +29,7 @@ export function PricingCard({
 
   return (
     <div
-      className={`relative flex flex-col rounded-2xl border p-6 ${popular ? 'order-first md:order-none' : ''} ${
+      className={`relative flex flex-col rounded-2xl border p-6 ${popular ? 'md:order-0 order-first' : ''} ${
         dark
           ? 'border-white/10 bg-[#0f172a] text-white'
           : popular
@@ -124,7 +124,7 @@ function CtaButton({
     return (
       <Link
         href={href}
-        className="from-accent-500 to-accent-600 shadow-accent-500/20 hover:shadow-accent-500/30 mt-6 block rounded-xl bg-gradient-to-r py-3 text-center text-sm font-semibold text-slate-900 shadow-lg transition-all"
+        className="from-accent-500 to-accent-600 shadow-accent-500/20 hover:shadow-accent-500/30 bg-linear-to-r mt-6 block rounded-xl py-3 text-center text-sm font-semibold text-slate-900 shadow-lg transition-all"
       >
         {label}
       </Link>
