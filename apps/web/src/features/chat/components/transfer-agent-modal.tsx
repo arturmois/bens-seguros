@@ -70,7 +70,7 @@ export function TransferAgentModal({
         <DialogHeader>
           <DialogTitle>Transferir conversa</DialogTitle>
           <DialogDescription>
-            Selecione o agente que ira assumir esta conversa.
+            Selecione o agente que irá assumir esta conversa.
           </DialogDescription>
         </DialogHeader>
 
@@ -82,11 +82,11 @@ export function TransferAgentModal({
               </div>
               <div className="text-center">
                 <p className="text-foreground text-sm font-medium">
-                  Nenhum agente disponivel
+                  Nenhum agente disponível
                 </p>
                 <p className="text-muted-foreground mt-1 text-xs">
-                  Nao ha outros agentes online no momento para receber a
-                  transferencia.
+                  Não há outros agentes online no momento para receber a
+                  transferência.
                 </p>
               </div>
             </div>
@@ -131,7 +131,7 @@ export function TransferAgentModal({
           >
             {transferConversation.isPending
               ? 'Transferindo...'
-              : 'Confirmar Transferencia'}
+              : 'Confirmar Transferência'}
           </Button>
         </DialogFooter>
       </DialogContent>

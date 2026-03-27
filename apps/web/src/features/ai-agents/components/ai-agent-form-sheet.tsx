@@ -108,7 +108,7 @@ export function AiAgentFormSheet({
           </SheetTitle>
           <SheetDescription>
             {isEditMode
-              ? 'Atualize as configuracoes do agente de IA.'
+              ? 'Atualize as configurações do agente de IA.'
               : 'Configure um novo agente de IA para atendimento.'}
           </SheetDescription>
         </SheetHeader>
@@ -127,21 +127,21 @@ export function AiAgentFormSheet({
             />
           </FormField>
           <FormField
-            label="Descricao"
+            label="Descrição"
             error={form.formState.errors.description?.message}
           >
             <Input
-              placeholder="Breve descricao do agente"
+              placeholder="Breve descrição do agente"
               {...form.register('description')}
             />
           </FormField>
           <FormField
             label="System Prompt"
             error={form.formState.errors.systemPrompt?.message}
-            helperText="Instrucoes de comportamento do agente. Max 2000 caracteres."
+            helperText="Instruções de comportamento do agente. Max 2000 caracteres."
           >
             <Textarea
-              placeholder="Voce e um assistente especializado em seguros..."
+              placeholder="Você é um assistente especializado em seguros..."
               rows={5}
               maxLength={2000}
               {...form.register('systemPrompt')}

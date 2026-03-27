@@ -12,7 +12,7 @@ export function NotificationBell() {
     <Popover>
       <PopoverTrigger
         className="text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-ring relative inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-        aria-label={`Notificacoes${unreadCount ? ` (${unreadCount} nao lidas)` : ''}`}
+        aria-label={`Notificações${unreadCount ? ` (${unreadCount} não lidas)` : ''}`}
       >
         <Bell className="size-4" />
         {unreadCount !== undefined && unreadCount > 0 && (

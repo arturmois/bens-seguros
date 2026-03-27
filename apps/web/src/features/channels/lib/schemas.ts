@@ -4,9 +4,9 @@ const BROKER_TYPES = ['BAILEYS', 'META'] as const
 
 export const channelFormSchema = z
   .object({
-    name: z.string().min(1, 'Nome e obrigatorio').max(100, 'Nome muito longo'),
+    name: z.string().min(1, 'Nome é obrigatório').max(100, 'Nome muito longo'),
     brokerType: z.enum(BROKER_TYPES, {
-      required_error: 'Tipo de conexao e obrigatorio',
+      required_error: 'Tipo de conexão é obrigatório',
     }),
     phoneNumber: z.string().optional(),
     metaToken: z.string().optional(),
@@ -18,14 +18,14 @@ export const channelFormSchema = z
       if (!data.metaToken || data.metaToken.trim().length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Token e obrigatorio para conexao Meta',
+          message: 'Token é obrigatório para conexão Meta',
           path: ['metaToken'],
         })
       }
       if (!data.phoneNumberId || data.phoneNumberId.trim().length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Phone Number ID e obrigatorio para conexao Meta',
+          message: 'Phone Number ID é obrigatório para conexão Meta',
           path: ['phoneNumberId'],
         })
       }

@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react'
 
 const NAV_LINKS = [
   { label: 'Recursos', href: '#recursos' },
-  { label: 'Precos', href: '#precos' },
+  { label: 'Preços', href: '#precos' },
   { label: 'Depoimentos', href: '#depoimentos' },
   { label: 'Contato', href: '#faq' },
 ] as const
@@ -40,7 +40,7 @@ export function MarketingNav(): React.ReactElement {
       }`}
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" aria-label="Bens Seguros - Pagina inicial">
+        <Link href="/" aria-label="Bens Seguros - Página inicial">
           <Logo size="md" className="text-white" />
         </Link>
 
@@ -85,7 +85,7 @@ function DesktopActions(): React.ReactElement {
         href="/register"
         className="from-accent-500 to-accent-600 shadow-accent-500/20 hover:shadow-accent-500/30 bg-linear-to-r rounded-lg px-5 py-2 text-sm font-semibold text-slate-900 shadow-lg transition-all"
       >
-        Comecar Gratis
+        Começar Grátis
       </Link>
     </div>
   )
@@ -137,7 +137,7 @@ function MobileMenu({
               onClick={() => onOpenChange(false)}
               className="from-accent-500 to-accent-600 bg-linear-to-r mt-2 rounded-lg px-5 py-2.5 text-center text-sm font-semibold text-slate-900 transition-all"
             >
-              Comecar Gratis
+              Começar Grátis
             </Link>
           </div>
         </SheetContent>

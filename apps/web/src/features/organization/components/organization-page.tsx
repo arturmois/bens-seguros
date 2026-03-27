@@ -41,7 +41,7 @@ export function OrganizationPage() {
       <div className="flex flex-col items-center justify-center gap-3 py-12">
         <AlertCircle className="text-destructive size-8" />
         <p className="text-muted-foreground text-sm">
-          Erro ao carregar dados da organizacao.
+          Erro ao carregar dados da organização.
         </p>
         <Button variant="outline" size="sm" onClick={() => refetch()}>
           Tentar novamente
@@ -55,11 +55,11 @@ export function OrganizationPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold tracking-tight">Organizacao</h2>
+        <h2 className="text-lg font-semibold tracking-tight">Organização</h2>
         <p className="text-muted-foreground text-sm">
           {isReadOnly
-            ? 'Visualize as informacoes da sua organizacao.'
-            : 'Gerencie as informacoes da sua organizacao.'}
+            ? 'Visualize as informações da sua organização.'
+            : 'Gerencie as informações da sua organização.'}
         </p>
       </div>
 

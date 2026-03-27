@@ -56,7 +56,7 @@ export function ChannelsPage() {
             Canais WhatsApp
           </h2>
           <p className="text-muted-foreground text-sm">
-            Gerencie seus canais de comunicacao via WhatsApp.
+            Gerencie seus canais de comunicação via WhatsApp.
           </p>
         </div>
         <Button onClick={handleCreate}>
@@ -135,7 +135,7 @@ function ChannelsContent({
           </EmptyMedia>
           <EmptyTitle>Erro ao carregar canais</EmptyTitle>
           <EmptyDescription>
-            Nao foi possivel carregar os canais. Tente novamente.
+            Não foi possível carregar os canais. Tente novamente.
           </EmptyDescription>
         </EmptyHeader>
         <Button variant="outline" onClick={onRetry}>
@@ -154,7 +154,7 @@ function ChannelsContent({
           </EmptyMedia>
           <EmptyTitle>Nenhum canal cadastrado</EmptyTitle>
           <EmptyDescription>
-            Adicione seu primeiro canal WhatsApp para comecar a receber
+            Adicione seu primeiro canal WhatsApp para começar a receber
             mensagens.
           </EmptyDescription>
         </EmptyHeader>

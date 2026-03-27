@@ -51,73 +51,75 @@ function buildDetails(
     case 'AUTO':
       return {
         branch,
-        marca: String(fields.marca ?? ''),
-        modelo: String(fields.modelo ?? ''),
-        anoFabricacao: Number(fields.anoFabricacao) || 0,
-        anoModelo: Number(fields.anoModelo) || 0,
-        placa: fields.placa ? String(fields.placa) : undefined,
-        chassi: fields.chassi ? String(fields.chassi) : undefined,
-        cor: fields.cor ? String(fields.cor) : undefined,
-        combustivel: fields.combustivel
-          ? String(fields.combustivel)
+        brand: String(fields.brand ?? ''),
+        model: String(fields.model ?? ''),
+        manufacturingYear: Number(fields.manufacturingYear) || 0,
+        modelYear: Number(fields.modelYear) || 0,
+        licensePlate: fields.licensePlate
+          ? String(fields.licensePlate)
           : undefined,
-        usoVeiculo: fields.usoVeiculo ? String(fields.usoVeiculo) : undefined,
+        vin: fields.vin ? String(fields.vin) : undefined,
+        color: fields.color ? String(fields.color) : undefined,
+        fuelType: fields.fuelType ? String(fields.fuelType) : undefined,
+        vehicleUsage: fields.vehicleUsage
+          ? String(fields.vehicleUsage)
+          : undefined,
       }
     case 'RESIDENTIAL':
       return {
         branch,
-        tipoImovel: String(fields.tipoImovel ?? ''),
-        usoImovel: String(fields.usoImovel ?? ''),
+        propertyType: String(fields.propertyType ?? ''),
+        propertyUsage: String(fields.propertyUsage ?? ''),
         cep: String(fields.cep ?? ''),
-        endereco: fields.endereco ? String(fields.endereco) : undefined,
-        construcao: fields.construcao ? String(fields.construcao) : undefined,
+        address: fields.address ? String(fields.address) : undefined,
+        construction: fields.construction
+          ? String(fields.construction)
+          : undefined,
         areaM2: fields.areaM2 ? Number(fields.areaM2) : undefined,
       }
     case 'CONDOMINIUM':
       return {
         branch,
-        nomeCondominio: String(fields.nomeCondominio ?? ''),
-        numeroUnidades: Number(fields.numeroUnidades) || 0,
+        condominiumName: String(fields.condominiumName ?? ''),
+        unitCount: Number(fields.unitCount) || 0,
         cep: String(fields.cep ?? ''),
-        endereco: fields.endereco ? String(fields.endereco) : undefined,
-        anoConstrucao: fields.anoConstrucao
-          ? Number(fields.anoConstrucao)
+        address: fields.address ? String(fields.address) : undefined,
+        constructionYear: fields.constructionYear
+          ? Number(fields.constructionYear)
           : undefined,
-        numeroAndares: fields.numeroAndares
-          ? Number(fields.numeroAndares)
-          : undefined,
+        floorCount: fields.floorCount ? Number(fields.floorCount) : undefined,
       }
     case 'BUSINESS':
       return {
         branch,
-        razaoSocial: String(fields.razaoSocial ?? ''),
+        legalName: String(fields.legalName ?? ''),
         cnpj: String(fields.cnpj ?? ''),
-        atividade: String(fields.atividade ?? ''),
+        businessActivity: String(fields.businessActivity ?? ''),
         cep: fields.cep ? String(fields.cep) : undefined,
-        endereco: fields.endereco ? String(fields.endereco) : undefined,
+        address: fields.address ? String(fields.address) : undefined,
         areaM2: fields.areaM2 ? Number(fields.areaM2) : undefined,
       }
     case 'LIFE':
       return {
         branch,
-        profissao: String(fields.profissao ?? ''),
-        rendaMensalCentavos: fields.rendaMensalCentavos
-          ? Number(fields.rendaMensalCentavos)
+        occupation: String(fields.occupation ?? ''),
+        monthlyIncomeCents: fields.monthlyIncomeCents
+          ? Number(fields.monthlyIncomeCents)
           : undefined,
-        fumante: fields.fumante === true ? true : undefined,
-        esportesRadicais: fields.esportesRadicais === true ? true : undefined,
-        alturaEmCentimetros: fields.alturaEmCentimetros
-          ? Number(fields.alturaEmCentimetros)
+        isSmoker: fields.isSmoker === true ? true : undefined,
+        extremeSports: fields.extremeSports === true ? true : undefined,
+        heightInCentimeters: fields.heightInCentimeters
+          ? Number(fields.heightInCentimeters)
           : undefined,
-        pesoEmGramas: fields.pesoKg
-          ? Math.round(Number(fields.pesoKg) * 1000)
+        weightInGrams: fields.weightKg
+          ? Math.round(Number(fields.weightKg) * 1000)
           : undefined,
-        beneficiarios: fields.beneficiarios
-          ? String(fields.beneficiarios)
+        beneficiaries: fields.beneficiaries
+          ? String(fields.beneficiaries)
           : undefined,
       }
     case 'OTHER':
-      return { branch, descricao: String(fields.descricao ?? '') }
+      return { branch, description: String(fields.description ?? '') }
   }
 }
 
@@ -138,11 +140,11 @@ export function BranchFields({
   if (
     'branch' in defaults &&
     defaults.branch === 'LIFE' &&
-    'pesoEmGramas' in defaults &&
-    typeof defaults.pesoEmGramas === 'number' &&
-    defaults.pesoEmGramas > 0
+    'weightInGrams' in defaults &&
+    typeof defaults.weightInGrams === 'number' &&
+    defaults.weightInGrams > 0
   ) {
-    formDefaults.pesoKg = defaults.pesoEmGramas / 1000
+    formDefaults.weightKg = defaults.weightInGrams / 1000
   }
   const form = useForm<FieldValues>({ defaultValues: formDefaults })
 

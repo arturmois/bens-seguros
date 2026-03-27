@@ -71,7 +71,7 @@ export function AuditTable({ filters, onLoadMore }: AuditTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead>Data</TableHead>
-            <TableHead>Acao</TableHead>
+            <TableHead>Ação</TableHead>
             <TableHead>Entidade</TableHead>
             <TableHead className="hidden sm:table-cell">ID</TableHead>
             <TableHead className="w-10" />

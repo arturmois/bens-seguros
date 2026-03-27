@@ -14,13 +14,13 @@ import { useSearchParams } from 'next/navigation'
 
 const registerSchema = z
   .object({
-    name: z.string().min(2, 'Minimo 2 caracteres'),
-    email: z.string().email('Email invalido'),
-    password: z.string().min(8, 'Minimo 8 caracteres'),
-    confirmPassword: z.string().min(8, 'Minimo 8 caracteres'),
+    name: z.string().min(2, 'Mínimo 2 caracteres'),
+    email: z.string().email('Email inválido'),
+    password: z.string().min(8, 'Mínimo 8 caracteres'),
+    confirmPassword: z.string().min(8, 'Mínimo 8 caracteres'),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Senhas nao conferem',
+    message: 'Senhas não conferem',
     path: ['confirmPassword'],
   })
 
@@ -117,7 +117,7 @@ export function RegisterForm() {
             )}
           </Button>
         </div>
-        <p className="text-xs text-slate-500">Minimo de 8 caracteres</p>
+        <p className="text-xs text-slate-500">Mínimo de 8 caracteres</p>
         {form.formState.errors.password && (
           <p role="alert" className="text-destructive text-sm">
             {form.formState.errors.password.message}

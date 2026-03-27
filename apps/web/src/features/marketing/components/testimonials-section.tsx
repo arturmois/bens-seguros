@@ -18,17 +18,17 @@ interface Metric {
 const TESTIMONIALS: readonly Testimonial[] = [
   {
     quote:
-      'O Bens Seguros transformou nossa operacao. Reduzimos o tempo de emissao de propostas em 70% e nunca mais perdemos uma comissao.',
+      'O Bens Seguros transformou nossa operação. Reduzimos o tempo de emissão de propostas em 70% e nunca mais perdemos uma comissão.',
     name: 'Carlos Mendes',
     company: 'Mendes Corretora',
-    city: 'Sao Paulo, SP',
+    city: 'São Paulo, SP',
     initials: 'CM',
     initialsGradient: 'from-primary-500 to-primary-600',
     highlighted: false,
   },
   {
     quote:
-      'A integracao com WhatsApp e um diferencial incrivel. Nossos clientes recebem atualizacoes em tempo real e a satisfacao disparou.',
+      'A integração com WhatsApp é um diferencial incrível. Nossos clientes recebem atualizações em tempo real e a satisfação disparou.',
     name: 'Ana Paula Santos',
     company: 'APS Seguros',
     city: 'Rio de Janeiro, RJ',
@@ -38,7 +38,7 @@ const TESTIMONIALS: readonly Testimonial[] = [
   },
   {
     quote:
-      'Antes usavamos 3 sistemas diferentes. Agora tudo esta em um lugar so. A produtividade do time triplicou em 2 meses.',
+      'Antes usávamos 3 sistemas diferentes. Agora tudo está em um lugar só. A produtividade do time triplicou em 2 meses.',
     name: 'Roberto Lima',
     company: 'Lima & Associados',
     city: 'Belo Horizonte, MG',
@@ -50,7 +50,7 @@ const TESTIMONIALS: readonly Testimonial[] = [
 
 const METRICS: readonly Metric[] = [
   { value: '2.000+', label: 'corretoras' },
-  { value: '98%', label: 'satisfacao' },
+  { value: '98%', label: 'satisfação' },
   { value: '3x', label: 'mais produtivo' },
   { value: '-40%', label: 'retrabalho' },
 ] as const

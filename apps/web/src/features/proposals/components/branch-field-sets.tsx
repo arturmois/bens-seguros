@@ -15,7 +15,7 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 
-import { COMBUSTIVEL_OPTIONS, USO_VEICULO_OPTIONS } from '../lib/branch-options'
+import { FUEL_TYPE_OPTIONS, VEHICLE_USAGE_OPTIONS } from '../lib/branch-options'
 
 export interface FieldHelperProps {
   register: UseFormRegister<FieldValues>
@@ -51,49 +51,49 @@ export function AutoFields({ register, control }: FieldHelperProps) {
   return (
     <>
       <FieldWrapper label="Marca" required>
-        <Input placeholder="Ex: Volkswagen" {...register('marca')} />
+        <Input placeholder="Ex: Volkswagen" {...register('brand')} />
       </FieldWrapper>
       <FieldWrapper label="Modelo" required>
-        <Input placeholder="Ex: Gol 1.6" {...register('modelo')} />
+        <Input placeholder="Ex: Gol 1.6" {...register('model')} />
       </FieldWrapper>
       <FieldWrapper label="Ano Fabricação" required>
         <Input
           type="number"
           placeholder="Ex: 2024"
-          {...register('anoFabricacao', { valueAsNumber: true })}
+          {...register('manufacturingYear', { valueAsNumber: true })}
         />
       </FieldWrapper>
       <FieldWrapper label="Ano Modelo" required>
         <Input
           type="number"
           placeholder="Ex: 2025"
-          {...register('anoModelo', { valueAsNumber: true })}
+          {...register('modelYear', { valueAsNumber: true })}
         />
       </FieldWrapper>
       <FieldWrapper label="Placa">
-        <Input placeholder="Ex: ABC1D23" {...register('placa')} />
+        <Input placeholder="Ex: ABC1D23" {...register('licensePlate')} />
       </FieldWrapper>
       <FieldWrapper label="Chassi">
-        <Input placeholder="Chassi do veículo" {...register('chassi')} />
+        <Input placeholder="Chassi do veículo" {...register('vin')} />
       </FieldWrapper>
       <FieldWrapper label="Cor">
-        <Input placeholder="Ex: Prata" {...register('cor')} />
+        <Input placeholder="Ex: Prata" {...register('color')} />
       </FieldWrapper>
       <FieldWrapper label="Combustível">
         <Controller
-          name="combustivel"
+          name="fuelType"
           control={control}
           render={({ field }) => (
             <Select
               value={String(field.value ?? '')}
               onValueChange={field.onChange}
-              items={COMBUSTIVEL_OPTIONS}
+              items={FUEL_TYPE_OPTIONS}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
               <SelectContent>
-                {COMBUSTIVEL_OPTIONS.map((opt) => (
+                {FUEL_TYPE_OPTIONS.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
                   </SelectItem>
@@ -105,19 +105,19 @@ export function AutoFields({ register, control }: FieldHelperProps) {
       </FieldWrapper>
       <FieldWrapper label="Uso do Veículo">
         <Controller
-          name="usoVeiculo"
+          name="vehicleUsage"
           control={control}
           render={({ field }) => (
             <Select
               value={String(field.value ?? '')}
               onValueChange={field.onChange}
-              items={USO_VEICULO_OPTIONS}
+              items={VEHICLE_USAGE_OPTIONS}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
               <SelectContent>
-                {USO_VEICULO_OPTIONS.map((opt) => (
+                {VEHICLE_USAGE_OPTIONS.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
                   </SelectItem>
@@ -136,11 +136,11 @@ const BMI_UNDERWEIGHT_THRESHOLD = 18.5
 const BMI_NORMAL_THRESHOLD = 25
 const BMI_OVERWEIGHT_THRESHOLD = 30
 
-const ALTURA_MIN_CM = 100
-const ALTURA_MAX_CM = 250
-const PESO_MIN_KG = 20
-const PESO_MAX_KG = 300
-const IMC_RANGES = [
+const HEIGHT_MIN_CM = 100
+const HEIGHT_MAX_CM = 250
+const WEIGHT_MIN_KG = 20
+const WEIGHT_MAX_KG = 300
+const BMI_RANGES = [
   {
     max: BMI_UNDERWEIGHT_THRESHOLD,
     label: 'Abaixo do peso',
@@ -164,27 +164,27 @@ const IMC_RANGES = [
   },
 ] as const
 
-function ImcBadge({ control }: { readonly control: Control<FieldValues> }) {
-  const altura = useWatch({ control, name: 'alturaEmCentimetros' })
-  const peso = useWatch({ control, name: 'pesoKg' })
+function BmiBadge({ control }: { readonly control: Control<FieldValues> }) {
+  const height = useWatch({ control, name: 'heightInCentimeters' })
+  const peso = useWatch({ control, name: 'weightKg' })
 
-  const alturaNum = Number(altura)
-  const pesoKg = Number(peso)
+  const heightCm = Number(height)
+  const weightKg = Number(peso)
 
   if (
-    !alturaNum ||
-    !pesoKg ||
-    alturaNum < ALTURA_MIN_CM ||
-    alturaNum > ALTURA_MAX_CM ||
-    pesoKg < PESO_MIN_KG ||
-    pesoKg > PESO_MAX_KG
+    !heightCm ||
+    !weightKg ||
+    heightCm < HEIGHT_MIN_CM ||
+    heightCm > HEIGHT_MAX_CM ||
+    weightKg < WEIGHT_MIN_KG ||
+    weightKg > WEIGHT_MAX_KG
   ) {
     return null
   }
 
-  const alturaM = alturaNum / 100
-  const imc = pesoKg / (alturaM * alturaM)
-  const range = IMC_RANGES.find((r) => imc < r.max)
+  const heightM = heightCm / 100
+  const bmi = weightKg / (heightM * heightM)
+  const range = BMI_RANGES.find((r) => bmi < r.max)
 
   if (!range) return null
 
@@ -194,7 +194,7 @@ function ImcBadge({ control }: { readonly control: Control<FieldValues> }) {
       aria-live="polite"
       className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-medium ${range.color}`}
     >
-      IMC: {imc.toFixed(1)} — {range.label}
+      IMC: {bmi.toFixed(1)} — {range.label}
     </div>
   )
 }
@@ -203,18 +203,21 @@ export function LifeFields({ register, control }: FieldHelperProps) {
   return (
     <>
       <FieldWrapper label="Profissão" required>
-        <Input placeholder="Profissão do segurado" {...register('profissao')} />
+        <Input
+          placeholder="Profissão do segurado"
+          {...register('occupation')}
+        />
       </FieldWrapper>
       <FieldWrapper label="Renda Mensal (centavos)">
         <Input
           type="number"
           placeholder="Ex: 500000 = R$ 5.000"
-          {...register('rendaMensalCentavos', { valueAsNumber: true })}
+          {...register('monthlyIncomeCents', { valueAsNumber: true })}
         />
       </FieldWrapper>
       <FieldWrapper label="Fumante">
         <Controller
-          name="fumante"
+          name="isSmoker"
           control={control}
           render={({ field }) => (
             <Switch
@@ -226,7 +229,7 @@ export function LifeFields({ register, control }: FieldHelperProps) {
       </FieldWrapper>
       <FieldWrapper label="Esportes Radicais">
         <Controller
-          name="esportesRadicais"
+          name="extremeSports"
           control={control}
           render={({ field }) => (
             <Switch
@@ -240,7 +243,7 @@ export function LifeFields({ register, control }: FieldHelperProps) {
         <Input
           type="number"
           placeholder="175"
-          {...register('alturaEmCentimetros', { valueAsNumber: true })}
+          {...register('heightInCentimeters', { valueAsNumber: true })}
         />
       </FieldWrapper>
       <FieldWrapper label="Peso (kg)">
@@ -248,16 +251,16 @@ export function LifeFields({ register, control }: FieldHelperProps) {
           type="number"
           step="0.1"
           placeholder="70.5"
-          {...register('pesoKg', { valueAsNumber: true })}
+          {...register('weightKg', { valueAsNumber: true })}
         />
       </FieldWrapper>
       <div className="sm:col-span-2">
-        <ImcBadge control={control} />
+        <BmiBadge control={control} />
       </div>
       <FieldWrapper label="Beneficiários">
         <Textarea
           placeholder="Nomes e parentesco dos beneficiários"
-          {...register('beneficiarios')}
+          {...register('beneficiaries')}
         />
       </FieldWrapper>
     </>
@@ -269,7 +272,7 @@ export function OtherFields({ register }: FieldHelperProps) {
     <FieldWrapper label="Descrição" required>
       <Textarea
         placeholder="Descreva o objeto segurado"
-        {...register('descricao')}
+        {...register('description')}
       />
     </FieldWrapper>
   )

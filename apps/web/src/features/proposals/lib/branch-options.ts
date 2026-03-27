@@ -1,4 +1,4 @@
-export const COMBUSTIVEL_OPTIONS = [
+export const FUEL_TYPE_OPTIONS = [
   { value: '', label: 'Selecione' },
   { value: 'Flex', label: 'Flex' },
   { value: 'Gasolina', label: 'Gasolina' },
@@ -6,27 +6,27 @@ export const COMBUSTIVEL_OPTIONS = [
   { value: 'Diesel', label: 'Diesel' },
 ] as const
 
-export const USO_VEICULO_OPTIONS = [
+export const VEHICLE_USAGE_OPTIONS = [
   { value: '', label: 'Selecione' },
   { value: 'Particular', label: 'Particular' },
   { value: 'Comercial', label: 'Comercial' },
   { value: 'Taxi', label: 'Taxi' },
 ] as const
 
-export const TIPO_IMOVEL_OPTIONS = [
+export const PROPERTY_TYPE_OPTIONS = [
   { value: '', label: 'Selecione' },
   { value: 'Casa', label: 'Casa' },
   { value: 'Apartamento', label: 'Apartamento' },
 ] as const
 
-export const USO_IMOVEL_OPTIONS = [
+export const PROPERTY_USAGE_OPTIONS = [
   { value: '', label: 'Selecione' },
   { value: 'Habitual', label: 'Habitual' },
   { value: 'Veraneio', label: 'Veraneio' },
   { value: 'Desocupado', label: 'Desocupado' },
 ] as const
 
-export const CONSTRUCAO_OPTIONS = [
+export const CONSTRUCTION_OPTIONS = [
   { value: '', label: 'Selecione' },
   { value: 'Alvenaria', label: 'Alvenaria' },
   { value: 'Madeira', label: 'Madeira' },

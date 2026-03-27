@@ -196,7 +196,7 @@ export function ChannelQrDialog({
     if (!open || !channel) return
 
     chatApi.post(`/chat/channels/${channel.id}/connect`, {}).catch(() => {
-      toast.error('Erro ao iniciar conexao do canal')
+      toast.error('Erro ao iniciar conexão do canal')
     })
   }, [open, channel])
 

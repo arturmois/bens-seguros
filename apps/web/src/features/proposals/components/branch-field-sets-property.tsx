@@ -14,9 +14,9 @@ import {
 import { CEP_MASK, CNPJ_MASK } from '@/lib/masks'
 
 import {
-  CONSTRUCAO_OPTIONS,
-  TIPO_IMOVEL_OPTIONS,
-  USO_IMOVEL_OPTIONS,
+  CONSTRUCTION_OPTIONS,
+  PROPERTY_TYPE_OPTIONS,
+  PROPERTY_USAGE_OPTIONS,
 } from '../lib/branch-options'
 import { FieldWrapper } from './branch-field-sets'
 import type { FieldHelperProps } from './branch-field-sets'
@@ -26,19 +26,19 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
     <>
       <FieldWrapper label="Tipo de Imóvel" required>
         <Controller
-          name="tipoImovel"
+          name="propertyType"
           control={control}
           render={({ field }) => (
             <Select
               value={String(field.value ?? '')}
               onValueChange={field.onChange}
-              items={TIPO_IMOVEL_OPTIONS}
+              items={PROPERTY_TYPE_OPTIONS}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
               <SelectContent>
-                {TIPO_IMOVEL_OPTIONS.map((opt) => (
+                {PROPERTY_TYPE_OPTIONS.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
                   </SelectItem>
@@ -50,19 +50,19 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
       </FieldWrapper>
       <FieldWrapper label="Uso do Imóvel" required>
         <Controller
-          name="usoImovel"
+          name="propertyUsage"
           control={control}
           render={({ field }) => (
             <Select
               value={String(field.value ?? '')}
               onValueChange={field.onChange}
-              items={USO_IMOVEL_OPTIONS}
+              items={PROPERTY_USAGE_OPTIONS}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
               <SelectContent>
-                {USO_IMOVEL_OPTIONS.map((opt) => (
+                {PROPERTY_USAGE_OPTIONS.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
                   </SelectItem>
@@ -89,23 +89,23 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
         />
       </FieldWrapper>
       <FieldWrapper label="Endereço">
-        <Input placeholder="Rua, número, bairro" {...register('endereco')} />
+        <Input placeholder="Rua, número, bairro" {...register('address')} />
       </FieldWrapper>
       <FieldWrapper label="Construção">
         <Controller
-          name="construcao"
+          name="construction"
           control={control}
           render={({ field }) => (
             <Select
               value={String(field.value ?? '')}
               onValueChange={field.onChange}
-              items={CONSTRUCAO_OPTIONS}
+              items={CONSTRUCTION_OPTIONS}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
               <SelectContent>
-                {CONSTRUCAO_OPTIONS.map((opt) => (
+                {CONSTRUCTION_OPTIONS.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
                   </SelectItem>
@@ -132,14 +132,14 @@ export function CondominiumFields({ register, control }: FieldHelperProps) {
       <FieldWrapper label="Nome do Condomínio" required>
         <Input
           placeholder="Nome do condomínio"
-          {...register('nomeCondominio')}
+          {...register('condominiumName')}
         />
       </FieldWrapper>
       <FieldWrapper label="Número de Unidades" required>
         <Input
           type="number"
           placeholder="Ex: 48"
-          {...register('numeroUnidades', { valueAsNumber: true })}
+          {...register('unitCount', { valueAsNumber: true })}
         />
       </FieldWrapper>
       <FieldWrapper label="CEP" required>
@@ -159,20 +159,20 @@ export function CondominiumFields({ register, control }: FieldHelperProps) {
         />
       </FieldWrapper>
       <FieldWrapper label="Endereço">
-        <Input placeholder="Rua, número, bairro" {...register('endereco')} />
+        <Input placeholder="Rua, número, bairro" {...register('address')} />
       </FieldWrapper>
       <FieldWrapper label="Ano de Construção">
         <Input
           type="number"
           placeholder="Ex: 2010"
-          {...register('anoConstrucao', { valueAsNumber: true })}
+          {...register('constructionYear', { valueAsNumber: true })}
         />
       </FieldWrapper>
       <FieldWrapper label="Número de Andares">
         <Input
           type="number"
           placeholder="Ex: 12"
-          {...register('numeroAndares', { valueAsNumber: true })}
+          {...register('floorCount', { valueAsNumber: true })}
         />
       </FieldWrapper>
     </>
@@ -185,7 +185,7 @@ export function BusinessFields({ register, control }: FieldHelperProps) {
       <FieldWrapper label="Razão Social" required>
         <Input
           placeholder="Razão social da empresa"
-          {...register('razaoSocial')}
+          {...register('legalName')}
         />
       </FieldWrapper>
       <FieldWrapper label="CNPJ" required>
@@ -205,7 +205,10 @@ export function BusinessFields({ register, control }: FieldHelperProps) {
         />
       </FieldWrapper>
       <FieldWrapper label="Atividade" required>
-        <Input placeholder="Atividade principal" {...register('atividade')} />
+        <Input
+          placeholder="Atividade principal"
+          {...register('businessActivity')}
+        />
       </FieldWrapper>
       <FieldWrapper label="CEP">
         <Controller
@@ -224,7 +227,7 @@ export function BusinessFields({ register, control }: FieldHelperProps) {
         />
       </FieldWrapper>
       <FieldWrapper label="Endereço">
-        <Input placeholder="Rua, número, bairro" {...register('endereco')} />
+        <Input placeholder="Rua, número, bairro" {...register('address')} />
       </FieldWrapper>
       <FieldWrapper label="Área (m²)">
         <Input

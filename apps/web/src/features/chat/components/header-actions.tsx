@@ -99,7 +99,7 @@ export function HeaderActions({
             <AlertDialogHeader>
               <AlertDialogTitle>Encerrar conversa?</AlertDialogTitle>
               <AlertDialogDescription>
-                A conversa sera encerrada. O cliente podera iniciar uma nova
+                A conversa será encerrada. O cliente poderá iniciar uma nova
                 conversa.
               </AlertDialogDescription>
             </AlertDialogHeader>

@@ -16,15 +16,15 @@ import { useUpdateOrganization } from '../hooks/use-update-organization'
 const organizationSchema = z.object({
   name: z
     .string()
-    .min(2, 'Nome deve ter no minimo 2 caracteres')
-    .max(100, 'Nome deve ter no maximo 100 caracteres'),
+    .min(2, 'Nome deve ter no mínimo 2 caracteres')
+    .max(100, 'Nome deve ter no máximo 100 caracteres'),
   slug: z
     .string()
-    .min(2, 'Slug deve ter no minimo 2 caracteres')
-    .max(50, 'Slug deve ter no maximo 50 caracteres')
+    .min(2, 'Slug deve ter no mínimo 2 caracteres')
+    .max(50, 'Slug deve ter no máximo 50 caracteres')
     .regex(
       /^[a-z0-9-]+$/,
-      'Slug deve conter apenas letras minusculas, numeros e hifens'
+      'Slug deve conter apenas letras minúsculas, números e hifens'
     ),
 })
 
@@ -63,7 +63,7 @@ export function OrganizationForm({
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
       <FormField
-        label="Nome da organizacao"
+        label="Nome da organização"
         error={form.formState.errors.name?.message}
         required
       >
@@ -77,7 +77,7 @@ export function OrganizationForm({
       <FormField
         label="Slug"
         error={form.formState.errors.slug?.message}
-        helperText="Identificador unico usado na URL. Apenas letras minusculas, numeros e hifens."
+        helperText="Identificador único usado na URL. Apenas letras minúsculas, números e hifens."
         required
       >
         <Input

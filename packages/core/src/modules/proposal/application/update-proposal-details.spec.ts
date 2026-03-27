@@ -6,10 +6,10 @@ import type { AutoDetails } from '../domain/insured-object-details.js'
 
 const autoDetails: AutoDetails = {
   branch: 'AUTO',
-  marca: 'Toyota',
-  modelo: 'Corolla',
-  anoFabricacao: 2024,
-  anoModelo: 2025,
+  brand: 'Toyota',
+  model: 'Corolla',
+  manufacturingYear: 2024,
+  modelYear: 2025,
 }
 
 function createMockRepo(proposal: Proposal | null): ProposalRepository {

@@ -32,20 +32,20 @@ function AutoSection({ details }: { readonly details: AutoDetails }) {
   return (
     <>
       <View style={styles.row}>
-        <FieldRow label="Marca" value={details.marca} />
-        <FieldRow label="Modelo" value={details.modelo} />
+        <FieldRow label="Marca" value={details.brand} />
+        <FieldRow label="Modelo" value={details.model} />
       </View>
       <View style={styles.row}>
-        <FieldRow label="Ano Fab." value={details.anoFabricacao} />
-        <FieldRow label="Ano Modelo" value={details.anoModelo} />
+        <FieldRow label="Ano Fab." value={details.manufacturingYear} />
+        <FieldRow label="Ano Modelo" value={details.modelYear} />
       </View>
       <View style={styles.row}>
-        <FieldRow label="Placa" value={details.placa} />
-        <FieldRow label="Cor" value={details.cor} />
+        <FieldRow label="Placa" value={details.licensePlate} />
+        <FieldRow label="Cor" value={details.color} />
       </View>
       <View style={styles.row}>
-        <FieldRow label="Combustível" value={details.combustivel} />
-        <FieldRow label="Uso" value={details.usoVeiculo} />
+        <FieldRow label="Combustível" value={details.fuelType} />
+        <FieldRow label="Uso" value={details.vehicleUsage} />
       </View>
     </>
   )
@@ -59,16 +59,16 @@ function ResidentialSection({
   return (
     <>
       <View style={styles.row}>
-        <FieldRow label="Tipo de Imóvel" value={details.tipoImovel} />
-        <FieldRow label="Uso" value={details.usoImovel} />
+        <FieldRow label="Tipo de Imóvel" value={details.propertyType} />
+        <FieldRow label="Uso" value={details.propertyUsage} />
       </View>
       <View style={styles.row}>
         <FieldRow label="CEP" value={details.cep} />
         <FieldRow label="Área (m²)" value={details.areaM2} />
       </View>
       <View style={styles.row}>
-        <FieldRow label="Endereço" value={details.endereco} />
-        <FieldRow label="Construção" value={details.construcao} />
+        <FieldRow label="Endereço" value={details.address} />
+        <FieldRow label="Construção" value={details.construction} />
       </View>
     </>
   )
@@ -82,16 +82,16 @@ function CondominiumSection({
   return (
     <>
       <View style={styles.row}>
-        <FieldRow label="Nome do Condomínio" value={details.nomeCondominio} />
-        <FieldRow label="Unidades" value={details.numeroUnidades} />
+        <FieldRow label="Nome do Condomínio" value={details.condominiumName} />
+        <FieldRow label="Unidades" value={details.unitCount} />
       </View>
       <View style={styles.row}>
         <FieldRow label="CEP" value={details.cep} />
-        <FieldRow label="Andares" value={details.numeroAndares} />
+        <FieldRow label="Andares" value={details.floorCount} />
       </View>
       <View style={styles.row}>
-        <FieldRow label="Endereço" value={details.endereco} />
-        <FieldRow label="Ano Construção" value={details.anoConstrucao} />
+        <FieldRow label="Endereço" value={details.address} />
+        <FieldRow label="Ano Construção" value={details.constructionYear} />
       </View>
     </>
   )
@@ -101,16 +101,16 @@ function BusinessSection({ details }: { readonly details: BusinessDetails }) {
   return (
     <>
       <View style={styles.row}>
-        <FieldRow label="Razão Social" value={details.razaoSocial} />
+        <FieldRow label="Razão Social" value={details.legalName} />
         <FieldRow label="CNPJ" value={details.cnpj} />
       </View>
       <View style={styles.row}>
-        <FieldRow label="Atividade" value={details.atividade} />
+        <FieldRow label="Atividade" value={details.businessActivity} />
         <FieldRow label="Área (m²)" value={details.areaM2} />
       </View>
       <View style={styles.row}>
         <FieldRow label="CEP" value={details.cep} />
-        <FieldRow label="Endereço" value={details.endereco} />
+        <FieldRow label="Endereço" value={details.address} />
       </View>
     </>
   )
@@ -125,45 +125,45 @@ function formatCentsAsCurrency(cents: number): string {
 
 function LifeSection({ details }: { readonly details: LifeDetails }) {
   const imc =
-    details.alturaEmCentimetros && details.pesoEmGramas
+    details.heightInCentimeters && details.weightInGrams
       ? (
-          details.pesoEmGramas /
+          details.weightInGrams /
           1000 /
-          Math.pow(details.alturaEmCentimetros / 100, 2)
+          Math.pow(details.heightInCentimeters / 100, 2)
         ).toFixed(1)
       : null
 
   return (
     <>
       <View style={styles.row}>
-        <FieldRow label="Profissão" value={details.profissao} />
+        <FieldRow label="Profissão" value={details.occupation} />
         <FieldRow
           label="Renda Mensal"
           value={
-            details.rendaMensalCentavos
-              ? formatCentsAsCurrency(details.rendaMensalCentavos)
+            details.monthlyIncomeCents
+              ? formatCentsAsCurrency(details.monthlyIncomeCents)
               : undefined
           }
         />
       </View>
       <View style={styles.row}>
-        <FieldRow label="Fumante" value={details.fumante} />
-        <FieldRow label="Esportes Radicais" value={details.esportesRadicais} />
+        <FieldRow label="Fumante" value={details.isSmoker} />
+        <FieldRow label="Esportes Radicais" value={details.extremeSports} />
       </View>
       <View style={styles.row}>
         <FieldRow
           label="Altura"
           value={
-            details.alturaEmCentimetros
-              ? `${details.alturaEmCentimetros} cm`
+            details.heightInCentimeters
+              ? `${details.heightInCentimeters} cm`
               : undefined
           }
         />
         <FieldRow
           label="Peso"
           value={
-            details.pesoEmGramas
-              ? `${(details.pesoEmGramas / 1000).toFixed(1)} kg`
+            details.weightInGrams
+              ? `${(details.weightInGrams / 1000).toFixed(1)} kg`
               : undefined
           }
         />
@@ -173,9 +173,9 @@ function LifeSection({ details }: { readonly details: LifeDetails }) {
           <FieldRow label="IMC" value={imc} />
         </View>
       ) : null}
-      {details.beneficiarios ? (
+      {details.beneficiaries ? (
         <View style={styles.row}>
-          <FieldRow label="Beneficiários" value={details.beneficiarios} />
+          <FieldRow label="Beneficiários" value={details.beneficiaries} />
         </View>
       ) : null}
     </>
@@ -185,7 +185,7 @@ function LifeSection({ details }: { readonly details: LifeDetails }) {
 function OtherSection({ details }: { readonly details: OtherDetails }) {
   return (
     <View style={styles.row}>
-      <FieldRow label="Descrição" value={details.descricao} />
+      <FieldRow label="Descrição" value={details.description} />
     </View>
   )
 }

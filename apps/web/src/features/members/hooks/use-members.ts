@@ -50,7 +50,7 @@ export function useInviteMember() {
     },
     onError: (error) => {
       if (error instanceof ApiError && error.code === 'DUPLICATE_INVITATION') {
-        toast.error('Email ja e membro ou tem convite pendente')
+        toast.error('Email já é membro ou tem convite pendente')
         return
       }
       toast.error('Erro ao enviar convite')
@@ -79,17 +79,17 @@ export function useChangeMemberRole() {
       }
 
       if (error.code === 'ROLE_HIERARCHY_VIOLATION') {
-        toast.error('Voce nao pode atribuir um cargo igual ou superior ao seu')
+        toast.error('Você não pode atribuir um cargo igual ou superior ao seu')
         return
       }
 
       if (error.code === 'LAST_OWNER') {
-        toast.error('Nao e possivel rebaixar o ultimo proprietario')
+        toast.error('Não é possível rebaixar o último proprietário')
         return
       }
 
       if (error.code === 'SELF_REMOVAL') {
-        toast.error('Voce nao pode alterar seu proprio cargo')
+        toast.error('Você não pode alterar seu próprio cargo')
         return
       }
 
@@ -116,18 +116,18 @@ export function useRemoveMember() {
       }
 
       if (error.code === 'LAST_OWNER') {
-        toast.error('Nao e possivel remover o ultimo proprietario')
+        toast.error('Não é possível remover o último proprietário')
         return
       }
 
       if (error.code === 'SELF_REMOVAL') {
-        toast.error('Voce nao pode se remover da organizacao')
+        toast.error('Você não pode se remover da organização')
         return
       }
 
       if (error.code === 'ROLE_HIERARCHY_VIOLATION') {
         toast.error(
-          'Voce nao pode remover um membro com cargo igual ou superior ao seu'
+          'Você não pode remover um membro com cargo igual ou superior ao seu'
         )
         return
       }

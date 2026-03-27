@@ -144,10 +144,10 @@ describe('Proposal Entity', () => {
   describe('updateDetails', () => {
     const autoDetails: AutoDetails = {
       branch: 'AUTO',
-      marca: 'Toyota',
-      modelo: 'Corolla',
-      anoFabricacao: 2024,
-      anoModelo: 2025,
+      brand: 'Toyota',
+      model: 'Corolla',
+      manufacturingYear: 2024,
+      modelYear: 2025,
     }
 
     it('updates details with matching branch', () => {
@@ -162,8 +162,8 @@ describe('Proposal Entity', () => {
       const proposal = Proposal.create(validProps) // branch: AUTO
       const residentialDetails = {
         branch: 'RESIDENTIAL' as const,
-        tipoImovel: 'Casa',
-        usoImovel: 'Habitual',
+        propertyType: 'Casa',
+        propertyUsage: 'Habitual',
         cep: '01310100',
       }
       expect(() =>

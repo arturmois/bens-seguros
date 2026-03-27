@@ -18,16 +18,16 @@ const FEATURES: readonly FeatureCard[] = [
   {
     title: 'Propostas',
     description:
-      'Fluxo completo de cotacao a emissao, com automacoes inteligentes e historico rastreavel.',
+      'Fluxo completo de cotação à emissão, com automações inteligentes e histórico rastreável.',
     icon: <FileText className="text-primary-400 size-6" />,
     span: 'lg:col-span-2',
     hoverBorder: 'hover:border-primary-500/20',
     extra: <WorkflowPills />,
   },
   {
-    title: 'Comissoes',
+    title: 'Comissões',
     description:
-      'Controle automatico de recebimentos, parcelas e repasses. Nunca mais perca uma comissao.',
+      'Controle automático de recebimentos, parcelas e repasses. Nunca mais perca uma comissão.',
     icon: <DollarSign className="text-accent-400 size-6" />,
     span: '',
     hoverBorder: 'hover:border-accent-500/20',
@@ -35,7 +35,7 @@ const FEATURES: readonly FeatureCard[] = [
   {
     title: 'Chat + WhatsApp',
     description:
-      'Atendimento integrado via WhatsApp com IA. Responda clientes em segundos, nao em dias.',
+      'Atendimento integrado via WhatsApp com IA. Responda clientes em segundos, não em dias.',
     icon: <MessageCircle className="size-6 text-emerald-400" />,
     span: '',
     hoverBorder: 'hover:border-emerald-500/20',
@@ -43,7 +43,7 @@ const FEATURES: readonly FeatureCard[] = [
   {
     title: 'Dashboard',
     description:
-      'Visao completa da operacao em tempo real. KPIs, graficos e insights para tomar decisoes rapidas.',
+      'Visão completa da operação em tempo real. KPIs, gráficos e insights para tomar decisões rápidas.',
     icon: <LayoutDashboard className="size-6 text-indigo-400" />,
     span: 'lg:col-span-2',
     hoverBorder: 'hover:border-indigo-500/20',
@@ -62,7 +62,7 @@ export function FeaturesSection(): React.ReactElement {
           Recursos
         </p>
         <h2 className="mt-4 text-center text-2xl font-bold text-white sm:text-3xl">
-          Tudo integrado em uma unica plataforma
+          Tudo integrado em uma única plataforma
         </h2>
         <div className="mt-12 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((feature) => (
@@ -114,7 +114,7 @@ function BentoCard({
 }
 
 function WorkflowPills(): React.ReactElement {
-  const stages = ['Cotacao', 'Analise', 'Emissao'] as const
+  const stages = ['Cotação', 'Análise', 'Emissão'] as const
 
   return (
     <div className="mt-4 flex flex-wrap items-center gap-2">

@@ -118,10 +118,10 @@ describe('AdvanceProposalStage', () => {
     proposal.updateDetails(
       {
         branch: 'AUTO',
-        marca: 'Toyota',
-        modelo: 'Corolla',
-        anoFabricacao: 2020,
-        anoModelo: 2021,
+        brand: 'Toyota',
+        model: 'Corolla',
+        manufacturingYear: 2020,
+        modelYear: 2021,
       },
       150000,
       1500

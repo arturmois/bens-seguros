@@ -17,22 +17,22 @@ const FAQ_ITEMS: readonly FaqItem[] = [
   {
     question: 'Preciso instalar alguma coisa?',
     answer:
-      'Nao! O Bens Seguros e 100% online. Basta acessar pelo navegador em qualquer dispositivo — computador, tablet ou celular.',
+      'Não! O Bens Seguros é 100% online. Basta acessar pelo navegador em qualquer dispositivo — computador, tablet ou celular.',
   },
   {
-    question: 'Meus dados estao seguros?',
+    question: 'Meus dados estão seguros?',
     answer:
-      'Absolutamente. Utilizamos criptografia de ponta a ponta, servidores com certificacao SOC 2 e backups automaticos diarios. Seus dados estao protegidos por multiplas camadas de seguranca.',
+      'Absolutamente. Utilizamos criptografia de ponta a ponta, servidores com certificação SOC 2 e backups automáticos diários. Seus dados estão protegidos por múltiplas camadas de segurança.',
   },
   {
     question: 'Consigo importar meus clientes atuais?',
     answer:
-      'Sim! Oferecemos importacao via planilha (CSV/Excel) e integracao direta com os principais sistemas do mercado. Nossa equipe auxilia na migracao sem custo adicional.',
+      'Sim! Oferecemos importação via planilha (CSV/Excel) e integração direta com os principais sistemas do mercado. Nossa equipe auxilia na migração sem custo adicional.',
   },
   {
     question: 'Tem periodo de teste gratis?',
     answer:
-      'Sim! Voce pode testar o plano Pro completo por 14 dias, sem precisar cadastrar cartao de credito. Cancele a qualquer momento.',
+      'Sim! Você pode testar o plano Pro completo por 14 dias, sem precisar cadastrar cartão de crédito. Cancele a qualquer momento.',
   },
 ] as const
 
@@ -101,13 +101,13 @@ function CtaFinal(): React.ReactElement {
         Pronto para transformar sua corretora?
       </h3>
       <p className="mt-4 text-base text-slate-400">
-        Comece gratuitamente e veja os resultados em dias, nao meses.
+        Comece gratuitamente e veja os resultados em dias, não meses.
       </p>
       <Link
         href="/register"
         className="from-accent-500 to-accent-600 shadow-accent-500/25 hover:shadow-accent-500/40 bg-linear-to-r mt-8 inline-block rounded-xl px-8 py-3 text-base font-semibold text-slate-900 shadow-lg transition-all"
       >
-        Comecar Gratis
+        Começar Grátis
       </Link>
     </div>
   )

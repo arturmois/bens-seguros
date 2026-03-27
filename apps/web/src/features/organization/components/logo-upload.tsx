@@ -61,7 +61,7 @@ export function LogoUpload({ organization, isReadOnly }: LogoUploadProps) {
       <div
         role="button"
         tabIndex={isReadOnly ? -1 : 0}
-        aria-label="Enviar logo da organizacao"
+        aria-label="Enviar logo da organização"
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onClick={handleClick}

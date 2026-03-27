@@ -86,7 +86,7 @@ export function DocumentUpload({
 
       if (!isAllowedMimeType(file.type)) {
         toast.error(
-          'Tipo de arquivo nao permitido. Use imagens, PDF ou documentos Office.'
+          'Tipo de arquivo não permitido. Use imagens, PDF ou documentos Office.'
         )
         return
       }

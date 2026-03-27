@@ -111,8 +111,8 @@ export function ChannelFormSheet({
           <SheetTitle>{isEditMode ? 'Editar Canal' : 'Novo Canal'}</SheetTitle>
           <SheetDescription>
             {isEditMode
-              ? 'Atualize as informacoes do canal WhatsApp.'
-              : 'Configure um novo canal WhatsApp para comunicacao.'}
+              ? 'Atualize as informações do canal WhatsApp.'
+              : 'Configure um novo canal WhatsApp para comunicação.'}
           </SheetDescription>
         </SheetHeader>
 
@@ -138,7 +138,7 @@ export function ChannelFormSheet({
           />
 
           <FormField
-            label="Numero"
+            label="Número"
             error={form.formState.errors.phoneNumber?.message}
           >
             <Input

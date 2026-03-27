@@ -70,7 +70,7 @@ export function ClientForm({
           </SheetTitle>
           <SheetDescription>
             {isEditMode
-              ? 'Atualize as informacoes do cliente.'
+              ? 'Atualize as informações do cliente.'
               : 'Preencha os dados para cadastrar um novo cliente.'}
           </SheetDescription>
         </SheetHeader>

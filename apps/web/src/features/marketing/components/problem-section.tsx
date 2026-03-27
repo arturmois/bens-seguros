@@ -9,17 +9,17 @@ const PAIN_POINTS: readonly PainPoint[] = [
   {
     title: 'Planilhas manuais',
     description:
-      'Horas perdidas atualizando planilhas, com risco de erros e dados desatualizados que comprometem decisoes.',
+      'Horas perdidas atualizando planilhas, com risco de erros e dados desatualizados que comprometem decisões.',
   },
   {
-    title: 'Comissoes perdidas',
+    title: 'Comissões perdidas',
     description:
-      'Sem controle automatico, comissoes ficam sem cobrar e a receita escapa entre os dedos.',
+      'Sem controle automático, comissões ficam sem cobrar e a receita escapa entre os dedos.',
   },
   {
     title: 'Atendimento lento',
     description:
-      'Clientes esperando respostas por dias enquanto voce busca informacoes em sistemas diferentes.',
+      'Clientes esperando respostas por dias enquanto você busca informações em sistemas diferentes.',
   },
 ] as const
 

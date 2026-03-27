@@ -38,7 +38,7 @@ const SETTINGS_SECTIONS: readonly SettingsSidebarItem[] = [
   },
   {
     id: 'organizacao',
-    label: 'Organizacao',
+    label: 'Organização',
     icon: Building2,
     disabled: false,
     href: '/settings?section=organizacao',
@@ -57,15 +57,15 @@ export function SettingsLayout({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Configuracoes</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Configurações</h1>
         <p className="text-muted-foreground text-sm">
-          Gerencie as configuracoes da sua organizacao.
+          Gerencie as configurações da sua organização.
         </p>
       </div>
 
       <div className="flex flex-col gap-8 lg:flex-row">
         <nav
-          aria-label="Secoes de configuracao"
+          aria-label="Seções de configuração"
           className="flex flex-row gap-1 lg:w-56 lg:shrink-0 lg:flex-col"
         >
           {SETTINGS_SECTIONS.map((section) => (

@@ -3,9 +3,9 @@ import { z } from 'zod'
 export const aiAgentFormSchema = z.object({
   name: z
     .string()
-    .min(1, 'Nome e obrigatorio')
-    .max(100, 'Nome deve ter no maximo 100 caracteres'),
-  description: z.string().max(300, 'Descricao muito longa').optional(),
+    .min(1, 'Nome é obrigatório')
+    .max(100, 'Nome deve ter no máximo 100 caracteres'),
+  description: z.string().max(300, 'Descrição muito longa').optional(),
   systemPrompt: z
     .string()
     .max(2000, 'Prompt deve ter no maximo 2000 caracteres')
