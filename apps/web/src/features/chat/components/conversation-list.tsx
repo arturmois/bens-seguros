@@ -4,8 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-import { formatDistanceToNow } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
 import { AlertCircle, MessageCircle, RefreshCw, Search } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
@@ -14,7 +12,7 @@ import type {
   ConversationFilters,
   ConversationStatus,
 } from '../types'
-import { ConversationStatusBadge } from './conversation-status-badge'
+import { ConversationListItem } from './conversation-list-item'
 
 interface ConversationListProps {
   readonly conversations: ConversationData[]
@@ -36,10 +34,6 @@ const FILTER_TABS: ReadonlyArray<{ value: FilterTab; label: string }> = [
   { value: 'HUMAN_ACTIVE', label: 'Meus' },
   { value: 'CLOSED', label: 'Fechados' },
 ]
-
-function getDisplayName(conversation: ConversationData): string {
-  return conversation.whatsappPhone ?? 'Contato'
-}
 
 function ConversationListSkeleton() {
   return (
@@ -78,78 +72,6 @@ function ConversationListEmpty() {
       <MessageCircle className="mb-2 h-12 w-12 opacity-50" />
       <p className="text-sm">Nenhuma conversa encontrada</p>
     </div>
-  )
-}
-
-function ConversationItem({
-  conversation,
-  isActive,
-  unreadCount,
-  onSelect,
-}: {
-  readonly conversation: ConversationData
-  readonly isActive: boolean
-  readonly unreadCount: number
-  readonly onSelect: () => void
-}) {
-  const displayName = getDisplayName(conversation)
-  const isWaiting = conversation.status === 'WAITING_HUMAN'
-
-  return (
-    <button
-      onClick={onSelect}
-      className={cn(
-        'flex w-full items-center gap-3 px-3 py-3 text-left transition-colors',
-        'hover:bg-sidebar-hover',
-        isActive && 'bg-sidebar-accent',
-        isWaiting && 'border-(--chat-waiting) border-l-4'
-      )}
-    >
-      <div className="relative shrink-0">
-        <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-full">
-          <span className="text-primary text-base font-semibold">
-            {displayName.charAt(0).toUpperCase()}
-          </span>
-        </div>
-      </div>
-
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 truncate">
-            <span className="text-foreground truncate font-medium">
-              {displayName}
-            </span>
-            <ConversationStatusBadge status={conversation.status} />
-          </div>
-          <div className="flex shrink-0 items-center gap-1.5">
-            {conversation.lastMessageAt && (
-              <span className="text-muted-foreground text-xs">
-                {formatDistanceToNow(new Date(conversation.lastMessageAt), {
-                  addSuffix: false,
-                  locale: ptBR,
-                })}
-              </span>
-            )}
-            {unreadCount > 0 && (
-              <span className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-medium">
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </span>
-            )}
-          </div>
-        </div>
-        <div className="mt-0.5 flex items-center justify-between gap-2">
-          <p className="text-muted-foreground truncate text-sm">
-            {conversation.lastMessageText ?? 'Sem mensagens'}
-          </p>
-          {conversation.status === 'HUMAN_ACTIVE' &&
-            conversation.assignedToName && (
-              <span className="text-muted-foreground shrink-0 text-xs">
-                {conversation.assignedToName}
-              </span>
-            )}
-        </div>
-      </div>
-    </button>
   )
 }
 
@@ -251,7 +173,7 @@ export function ConversationList({
         {!isLoading &&
           !isError &&
           sortedConversations.map((conversation) => (
-            <ConversationItem
+            <ConversationListItem
               key={conversation.id}
               conversation={conversation}
               isActive={conversation.id === activeConversationId}

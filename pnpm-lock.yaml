@@ -494,6 +494,9 @@ importers:
       file-type:
         specifier: 21.3.4
         version: 21.3.4
+      ioredis:
+        specifier: ^5.4.0
+        version: 5.10.1
       papaparse:
         specifier: ^5.5.3
         version: 5.5.3

@@ -31,6 +31,9 @@ Os seguintes itens da auditoria ja foram corrigidos:
 | SEC-09 | Magic bytes validation (file-type + extension blocklist + MIME allowlist)                                                | Corrigido         |
 | SEC-10 | Internal API HMAC security (signRequest/verifyRequest + timingSafeEqual + 20 req/min rate limit)                         | Corrigido         |
 | H4     | Test coverage — 22 test files adicionados, 23 use cases cobertos (state machines, financeiro, validacao, dominio)        | Corrigido         |
+| L2     | Claim number via Redis INCR atomico com fallback para aggregate                                                          | Corrigido         |
+| M5     | Component decomposition — 4 componentes decompostos (client-form, policies-table, conversation-list, proposals-table)    | Corrigido         |
+| L3     | Route files — member-routes split into member + invitation routes (387→194+232 lines)                                    | Corrigido         |
 
 ---
 
@@ -38,13 +41,10 @@ Os seguintes itens da auditoria ja foram corrigidos:
 
 ### Performance e Quality
 
-| Arquivo                                                        | Severidade | Esforco  | Descricao                      |
-| -------------------------------------------------------------- | ---------- | -------- | ------------------------------ |
-| [M2-redis-cache.md](M2-redis-cache.md)                         | MEDIO      | M (1-2d) | Sem cache para dados estaticos |
-| [M5-component-decomposition.md](M5-component-decomposition.md) | MEDIO      | M (1-2d) | 6 componentes >200 linhas      |
-| [L2-claim-number-sequence.md](L2-claim-number-sequence.md)     | LOW        | P (1h)   | Claim number via aggregate     |
-| [L3-route-files-size.md](L3-route-files-size.md)               | LOW        | M (1d)   | Route files >200 linhas        |
+| Arquivo                                | Severidade | Esforco  | Descricao                      |
+| -------------------------------------- | ---------- | -------- | ------------------------------ |
+| [M2-redis-cache.md](M2-redis-cache.md) | MEDIO      | M (1-2d) | Sem cache para dados estaticos |
 
 ---
 
-**Total pendente:** 4 itens | 0 Seguranca | 4 Quality/Performance
+**Total pendente:** 1 item | 0 Seguranca | 1 Performance

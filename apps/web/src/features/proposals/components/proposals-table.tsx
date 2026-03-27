@@ -2,46 +2,26 @@
 
 import { useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Search } from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
 import { useDebounce } from '@/hooks/use-debounce'
-import { formatCurrency, formatDate } from '@/lib/formatters'
 
 import { useAdvanceProposal, useProposals } from '../hooks/use-proposals'
 import type { BoardType, ProposalData, ProposalStage } from '../types'
-import {
-  BOARD_TYPE_LABELS,
-  BOARD_TYPES,
-  BRANCH_LABELS,
-  STAGE_BADGE_VARIANT,
-  STAGE_LABELS,
-  STAGES,
-} from '../types'
 import { LostReasonDialog } from './lost-reason-dialog'
-import { ProposalActionButtons } from './proposal-action-buttons'
-import { ProposalExportButton } from './proposal-export-button'
+import { ProposalTableRow } from './proposal-table-row'
 import {
   ProposalsEmptyState,
   ProposalsTableSkeleton,
 } from './proposals-table-parts'
+import { ProposalsTableToolbar } from './proposals-table-toolbar'
 
 const ALL_VALUE = '__all__'
 
@@ -79,6 +59,21 @@ export function ProposalsTable() {
     [router]
   )
 
+  const handleSearchChange = (value: string) => {
+    setSearch(value)
+    setCursor(undefined)
+  }
+
+  const handleStageFilterChange = (value: string) => {
+    setStageFilter(value)
+    setCursor(undefined)
+  }
+
+  const handleBoardTypeFilterChange = (value: string) => {
+    setBoardTypeFilter(value)
+    setCursor(undefined)
+  }
+
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
@@ -92,87 +87,15 @@ export function ProposalsTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative min-w-[200px] flex-1">
-          <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
-          <Input
-            aria-label="Buscar propostas por cliente"
-            placeholder="Buscar propostas..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value)
-              setCursor(undefined)
-            }}
-            className="pl-9"
-          />
-        </div>
-        <Select
-          value={stageFilter}
-          onValueChange={(v) => {
-            if (v !== null) setStageFilter(v)
-            setCursor(undefined)
-          }}
-          items={[
-            { value: ALL_VALUE, label: 'Todos' },
-            ...STAGES.map((s) => ({ value: s, label: STAGE_LABELS[s] })),
-          ]}
-        >
-          <SelectTrigger className="w-[160px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL_VALUE}>Todos</SelectItem>
-            {STAGES.map((s) => (
-              <SelectItem key={s} value={s}>
-                {STAGE_LABELS[s]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          value={boardTypeFilter}
-          onValueChange={(v) => {
-            if (v !== null) setBoardTypeFilter(v)
-            setCursor(undefined)
-          }}
-          items={[
-            { value: ALL_VALUE, label: 'Todos' },
-            ...BOARD_TYPES.map((bt) => ({
-              value: bt,
-              label: BOARD_TYPE_LABELS[bt],
-            })),
-          ]}
-        >
-          <SelectTrigger className="w-[160px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL_VALUE}>Todos</SelectItem>
-            {BOARD_TYPES.map((bt) => (
-              <SelectItem key={bt} value={bt}>
-                {BOARD_TYPE_LABELS[bt]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <ProposalExportButton
-          filters={{
-            search: debouncedSearch || undefined,
-            stage:
-              stageFilter !== ALL_VALUE
-                ? (stageFilter as ProposalStage)
-                : undefined,
-            boardType:
-              boardTypeFilter !== ALL_VALUE
-                ? (boardTypeFilter as BoardType)
-                : undefined,
-          }}
-        />
-        <Button onClick={() => router.push('/proposals/new')}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nova Proposta
-        </Button>
-      </div>
+      <ProposalsTableToolbar
+        search={search}
+        stageFilter={stageFilter}
+        boardTypeFilter={boardTypeFilter}
+        debouncedSearch={debouncedSearch}
+        onSearchChange={handleSearchChange}
+        onStageFilterChange={handleStageFilterChange}
+        onBoardTypeFilterChange={handleBoardTypeFilterChange}
+      />
 
       {isLoading ? (
         <ProposalsTableSkeleton />
@@ -196,54 +119,14 @@ export function ProposalsTable() {
                 </TableHeader>
                 <TableBody>
                   {data.data.map((proposal: ProposalData) => (
-                    <TableRow
+                    <ProposalTableRow
                       key={proposal.id}
-                      className="cursor-pointer"
-                      tabIndex={0}
-                      onClick={() => handleRowClick(proposal.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault()
-                          handleRowClick(proposal.id)
-                        }
-                      }}
-                    >
-                      <TableCell className="font-medium">
-                        {proposal.clientName ?? proposal.clientId}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {BRANCH_LABELS[proposal.branch]}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={STAGE_BADGE_VARIANT[proposal.stage]}>
-                          {STAGE_LABELS[proposal.stage]}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {BOARD_TYPE_LABELS[proposal.boardType]}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(proposal.premiumValueInCents)}
-                      </TableCell>
-                      <TableCell>{formatDate(proposal.createdAt)}</TableCell>
-                      <TableCell className="text-right">
-                        <div
-                          className="flex justify-end gap-1"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <ProposalActionButtons
-                            stage={proposal.stage}
-                            onAdvance={() =>
-                              advanceMutation.mutate(proposal.id)
-                            }
-                            onLost={() => setLostDialogProposalId(proposal.id)}
-                            isAdvancing={advanceMutation.isPending}
-                          />
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                      proposal={proposal}
+                      isAdvancing={advanceMutation.isPending}
+                      onRowClick={handleRowClick}
+                      onAdvance={(id) => advanceMutation.mutate(id)}
+                      onLost={setLostDialogProposalId}
+                    />
                   ))}
                 </TableBody>
               </Table>
