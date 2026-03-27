@@ -361,15 +361,16 @@ async function fetchRanking(
   >`
     SELECT
       p."salespersonId",
-      COALESCE(m."name", 'Desconhecido') as "salespersonName",
+      COALESCE(u."name", 'Desconhecido') as "salespersonName",
       COUNT(*)::int as "policiesIssued",
       COALESCE(SUM(p."premiumValueInCents"), 0) as "totalPremiumCents"
     FROM "Policy" p
     LEFT JOIN "Member" m ON m."userId" = p."salespersonId" AND m."organizationId" = p."organizationId"
+    LEFT JOIN "User" u ON u."id" = m."userId"
     WHERE p."organizationId" = ${orgId}
       AND p."createdAt" >= ${currentFrom}
       AND p."deletedAt" IS NULL
-    GROUP BY p."salespersonId", m."name"
+    GROUP BY p."salespersonId", u."name"
     ORDER BY COALESCE(SUM(p."premiumValueInCents"), 0) DESC
     LIMIT 10
   `
