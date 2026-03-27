@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Ban, RefreshCw } from 'lucide-react'
+import { ArrowLeft, Ban, FileText, Loader2, RefreshCw } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -20,6 +20,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 
 import { useCancelPolicy, usePolicy } from '../hooks/use-policies'
+import { useGeneratePolicyPdf } from '../hooks/use-generate-policy-pdf'
 import {
   POLICY_BRANCH_LABELS,
   POLICY_STATUS_BADGE_VARIANT,
@@ -36,6 +37,7 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
   const router = useRouter()
   const { data, isLoading, isError } = usePolicy(policyId)
   const cancelMutation = useCancelPolicy()
+  const pdfMutation = useGeneratePolicyPdf(policyId)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [cancelReason, setCancelReason] = useState('')
 
@@ -120,16 +122,31 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
             </Badge>
           </div>
         </div>
-        {policy.status === 'ACTIVE' && (
+        <div className="flex items-center gap-2">
           <Button
-            variant="destructive"
+            variant="outline"
             size="sm"
-            onClick={() => setShowCancelDialog(true)}
+            onClick={() => pdfMutation.mutate()}
+            disabled={pdfMutation.isPending}
           >
-            <Ban className="mr-2 size-4" />
-            Cancelar apólice
+            {pdfMutation.isPending ? (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            ) : (
+              <FileText className="mr-2 size-4" />
+            )}
+            Gerar PDF
           </Button>
-        )}
+          {policy.status === 'ACTIVE' && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setShowCancelDialog(true)}
+            >
+              <Ban className="mr-2 size-4" />
+              Cancelar apólice
+            </Button>
+          )}
+        </div>
       </div>
 
       <PolicyInfoCard

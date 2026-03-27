@@ -1,35 +1,41 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import { container } from '@repo/core'
+import { renderToBuffer } from '@react-pdf/renderer'
+import { z } from 'zod'
 import {
-  ExportPoliciesCsv,
-  ParsePolicyImport,
+  CancelPolicy,
+  container,
   CsvImportError,
-  MAX_IMPORT_FILE_SIZE,
+  ExportPoliciesCsv,
+  GetPolicy,
   IssuePolicy,
   ListPolicies,
-  GetPolicy,
-  CancelPolicy,
-  PolicyNotFoundError,
+  MAX_IMPORT_FILE_SIZE,
+  ParsePolicyImport,
   PolicyAlreadyCancelledError,
+  PolicyNotFoundError,
   PolicyNotIssuableError,
+  ProposalNotFoundError,
+  type DocumentRepository,
+  type StorageProvider,
 } from '@repo/core'
-import { ProposalNotFoundError } from '@repo/core'
-import { auditCreate, auditUpdate } from '../../services/audit-logger.js'
-import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
+import { prisma } from '@repo/db'
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
-import {
-  issuePolicyBodySchema,
-  listPoliciesQuerySchema,
-  cancelPolicyBodySchema,
-} from '../../schemas/policy.schemas.js'
+import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
+import { PolicySummaryPdf } from '../../pdf-templates/policy-summary-pdf.js'
 import { idParamSchema } from '../../schemas/client.schemas.js'
 import { importJobIdParamSchema } from '../../schemas/import.schemas.js'
 import {
-  stageImportData,
-  retrieveStagedData,
-  removeStagedData,
+  cancelPolicyBodySchema,
+  issuePolicyBodySchema,
+  listPoliciesQuerySchema,
+} from '../../schemas/policy.schemas.js'
+import { auditCreate, auditUpdate } from '../../services/audit-logger.js'
+import {
   enqueueImportJob,
   getImportJobStatus,
+  removeStagedData,
+  retrieveStagedData,
+  stageImportData,
 } from '../../services/csv-import-enqueuer.js'
 
 function handlePolicyError(error: unknown, reply: FastifyReply) {
@@ -270,6 +276,98 @@ export async function policyRoutes(app: FastifyInstance) {
         data: result.items,
         meta: { total: result.total, nextCursor: result.nextCursor },
       })
+    }
+  )
+
+  // IMPORTANT: /pdf route must be registered BEFORE /:id to avoid route conflict
+  app.post(
+    '/api/v1/policies/:id/pdf',
+    { preHandler: [requireAbility('read', 'Policy')] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { id } = idParamSchema.parse(request.params)
+      const organizationId = request.organizationId!
+      const { force } = z
+        .object({ force: z.string().optional() })
+        .parse(request.query)
+      const forceRegenerate = force === 'true'
+
+      const documentRepo =
+        container.resolve<DocumentRepository>('DocumentRepository')
+      const storage = container.resolve<StorageProvider>('StorageProvider')
+
+      if (!forceRegenerate) {
+        const existing = await documentRepo.findByEntity(
+          'POLICY',
+          id,
+          organizationId
+        )
+        const existingPdf = existing.find((doc) => doc.type === 'POLICY_PDF')
+        if (existingPdf) {
+          const url = await storage.getSignedUrl(existingPdf.storageKey)
+          return reply.send({ success: true, data: { url, cached: true } })
+        }
+      }
+
+      const getPolicyUseCase = container.resolve(GetPolicy)
+      let policy
+      try {
+        policy = await getPolicyUseCase.execute(id, organizationId)
+      } catch (error) {
+        return handlePolicyError(error, reply)
+      }
+
+      const org = await prisma.organization.findUnique({
+        where: { id: organizationId },
+        select: { id: true, name: true, logo: true },
+      })
+
+      if (!org) {
+        return reply.status(404).send({
+          success: false,
+          error: {
+            code: 'ORGANIZATION_NOT_FOUND',
+            message: 'Organizacao nao encontrada',
+          },
+        })
+      }
+
+      let logoUrl: string | null = null
+      if (org.logo) {
+        logoUrl = await storage.getSignedUrl(org.logo)
+      }
+
+      const organizationData = {
+        id: org.id,
+        name: org.name,
+        logo: logoUrl,
+      }
+
+      const buffer = Buffer.from(
+        await renderToBuffer(
+          PolicySummaryPdf({
+            policy,
+            organization: organizationData,
+          })
+        )
+      )
+
+      const storageKey = `organizations/${organizationId}/policies/${id}/apolice.pdf`
+      await storage.upload(storageKey, buffer, 'application/pdf')
+
+      await documentRepo.create({
+        organizationId,
+        entityType: 'POLICY',
+        entityId: id,
+        type: 'POLICY_PDF',
+        fileName: `apolice-${policy.policyNumber}.pdf`,
+        mimeType: 'application/pdf',
+        sizeBytes: buffer.length,
+        storageKey,
+        createdBy: request.user!.id,
+      })
+
+      const url = await storage.getSignedUrl(storageKey)
+      return reply.send({ success: true, data: { url, cached: false } })
     }
   )
 

@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { ArrowLeft, RefreshCw } from 'lucide-react'
+import { ArrowLeft, FileText, Loader2, RefreshCw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,8 +13,9 @@ import { DocumentList } from '@/features/documents/components/document-list'
 import { DocumentUpload } from '@/features/documents/components/document-upload'
 import { usePolicyByProposal } from '@/features/policies/hooks/use-policies'
 
+import { formatCurrency, formatDate } from '@/lib/formatters'
 import { useChecklist } from '../hooks/use-checklist'
-import { ProposalStageActions } from './proposal-stage-actions'
+import { useGenerateProposalPdf } from '../hooks/use-generate-proposal-pdf'
 import { useAdvanceProposal, useProposal } from '../hooks/use-proposals'
 import {
   BOARD_TYPE_LABELS,
@@ -22,12 +23,12 @@ import {
   STAGE_BADGE_VARIANT,
   STAGE_LABELS,
 } from '../types'
-import { formatCurrency, formatDate } from '@/lib/formatters'
 import { InsuredObjectSection } from './insured-object-section'
 import { IssuePolicyCard } from './issue-policy-card'
 import { LostReasonDialog } from './lost-reason-dialog'
-import { DetailSkeleton, InfoItem } from './proposal-detail-helpers'
 import { ProposalChecklistPanel } from './proposal-checklist-panel'
+import { DetailSkeleton, InfoItem } from './proposal-detail-helpers'
+import { ProposalStageActions } from './proposal-stage-actions'
 
 interface ProposalDetailProps {
   proposalId: string
@@ -39,6 +40,7 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
   const { data: existingPolicy } = usePolicyByProposal(proposalId)
   const { data: checklistData } = useChecklist(proposalId)
   const advanceMutation = useAdvanceProposal()
+  const pdfMutation = useGenerateProposalPdf(proposalId)
   const [showLostDialog, setShowLostDialog] = useState(false)
 
   if (isLoading) {
@@ -113,6 +115,21 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
         <Badge variant="secondary">
           {BOARD_TYPE_LABELS[proposal.boardType]}
         </Badge>
+        {proposal.stage !== 'CAPTURE' && proposal.stage !== 'LOST' && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => pdfMutation.mutate()}
+            disabled={pdfMutation.isPending}
+          >
+            {pdfMutation.isPending ? (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            ) : (
+              <FileText className="mr-2 size-4" />
+            )}
+            Gerar PDF
+          </Button>
+        )}
       </div>
 
       <Separator />

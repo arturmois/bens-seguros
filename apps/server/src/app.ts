@@ -107,6 +107,44 @@ export async function buildApp() {
 
   app.get('/health', async () => ({ status: 'ok' }))
 
+  // Serve local uploads in dev (production uses R2 presigned URLs)
+  if (env.STORAGE_PROVIDER !== 'r2') {
+    const { createReadStream, existsSync } = await import('node:fs')
+    const { resolve, join, extname } = await import('node:path')
+    const uploadsDir = resolve('./uploads')
+
+    const MIME_MAP: Record<string, string> = {
+      '.pdf': 'application/pdf',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.webp': 'image/webp',
+      '.gif': 'image/gif',
+    }
+
+    app.get<{ Params: { '*': string } }>(
+      '/uploads/*',
+      async (request, reply) => {
+        const filePath = join(uploadsDir, request.params['*'])
+        if (!existsSync(filePath)) {
+          return reply
+            .status(404)
+            .send({
+              success: false,
+              error: {
+                code: 'FILE_NOT_FOUND',
+                message: 'Arquivo nao encontrado',
+              },
+            })
+        }
+        const ext = extname(filePath)
+        const contentType = MIME_MAP[ext] ?? 'application/octet-stream'
+        void reply.header('Content-Type', contentType)
+        return reply.send(createReadStream(filePath))
+      }
+    )
+  }
+
   // Better Auth integration
   const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000'
   const cookieDomain = process.env.COOKIE_DOMAIN

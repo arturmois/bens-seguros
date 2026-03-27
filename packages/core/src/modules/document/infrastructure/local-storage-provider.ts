@@ -8,6 +8,8 @@ import type {
 const UPLOADS_DIR = resolve('./uploads')
 
 export class LocalStorageProvider implements StorageProvider {
+  constructor(private readonly baseUrl: string = 'http://localhost:3001') {}
+
   async upload(
     key: string,
     buffer: Buffer,
@@ -23,7 +25,7 @@ export class LocalStorageProvider implements StorageProvider {
   async getSignedUrl(key: string, _expiresIn?: number): Promise<string> {
     const filePath = join(UPLOADS_DIR, key)
     await access(filePath, constants.R_OK)
-    return `file://${filePath}`
+    return `${this.baseUrl}/uploads/${key}`
   }
 
   async delete(key: string): Promise<void> {
