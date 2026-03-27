@@ -1,12 +1,6 @@
-import type { DocumentType } from '../types'
+import type { InsuranceBranch } from '@/features/proposals/types'
 
-type InsuranceBranch =
-  | 'AUTO'
-  | 'RESIDENTIAL'
-  | 'CONDOMINIUM'
-  | 'BUSINESS'
-  | 'LIFE'
-  | 'OTHER'
+import type { DocumentType } from '../types'
 
 interface DocumentTypeOption {
   readonly value: DocumentType
@@ -51,7 +45,7 @@ const BRANCH_DOCUMENT_TYPES: Record<
   OTHER: DEFAULT_TYPES,
 }
 
-export type { InsuranceBranch, DocumentTypeOption }
+export type { DocumentTypeOption }
 
 export function getDocumentTypesForBranch(
   branch: InsuranceBranch

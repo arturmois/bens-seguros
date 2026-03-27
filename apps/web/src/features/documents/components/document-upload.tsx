@@ -6,16 +6,15 @@ import { toast } from 'sonner'
 
 import { cn } from '@/lib/utils'
 
+import type { InsuranceBranch } from '@/features/proposals/types'
+
 import { useUploadDocument } from '../hooks/use-documents'
-import {
-  getDocumentTypesForBranch,
-  type InsuranceBranch,
-} from '../lib/branch-document-types'
+import { getDocumentTypesForBranch } from '../lib/branch-document-types'
+import { formatFileSize } from '../lib/format-file-size'
 import type { DocumentEntityType, DocumentType } from '../types'
 import { PendingFileCard } from './pending-file-card'
 
-const MAX_FILE_SIZE_MB = 10
-const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
 const ALLOWED_MIME_TYPES = [
   'image/jpeg',
   'image/png',
@@ -33,12 +32,6 @@ interface DocumentUploadProps {
   readonly entityId: string
   readonly branch?: InsuranceBranch
   readonly onUploadSuccess?: () => void
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${String(bytes)} B`
-  if (bytes < 1024 * 1024) return `${String(Math.round(bytes / 1024))} KB`
-  return `${String((bytes / (1024 * 1024)).toFixed(1))} MB`
 }
 
 function isAllowedMimeType(mimeType: string): boolean {

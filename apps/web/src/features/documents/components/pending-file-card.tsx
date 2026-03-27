@@ -1,7 +1,6 @@
 'use client'
 
-import { X } from 'lucide-react'
-import { FileText } from 'lucide-react'
+import { FileText, X } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -11,18 +10,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import type { InsuranceBranch } from '@/features/proposals/types'
 
+import { getDocumentTypesForBranch } from '../lib/branch-document-types'
+import { formatFileSize } from '../lib/format-file-size'
 import type { DocumentType } from '../types'
-import {
-  getDocumentTypesForBranch,
-  type InsuranceBranch,
-} from '../lib/branch-document-types'
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${String(bytes)} B`
-  if (bytes < 1024 * 1024) return `${String(Math.round(bytes / 1024))} KB`
-  return `${String((bytes / (1024 * 1024)).toFixed(1))} MB`
-}
 
 interface PendingFileCardProps {
   readonly file: File
@@ -58,7 +50,8 @@ export function PendingFileCard({
         <Select
           value={selectedType}
           onValueChange={(val) => {
-            if (val) onTypeChange(val)
+            const match = typeOptions.find((opt) => opt.value === val)
+            if (match) onTypeChange(match.value)
           }}
         >
           <SelectTrigger size="sm">
