@@ -1,14 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { AlertTriangle, Loader2 } from 'lucide-react'
+import { AlertTriangle, Download, Loader2 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardPanel } from '@/components/ui/card'
+import { useOrgs } from '@/features/org/hooks/use-orgs'
 
 import { useDashboardStats } from '../hooks/use-dashboard-stats'
+import { useExportDashboardPdf } from '../hooks/use-export-dashboard-pdf'
 import type { DashboardPreset } from '../types'
+import { BrokerRanking } from './broker-ranking'
 import { ConversionRate } from './conversion-rate'
 import { DashboardPeriodFilter } from './dashboard-period-filter'
 import { FinancialMetrics } from './financial-metrics'
@@ -52,6 +55,12 @@ const TrendChart = dynamic(
 export function DashboardContent() {
   const [preset, setPreset] = useState<DashboardPreset>('30d')
   const { data, isLoading, isError, refetch } = useDashboardStats(preset)
+  const { activeOrg } = useOrgs()
+  const exportPdf = useExportDashboardPdf()
+  const canSeeRanking =
+    activeOrg?.role === 'OWNER' ||
+    activeOrg?.role === 'ADMIN' ||
+    activeOrg?.role === 'MANAGER'
 
   if (isError) {
     return (
@@ -71,7 +80,20 @@ export function DashboardContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-end gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => exportPdf.mutate(preset)}
+          disabled={exportPdf.isPending || isLoading}
+        >
+          {exportPdf.isPending ? (
+            <Loader2 className="mr-2 size-4 animate-spin" />
+          ) : (
+            <Download className="mr-2 size-4" />
+          )}
+          Exportar PDF
+        </Button>
         <DashboardPeriodFilter preset={preset} onPresetChange={setPreset} />
       </div>
       <StatsCards data={data} isLoading={isLoading} />
@@ -88,6 +110,11 @@ export function DashboardContent() {
         <ClaimsByPriority data={data?.claimsByPriority} isLoading={isLoading} />
         <AlertsWidget />
       </div>
+      <BrokerRanking
+        ranking={data?.ranking}
+        isLoading={isLoading}
+        visible={canSeeRanking}
+      />
       <TrendChart data={data?.monthlyTrends} isLoading={isLoading} />
     </div>
   )
