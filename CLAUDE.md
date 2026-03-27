@@ -55,6 +55,15 @@ Multi-tenant SaaS ERP for Brazilian insurance brokers. Monorepo with 5 apps + 7 
 - Use `Record<string, unknown>` instead of `object` or `{}`
 - Use template literal types for string patterns where applicable
 
+### Language Rules
+
+- **Code identifiers (variables, functions, classes, interfaces, types, enums, constants):** always in English
+- **Exception:** Brazilian acronyms with no translation — `cpf`, `cnpj`, `cep` — kept as-is
+- **Code comments:** English
+- **UI display strings (labels, messages, placeholders, toasts, titles, tooltips, descriptions):** correct Brazilian Portuguese (pt-BR) with proper accents (á, é, í, ó, ú, ã, õ, ê, ô) and cedilla (ç)
+- **NEVER** write Portuguese without diacritics in UI: `organizacao` → `organização`, `obrigatorio` → `obrigatório`, `Comecar Gratis` → `Começar Grátis`
+- **Common mistakes to avoid:** `nao` → `não`, `informacoes` → `informações`, `maximo` → `máximo`, `minimo` → `mínimo`, `invalido` → `inválido`, `descricao` → `descrição`
+
 ### Naming Conventions
 
 | Element          | Convention                           | Example                                     |
