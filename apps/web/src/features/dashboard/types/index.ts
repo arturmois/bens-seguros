@@ -32,6 +32,14 @@ export interface ComparisonMetric {
   readonly changePercent: number
 }
 
+export interface RankingEntry {
+  readonly salespersonId: string
+  readonly salespersonName: string
+  readonly policiesIssued: number
+  readonly totalPremiumCents: number
+  readonly averageTicketCents: number
+}
+
 export interface DashboardStats {
   proposalsByStage: ProposalByStage[]
   activePolicies: number
@@ -49,6 +57,7 @@ export interface DashboardStats {
   totalPremium: ComparisonMetric
   averageTicket: ComparisonMetric
   commissionsReceivable: number
+  ranking: RankingEntry[]
 }
 
 export type DashboardPreset = '7d' | '30d' | '90d' | '6m'
