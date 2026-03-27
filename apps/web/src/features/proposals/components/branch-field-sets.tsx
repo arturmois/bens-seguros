@@ -169,21 +169,21 @@ function BmiBadge({ control }: { readonly control: Control<FieldValues> }) {
   const peso = useWatch({ control, name: 'weightKg' })
 
   const heightCm = Number(height)
-  const pesoKg = Number(peso)
+  const weightKg = Number(peso)
 
   if (
     !heightCm ||
-    !pesoKg ||
+    !weightKg ||
     heightCm < HEIGHT_MIN_CM ||
     heightCm > HEIGHT_MAX_CM ||
-    pesoKg < WEIGHT_MIN_KG ||
-    pesoKg > WEIGHT_MAX_KG
+    weightKg < WEIGHT_MIN_KG ||
+    weightKg > WEIGHT_MAX_KG
   ) {
     return null
   }
 
   const heightM = heightCm / 100
-  const bmi = pesoKg / (heightM * heightM)
+  const bmi = weightKg / (heightM * heightM)
   const range = BMI_RANGES.find((r) => bmi < r.max)
 
   if (!range) return null
