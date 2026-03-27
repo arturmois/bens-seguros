@@ -139,8 +139,11 @@ export async function proposalRoutes(app: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = idParamSchema.parse(request.params)
       const organizationId = request.organizationId!
-      const { force } = (request.query as { force?: string }) ?? {}
-      const forceRegenerate = force === 'true'
+      const forceRegenerate =
+        typeof request.query === 'object' &&
+        request.query !== null &&
+        'force' in request.query &&
+        (request.query as Record<string, unknown>)['force'] === 'true'
 
       const documentRepo =
         container.resolve<DocumentRepository>('DocumentRepository')
@@ -152,7 +155,7 @@ export async function proposalRoutes(app: FastifyInstance) {
           id,
           organizationId
         )
-        const existingPdf = existing.find((doc) => doc.type === 'OTHER')
+        const existingPdf = existing.find((doc) => doc.type === 'POLICY_PDF')
         if (existingPdf) {
           const url = await storage.getSignedUrl(existingPdf.storageKey)
           return reply.send({ success: true, data: { url, cached: true } })
@@ -209,7 +212,7 @@ export async function proposalRoutes(app: FastifyInstance) {
         organizationId,
         entityType: 'PROPOSAL',
         entityId: id,
-        type: 'OTHER',
+        type: 'POLICY_PDF',
         fileName: `cotacao-${id.slice(0, 8)}.pdf`,
         mimeType: 'application/pdf',
         sizeBytes: buffer.length,

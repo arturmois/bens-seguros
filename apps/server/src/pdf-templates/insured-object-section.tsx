@@ -1,13 +1,13 @@
 import React from 'react'
 import { View, Text } from '@react-pdf/renderer'
 import type {
-  InsuredObjectDetails,
   AutoDetails,
-  ResidentialDetails,
-  CondominiumDetails,
   BusinessDetails,
+  CondominiumDetails,
+  InsuredObjectDetails,
   LifeDetails,
   OtherDetails,
+  ResidentialDetails,
 } from '@repo/core'
 import { styles } from './pdf-styles.js'
 
@@ -190,6 +190,23 @@ function OtherSection({ details }: { readonly details: OtherDetails }) {
   )
 }
 
+function renderBranchDetails(details: InsuredObjectDetails) {
+  switch (details.branch) {
+    case 'AUTO':
+      return <AutoSection details={details} />
+    case 'RESIDENTIAL':
+      return <ResidentialSection details={details} />
+    case 'CONDOMINIUM':
+      return <CondominiumSection details={details} />
+    case 'BUSINESS':
+      return <BusinessSection details={details} />
+    case 'LIFE':
+      return <LifeSection details={details} />
+    case 'OTHER':
+      return <OtherSection details={details} />
+  }
+}
+
 interface InsuredObjectSectionProps {
   readonly details: InsuredObjectDetails
 }
@@ -209,24 +226,7 @@ export function InsuredObjectSection({ details }: InsuredObjectSectionProps) {
       <Text style={styles.sectionTitle}>
         Objeto Segurado — {branchLabels[details.branch]}
       </Text>
-      {details.branch === 'AUTO' && (
-        <AutoSection details={details as AutoDetails} />
-      )}
-      {details.branch === 'RESIDENTIAL' && (
-        <ResidentialSection details={details as ResidentialDetails} />
-      )}
-      {details.branch === 'CONDOMINIUM' && (
-        <CondominiumSection details={details as CondominiumDetails} />
-      )}
-      {details.branch === 'BUSINESS' && (
-        <BusinessSection details={details as BusinessDetails} />
-      )}
-      {details.branch === 'LIFE' && (
-        <LifeSection details={details as LifeDetails} />
-      )}
-      {details.branch === 'OTHER' && (
-        <OtherSection details={details as OtherDetails} />
-      )}
+      {renderBranchDetails(details)}
     </View>
   )
 }

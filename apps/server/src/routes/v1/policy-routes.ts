@@ -1,4 +1,5 @@
 import { renderToBuffer } from '@react-pdf/renderer'
+import { z } from 'zod'
 import {
   CancelPolicy,
   container,
@@ -285,7 +286,9 @@ export async function policyRoutes(app: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = idParamSchema.parse(request.params)
       const organizationId = request.organizationId!
-      const { force } = (request.query as { force?: string }) ?? {}
+      const { force } = z
+        .object({ force: z.string().optional() })
+        .parse(request.query)
       const forceRegenerate = force === 'true'
 
       const documentRepo =
