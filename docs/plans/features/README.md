@@ -13,12 +13,12 @@
 | F11     | Settings > Membros — 100% implementado (6 rotas, 5 componentes, email)                                           |
 | F12     | Settings > Organizacao — 100% implementado (3 rotas, 3 componentes, logo upload R2)                              |
 | F13     | AI Agent Config — 100% implementado (CRUD + channel integration)                                                 |
+| F03     | PDF Generation — cotacao + apolice (@react-pdf/renderer, R2 storage, PII masking)                                |
 
 ## Proximas (Longo Prazo)
 
 | Arquivo                                                  | Esforco          | Impacto           | Descricao                            |
 | -------------------------------------------------------- | ---------------- | ----------------- | ------------------------------------ |
-| [F03-pdf-generation.md](F03-pdf-generation.md)           | G (1-2sem)       | Diferenciacao     | Cotacoes e apolices em PDF           |
 | [F06-workflow-automation.md](F06-workflow-automation.md) | G (3-4sem)       | **Diferenciacao** | Motor de regras e automacoes         |
 | [F07-multi-channel.md](F07-multi-channel.md)             | G (2-4sem/canal) | Aquisicao         | Web chat, Instagram, Telegram        |
 | [F08-advanced-dashboard.md](F08-advanced-dashboard.md)   | M-G (1-3sem)     | Retencao          | Drill-down, comparativo, ranking     |
@@ -27,7 +27,7 @@
 
 ---
 
-**Total:** 10 features | 7 concluidas/removidas | 0 em design | 6 longo prazo
+**Total:** 10 features | 8 concluidas/removidas | 0 em design | 5 longo prazo
 
 ## Legenda de Impacto
 
