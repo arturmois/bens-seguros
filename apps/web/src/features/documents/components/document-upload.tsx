@@ -85,7 +85,9 @@ function PendingFileCard({
         </div>
         <Select
           value={selectedType}
-          onValueChange={(val) => onTypeChange(val as DocumentType)}
+          onValueChange={(val) => {
+            if (val) onTypeChange(val)
+          }}
         >
           <SelectTrigger size="sm">
             <SelectValue placeholder="Tipo do documento" />
@@ -184,9 +186,8 @@ export function DocumentUpload({
       }
 
       if (!branch || branchHasSingleType) {
-        const defaultType = branch
-          ? getDocumentTypesForBranch(branch)[0].value
-          : 'OTHER'
+        const types = branch ? getDocumentTypesForBranch(branch) : []
+        const defaultType = types[0]?.value ?? 'OTHER'
         uploadFile(file, defaultType)
         return
       }
