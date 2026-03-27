@@ -19,6 +19,19 @@ import {
 
 const MEMBER_CACHE_TTL = 3600 // 1h
 
+interface MemberListCache {
+  readonly data: {
+    id: string
+    userId: string
+    name: string | null
+    email: string
+    role: string
+    active: boolean
+    createdAt: string
+  }[]
+  readonly meta: { total: number; nextCursor: string | null }
+}
+
 function resolveCache(): CacheService | null {
   try {
     return container.resolve<CacheService>('CacheService')
@@ -74,9 +87,9 @@ export async function memberRoutes(app: FastifyInstance) {
 
       const cacheService = resolveCache()
       if (cacheService && !cursor) {
-        const cached = await cacheService.get<unknown>(cacheKey)
+        const cached = await cacheService.get<MemberListCache>(cacheKey)
         if (cached) {
-          return reply.send({ success: true, ...(cached as object) })
+          return reply.send({ success: true, ...cached })
         }
       }
 

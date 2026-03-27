@@ -4,14 +4,7 @@ import { ResendEmailProvider, invitationEmail } from '@repo/core/notification'
 import { container, type CacheService } from '@repo/core'
 import { prisma } from '@repo/db'
 import { env } from '@repo/env'
-
-function resolveCache(): CacheService | null {
-  try {
-    return container.resolve<CacheService>('CacheService')
-  } catch {
-    return null
-  }
-}
+import { ROLE_HIERARCHY, type Role } from '@repo/auth/roles'
 import { idParamSchema } from '../../schemas/client.schemas.js'
 import {
   createInvitationBodySchema,
@@ -25,7 +18,14 @@ import {
   InvitationNotFoundError,
   RoleHierarchyError,
 } from './member-errors.js'
-import { ROLE_HIERARCHY, type Role } from '@repo/auth/roles'
+
+function resolveCache(): CacheService | null {
+  try {
+    return container.resolve<CacheService>('CacheService')
+  } catch {
+    return null
+  }
+}
 
 function handleInvitationError(
   error: unknown,

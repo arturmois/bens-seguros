@@ -30,18 +30,26 @@ export class PrismaClaimRepository implements ClaimRepository {
 
   private async getNextViaRedis(organizationId: string): Promise<number> {
     const key = `${CLAIM_SEQ_KEY_PREFIX}${organizationId}`
-    const exists = await this.redis!.exists(key)
 
-    if (!exists) {
+    // INCR is atomic — creates the key at 0 then increments to 1 if missing
+    const next = await this.redis!.incr(key)
+
+    // If result is 1, the key was just created; initialize from DB to avoid gaps
+    if (next === 1) {
       const aggregate = await this.prisma.claim.aggregate({
         where: { organizationId },
         _max: { claimNumber: true },
       })
       const currentMax = aggregate._max.claimNumber ?? 0
-      await this.redis!.set(key, currentMax)
+      if (currentMax > 0) {
+        // Reset to currentMax so the next INCR returns currentMax + 1
+        await this.redis!.set(key, String(currentMax))
+        return this.redis!.incr(key)
+      }
+      // No existing claims — 1 is the correct first number
     }
 
-    return this.redis!.incr(key)
+    return next
   }
 
   private async getNextViaAggregate(organizationId: string): Promise<number> {
