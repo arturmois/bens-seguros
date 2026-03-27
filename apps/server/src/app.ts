@@ -48,7 +48,7 @@ export async function buildApp() {
 
   const app = Fastify({
     logger: {
-      level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+      level: env.NODE_ENV === 'production' ? 'info' : 'debug',
       redact: PINO_REDACT_CONFIG,
     },
     bodyLimit: 10 * 1024 * 1024, // S6: 10MB
@@ -58,7 +58,7 @@ export async function buildApp() {
   app.setSerializerCompiler(serializerCompiler)
 
   await app.register(cors, {
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
+    origin: env.FRONTEND_URL,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   })
@@ -146,8 +146,8 @@ export async function buildApp() {
   }
 
   // Better Auth integration
-  const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000'
-  const cookieDomain = process.env.COOKIE_DOMAIN
+  const frontendUrl = env.FRONTEND_URL
+  const cookieDomain = env.COOKIE_DOMAIN
   const auth = createAuth(
     env.AUTH_SECRET,
     env.API_URL,
@@ -225,7 +225,7 @@ export async function buildApp() {
       })
     }
 
-    if (process.env.SENTRY_DSN) {
+    if (env.SENTRY_DSN) {
       Sentry.captureException(error, {
         extra: { url: request.url, method: request.method },
       })

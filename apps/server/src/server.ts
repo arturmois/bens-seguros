@@ -1,11 +1,12 @@
 import * as Sentry from '@sentry/node'
+import { env } from '@repo/env'
 import { stripPiiFromEvent } from '@repo/shared/sentry-pii'
 import { buildApp } from './app.js'
 
-if (process.env.SENTRY_DSN) {
+if (env.SENTRY_DSN) {
   Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    environment: process.env.NODE_ENV,
+    dsn: env.SENTRY_DSN,
+    environment: env.NODE_ENV,
     tracesSampleRate: 0.2,
     beforeSend(event) {
       return stripPiiFromEvent(event)
@@ -24,7 +25,7 @@ const start = async () => {
 }
 
 start().catch((err) => {
-  if (process.env.SENTRY_DSN) {
+  if (env.SENTRY_DSN) {
     Sentry.captureException(err)
   }
   process.exitCode = 1
