@@ -8,6 +8,10 @@ export type DocumentEntityType =
 export type DocumentType =
   | 'DRIVER_LICENSE'
   | 'VEHICLE_REGISTRATION'
+  | 'HEALTH_DECLARATION'
+  | 'PROOF_OF_ADDRESS'
+  | 'SOCIAL_CONTRACT'
+  | 'CNPJ_CARD'
   | 'POLICY_PDF'
   | 'CLAIM_PHOTO'
   | 'CLAIM_REPORT'
