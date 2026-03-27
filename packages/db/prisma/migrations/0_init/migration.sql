@@ -2,46 +2,75 @@
 CREATE SCHEMA IF NOT EXISTS "public";
 
 -- CreateEnum
-CREATE TYPE "public"."AssistanceStatus" AS ENUM ('REQUESTED', 'AWAITING_DOCUMENT', 'PENDING_INSPECTION', 'DISPATCHED', 'IN_PROGRESS', 'COMPLETED');
+CREATE TYPE "Role" AS ENUM ('OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER');
 
 -- CreateEnum
-CREATE TYPE "public"."ClaimPriority" AS ENUM ('NORMAL', 'HIGH', 'URGENT');
+CREATE TYPE "ClientType" AS ENUM ('LEAD', 'CLIENT', 'FORMER_CLIENT');
 
 -- CreateEnum
-CREATE TYPE "public"."ClaimStatus" AS ENUM ('REGISTERED', 'IN_ANALYSIS', 'AWAITING_DOCUMENT', 'PENDING_INSPECTION', 'APPROVED', 'REJECTED', 'PAID', 'COMPLETED');
+CREATE TYPE "MaritalStatus" AS ENUM ('SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER');
 
 -- CreateEnum
-CREATE TYPE "public"."ClientType" AS ENUM ('LEAD', 'CLIENT', 'FORMER_CLIENT');
+CREATE TYPE "ProposalStage" AS ENUM ('CAPTURE', 'QUOTE', 'PROTOCOL', 'INSPECTION', 'PAYMENT', 'POLICY_ISSUED', 'LOST');
 
 -- CreateEnum
-CREATE TYPE "public"."CommissionStatus" AS ENUM ('PENDING_COMMERCIAL', 'PENDING_ADMIN', 'APPROVED', 'PAID', 'REJECTED', 'REVERSED');
+CREATE TYPE "ProposalBoardType" AS ENUM ('NEW_INSURANCE', 'RENEWAL');
 
 -- CreateEnum
-CREATE TYPE "public"."DocumentEntityType" AS ENUM ('CLIENT', 'PROPOSAL', 'POLICY', 'CLAIM', 'ASSISTANCE');
+CREATE TYPE "InsuranceBranch" AS ENUM ('AUTO', 'RESIDENTIAL', 'CONDOMINIUM', 'BUSINESS', 'LIFE', 'OTHER');
 
 -- CreateEnum
-CREATE TYPE "public"."DocumentType" AS ENUM ('DRIVER_LICENSE', 'VEHICLE_REGISTRATION', 'POLICY_PDF', 'CLAIM_PHOTO', 'CLAIM_REPORT', 'PROOF_OF_PAYMENT', 'CONTRACT', 'OTHER');
+CREATE TYPE "PolicyStatus" AS ENUM ('ACTIVE', 'CANCELLED', 'EXPIRED');
 
 -- CreateEnum
-CREATE TYPE "public"."InsuranceBranch" AS ENUM ('AUTO', 'RESIDENTIAL', 'CONDOMINIUM', 'BUSINESS', 'LIFE', 'OTHER');
+CREATE TYPE "ClaimStatus" AS ENUM ('REGISTERED', 'IN_ANALYSIS', 'AWAITING_DOCUMENT', 'PENDING_INSPECTION', 'APPROVED', 'REJECTED', 'PAID', 'COMPLETED');
 
 -- CreateEnum
-CREATE TYPE "public"."MaritalStatus" AS ENUM ('SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER');
+CREATE TYPE "ClaimPriority" AS ENUM ('NORMAL', 'HIGH', 'URGENT');
 
 -- CreateEnum
-CREATE TYPE "public"."PolicyStatus" AS ENUM ('ACTIVE', 'CANCELLED', 'EXPIRED');
+CREATE TYPE "AssistanceStatus" AS ENUM ('REQUESTED', 'AWAITING_DOCUMENT', 'PENDING_INSPECTION', 'DISPATCHED', 'IN_PROGRESS', 'COMPLETED');
 
 -- CreateEnum
-CREATE TYPE "public"."ProposalBoardType" AS ENUM ('NEW_INSURANCE', 'RENEWAL');
+CREATE TYPE "DocumentEntityType" AS ENUM ('CLIENT', 'PROPOSAL', 'POLICY', 'CLAIM', 'ASSISTANCE');
 
 -- CreateEnum
-CREATE TYPE "public"."ProposalStage" AS ENUM ('CAPTURE', 'QUOTE', 'PROTOCOL', 'INSPECTION', 'PAYMENT', 'POLICY_ISSUED', 'LOST');
+CREATE TYPE "DocumentType" AS ENUM ('DRIVER_LICENSE', 'VEHICLE_REGISTRATION', 'HEALTH_DECLARATION', 'PROOF_OF_ADDRESS', 'SOCIAL_CONTRACT', 'CNPJ_CARD', 'POLICY_PDF', 'CLAIM_PHOTO', 'CLAIM_REPORT', 'PROOF_OF_PAYMENT', 'CONTRACT', 'OTHER');
 
 -- CreateEnum
-CREATE TYPE "public"."Role" AS ENUM ('OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER');
+CREATE TYPE "CommissionStatus" AS ENUM ('PENDING_COMMERCIAL', 'PENDING_ADMIN', 'APPROVED', 'PAID', 'REJECTED', 'REVERSED');
 
 -- CreateTable
-CREATE TABLE "public"."Account" (
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "emailVerified" BOOLEAN NOT NULL DEFAULT false,
+    "image" TEXT,
+    "isSuperAdmin" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Session" (
+    "id" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "ipAddress" TEXT,
+    "userAgent" TEXT,
+    "activeOrganizationId" TEXT,
+    "userId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Account" (
     "id" TEXT NOT NULL,
     "accountId" TEXT NOT NULL,
     "providerId" TEXT NOT NULL,
@@ -60,14 +89,222 @@ CREATE TABLE "public"."Account" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."Assistance" (
+CREATE TABLE "Verification" (
+    "id" TEXT NOT NULL,
+    "identifier" TEXT NOT NULL,
+    "value" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Verification_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Organization" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "logo" TEXT,
+    "active" BOOLEAN NOT NULL DEFAULT true,
+    "metadata" JSONB,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Organization_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Member" (
+    "id" TEXT NOT NULL,
+    "organizationId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "role" "Role" NOT NULL DEFAULT 'COMMERCIAL',
+    "active" BOOLEAN NOT NULL DEFAULT true,
+    "commissionSplitPercentage" INTEGER DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Member_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Invitation" (
+    "id" TEXT NOT NULL,
+    "organizationId" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "role" "Role" NOT NULL DEFAULT 'COMMERCIAL',
+    "status" TEXT NOT NULL DEFAULT 'pending',
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "invitedBy" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Invitation_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Client" (
+    "id" TEXT NOT NULL,
+    "organizationId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "document" TEXT NOT NULL,
+    "documentEncrypted" TEXT NOT NULL DEFAULT '',
+    "documentHash" TEXT NOT NULL DEFAULT '',
+    "type" "ClientType" NOT NULL DEFAULT 'LEAD',
+    "email" TEXT,
+    "phone" TEXT,
+    "birthDate" TIMESTAMP(3),
+    "profession" TEXT,
+    "maritalStatus" "MaritalStatus",
+    "address" JSONB,
+    "tags" TEXT[] DEFAULT ARRAY[]::TEXT[],
+    "consentLgpd" BOOLEAN NOT NULL DEFAULT false,
+    "salespersonId" TEXT,
+    "deletedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Client_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Proposal" (
+    "id" TEXT NOT NULL,
+    "organizationId" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "salespersonId" TEXT NOT NULL,
+    "stage" "ProposalStage" NOT NULL DEFAULT 'CAPTURE',
+    "boardType" "ProposalBoardType" NOT NULL DEFAULT 'NEW_INSURANCE',
+    "branch" "InsuranceBranch" NOT NULL DEFAULT 'OTHER',
+    "premiumValueInCents" INTEGER NOT NULL DEFAULT 0,
+    "commissionPercentageInCents" INTEGER NOT NULL DEFAULT 0,
+    "lostReason" TEXT,
+    "renewalPolicyId" TEXT,
+    "insurerId" TEXT,
+    "details" JSONB,
+    "deletedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Proposal_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProposalChecklistItem" (
+    "id" TEXT NOT NULL,
+    "proposalId" TEXT NOT NULL,
+    "itemKey" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "isRequired" BOOLEAN NOT NULL DEFAULT true,
+    "isCompleted" BOOLEAN NOT NULL DEFAULT false,
+    "completedAt" TIMESTAMP(3),
+    "completedBy" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ProposalChecklistItem_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Policy" (
+    "id" TEXT NOT NULL,
+    "organizationId" TEXT NOT NULL,
+    "proposalId" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "salespersonId" TEXT NOT NULL,
+    "insurerId" TEXT,
+    "policyNumber" TEXT NOT NULL,
+    "status" "PolicyStatus" NOT NULL DEFAULT 'ACTIVE',
+    "branch" "InsuranceBranch" NOT NULL,
+    "premiumValueInCents" INTEGER NOT NULL,
+    "coverageDetails" JSONB,
+    "startDate" TIMESTAMP(3) NOT NULL,
+    "endDate" TIMESTAMP(3) NOT NULL,
+    "cancelledAt" TIMESTAMP(3),
+    "cancelReason" TEXT,
+    "deletedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Policy_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Insurer" (
+    "id" TEXT NOT NULL,
+    "organizationId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "code" TEXT,
+    "active" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Insurer_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Claim" (
+    "id" TEXT NOT NULL,
+    "organizationId" TEXT NOT NULL,
+    "claimNumber" INTEGER NOT NULL,
+    "policyId" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "insurerId" TEXT,
+    "assignedToId" TEXT,
+    "status" "ClaimStatus" NOT NULL DEFAULT 'REGISTERED',
+    "priority" "ClaimPriority" NOT NULL DEFAULT 'NORMAL',
+    "description" TEXT NOT NULL,
+    "incidentDate" TIMESTAMP(3),
+    "incidentLocation" TEXT,
+    "reportedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "resolvedAt" TIMESTAMP(3),
+    "closedAt" TIMESTAMP(3),
+    "deletedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Claim_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Occurrence" (
+    "id" TEXT NOT NULL,
+    "claimId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "metadata" JSONB,
+    "createdBy" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Occurrence_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Endorsement" (
+    "id" TEXT NOT NULL,
+    "organizationId" TEXT NOT NULL,
+    "policyId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "effectiveDate" TIMESTAMP(3) NOT NULL,
+    "previousVersionSnapshot" JSONB NOT NULL,
+    "changes" JSONB NOT NULL,
+    "createdBy" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Endorsement_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Assistance" (
     "id" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
     "policyId" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
     "claimId" TEXT,
     "type" TEXT NOT NULL,
-    "status" "public"."AssistanceStatus" NOT NULL DEFAULT 'REQUESTED',
+    "status" "AssistanceStatus" NOT NULL DEFAULT 'REQUESTED',
     "description" TEXT,
     "address" TEXT,
     "latitude" DOUBLE PRECISION,
@@ -84,93 +321,31 @@ CREATE TABLE "public"."Assistance" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."AuditLog" (
+CREATE TABLE "Document" (
     "id" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
-    "userId" TEXT,
-    "action" TEXT NOT NULL,
-    "entityType" TEXT NOT NULL,
-    "entityId" TEXT,
-    "before" JSONB,
-    "after" JSONB,
-    "ipAddress" TEXT,
-    "userAgent" TEXT,
+    "entityType" "DocumentEntityType" NOT NULL,
+    "entityId" TEXT NOT NULL,
+    "clientId" TEXT,
+    "type" "DocumentType" NOT NULL DEFAULT 'OTHER',
+    "fileName" TEXT NOT NULL,
+    "mimeType" TEXT NOT NULL,
+    "sizeBytes" INTEGER NOT NULL,
+    "storageKey" TEXT NOT NULL,
+    "url" TEXT,
+    "createdBy" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "AuditLog_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Document_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."AuditLogArchive" (
-    "id" TEXT NOT NULL,
-    "organizationId" TEXT NOT NULL,
-    "userId" TEXT,
-    "action" TEXT NOT NULL,
-    "entityType" TEXT NOT NULL,
-    "entityId" TEXT,
-    "before" JSONB,
-    "after" JSONB,
-    "ipAddress" TEXT,
-    "userAgent" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL,
-    "archivedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "AuditLogArchive_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."Claim" (
-    "id" TEXT NOT NULL,
-    "organizationId" TEXT NOT NULL,
-    "claimNumber" INTEGER NOT NULL,
-    "policyId" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-    "insurerId" TEXT,
-    "assignedToId" TEXT,
-    "status" "public"."ClaimStatus" NOT NULL DEFAULT 'REGISTERED',
-    "priority" "public"."ClaimPriority" NOT NULL DEFAULT 'NORMAL',
-    "description" TEXT NOT NULL,
-    "incidentDate" TIMESTAMP(3),
-    "incidentLocation" TEXT,
-    "reportedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "resolvedAt" TIMESTAMP(3),
-    "closedAt" TIMESTAMP(3),
-    "deletedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Claim_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."Client" (
-    "id" TEXT NOT NULL,
-    "organizationId" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "document" TEXT NOT NULL,
-    "type" "public"."ClientType" NOT NULL DEFAULT 'LEAD',
-    "email" TEXT,
-    "phone" TEXT,
-    "birthDate" TIMESTAMP(3),
-    "profession" TEXT,
-    "maritalStatus" "public"."MaritalStatus",
-    "address" JSONB,
-    "tags" TEXT[] DEFAULT ARRAY[]::TEXT[],
-    "consentLgpd" BOOLEAN NOT NULL DEFAULT false,
-    "deletedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Client_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."Commission" (
+CREATE TABLE "Commission" (
     "id" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
     "policyId" TEXT NOT NULL,
     "salespersonId" TEXT NOT NULL,
-    "status" "public"."CommissionStatus" NOT NULL DEFAULT 'PENDING_COMMERCIAL',
+    "status" "CommissionStatus" NOT NULL DEFAULT 'PENDING_COMMERCIAL',
     "commissionValueInCents" INTEGER NOT NULL,
     "premiumValueInCents" INTEGER NOT NULL,
     "percentageInBasisPoints" INTEGER NOT NULL,
@@ -191,85 +366,7 @@ CREATE TABLE "public"."Commission" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."Document" (
-    "id" TEXT NOT NULL,
-    "organizationId" TEXT NOT NULL,
-    "entityType" "public"."DocumentEntityType" NOT NULL,
-    "entityId" TEXT NOT NULL,
-    "clientId" TEXT,
-    "type" "public"."DocumentType" NOT NULL DEFAULT 'OTHER',
-    "fileName" TEXT NOT NULL,
-    "mimeType" TEXT NOT NULL,
-    "sizeBytes" INTEGER NOT NULL,
-    "storageKey" TEXT NOT NULL,
-    "url" TEXT,
-    "createdBy" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "Document_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."Endorsement" (
-    "id" TEXT NOT NULL,
-    "organizationId" TEXT NOT NULL,
-    "policyId" TEXT NOT NULL,
-    "type" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "effectiveDate" TIMESTAMP(3) NOT NULL,
-    "previousVersionSnapshot" JSONB NOT NULL,
-    "changes" JSONB NOT NULL,
-    "createdBy" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Endorsement_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."Insurer" (
-    "id" TEXT NOT NULL,
-    "organizationId" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "code" TEXT,
-    "active" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Insurer_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."Invitation" (
-    "id" TEXT NOT NULL,
-    "organizationId" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "role" "public"."Role" NOT NULL DEFAULT 'COMMERCIAL',
-    "status" TEXT NOT NULL DEFAULT 'pending',
-    "expiresAt" TIMESTAMP(3) NOT NULL,
-    "invitedBy" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Invitation_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."Member" (
-    "id" TEXT NOT NULL,
-    "organizationId" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "role" "public"."Role" NOT NULL DEFAULT 'COMMERCIAL',
-    "active" BOOLEAN NOT NULL DEFAULT true,
-    "commissionSplitPercentage" INTEGER DEFAULT 0,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Member_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."Notification" (
+CREATE TABLE "Notification" (
     "id" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -287,374 +384,335 @@ CREATE TABLE "public"."Notification" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."Occurrence" (
-    "id" TEXT NOT NULL,
-    "claimId" TEXT NOT NULL,
-    "type" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "metadata" JSONB,
-    "createdBy" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "Occurrence_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."Organization" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
-    "logo" TEXT,
-    "active" BOOLEAN NOT NULL DEFAULT true,
-    "metadata" JSONB,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Organization_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."Policy" (
+CREATE TABLE "AuditLog" (
     "id" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
-    "proposalId" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-    "salespersonId" TEXT NOT NULL,
-    "insurerId" TEXT,
-    "policyNumber" TEXT NOT NULL,
-    "status" "public"."PolicyStatus" NOT NULL DEFAULT 'ACTIVE',
-    "branch" "public"."InsuranceBranch" NOT NULL,
-    "premiumValueInCents" INTEGER NOT NULL,
-    "coverageDetails" JSONB,
-    "startDate" TIMESTAMP(3) NOT NULL,
-    "endDate" TIMESTAMP(3) NOT NULL,
-    "cancelledAt" TIMESTAMP(3),
-    "cancelReason" TEXT,
-    "deletedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Policy_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."Proposal" (
-    "id" TEXT NOT NULL,
-    "organizationId" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
-    "salespersonId" TEXT NOT NULL,
-    "stage" "public"."ProposalStage" NOT NULL DEFAULT 'CAPTURE',
-    "boardType" "public"."ProposalBoardType" NOT NULL DEFAULT 'NEW_INSURANCE',
-    "branch" "public"."InsuranceBranch" NOT NULL DEFAULT 'OTHER',
-    "premiumValueInCents" INTEGER NOT NULL DEFAULT 0,
-    "commissionPercentageInCents" INTEGER NOT NULL DEFAULT 0,
-    "lostReason" TEXT,
-    "renewalPolicyId" TEXT,
-    "insurerId" TEXT,
-    "details" JSONB,
-    "deletedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Proposal_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."ProposalChecklistItem" (
-    "id" TEXT NOT NULL,
-    "proposalId" TEXT NOT NULL,
-    "itemKey" TEXT NOT NULL,
-    "label" TEXT NOT NULL,
-    "isRequired" BOOLEAN NOT NULL DEFAULT true,
-    "isCompleted" BOOLEAN NOT NULL DEFAULT false,
-    "completedAt" TIMESTAMP(3),
-    "completedBy" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "ProposalChecklistItem_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."Session" (
-    "id" TEXT NOT NULL,
-    "token" TEXT NOT NULL,
-    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "userId" TEXT,
+    "action" TEXT NOT NULL,
+    "entityType" TEXT NOT NULL,
+    "entityId" TEXT,
+    "before" JSONB,
+    "after" JSONB,
     "ipAddress" TEXT,
     "userAgent" TEXT,
-    "activeOrganizationId" TEXT,
-    "userId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "AuditLog_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."User" (
+CREATE TABLE "AuditLogArchive" (
     "id" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "emailVerified" BOOLEAN NOT NULL DEFAULT false,
-    "image" TEXT,
-    "isSuperAdmin" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "organizationId" TEXT NOT NULL,
+    "userId" TEXT,
+    "action" TEXT NOT NULL,
+    "entityType" TEXT NOT NULL,
+    "entityId" TEXT,
+    "before" JSONB,
+    "after" JSONB,
+    "ipAddress" TEXT,
+    "userAgent" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL,
+    "archivedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."Verification" (
-    "id" TEXT NOT NULL,
-    "identifier" TEXT NOT NULL,
-    "value" TEXT NOT NULL,
-    "expiresAt" TIMESTAMP(3) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Verification_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "AuditLogArchive_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE INDEX "Account_userId_idx" ON "public"."Account"("userId" ASC);
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE INDEX "Assistance_organizationId_createdAt_idx" ON "public"."Assistance"("organizationId" ASC, "createdAt" DESC);
+CREATE UNIQUE INDEX "Session_token_key" ON "Session"("token");
 
 -- CreateIndex
-CREATE INDEX "Assistance_organizationId_status_idx" ON "public"."Assistance"("organizationId" ASC, "status" ASC);
+CREATE INDEX "Session_userId_idx" ON "Session"("userId");
 
 -- CreateIndex
-CREATE INDEX "AuditLog_organizationId_action_idx" ON "public"."AuditLog"("organizationId" ASC, "action" ASC);
+CREATE INDEX "Session_token_idx" ON "Session"("token");
 
 -- CreateIndex
-CREATE INDEX "AuditLog_organizationId_entityType_createdAt_idx" ON "public"."AuditLog"("organizationId" ASC, "entityType" ASC, "createdAt" DESC);
+CREATE INDEX "Account_userId_idx" ON "Account"("userId");
 
 -- CreateIndex
-CREATE INDEX "AuditLog_organizationId_userId_idx" ON "public"."AuditLog"("organizationId" ASC, "userId" ASC);
+CREATE UNIQUE INDEX "Organization_name_key" ON "Organization"("name");
 
 -- CreateIndex
-CREATE INDEX "AuditLogArchive_organizationId_createdAt_idx" ON "public"."AuditLogArchive"("organizationId" ASC, "createdAt" DESC);
+CREATE UNIQUE INDEX "Organization_slug_key" ON "Organization"("slug");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Claim_organizationId_claimNumber_key" ON "public"."Claim"("organizationId" ASC, "claimNumber" ASC);
+CREATE INDEX "Member_organizationId_idx" ON "Member"("organizationId");
 
 -- CreateIndex
-CREATE INDEX "Claim_organizationId_createdAt_idx" ON "public"."Claim"("organizationId" ASC, "createdAt" DESC);
+CREATE INDEX "Member_organizationId_role_idx" ON "Member"("organizationId", "role");
 
 -- CreateIndex
-CREATE INDEX "Claim_organizationId_policyId_idx" ON "public"."Claim"("organizationId" ASC, "policyId" ASC);
+CREATE INDEX "Member_userId_idx" ON "Member"("userId");
 
 -- CreateIndex
-CREATE INDEX "Claim_organizationId_priority_idx" ON "public"."Claim"("organizationId" ASC, "priority" ASC);
+CREATE UNIQUE INDEX "Member_organizationId_userId_key" ON "Member"("organizationId", "userId");
 
 -- CreateIndex
-CREATE INDEX "Claim_organizationId_status_idx" ON "public"."Claim"("organizationId" ASC, "status" ASC);
+CREATE INDEX "Invitation_organizationId_idx" ON "Invitation"("organizationId");
 
 -- CreateIndex
-CREATE INDEX "Client_organizationId_createdAt_idx" ON "public"."Client"("organizationId" ASC, "createdAt" DESC);
+CREATE INDEX "Invitation_email_idx" ON "Invitation"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Client_organizationId_document_key" ON "public"."Client"("organizationId" ASC, "document" ASC);
+CREATE INDEX "Client_organizationId_type_idx" ON "Client"("organizationId", "type");
 
 -- CreateIndex
-CREATE INDEX "Client_organizationId_type_idx" ON "public"."Client"("organizationId" ASC, "type" ASC);
+CREATE INDEX "Client_organizationId_createdAt_idx" ON "Client"("organizationId", "createdAt" DESC);
 
 -- CreateIndex
-CREATE INDEX "Commission_organizationId_createdAt_idx" ON "public"."Commission"("organizationId" ASC, "createdAt" DESC);
+CREATE INDEX "Client_organizationId_salespersonId_idx" ON "Client"("organizationId", "salespersonId");
 
 -- CreateIndex
-CREATE INDEX "Commission_organizationId_policyId_idx" ON "public"."Commission"("organizationId" ASC, "policyId" ASC);
+CREATE UNIQUE INDEX "Client_organizationId_documentHash_key" ON "Client"("organizationId", "documentHash");
 
 -- CreateIndex
-CREATE INDEX "Commission_organizationId_salespersonId_idx" ON "public"."Commission"("organizationId" ASC, "salespersonId" ASC);
+CREATE INDEX "Proposal_organizationId_stage_idx" ON "Proposal"("organizationId", "stage");
 
 -- CreateIndex
-CREATE INDEX "Commission_organizationId_status_idx" ON "public"."Commission"("organizationId" ASC, "status" ASC);
+CREATE INDEX "Proposal_organizationId_clientId_idx" ON "Proposal"("organizationId", "clientId");
 
 -- CreateIndex
-CREATE INDEX "Document_organizationId_createdAt_idx" ON "public"."Document"("organizationId" ASC, "createdAt" DESC);
+CREATE INDEX "Proposal_organizationId_salespersonId_idx" ON "Proposal"("organizationId", "salespersonId");
 
 -- CreateIndex
-CREATE INDEX "Document_organizationId_entityType_entityId_idx" ON "public"."Document"("organizationId" ASC, "entityType" ASC, "entityId" ASC);
+CREATE INDEX "Proposal_organizationId_insurerId_idx" ON "Proposal"("organizationId", "insurerId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Document_storageKey_key" ON "public"."Document"("storageKey" ASC);
+CREATE INDEX "Proposal_organizationId_createdAt_idx" ON "Proposal"("organizationId", "createdAt" DESC);
 
 -- CreateIndex
-CREATE INDEX "Endorsement_organizationId_createdAt_idx" ON "public"."Endorsement"("organizationId" ASC, "createdAt" DESC);
+CREATE INDEX "ProposalChecklistItem_proposalId_idx" ON "ProposalChecklistItem"("proposalId");
 
 -- CreateIndex
-CREATE INDEX "Endorsement_organizationId_policyId_idx" ON "public"."Endorsement"("organizationId" ASC, "policyId" ASC);
+CREATE UNIQUE INDEX "ProposalChecklistItem_proposalId_itemKey_key" ON "ProposalChecklistItem"("proposalId", "itemKey");
 
 -- CreateIndex
-CREATE INDEX "Insurer_organizationId_idx" ON "public"."Insurer"("organizationId" ASC);
+CREATE UNIQUE INDEX "Policy_proposalId_key" ON "Policy"("proposalId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Insurer_organizationId_name_key" ON "public"."Insurer"("organizationId" ASC, "name" ASC);
+CREATE INDEX "Policy_organizationId_insurerId_idx" ON "Policy"("organizationId", "insurerId");
 
 -- CreateIndex
-CREATE INDEX "Invitation_email_idx" ON "public"."Invitation"("email" ASC);
+CREATE INDEX "Policy_organizationId_status_idx" ON "Policy"("organizationId", "status");
 
 -- CreateIndex
-CREATE INDEX "Invitation_organizationId_idx" ON "public"."Invitation"("organizationId" ASC);
+CREATE INDEX "Policy_organizationId_endDate_idx" ON "Policy"("organizationId", "endDate");
 
 -- CreateIndex
-CREATE INDEX "Member_organizationId_idx" ON "public"."Member"("organizationId" ASC);
+CREATE INDEX "Policy_organizationId_createdAt_idx" ON "Policy"("organizationId", "createdAt" DESC);
 
 -- CreateIndex
-CREATE INDEX "Member_organizationId_role_idx" ON "public"."Member"("organizationId" ASC, "role" ASC);
+CREATE UNIQUE INDEX "Policy_organizationId_policyNumber_key" ON "Policy"("organizationId", "policyNumber");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Member_organizationId_userId_key" ON "public"."Member"("organizationId" ASC, "userId" ASC);
+CREATE INDEX "Insurer_organizationId_idx" ON "Insurer"("organizationId");
 
 -- CreateIndex
-CREATE INDEX "Member_userId_idx" ON "public"."Member"("userId" ASC);
+CREATE UNIQUE INDEX "Insurer_organizationId_name_key" ON "Insurer"("organizationId", "name");
 
 -- CreateIndex
-CREATE INDEX "Notification_organizationId_createdAt_idx" ON "public"."Notification"("organizationId" ASC, "createdAt" DESC);
+CREATE INDEX "Claim_organizationId_status_idx" ON "Claim"("organizationId", "status");
 
 -- CreateIndex
-CREATE INDEX "Notification_organizationId_userId_read_idx" ON "public"."Notification"("organizationId" ASC, "userId" ASC, "read" ASC);
+CREATE INDEX "Claim_organizationId_policyId_idx" ON "Claim"("organizationId", "policyId");
 
 -- CreateIndex
-CREATE INDEX "Occurrence_claimId_idx" ON "public"."Occurrence"("claimId" ASC);
+CREATE INDEX "Claim_organizationId_priority_idx" ON "Claim"("organizationId", "priority");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Organization_name_key" ON "public"."Organization"("name" ASC);
+CREATE INDEX "Claim_organizationId_createdAt_idx" ON "Claim"("organizationId", "createdAt" DESC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Organization_slug_key" ON "public"."Organization"("slug" ASC);
+CREATE UNIQUE INDEX "Claim_organizationId_claimNumber_key" ON "Claim"("organizationId", "claimNumber");
 
 -- CreateIndex
-CREATE INDEX "Policy_organizationId_createdAt_idx" ON "public"."Policy"("organizationId" ASC, "createdAt" DESC);
+CREATE INDEX "Occurrence_claimId_idx" ON "Occurrence"("claimId");
 
 -- CreateIndex
-CREATE INDEX "Policy_organizationId_endDate_idx" ON "public"."Policy"("organizationId" ASC, "endDate" ASC);
+CREATE INDEX "Endorsement_organizationId_policyId_idx" ON "Endorsement"("organizationId", "policyId");
 
 -- CreateIndex
-CREATE INDEX "Policy_organizationId_insurerId_idx" ON "public"."Policy"("organizationId" ASC, "insurerId" ASC);
+CREATE INDEX "Endorsement_organizationId_createdAt_idx" ON "Endorsement"("organizationId", "createdAt" DESC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Policy_organizationId_policyNumber_key" ON "public"."Policy"("organizationId" ASC, "policyNumber" ASC);
+CREATE INDEX "Assistance_organizationId_status_idx" ON "Assistance"("organizationId", "status");
 
 -- CreateIndex
-CREATE INDEX "Policy_organizationId_status_idx" ON "public"."Policy"("organizationId" ASC, "status" ASC);
+CREATE INDEX "Assistance_organizationId_createdAt_idx" ON "Assistance"("organizationId", "createdAt" DESC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Policy_proposalId_key" ON "public"."Policy"("proposalId" ASC);
+CREATE UNIQUE INDEX "Document_storageKey_key" ON "Document"("storageKey");
 
 -- CreateIndex
-CREATE INDEX "Proposal_organizationId_clientId_idx" ON "public"."Proposal"("organizationId" ASC, "clientId" ASC);
+CREATE INDEX "Document_organizationId_entityType_entityId_idx" ON "Document"("organizationId", "entityType", "entityId");
 
 -- CreateIndex
-CREATE INDEX "Proposal_organizationId_createdAt_idx" ON "public"."Proposal"("organizationId" ASC, "createdAt" DESC);
+CREATE INDEX "Document_organizationId_createdAt_idx" ON "Document"("organizationId", "createdAt" DESC);
 
 -- CreateIndex
-CREATE INDEX "Proposal_organizationId_insurerId_idx" ON "public"."Proposal"("organizationId" ASC, "insurerId" ASC);
+CREATE INDEX "Commission_organizationId_status_idx" ON "Commission"("organizationId", "status");
 
 -- CreateIndex
-CREATE INDEX "Proposal_organizationId_salespersonId_idx" ON "public"."Proposal"("organizationId" ASC, "salespersonId" ASC);
+CREATE INDEX "Commission_organizationId_salespersonId_idx" ON "Commission"("organizationId", "salespersonId");
 
 -- CreateIndex
-CREATE INDEX "Proposal_organizationId_stage_idx" ON "public"."Proposal"("organizationId" ASC, "stage" ASC);
+CREATE INDEX "Commission_organizationId_policyId_idx" ON "Commission"("organizationId", "policyId");
 
 -- CreateIndex
-CREATE INDEX "ProposalChecklistItem_proposalId_idx" ON "public"."ProposalChecklistItem"("proposalId" ASC);
+CREATE INDEX "Commission_organizationId_createdAt_idx" ON "Commission"("organizationId", "createdAt" DESC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "ProposalChecklistItem_proposalId_itemKey_key" ON "public"."ProposalChecklistItem"("proposalId" ASC, "itemKey" ASC);
+CREATE INDEX "Notification_organizationId_userId_read_idx" ON "Notification"("organizationId", "userId", "read");
 
 -- CreateIndex
-CREATE INDEX "Session_token_idx" ON "public"."Session"("token" ASC);
+CREATE INDEX "Notification_organizationId_createdAt_idx" ON "Notification"("organizationId", "createdAt" DESC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Session_token_key" ON "public"."Session"("token" ASC);
+CREATE INDEX "Notification_organizationId_entityType_entityId_type_create_idx" ON "Notification"("organizationId", "entityType", "entityId", "type", "createdAt");
 
 -- CreateIndex
-CREATE INDEX "Session_userId_idx" ON "public"."Session"("userId" ASC);
+CREATE INDEX "AuditLog_organizationId_entityType_createdAt_idx" ON "AuditLog"("organizationId", "entityType", "createdAt" DESC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email" ASC);
+CREATE INDEX "AuditLog_organizationId_action_idx" ON "AuditLog"("organizationId", "action");
+
+-- CreateIndex
+CREATE INDEX "AuditLog_organizationId_userId_idx" ON "AuditLog"("organizationId", "userId");
+
+-- CreateIndex
+CREATE INDEX "AuditLogArchive_organizationId_createdAt_idx" ON "AuditLogArchive"("organizationId", "createdAt" DESC);
 
 -- AddForeignKey
-ALTER TABLE "public"."Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Assistance" ADD CONSTRAINT "Assistance_claimId_fkey" FOREIGN KEY ("claimId") REFERENCES "public"."Claim"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Assistance" ADD CONSTRAINT "Assistance_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "public"."Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Member" ADD CONSTRAINT "Member_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Assistance" ADD CONSTRAINT "Assistance_policyId_fkey" FOREIGN KEY ("policyId") REFERENCES "public"."Policy"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Member" ADD CONSTRAINT "Member_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Claim" ADD CONSTRAINT "Claim_assignedToId_fkey" FOREIGN KEY ("assignedToId") REFERENCES "public"."User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Invitation" ADD CONSTRAINT "Invitation_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Claim" ADD CONSTRAINT "Claim_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "public"."Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Client" ADD CONSTRAINT "Client_salespersonId_fkey" FOREIGN KEY ("salespersonId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Claim" ADD CONSTRAINT "Claim_insurerId_fkey" FOREIGN KEY ("insurerId") REFERENCES "public"."Insurer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Claim" ADD CONSTRAINT "Claim_policyId_fkey" FOREIGN KEY ("policyId") REFERENCES "public"."Policy"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_salespersonId_fkey" FOREIGN KEY ("salespersonId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Commission" ADD CONSTRAINT "Commission_originalCommissionId_fkey" FOREIGN KEY ("originalCommissionId") REFERENCES "public"."Commission"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_renewalPolicyId_fkey" FOREIGN KEY ("renewalPolicyId") REFERENCES "Policy"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Commission" ADD CONSTRAINT "Commission_policyId_fkey" FOREIGN KEY ("policyId") REFERENCES "public"."Policy"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_insurerId_fkey" FOREIGN KEY ("insurerId") REFERENCES "Insurer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Commission" ADD CONSTRAINT "Commission_salespersonId_fkey" FOREIGN KEY ("salespersonId") REFERENCES "public"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ProposalChecklistItem" ADD CONSTRAINT "ProposalChecklistItem_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Endorsement" ADD CONSTRAINT "Endorsement_policyId_fkey" FOREIGN KEY ("policyId") REFERENCES "public"."Policy"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Policy" ADD CONSTRAINT "Policy_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Invitation" ADD CONSTRAINT "Invitation_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "public"."Organization"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Policy" ADD CONSTRAINT "Policy_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Member" ADD CONSTRAINT "Member_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "public"."Organization"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Policy" ADD CONSTRAINT "Policy_salespersonId_fkey" FOREIGN KEY ("salespersonId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Member" ADD CONSTRAINT "Member_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Policy" ADD CONSTRAINT "Policy_insurerId_fkey" FOREIGN KEY ("insurerId") REFERENCES "Insurer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Claim" ADD CONSTRAINT "Claim_policyId_fkey" FOREIGN KEY ("policyId") REFERENCES "Policy"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Occurrence" ADD CONSTRAINT "Occurrence_claimId_fkey" FOREIGN KEY ("claimId") REFERENCES "public"."Claim"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Claim" ADD CONSTRAINT "Claim_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Policy" ADD CONSTRAINT "Policy_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "public"."Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Claim" ADD CONSTRAINT "Claim_insurerId_fkey" FOREIGN KEY ("insurerId") REFERENCES "Insurer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Policy" ADD CONSTRAINT "Policy_insurerId_fkey" FOREIGN KEY ("insurerId") REFERENCES "public"."Insurer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Claim" ADD CONSTRAINT "Claim_assignedToId_fkey" FOREIGN KEY ("assignedToId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Policy" ADD CONSTRAINT "Policy_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "public"."Proposal"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Occurrence" ADD CONSTRAINT "Occurrence_claimId_fkey" FOREIGN KEY ("claimId") REFERENCES "Claim"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Policy" ADD CONSTRAINT "Policy_salespersonId_fkey" FOREIGN KEY ("salespersonId") REFERENCES "public"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Endorsement" ADD CONSTRAINT "Endorsement_policyId_fkey" FOREIGN KEY ("policyId") REFERENCES "Policy"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Proposal" ADD CONSTRAINT "Proposal_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "public"."Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Assistance" ADD CONSTRAINT "Assistance_policyId_fkey" FOREIGN KEY ("policyId") REFERENCES "Policy"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Proposal" ADD CONSTRAINT "Proposal_insurerId_fkey" FOREIGN KEY ("insurerId") REFERENCES "public"."Insurer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Assistance" ADD CONSTRAINT "Assistance_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Proposal" ADD CONSTRAINT "Proposal_renewalPolicyId_fkey" FOREIGN KEY ("renewalPolicyId") REFERENCES "public"."Policy"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Assistance" ADD CONSTRAINT "Assistance_claimId_fkey" FOREIGN KEY ("claimId") REFERENCES "Claim"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Proposal" ADD CONSTRAINT "Proposal_salespersonId_fkey" FOREIGN KEY ("salespersonId") REFERENCES "public"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Commission" ADD CONSTRAINT "Commission_policyId_fkey" FOREIGN KEY ("policyId") REFERENCES "Policy"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."ProposalChecklistItem" ADD CONSTRAINT "ProposalChecklistItem_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "public"."Proposal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Commission" ADD CONSTRAINT "Commission_salespersonId_fkey" FOREIGN KEY ("salespersonId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Commission" ADD CONSTRAINT "Commission_originalCommissionId_fkey" FOREIGN KEY ("originalCommissionId") REFERENCES "Commission"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
+-- AddForeignKey
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+
+-- Enable Row Level Security on all tenant-scoped tables
+ALTER TABLE "Client" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Proposal" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Policy" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Claim" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Commission" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Endorsement" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Assistance" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Document" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Notification" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "AuditLog" ENABLE ROW LEVEL SECURITY;
+
+-- Create tenant isolation policy on each table
+CREATE POLICY tenant_isolation ON "Client"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+CREATE POLICY tenant_isolation ON "Proposal"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+CREATE POLICY tenant_isolation ON "Policy"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+CREATE POLICY tenant_isolation ON "Claim"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+CREATE POLICY tenant_isolation ON "Commission"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+CREATE POLICY tenant_isolation ON "Endorsement"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+CREATE POLICY tenant_isolation ON "Assistance"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+CREATE POLICY tenant_isolation ON "Document"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+CREATE POLICY tenant_isolation ON "Notification"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+CREATE POLICY tenant_isolation ON "AuditLog"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+-- Force RLS even for table owner (defense-in-depth)
+ALTER TABLE "Client" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Proposal" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Policy" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Claim" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Commission" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Endorsement" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Assistance" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Document" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Notification" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "AuditLog" FORCE ROW LEVEL SECURITY;
