@@ -54,6 +54,14 @@ interface CommissionByStatus {
   readonly _sum: { readonly commissionValueInCents: number | null }
 }
 
+export interface RankingEntry {
+  readonly salespersonId: string
+  readonly salespersonName: string
+  readonly policiesIssued: number
+  readonly totalPremiumCents: number
+  readonly averageTicketCents: number
+}
+
 export interface DashboardData {
   readonly proposalsByStage: readonly ProposalByStage[]
   readonly activePolicies: number
@@ -71,6 +79,7 @@ export interface DashboardData {
   readonly totalPremium: MetricComparison
   readonly averageTicket: MetricComparison
   readonly commissionsReceivable: number
+  readonly ranking: readonly RankingEntry[]
 }
 
 function buildDateRanges(preset: DashboardPreset): DateRange {
@@ -338,15 +347,56 @@ function buildComparisonMetrics(data: ComparisonData) {
   }
 }
 
+async function fetchRanking(
+  orgId: string,
+  currentFrom: Date
+): Promise<readonly RankingEntry[]> {
+  const results = await prisma.$queryRaw<
+    Array<{
+      salespersonId: string
+      salespersonName: string
+      policiesIssued: number
+      totalPremiumCents: bigint
+    }>
+  >`
+    SELECT
+      p."salespersonId",
+      COALESCE(u."name", 'Desconhecido') as "salespersonName",
+      COUNT(*)::int as "policiesIssued",
+      COALESCE(SUM(p."premiumValueInCents"), 0) as "totalPremiumCents"
+    FROM "Policy" p
+    LEFT JOIN "Member" m ON m."userId" = p."salespersonId" AND m."organizationId" = p."organizationId"
+    LEFT JOIN "User" u ON u."id" = m."userId"
+    WHERE p."organizationId" = ${orgId}
+      AND p."createdAt" >= ${currentFrom}
+      AND p."deletedAt" IS NULL
+    GROUP BY p."salespersonId", u."name"
+    ORDER BY COALESCE(SUM(p."premiumValueInCents"), 0) DESC
+    LIMIT 10
+  `
+
+  return results.map((r) => ({
+    salespersonId: r.salespersonId,
+    salespersonName: r.salespersonName,
+    policiesIssued: r.policiesIssued,
+    totalPremiumCents: Number(r.totalPremiumCents),
+    averageTicketCents:
+      r.policiesIssued > 0
+        ? Math.round(Number(r.totalPremiumCents) / r.policiesIssued)
+        : 0,
+  }))
+}
+
 export async function buildDashboardData(
   orgId: string,
   preset: DashboardPreset
 ): Promise<DashboardData> {
   const ranges = buildDateRanges(preset)
 
-  const [chartResults, comparisonData] = await Promise.all([
+  const [chartResults, comparisonData, ranking] = await Promise.all([
     fetchChartData(orgId, ranges),
     fetchComparisonData(orgId, ranges),
+    fetchRanking(orgId, ranges.currentFrom),
   ])
 
   const [
@@ -367,6 +417,7 @@ export async function buildDashboardData(
     commissionsThisMonth,
     conversionRate,
     monthlyTrends,
+    ranking,
     ...buildComparisonMetrics(comparisonData),
   }
 }
