@@ -154,10 +154,9 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
     volumes:
       - mongodata:/data/db
-      - ./scripts/mongo-init-replica.sh:/docker-entrypoint-initdb.d/init.sh:ro
       - ./mongo-keyfile:/data/keyfile:ro
     healthcheck:
-      test: ["CMD", "mongosh", "-u", "${MONGO_USER}", "-p", "${MONGO_PASSWORD}", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
