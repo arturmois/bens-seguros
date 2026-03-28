@@ -121,8 +121,10 @@ chmod 700 /home/deploy/.ssh
 chmod 600 /home/deploy/.ssh/authorized_keys
 chown -R deploy:deploy /home/deploy/.ssh
 
-# Desabilitar autenticacao por senha
-sed -i 's/PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+# Desabilitar autenticacao por senha (funciona independente do estado atual do sshd_config)
+grep -q "^PasswordAuthentication" /etc/ssh/sshd_config \
+  && sed -i 's/^PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config \
+  || echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
 systemctl restart sshd
 ```
 
@@ -134,6 +136,7 @@ systemctl restart sshd
 mkdir -p /opt/bens-seguros/nginx/certs
 mkdir -p /opt/bens-seguros/scripts
 mkdir -p /opt/bens-seguros/backups
+mkdir -p /opt/bens-seguros/logs
 chown -R deploy:deploy /opt/bens-seguros
 ```
 
@@ -174,12 +177,17 @@ chown 999:999 mongo-keyfile
 ```bash
 cd /opt/bens-seguros
 
-# Gerar senhas (hex para evitar caracteres especiais em URLs de conexao)
+# Senhas que vao em URLs de conexao (DATABASE_URL, MONGODB_URL, REDIS_URL):
+# usar hex para evitar caracteres especiais (/, +, =) que quebram URLs
 echo "DB_PASSWORD: $(openssl rand -hex 32)"
 echo "MONGO_PASSWORD: $(openssl rand -hex 32)"
 echo "REDIS_PASSWORD: $(openssl rand -hex 32)"
+
+# Secrets que NAO vao em URLs: base64 e seguro
 echo "AUTH_SECRET: $(openssl rand -base64 32)"
 echo "SOCKET_JWT_SECRET: $(openssl rand -base64 24)"
+
+# Chave de criptografia AES-256: exige exatamente 64 hex chars (32 bytes)
 echo "ENCRYPTION_KEY: $(openssl rand -hex 32)"
 ```
 
@@ -259,8 +267,13 @@ chmod 600 .env
 # Subir MongoDB primeiro
 docker compose -f docker-compose.prod.yml up -d mongodb
 
-# Aguardar ficar pronto
-sleep 10
+# Aguardar ficar healthy (max 60s)
+echo "Aguardando MongoDB..."
+for i in $(seq 1 12); do
+  STATUS=$(docker inspect --format='{{.State.Health.Status}}' bens-seguros-mongodb-1 2>/dev/null || echo "starting")
+  [ "$STATUS" = "healthy" ] && echo "MongoDB healthy!" && break
+  sleep 5
+done
 
 # Inicializar replica set
 source .env
@@ -270,6 +283,8 @@ docker compose -f docker-compose.prod.yml exec mongodb mongosh \
 '
 ```
 
+> O replica set precisa ser inicializado manualmente apenas na primeira vez. Deploys subsequentes via CI/CD nao precisam repetir este passo.
+
 ### 2.9 Subir todos os servicos
 
 ```bash
@@ -278,24 +293,42 @@ cd /opt/bens-seguros
 # Puxar imagens do Docker Hub
 docker compose -f docker-compose.prod.yml pull
 
-# Subir databases primeiro
+# Subir databases
 docker compose -f docker-compose.prod.yml up -d postgres mongodb redis
 
-# Aguardar health checks
-sleep 15
+# Aguardar databases ficarem healthy (max 60s)
+echo "Aguardando databases..."
+for i in $(seq 1 12); do
+  PG=$(docker inspect --format='{{.State.Health.Status}}' bens-seguros-postgres-1 2>/dev/null || echo "starting")
+  MG=$(docker inspect --format='{{.State.Health.Status}}' bens-seguros-mongodb-1 2>/dev/null || echo "starting")
+  RD=$(docker inspect --format='{{.State.Health.Status}}' bens-seguros-redis-1 2>/dev/null || echo "starting")
+  [ "$PG" = "healthy" ] && [ "$MG" = "healthy" ] && [ "$RD" = "healthy" ] && echo "Databases healthy!" && break
+  echo "  postgres=$PG mongodb=$MG redis=$RD"
+  sleep 5
+done
 
-# Rodar migrations do Prisma
-docker compose -f docker-compose.prod.yml run --rm server \
-  npx prisma migrate deploy --schema=./prisma/schema.prisma
+# Subir server primeiro (para rodar migration)
+docker compose -f docker-compose.prod.yml up -d server
 
-# Subir todos os containers
+# Aguardar server ficar healthy
+echo "Aguardando server..."
+for i in $(seq 1 24); do
+  STATUS=$(docker inspect --format='{{.State.Health.Status}}' bens-seguros-server-1 2>/dev/null || echo "starting")
+  [ "$STATUS" = "healthy" ] && echo "Server healthy!" && break
+  sleep 5
+done
+
+# Rodar migrations do Prisma (via exec no container ja rodando)
+docker compose -f docker-compose.prod.yml exec -T server npx prisma migrate deploy
+
+# Subir todos os containers restantes
 docker compose -f docker-compose.prod.yml up -d
 
 # Verificar status
 docker compose -f docker-compose.prod.yml ps
 ```
 
-Todos os containers devem estar `healthy` ou `running`.
+Todos os containers devem estar `healthy` ou `running`. Deploys subsequentes via CI/CD rodam a migration automaticamente.
 
 ### 2.10 Configurar backup automatico
 
@@ -309,7 +342,7 @@ crontab -e
 Adicione esta linha:
 
 ```cron
-0 3 * * * /opt/bens-seguros/scripts/backup.sh >> /var/log/bens-backup.log 2>&1
+0 3 * * * /opt/bens-seguros/scripts/backup.sh >> /opt/bens-seguros/logs/backup.log 2>&1
 ```
 
 Backup roda diariamente as 3h da manha (horario do servidor).
@@ -340,12 +373,17 @@ Apos configurar, o deploy e automatico:
 
 Cada deploy:
 
-1. Roda quality gates (lint, typecheck, test)
-2. Builda imagem Docker com tag SHA
-3. Faz SSH na VPS e atualiza containers
-4. Roda Prisma migrate (server apenas)
-5. Verifica health check
-6. Se falhar, faz rollback automatico
+1. Roda quality gates (lint, typecheck, test) via `ci.yml` reutilizavel
+2. Builda imagem Docker com tag SHA e pusha para Docker Hub
+3. Copia `deploy.sh`, `docker-compose.prod.yml` e `nginx/prod.conf` para a VPS
+4. Executa `scripts/deploy.sh <server|chat> <sha>` na VPS, que:
+   - Puxa imagens novas
+   - Roda Prisma migrate (server apenas)
+   - Sobe containers
+   - Recarrega nginx
+   - Faz polling do health check (max 120s)
+   - Smoke test de cookies cross-subdomain (server apenas)
+   - Se falhar, faz rollback com verificacao de health
 
 ---
 
