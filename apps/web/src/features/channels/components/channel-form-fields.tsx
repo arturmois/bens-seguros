@@ -266,7 +266,7 @@ export function buildCreatePayload(
   return {
     ...base,
     type: values.channelType,
-    brokerType: 'META',
+    brokerType: values.channelType,
     config: {
       metaPageId: values.metaPageId,
       metaToken: values.metaToken,

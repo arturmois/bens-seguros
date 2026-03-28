@@ -12,7 +12,7 @@ const channelIdSchema = z.object({ id: z.string().min(1) })
 const createChannelBodySchema = z.object({
   name: z.string().min(1).max(255),
   type: z.enum(['WHATSAPP', 'WEB_CHAT', 'MESSENGER', 'INSTAGRAM']),
-  brokerType: z.enum(['BAILEYS', 'META', 'WEB_CHAT']),
+  brokerType: z.enum(['BAILEYS', 'META', 'WEB_CHAT', 'MESSENGER', 'INSTAGRAM']),
   phoneNumber: z.string().optional(),
   config: z.record(z.unknown()).optional(),
 })
@@ -23,6 +23,7 @@ const updateChannelBodySchema = z.object({
   isActive: z.boolean().optional(),
   aiUserId: z.string().optional(),
   aiAgentId: z.string().min(1).nullable().optional(),
+  config: z.record(z.unknown()).optional(),
 })
 
 const pairChannelBodySchema = z.object({

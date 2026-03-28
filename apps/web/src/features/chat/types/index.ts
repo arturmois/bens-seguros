@@ -68,11 +68,17 @@ export interface ChannelData {
   readonly id: string
   readonly name: string
   readonly type: ChannelType
-  readonly brokerType: 'BAILEYS' | 'META' | 'WEB_CHAT'
+  readonly brokerType:
+    | 'BAILEYS'
+    | 'META'
+    | 'WEB_CHAT'
+    | 'MESSENGER'
+    | 'INSTAGRAM'
   readonly phoneNumber: string | null
   readonly isActive: boolean
   readonly status: ChannelStatus
   readonly aiAgentId: string | null
+  readonly config?: Record<string, unknown>
 }
 
 export interface MessagePage {
