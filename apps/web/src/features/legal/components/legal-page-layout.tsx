@@ -15,23 +15,30 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map())
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id)
-          }
-        }
-      },
-      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
-    )
+    function handleScroll() {
+      const scrollY = window.scrollY + 120
+      const isAtBottom =
+        window.innerHeight + window.scrollY >= document.body.scrollHeight - 50
 
-    for (const el of sectionRefs.current.values()) {
-      observer.observe(el)
+      if (isAtBottom) {
+        const lastSection = doc.sections[doc.sections.length - 1]
+        if (lastSection) setActiveSection(lastSection.id)
+        return
+      }
+
+      let current = doc.sections[0]?.id ?? ''
+      for (const el of sectionRefs.current.values()) {
+        if (el.offsetTop <= scrollY) {
+          current = el.id
+        }
+      }
+      setActiveSection(current)
     }
 
-    return () => observer.disconnect()
-  }, [])
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [doc.sections])
 
   function scrollToSection(id: string) {
     const el = sectionRefs.current.get(id)
