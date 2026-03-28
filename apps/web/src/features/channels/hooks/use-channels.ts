@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-import { chatApi } from '@/features/chat/lib/chat-api'
+import { chatApi, ChatApiError } from '@/features/chat/lib/chat-api'
 
 import type {
   ChannelData,
@@ -40,11 +40,8 @@ export function useCreateChannel() {
       toast.success('Canal criado com sucesso')
     },
     onError: (error: unknown) => {
-      const axiosErr = error as {
-        response?: { data?: { error?: { message?: string } } }
-      }
       const msg =
-        axiosErr.response?.data?.error?.message ?? 'Erro ao criar canal'
+        error instanceof ChatApiError ? error.message : 'Erro ao criar canal'
       toast.error(msg)
     },
   })
@@ -72,11 +69,10 @@ export function useUpdateChannel() {
       toast.success('Canal atualizado com sucesso')
     },
     onError: (error: unknown) => {
-      const axiosErr = error as {
-        response?: { data?: { error?: { message?: string } } }
-      }
       const msg =
-        axiosErr.response?.data?.error?.message ?? 'Erro ao atualizar canal'
+        error instanceof ChatApiError
+          ? error.message
+          : 'Erro ao atualizar canal'
       toast.error(msg)
     },
   })
