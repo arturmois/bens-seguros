@@ -1,52 +1,12 @@
 import { useCallback, useRef, useState } from 'react'
 
-// ---------------------------------------------------------------------------
-// Phone mask helper
-// ---------------------------------------------------------------------------
-
-function formatBrPhone(value: string): string {
-  const digits = value.replace(/\D/g, '').slice(0, 11)
-
-  if (digits.length <= 2) return digits
-  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
-  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
-}
-
-function isValidBrPhone(value: string): boolean {
-  const digits = value.replace(/\D/g, '')
-  return digits.length === 10 || digits.length === 11
-}
-
-// ---------------------------------------------------------------------------
-// Styles
-// ---------------------------------------------------------------------------
-
-const labelStyle: React.CSSProperties = {
-  display: 'block',
-  fontSize: '13px',
-  fontWeight: 500,
-  color: 'var(--widget-text)',
-  marginBottom: '4px',
-}
-
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '10px 12px',
-  fontSize: '14px',
-  lineHeight: '1.4',
-  color: 'var(--widget-text)',
-  backgroundColor: 'var(--widget-bg)',
-  border: '1px solid var(--widget-border)',
-  borderRadius: 'var(--widget-radius-input)',
-  outline: 'none',
-  transition: 'border-color var(--widget-transition)',
-}
-
-const inputFocusColor = 'var(--widget-primary)'
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
+import {
+  INPUT_FOCUS_COLOR,
+  formatBrPhone,
+  inputStyle,
+  isValidBrPhone,
+  labelStyle,
+} from './pre-chat-form-styles'
 
 interface PreChatFormProps {
   readonly welcomeMessage: string
@@ -83,7 +43,6 @@ export function PreChatForm({
     (e: React.FormEvent) => {
       e.preventDefault()
       if (!isFormValid || isSubmitting) return
-
       void onSubmit({
         name: name.trim(),
         phone,
@@ -95,7 +54,7 @@ export function PreChatForm({
 
   const handleInputFocus = useCallback(
     (e: React.FocusEvent<HTMLInputElement>) => {
-      e.currentTarget.style.borderColor = inputFocusColor
+      e.currentTarget.style.borderColor = INPUT_FOCUS_COLOR
     },
     []
   )
@@ -107,6 +66,8 @@ export function PreChatForm({
     []
   )
 
+  const isEnabled = isFormValid && !isSubmitting
+
   return (
     <div
       style={{
@@ -117,7 +78,6 @@ export function PreChatForm({
         overflowY: 'auto',
       }}
     >
-      {/* Welcome message */}
       <p
         style={{
           fontSize: '14px',
@@ -128,7 +88,6 @@ export function PreChatForm({
       >
         {welcomeMessage}
       </p>
-
       <form
         ref={formRef}
         onSubmit={handleSubmit}
@@ -140,7 +99,6 @@ export function PreChatForm({
         }}
         noValidate
       >
-        {/* Name */}
         <div>
           <label htmlFor="widget-name" style={labelStyle}>
             Nome <span style={{ color: '#ef4444' }}>*</span>
@@ -160,8 +118,6 @@ export function PreChatForm({
             style={inputStyle}
           />
         </div>
-
-        {/* Phone */}
         <div>
           <label htmlFor="widget-phone" style={labelStyle}>
             Telefone <span style={{ color: '#ef4444' }}>*</span>
@@ -179,8 +135,6 @@ export function PreChatForm({
             style={inputStyle}
           />
         </div>
-
-        {/* Email */}
         <div>
           <label htmlFor="widget-email" style={labelStyle}>
             E-mail{' '}
@@ -202,37 +156,30 @@ export function PreChatForm({
             style={inputStyle}
           />
         </div>
-
-        {/* Spacer to push button and LGPD to bottom */}
         <div style={{ flex: 1, minHeight: '8px' }} />
-
-        {/* Submit button */}
         <button
           type="submit"
-          disabled={!isFormValid || isSubmitting}
+          disabled={!isEnabled}
           style={{
             width: '100%',
             padding: '12px 16px',
             fontSize: '14px',
             fontWeight: 600,
             color: 'var(--widget-primary-text)',
-            backgroundColor:
-              isFormValid && !isSubmitting
-                ? 'var(--widget-primary)'
-                : 'var(--widget-bg-tertiary)',
+            backgroundColor: isEnabled
+              ? 'var(--widget-primary)'
+              : 'var(--widget-bg-tertiary)',
             borderRadius: 'var(--widget-radius-input)',
             border: 'none',
-            cursor: isFormValid && !isSubmitting ? 'pointer' : 'not-allowed',
+            cursor: isEnabled ? 'pointer' : 'not-allowed',
             transition:
               'background-color var(--widget-transition), opacity var(--widget-transition)',
-            opacity: isFormValid && !isSubmitting ? 1 : 0.6,
+            opacity: isEnabled ? 1 : 0.6,
             minHeight: '44px',
           }}
         >
           {isSubmitting ? 'Iniciando...' : 'Iniciar conversa'}
         </button>
-
-        {/* LGPD notice */}
         <p
           style={{
             fontSize: '11px',

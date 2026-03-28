@@ -1,4 +1,5 @@
 import pino from 'pino'
+import { z } from 'zod'
 
 import type {
   Broker,
@@ -14,10 +15,10 @@ interface InstagramConfig {
   readonly metaToken: string
 }
 
-interface InstagramSendResponse {
-  message_id?: string
-  error?: { message: string; code: number }
-}
+const instagramSendResponseSchema = z.object({
+  message_id: z.string().optional(),
+  error: z.object({ message: z.string(), code: z.number() }).optional(),
+})
 
 const SUPPORTED_MEDIA_TYPES = new Set(['IMAGE'])
 
@@ -72,7 +73,11 @@ export class InstagramBroker implements Broker {
         body: JSON.stringify(body),
       })
 
-      const data = (await response.json()) as InstagramSendResponse
+      const json: unknown = await response.json()
+      const parsed = instagramSendResponseSchema.safeParse(json)
+      const data = parsed.success
+        ? parsed.data
+        : { message_id: undefined, error: undefined }
 
       if (!response.ok || data.error) {
         const errorCode =

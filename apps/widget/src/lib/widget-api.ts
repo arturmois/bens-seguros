@@ -51,6 +51,7 @@ const sendMessageResponseSchema = z.object({
 interface ApiResult {
   readonly success: boolean
   readonly data?: unknown
+  readonly meta?: unknown
   readonly error?: { code: string; message: string }
 }
 
@@ -139,7 +140,10 @@ export async function fetchMessages(
     return null
   }
 
-  const parsed = messagesResponseSchema.safeParse(result.data)
+  const parsed = messagesResponseSchema.safeParse({
+    data: result.data,
+    meta: result.meta,
+  })
   if (!parsed.success) {
     return null
   }

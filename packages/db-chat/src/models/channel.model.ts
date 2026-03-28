@@ -6,7 +6,13 @@ const CHANNEL_TYPES = [
   'MESSENGER',
   'INSTAGRAM',
 ] as const
-const BROKER_TYPES = ['BAILEYS', 'META', 'WEB_CHAT'] as const
+const BROKER_TYPES = [
+  'BAILEYS',
+  'META',
+  'WEB_CHAT',
+  'MESSENGER',
+  'INSTAGRAM',
+] as const
 const CHANNEL_STATUSES = ['CONNECTED', 'DISCONNECTED', 'QR_PENDING'] as const
 
 const channelSchema = new Schema(

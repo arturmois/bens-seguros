@@ -1,4 +1,5 @@
 import pino from 'pino'
+import { z } from 'zod'
 
 import type {
   Broker,
@@ -14,10 +15,10 @@ interface MessengerConfig {
   readonly metaToken: string
 }
 
-interface MessengerSendResponse {
-  message_id?: string
-  error?: { message: string; code: number }
-}
+const messengerSendResponseSchema = z.object({
+  message_id: z.string().optional(),
+  error: z.object({ message: z.string(), code: z.number() }).optional(),
+})
 
 type MessengerAttachmentType = 'image' | 'audio' | 'video' | 'file'
 
@@ -79,7 +80,11 @@ export class MessengerBroker implements Broker {
         body: JSON.stringify(body),
       })
 
-      const data = (await response.json()) as MessengerSendResponse
+      const json: unknown = await response.json()
+      const parsed = messengerSendResponseSchema.safeParse(json)
+      const data = parsed.success
+        ? parsed.data
+        : { message_id: undefined, error: undefined }
 
       if (!response.ok || data.error) {
         const errorCode =

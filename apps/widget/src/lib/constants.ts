@@ -11,6 +11,7 @@ export const WIDGET_DIMENSIONS = {
 
 export const ANIMATION_DURATION_MS = 200
 
+// Canonical source: packages/shared/src/socket-events.ts — keep in sync
 export const SOCKET_EVENTS = {
   WIDGET_SEND_MESSAGE: 'widget:send-message',
   WIDGET_TYPING_START: 'widget:typing-start',

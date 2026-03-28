@@ -79,16 +79,20 @@ export async function buildChatApp(
     }
   })
 
+  // Socket.IO CORS: Socket.IO does not support per-namespace CORS configuration.
+  // The /widget namespace must accept connections from any origin because embeddable
+  // widgets are loaded on third-party domains. Security for widget connections is
+  // enforced via JWT auth (visitorToken) on each socket connection, not via CORS.
+  // The main namespace also validates auth via createSocketAuthMiddleware.
   const io = new Server(app.server, {
     cors: {
       origin: (origin, callback) => {
-        // Widget namespace (/widget) accepts connections from any origin
-        // Main namespace requires FRONTEND_URL
         if (!origin || origin === env.FRONTEND_URL) {
           callback(null, true)
           return
         }
-        // Allow widget origins (validated per-connection via JWT auth)
+        // All other origins are allowed because the /widget namespace serves
+        // embeddable widgets on arbitrary domains. Auth is enforced per-socket via JWT.
         callback(null, true)
       },
       credentials: true,

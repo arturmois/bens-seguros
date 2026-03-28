@@ -6,7 +6,13 @@ export const CHANNEL_TYPES = [
 ] as const
 export type ChannelType = (typeof CHANNEL_TYPES)[number]
 
-export const BROKER_TYPES = ['BAILEYS', 'META', 'WEB_CHAT'] as const
+export const BROKER_TYPES = [
+  'BAILEYS',
+  'META',
+  'WEB_CHAT',
+  'MESSENGER',
+  'INSTAGRAM',
+] as const
 export type BrokerType = (typeof BROKER_TYPES)[number]
 
 export const CONTACT_SOURCES = [

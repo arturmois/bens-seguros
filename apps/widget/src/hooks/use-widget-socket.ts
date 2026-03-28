@@ -4,50 +4,11 @@ import { io, type Socket } from 'socket.io-client'
 import { CHAT_SERVER_URL, SOCKET_EVENTS } from '../lib/constants'
 import type { WidgetMessage } from '../lib/widget-api'
 import { fetchMessages } from '../lib/widget-api'
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function isSenderType(value: string): value is WidgetMessage['senderType'] {
-  return (
-    value === 'CLIENT' ||
-    value === 'AGENT' ||
-    value === 'BOT' ||
-    value === 'SYSTEM'
-  )
-}
-
-function parseSenderType(value: unknown): WidgetMessage['senderType'] {
-  if (typeof value === 'string' && isSenderType(value)) {
-    return value
-  }
-  return 'SYSTEM'
-}
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-interface TypingState {
-  readonly isTyping: boolean
-  readonly name: string | null
-}
-
-interface UseWidgetSocketResult {
-  readonly messages: WidgetMessage[]
-  readonly isConnected: boolean
-  readonly typing: TypingState
-  readonly hasMore: boolean
-  readonly isLoadingMessages: boolean
-  readonly sendMessage: (text: string) => void
-  readonly emitTyping: () => void
-  readonly loadMoreMessages: () => Promise<void>
-}
-
-// ---------------------------------------------------------------------------
-// Hook
-// ---------------------------------------------------------------------------
+import {
+  parseIncomingMessage,
+  type TypingState,
+  type UseWidgetSocketResult,
+} from './widget-message-helpers'
 
 export function useWidgetSocket(
   conversationId: string | null,
@@ -70,9 +31,12 @@ export function useWidgetSocket(
     if (!conversationId || !visitorToken || initialLoadDoneRef.current) return
     initialLoadDoneRef.current = true
 
+    const convId = conversationId
+    const token = visitorToken
+
     async function loadInitial(): Promise<void> {
       setIsLoadingMessages(true)
-      const result = await fetchMessages(conversationId!, visitorToken!)
+      const result = await fetchMessages(convId, token)
       setIsLoadingMessages(false)
 
       if (result) {
@@ -98,34 +62,13 @@ export function useWidgetSocket(
 
     socketRef.current = socket
 
-    socket.on('connect', () => {
-      setIsConnected(true)
-    })
+    socket.on('connect', () => setIsConnected(true))
+    socket.on('disconnect', () => setIsConnected(false))
 
-    socket.on('disconnect', () => {
-      setIsConnected(false)
-    })
-
-    // Incoming message from agent/bot/system
     socket.on(
       SOCKET_EVENTS.WIDGET_INCOMING_MESSAGE,
       (data: Record<string, unknown>) => {
-        const message: WidgetMessage = {
-          id: String(data['id'] ?? ''),
-          conversationId: String(data['conversationId'] ?? ''),
-          senderType: parseSenderType(data['senderType']),
-          senderName:
-            typeof data['senderName'] === 'string' ? data['senderName'] : null,
-          text: typeof data['text'] === 'string' ? data['text'] : null,
-          type: typeof data['type'] === 'string' ? data['type'] : 'TEXT',
-          status:
-            typeof data['status'] === 'string' ? data['status'] : 'DELIVERED',
-          createdAt:
-            typeof data['createdAt'] === 'string'
-              ? data['createdAt']
-              : new Date().toISOString(),
-        }
-
+        const message = parseIncomingMessage(data)
         setMessages((prev) => [...prev, message])
 
         // Clear typing indicator when a message arrives
@@ -137,13 +80,10 @@ export function useWidgetSocket(
       }
     )
 
-    // Typing indicator from agent/bot
     socket.on(SOCKET_EVENTS.WIDGET_TYPING, (data: Record<string, unknown>) => {
       const name = typeof data['name'] === 'string' ? data['name'] : 'Atendente'
-
       setTyping({ isTyping: true, name })
 
-      // Auto-clear after 3 seconds
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current)
       }
@@ -153,14 +93,9 @@ export function useWidgetSocket(
       }, 3000)
     })
 
-    // Conversation status update
-    socket.on(
-      SOCKET_EVENTS.WIDGET_CONVERSATION_UPDATED,
-      (_data: Record<string, unknown>) => {
-        // Could handle conversation closed, status changes, etc.
-        // For now, we just let the UI continue normally
-      }
-    )
+    socket.on(SOCKET_EVENTS.WIDGET_CONVERSATION_UPDATED, () => {
+      // Placeholder for conversation closed / status changes
+    })
 
     return () => {
       socket.disconnect()
@@ -171,12 +106,9 @@ export function useWidgetSocket(
     }
   }, [conversationId, visitorToken])
 
-  // Send message with optimistic update
   const sendMessage = useCallback(
     (text: string) => {
       if (!socketRef.current || !conversationId) return
-
-      // Optimistic message
       const optimisticId = `optimistic-${Date.now()}`
       const optimisticMessage: WidgetMessage = {
         id: optimisticId,
@@ -196,16 +128,15 @@ export function useWidgetSocket(
         { text },
         (response: { success: boolean; data?: { id: string } }) => {
           if (response.success && response.data) {
-            // Replace optimistic message with real ID
+            const realId = response.data.id
             setMessages((prev) =>
               prev.map((msg) =>
                 msg.id === optimisticId
-                  ? { ...msg, id: response.data!.id, status: 'DELIVERED' }
+                  ? { ...msg, id: realId, status: 'DELIVERED' }
                   : msg
               )
             )
           } else {
-            // Mark as failed
             setMessages((prev) =>
               prev.map((msg) =>
                 msg.id === optimisticId ? { ...msg, status: 'FAILED' } : msg
@@ -218,13 +149,11 @@ export function useWidgetSocket(
     [conversationId]
   )
 
-  // Emit typing event
   const emitTyping = useCallback(() => {
     if (!socketRef.current) return
     socketRef.current.emit(SOCKET_EVENTS.WIDGET_TYPING_START)
   }, [])
 
-  // Load more messages (older)
   const loadMoreMessages = useCallback(async () => {
     if (!conversationId || !visitorToken || !hasMore || isLoadingMessages)
       return
