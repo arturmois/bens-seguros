@@ -115,7 +115,7 @@ adduser deploy --disabled-password
 usermod -aG docker deploy
 ```
 
-Configurar chave SSH para o usuario deploy. Use a **mesma chave publica** que corresponde a chave privada no secret `VPS_SSH_KEY` do GitHub Actions:
+Ainda na VPS como root, configurar chave SSH para o usuario deploy. Use a **mesma chave publica** que corresponde a chave privada no secret `VPS_SSH_KEY` do GitHub Actions:
 
 ```bash
 mkdir -p /home/deploy/.ssh
