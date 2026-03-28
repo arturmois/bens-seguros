@@ -2,8 +2,8 @@ import { Logo } from '@/components/shared/logo'
 import Link from 'next/link'
 
 const FOOTER_LINKS = [
-  { label: 'Termos', href: '#' },
-  { label: 'Privacidade', href: '#' },
+  { label: 'Termos', href: '/termos-de-uso' },
+  { label: 'Privacidade', href: '/politica-de-privacidade' },
   { label: 'Contato', href: '#faq' },
 ] as const
 
@@ -21,12 +21,21 @@ export function MarketingFooter(): React.ReactElement {
           <ul className="flex items-center gap-6">
             {FOOTER_LINKS.map((link) => (
               <li key={link.label}>
-                <a
-                  href={link.href}
-                  className="text-sm text-slate-400 transition-colors hover:text-slate-200"
-                >
-                  {link.label}
-                </a>
+                {link.href.startsWith('#') ? (
+                  <a
+                    href={link.href}
+                    className="text-sm text-slate-400 transition-colors hover:text-slate-200"
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    href={link.href}
+                    className="text-sm text-slate-400 transition-colors hover:text-slate-200"
+                  >
+                    {link.label}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>
