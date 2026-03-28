@@ -113,20 +113,29 @@ docker compose version
 ```bash
 adduser deploy --disabled-password
 usermod -aG docker deploy
+```
 
-# Configurar chave SSH para o usuario deploy
+Configurar chave SSH para o usuario deploy. Use a **mesma chave publica** que corresponde a chave privada no secret `VPS_SSH_KEY` do GitHub Actions:
+
+```bash
 mkdir -p /home/deploy/.ssh
-echo "ssh-ed25519 AAAA... sua-chave-publica" >> /home/deploy/.ssh/authorized_keys
+nano /home/deploy/.ssh/authorized_keys
+# Cole a chave publica (ex: ssh-ed25519 AAAA... email@example.com)
 chmod 700 /home/deploy/.ssh
 chmod 600 /home/deploy/.ssh/authorized_keys
 chown -R deploy:deploy /home/deploy/.ssh
+```
 
-# Desabilitar autenticacao por senha (funciona independente do estado atual do sshd_config)
+Desabilitar autenticacao por senha:
+
+```bash
 grep -q "^PasswordAuthentication" /etc/ssh/sshd_config \
   && sed -i 's/^PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config \
   || echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
-systemctl restart sshd
+systemctl restart ssh
 ```
+
+> **Nota:** Algumas distros usam `systemctl restart sshd`, outras `systemctl restart ssh`. Se um falhar, tente o outro.
 
 > A partir daqui, use `ssh deploy@<IP_DA_VPS>` para conectar.
 
