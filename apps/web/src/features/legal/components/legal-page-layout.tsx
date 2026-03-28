@@ -44,7 +44,7 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
       setTocOpen(false)
       setTimeout(() => {
         scrollLockRef.current = false
-      }, 1000)
+      }, 1500)
     }
   }
 
