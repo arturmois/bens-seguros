@@ -13,9 +13,12 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
   const [activeSection, setActiveSection] = useState(doc.sections[0]?.id ?? '')
   const [tocOpen, setTocOpen] = useState(false)
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map())
+  const scrollLockRef = useRef(false)
 
   useEffect(() => {
     function handleScroll() {
+      if (scrollLockRef.current) return
+
       const scrollY = window.scrollY + 120
       const isAtBottom =
         window.innerHeight + window.scrollY >= document.body.scrollHeight - 50
@@ -43,8 +46,13 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
   function scrollToSection(id: string) {
     const el = sectionRefs.current.get(id)
     if (el) {
+      scrollLockRef.current = true
+      setActiveSection(id)
       el.scrollIntoView({ behavior: 'smooth', block: 'start' })
       setTocOpen(false)
+      setTimeout(() => {
+        scrollLockRef.current = false
+      }, 1000)
     }
   }
 
