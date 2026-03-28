@@ -25,15 +25,24 @@ const contactSchema = new Schema(
 
 contactSchema.index(
   { tenantId: 1, whatsappPhone: 1 },
-  { unique: true, sparse: true }
+  {
+    unique: true,
+    partialFilterExpression: { whatsappPhone: { $type: 'string' } },
+  }
 )
 contactSchema.index(
   { tenantId: 1, facebookId: 1 },
-  { unique: true, sparse: true }
+  {
+    unique: true,
+    partialFilterExpression: { facebookId: { $type: 'string' } },
+  }
 )
 contactSchema.index(
   { tenantId: 1, instagramId: 1 },
-  { unique: true, sparse: true }
+  {
+    unique: true,
+    partialFilterExpression: { instagramId: { $type: 'string' } },
+  }
 )
 
 export type ContactDocument = InferSchemaType<typeof contactSchema> & {
