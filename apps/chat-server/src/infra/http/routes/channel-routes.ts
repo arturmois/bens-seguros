@@ -11,9 +11,10 @@ const channelIdSchema = z.object({ id: z.string().min(1) })
 
 const createChannelBodySchema = z.object({
   name: z.string().min(1).max(255),
-  type: z.enum(['WHATSAPP', 'WEB']),
-  brokerType: z.enum(['BAILEYS', 'META']),
+  type: z.enum(['WHATSAPP', 'WEB_CHAT', 'MESSENGER', 'INSTAGRAM']),
+  brokerType: z.enum(['BAILEYS', 'META', 'WEB_CHAT']),
   phoneNumber: z.string().optional(),
+  config: z.record(z.unknown()).optional(),
 })
 
 const updateChannelBodySchema = z.object({
@@ -74,12 +75,17 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
       const body = createChannelBodySchema.parse(request.body)
       const tenantId = request.organizationId
 
+      const isWebChat = body.type === 'WEB_CHAT'
+      const brokerType = isWebChat ? 'WEB_CHAT' : body.brokerType
+
       const channel = await Channel.create({
         tenantId,
         name: body.name,
         type: body.type,
-        brokerType: body.brokerType,
+        brokerType,
         phoneNumber: body.phoneNumber ?? null,
+        ...(isWebChat ? { status: 'CONNECTED' } : {}),
+        ...(body.config ? { config: body.config } : {}),
       })
 
       return reply.status(201).send({

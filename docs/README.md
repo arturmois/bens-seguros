@@ -19,18 +19,18 @@
 
 ## Operacional
 
-| Documento            | Descricao                                    |
-| -------------------- | -------------------------------------------- |
-| `DEPLOY-TUTORIAL.md` | Tutorial passo a passo de deploy em producao |
-| `JIRA-TEMPLATES.md`  | Templates para abertura de issues no Jira    |
+| Documento                | Descricao                                                         |
+| ------------------------ | ----------------------------------------------------------------- |
+| `DEPLOY-TUTORIAL.md`     | Tutorial passo a passo de deploy em producao                      |
+| `MULTI-CHANNEL-SETUP.md` | Configuracao dos canais: Web Chat, Messenger, Instagram, WhatsApp |
+| `JIRA-TEMPLATES.md`      | Templates para abertura de issues no Jira                         |
 
 ## Backlog e Planejamento
 
 Tudo em `plans/`:
 
-| Diretorio/Arquivo                  | Descricao                                          |
-| ---------------------------------- | -------------------------------------------------- |
-| `plans/00-ROADMAP.md`              | Roadmap geral (8 fases concluidas)                 |
-| `plans/features/`                  | 13 features planejadas com specs individuais       |
-| `plans/fix/`                       | 13 correcoes pendentes (seguranca, performance)    |
-| `plans/backlog-medium-features.md` | Features de media complexidade (redis cache, etc.) |
+| Diretorio/Arquivo     | Descricao                                                              |
+| --------------------- | ---------------------------------------------------------------------- |
+| `plans/00-ROADMAP.md` | Roadmap geral (8 fases concluidas)                                     |
+| `plans/features/`     | 4 features futuras (longo prazo): workflow, multi-channel, API, mobile |
+| `plans/fix/`          | Historico de 27 correcoes resolvidas (0 pendente)                      |

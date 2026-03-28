@@ -1,7 +1,18 @@
 import mongoose, { type InferSchemaType, Schema } from 'mongoose'
 
-const CHANNEL_TYPES = ['WHATSAPP', 'WEB'] as const
-const BROKER_TYPES = ['BAILEYS', 'META'] as const
+const CHANNEL_TYPES = [
+  'WHATSAPP',
+  'WEB_CHAT',
+  'MESSENGER',
+  'INSTAGRAM',
+] as const
+const BROKER_TYPES = [
+  'BAILEYS',
+  'META',
+  'WEB_CHAT',
+  'MESSENGER',
+  'INSTAGRAM',
+] as const
 const CHANNEL_STATUSES = ['CONNECTED', 'DISCONNECTED', 'QR_PENDING'] as const
 
 const channelSchema = new Schema(

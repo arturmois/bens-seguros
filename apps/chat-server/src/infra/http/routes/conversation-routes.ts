@@ -1,13 +1,32 @@
+import { Channel } from '@repo/db-chat'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { container } from 'tsyringe'
 import { z } from 'zod'
-import { Channel } from '@repo/db-chat'
 
 import { GetConversation } from '../../../application/get-conversation.js'
 import { ListConversations } from '../../../application/list-conversations.js'
 import type { UnreadRepository } from '../../../domain/ports/unread-repository.js'
+import type { ChannelType, ConversationData } from '../../../domain/types.js'
 import { conversationActionRoutes } from './conversation-action-routes.js'
 import { handleDomainError } from './conversation-error-handler.js'
+
+const VALID_CHANNEL_TYPES: ReadonlySet<string> = new Set([
+  'WHATSAPP',
+  'WEB_CHAT',
+  'MESSENGER',
+  'INSTAGRAM',
+])
+
+function isChannelType(value: unknown): value is ChannelType {
+  return typeof value === 'string' && VALID_CHANNEL_TYPES.has(value)
+}
+
+function toChannelType(value: unknown): ChannelType {
+  if (isChannelType(value)) {
+    return value
+  }
+  return 'WHATSAPP'
+}
 
 const conversationIdSchema = z.object({ id: z.string().min(1) })
 
@@ -42,9 +61,24 @@ export async function conversationRoutes(app: FastifyInstance): Promise<void> {
         { cursor: query.cursor, limit: query.limit }
       )
 
+      const channelIds = [...new Set(result.data.map((c) => c.channelId))]
+      const channels = await Channel.find(
+        { _id: { $in: channelIds } },
+        { _id: 1, type: 1 }
+      ).lean()
+      const channelTypeMap = new Map<string, ChannelType>(
+        channels.map((ch) => [String(ch._id), toChannelType(ch.type)])
+      )
+
+      const enriched: Array<ConversationData & { channelType: ChannelType }> =
+        result.data.map((conv) => ({
+          ...conv,
+          channelType: channelTypeMap.get(conv.channelId) ?? 'WHATSAPP',
+        }))
+
       return reply.send({
         success: true,
-        data: result.data,
+        data: enriched,
         meta: result.meta,
       })
     }

@@ -1,6 +1,6 @@
 'use client'
 
-import { MoreHorizontal, Pencil, Power, QrCode } from 'lucide-react'
+import { Code, MoreHorizontal, Pencil, Power, QrCode } from 'lucide-react'
 
 import {
   DropdownMenu,
@@ -18,6 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
+import { ChannelIcon } from '@/features/chat/components/channel-icon'
 import type { ChannelData } from '../types'
 import { ChannelStatusBadge } from './channel-status-badge'
 
@@ -26,11 +27,13 @@ interface ChannelsTableProps {
   readonly onEdit: (channel: ChannelData) => void
   readonly onQrCode: (channel: ChannelData) => void
   readonly onDeactivate: (channel: ChannelData) => void
+  readonly onEmbed?: (channel: ChannelData) => void
 }
 
 const BROKER_TYPE_LABELS: Record<string, string> = {
   BAILEYS: 'Baileys',
   META: 'Meta',
+  WEB_CHAT: 'Web Chat',
 }
 
 export function ChannelsTable({
@@ -38,17 +41,18 @@ export function ChannelsTable({
   onEdit,
   onQrCode,
   onDeactivate,
+  onEmbed,
 }: ChannelsTableProps) {
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Nome</TableHead>
-          <TableHead>Numero</TableHead>
-          <TableHead>Tipo</TableHead>
+          <TableHead>Canal</TableHead>
+          <TableHead>Número</TableHead>
+          <TableHead>Conexão</TableHead>
           <TableHead>Status</TableHead>
           <TableHead className="w-12">
-            <span className="sr-only">Acoes</span>
+            <span className="sr-only">Ações</span>
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -60,6 +64,7 @@ export function ChannelsTable({
             onEdit={onEdit}
             onQrCode={onQrCode}
             onDeactivate={onDeactivate}
+            onEmbed={onEmbed}
           />
         ))}
       </TableBody>
@@ -72,6 +77,7 @@ interface ChannelRowProps {
   readonly onEdit: (channel: ChannelData) => void
   readonly onQrCode: (channel: ChannelData) => void
   readonly onDeactivate: (channel: ChannelData) => void
+  readonly onEmbed?: (channel: ChannelData) => void
 }
 
 function ChannelRow({
@@ -79,10 +85,16 @@ function ChannelRow({
   onEdit,
   onQrCode,
   onDeactivate,
+  onEmbed,
 }: ChannelRowProps) {
   return (
     <TableRow>
-      <TableCell className="font-medium">{channel.name}</TableCell>
+      <TableCell>
+        <span className="flex items-center gap-2 font-medium">
+          <ChannelIcon channelType={channel.type} size={16} />
+          {channel.name}
+        </span>
+      </TableCell>
       <TableCell>{channel.phoneNumber ?? '-'}</TableCell>
       <TableCell>
         {BROKER_TYPE_LABELS[channel.brokerType] ?? channel.brokerType}
@@ -94,7 +106,7 @@ function ChannelRow({
         <DropdownMenu>
           <DropdownMenuTrigger
             className="hover:bg-accent inline-flex h-10 w-10 items-center justify-center rounded-md"
-            aria-label={`Acoes do canal ${channel.name}`}
+            aria-label={`Ações do canal ${channel.name}`}
           >
             <MoreHorizontal className="size-4" />
           </DropdownMenuTrigger>
@@ -107,6 +119,12 @@ function ChannelRow({
               <DropdownMenuItem onClick={() => onQrCode(channel)}>
                 <QrCode />
                 QR Code
+              </DropdownMenuItem>
+            )}
+            {channel.type === 'WEB_CHAT' && onEmbed && (
+              <DropdownMenuItem onClick={() => onEmbed(channel)}>
+                <Code />
+                Código Embed
               </DropdownMenuItem>
             )}
             <DropdownMenuItem
@@ -128,12 +146,12 @@ export function ChannelsTableSkeleton() {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Nome</TableHead>
-          <TableHead>Numero</TableHead>
-          <TableHead>Tipo</TableHead>
+          <TableHead>Canal</TableHead>
+          <TableHead>Número</TableHead>
+          <TableHead>Conexão</TableHead>
           <TableHead>Status</TableHead>
           <TableHead className="w-12">
-            <span className="sr-only">Acoes</span>
+            <span className="sr-only">Ações</span>
           </TableHead>
         </TableRow>
       </TableHeader>

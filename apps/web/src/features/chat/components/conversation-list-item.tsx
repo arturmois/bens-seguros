@@ -5,6 +5,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
 import type { ConversationData } from '../types'
+import { ChannelIcon } from './channel-icon'
 import { ConversationStatusBadge } from './conversation-status-badge'
 
 export function getDisplayName(conversation: ConversationData): string {
@@ -48,6 +49,11 @@ export function ConversationListItem({
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 truncate">
+            {conversation.channelType && (
+              <span className="shrink-0">
+                <ChannelIcon channelType={conversation.channelType} size={14} />
+              </span>
+            )}
             <span className="text-foreground truncate font-medium">
               {displayName}
             </span>

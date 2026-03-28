@@ -4,6 +4,9 @@ import { Channel, Message } from '@repo/db-chat'
 import { CHAT_PUBSUB_CHANNELS } from '@repo/shared'
 import type * as BaileysManager from '../messaging/baileys-manager.js'
 import { MetaBroker } from '../messaging/meta-broker.js'
+import { WebChatBroker } from '../messaging/web-chat-broker.js'
+import { MessengerBroker } from '../messaging/messenger-broker.js'
+import { InstagramBroker } from '../messaging/instagram-broker.js'
 import type { Broker } from '../messaging/broker.js'
 import type { PubsubClient } from '../types/pubsub-client.js'
 
@@ -45,17 +48,27 @@ function selectBroker(
   channelConfig: unknown,
   manager: typeof BaileysManager
 ): Broker {
-  if (brokerType === 'BAILEYS') {
-    const broker = manager.getChannel(channelId)
-    if (!broker) {
-      throw new UnrecoverableError(
-        `Baileys broker not found for channelId=${channelId}`
-      )
+  switch (brokerType) {
+    case 'BAILEYS': {
+      const broker = manager.getChannel(channelId)
+      if (!broker) {
+        throw new UnrecoverableError(
+          `Baileys broker not found for channelId=${channelId}`
+        )
+      }
+      return broker
     }
-    return broker
+    case 'META':
+      return new MetaBroker(toConfigRecord(channelConfig))
+    case 'WEB_CHAT':
+      return new WebChatBroker()
+    case 'MESSENGER':
+      return new MessengerBroker(toConfigRecord(channelConfig))
+    case 'INSTAGRAM':
+      return new InstagramBroker(toConfigRecord(channelConfig))
+    default:
+      throw new UnrecoverableError(`Unknown broker type: ${brokerType}`)
   }
-
-  return new MetaBroker(toConfigRecord(channelConfig))
 }
 
 export function createSendMessageProcessor(
@@ -123,6 +136,23 @@ export function createSendMessageProcessor(
         externalId: result.externalId,
       })
     )
+
+    // WebChat: publish message content so /widget namespace delivers to visitor.
+    // External brokers deliver via their own APIs, but WebChat has no external
+    // channel — delivery happens via Redis pub/sub to Socket.IO /widget.
+    if (channel.brokerType === 'WEB_CHAT') {
+      const sentMessage = await Message.findById(messageId).lean().exec()
+      if (sentMessage) {
+        await pubsubClient.publish(
+          CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE,
+          JSON.stringify({
+            tenantId,
+            conversationId: job.data.conversationId,
+            message: sentMessage,
+          })
+        )
+      }
+    }
 
     logger.info(
       { messageId, externalId: result.externalId },
