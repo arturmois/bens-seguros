@@ -50,10 +50,26 @@ async function validateMetaCredentials(
   | { valid: true; name: string; username?: string }
   | { valid: false; error: string }
 > {
-  const fields = channelType === 'INSTAGRAM' ? 'id,name,username' : 'id,name'
-  const url = `${META_GRAPH_API}/${pageId}?fields=${fields}&access_token=${token}`
-
   try {
+    if (channelType === 'MESSENGER') {
+      const url = `${META_GRAPH_API}/${pageId}/conversations?access_token=${token}&limit=1`
+      const response = await fetch(url)
+      const data = (await response.json()) as Record<string, unknown>
+
+      if (!response.ok || data['error']) {
+        const err = data['error'] as Record<string, unknown> | undefined
+        const message =
+          typeof err?.['message'] === 'string'
+            ? err['message']
+            : 'Token ou Page ID inválido'
+        return { valid: false, error: message }
+      }
+
+      return { valid: true, name: `Page ${pageId}` }
+    }
+
+    const fields = 'id,name,username'
+    const url = `${META_GRAPH_API}/${pageId}?fields=${fields}&access_token=${token}`
     const response = await fetch(url)
     const data = (await response.json()) as Record<string, unknown>
 
@@ -219,7 +235,7 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
             success: false,
             error: {
               code: 'AI_AGENT_NOT_FOUND',
-              message: 'Agente de IA nao encontrado',
+              message: 'Agente de IA não encontrado',
             },
           })
         }
@@ -327,7 +343,7 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
           success: false,
           error: {
             code: 'INVALID_BROKER_TYPE',
-            message: 'Somente canais Baileys suportam conexao via QR Code',
+            message: 'Somente canais Baileys suportam conexão via QR Code',
           },
         })
       }
@@ -366,7 +382,7 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
           success: false,
           error: {
             code: 'INVALID_BROKER_TYPE',
-            message: 'Somente canais Baileys suportam pareamento por codigo',
+            message: 'Somente canais Baileys suportam pareamento por código',
           },
         })
       }

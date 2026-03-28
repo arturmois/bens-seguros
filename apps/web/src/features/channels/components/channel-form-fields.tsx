@@ -266,7 +266,11 @@ export function MetaSocialFields({
           </span>
         )}
         {validate.isError && (
-          <span className="text-destructive text-sm">Falha na validação</span>
+          <span className="text-destructive text-sm">
+            {validate.error instanceof Error
+              ? validate.error.message
+              : 'Falha na validação'}
+          </span>
         )}
       </div>
     </>

@@ -75,54 +75,91 @@ Receba mensagens do Messenger da página da corretora no Facebook diretamente no
 
 - Página no Facebook para a corretora
 - Conta de desenvolvedor no [Meta for Developers](https://developers.facebook.com)
+- Facebook App criado (se já tem para WhatsApp Meta, use o mesmo)
 
-### 2.2 Criar Facebook App
+### 2.2 Criar Facebook App (se ainda não tem)
 
 1. Acesse [Meta for Developers](https://developers.facebook.com) → **Meus Apps** → **Criar App**
 2. Selecione tipo **Negócio**
 3. Nomeie o app (ex: "Bens Seguros Chat")
-4. No painel do app, clique **Adicionar Produto** → **Messenger** → **Configurar**
+4. Após criar, anote o **App ID** (visível no topo do painel)
 
-### 2.3 Gerar Page Access Token
+### 2.3 Configurar App Secret na VPS
 
-1. Em **Messenger > Configurações** → seção **Tokens de Acesso**
-2. Clique **Adicionar ou remover Páginas**
-3. Selecione a página da corretora
-4. Clique **Gerar Token** → copie o token gerado
-5. Para token de longa duração (não expira):
-   - Use o [Graph API Explorer](https://developers.facebook.com/tools/explorer/) para trocar por um token de longa duração
-   - Ou use a API: `GET /oauth/access_token?grant_type=fb_exchange_token&client_id={APP_ID}&client_secret={APP_SECRET}&fb_exchange_token={SHORT_TOKEN}`
+> **IMPORTANTE:** Faça este passo ANTES de configurar o webhook. Sem o App Secret correto, os webhooks retornam 401.
 
-### 2.4 Configurar Webhook
+1. No Meta for Developers → seu App → **Configurações do app > Básico**
+2. Clique **Mostrar** ao lado de **Chave Secreta do Aplicativo**
+3. Copie o valor e configure na VPS:
+   ```bash
+   # No .env da VPS
+   META_APP_SECRET=cole_a_chave_secreta_aqui
+   ```
+4. Reinicie os containers: `docker compose up -d chat-server chat-worker`
 
-1. Em **Messenger > Configurações** → seção **Webhooks**
-2. Clique **Adicionar URL de Callback**
-3. Preencha:
-   - **URL de Callback**: `https://chat.bensseg.com/chat/webhook/meta`
-   - **Token de Verificação**: o valor da env var `META_WEBHOOK_VERIFY_TOKEN` (compartilhada por WhatsApp, Messenger e Instagram)
-4. Clique **Verificar e Salvar**
-5. Em **Campos de Webhook**, ative:
+### 2.4 Adicionar Messenger ao App e gerar token
+
+1. No painel do app → sidebar esquerda → **Casos de uso** → **Personalizar**
+2. Selecione o caso de uso e navegue até **Configuração da API do Messenger**
+3. Expanda **"2. Gere tokens de acesso"**
+4. Clique **Adicionar Página** → selecione a página da corretora → autorize
+5. Na linha da página, clique **Gerar** → copie o Page Access Token
+
+> **Atenção:** Se você adicionar permissões ao app depois de gerar o token, o token NÃO herda as novas permissões automaticamente. Nesse caso, remova a página e adicione novamente para gerar um token atualizado.
+
+### 2.5 Configurar Webhook
+
+O webhook possui **duas partes** que devem ser configuradas separadamente:
+
+#### Parte A — URL de Callback (nível do app)
+
+1. Na mesma página de **Configuração da API do Messenger**, expanda **"1. Configure webhooks"**
+2. Preencha:
+   - **URL de callback**: `https://chat.bensseg.com/chat/webhook/meta`
+   - **Verificar token**: o valor da env var `META_WEBHOOK_VERIFY_TOKEN`
+3. Clique **Verificar e salvar**
+4. Na tabela **Campos de webhook**, ative os switches:
+   - `messages` → **Assinado**
+   - `messaging_postbacks` → **Assinado**
+
+#### Parte B — Assinatura da página (nível da página)
+
+> **IMPORTANTE:** Esta etapa é frequentemente esquecida. Sem ela, a Meta não envia webhooks para a sua página específica.
+
+1. Ainda na seção **"2. Gere tokens de acesso"**
+2. Na linha da sua página, clique **Adicionar assinaturas**
+3. No diálogo, marque:
    - `messages`
    - `messaging_postbacks`
+4. Clique **Confirm**
 
-### 2.5 Criar canal no sistema
+A coluna "Assinatura do webhook" deve mostrar **"messages e messaging_postbacks"**.
+
+### 2.6 Criar canal no sistema
 
 1. Acesse **Configurações > Canais**
 2. Clique **Novo Canal**
 3. Selecione tipo **MESSENGER**
 4. Preencha:
    - **Nome**: Ex: "Messenger Corretora"
-   - **Page ID**: ID da página do Facebook (encontre em Configurações da Página > Transparência)
-   - **Access Token**: o Page Access Token gerado no passo 2.3
-5. Clique **Criar Canal**
+   - **Page ID**: ID da página do Facebook
+     - Para encontrar: Página do Facebook → **Configurações** → **Transparência da Página** → copie o número
+     - Ou no Meta for Developers: na seção "Gere tokens de acesso", o ID aparece abaixo do nome da página
+   - **Token**: o Page Access Token gerado no passo 2.4
+5. Clique **Testar Conexão** — deve mostrar "Conectado: Page {ID}"
+6. Clique **Criar Canal**
 
-### 2.6 Verificação
+### 2.7 Verificação
 
-| Item              | Como verificar                                                                     |
-| ----------------- | ---------------------------------------------------------------------------------- |
-| Webhook ativo     | Meta mostra status "Ativo" na seção webhooks                                       |
-| Mensagem chega    | Envie DM para a página no Facebook, conversa aparece no painel com ícone Messenger |
-| Resposta funciona | Responda pelo painel, mensagem chega no Messenger do cliente                       |
+| Item                   | Como verificar                                                                     |
+| ---------------------- | ---------------------------------------------------------------------------------- |
+| App Secret configurado | Container inicia sem erro `META_APP_SECRET is not configured`                      |
+| Webhook ativo          | Meta mostra `messages` e `messaging_postbacks` como "Assinado"                     |
+| Página inscrita        | Coluna "Assinatura do webhook" mostra os campos                                    |
+| Mensagem chega         | Envie DM para a página no Facebook, conversa aparece no painel com ícone Messenger |
+| Resposta funciona      | Responda pelo painel, mensagem chega no Messenger do cliente                       |
+
+> **Nota sobre modo de desenvolvimento:** Durante o desenvolvimento (app não publicado), apenas administradores, desenvolvedores e testadores do app podem enviar mensagens. Adicione testadores em **Funções do app > Funções**.
 
 ---
 
@@ -133,31 +170,27 @@ Receba DMs do Instagram profissional da corretora no painel.
 ### 3.1 Pré-requisitos
 
 - Conta Instagram **Profissional** (Business ou Creator)
-- Conta Instagram conectada a uma Página do Facebook
-- Mesmo Facebook App criado no passo 2.2 (Messenger)
+- Conta Instagram **conectada a uma Página do Facebook**
+- Mesmo Facebook App configurado no passo 2 (Messenger)
+- App Secret já configurado na VPS (passo 2.3)
 
 ### 3.2 Adicionar Instagram ao Facebook App
 
-1. No painel do Facebook App → **Adicionar Produto** → **Instagram** → **Configurar**
-2. Em **Configurações Básicas**, adicione a plataforma **Instagram**
+1. No Meta for Developers → seu App → sidebar → **Casos de uso** → **Personalizar**
+2. Se o Instagram não está como caso de uso, vá em **Adicionar Produto** → **Instagram** → **Configurar**
+3. Na seção **"Adicionar permissões obrigatórias"**, verifique que tem:
+   - `instagram_basic`
+   - `instagram_manage_messages`
+   - `pages_manage_metadata`
 
-### 3.3 Conectar conta Instagram
+### 3.3 Configurar Webhook para Instagram
 
-1. Em **Instagram > Configurações** → **Contas do Instagram**
-2. Clique **Adicionar Conta**
-3. Faça login com a conta Instagram profissional da corretora
-4. Autorize as permissões solicitadas
+Se já configurou o webhook no passo 2.5, a URL é compartilhada. Apenas ative os campos do Instagram:
 
-### 3.4 Configurar Webhook (mesmo do Messenger)
+1. Na configuração de webhooks do Instagram (ou na seção Page do Webhooks)
+2. Ative o campo: `messages` → **Assinado**
 
-Se já configurou o webhook no passo 2.4, ele é compartilhado. Apenas ative os campos do Instagram:
-
-1. Em **Instagram > Webhooks** → **Adicionar URL de Callback** (se não feito)
-   - Mesma URL: `https://chat.bensseg.com/chat/webhook/meta`
-   - Mesmo token de verificação
-2. Ative o campo: `messages`
-
-### 3.5 Criar canal no sistema
+### 3.4 Criar canal no sistema
 
 1. Acesse **Configurações > Canais**
 2. Clique **Novo Canal**
@@ -165,15 +198,16 @@ Se já configurou o webhook no passo 2.4, ele é compartilhado. Apenas ative os 
 4. Preencha:
    - **Nome**: Ex: "Instagram @corretora_bens"
    - **Page ID**: ID da conta Instagram (**NÃO** é o App ID do Facebook)
-     - Para encontrar: acesse [Graph API Explorer](https://developers.facebook.com/tools/explorer/), selecione seu App e Page Token, execute: `GET /me?fields=id,username`
+     - Para encontrar: acesse [Graph API Explorer](https://developers.facebook.com/tools/explorer/)
+     - Selecione seu App e o **Page Token** da página vinculada ao Instagram
+     - Execute: `GET /me?fields=id,username` (com o Page Token selecionado acima)
      - O `id` retornado (formato `17841xxxxx`) é o valor correto
-   - **Access Token**: Page Access Token (**NÃO** é o token do Instagram)
-     - Para gerar: Meta for Developers > seu App > **Messenger > Configurações > Tokens de Acesso**
-     - Selecione a **Página do Facebook vinculada ao Instagram** e clique **Gerar Token**
-5. Clique **Testar Conexão** para validar (deve mostrar o @username)
+   - **Token**: Page Access Token da **Página do Facebook vinculada ao Instagram** (**NÃO** é um token do Instagram)
+     - Para gerar: use o mesmo token do Messenger se a página for a mesma, ou gere em **"Gere tokens de acesso"** para a página vinculada
+5. Clique **Testar Conexão** — deve mostrar o @username da conta
 6. Clique **Criar Canal**
 
-### 3.6 Limitações do Instagram
+### 3.5 Limitações do Instagram
 
 | Limitação              | Descrição                                                     |
 | ---------------------- | ------------------------------------------------------------- |
@@ -182,23 +216,25 @@ Se já configurou o webhook no passo 2.4, ele é compartilhado. Apenas ative os 
 | **Story replies**      | Respostas a stories chegam como mensagem de texto             |
 | **Conta profissional** | Conta pessoal não suporta API de mensagens                    |
 
-### 3.7 Verificação
+### 3.6 Verificação
 
 | Item              | Como verificar                                                                         |
 | ----------------- | -------------------------------------------------------------------------------------- |
-| Webhook ativo     | Meta mostra status "Ativo"                                                             |
+| Webhook ativo     | Meta mostra `messages` como "Assinado"                                                 |
 | DM chega          | Envie DM para o Instagram da corretora, conversa aparece no painel com ícone Instagram |
 | Resposta funciona | Responda pelo painel, mensagem chega no Instagram do cliente                           |
 
-### 3.8 Troubleshooting
+### 3.7 Troubleshooting (Messenger e Instagram)
 
-| Erro                                       | Causa                                                   | Solução                                                                         |
-| ------------------------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `META_APP_SECRET is not configured`        | Variável de ambiente (App Secret) não definida          | Adicione o App Secret do Facebook App no `.env` da VPS e reinicie os containers |
-| `HMAC signature verification failed` (401) | App Secret incorreto                                    | Verifique em Meta for Developers > App > Configurações > Básico > Chave Secreta |
-| `No active channel found`                  | Page ID no canal não bate com o ID enviado pelo webhook | Corrija o Page ID usando o valor de `GET /me?fields=id,username`                |
-| `Invalid OAuth access token`               | Token é do tipo errado (User Token vs Page Token)       | Gere um **Page Access Token** em Messenger > Tokens de Acesso                   |
-| `Received malformed Meta webhook payload`  | Imagem Docker desatualizada                             | Faça deploy da imagem mais recente                                              |
+| Erro                                       | Causa                                                        | Solução                                                                                                    |
+| ------------------------------------------ | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `META_APP_SECRET is not configured`        | Variável de ambiente não definida                            | Adicione no `.env` da VPS (passo 2.3) e reinicie containers                                                |
+| `HMAC signature verification failed` (401) | App Secret incorreto ou desatualizado                        | Verifique em **Configurações do app > Básico > Chave Secreta** e atualize no `.env`                        |
+| Webhook 200 mas mensagem não aparece       | Página não inscrita nos campos de webhook                    | Faça o passo 2.5 Parte B (Adicionar assinaturas à página)                                                  |
+| `No active channel found`                  | Page ID no canal não bate com o ID enviado pelo webhook      | Corrija o Page ID. Para Instagram use `GET /me?fields=id,username`                                         |
+| `Invalid OAuth access token`               | Token é do tipo errado (User Token vs Page Token)            | Gere um **Page Access Token** em "Gere tokens de acesso"                                                   |
+| Validação falha: `pages_read_engagement`   | Permissão faltando (apenas Instagram, Messenger não precisa) | Adicione `pages_read_engagement` ao app, **remova e re-adicione a página** para gerar token com nova scope |
+| `Received malformed Meta webhook payload`  | Imagem Docker desatualizada                                  | Faça deploy da imagem mais recente                                                                         |
 
 > **Dica:** O App Secret (`META_APP_SECRET`) é compartilhado entre WhatsApp, Messenger e Instagram — todos usam o mesmo Facebook App.
 
