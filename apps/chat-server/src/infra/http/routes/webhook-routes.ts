@@ -58,17 +58,17 @@ interface RawBodyRequest extends FastifyRequest {
 }
 
 function getVerifyToken(): string {
-  const token = env.META_WHATSAPP_VERIFY_TOKEN
+  const token = env.META_WEBHOOK_VERIFY_TOKEN
   if (!token) {
-    throw new Error('META_WHATSAPP_VERIFY_TOKEN is not configured')
+    throw new Error('META_WEBHOOK_VERIFY_TOKEN is not configured')
   }
   return token
 }
 
 function getAppSecret(): string {
-  const secret = env.META_WHATSAPP_TOKEN
+  const secret = env.META_APP_SECRET
   if (!secret) {
-    throw new Error('META_WHATSAPP_TOKEN is not configured')
+    throw new Error('META_APP_SECRET is not configured')
   }
   return secret
 }
@@ -181,7 +181,7 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
       try {
         expectedToken = getVerifyToken()
       } catch {
-        app.log.error('META_WHATSAPP_VERIFY_TOKEN is not configured')
+        app.log.error('META_WEBHOOK_VERIFY_TOKEN is not configured')
         return reply.status(500).send({
           success: false,
           error: {
@@ -231,9 +231,7 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
       try {
         isValid = validateHmacSignature(rawBody, signatureHeader)
       } catch {
-        app.log.error(
-          'META_WHATSAPP_TOKEN is not configured for HMAC validation'
-        )
+        app.log.error('META_APP_SECRET is not configured for HMAC validation')
         return reply.status(500).send({
           success: false,
           error: {

@@ -32,8 +32,8 @@ export const env = createEnv({
       .default('Bens Seguros <noreply@bens.com.br>'),
     SENTRY_DSN: z.string().url().optional(),
     COOKIE_DOMAIN: z.string().optional(),
-    META_WHATSAPP_TOKEN: z.string().optional(),
-    META_WHATSAPP_VERIFY_TOKEN: z.string().optional(),
+    META_APP_SECRET: z.string().optional(),
+    META_WEBHOOK_VERIFY_TOKEN: z.string().optional(),
     META_WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
     STORAGE_PROVIDER: z.enum(['local', 'r2']).default('local'),
     // SEC-1: PII encryption key — hex-encoded 32-byte key (64 hex chars)

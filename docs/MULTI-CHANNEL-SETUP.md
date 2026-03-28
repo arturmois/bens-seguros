@@ -99,7 +99,7 @@ Receba mensagens do Messenger da página da corretora no Facebook diretamente no
 2. Clique **Adicionar URL de Callback**
 3. Preencha:
    - **URL de Callback**: `https://chat.bensseg.com/chat/webhook/meta`
-   - **Token de Verificação**: o valor da env var `META_WHATSAPP_VERIFY_TOKEN` (mesma usada pro WhatsApp)
+   - **Token de Verificação**: o valor da env var `META_WEBHOOK_VERIFY_TOKEN` (compartilhada por WhatsApp, Messenger e Instagram)
 4. Clique **Verificar e Salvar**
 5. Em **Campos de Webhook**, ative:
    - `messages`
@@ -194,13 +194,13 @@ Se já configurou o webhook no passo 2.4, ele é compartilhado. Apenas ative os 
 
 | Erro                                       | Causa                                                   | Solução                                                                         |
 | ------------------------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `META_WHATSAPP_TOKEN is not configured`    | Variável de ambiente (App Secret) não definida          | Adicione o App Secret do Facebook App no `.env` da VPS e reinicie os containers |
+| `META_APP_SECRET is not configured`        | Variável de ambiente (App Secret) não definida          | Adicione o App Secret do Facebook App no `.env` da VPS e reinicie os containers |
 | `HMAC signature verification failed` (401) | App Secret incorreto                                    | Verifique em Meta for Developers > App > Configurações > Básico > Chave Secreta |
 | `No active channel found`                  | Page ID no canal não bate com o ID enviado pelo webhook | Corrija o Page ID usando o valor de `GET /me?fields=id,username`                |
 | `Invalid OAuth access token`               | Token é do tipo errado (User Token vs Page Token)       | Gere um **Page Access Token** em Messenger > Tokens de Acesso                   |
 | `Received malformed Meta webhook payload`  | Imagem Docker desatualizada                             | Faça deploy da imagem mais recente                                              |
 
-> **Dica:** O App Secret (`META_WHATSAPP_TOKEN`) é compartilhado entre WhatsApp, Messenger e Instagram — todos usam o mesmo Facebook App.
+> **Dica:** O App Secret (`META_APP_SECRET`) é compartilhado entre WhatsApp, Messenger e Instagram — todos usam o mesmo Facebook App.
 
 ---
 
@@ -277,14 +277,14 @@ WIDGET_DIST_PATH=/app/widget-dist
 
 ```env
 # Compartilhadas por WhatsApp Meta, Messenger e Instagram (mesmo Facebook App):
-META_WHATSAPP_VERIFY_TOKEN=seu_token_de_verificacao
-META_WHATSAPP_TOKEN=seu_app_secret_do_facebook_app
+META_WEBHOOK_VERIFY_TOKEN=seu_token_de_verificacao
+META_APP_SECRET=seu_app_secret_do_facebook_app
 
 # Opcional:
 WIDGET_DIST_PATH=/caminho/custom/widget/dist
 ```
 
-> **Nota:** `META_WHATSAPP_TOKEN` é o App Secret do Facebook App, usado para validação HMAC de todos os webhooks Meta (WhatsApp, Messenger, Instagram).
+> **Nota:** `META_APP_SECRET` é o App Secret do Facebook App, usado para validação HMAC de todos os webhooks Meta (WhatsApp, Messenger, Instagram).
 
 ### Verificação pós-deploy
 
