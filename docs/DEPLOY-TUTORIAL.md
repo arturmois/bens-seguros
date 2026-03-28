@@ -148,7 +148,7 @@ Da sua maquina local, na raiz do projeto:
 # Compose e Nginx config
 scp docker-compose.prod.yml deploy@<IP_DA_VPS>:/opt/bens-seguros/
 scp nginx/prod.conf deploy@<IP_DA_VPS>:/opt/bens-seguros/nginx/prod.conf
-scp scripts/mongo-init-replica.sh deploy@<IP_DA_VPS>:/opt/bens-seguros/scripts/
+scp scripts/deploy.sh deploy@<IP_DA_VPS>:/opt/bens-seguros/scripts/
 scp scripts/backup.sh deploy@<IP_DA_VPS>:/opt/bens-seguros/scripts/
 
 # Certificados Cloudflare Origin (gerados no Step 1.5)
@@ -367,9 +367,9 @@ No repositorio GitHub → Settings → Secrets and variables → Actions, adicio
 
 Apos configurar, o deploy e automatico:
 
-- **Push em `apps/server/**`ou`packages/**`** → builda imagem server, deploya na VPS
-- **Push em `apps/chat-server/`** → builda imagem chat, deploya na VPS
-- **Push em `apps/web/`** → Vercel deploya automaticamente
+- Push em `apps/server/**` ou `packages/**` → builda imagem server, deploya na VPS
+- Push em `apps/chat-server/**` → builda imagem chat, deploya na VPS
+- Push em `apps/web/**` → Vercel deploya automaticamente
 
 Cada deploy:
 
@@ -475,9 +475,16 @@ docker compose -f docker-compose.prod.yml ps
 
 ```bash
 cd /opt/bens-seguros
-PREV_TAG=$(cat .current-tag)
+
+# Rollback do server
+PREV_TAG=$(cat .current-server-tag)
 export TAG=$PREV_TAG
 docker compose -f docker-compose.prod.yml up -d server worker
+
+# Rollback do chat
+PREV_TAG=$(cat .current-chat-tag)
+export TAG=$PREV_TAG
+docker compose -f docker-compose.prod.yml up -d chat-server chat-worker
 ```
 
 ### Executar backup manualmente

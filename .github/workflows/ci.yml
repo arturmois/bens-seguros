@@ -21,4 +21,6 @@ jobs:
       - run: DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" pnpm --filter @repo/db db:generate
       - run: pnpm lint
       - run: pnpm typecheck
+      - run: pnpm build
+        if: github.event_name == 'pull_request'
       - run: pnpm test

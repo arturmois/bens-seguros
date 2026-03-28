@@ -11,6 +11,7 @@ on:
       - 'packages/env/**'
       - 'packages/shared/**'
       - 'Dockerfile.chat'
+      - 'pnpm-lock.yaml'
       - 'nginx/**'
       - 'scripts/deploy.sh'
   workflow_dispatch:

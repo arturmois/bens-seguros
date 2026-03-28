@@ -47,15 +47,6 @@ echo "Pulling images with tag ${TAG}..."
 export TAG
 docker compose -f "$COMPOSE_FILE" pull $CONTAINERS
 
-# --- Run Prisma migrations (server only) ---
-if [ "$SERVICE" = "server" ]; then
-  echo "Running Prisma migrations..."
-  docker compose -f "$COMPOSE_FILE" exec -T server npx prisma migrate deploy || {
-    echo "ERROR: Prisma migration failed! Aborting deploy."
-    exit 1
-  }
-fi
-
 # --- Deploy containers ---
 echo "Deploying ${CONTAINERS}..."
 docker compose -f "$COMPOSE_FILE" up -d $CONTAINERS
@@ -98,6 +89,15 @@ if ! poll_health "$HEALTH_CONTAINER" 120; then
     echo "Rollback successful."
   fi
   exit 1
+fi
+
+# --- Run Prisma migrations (server only, after new container is healthy) ---
+if [ "$SERVICE" = "server" ]; then
+  echo "Running Prisma migrations..."
+  docker compose -f "$COMPOSE_FILE" exec -T server npx prisma migrate deploy || {
+    echo "ERROR: Prisma migration failed!"
+    exit 1
+  }
 fi
 
 # --- Smoke test: cross-subdomain cookie Domain attribute (server only) ---
