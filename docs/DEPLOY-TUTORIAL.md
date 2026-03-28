@@ -368,8 +368,8 @@ No repositorio GitHub → Settings → Secrets and variables → Actions, adicio
 Apos configurar, o deploy e automatico:
 
 - **Push em `apps/server/**`ou`packages/**`** → builda imagem server, deploya na VPS
-- **Push em `apps/chat-server/**`\*\* → builda imagem chat, deploya na VPS
-- **Push em `apps/web/**`\*\* → Vercel deploya automaticamente
+- **Push em `apps/chat-server/`** → builda imagem chat, deploya na VPS
+- **Push em `apps/web/`** → Vercel deploya automaticamente
 
 Cada deploy:
 
