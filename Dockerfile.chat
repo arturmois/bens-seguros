@@ -6,6 +6,7 @@ WORKDIR /app
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/chat-server/package.json apps/chat-server/
 COPY apps/chat-worker/package.json apps/chat-worker/
+COPY apps/widget/package.json apps/widget/
 COPY packages/db-chat/package.json packages/db-chat/
 COPY packages/env/package.json packages/env/
 COPY packages/shared/package.json packages/shared/
@@ -17,6 +18,7 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app ./
 COPY . .
+RUN cd apps/widget && pnpm build
 RUN cd apps/chat-server && pnpm build
 RUN cd apps/chat-worker && pnpm build
 
@@ -35,6 +37,7 @@ ENV NODE_ENV=production
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/apps/chat-server/dist ./chat-server/dist
 COPY --from=builder /app/apps/chat-worker/dist ./chat-worker/dist
+COPY --from=builder /app/apps/widget/dist ./widget/dist
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD node -e "fetch('http://localhost:3002/health').then(r=>{if(!r.ok)throw r;process.exit(0)}).catch(()=>process.exit(1))"

@@ -1,6 +1,6 @@
 import cors from '@fastify/cors'
 import fastifyStatic from '@fastify/static'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { env } from '@repo/env'
@@ -126,25 +126,37 @@ export async function buildChatApp(
   const widgetDistPath =
     process.env['WIDGET_DIST_PATH'] ??
     path.resolve(currentDir, '../../widget/dist')
-  await app.register(fastifyStatic, {
-    root: widgetDistPath,
-    prefix: WIDGET_APP_PREFIX,
-    decorateReply: false,
-    maxAge: 31_536_000_000,
-    immutable: true,
-  })
-  // Read embed.js once at startup (not on every request — avoids blocking event loop)
-  const embedJsContent = readFileSync(
-    path.join(widgetDistPath, 'embed.js'),
-    'utf-8'
-  )
-  app.get('/widget/embed.js', async (request, reply) => {
-    await rateLimitHook(request, reply)
-    return reply
-      .type('application/javascript')
-      .header('Cache-Control', 'no-cache')
-      .send(embedJsContent)
-  })
+
+  const widgetDistExists = existsSync(widgetDistPath)
+  if (widgetDistExists) {
+    await app.register(fastifyStatic, {
+      root: widgetDistPath,
+      prefix: WIDGET_APP_PREFIX,
+      decorateReply: false,
+      maxAge: 31_536_000_000,
+      immutable: true,
+    })
+
+    const embedJsPath = path.join(widgetDistPath, 'embed.js')
+    const embedJsContent = existsSync(embedJsPath)
+      ? readFileSync(embedJsPath, 'utf-8')
+      : null
+
+    if (embedJsContent) {
+      app.get('/widget/embed.js', async (request, reply) => {
+        await rateLimitHook(request, reply)
+        return reply
+          .type('application/javascript')
+          .header('Cache-Control', 'no-cache')
+          .send(embedJsContent)
+      })
+    }
+  } else {
+    app.log.warn(
+      { widgetDistPath },
+      'Widget dist not found — static serving disabled. Run: pnpm turbo build --filter=@app/widget'
+    )
+  }
 
   // Unauthenticated routes (Meta webhook)
   await app.register(webhookRoutes)
