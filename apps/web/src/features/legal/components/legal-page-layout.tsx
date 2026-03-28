@@ -20,14 +20,6 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
       if (scrollLockRef.current) return
 
       const scrollY = window.scrollY + 120
-      const isAtBottom =
-        window.innerHeight + window.scrollY >= document.body.scrollHeight - 50
-
-      if (isAtBottom) {
-        const lastSection = doc.sections[doc.sections.length - 1]
-        if (lastSection) setActiveSection(lastSection.id)
-        return
-      }
 
       let current = doc.sections[0]?.id ?? ''
       for (const el of sectionRefs.current.values()) {
