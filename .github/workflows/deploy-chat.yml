@@ -11,26 +11,14 @@ on:
       - 'packages/env/**'
       - 'packages/shared/**'
       - 'Dockerfile.chat'
+      - 'pnpm-lock.yaml'
       - 'nginx/**'
+      - 'scripts/deploy.sh'
   workflow_dispatch:
 
 jobs:
   quality-gates:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9.15.0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" pnpm --filter @repo/db exec prisma generate
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm test
+    uses: ./.github/workflows/ci.yml
 
   build-and-push:
     needs: quality-gates
@@ -63,13 +51,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: nginx
+          sparse-checkout: |
+            nginx
+            scripts/deploy.sh
+            docker-compose.prod.yml
       - uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: nginx/prod.conf
+          source: nginx/prod.conf,scripts/deploy.sh,docker-compose.prod.yml
           target: /opt/bens-seguros
       - uses: appleboy/ssh-action@v1
         with:
@@ -77,32 +68,5 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /opt/bens-seguros
-            SHA_SHORT=${{ needs.build-and-push.outputs.sha_short }}
-
-            PREV_TAG=$(cat .current-chat-tag 2>/dev/null || echo "none")
-
-            export TAG=${SHA_SHORT}
-            docker compose -f docker-compose.prod.yml pull chat-server chat-worker
-
-            docker compose -f docker-compose.prod.yml up -d chat-server chat-worker
-
-            # Reload nginx config (volume mount keeps default.conf in sync)
-            # Remove stale prod.conf from previous deploys that caused duplicate resolver directive
-            docker exec bens-seguros-nginx-1 rm -f /etc/nginx/conf.d/prod.conf 2>/dev/null || true
-            docker exec bens-seguros-nginx-1 nginx -t && docker exec bens-seguros-nginx-1 nginx -s reload
-
-            sleep 70
-
-            HEALTHY=$(docker compose -f docker-compose.prod.yml ps chat-server --format json | grep -c '"healthy"' || true)
-            if [ "$HEALTHY" -lt 1 ]; then
-              echo "Health check failed! Rolling back to ${PREV_TAG}..."
-              if [ "$PREV_TAG" != "none" ]; then
-                export TAG=${PREV_TAG}
-                docker compose -f docker-compose.prod.yml up -d chat-server chat-worker
-              fi
-              exit 1
-            fi
-
-            echo "${SHA_SHORT}" > .current-chat-tag
-            echo "Deploy successful! Tag: ${SHA_SHORT}"
+            chmod +x /opt/bens-seguros/scripts/deploy.sh
+            /opt/bens-seguros/scripts/deploy.sh chat ${{ needs.build-and-push.outputs.sha_short }}

@@ -113,58 +113,127 @@ docker compose version
 ```bash
 adduser deploy --disabled-password
 usermod -aG docker deploy
+```
 
-# Configurar chave SSH para o usuario deploy
+Gerar chave SSH para deploy (na sua **maquina local**, nao na VPS):
+
+```bash
+# Gerar par de chaves Ed25519 (se ja tiver uma, pule este passo)
+ssh-keygen -t ed25519 -C "deploy@bensseg.com" -f ~/.ssh/bens-deploy
+
+# Ver a chave publica (copie o output inteiro)
+cat ~/.ssh/bens-deploy.pub
+```
+
+> Esta chave privada (`~/.ssh/bens-deploy`) sera usada no secret `VPS_SSH_KEY` do GitHub Actions (Parte 3.1). Guarde-a.
+
+Ainda na **VPS como root**, configurar a chave publica para o usuario deploy:
+
+```bash
 mkdir -p /home/deploy/.ssh
-echo "ssh-ed25519 AAAA... sua-chave-publica" >> /home/deploy/.ssh/authorized_keys
+echo "COLE_AQUI_A_CHAVE_PUBLICA" > /home/deploy/.ssh/authorized_keys
 chmod 700 /home/deploy/.ssh
 chmod 600 /home/deploy/.ssh/authorized_keys
 chown -R deploy:deploy /home/deploy/.ssh
-
-# Desabilitar autenticacao por senha
-sed -i 's/PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
-systemctl restart sshd
 ```
 
-> A partir daqui, use `ssh deploy@<IP_DA_VPS>` para conectar.
+Testar conexao (da sua **maquina local**):
+
+```bash
+ssh -i ~/.ssh/bens-deploy deploy@<IP_DA_VPS> whoami
+# Deve retornar: deploy
+```
+
+Desabilitar autenticacao por senha:
+
+```bash
+grep -q "^PasswordAuthentication" /etc/ssh/sshd_config \
+  && sed -i 's/^PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config \
+  || echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
+systemctl restart ssh
+```
+
+> **Nota:** Algumas distros usam `systemctl restart sshd`, outras `systemctl restart ssh`. Se um falhar, tente o outro.
 
 ### 2.4 Criar diretorio do projeto
+
+Ainda como **root** na VPS (precisa de permissao para criar em `/opt/`):
 
 ```bash
 mkdir -p /opt/bens-seguros/nginx/certs
 mkdir -p /opt/bens-seguros/scripts
 mkdir -p /opt/bens-seguros/backups
+mkdir -p /opt/bens-seguros/logs
 chown -R deploy:deploy /opt/bens-seguros
 ```
 
-### 2.5 Enviar arquivos para a VPS
+> A partir daqui, use `ssh bens-vps` para conectar (ou `ssh -i ~/.ssh/bens-deploy deploy@<IP_DA_VPS>`).
 
-Da sua maquina local, na raiz do projeto:
+**Opcional mas recomendado:** configure um alias SSH na sua **maquina local** para nao precisar digitar `-i` em todo comando:
 
 ```bash
-# Compose e Nginx config
-scp docker-compose.prod.yml deploy@<IP_DA_VPS>:/opt/bens-seguros/
-scp nginx/prod.conf deploy@<IP_DA_VPS>:/opt/bens-seguros/nginx/prod.conf
-scp scripts/mongo-init-replica.sh deploy@<IP_DA_VPS>:/opt/bens-seguros/scripts/
-scp scripts/backup.sh deploy@<IP_DA_VPS>:/opt/bens-seguros/scripts/
-
-# Certificados Cloudflare Origin (gerados no Step 1.5)
-scp cloudflare-origin.pem deploy@<IP_DA_VPS>:/opt/bens-seguros/nginx/certs/
-scp cloudflare-origin-key.pem deploy@<IP_DA_VPS>:/opt/bens-seguros/nginx/certs/
+cat >> ~/.ssh/config << 'EOF'
+Host bens-vps
+  HostName <IP_DA_VPS>
+  User deploy
+  IdentityFile ~/.ssh/bens-deploy
+EOF
 ```
 
-### 2.6 Criar arquivo .env na VPS
+Com isso, `ssh bens-vps`, `scp arquivo bens-vps:/caminho` e o GitHub Actions (que usa a chave diretamente) funcionam sem atrito.
+
+### 2.5 Enviar arquivos para a VPS
+
+Da sua **maquina local**, na raiz do projeto:
 
 ```bash
-ssh deploy@<IP_DA_VPS>
+# Compose, Nginx, scripts
+scp -i ~/.ssh/bens-deploy docker-compose.prod.yml deploy@<IP_DA_VPS>:/opt/bens-seguros/
+scp -i ~/.ssh/bens-deploy nginx/prod.conf deploy@<IP_DA_VPS>:/opt/bens-seguros/nginx/prod.conf
+scp -i ~/.ssh/bens-deploy scripts/deploy.sh deploy@<IP_DA_VPS>:/opt/bens-seguros/scripts/
+scp -i ~/.ssh/bens-deploy scripts/backup.sh deploy@<IP_DA_VPS>:/opt/bens-seguros/scripts/
+
+# Certificados Cloudflare Origin (gerados no Step 1.5)
+scp -i ~/.ssh/bens-deploy cloudflare-origin.pem deploy@<IP_DA_VPS>:/opt/bens-seguros/nginx/certs/
+scp -i ~/.ssh/bens-deploy cloudflare-origin-key.pem deploy@<IP_DA_VPS>:/opt/bens-seguros/nginx/certs/
+```
+
+> Se configurou o alias SSH acima, substitua `-i ~/.ssh/bens-deploy deploy@<IP_DA_VPS>` por `bens-vps`.
+
+### 2.6 Gerar keyfile do MongoDB (replica set com auth)
+
+O MongoDB em modo replica set com `--auth` exige um keyfile para autenticacao interna entre membros.
+
+Na VPS como deploy:
+
+```bash
+cd /opt/bens-seguros
+openssl rand -base64 756 > mongo-keyfile
+chmod 400 mongo-keyfile
+```
+
+O `chown` para uid 999 (usuario mongodb dentro do container) precisa de **root**:
+
+```bash
+ssh root@<IP_DA_VPS> chown 999:999 /opt/bens-seguros/mongo-keyfile
+```
+
+### 2.7 Criar arquivo .env na VPS
+
+```bash
 cd /opt/bens-seguros
 
-# Gerar senhas
-echo "DB_PASSWORD: $(openssl rand -base64 32)"
-echo "MONGO_PASSWORD: $(openssl rand -base64 32)"
-echo "REDIS_PASSWORD: $(openssl rand -base64 32)"
+# Senhas que vao em URLs de conexao (DATABASE_URL, MONGODB_URL, REDIS_URL):
+# usar hex para evitar caracteres especiais (/, +, =) que quebram URLs
+echo "DB_PASSWORD: $(openssl rand -hex 32)"
+echo "MONGO_PASSWORD: $(openssl rand -hex 32)"
+echo "REDIS_PASSWORD: $(openssl rand -hex 32)"
+
+# Secrets que NAO vao em URLs: base64 e seguro
 echo "AUTH_SECRET: $(openssl rand -base64 32)"
 echo "SOCKET_JWT_SECRET: $(openssl rand -base64 24)"
+
+# Chave de criptografia AES-256: exige exatamente 64 hex chars (32 bytes)
 echo "ENCRYPTION_KEY: $(openssl rand -hex 32)"
 ```
 
@@ -238,14 +307,19 @@ Proteger o arquivo:
 chmod 600 .env
 ```
 
-### 2.7 Inicializar MongoDB replica set
+### 2.8 Inicializar MongoDB replica set
 
 ```bash
 # Subir MongoDB primeiro
 docker compose -f docker-compose.prod.yml up -d mongodb
 
-# Aguardar ficar pronto
-sleep 10
+# Aguardar ficar healthy (max 60s)
+echo "Aguardando MongoDB..."
+for i in $(seq 1 12); do
+  STATUS=$(docker inspect --format='{{.State.Health.Status}}' bens-seguros-mongodb-1 2>/dev/null || echo "starting")
+  [ "$STATUS" = "healthy" ] && echo "MongoDB healthy!" && break
+  sleep 5
+done
 
 # Inicializar replica set
 source .env
@@ -255,7 +329,9 @@ docker compose -f docker-compose.prod.yml exec mongodb mongosh \
 '
 ```
 
-### 2.8 Subir todos os servicos
+> O replica set precisa ser inicializado manualmente apenas na primeira vez. Deploys subsequentes via CI/CD nao precisam repetir este passo.
+
+### 2.9 Subir todos os servicos
 
 ```bash
 cd /opt/bens-seguros
@@ -263,26 +339,44 @@ cd /opt/bens-seguros
 # Puxar imagens do Docker Hub
 docker compose -f docker-compose.prod.yml pull
 
-# Subir databases primeiro
+# Subir databases
 docker compose -f docker-compose.prod.yml up -d postgres mongodb redis
 
-# Aguardar health checks
-sleep 15
+# Aguardar databases ficarem healthy (max 60s)
+echo "Aguardando databases..."
+for i in $(seq 1 12); do
+  PG=$(docker inspect --format='{{.State.Health.Status}}' bens-seguros-postgres-1 2>/dev/null || echo "starting")
+  MG=$(docker inspect --format='{{.State.Health.Status}}' bens-seguros-mongodb-1 2>/dev/null || echo "starting")
+  RD=$(docker inspect --format='{{.State.Health.Status}}' bens-seguros-redis-1 2>/dev/null || echo "starting")
+  [ "$PG" = "healthy" ] && [ "$MG" = "healthy" ] && [ "$RD" = "healthy" ] && echo "Databases healthy!" && break
+  echo "  postgres=$PG mongodb=$MG redis=$RD"
+  sleep 5
+done
 
-# Rodar migrations do Prisma
-docker compose -f docker-compose.prod.yml run --rm server \
-  npx prisma migrate deploy --schema=./prisma/schema.prisma
+# Subir server primeiro (para rodar migration)
+docker compose -f docker-compose.prod.yml up -d server
 
-# Subir todos os containers
+# Aguardar server ficar healthy
+echo "Aguardando server..."
+for i in $(seq 1 24); do
+  STATUS=$(docker inspect --format='{{.State.Health.Status}}' bens-seguros-server-1 2>/dev/null || echo "starting")
+  [ "$STATUS" = "healthy" ] && echo "Server healthy!" && break
+  sleep 5
+done
+
+# Rodar migrations do Prisma (via exec no container ja rodando)
+docker compose -f docker-compose.prod.yml exec -T server npx prisma migrate deploy
+
+# Subir todos os containers restantes
 docker compose -f docker-compose.prod.yml up -d
 
 # Verificar status
 docker compose -f docker-compose.prod.yml ps
 ```
 
-Todos os containers devem estar `healthy` ou `running`.
+Todos os containers devem estar `healthy` ou `running`. Deploys subsequentes via CI/CD rodam a migration automaticamente.
 
-### 2.9 Configurar backup automatico
+### 2.10 Configurar backup automatico
 
 ```bash
 chmod +x /opt/bens-seguros/scripts/backup.sh
@@ -294,7 +388,7 @@ crontab -e
 Adicione esta linha:
 
 ```cron
-0 3 * * * /opt/bens-seguros/scripts/backup.sh >> /var/log/bens-backup.log 2>&1
+0 3 * * * /opt/bens-seguros/scripts/backup.sh >> /opt/bens-seguros/logs/backup.log 2>&1
 ```
 
 Backup roda diariamente as 3h da manha (horario do servidor).
@@ -319,18 +413,23 @@ No repositorio GitHub → Settings → Secrets and variables → Actions, adicio
 
 Apos configurar, o deploy e automatico:
 
-- **Push em `apps/server/**`ou`packages/**`** → builda imagem server, deploya na VPS
-- **Push em `apps/chat-server/**`\*\* → builda imagem chat, deploya na VPS
-- **Push em `apps/web/**`\*\* → Vercel deploya automaticamente
+- Push em `apps/server/**` ou `packages/**` → builda imagem server, deploya na VPS
+- Push em `apps/chat-server/**` → builda imagem chat, deploya na VPS
+- Push em `apps/web/**` → Vercel deploya automaticamente
 
 Cada deploy:
 
-1. Roda quality gates (lint, typecheck, test)
-2. Builda imagem Docker com tag SHA
-3. Faz SSH na VPS e atualiza containers
-4. Roda Prisma migrate (server apenas)
-5. Verifica health check
-6. Se falhar, faz rollback automatico
+1. Roda quality gates (lint, typecheck, test) via `ci.yml` reutilizavel
+2. Builda imagem Docker com tag SHA e pusha para Docker Hub
+3. Copia `deploy.sh`, `docker-compose.prod.yml` e `nginx/prod.conf` para a VPS
+4. Executa `scripts/deploy.sh <server|chat> <sha>` na VPS, que:
+   - Puxa imagens novas
+   - Roda Prisma migrate (server apenas)
+   - Sobe containers
+   - Recarrega nginx
+   - Faz polling do health check (max 120s)
+   - Smoke test de cookies cross-subdomain (server apenas)
+   - Se falhar, faz rollback com verificacao de health
 
 ---
 
@@ -422,9 +521,16 @@ docker compose -f docker-compose.prod.yml ps
 
 ```bash
 cd /opt/bens-seguros
-PREV_TAG=$(cat .current-tag)
+
+# Rollback do server
+PREV_TAG=$(cat .current-server-tag)
 export TAG=$PREV_TAG
 docker compose -f docker-compose.prod.yml up -d server worker
+
+# Rollback do chat
+PREV_TAG=$(cat .current-chat-tag)
+export TAG=$PREV_TAG
+docker compose -f docker-compose.prod.yml up -d chat-server chat-worker
 ```
 
 ### Executar backup manualmente

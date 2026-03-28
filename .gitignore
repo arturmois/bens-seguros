@@ -20,3 +20,4 @@ task*.png
 .agents/
 .claude/
 skills-lock.json
+*.pem

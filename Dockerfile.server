@@ -56,6 +56,7 @@ COPY --from=prod-deps /app/apps/server/node_modules ./apps/server/node_modules
 # Prisma generated client (Prisma 7 uses WASM, no native .prisma binaries)
 COPY --from=builder /app/packages/db/generated ./packages/db/generated
 COPY --from=builder /app/packages/db/prisma ./prisma
+COPY --from=builder /app/packages/db/prisma.config.ts ./prisma.config.ts
 
 # Bundled app code
 COPY --from=builder /app/apps/server/dist ./server/dist
