@@ -1,9 +1,11 @@
 'use client'
 
 import { CHANNEL_META } from '@repo/shared'
+import { Loader2 } from 'lucide-react'
 import { Controller } from 'react-hook-form'
 import type { Control, FieldErrors, UseFormRegister } from 'react-hook-form'
 
+import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
 import { Input } from '@/components/ui/input'
 import {
@@ -20,6 +22,7 @@ import { ChannelIcon } from '@/features/chat/components/channel-icon'
 import type { ChannelFormValues } from '../lib/schemas'
 import { CHANNEL_TYPE_OPTIONS } from '../lib/schemas'
 import type { CreateChannelPayload } from '../types'
+import { useValidateMetaChannel } from '../hooks/use-channels'
 
 interface ChannelTypeSelectProps {
   readonly control: Control<ChannelFormValues>
@@ -190,32 +193,82 @@ interface MetaSocialFieldsProps {
   readonly register: UseFormRegister<ChannelFormValues>
   readonly errors: FieldErrors<ChannelFormValues>
   readonly channelType: 'MESSENGER' | 'INSTAGRAM'
+  readonly watchMetaPageId?: string
+  readonly watchMetaToken?: string
 }
 
 export function MetaSocialFields({
   register,
   errors,
   channelType,
+  watchMetaPageId,
+  watchMetaToken,
 }: MetaSocialFieldsProps) {
-  const label = channelType === 'MESSENGER' ? 'Messenger' : 'Instagram'
+  const isInstagram = channelType === 'INSTAGRAM'
+  const validate = useValidateMetaChannel()
+
+  const pageIdHelper = isInstagram
+    ? 'ID da conta Instagram. Encontre via Graph API Explorer: GET /me?fields=id,username (formato: 17841xxxxx)'
+    : 'ID da Página do Facebook. Encontre em Configurações da Página > Transparência'
+
+  function handleValidate() {
+    if (!watchMetaPageId || !watchMetaToken) return
+    validate.mutate({
+      pageId: watchMetaPageId,
+      token: watchMetaToken,
+      channelType,
+    })
+  }
+
   return (
     <>
       <FormField
         label="Page ID"
         error={errors.metaPageId?.message}
-        helperText={`ID da página ${label} no Meta Business.`}
+        helperText={pageIdHelper}
         required
       >
         <Input placeholder="ID da página Meta" {...register('metaPageId')} />
       </FormField>
 
-      <FormField label="Token" error={errors.metaToken?.message} required>
+      <FormField
+        label="Token"
+        error={errors.metaToken?.message}
+        helperText="Page Access Token. Gere em Meta for Developers > seu App > Messenger > Tokens de Acesso."
+        required
+      >
         <Input
           type="password"
           placeholder="Token de acesso da página"
           {...register('metaToken')}
         />
       </FormField>
+
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleValidate}
+          disabled={!watchMetaPageId || !watchMetaToken || validate.isPending}
+        >
+          {validate.isPending ? (
+            <Loader2 className="mr-2 size-3 animate-spin" />
+          ) : null}
+          Testar Conexão
+        </Button>
+        {validate.isSuccess && (
+          <span className="text-sm text-green-600">
+            Conectado:{' '}
+            {validate.data.username
+              ? `@${validate.data.username}`
+              : validate.data.name}
+          </span>
+        )}
+        {validate.isError && (
+          <span className="text-destructive text-sm">Falha na validação</span>
+        )}
+      </div>
     </>
   )
 }
@@ -266,7 +319,7 @@ export function buildCreatePayload(
   return {
     ...base,
     type: values.channelType,
-    brokerType: 'META',
+    brokerType: values.channelType,
     config: {
       metaPageId: values.metaPageId,
       metaToken: values.metaToken,

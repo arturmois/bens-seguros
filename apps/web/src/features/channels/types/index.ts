@@ -7,7 +7,12 @@ export type {
 export interface CreateChannelPayload {
   readonly name: string
   readonly type: 'WHATSAPP' | 'WEB_CHAT' | 'MESSENGER' | 'INSTAGRAM'
-  readonly brokerType: 'BAILEYS' | 'META' | 'WEB_CHAT'
+  readonly brokerType:
+    | 'BAILEYS'
+    | 'META'
+    | 'WEB_CHAT'
+    | 'MESSENGER'
+    | 'INSTAGRAM'
   readonly phoneNumber?: string
   readonly metaToken?: string
   readonly phoneNumberId?: string
@@ -19,6 +24,7 @@ export interface UpdateChannelPayload {
   readonly phoneNumber?: string
   readonly isActive?: boolean
   readonly aiAgentId?: string | null
+  readonly config?: Record<string, unknown>
 }
 
 export interface ChannelStatusEvent {

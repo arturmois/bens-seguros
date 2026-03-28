@@ -79,17 +79,38 @@ export function ChannelFormSheet({
 
   const watchedChannelType = form.watch('channelType')
   const watchedBrokerType = form.watch('brokerType')
+  const watchedMetaPageId = form.watch('metaPageId')
+  const watchedMetaToken = form.watch('metaToken')
 
   useEffect(() => {
     if (!open) return
 
     if (channel) {
+      const cfg = channel.config
+      const cfgString = (key: string): string => {
+        const val = cfg?.[key]
+        return typeof val === 'string' ? val : ''
+      }
+      const rawOrigins = cfg?.['allowedOrigins']
+      const allowedOriginsValue = Array.isArray(rawOrigins)
+        ? rawOrigins
+            .filter((o): o is string => typeof o === 'string')
+            .join(', ')
+        : typeof rawOrigins === 'string'
+          ? rawOrigins
+          : ''
       form.reset({
         channelType: channel.type,
         name: channel.name,
         brokerType: toFormBrokerType(channel.brokerType),
         phoneNumber: channel.phoneNumber ?? '',
         aiAgentId: channel.aiAgentId ?? null,
+        metaPageId: cfgString('metaPageId'),
+        metaToken: cfgString('metaToken'),
+        phoneNumberId: cfgString('metaPhoneNumberId'),
+        widgetColor: cfgString('widgetColor') || '#1f4b5f',
+        welcomeMessage: cfgString('welcomeMessage'),
+        allowedOrigins: allowedOriginsValue,
       })
       return
     }
@@ -99,6 +120,11 @@ export function ChannelFormSheet({
 
   function handleSubmit(values: ChannelFormValues) {
     if (isEditMode && channel) {
+      const isMetaSocial =
+        channel.type === 'MESSENGER' || channel.type === 'INSTAGRAM'
+      const isWhatsAppMeta =
+        channel.type === 'WHATSAPP' && channel.brokerType === 'META'
+
       updateChannel.mutate(
         {
           id: channel.id,
@@ -106,6 +132,22 @@ export function ChannelFormSheet({
             name: values.name,
             phoneNumber: values.phoneNumber,
             aiAgentId: values.aiAgentId,
+            ...(isMetaSocial
+              ? {
+                  config: {
+                    metaPageId: values.metaPageId,
+                    metaToken: values.metaToken,
+                  },
+                }
+              : {}),
+            ...(isWhatsAppMeta
+              ? {
+                  config: {
+                    metaToken: values.metaToken,
+                    metaPhoneNumberId: values.phoneNumberId,
+                  },
+                }
+              : {}),
           },
         },
         { onSuccess: () => onOpenChange(false) }
@@ -173,6 +215,8 @@ export function ChannelFormSheet({
               register={form.register}
               errors={form.formState.errors}
               channelType={watchedChannelType}
+              watchMetaPageId={watchedMetaPageId}
+              watchMetaToken={watchedMetaToken}
             />
           )}
 
