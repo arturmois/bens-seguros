@@ -167,23 +167,38 @@ mkdir -p /opt/bens-seguros/logs
 chown -R deploy:deploy /opt/bens-seguros
 ```
 
-> A partir daqui, use `ssh -i ~/.ssh/bens-deploy deploy@<IP_DA_VPS>` para conectar.
+> A partir daqui, use `ssh bens-vps` para conectar (ou `ssh -i ~/.ssh/bens-deploy deploy@<IP_DA_VPS>`).
+
+**Opcional mas recomendado:** configure um alias SSH na sua **maquina local** para nao precisar digitar `-i` em todo comando:
+
+```bash
+cat >> ~/.ssh/config << 'EOF'
+Host bens-vps
+  HostName <IP_DA_VPS>
+  User deploy
+  IdentityFile ~/.ssh/bens-deploy
+EOF
+```
+
+Com isso, `ssh bens-vps`, `scp arquivo bens-vps:/caminho` e o GitHub Actions (que usa a chave diretamente) funcionam sem atrito.
 
 ### 2.5 Enviar arquivos para a VPS
 
-Da sua maquina local, na raiz do projeto:
+Da sua **maquina local**, na raiz do projeto:
 
 ```bash
-# Compose e Nginx config
-scp docker-compose.prod.yml deploy@<IP_DA_VPS>:/opt/bens-seguros/
-scp nginx/prod.conf deploy@<IP_DA_VPS>:/opt/bens-seguros/nginx/prod.conf
-scp scripts/deploy.sh deploy@<IP_DA_VPS>:/opt/bens-seguros/scripts/
-scp scripts/backup.sh deploy@<IP_DA_VPS>:/opt/bens-seguros/scripts/
+# Compose, Nginx, scripts
+scp -i ~/.ssh/bens-deploy docker-compose.prod.yml deploy@<IP_DA_VPS>:/opt/bens-seguros/
+scp -i ~/.ssh/bens-deploy nginx/prod.conf deploy@<IP_DA_VPS>:/opt/bens-seguros/nginx/prod.conf
+scp -i ~/.ssh/bens-deploy scripts/deploy.sh deploy@<IP_DA_VPS>:/opt/bens-seguros/scripts/
+scp -i ~/.ssh/bens-deploy scripts/backup.sh deploy@<IP_DA_VPS>:/opt/bens-seguros/scripts/
 
 # Certificados Cloudflare Origin (gerados no Step 1.5)
-scp cloudflare-origin.pem deploy@<IP_DA_VPS>:/opt/bens-seguros/nginx/certs/
-scp cloudflare-origin-key.pem deploy@<IP_DA_VPS>:/opt/bens-seguros/nginx/certs/
+scp -i ~/.ssh/bens-deploy cloudflare-origin.pem deploy@<IP_DA_VPS>:/opt/bens-seguros/nginx/certs/
+scp -i ~/.ssh/bens-deploy cloudflare-origin-key.pem deploy@<IP_DA_VPS>:/opt/bens-seguros/nginx/certs/
 ```
+
+> Se configurou o alias SSH acima, substitua `-i ~/.ssh/bens-deploy deploy@<IP_DA_VPS>` por `bens-vps`.
 
 ### 2.6 Gerar keyfile do MongoDB (replica set com auth)
 
