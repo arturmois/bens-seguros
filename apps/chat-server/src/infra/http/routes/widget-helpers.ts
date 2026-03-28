@@ -100,7 +100,7 @@ export function isValidOrigin(
 ): boolean {
   if (allowedOrigins.length === 0) return true
   if (!requestOrigin) return false
-  return allowedOrigins.some((origin) => requestOrigin.startsWith(origin))
+  return allowedOrigins.some((origin) => requestOrigin === origin)
 }
 
 export async function rateLimitHook(

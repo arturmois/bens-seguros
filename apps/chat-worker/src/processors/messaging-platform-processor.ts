@@ -55,8 +55,10 @@ async function fetchMetaContactName(
   accessToken: string
 ): Promise<string | undefined> {
   try {
-    const url = `${META_API_BASE}/${senderId}?fields=name&access_token=${accessToken}`
-    const response = await fetch(url)
+    const url = `${META_API_BASE}/${senderId}?fields=name`
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
     const json: unknown = await response.json()
     const parsed = metaProfileResponseSchema.safeParse(json)
     const data = parsed.success

@@ -11,12 +11,16 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-import { CHANNEL_META } from '@repo/shared'
+import { CHANNEL_META, CHANNEL_TYPES } from '@repo/shared'
+import type { ChannelType } from '@repo/shared'
+
+function isChannelType(value: string): value is ChannelType {
+  return (CHANNEL_TYPES as readonly string[]).includes(value)
+}
 import { AlertCircle, MessageCircle, RefreshCw, Search } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import type {
-  ChannelType,
   ConversationData,
   ConversationFilters,
   ConversationStatus,
@@ -129,7 +133,8 @@ export function ConversationList({
     const selected = value ?? 'ALL'
     onFiltersChange({
       ...filters,
-      channelType: selected === 'ALL' ? undefined : (selected as ChannelType),
+      channelType:
+        selected !== 'ALL' && isChannelType(selected) ? selected : undefined,
     })
   }
 
