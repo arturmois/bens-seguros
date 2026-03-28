@@ -57,6 +57,12 @@ export function getClientIp(request: FastifyRequest): string {
   return request.ip
 }
 
+const OBJECT_ID_RE = /^[a-f\d]{24}$/i
+
+export function isValidObjectId(value: string): boolean {
+  return OBJECT_ID_RE.test(value)
+}
+
 export function getChannelConfig(config: unknown): {
   widgetColor: string
   welcomeMessage: string

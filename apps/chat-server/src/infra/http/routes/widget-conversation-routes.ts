@@ -1,10 +1,9 @@
 import { Message } from '@repo/db-chat'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
-import mongoose from 'mongoose'
 import { z } from 'zod'
 
 import { widgetAuthMiddleware } from '../middleware/widget-auth.js'
-import { MESSAGES_PER_PAGE } from './widget-helpers.js'
+import { isValidObjectId, MESSAGES_PER_PAGE } from './widget-helpers.js'
 
 // ---------------------------------------------------------------------------
 // Zod schemas
@@ -58,8 +57,8 @@ export async function widgetConversationRoutes(
         tenantId: visitor.tenantId,
       }
 
-      if (before && mongoose.Types.ObjectId.isValid(before)) {
-        filter['_id'] = { $lt: new mongoose.Types.ObjectId(before) }
+      if (before && isValidObjectId(before)) {
+        filter['_id'] = { $lt: before }
       }
 
       const messages = await Message.find(filter)

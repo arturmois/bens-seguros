@@ -1,9 +1,8 @@
 import { Channel } from '@repo/db-chat'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
-import mongoose from 'mongoose'
 import { z } from 'zod'
 
-import { getChannelConfig } from './widget-helpers.js'
+import { getChannelConfig, isValidObjectId } from './widget-helpers.js'
 
 const channelIdParamSchema = z.object({
   channelId: z.string().min(1),
@@ -28,7 +27,7 @@ export async function widgetConfigRoute(app: FastifyInstance): Promise<void> {
 
       const { channelId } = params.data
 
-      if (!mongoose.Types.ObjectId.isValid(channelId)) {
+      if (!isValidObjectId(channelId)) {
         return reply.status(404).send({
           success: false,
           error: {

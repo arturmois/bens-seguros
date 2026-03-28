@@ -1,11 +1,14 @@
 import { Channel, Contact, Conversation, Message } from '@repo/db-chat'
 import { CHAT_PUBSUB_CHANNELS } from '@repo/shared'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
-import mongoose from 'mongoose'
 import { z } from 'zod'
 
 import { signVisitorToken } from '../middleware/widget-auth.js'
-import { getChannelConfig, isValidOrigin } from './widget-helpers.js'
+import {
+  getChannelConfig,
+  isValidObjectId,
+  isValidOrigin,
+} from './widget-helpers.js'
 
 const BR_PHONE_REGEX = /^\+?55\d{10,11}$/
 
@@ -41,7 +44,7 @@ export async function widgetCreateConversationRoute(
 
       const { channelId, name, phone, email } = parsed.data
 
-      if (!mongoose.Types.ObjectId.isValid(channelId)) {
+      if (!isValidObjectId(channelId)) {
         return reply.status(404).send({
           success: false,
           error: {
