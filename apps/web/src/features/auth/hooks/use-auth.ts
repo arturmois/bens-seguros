@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation'
 import { authClient } from '@/lib/auth-client'
 import { setActiveOrgCookie, getActiveOrgCookie } from '@/lib/org-cookie'
 import { api } from '@/lib/api-client'
-import { CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION } from '@repo/core'
+import {
+  CURRENT_TERMS_VERSION,
+  CURRENT_PRIVACY_VERSION,
+} from '@repo/core/legal'
 
 async function fetchSession() {
   const response = await authClient.getSession()

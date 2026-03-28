@@ -1,4 +1,4 @@
-import { CURRENT_PRIVACY_VERSION } from '@repo/core'
+import { CURRENT_PRIVACY_VERSION } from '@repo/core/legal'
 import type { LegalDocument } from '../types'
 
 export const privacyPolicy: LegalDocument = {

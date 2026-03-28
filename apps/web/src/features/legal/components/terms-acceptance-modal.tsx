@@ -1,6 +1,9 @@
 'use client'
 
-import { CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION } from '@repo/core'
+import {
+  CURRENT_TERMS_VERSION,
+  CURRENT_PRIVACY_VERSION,
+} from '@repo/core/legal'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import {

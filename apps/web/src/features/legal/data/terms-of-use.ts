@@ -1,4 +1,4 @@
-import { CURRENT_TERMS_VERSION } from '@repo/core'
+import { CURRENT_TERMS_VERSION } from '@repo/core/legal'
 import type { LegalDocument } from '../types'
 
 export const termsOfUse: LegalDocument = {

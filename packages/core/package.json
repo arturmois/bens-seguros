@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./container": "./src/container.ts",
-    "./notification": "./src/modules/notification/index.ts"
+    "./notification": "./src/modules/notification/index.ts",
+    "./legal": "./src/shared/legal-constants.ts"
   },
   "scripts": {
     "test": "vitest run --passWithNoTests",

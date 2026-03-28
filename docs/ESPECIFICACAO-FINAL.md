@@ -519,7 +519,7 @@ features/<feature>/
 
 ## 13. OBSERVABILIDADE
 
-- **Sentry:** error tracking + performance (todas 5 apps)
+- **Sentry:** error tracking + performance (todas 6 apps)
 - **Bull Board:** dashboard web para filas BullMQ
 - **Pino:** structured logging (JSON, stdout)
 - **Audit logs:** compliance trail em banco
@@ -532,11 +532,11 @@ features/<feature>/
 | #   | Decisao         | Escolha                                                          |
 | --- | --------------- | ---------------------------------------------------------------- |
 | 1   | Chat-server     | Separado do server ERP                                           |
-| 2   | Monorepo        | 5 apps (web, server, worker, chat-server, chat-worker)           |
+| 2   | Monorepo        | 6 apps (web, server, worker, chat-server, chat-worker, widget)   |
 | 3   | MongoDB ORM     | Mongoose                                                         |
 | 4   | Roles           | 5 (OWNER, ADMIN, MANAGER, COMMERCIAL, VIEWER)                    |
 | 5   | WhatsApp        | Baileys primario + Meta API fallback                             |
-| 6   | Web chat        | Preparado na arquitetura, nao implementado agora                 |
+| 6   | Web chat        | Implementado como app `widget` (Vite + React, embed via script)  |
 | 7   | Notificacoes    | In-app (Socket.IO) + email (Resend)                              |
 | 8   | Tipografia      | Inter (variable font)                                            |
 | 9   | Cores           | Teal #1f4b5f + Gold #b98927 em oklch                             |

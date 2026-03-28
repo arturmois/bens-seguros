@@ -271,31 +271,36 @@
 
 ---
 
-## 6. Canais WhatsApp (`/settings/channels`)
+## 6. Canais (`/settings/channels`)
 
-> Visivel apenas para OWNER e ADMIN
+> Visivel apenas para OWNER e ADMIN. Gerencia todos os tipos de canal: WhatsApp, Messenger, Instagram, Web Chat.
 
 ### Layout
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Canais WhatsApp                                            │
-│  Conecte numeros de WhatsApp para atendimento               │
+│  Canais                                                     │
+│  Gerencie seus canais de atendimento                        │
 │                                                      [+ Novo canal]
 │                                                             │
 │  ┌─────────────────────────────────────────────────────┐    │
-│  │  📱 Vendas Principal                                 │    │
+│  │  📱 Vendas Principal          tipo: WhatsApp         │    │
 │  │     +55 11 99999-0001 · Baileys                      │    │
 │  │     🟢 Conectado · Ultima msg: 5 min atras           │    │
 │  │     AI Bot: ✓ Ativo                     [⚙] [...]    │    │
 │  ├─────────────────────────────────────────────────────┤    │
-│  │  📱 Atendimento Maria                                │    │
-│  │     +55 11 99999-0002 · Baileys                      │    │
-│  │     🔴 Desconectado                     [Reconectar] │    │
+│  │  💬 Pagina Facebook           tipo: Messenger        │    │
+│  │     Corretora ABC · Meta API                         │    │
+│  │     🟢 Ativo                                         │    │
+│  │     AI Bot: ✓ Ativo                     [⚙] [...]    │    │
+│  ├─────────────────────────────────────────────────────┤    │
+│  │  📷 Instagram                 tipo: Instagram        │    │
+│  │     @corretoraabc · Meta API                         │    │
+│  │     🟢 Ativo                                         │    │
 │  │     AI Bot: ✗ Desativado                [⚙] [...]    │    │
 │  ├─────────────────────────────────────────────────────┤    │
-│  │  📱 Comercial                                        │    │
-│  │     +55 11 88888-0000 · Meta API                     │    │
+│  │  🌐 Chat do Site              tipo: Web Chat         │    │
+│  │     Widget embedado · Socket.IO                      │    │
 │  │     🟢 Ativo                                         │    │
 │  │     AI Bot: ✓ Ativo                     [⚙] [...]    │    │
 │  └─────────────────────────────────────────────────────┘    │
@@ -307,17 +312,20 @@
 
 ```
 ┌──────────────────────────────────────────┐
-│  Adicionar canal WhatsApp                │
+│  Adicionar canal                         │
 │                                          │
 │  Nome do canal *                         │
 │  [Vendas Principal_________]             │
 │                                          │
 │  Tipo *                                  │
-│  ┌──────────────┐ ┌──────────────┐       │
-│  │  📱 Baileys  │ │  📡 Meta API │       │
-│  │  Gratis      │ │  Oficial     │       │
-│  │  Via QR Code │ │  Via Token   │       │
-│  └──────────────┘ └──────────────┘       │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ │
+│  │ 📱 WA    │ │ 💬 Msgr  │ │ 📷 Insta │ │
+│  │ Baileys  │ │ Meta API │ │ Meta API │ │
+│  └──────────┘ └──────────┘ └──────────┘ │
+│  ┌──────────┐ ┌──────────┐              │
+│  │ 📡 WA    │ │ 🌐 Web   │              │
+│  │ Meta API │ │ Chat     │              │
+│  └──────────┘ └──────────┘              │
 │                                          │
 │              [Cancelar]  [Criar]         │
 └──────────────────────────────────────────┘
@@ -571,7 +579,7 @@ ORGANIZACAO
   👥 Membros             /settings/members        (OWNER, ADMIN)
 
 CANAIS
-  📱 WhatsApp            /settings/channels       (OWNER, ADMIN)
+  📱 Canais              /settings/channels       (OWNER, ADMIN)
   🤖 Assistente IA       /settings/ai             (OWNER, ADMIN)
 
 PREFERENCIAS
@@ -581,16 +589,16 @@ PREFERENCIAS
 
 ### Icones (lucide-react)
 
-| Secao         | Icone        |
-| ------------- | ------------ |
-| Meu Perfil    | `User`       |
-| Seguranca     | `Shield`     |
-| Organizacao   | `Building2`  |
-| Membros       | `Users`      |
-| WhatsApp      | `Smartphone` |
-| Assistente IA | `Bot`        |
-| Notificacoes  | `Bell`       |
-| Aparencia     | `Palette`    |
+| Secao         | Icone           |
+| ------------- | --------------- |
+| Meu Perfil    | `User`          |
+| Seguranca     | `Shield`        |
+| Organizacao   | `Building2`     |
+| Membros       | `Users`         |
+| Canais        | `MessageSquare` |
+| Assistente IA | `Bot`           |
+| Notificacoes  | `Bell`          |
+| Aparencia     | `Palette`       |
 
 ### Visibilidade por Role
 
@@ -600,7 +608,7 @@ PREFERENCIAS
 | Seguranca     | ✓     | ✓     | ✓       | ✓          | ✓      |
 | Organizacao   | ✓     | ✓     | ✗       | ✗          | ✗      |
 | Membros       | ✓     | ✓     | ✗       | ✗          | ✗      |
-| WhatsApp      | ✓     | ✓     | ✗       | ✗          | ✗      |
+| Canais        | ✓     | ✓     | ✗       | ✗          | ✗      |
 | Assistente IA | ✓     | ✓     | ✗       | ✗          | ✗      |
 | Notificacoes  | ✓     | ✓     | ✓       | ✓          | ✓      |
 | Aparencia     | ✓     | ✓     | ✓       | ✓          | ✓      |
@@ -610,7 +618,7 @@ PREFERENCIAS
 - Sidebar vira scroll horizontal de pills no topo:
 
 ```
-[👤 Perfil] [🔒 Seguranca] [🏢 Org] [👥 Membros] [📱 WhatsApp] ...
+[👤 Perfil] [🔒 Seguranca] [🏢 Org] [👥 Membros] [📱 Canais] ...
 ```
 
 - Pill ativa: fundo `primary-100`, texto `primary-700`
