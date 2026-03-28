@@ -19,13 +19,12 @@
   const channelId = currentScript.getAttribute('data-channel-id')
   if (!channelId) return
 
-  // Derive base URL from the script src (same origin as the widget app)
-  const scriptSrc = currentScript.src
-  const baseUrl = scriptSrc.substring(0, scriptSrc.lastIndexOf('/'))
+  // Derive origin from the script src — widget SPA served at /widget-app/
+  const origin = new URL(currentScript.src).origin
 
   // Create iframe
   const iframe = document.createElement('iframe')
-  iframe.src = `${baseUrl}/?channelId=${encodeURIComponent(channelId)}`
+  iframe.src = `${origin}/widget-app/?channelId=${encodeURIComponent(channelId)}`
   iframe.title = 'Chat Widget'
   iframe.setAttribute('aria-label', 'Chat de atendimento')
 

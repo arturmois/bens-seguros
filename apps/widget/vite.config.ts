@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [react()],
+  base: '/widget-app/',
   build: {
     outDir: 'dist',
     rollupOptions: {

@@ -1,4 +1,8 @@
 import cors from '@fastify/cors'
+import fastifyStatic from '@fastify/static'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { env } from '@repo/env'
 import { createAdapter } from '@socket.io/redis-adapter'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
@@ -24,6 +28,7 @@ import { setupWidgetNamespace } from './infra/socket/widget-namespace.js'
 
 const UNAUTHENTICATED_PATHS = new Set(['/health', '/chat/webhook/meta'])
 const WIDGET_PATH_PREFIX = '/widget/'
+const WIDGET_APP_PREFIX = '/widget-app/'
 
 interface BuildChatAppOptions {
   readonly redisPub: IORedis
@@ -115,6 +120,19 @@ export async function buildChatApp(
   // Health check (no auth)
   app.get('/health', async () => ({ status: 'ok' }))
 
+  // Widget static assets — SPA served at /widget-app/, embed.js at /widget/embed.js
+  const currentDir = path.dirname(fileURLToPath(import.meta.url))
+  const widgetDistPath = path.resolve(currentDir, '../../widget/dist')
+  await app.register(fastifyStatic, {
+    root: widgetDistPath,
+    prefix: WIDGET_APP_PREFIX,
+    decorateReply: false,
+  })
+  app.get('/widget/embed.js', async (_request, reply) => {
+    const content = readFileSync(path.join(widgetDistPath, 'embed.js'), 'utf-8')
+    return reply.type('application/javascript').send(content)
+  })
+
   // Unauthenticated routes (Meta webhook)
   await app.register(webhookRoutes)
 
@@ -128,6 +146,7 @@ export async function buildChatApp(
       const path = request.url.split('?').at(0) ?? ''
       if (UNAUTHENTICATED_PATHS.has(path)) return
       if (path.startsWith(WIDGET_PATH_PREFIX)) return
+      if (path.startsWith(WIDGET_APP_PREFIX)) return
       await chatAuthMiddleware(request, reply)
     }
   )
