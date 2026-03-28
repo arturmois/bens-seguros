@@ -13,10 +13,10 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 const NAV_LINKS = [
-  { label: 'Recursos', href: '#recursos' },
-  { label: 'Preços', href: '#precos' },
-  { label: 'Depoimentos', href: '#depoimentos' },
-  { label: 'Contato', href: '#faq' },
+  { label: 'Recursos', href: '/#recursos' },
+  { label: 'Preços', href: '/#precos' },
+  { label: 'Depoimentos', href: '/#depoimentos' },
+  { label: 'Contato', href: '/#faq' },
 ] as const
 
 export function MarketingNav(): React.ReactElement {
@@ -60,12 +60,12 @@ function DesktopLinks(): React.ReactElement {
     <ul className="hidden items-center gap-8 lg:flex">
       {NAV_LINKS.map((link) => (
         <li key={link.href}>
-          <a
+          <Link
             href={link.href}
             className="text-sm text-slate-300 transition-colors hover:text-white"
           >
             {link.label}
-          </a>
+          </Link>
         </li>
       ))}
     </ul>
@@ -115,14 +115,14 @@ function MobileMenu({
           </SheetHeader>
           <div className="flex flex-col gap-2 px-4 pt-4">
             {NAV_LINKS.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => onOpenChange(false)}
                 className="rounded-lg px-3 py-2.5 text-sm text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
             <hr className="my-2 border-white/10" />
             <Link

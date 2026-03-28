@@ -42,7 +42,7 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <div className="mx-auto max-w-6xl px-4 pb-12 pt-24 sm:px-6">
       {/* Header */}
       <div className="mb-10 text-center">
         <h1 className="text-foreground text-3xl font-bold sm:text-4xl">
