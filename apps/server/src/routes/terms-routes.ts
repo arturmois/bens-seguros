@@ -11,7 +11,7 @@ const acceptTermsSchema = z.object({
 export async function termsRoutes(app: FastifyInstance) {
   // GET /api/terms/status — check if user needs to re-accept
   app.get('/api/terms/status', async (request) => {
-    const userId = request.user.id
+    const userId = request.user!.id
 
     const user = await prisma.user.findUniqueOrThrow({
       where: { id: userId },
@@ -36,7 +36,7 @@ export async function termsRoutes(app: FastifyInstance) {
 
   // POST /api/terms/accept — accept current terms
   app.post('/api/terms/accept', async (request, reply) => {
-    const userId = request.user.id
+    const userId = request.user!.id
     const body = acceptTermsSchema.parse(request.body)
     const ipAddress = request.ip
 
