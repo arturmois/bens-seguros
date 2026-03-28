@@ -115,15 +115,33 @@ adduser deploy --disabled-password
 usermod -aG docker deploy
 ```
 
-Ainda na VPS como root, configurar chave SSH para o usuario deploy. Use a **mesma chave publica** que corresponde a chave privada no secret `VPS_SSH_KEY` do GitHub Actions:
+Gerar chave SSH para deploy (na sua **maquina local**, nao na VPS):
+
+```bash
+# Gerar par de chaves Ed25519 (se ja tiver uma, pule este passo)
+ssh-keygen -t ed25519 -C "deploy@bensseg.com" -f ~/.ssh/bens-deploy
+
+# Ver a chave publica (copie o output inteiro)
+cat ~/.ssh/bens-deploy.pub
+```
+
+> Esta chave privada (`~/.ssh/bens-deploy`) sera usada no secret `VPS_SSH_KEY` do GitHub Actions (Parte 3.1). Guarde-a.
+
+Ainda na **VPS como root**, configurar a chave publica para o usuario deploy:
 
 ```bash
 mkdir -p /home/deploy/.ssh
-nano /home/deploy/.ssh/authorized_keys
-# Cole a chave publica (ex: ssh-ed25519 AAAA... email@example.com)
+echo "COLE_AQUI_A_CHAVE_PUBLICA" > /home/deploy/.ssh/authorized_keys
 chmod 700 /home/deploy/.ssh
 chmod 600 /home/deploy/.ssh/authorized_keys
 chown -R deploy:deploy /home/deploy/.ssh
+```
+
+Testar conexao (da sua **maquina local**):
+
+```bash
+ssh -i ~/.ssh/bens-deploy deploy@<IP_DA_VPS> whoami
+# Deve retornar: deploy
 ```
 
 Desabilitar autenticacao por senha:
