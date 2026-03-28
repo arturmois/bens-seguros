@@ -185,7 +185,7 @@ export function RegisterForm() {
           <label htmlFor="acceptedTerms" className="text-sm text-slate-400">
             Li e aceito os{' '}
             <Link
-              href="/termos-de-uso"
+              href="/terms"
               target="_blank"
               className="text-accent-400 hover:text-accent-300 underline"
             >
@@ -193,7 +193,7 @@ export function RegisterForm() {
             </Link>{' '}
             e a{' '}
             <Link
-              href="/politica-de-privacidade"
+              href="/privacy"
               target="_blank"
               className="text-accent-400 hover:text-accent-300 underline"
             >

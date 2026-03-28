@@ -44,14 +44,14 @@ export function TermsAcceptanceModal() {
 
         <div className="flex flex-col gap-3 px-6">
           <Link
-            href="/termos-de-uso"
+            href="/terms"
             target="_blank"
             className="text-accent-400 hover:text-accent-300 text-sm underline"
           >
             Ler Termos de Uso →
           </Link>
           <Link
-            href="/politica-de-privacidade"
+            href="/privacy"
             target="_blank"
             className="text-accent-400 hover:text-accent-300 text-sm underline"
           >

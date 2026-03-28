@@ -44,7 +44,7 @@ export const termsOfUse: LegalDocument = {
     {
       id: 'dados-e-privacidade',
       title: '8. Dados e Privacidade',
-      content: `O tratamento de dados pessoais realizado pelo Bens Seguros é regido pela Política de Privacidade, disponível em /politica-de-privacidade, que é parte integrante destes Termos de Uso. Ao aceitar estes Termos, o usuário declara ter lido e concordado também com a Política de Privacidade.`,
+      content: `O tratamento de dados pessoais realizado pelo Bens Seguros é regido pela Política de Privacidade, disponível em /privacy, que é parte integrante destes Termos de Uso. Ao aceitar estes Termos, o usuário declara ter lido e concordado também com a Política de Privacidade.`,
     },
     {
       id: 'limitacao-de-responsabilidade',
