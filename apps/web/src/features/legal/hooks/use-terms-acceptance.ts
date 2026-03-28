@@ -2,8 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION } from '@repo/core'
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+import { api } from '@/lib/api-client'
 
 interface TermsStatusData {
   needsReAccept: boolean
@@ -13,40 +12,23 @@ interface TermsStatusData {
   userPrivacyVersion: string | null
 }
 
-async function fetchTermsStatus(): Promise<TermsStatusData> {
-  const response = await fetch(`${API_URL}/api/terms/status`, {
-    credentials: 'include',
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch terms status')
-  }
-
-  const json = (await response.json()) as {
-    success: boolean
-    data: TermsStatusData
-  }
-
-  return json.data
+interface AcceptTermsResult {
+  termsVersion: string
+  privacyVersion: string
+  acceptedAt: string
 }
 
-async function acceptTerms(): Promise<{ success: boolean }> {
-  const response = await fetch(`${API_URL}/api/terms/accept`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      termsVersion: CURRENT_TERMS_VERSION,
-      privacyVersion: CURRENT_PRIVACY_VERSION,
-    }),
+async function fetchTermsStatus(): Promise<TermsStatusData> {
+  const response = await api.get<TermsStatusData>('/api/terms/status')
+  return response.data
+}
+
+async function acceptTerms(): Promise<AcceptTermsResult> {
+  const response = await api.post<AcceptTermsResult>('/api/terms/accept', {
+    termsVersion: CURRENT_TERMS_VERSION,
+    privacyVersion: CURRENT_PRIVACY_VERSION,
   })
-
-  if (!response.ok) {
-    throw new Error('Failed to accept terms')
-  }
-
-  const json = (await response.json()) as { success: boolean }
-  return json
+  return response.data
 }
 
 export function useTermsAcceptance() {

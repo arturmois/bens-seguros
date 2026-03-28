@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { authClient } from '@/lib/auth-client'
 import { setActiveOrgCookie, getActiveOrgCookie } from '@/lib/org-cookie'
+import { api } from '@/lib/api-client'
+import { CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION } from '@repo/core'
 
 async function fetchSession() {
   const response = await authClient.getSession()
@@ -88,6 +90,20 @@ export function useAuth() {
       return { ...response, invitationId }
     },
     onSuccess: async (response) => {
+      // Record terms acceptance immediately after signup — session cookie is
+      // already set by Better Auth at this point, so the authenticated endpoint
+      // is reachable. This prevents the re-acceptance modal from showing on
+      // the very first login.
+      try {
+        await api.post('/api/terms/accept', {
+          termsVersion: CURRENT_TERMS_VERSION,
+          privacyVersion: CURRENT_PRIVACY_VERSION,
+        })
+      } catch {
+        // Non-critical: if this fails, the modal will prompt acceptance on
+        // the next page load. Do not block navigation.
+      }
+
       const invitationId = response.invitationId
 
       if (invitationId) {

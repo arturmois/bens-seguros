@@ -43,6 +43,8 @@ export function RegisterForm() {
     resolver: zodResolver(registerSchema),
   })
 
+  const acceptedTerms = form.watch('acceptedTerms')
+
   const onSubmit = (data: RegisterFormData) => {
     registerMutation.mutate(
       {
@@ -170,13 +172,13 @@ export function RegisterForm() {
         <div className="flex items-start gap-3">
           <Checkbox
             id="acceptedTerms"
-            checked={form.watch('acceptedTerms') === true}
+            checked={acceptedTerms === true}
             onCheckedChange={(checked) => {
-              form.setValue(
-                'acceptedTerms',
-                checked === true ? true : (false as never),
-                { shouldValidate: true }
-              )
+              if (checked === true) {
+                form.setValue('acceptedTerms', true, { shouldValidate: true })
+              } else {
+                form.resetField('acceptedTerms')
+              }
             }}
             className="mt-0.5"
           />

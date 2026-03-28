@@ -35,7 +35,7 @@ export async function termsRoutes(app: FastifyInstance) {
   })
 
   // POST /api/terms/accept — accept current terms
-  app.post('/api/terms/accept', async (request) => {
+  app.post('/api/terms/accept', async (request, reply) => {
     const userId = request.user.id
     const body = acceptTermsSchema.parse(request.body)
     const ipAddress = request.ip
@@ -44,13 +44,13 @@ export async function termsRoutes(app: FastifyInstance) {
       body.termsVersion !== CURRENT_TERMS_VERSION ||
       body.privacyVersion !== CURRENT_PRIVACY_VERSION
     ) {
-      return {
+      return reply.status(409).send({
         success: false,
         error: {
           code: 'VERSION_MISMATCH',
           message: 'Versão dos termos não corresponde à versão atual.',
         },
-      }
+      })
     }
 
     const now = new Date()
