@@ -13,6 +13,7 @@ export type MessageType =
   | 'OTHER'
 export type MessageStatus = 'PENDING' | 'SENT' | 'DELIVERED' | 'READ' | 'FAILED'
 export type ChannelStatus = 'CONNECTED' | 'DISCONNECTED' | 'QR_PENDING'
+export type ChannelType = 'WHATSAPP' | 'WEB_CHAT' | 'MESSENGER' | 'INSTAGRAM'
 
 export interface ConversationData {
   readonly id: string
@@ -28,6 +29,7 @@ export interface ConversationData {
   readonly whatsappPhone: string | null
   readonly closedAt: string | null
   readonly closedBy: string | null
+  readonly channelType?: ChannelType
   readonly hasAiAgent?: boolean
   readonly createdAt: string
   readonly updatedAt: string
@@ -51,17 +53,22 @@ export interface MessageData {
 export interface ContactData {
   readonly id: string
   readonly tenantId: string
-  readonly whatsappPhone: string
+  readonly whatsappPhone: string | null
   readonly pushName: string | null
   readonly profilePicUrl: string | null
   readonly clientId: string | null
+  readonly name: string | null
+  readonly email: string | null
+  readonly facebookId: string | null
+  readonly instagramId: string | null
+  readonly source: ChannelType | null
 }
 
 export interface ChannelData {
   readonly id: string
   readonly name: string
-  readonly type: 'WHATSAPP' | 'WEB'
-  readonly brokerType: 'BAILEYS' | 'META'
+  readonly type: ChannelType
+  readonly brokerType: 'BAILEYS' | 'META' | 'WEB_CHAT'
   readonly phoneNumber: string | null
   readonly isActive: boolean
   readonly status: ChannelStatus

@@ -1,6 +1,9 @@
 import { z } from 'zod'
 
-const BROKER_TYPES = ['BAILEYS', 'META'] as const
+export const FORM_BROKER_TYPES = ['BAILEYS', 'META'] as const
+export type FormBrokerType = (typeof FORM_BROKER_TYPES)[number]
+
+const BROKER_TYPES = FORM_BROKER_TYPES
 
 export const channelFormSchema = z
   .object({

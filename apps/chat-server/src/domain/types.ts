@@ -16,9 +16,9 @@ export type MessageType =
 
 export type MessageStatus = 'PENDING' | 'SENT' | 'DELIVERED' | 'READ' | 'FAILED'
 
-export type ChannelType = 'WHATSAPP' | 'WEB'
+export type ChannelType = 'WHATSAPP' | 'WEB_CHAT' | 'MESSENGER' | 'INSTAGRAM'
 
-export type BrokerType = 'BAILEYS' | 'META'
+export type BrokerType = 'BAILEYS' | 'META' | 'WEB_CHAT'
 
 export type ChannelStatus = 'CONNECTED' | 'DISCONNECTED' | 'QR_PENDING'
 

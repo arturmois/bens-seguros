@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
@@ -17,15 +17,32 @@ import {
 } from '@/components/ui/sheet'
 
 import { useAiAgents } from '@/features/ai-agents/hooks/use-ai-agents'
-import type { ChannelData, CreateChannelPayload } from '../types'
 import { useCreateChannel, useUpdateChannel } from '../hooks/use-channels'
-import { channelFormSchema, EMPTY_CHANNEL_FORM } from '../lib/schemas'
-import type { ChannelFormValues } from '../lib/schemas'
+import type { ChannelFormValues, FormBrokerType } from '../lib/schemas'
+import {
+  channelFormSchema,
+  EMPTY_CHANNEL_FORM,
+  FORM_BROKER_TYPES,
+} from '../lib/schemas'
+import type { ChannelData, CreateChannelPayload } from '../types'
 import { ChannelAiAgentSelect } from './channel-ai-agent-select'
 import {
   ChannelBrokerTypeSelect,
   ChannelMetaFields,
 } from './channel-meta-fields'
+
+const VALID_FORM_BROKER_TYPES: ReadonlySet<string> = new Set(FORM_BROKER_TYPES)
+
+function isFormBrokerType(value: string): value is FormBrokerType {
+  return VALID_FORM_BROKER_TYPES.has(value)
+}
+
+function toFormBrokerType(value: string): FormBrokerType {
+  if (isFormBrokerType(value)) {
+    return value
+  }
+  return 'BAILEYS'
+}
 
 interface ChannelFormSheetProps {
   readonly open: boolean
@@ -49,7 +66,7 @@ export function ChannelFormSheet({
     defaultValues: channel
       ? {
           name: channel.name,
-          brokerType: channel.brokerType,
+          brokerType: toFormBrokerType(channel.brokerType),
           phoneNumber: channel.phoneNumber ?? '',
         }
       : EMPTY_CHANNEL_FORM,
@@ -63,7 +80,7 @@ export function ChannelFormSheet({
     if (channel) {
       form.reset({
         name: channel.name,
-        brokerType: channel.brokerType,
+        brokerType: toFormBrokerType(channel.brokerType),
         phoneNumber: channel.phoneNumber ?? '',
         aiAgentId: channel.aiAgentId ?? null,
       })
