@@ -34,6 +34,13 @@ export const SOCKET_EVENTS = {
 
   // Notifications (Fase 6)
   NOTIFICATION: 'notification',
+
+  // Widget (visitor real-time)
+  WIDGET_SEND_MESSAGE: 'widget:send-message',
+  WIDGET_TYPING_START: 'widget:typing-start',
+  WIDGET_INCOMING_MESSAGE: 'widget:incoming-message',
+  WIDGET_TYPING: 'widget:typing',
+  WIDGET_CONVERSATION_UPDATED: 'widget:conversation-updated',
 } as const
 
 export type SocketEvent = (typeof SOCKET_EVENTS)[keyof typeof SOCKET_EVENTS]

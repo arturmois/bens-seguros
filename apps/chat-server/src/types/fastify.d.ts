@@ -1,8 +1,13 @@
 import 'fastify'
+import type IORedis from 'ioredis'
 
 import type { VisitorTokenPayload } from '../infra/http/middleware/widget-auth.js'
 
 declare module 'fastify' {
+  interface FastifyInstance {
+    redisPub: IORedis
+  }
+
   interface FastifyRequest {
     user: {
       userId: string

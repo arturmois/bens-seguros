@@ -16,16 +16,20 @@ import { aiAgentRoutes } from './infra/http/routes/ai-agent-routes.js'
 import { channelRoutes } from './infra/http/routes/channel-routes.js'
 import { conversationRoutes } from './infra/http/routes/conversation-routes.js'
 import { webhookRoutes } from './infra/http/routes/webhook-routes.js'
+import { widgetRoutes } from './infra/http/routes/widget-routes.js'
 import type { PresenceTracker } from './infra/socket/presence-tracker.js'
 import { createSocketAuthMiddleware } from './infra/socket/socket-auth.js'
 import { setupSocketHandlers } from './infra/socket/socket-handler.js'
+import { setupWidgetNamespace } from './infra/socket/widget-namespace.js'
 
 const UNAUTHENTICATED_PATHS = new Set(['/health', '/chat/webhook/meta'])
+const WIDGET_PATH_PREFIX = '/widget/'
 
 interface BuildChatAppOptions {
   readonly redisPub: IORedis
   readonly redisSub: IORedis
   readonly redisGeneral: IORedis
+  readonly redisWidgetSub: IORedis
 }
 
 interface ChatAppResult {
@@ -53,15 +57,47 @@ export async function buildChatApp(
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   })
 
+  // Widget routes need permissive CORS (origin validated per-channel in route handler)
+  app.addHook('onRequest', async (request, reply) => {
+    const path = request.url.split('?').at(0) ?? ''
+    if (!path.startsWith(WIDGET_PATH_PREFIX)) return
+
+    const requestOrigin = request.headers.origin
+    if (requestOrigin) {
+      void reply.header('access-control-allow-origin', requestOrigin)
+      void reply.header('vary', 'Origin')
+    }
+
+    if (request.method === 'OPTIONS') {
+      void reply.header('access-control-allow-methods', 'GET, POST, OPTIONS')
+      void reply.header(
+        'access-control-allow-headers',
+        'Content-Type, Authorization'
+      )
+      void reply.header('access-control-max-age', '86400')
+      await reply.status(204).send()
+    }
+  })
+
   const io = new Server(app.server, {
     cors: {
-      origin: env.FRONTEND_URL,
+      origin: (origin, callback) => {
+        // Widget namespace (/widget) accepts connections from any origin
+        // Main namespace requires FRONTEND_URL
+        if (!origin || origin === env.FRONTEND_URL) {
+          callback(null, true)
+          return
+        }
+        // Allow widget origins (validated per-connection via JWT auth)
+        callback(null, true)
+      },
       credentials: true,
     },
     adapter: createAdapter(options.redisPub, options.redisSub),
   })
 
   app.decorate('io', io)
+  app.decorate('redisPub', options.redisPub)
 
   // Health check (no auth)
   app.get('/health', async () => ({ status: 'ok' }))
@@ -69,12 +105,16 @@ export async function buildChatApp(
   // Unauthenticated routes (Meta webhook)
   await app.register(webhookRoutes)
 
-  // Auth middleware for authenticated routes
+  // Widget routes (own auth via visitorToken, registered before chatAuthMiddleware)
+  await app.register(widgetRoutes, { prefix: '/widget' })
+
+  // Auth middleware for authenticated routes (skip widget + webhook + health)
   app.addHook(
     'onRequest',
     async (request: FastifyRequest, reply: FastifyReply) => {
       const path = request.url.split('?').at(0) ?? ''
       if (UNAUTHENTICATED_PATHS.has(path)) return
+      if (path.startsWith(WIDGET_PATH_PREFIX)) return
       await chatAuthMiddleware(request, reply)
     }
   )
@@ -96,9 +136,17 @@ export async function buildChatApp(
   await app.register(channelRoutes)
   await app.register(aiAgentRoutes)
 
-  // Socket.IO auth + handlers
+  // Socket.IO auth + handlers (main namespace for operators/agents)
   io.use(createSocketAuthMiddleware(app.log))
   const presence = setupSocketHandlers(io, app.log, options.redisGeneral)
+
+  // Widget namespace (/widget) for visitor real-time messaging
+  setupWidgetNamespace({
+    io,
+    logger: app.log,
+    redisSub: options.redisWidgetSub,
+    redisPub: options.redisPub,
+  })
 
   return { app, io, presence }
 }

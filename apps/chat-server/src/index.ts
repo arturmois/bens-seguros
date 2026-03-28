@@ -51,6 +51,7 @@ const start = async (): Promise<void> => {
   const redisPub = new IORedis(redisUrl)
   const redisSub = redisPub.duplicate()
   const redisSubscriber = new IORedis(redisUrl)
+  const redisWidgetSub = new IORedis(redisUrl)
   const redisGeneral = new IORedis(redisUrl)
 
   const redisInfo = parseRedisUrl(redisUrl)
@@ -67,6 +68,7 @@ const start = async (): Promise<void> => {
     redisPub,
     redisSub,
     redisGeneral,
+    redisWidgetSub,
   })
 
   const subscriber = new RedisSubscriber(redisSubscriber, io, logger)
@@ -85,6 +87,7 @@ const start = async (): Promise<void> => {
     redisPub.disconnect()
     redisSub.disconnect()
     redisSubscriber.disconnect()
+    redisWidgetSub.disconnect()
     redisGeneral.disconnect()
     logger.info('Chat server shut down')
   }
