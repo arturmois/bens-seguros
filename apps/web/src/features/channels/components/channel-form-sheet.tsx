@@ -213,6 +213,8 @@ export function ChannelFormSheet({
               register={form.register}
               errors={form.formState.errors}
               channelType={watchedChannelType}
+              watchMetaPageId={form.watch('metaPageId')}
+              watchMetaToken={form.watch('metaToken')}
             />
           )}
 

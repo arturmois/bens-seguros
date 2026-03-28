@@ -39,8 +39,13 @@ export function useCreateChannel() {
       queryClient.invalidateQueries({ queryKey: [CHANNELS_KEY] })
       toast.success('Canal criado com sucesso')
     },
-    onError: () => {
-      toast.error('Erro ao criar canal')
+    onError: (error: unknown) => {
+      const axiosErr = error as {
+        response?: { data?: { error?: { message?: string } } }
+      }
+      const msg =
+        axiosErr.response?.data?.error?.message ?? 'Erro ao criar canal'
+      toast.error(msg)
     },
   })
 }
@@ -66,8 +71,13 @@ export function useUpdateChannel() {
       queryClient.invalidateQueries({ queryKey: [CHANNELS_KEY] })
       toast.success('Canal atualizado com sucesso')
     },
-    onError: () => {
-      toast.error('Erro ao atualizar canal')
+    onError: (error: unknown) => {
+      const axiosErr = error as {
+        response?: { data?: { error?: { message?: string } } }
+      }
+      const msg =
+        axiosErr.response?.data?.error?.message ?? 'Erro ao atualizar canal'
+      toast.error(msg)
     },
   })
 }
@@ -86,6 +96,29 @@ export function useDeactivateChannel() {
     },
     onError: () => {
       toast.error('Erro ao desativar canal')
+    },
+  })
+}
+
+interface ValidateMetaPayload {
+  pageId: string
+  token: string
+  channelType: 'INSTAGRAM' | 'MESSENGER'
+}
+
+interface ValidateMetaResult {
+  name: string
+  username?: string
+}
+
+export function useValidateMetaChannel() {
+  return useMutation({
+    mutationFn: async (payload: ValidateMetaPayload) => {
+      const response = await chatApi.post<ValidateMetaResult>(
+        '/chat/channels/validate-meta',
+        payload
+      )
+      return response.data
     },
   })
 }
