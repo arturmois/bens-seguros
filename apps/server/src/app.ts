@@ -39,6 +39,7 @@ import { notificationRoutes } from './routes/v1/notification-routes.js'
 import { policyRoutes } from './routes/v1/policy-routes.js'
 import { proposalRoutes } from './routes/v1/proposal-routes.js'
 import { searchRoutes } from './routes/v1/search-routes.js'
+import { termsRoutes } from './routes/terms-routes.js'
 import { statsRoutes } from './routes/v1/stats-routes.js'
 import { internalLeadRoutes } from './routes/internal/lead-routes.js'
 import { tenantRoutes } from './routes/v1/tenant-routes.js'
@@ -176,6 +177,7 @@ export async function buildApp() {
     await authenticatedApp.register(auditLogRoutes)
     await authenticatedApp.register(notificationRoutes)
     await authenticatedApp.register(searchRoutes)
+    await authenticatedApp.register(termsRoutes)
   })
 
   // Internal API routes (HMAC-authenticated, no session required)
