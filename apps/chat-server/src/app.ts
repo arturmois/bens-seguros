@@ -20,6 +20,7 @@ import { aiAgentRoutes } from './infra/http/routes/ai-agent-routes.js'
 import { channelRoutes } from './infra/http/routes/channel-routes.js'
 import { conversationRoutes } from './infra/http/routes/conversation-routes.js'
 import { webhookRoutes } from './infra/http/routes/webhook-routes.js'
+import { rateLimitHook } from './infra/http/routes/widget-helpers.js'
 import { widgetRoutes } from './infra/http/routes/widget-routes.js'
 import type { PresenceTracker } from './infra/socket/presence-tracker.js'
 import { createSocketAuthMiddleware } from './infra/socket/socket-auth.js'
@@ -122,15 +123,27 @@ export async function buildChatApp(
 
   // Widget static assets — SPA served at /widget-app/, embed.js at /widget/embed.js
   const currentDir = path.dirname(fileURLToPath(import.meta.url))
-  const widgetDistPath = path.resolve(currentDir, '../../widget/dist')
+  const widgetDistPath =
+    process.env['WIDGET_DIST_PATH'] ??
+    path.resolve(currentDir, '../../widget/dist')
   await app.register(fastifyStatic, {
     root: widgetDistPath,
     prefix: WIDGET_APP_PREFIX,
     decorateReply: false,
+    maxAge: 31_536_000_000,
+    immutable: true,
   })
-  app.get('/widget/embed.js', async (_request, reply) => {
-    const content = readFileSync(path.join(widgetDistPath, 'embed.js'), 'utf-8')
-    return reply.type('application/javascript').send(content)
+  // Read embed.js once at startup (not on every request — avoids blocking event loop)
+  const embedJsContent = readFileSync(
+    path.join(widgetDistPath, 'embed.js'),
+    'utf-8'
+  )
+  app.get('/widget/embed.js', async (request, reply) => {
+    await rateLimitHook(request, reply)
+    return reply
+      .type('application/javascript')
+      .header('Cache-Control', 'no-cache')
+      .send(embedJsContent)
   })
 
   // Unauthenticated routes (Meta webhook)
