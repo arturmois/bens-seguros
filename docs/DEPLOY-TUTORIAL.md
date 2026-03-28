@@ -144,16 +144,14 @@ ssh -i ~/.ssh/bens-deploy deploy@<IP_DA_VPS> whoami
 # Deve retornar: deploy
 ```
 
-Desabilitar autenticacao por senha:
+Na **VPS como root**, desabilitar autenticacao por senha:
 
 ```bash
 grep -q "^PasswordAuthentication" /etc/ssh/sshd_config \
   && sed -i 's/^PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config \
   || echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
-systemctl restart ssh
+systemctl restart ssh || systemctl restart sshd
 ```
-
-> **Nota:** Algumas distros usam `systemctl restart sshd`, outras `systemctl restart ssh`. Se um falhar, tente o outro.
 
 ### 2.4 Criar diretorio do projeto
 
@@ -212,10 +210,10 @@ openssl rand -base64 756 > mongo-keyfile
 chmod 400 mongo-keyfile
 ```
 
-O `chown` para uid 999 (usuario mongodb dentro do container) precisa de **root**:
+O `chown` para uid 999 (usuario mongodb dentro do container) precisa de **root**. Na **VPS como root**:
 
 ```bash
-ssh root@<IP_DA_VPS> chown 999:999 /opt/bens-seguros/mongo-keyfile
+chown 999:999 /opt/bens-seguros/mongo-keyfile
 ```
 
 ### 2.7 Criar arquivo .env na VPS
@@ -378,17 +376,16 @@ Todos os containers devem estar `healthy` ou `running`. Deploys subsequentes via
 
 ### 2.10 Configurar backup automatico
 
+Na VPS como deploy:
+
 ```bash
 chmod +x /opt/bens-seguros/scripts/backup.sh
 
-# Adicionar cron job (como usuario deploy)
-crontab -e
-```
+# Adicionar cron job diretamente (evita abrir editor interativo)
+echo "0 3 * * * /opt/bens-seguros/scripts/backup.sh >> /opt/bens-seguros/logs/backup.log 2>&1" | crontab -
 
-Adicione esta linha:
-
-```cron
-0 3 * * * /opt/bens-seguros/scripts/backup.sh >> /opt/bens-seguros/logs/backup.log 2>&1
+# Verificar
+crontab -l
 ```
 
 Backup roda diariamente as 3h da manha (horario do servidor).
@@ -401,13 +398,13 @@ Backup roda diariamente as 3h da manha (horario do servidor).
 
 No repositorio GitHub → Settings → Secrets and variables → Actions, adicione:
 
-| Secret               | Valor                                                              |
-| -------------------- | ------------------------------------------------------------------ |
-| `DOCKERHUB_USERNAME` | Seu usuario Docker Hub                                             |
-| `DOCKERHUB_TOKEN`    | Access token Docker Hub (gere em hub.docker.com/settings/security) |
-| `VPS_HOST`           | IP da VPS                                                          |
-| `VPS_USER`           | `deploy`                                                           |
-| `VPS_SSH_KEY`        | Conteudo da sua chave privada Ed25519                              |
+| Secret               | Valor                                                                |
+| -------------------- | -------------------------------------------------------------------- |
+| `DOCKERHUB_USERNAME` | Seu usuario Docker Hub                                               |
+| `DOCKERHUB_TOKEN`    | Access token Docker Hub (gere em hub.docker.com/settings/security)   |
+| `VPS_HOST`           | IP da VPS                                                            |
+| `VPS_USER`           | `deploy`                                                             |
+| `VPS_SSH_KEY`        | Conteudo de `~/.ssh/bens-deploy` (chave privada, gerada no Step 2.3) |
 
 ### 3.2 Como funciona o deploy automatico
 
