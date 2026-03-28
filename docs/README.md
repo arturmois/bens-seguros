@@ -19,10 +19,11 @@
 
 ## Operacional
 
-| Documento            | Descricao                                    |
-| -------------------- | -------------------------------------------- |
-| `DEPLOY-TUTORIAL.md` | Tutorial passo a passo de deploy em producao |
-| `JIRA-TEMPLATES.md`  | Templates para abertura de issues no Jira    |
+| Documento                | Descricao                                                         |
+| ------------------------ | ----------------------------------------------------------------- |
+| `DEPLOY-TUTORIAL.md`     | Tutorial passo a passo de deploy em producao                      |
+| `MULTI-CHANNEL-SETUP.md` | Configuracao dos canais: Web Chat, Messenger, Instagram, WhatsApp |
+| `JIRA-TEMPLATES.md`      | Templates para abertura de issues no Jira                         |
 
 ## Backlog e Planejamento
 
