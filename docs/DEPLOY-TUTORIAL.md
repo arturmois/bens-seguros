@@ -204,16 +204,18 @@ scp -i ~/.ssh/bens-deploy cloudflare-origin-key.pem deploy@<IP_DA_VPS>:/opt/bens
 
 O MongoDB em modo replica set com `--auth` exige um keyfile para autenticacao interna entre membros.
 
+Na VPS como deploy:
+
 ```bash
-ssh deploy@<IP_DA_VPS>
 cd /opt/bens-seguros
-
-# Gerar keyfile
 openssl rand -base64 756 > mongo-keyfile
-
-# Permissoes estritas (uid 999 = usuario mongodb dentro do container)
 chmod 400 mongo-keyfile
-chown 999:999 mongo-keyfile
+```
+
+O `chown` para uid 999 (usuario mongodb dentro do container) precisa de **root**:
+
+```bash
+ssh root@<IP_DA_VPS> chown 999:999 /opt/bens-seguros/mongo-keyfile
 ```
 
 ### 2.7 Criar arquivo .env na VPS
