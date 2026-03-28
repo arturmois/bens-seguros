@@ -79,6 +79,8 @@ export function ChannelFormSheet({
 
   const watchedChannelType = form.watch('channelType')
   const watchedBrokerType = form.watch('brokerType')
+  const watchedMetaPageId = form.watch('metaPageId')
+  const watchedMetaToken = form.watch('metaToken')
 
   useEffect(() => {
     if (!open) return
@@ -213,8 +215,8 @@ export function ChannelFormSheet({
               register={form.register}
               errors={form.formState.errors}
               channelType={watchedChannelType}
-              watchMetaPageId={form.watch('metaPageId')}
-              watchMetaToken={form.watch('metaToken')}
+              watchMetaPageId={watchedMetaPageId}
+              watchMetaToken={watchedMetaToken}
             />
           )}
 
