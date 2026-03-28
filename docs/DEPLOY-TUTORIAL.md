@@ -153,16 +153,31 @@ scp cloudflare-origin.pem deploy@<IP_DA_VPS>:/opt/bens-seguros/nginx/certs/
 scp cloudflare-origin-key.pem deploy@<IP_DA_VPS>:/opt/bens-seguros/nginx/certs/
 ```
 
-### 2.6 Criar arquivo .env na VPS
+### 2.6 Gerar keyfile do MongoDB (replica set com auth)
+
+O MongoDB em modo replica set com `--auth` exige um keyfile para autenticacao interna entre membros.
 
 ```bash
 ssh deploy@<IP_DA_VPS>
 cd /opt/bens-seguros
 
-# Gerar senhas
-echo "DB_PASSWORD: $(openssl rand -base64 32)"
-echo "MONGO_PASSWORD: $(openssl rand -base64 32)"
-echo "REDIS_PASSWORD: $(openssl rand -base64 32)"
+# Gerar keyfile
+openssl rand -base64 756 > mongo-keyfile
+
+# Permissoes estritas (uid 999 = usuario mongodb dentro do container)
+chmod 400 mongo-keyfile
+chown 999:999 mongo-keyfile
+```
+
+### 2.7 Criar arquivo .env na VPS
+
+```bash
+cd /opt/bens-seguros
+
+# Gerar senhas (hex para evitar caracteres especiais em URLs de conexao)
+echo "DB_PASSWORD: $(openssl rand -hex 32)"
+echo "MONGO_PASSWORD: $(openssl rand -hex 32)"
+echo "REDIS_PASSWORD: $(openssl rand -hex 32)"
 echo "AUTH_SECRET: $(openssl rand -base64 32)"
 echo "SOCKET_JWT_SECRET: $(openssl rand -base64 24)"
 echo "ENCRYPTION_KEY: $(openssl rand -hex 32)"
@@ -238,7 +253,7 @@ Proteger o arquivo:
 chmod 600 .env
 ```
 
-### 2.7 Inicializar MongoDB replica set
+### 2.8 Inicializar MongoDB replica set
 
 ```bash
 # Subir MongoDB primeiro
@@ -255,7 +270,7 @@ docker compose -f docker-compose.prod.yml exec mongodb mongosh \
 '
 ```
 
-### 2.8 Subir todos os servicos
+### 2.9 Subir todos os servicos
 
 ```bash
 cd /opt/bens-seguros
@@ -282,7 +297,7 @@ docker compose -f docker-compose.prod.yml ps
 
 Todos os containers devem estar `healthy` ou `running`.
 
-### 2.9 Configurar backup automatico
+### 2.10 Configurar backup automatico
 
 ```bash
 chmod +x /opt/bens-seguros/scripts/backup.sh
