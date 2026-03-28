@@ -1,5 +1,7 @@
 import 'fastify'
 
+import type { VisitorTokenPayload } from '../infra/http/middleware/widget-auth.js'
+
 declare module 'fastify' {
   interface FastifyRequest {
     user: {
@@ -9,5 +11,6 @@ declare module 'fastify' {
       name: string
     }
     organizationId: string
+    visitorData?: VisitorTokenPayload
   }
 }
