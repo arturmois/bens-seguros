@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const PUBLIC_PATHS = ['/login', '/register', '/api/auth']
+const PUBLIC_PATHS = [
+  '/login',
+  '/register',
+  '/api/auth',
+  '/termos-de-uso',
+  '/politica-de-privacidade',
+]
 const AUTH_ONLY_PATHS = ['/onboarding', '/select-org', '/accept-invitation']
 
 function getSessionToken(request: NextRequest): string | undefined {
