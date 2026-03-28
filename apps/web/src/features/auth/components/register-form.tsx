@@ -6,8 +6,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { Eye, EyeOff } from 'lucide-react'
+import Link from 'next/link'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useSearchParams } from 'next/navigation'
@@ -18,6 +20,11 @@ const registerSchema = z
     email: z.string().email('Email inválido'),
     password: z.string().min(8, 'Mínimo 8 caracteres'),
     confirmPassword: z.string().min(8, 'Mínimo 8 caracteres'),
+    acceptedTerms: z.literal(true, {
+      errorMap: () => ({
+        message: 'Você deve aceitar os termos para continuar',
+      }),
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Senhas não conferem',
@@ -155,6 +162,46 @@ export function RegisterForm() {
         {form.formState.errors.confirmPassword && (
           <p role="alert" className="text-destructive text-sm">
             {form.formState.errors.confirmPassword.message}
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-start gap-3">
+          <Checkbox
+            id="acceptedTerms"
+            checked={form.watch('acceptedTerms') === true}
+            onCheckedChange={(checked) => {
+              form.setValue(
+                'acceptedTerms',
+                checked === true ? true : (false as never),
+                { shouldValidate: true }
+              )
+            }}
+            className="mt-0.5"
+          />
+          <label htmlFor="acceptedTerms" className="text-sm text-slate-400">
+            Li e aceito os{' '}
+            <Link
+              href="/termos-de-uso"
+              target="_blank"
+              className="text-accent-400 hover:text-accent-300 underline"
+            >
+              Termos de Uso
+            </Link>{' '}
+            e a{' '}
+            <Link
+              href="/politica-de-privacidade"
+              target="_blank"
+              className="text-accent-400 hover:text-accent-300 underline"
+            >
+              Política de Privacidade
+            </Link>
+          </label>
+        </div>
+        {form.formState.errors.acceptedTerms && (
+          <p role="alert" className="text-destructive text-sm">
+            {form.formState.errors.acceptedTerms.message}
           </p>
         )}
       </div>
