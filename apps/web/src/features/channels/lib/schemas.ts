@@ -1,23 +1,35 @@
 import { z } from 'zod'
 
+import type { ChannelType } from '@/features/chat/types'
+
 export const FORM_BROKER_TYPES = ['BAILEYS', 'META'] as const
 export type FormBrokerType = (typeof FORM_BROKER_TYPES)[number]
 
-const BROKER_TYPES = FORM_BROKER_TYPES
+export const CHANNEL_TYPE_OPTIONS = [
+  'WHATSAPP',
+  'WEB_CHAT',
+  'MESSENGER',
+  'INSTAGRAM',
+] as const
 
 export const channelFormSchema = z
   .object({
-    name: z.string().min(1, 'Nome é obrigatório').max(100, 'Nome muito longo'),
-    brokerType: z.enum(BROKER_TYPES, {
-      required_error: 'Tipo de conexão é obrigatório',
+    channelType: z.enum(CHANNEL_TYPE_OPTIONS, {
+      required_error: 'Tipo de canal é obrigatório',
     }),
+    name: z.string().min(1, 'Nome é obrigatório').max(100, 'Nome muito longo'),
+    brokerType: z.enum([...FORM_BROKER_TYPES, 'WEB_CHAT'] as const).optional(),
     phoneNumber: z.string().optional(),
     metaToken: z.string().optional(),
     phoneNumberId: z.string().optional(),
+    metaPageId: z.string().optional(),
+    widgetColor: z.string().optional(),
+    welcomeMessage: z.string().optional(),
+    allowedOrigins: z.string().optional(),
     aiAgentId: z.string().nullable().optional(),
   })
   .superRefine((data, ctx) => {
-    if (data.brokerType === 'META') {
+    if (data.channelType === 'WHATSAPP' && data.brokerType === 'META') {
       if (!data.metaToken || data.metaToken.trim().length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -33,15 +45,43 @@ export const channelFormSchema = z
         })
       }
     }
+
+    if (data.channelType === 'MESSENGER' || data.channelType === 'INSTAGRAM') {
+      if (!data.metaPageId || data.metaPageId.trim().length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Page ID é obrigatório',
+          path: ['metaPageId'],
+        })
+      }
+      if (!data.metaToken || data.metaToken.trim().length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Token é obrigatório',
+          path: ['metaToken'],
+        })
+      }
+    }
   })
 
 export type ChannelFormValues = z.infer<typeof channelFormSchema>
 
-export const EMPTY_CHANNEL_FORM: ChannelFormValues = {
-  name: '',
-  brokerType: 'BAILEYS',
-  phoneNumber: '',
-  metaToken: '',
-  phoneNumberId: '',
-  aiAgentId: null,
+export function buildEmptyChannelForm(
+  channelType: ChannelType = 'WHATSAPP'
+): ChannelFormValues {
+  return {
+    channelType,
+    name: '',
+    brokerType: 'BAILEYS',
+    phoneNumber: '',
+    metaToken: '',
+    phoneNumberId: '',
+    metaPageId: '',
+    widgetColor: '#1f4b5f',
+    welcomeMessage: '',
+    allowedOrigins: '',
+    aiAgentId: null,
+  }
 }
+
+export const EMPTY_CHANNEL_FORM: ChannelFormValues = buildEmptyChannelForm()

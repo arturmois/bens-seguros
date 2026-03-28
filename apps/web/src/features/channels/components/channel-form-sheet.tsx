@@ -20,16 +20,20 @@ import { useAiAgents } from '@/features/ai-agents/hooks/use-ai-agents'
 import { useCreateChannel, useUpdateChannel } from '../hooks/use-channels'
 import type { ChannelFormValues, FormBrokerType } from '../lib/schemas'
 import {
+  buildEmptyChannelForm,
   channelFormSchema,
-  EMPTY_CHANNEL_FORM,
   FORM_BROKER_TYPES,
 } from '../lib/schemas'
-import type { ChannelData, CreateChannelPayload } from '../types'
+import type { ChannelData } from '../types'
 import { ChannelAiAgentSelect } from './channel-ai-agent-select'
 import {
-  ChannelBrokerTypeSelect,
-  ChannelMetaFields,
-} from './channel-meta-fields'
+  buildCreatePayload,
+  ChannelTypeSelect,
+  getNamePlaceholder,
+  MetaSocialFields,
+  WebChatFields,
+  WhatsAppFields,
+} from './channel-form-fields'
 
 const VALID_FORM_BROKER_TYPES: ReadonlySet<string> = new Set(FORM_BROKER_TYPES)
 
@@ -65,13 +69,15 @@ export function ChannelFormSheet({
     resolver: zodResolver(channelFormSchema),
     defaultValues: channel
       ? {
+          channelType: channel.type,
           name: channel.name,
           brokerType: toFormBrokerType(channel.brokerType),
           phoneNumber: channel.phoneNumber ?? '',
         }
-      : EMPTY_CHANNEL_FORM,
+      : buildEmptyChannelForm(),
   })
 
+  const watchedChannelType = form.watch('channelType')
   const watchedBrokerType = form.watch('brokerType')
 
   useEffect(() => {
@@ -79,6 +85,7 @@ export function ChannelFormSheet({
 
     if (channel) {
       form.reset({
+        channelType: channel.type,
         name: channel.name,
         brokerType: toFormBrokerType(channel.brokerType),
         phoneNumber: channel.phoneNumber ?? '',
@@ -87,7 +94,7 @@ export function ChannelFormSheet({
       return
     }
 
-    form.reset(EMPTY_CHANNEL_FORM)
+    form.reset(buildEmptyChannelForm())
   }, [open, channel, form])
 
   function handleSubmit(values: ChannelFormValues) {
@@ -106,16 +113,7 @@ export function ChannelFormSheet({
       return
     }
 
-    const payload: CreateChannelPayload = {
-      name: values.name,
-      type: 'WHATSAPP',
-      brokerType: values.brokerType,
-      phoneNumber: values.phoneNumber,
-      ...(values.brokerType === 'META'
-        ? { metaToken: values.metaToken, phoneNumberId: values.phoneNumberId }
-        : {}),
-    }
-
+    const payload = buildCreatePayload(values)
     createChannel.mutate(payload, {
       onSuccess: () => onOpenChange(false),
     })
@@ -128,8 +126,8 @@ export function ChannelFormSheet({
           <SheetTitle>{isEditMode ? 'Editar Canal' : 'Novo Canal'}</SheetTitle>
           <SheetDescription>
             {isEditMode
-              ? 'Atualize as informações do canal WhatsApp.'
-              : 'Configure um novo canal WhatsApp para comunicação.'}
+              ? 'Atualize as informações do canal.'
+              : 'Configure um novo canal de comunicação.'}
           </SheetDescription>
         </SheetHeader>
 
@@ -137,42 +135,49 @@ export function ChannelFormSheet({
           onSubmit={form.handleSubmit(handleSubmit)}
           className="mt-6 space-y-4 px-6"
         >
+          {!isEditMode && (
+            <ChannelTypeSelect
+              control={form.control}
+              error={form.formState.errors.channelType?.message}
+            />
+          )}
+
           <FormField
             label="Nome"
             error={form.formState.errors.name?.message}
             required
           >
             <Input
-              placeholder="Ex: WhatsApp Principal"
+              placeholder={getNamePlaceholder(watchedChannelType)}
               {...form.register('name')}
             />
           </FormField>
 
-          <ChannelBrokerTypeSelect
-            control={form.control}
-            disabled={isEditMode}
-            error={form.formState.errors.brokerType?.message}
-          />
-
-          <FormField
-            label="Número"
-            error={form.formState.errors.phoneNumber?.message}
-          >
-            <Input
-              placeholder="Ex: +55 11 99999-0000"
-              {...form.register('phoneNumber')}
+          {watchedChannelType === 'WHATSAPP' && (
+            <WhatsAppFields
+              control={form.control}
+              register={form.register}
+              errors={form.formState.errors}
+              watchedBrokerType={watchedBrokerType}
+              isEditMode={isEditMode}
             />
-          </FormField>
+          )}
+
+          {watchedChannelType === 'WEB_CHAT' && (
+            <WebChatFields register={form.register} />
+          )}
+
+          {(watchedChannelType === 'MESSENGER' ||
+            watchedChannelType === 'INSTAGRAM') && (
+            <MetaSocialFields
+              register={form.register}
+              errors={form.formState.errors}
+              channelType={watchedChannelType}
+            />
+          )}
 
           {isEditMode && (
             <ChannelAiAgentSelect control={form.control} agents={aiAgents} />
-          )}
-
-          {watchedBrokerType === 'META' && (
-            <ChannelMetaFields
-              register={form.register}
-              errors={form.formState.errors}
-            />
           )}
 
           <div className="flex justify-end gap-2 pt-4">

@@ -99,6 +99,7 @@ export interface ListMeta {
 
 export interface ConversationFilters {
   readonly status?: ConversationStatus
+  readonly channelType?: ChannelType
   readonly search?: string
   readonly assignedTo?: string
   readonly cursor?: string

@@ -3,11 +3,13 @@
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
-import { ExternalLink, Phone, X } from 'lucide-react'
+import { CHANNEL_META } from '@repo/shared'
+import { ExternalLink, Mail, Phone, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
 import type { ContactData, ConversationData } from '../types'
+import { ChannelIcon } from './channel-icon'
 import { ConversationStatusBadge } from './conversation-status-badge'
 
 interface ContactProfileProps {
@@ -20,6 +22,7 @@ function getDisplayName(
   contact: ContactData | null,
   conversation: ConversationData
 ): string {
+  if (contact?.name) return contact.name
   if (contact?.pushName) return contact.pushName
   if (conversation.whatsappPhone) return conversation.whatsappPhone
   return 'Contato'
@@ -31,6 +34,8 @@ export function ContactProfile({
   onClose,
 }: ContactProfileProps) {
   const displayName = getDisplayName(contact, conversation)
+  const phone = contact?.whatsappPhone ?? conversation.whatsappPhone
+  const sourceChannel = contact?.source ?? conversation.channelType
 
   return (
     <div className="bg-card flex h-full flex-col">
@@ -92,19 +97,45 @@ export function ContactProfile({
         {/* Contact Info */}
         <div className="space-y-4 px-4 py-4">
           <h4 className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-            Informacoes de contato
+            Informações de contato
           </h4>
 
-          {(contact?.whatsappPhone ?? conversation.whatsappPhone) && (
+          {phone && (
             <div className="flex items-center gap-3">
               <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
                 <Phone className="text-primary h-5 w-5" />
               </div>
               <div>
+                <p className="text-foreground text-sm font-medium">{phone}</p>
+                <p className="text-muted-foreground text-xs">Telefone</p>
+              </div>
+            </div>
+          )}
+
+          {contact?.email && (
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                <Mail className="text-primary h-5 w-5" />
+              </div>
+              <div>
                 <p className="text-foreground text-sm font-medium">
-                  {contact?.whatsappPhone ?? conversation.whatsappPhone}
+                  {contact.email}
                 </p>
-                <p className="text-muted-foreground text-xs">WhatsApp</p>
+                <p className="text-muted-foreground text-xs">E-mail</p>
+              </div>
+            </div>
+          )}
+
+          {sourceChannel && (
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                <ChannelIcon channelType={sourceChannel} size={20} />
+              </div>
+              <div>
+                <p className="text-foreground text-sm font-medium">
+                  {CHANNEL_META[sourceChannel].label}
+                </p>
+                <p className="text-muted-foreground text-xs">Canal de origem</p>
               </div>
             </div>
           )}
@@ -120,7 +151,7 @@ export function ContactProfile({
                   className="w-full justify-start gap-3"
                 >
                   <ExternalLink className="h-4 w-4" />
-                  Ver cliente
+                  Ver ficha no ERP
                 </Button>
               </Link>
             </div>

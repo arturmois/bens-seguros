@@ -2,16 +2,26 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
+import { CHANNEL_META } from '@repo/shared'
 import { AlertCircle, MessageCircle, RefreshCw, Search } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import type {
+  ChannelType,
   ConversationData,
   ConversationFilters,
   ConversationStatus,
 } from '../types'
+import { ChannelIcon } from './channel-icon'
 import { ConversationListItem } from './conversation-list-item'
 
 interface ConversationListProps {
@@ -115,7 +125,19 @@ export function ConversationList({
     }, 300)
   }
 
-  const sortedConversations = [...conversations].sort((a, b) => {
+  const handleChannelTypeChange = (value: string | null) => {
+    const selected = value ?? 'ALL'
+    onFiltersChange({
+      ...filters,
+      channelType: selected === 'ALL' ? undefined : (selected as ChannelType),
+    })
+  }
+
+  const filteredConversations = filters.channelType
+    ? conversations.filter((c) => c.channelType === filters.channelType)
+    : conversations
+
+  const sortedConversations = [...filteredConversations].sort((a, b) => {
     const aTime = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0
     const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0
     return bTime - aTime
@@ -161,6 +183,33 @@ export function ConversationList({
             {tab.label}
           </Button>
         ))}
+      </div>
+
+      {/* Channel Filter */}
+      <div className="px-3 pb-2">
+        <Select
+          value={filters.channelType ?? 'ALL'}
+          onValueChange={handleChannelTypeChange}
+        >
+          <SelectTrigger className="bg-muted/50 h-8 border-0 text-xs">
+            <SelectValue placeholder="Filtrar por canal" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">Todos os canais</SelectItem>
+            {(
+              Object.entries(CHANNEL_META) as Array<
+                [ChannelType, { label: string; color: string }]
+              >
+            ).map(([type, meta]) => (
+              <SelectItem key={type} value={type}>
+                <span className="flex items-center gap-2">
+                  <ChannelIcon channelType={type} size={14} />
+                  {meta.label}
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Conversation List */}

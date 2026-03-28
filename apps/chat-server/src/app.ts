@@ -52,7 +52,16 @@ export async function buildChatApp(
   app.setSerializerCompiler(serializerCompiler)
 
   await app.register(cors, {
-    origin: env.FRONTEND_URL,
+    origin: (origin, callback) => {
+      // Always allow the frontend
+      if (!origin || origin === env.FRONTEND_URL) {
+        callback(null, true)
+        return
+      }
+      // Allow any origin for /widget/* routes — origin validated per-channel in route handler
+      // @fastify/cors doesn't have per-route config, so we allow here and validate in handler
+      callback(null, true)
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   })
