@@ -3,6 +3,7 @@
 import { type Role, ROLES } from '@repo/auth/roles'
 import { AppShell } from '@/components/layout/app-shell'
 import { useOrgs } from '@/features/org/hooks/use-orgs'
+import { TermsAcceptanceModal } from '@/features/legal/components/terms-acceptance-modal'
 
 const DEFAULT_ROLE: Role = 'VIEWER'
 
@@ -24,5 +25,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const rawRole = activeOrg.role
   const role: Role = isRole(rawRole) ? rawRole : DEFAULT_ROLE
 
-  return <AppShell role={role}>{children}</AppShell>
+  return (
+    <>
+      <AppShell role={role}>{children}</AppShell>
+      <TermsAcceptanceModal />
+    </>
+  )
 }

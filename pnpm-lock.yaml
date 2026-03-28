@@ -282,6 +282,9 @@ importers:
       '@repo/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@repo/core':
+        specifier: workspace:^
+        version: link:../../packages/core
       '@repo/env':
         specifier: workspace:*
         version: link:../../packages/env

@@ -94,21 +94,33 @@ Conversa WAITING_HUMAN
 
 ---
 
-## 3. Brokers (Baileys e Meta)
+## 3. Brokers e Canais
+
+### Tipos de Canal (4)
+
+| Tipo                  | Broker                   | Protocolo      | Configuracao                              |
+| --------------------- | ------------------------ | -------------- | ----------------------------------------- |
+| `WHATSAPP` (Baileys)  | BaileysConnectionManager | WebSocket (QR) | QR code em Settings > Canais              |
+| `WHATSAPP` (Meta API) | MetaWhatsAppBroker       | Webhook HMAC   | Token + phoneNumberId                     |
+| `MESSENGER`           | Meta API                 | Webhook HMAC   | Facebook Page token + page ID             |
+| `INSTAGRAM`           | Meta API                 | Webhook HMAC   | Instagram account linked to Facebook Page |
+| `WEB_CHAT`            | Socket.IO direto         | WebSocket      | Widget embed + allowed origins            |
 
 ### Principio: Multi-canal Independente, 1 Broker por Canal
 
-Cada Canal tem SEU broker (Baileys OU Meta). Nunca os dois no mesmo numero. Sem failover entre canais (numeros diferentes confundiriam o cliente).
+Cada Canal tem SEU broker. Sem failover entre canais (numeros/paginas diferentes confundiriam o cliente).
 
 ### Configuracao por Canal
 
 ```
 Canal 1: Baileys + numero +55 11 99999-0001 (vendedor Joao)
-Canal 2: Baileys + numero +55 11 99999-0002 (vendedora Maria)
-Canal 3: Meta API + numero +55 11 88888-0000 (comercial principal)
+Canal 2: Meta API WhatsApp + numero +55 11 88888-0000 (comercial principal)
+Canal 3: Messenger + Pagina Facebook "Corretora ABC"
+Canal 4: Instagram + Conta @corretoraabc
+Canal 5: Web Chat + Widget embedado no site
 ```
 
-### Baileys
+### Baileys (WhatsApp)
 
 - Conexao via QR code (admin escaneia em Settings > Canais)
 - Sessao persistida em MongoDB (`BaileysAuthState`)
@@ -117,12 +129,23 @@ Canal 3: Meta API + numero +55 11 88888-0000 (comercial principal)
 - Limite: max 10 canais Baileys por org (~100MB RAM cada)
 - `BaileysConnectionManager` mantem `Map<channelId, WASocket>` no chat-worker
 
-### Meta API
+### Meta API (WhatsApp, Messenger, Instagram)
 
-- Configurado com token + phoneNumberId por canal
-- Webhook: `POST /chat/webhook/meta` com validacao HMAC-SHA256
+- Webhook compartilhado: `POST /chat/webhook/meta` com validacao HMAC-SHA256 (`META_APP_SECRET`)
+- Roteamento por campo: `entry[].messaging` (Messenger/Instagram) vs `entry[].changes` (WhatsApp)
+- Messenger: requer Facebook Page token + subscription `messages`, `messaging_postbacks`
+- Instagram: requer Instagram account vinculada a Facebook Page + subscription `messages`
+- WhatsApp: requer phoneNumberId + token
+- Validacao de credenciais: `POST /chat/channels/validate-meta` (verifica token antes de salvar)
 - Sempre online (sem QR, sem sessao)
-- Custo por mensagem
+- Custo por mensagem (WhatsApp); gratuito (Messenger/Instagram dentro de janela 24h)
+
+### Web Chat
+
+- Sem broker externo — conexao direta via Socket.IO entre widget e chat-server
+- Widget embedavel: `<script src=".../embed.js" data-channel-id="...">`
+- Visitante preenche nome + telefone → contato criado automaticamente
+- Allowed origins configuradas por canal (CORS)
 
 ### Broker Interface (codigo)
 

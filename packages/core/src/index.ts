@@ -26,6 +26,11 @@ export {
   MAX_IMPORT_ERRORS,
 } from './shared/csv-import-types.js'
 
+export {
+  CURRENT_TERMS_VERSION,
+  CURRENT_PRIVACY_VERSION,
+} from './shared/legal-constants.js'
+
 // Domain modules
 export * from './modules/assistance/index.js'
 export {

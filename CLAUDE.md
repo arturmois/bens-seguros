@@ -1,10 +1,95 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # Bens Seguros - Project Guidelines
 
 ## Project Overview
 
-Multi-tenant SaaS ERP for Brazilian insurance brokers. Monorepo with 5 apps + 7 packages.
+Multi-tenant SaaS ERP for Brazilian insurance brokers. Monorepo with 6 apps + 7 packages + 3 config packages.
 
-**Spec:** `ESPECIFICACAO-FINAL.md` | **Plans:** `docs/plans/` | **UI:** `docs/UI-PATTERNS.md` | **Frontend:** `docs/FRONTEND-PATTERNS.md` | **Arch Decisions:** `docs/ARCHITECTURE-DECISIONS.md` | **Chat:** `docs/CHAT-SPEC.md` | **Security:** `docs/SECURITY-SPEC.md` | **Settings:** `docs/SETTINGS-DESIGN.md` | **Reference:** `_reference/`
+**Spec:** `ESPECIFICACAO-FINAL.md` | **Plans:** `docs/plans/` | **UI:** `docs/UI-PATTERNS.md` | **Frontend:** `docs/FRONTEND-PATTERNS.md` | **Arch Decisions:** `docs/ARCHITECTURE-DECISIONS.md` | **Chat:** `docs/CHAT-SPEC.md` | **Multi-Channel:** `docs/MULTI-CHANNEL-SETUP.md` | **Security:** `docs/SECURITY-SPEC.md` | **Settings:** `docs/SETTINGS-DESIGN.md` | **Reference:** `_reference/`
+
+## Development Commands
+
+```bash
+# Infrastructure (PostgreSQL 18, MongoDB 8 replica set, Redis 8)
+docker compose up -d
+
+# Install dependencies
+pnpm install
+
+# Generate Prisma client + push schema (dev only)
+pnpm --filter @repo/db exec prisma generate
+pnpm --filter @repo/db exec prisma db push
+
+# Run all apps (web :3000, server :3001, chat-server :3002)
+pnpm dev
+
+# Run specific app
+pnpm --filter @app/server dev
+pnpm --filter @app/web dev
+pnpm --filter @app/chat-server dev
+
+# Quality gates (run from root)
+pnpm lint          # ESLint across all packages
+pnpm typecheck     # tsc --noEmit across all packages
+pnpm build         # Full build (packages → apps)
+pnpm test          # Vitest run across all packages
+
+# Run tests for a specific package/app
+pnpm --filter @repo/core test
+pnpm --filter @app/chat-server test
+
+# Run a single test file
+pnpm --filter @repo/core exec vitest run src/modules/proposal/application/create-proposal.spec.ts
+
+# Watch mode
+pnpm --filter @repo/core exec vitest src/modules/proposal/
+
+# Prisma migrations (production)
+pnpm --filter @repo/db exec prisma migrate dev --name <name>
+
+# Build widget (Vite, outputs to apps/widget/dist/)
+pnpm --filter @app/widget build
+```
+
+### Ports
+
+| App                | Port | Description                        |
+| ------------------ | ---- | ---------------------------------- |
+| `@app/web`         | 3000 | Next.js frontend (Turbopack dev)   |
+| `@app/server`      | 3001 | Fastify API (ERP backend)          |
+| `@app/chat-server` | 3002 | Fastify + Socket.IO (chat backend) |
+
+## App & Package Map
+
+### Apps
+
+| App                | Stack                   | Purpose                                                          |
+| ------------------ | ----------------------- | ---------------------------------------------------------------- |
+| `apps/server`      | Fastify 5 + tsyringe DI | ERP API — clients, proposals, policies, commissions, documents   |
+| `apps/web`         | Next.js 16 + React 19   | Dashboard SPA — all ERP features + settings + chat UI            |
+| `apps/chat-server` | Fastify 5 + Socket.IO   | Real-time chat API — conversations, messages, multi-channel      |
+| `apps/chat-worker` | BullMQ consumer         | Chat processors — AI responses, Baileys WhatsApp, Meta messaging |
+| `apps/worker`      | BullMQ consumer         | ERP processors — PDF generation, email sending, CSV imports      |
+| `apps/widget`      | Vite + React 19         | Embeddable web chat widget for customer-facing sites             |
+
+### Packages
+
+| Package            | Purpose                                                                                  |
+| ------------------ | ---------------------------------------------------------------------------------------- |
+| `packages/core`    | Domain logic (DDD modules: proposal, commission, client, policy, etc.)                   |
+| `packages/db`      | Prisma schema + PostgreSQL client + RLS                                                  |
+| `packages/db-chat` | Mongoose models + MongoDB connection (conversations, messages, contacts)                 |
+| `packages/auth`    | Better Auth client + CASL abilities (5 roles: OWNER, ADMIN, MANAGER, COMMERCIAL, VIEWER) |
+| `packages/env`     | t3-env + Zod validated environment variables                                             |
+| `packages/ai`      | Vercel AI SDK wrappers (Claude Sonnet primary)                                           |
+| `packages/shared`  | Cross-app types, constants, crypto, socket events                                        |
+
+### Config (`config/`)
+
+`eslint-config`, `prettier-config`, `typescript-config` — shared across all apps/packages.
 
 ## Tech Stack
 
@@ -24,6 +109,25 @@ Multi-tenant SaaS ERP for Brazilian insurance brokers. Monorepo with 5 apps + 7 
 - **Multi-tenancy:** PostgreSQL RLS via `app.current_tenant` + MongoDB `tenantId` field
 - **Response pattern:** `{ success: true, data, meta }` | `{ success: false, error: { code, message } }`
 - **Pagination:** Cursor-based (never offset)
+
+### Module Structure
+
+**`packages/core` (DDD Full modules):** Each module in `src/modules/<name>/` follows:
+
+- `domain/` — Entity, errors, repository interface (port)
+- `application/` — Use cases (`@injectable()`, single `execute()` method) + `.spec.ts` tests
+- `infrastructure/` — Prisma repository implementation + mapper (`toDomain()`/`toPersistence()`)
+
+**`apps/chat-server` (Ports & Adapters):** Full DDD with:
+
+- `domain/` — Conversation entity, errors, ports (repository interfaces)
+- `application/` — Use cases (send-message, assign-conversation, transfer, etc.)
+- `infra/` — HTTP routes, Socket.IO handlers, MongoDB repositories, BullMQ queue, Redis pub/sub
+- `infra/di/registry.ts` — tsyringe container registration
+
+**`apps/server` (Handler → Use Case):** Routes in `src/routes/v1/` resolve use cases from `@repo/core` via DI container (`container-registrations.ts`). No domain logic in handlers.
+
+**Inter-service communication:** `chat-worker` calls `server` API via HMAC-authenticated internal routes (`src/routes/internal/`). Shared secret via `INTERNAL_API_SECRET` env var.
 
 ---
 
