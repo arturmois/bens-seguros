@@ -15,12 +15,37 @@ const metaVerificationQuerySchema = z.object({
 
 const metaWebhookEntrySchema = z.object({
   id: z.string(),
-  changes: z.array(
-    z.object({
-      value: z.unknown(),
-      field: z.string(),
-    })
-  ),
+  changes: z
+    .array(
+      z.object({
+        value: z.unknown(),
+        field: z.string(),
+      })
+    )
+    .optional(),
+  messaging: z
+    .array(
+      z.object({
+        sender: z.object({ id: z.string() }),
+        recipient: z.object({ id: z.string() }),
+        timestamp: z.number(),
+        message: z
+          .object({
+            mid: z.string(),
+            text: z.string().optional(),
+            attachments: z
+              .array(
+                z.object({
+                  type: z.string(),
+                  payload: z.object({ url: z.string().optional() }).optional(),
+                })
+              )
+              .optional(),
+          })
+          .optional(),
+      })
+    )
+    .optional(),
 })
 
 const metaWebhookPayloadSchema = z.object({
@@ -64,6 +89,38 @@ function validateHmacSignature(
   }
 
   return timingSafeEqual(expectedBuffer, receivedBuffer)
+}
+
+interface WebhookAttachment {
+  readonly type: string
+  readonly payload?: { readonly url?: string }
+}
+
+const ATTACHMENT_TYPE_MAP: Record<string, string> = {
+  image: 'IMAGE',
+  audio: 'AUDIO',
+  video: 'VIDEO',
+  file: 'DOCUMENT',
+}
+
+function resolveAttachmentType(
+  attachments: ReadonlyArray<WebhookAttachment> | undefined
+): string | undefined {
+  if (!attachments || attachments.length === 0) {
+    return undefined
+  }
+  const first = attachments[0]
+  return first ? (ATTACHMENT_TYPE_MAP[first.type] ?? 'OTHER') : undefined
+}
+
+function resolveAttachmentUrl(
+  attachments: ReadonlyArray<WebhookAttachment> | undefined
+): string | undefined {
+  if (!attachments || attachments.length === 0) {
+    return undefined
+  }
+  const first = attachments[0]
+  return first?.payload?.url
 }
 
 export async function webhookRoutes(app: FastifyInstance): Promise<void> {
@@ -207,10 +264,56 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
       }
 
       const queueProducer = container.resolve<QueueProducer>('QueueProducer')
-      const { entry } = bodyParsed.data
+      const { object, entry } = bodyParsed.data
+
+      if (object === 'page' || object === 'instagram') {
+        const source = object === 'page' ? 'MESSENGER' : 'INSTAGRAM'
+
+        for (const entryItem of entry) {
+          const messagingEvents = entryItem.messaging ?? []
+
+          for (const event of messagingEvents) {
+            if (!event.message) {
+              continue
+            }
+
+            const attachmentType = resolveAttachmentType(
+              event.message.attachments
+            )
+            const attachmentUrl = resolveAttachmentUrl(
+              event.message.attachments
+            )
+
+            app.log.debug(
+              {
+                source,
+                accountId: entryItem.id,
+                senderId: event.sender.id,
+                mid: event.message.mid,
+              },
+              'Messenger/Instagram webhook message'
+            )
+
+            await queueProducer.enqueue(CHAT_QUEUES.PROCESS_INCOMING, {
+              source,
+              accountId: entryItem.id,
+              senderId: event.sender.id,
+              messageId: event.message.mid,
+              text: event.message.text,
+              attachmentType,
+              attachmentUrl,
+              timestamp: event.timestamp,
+            })
+          }
+        }
+
+        return reply.status(200).send({ success: true })
+      }
 
       for (const entryItem of entry) {
-        for (const change of entryItem.changes) {
+        const changes = entryItem.changes ?? []
+
+        for (const change of changes) {
           app.log.debug(
             { accountId: entryItem.id, field: change.field },
             'Meta webhook change'
