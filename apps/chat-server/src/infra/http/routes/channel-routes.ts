@@ -34,6 +34,50 @@ const pairChannelBodySchema = z.object({
     .regex(/^\+?\d+$/, 'Formato E.164 esperado (ex: +5511999998888)'),
 })
 
+const validateMetaBodySchema = z.object({
+  pageId: z.string().min(1),
+  token: z.string().min(1),
+  channelType: z.enum(['INSTAGRAM', 'MESSENGER']),
+})
+
+const META_GRAPH_API = 'https://graph.facebook.com/v21.0'
+
+async function validateMetaCredentials(
+  pageId: string,
+  token: string,
+  channelType: 'INSTAGRAM' | 'MESSENGER'
+): Promise<
+  | { valid: true; name: string; username?: string }
+  | { valid: false; error: string }
+> {
+  const fields = channelType === 'INSTAGRAM' ? 'id,name,username' : 'id,name'
+  const url = `${META_GRAPH_API}/${pageId}?fields=${fields}&access_token=${token}`
+
+  try {
+    const response = await fetch(url)
+    const data = (await response.json()) as Record<string, unknown>
+
+    if (!response.ok || data['error']) {
+      const err = data['error'] as Record<string, unknown> | undefined
+      const message =
+        typeof err?.['message'] === 'string'
+          ? err['message']
+          : 'Token ou Page ID inválido'
+      return { valid: false, error: message }
+    }
+
+    return {
+      valid: true,
+      name:
+        typeof data['name'] === 'string' ? data['name'] : String(data['id']),
+      username:
+        typeof data['username'] === 'string' ? data['username'] : undefined,
+    }
+  } catch {
+    return { valid: false, error: 'Falha ao conectar com a API do Meta' }
+  }
+}
+
 function buildChannelNotFoundResponse(id: string): {
   success: false
   error: { code: string; message: string }
@@ -76,6 +120,29 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
       const body = createChannelBodySchema.parse(request.body)
       const tenantId = request.organizationId
 
+      if (body.type === 'INSTAGRAM' || body.type === 'MESSENGER') {
+        const cfg = body.config as Record<string, string> | undefined
+        const pageId = cfg?.metaPageId
+        const token = cfg?.metaToken
+
+        if (pageId && token) {
+          const validation = await validateMetaCredentials(
+            pageId,
+            token,
+            body.type
+          )
+          if (!validation.valid) {
+            return reply.status(422).send({
+              success: false,
+              error: {
+                code: 'INVALID_META_CREDENTIALS',
+                message: validation.error,
+              },
+            })
+          }
+        }
+      }
+
       const isWebChat = body.type === 'WEB_CHAT'
       const brokerType = isWebChat ? 'WEB_CHAT' : body.brokerType
 
@@ -111,6 +178,38 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
       const body = updateChannelBodySchema.parse(request.body)
       const tenantId = request.organizationId
 
+      if (body.config) {
+        const cfg = body.config as Record<string, string>
+        const existingChannel = await Channel.findOne({ _id: id, tenantId })
+          .lean()
+          .exec()
+
+        if (
+          existingChannel &&
+          (existingChannel.type === 'INSTAGRAM' ||
+            existingChannel.type === 'MESSENGER')
+        ) {
+          const pageId = cfg.metaPageId
+          const token = cfg.metaToken
+          if (pageId && token) {
+            const validation = await validateMetaCredentials(
+              pageId,
+              token,
+              existingChannel.type as 'INSTAGRAM' | 'MESSENGER'
+            )
+            if (!validation.valid) {
+              return reply.status(422).send({
+                success: false,
+                error: {
+                  code: 'INVALID_META_CREDENTIALS',
+                  message: validation.error,
+                },
+              })
+            }
+          }
+        }
+      }
+
       if (body.aiAgentId) {
         const agent = await AiAgent.findOne({ _id: body.aiAgentId, tenantId })
           .lean()
@@ -139,6 +238,37 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
       return reply.send({
         success: true,
         data: mapChannel(channel as unknown as Record<string, unknown>),
+      })
+    }
+  )
+
+  app.post(
+    '/chat/channels/validate-meta',
+    async (
+      request: FastifyRequest<{
+        Body: z.infer<typeof validateMetaBodySchema>
+      }>,
+      reply: FastifyReply
+    ) => {
+      const { pageId, token, channelType } = validateMetaBodySchema.parse(
+        request.body
+      )
+
+      const result = await validateMetaCredentials(pageId, token, channelType)
+
+      if (!result.valid) {
+        return reply.status(422).send({
+          success: false,
+          error: {
+            code: 'INVALID_META_CREDENTIALS',
+            message: result.error,
+          },
+        })
+      }
+
+      return reply.send({
+        success: true,
+        data: { name: result.name, username: result.username },
       })
     }
   )
