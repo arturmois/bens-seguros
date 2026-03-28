@@ -8,24 +8,24 @@ interface DocumentTypeOption {
 }
 
 const AUTO_TYPES: readonly DocumentTypeOption[] = [
-  { value: 'DRIVER_LICENSE', label: 'CNH — Carteira de Habilitacao' },
-  { value: 'VEHICLE_REGISTRATION', label: 'CRLV — Registro do Veiculo' },
+  { value: 'DRIVER_LICENSE', label: 'CNH — Carteira de Habilitação' },
+  { value: 'VEHICLE_REGISTRATION', label: 'CRLV — Registro do Veículo' },
   { value: 'OTHER', label: 'Outro' },
 ] as const
 
 const LIFE_TYPES: readonly DocumentTypeOption[] = [
-  { value: 'HEALTH_DECLARATION', label: 'Declaracao de Saude' },
+  { value: 'HEALTH_DECLARATION', label: 'Declaração de Saúde' },
   { value: 'OTHER', label: 'Outro' },
 ] as const
 
 const RESIDENTIAL_TYPES: readonly DocumentTypeOption[] = [
-  { value: 'PROOF_OF_ADDRESS', label: 'Comprovante de Endereco' },
+  { value: 'PROOF_OF_ADDRESS', label: 'Comprovante de Endereço' },
   { value: 'OTHER', label: 'Outro' },
 ] as const
 
 const BUSINESS_TYPES: readonly DocumentTypeOption[] = [
   { value: 'SOCIAL_CONTRACT', label: 'Contrato Social' },
-  { value: 'CNPJ_CARD', label: 'Cartao CNPJ' },
+  { value: 'CNPJ_CARD', label: 'Cartão CNPJ' },
   { value: 'OTHER', label: 'Outro' },
 ] as const
 

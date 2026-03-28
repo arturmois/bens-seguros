@@ -49,14 +49,17 @@ interface IssuePolicySheetProps {
 
 function parseDateString(value: string | undefined): Date | undefined {
   if (!value) return undefined
-  const date = new Date(value)
+  const date = new Date(`${value}T00:00:00Z`)
   if (Number.isNaN(date.getTime())) return undefined
   return date
 }
 
 function formatDateToISO(date: Date | undefined): string {
   if (!date) return ''
-  return date.toISOString().slice(0, 10)
+  const year = date.getUTCFullYear()
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(date.getUTCDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 export function IssuePolicySheet({

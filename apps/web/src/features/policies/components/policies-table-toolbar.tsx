@@ -60,7 +60,12 @@ export function PoliciesTableToolbar({
         ]}
       >
         <SelectTrigger className="w-40">
-          <SelectValue />
+          <SelectValue>
+            {(value: string) => {
+              if (value === 'ALL') return 'Todos'
+              return POLICY_STATUS_LABELS[value as PolicyStatus] ?? null
+            }}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="ALL">Todos</SelectItem>

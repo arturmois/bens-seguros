@@ -33,7 +33,7 @@ export function ChannelBrokerTypeSelect({
 }: ChannelBrokerTypeSelectProps) {
   return (
     <FormField
-      label="Tipo de Conexao"
+      label="Tipo de Conexão"
       error={error}
       helperText="Baileys conecta via QR Code. Meta usa a API oficial do WhatsApp Business."
       required
@@ -48,7 +48,14 @@ export function ChannelBrokerTypeSelect({
             disabled={disabled}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Selecione o tipo" />
+              <SelectValue placeholder="Selecione o tipo">
+                {(value: string | null) => {
+                  const item = BROKER_TYPE_OPTIONS.find(
+                    (o) => o.value === value
+                  )
+                  return item?.label ?? null
+                }}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {BROKER_TYPE_OPTIONS.map((opt) => (
@@ -89,7 +96,7 @@ export function ChannelMetaFields({
         required
       >
         <Input
-          placeholder="ID do numero no Meta Business"
+          placeholder="ID do número no Meta Business"
           {...register('phoneNumberId')}
         />
       </FormField>

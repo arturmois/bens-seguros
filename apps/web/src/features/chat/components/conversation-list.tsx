@@ -197,7 +197,13 @@ export function ConversationList({
           onValueChange={handleChannelTypeChange}
         >
           <SelectTrigger className="bg-muted/50 h-8 border-0 text-xs">
-            <SelectValue placeholder="Filtrar por canal" />
+            <SelectValue placeholder="Filtrar por canal">
+              {(value: string | null) => {
+                if (!value || value === 'ALL') return 'Todos os canais'
+                if (isChannelType(value)) return CHANNEL_META[value].label
+                return null
+              }}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL">Todos os canais</SelectItem>

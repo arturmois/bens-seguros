@@ -5,7 +5,7 @@ const currencyFormatter = new Intl.NumberFormat('pt-BR', {
 
 const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
   dateStyle: 'short',
-  timeZone: 'America/Sao_Paulo',
+  timeZone: 'UTC',
 })
 
 export function formatCurrency(valueInCents: number): string {

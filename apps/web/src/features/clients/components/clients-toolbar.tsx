@@ -57,7 +57,12 @@ export function ClientsToolbar({
           items={TYPE_FILTER_OPTIONS}
         >
           <SelectTrigger className="w-40">
-            <SelectValue />
+            <SelectValue>
+              {(value: string) => {
+                const item = TYPE_FILTER_OPTIONS.find((o) => o.value === value)
+                return item?.label ?? null
+              }}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {TYPE_FILTER_OPTIONS.map((opt) => (

@@ -38,7 +38,7 @@ export function StatsCards({ data, isLoading }: StatsCardsProps) {
         isLoading={isLoading}
       />
       <ComparisonStatCard
-        title="Apolices ativas"
+        title="Apólices ativas"
         value={data?.activePolicies ?? 0}
         icon={<Shield className="size-5" />}
         comparison={data?.comparison.policies}
@@ -52,7 +52,7 @@ export function StatsCards({ data, isLoading }: StatsCardsProps) {
         isLoading={isLoading}
       />
       <ComparisonStatCard
-        title="Comissoes pendentes"
+        title="Comissões pendentes"
         value={formatCurrency(pendingCommissions)}
         icon={<DollarSign className="size-5" />}
         comparison={data?.comparison.commissionsPending}

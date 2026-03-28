@@ -16,7 +16,7 @@ export function PoliciesExpiring({ count, isLoading }: PoliciesExpiringProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Apolices expirando</CardTitle>
+          <CardTitle className="text-sm">Apólices expirando</CardTitle>
         </CardHeader>
         <CardPanel>
           <Skeleton className="h-24 w-full" />
@@ -30,7 +30,7 @@ export function PoliciesExpiring({ count, isLoading }: PoliciesExpiringProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Apolices expirando</CardTitle>
+        <CardTitle className="text-sm">Apólices expirando</CardTitle>
       </CardHeader>
       <CardPanel className="flex items-center gap-4">
         <div className="bg-warning/8 text-warning flex size-10 shrink-0 items-center justify-center rounded-lg">
@@ -38,11 +38,11 @@ export function PoliciesExpiring({ count, isLoading }: PoliciesExpiringProps) {
         </div>
         <div>
           <p className="text-3xl font-bold tracking-tight">{expiringCount}</p>
-          <p className="text-muted-foreground text-xs">nos proximos 30 dias</p>
+          <p className="text-muted-foreground text-xs">nos próximos 30 dias</p>
         </div>
         {expiringCount > 5 ? (
           <Badge variant="warning" size="sm" className="ml-auto">
-            Atencao
+            Atenção
           </Badge>
         ) : null}
       </CardPanel>

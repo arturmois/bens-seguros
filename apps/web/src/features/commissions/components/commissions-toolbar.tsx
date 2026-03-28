@@ -67,7 +67,14 @@ export function CommissionsToolbar({
           items={STATUS_FILTER_OPTIONS}
         >
           <SelectTrigger className="w-52">
-            <SelectValue />
+            <SelectValue>
+              {(value: string) => {
+                const item = STATUS_FILTER_OPTIONS.find(
+                  (o) => o.value === value
+                )
+                return item?.label ?? null
+              }}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {STATUS_FILTER_OPTIONS.map((opt) => (

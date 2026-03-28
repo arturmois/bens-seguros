@@ -33,9 +33,9 @@ export function parseDateString(value: string | undefined): Date | undefined {
 
 export function formatDateToISO(date: Date | undefined): string {
   if (!date) return ''
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
+  const year = date.getUTCFullYear()
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(date.getUTCDate()).padStart(2, '0')
   return `${year}-${month}-${day}`
 }
 
@@ -89,7 +89,12 @@ export function ClientFormFields({ form, isReadOnly }: ClientFormFieldsProps) {
               items={TYPE_OPTIONS}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecione" />
+                <SelectValue placeholder="Selecione">
+                  {(value: string | null) => {
+                    const item = TYPE_OPTIONS.find((o) => o.value === value)
+                    return item?.label ?? null
+                  }}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {TYPE_OPTIONS.map((opt) => (
@@ -171,7 +176,14 @@ export function ClientFormFields({ form, isReadOnly }: ClientFormFieldsProps) {
               items={MARITAL_SELECT_OPTIONS}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecione" />
+                <SelectValue placeholder="Selecione">
+                  {(value: string | null) => {
+                    const item = MARITAL_SELECT_OPTIONS.find(
+                      (o) => o.value === value
+                    )
+                    return item?.label ?? null
+                  }}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {MARITAL_SELECT_OPTIONS.map((opt) => (

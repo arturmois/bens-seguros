@@ -63,7 +63,12 @@ export function ProposalsTableToolbar({
         ]}
       >
         <SelectTrigger className="w-[160px]">
-          <SelectValue />
+          <SelectValue>
+            {(value: string) => {
+              if (value === ALL_VALUE) return 'Todos'
+              return STAGE_LABELS[value as ProposalStage] ?? null
+            }}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value={ALL_VALUE}>Todos</SelectItem>
@@ -88,7 +93,12 @@ export function ProposalsTableToolbar({
         ]}
       >
         <SelectTrigger className="w-[160px]">
-          <SelectValue />
+          <SelectValue>
+            {(value: string) => {
+              if (value === ALL_VALUE) return 'Todos'
+              return BOARD_TYPE_LABELS[value as BoardType] ?? null
+            }}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value={ALL_VALUE}>Todos</SelectItem>

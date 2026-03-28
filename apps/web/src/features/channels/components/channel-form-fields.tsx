@@ -35,7 +35,20 @@ export function ChannelTypeSelect({ control, error }: ChannelTypeSelectProps) {
         render={({ field }) => (
           <Select value={field.value} onValueChange={field.onChange}>
             <SelectTrigger>
-              <SelectValue placeholder="Selecione o tipo" />
+              <SelectValue placeholder="Selecione o tipo">
+                {(value: string) => {
+                  const meta = CHANNEL_META[value as ChannelType]
+                  return meta ? (
+                    <span className="flex items-center gap-2">
+                      <ChannelIcon
+                        channelType={value as ChannelType}
+                        size={16}
+                      />
+                      {meta.label}
+                    </span>
+                  ) : null
+                }}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {CHANNEL_TYPE_OPTIONS.map((type) => (
@@ -87,7 +100,15 @@ export function WhatsAppFields({
               disabled={isEditMode}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecione" />
+                <SelectValue placeholder="Selecione">
+                  {(value: string) => {
+                    const labels: Record<string, string> = {
+                      BAILEYS: 'Baileys (WhatsApp Web)',
+                      META: 'Meta (API Oficial)',
+                    }
+                    return labels[value] ?? null
+                  }}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="BAILEYS">Baileys (WhatsApp Web)</SelectItem>

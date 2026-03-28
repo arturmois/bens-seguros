@@ -55,7 +55,11 @@ export function ChangeRoleSelect({
         disabled={changeMemberRole.isPending}
       >
         <SelectTrigger size="sm" className="w-40">
-          <SelectValue placeholder="Selecione um cargo" />
+          <SelectValue placeholder="Selecione um cargo">
+            {(value: string | null) =>
+              value ? (ROLE_LABELS[value] ?? value) : null
+            }
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {availableRoles.map((role) => (

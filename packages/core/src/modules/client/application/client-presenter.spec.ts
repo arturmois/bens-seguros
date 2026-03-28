@@ -25,13 +25,13 @@ function makeClient(overrides: Partial<ClientData> = {}): ClientData {
 }
 
 describe('ClientPresenter.toList', () => {
-  it('masks the document for all roles', () => {
+  it('masks the document and includes contact info', () => {
     const client = makeClient()
     const result = ClientPresenter.toList(client)
 
     expect(result.document).toBe('***.***.789-01')
-    expect(result).not.toHaveProperty('email')
-    expect(result).not.toHaveProperty('phone')
+    expect(result.email).toBe('maria@test.com')
+    expect(result.phone).toBe('11999990000')
     expect(result).not.toHaveProperty('address')
     expect(result).not.toHaveProperty('birthDate')
     expect(result).not.toHaveProperty('profession')
@@ -45,7 +45,16 @@ describe('ClientPresenter.toList', () => {
     const result = ClientPresenter.toList(client)
 
     expect(Object.keys(result).sort()).toEqual(
-      ['id', 'name', 'type', 'tags', 'document', 'createdAt'].sort()
+      [
+        'id',
+        'name',
+        'type',
+        'tags',
+        'document',
+        'email',
+        'phone',
+        'createdAt',
+      ].sort()
     )
   })
 

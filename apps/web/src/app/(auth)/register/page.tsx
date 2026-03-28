@@ -13,7 +13,7 @@ export default function RegisterPage() {
         <RegisterForm />
       </Suspense>
       <p className="mt-4 text-center text-sm text-slate-400">
-        Ja tem conta?{' '}
+        Já tem conta?{' '}
         <Link href="/login" className="text-accent-500 hover:text-accent-400">
           Entrar
         </Link>

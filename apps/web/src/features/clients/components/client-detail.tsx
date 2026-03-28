@@ -171,7 +171,13 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
           email: client.email ?? '',
           phone: client.phone ?? '',
           birthDate: client.birthDate
-            ? new Date(client.birthDate).toISOString().slice(0, 10)
+            ? (() => {
+                const d = new Date(client.birthDate)
+                const year = d.getUTCFullYear()
+                const month = String(d.getUTCMonth() + 1).padStart(2, '0')
+                const day = String(d.getUTCDate()).padStart(2, '0')
+                return `${year}-${month}-${day}`
+              })()
             : '',
           profession: client.profession ?? '',
           maritalStatus: client.maritalStatus ?? undefined,

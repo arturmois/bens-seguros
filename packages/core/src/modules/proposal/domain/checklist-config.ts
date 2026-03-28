@@ -22,12 +22,12 @@ const BASE_ITEMS: Partial<Record<Stage, readonly ChecklistItemConfig[]>> = {
   QUOTE: [
     {
       itemKey: 'quote_sent',
-      label: 'Cotacao enviada ao cliente',
+      label: 'Cotação enviada ao cliente',
       isRequired: true,
     },
     {
       itemKey: 'quote_approved',
-      label: 'Cotacao aprovada pelo cliente',
+      label: 'Cotação aprovada pelo cliente',
       isRequired: true,
     },
   ],
@@ -41,7 +41,7 @@ const BASE_ITEMS: Partial<Record<Stage, readonly ChecklistItemConfig[]>> = {
   INSPECTION: [
     {
       itemKey: 'inspection_done',
-      label: 'Inspecao/vistoria realizada',
+      label: 'Inspeção/vistoria realizada',
       isRequired: true,
     },
   ],
@@ -67,13 +67,13 @@ const BRANCH_EXTRAS: Partial<
       },
       {
         itemKey: 'vehicle_registration',
-        label: 'CRLV do veiculo',
+        label: 'CRLV do veículo',
         isRequired: true,
         documentType: 'VEHICLE_REGISTRATION',
       },
       {
         itemKey: 'vehicle_photos',
-        label: 'Fotos do veiculo',
+        label: 'Fotos do veículo',
         isRequired: false,
       },
     ],
@@ -90,7 +90,7 @@ const BRANCH_EXTRAS: Partial<
     CAPTURE: [
       {
         itemKey: 'health_declaration',
-        label: 'Declaracao de saude',
+        label: 'Declaração de saúde',
         isRequired: true,
         documentType: 'HEALTH_DECLARATION',
       },
@@ -100,7 +100,7 @@ const BRANCH_EXTRAS: Partial<
     CAPTURE: [
       {
         itemKey: 'proof_of_address',
-        label: 'Comprovante de residencia',
+        label: 'Comprovante de residência',
         isRequired: true,
         documentType: 'PROOF_OF_ADDRESS',
       },
@@ -116,7 +116,7 @@ const BRANCH_EXTRAS: Partial<
       },
       {
         itemKey: 'cnpj_card',
-        label: 'Cartao CNPJ',
+        label: 'Cartão CNPJ',
         isRequired: true,
         documentType: 'CNPJ_CARD',
       },

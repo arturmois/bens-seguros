@@ -79,7 +79,7 @@ export function DocumentUpload({
     (file: File) => {
       if (file.size > MAX_FILE_SIZE_BYTES) {
         toast.error(
-          `Arquivo muito grande: ${formatFileSize(file.size)}. Maximo: 10 MB.`
+          `Arquivo muito grande: ${formatFileSize(file.size)}. Máximo: 10 MB.`
         )
         return
       }
@@ -180,7 +180,7 @@ export function DocumentUpload({
                 Arraste arquivos ou clique para enviar
               </p>
               <p className="text-muted-foreground mt-1 text-xs">
-                Imagens, PDF ou documentos Office. Maximo 10 MB.
+                Imagens, PDF ou documentos Office. Máximo 10 MB.
               </p>
             </div>
           </>

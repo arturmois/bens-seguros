@@ -84,7 +84,12 @@ export function AiAgentProviderSelect({
         render={({ field }) => (
           <Select value={field.value} onValueChange={field.onChange}>
             <SelectTrigger>
-              <SelectValue placeholder="Selecione o provider" />
+              <SelectValue placeholder="Selecione o provider">
+                {(value: string | null) => {
+                  const item = PROVIDER_OPTIONS.find((o) => o.value === value)
+                  return item?.label ?? null
+                }}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {PROVIDER_OPTIONS.map((opt) => (

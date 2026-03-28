@@ -37,7 +37,7 @@ export function CommissionsSummary({
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Comissoes do mes</CardTitle>
+          <CardTitle className="text-sm">Comissões do mês</CardTitle>
         </CardHeader>
         <CardPanel>
           <Skeleton className="h-64 w-full" />
@@ -69,7 +69,7 @@ export function CommissionsSummary({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Comissoes do mes</CardTitle>
+        <CardTitle className="text-sm">Comissões do mês</CardTitle>
       </CardHeader>
       <CardPanel>
         <ResponsiveContainer width="100%" height={256}>

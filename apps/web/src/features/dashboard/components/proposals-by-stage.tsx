@@ -16,8 +16,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import type { ProposalByStage } from '../types'
 
 const STAGE_LABELS: Record<string, string> = {
-  CAPTURE: 'Captacao',
-  QUOTE: 'Cotacao',
+  CAPTURE: 'Captação',
+  QUOTE: 'Cotação',
   PROTOCOL: 'Protocolo',
   INSPECTION: 'Vistoria',
   PAYMENT: 'Pagamento',
@@ -35,7 +35,7 @@ export function ProposalsByStage({ data, isLoading }: ProposalsByStageProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Propostas por estagio</CardTitle>
+          <CardTitle className="text-sm">Propostas por estágio</CardTitle>
         </CardHeader>
         <CardPanel>
           <Skeleton className="h-64 w-full" />
@@ -52,7 +52,7 @@ export function ProposalsByStage({ data, isLoading }: ProposalsByStageProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Propostas por estagio</CardTitle>
+        <CardTitle className="text-sm">Propostas por estágio</CardTitle>
       </CardHeader>
       <CardPanel>
         <ResponsiveContainer width="100%" height={256}>

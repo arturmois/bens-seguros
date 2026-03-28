@@ -46,7 +46,7 @@ export function TrendChart({ data, isLoading }: TrendChartProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Tendencia (6 meses)</CardTitle>
+          <CardTitle className="text-sm">Tendência (6 meses)</CardTitle>
         </CardHeader>
         <CardPanel>
           <Skeleton className="h-64 w-full" />
@@ -64,7 +64,7 @@ export function TrendChart({ data, isLoading }: TrendChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Tendencia (6 meses)</CardTitle>
+        <CardTitle className="text-sm">Tendência (6 meses)</CardTitle>
       </CardHeader>
       <CardPanel>
         <ResponsiveContainer width="100%" height={256}>

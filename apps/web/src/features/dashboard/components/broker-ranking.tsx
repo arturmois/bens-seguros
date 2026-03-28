@@ -62,7 +62,7 @@ export function BrokerRanking({
         <RankingHeader />
         <CardPanel>
           <p className="text-muted-foreground text-sm">
-            Nenhuma apolice emitida no periodo.
+            Nenhuma apólice emitida no período.
           </p>
         </CardPanel>
       </Card>
@@ -79,8 +79,8 @@ export function BrokerRanking({
               <TableHead>#</TableHead>
               <TableHead>Corretor</TableHead>
               <TableHead className="text-right">Emitidas</TableHead>
-              <TableHead className="text-right">Premio Total</TableHead>
-              <TableHead className="text-right">Ticket Medio</TableHead>
+              <TableHead className="text-right">Prêmio Total</TableHead>
+              <TableHead className="text-right">Ticket Médio</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

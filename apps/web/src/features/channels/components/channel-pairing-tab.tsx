@@ -23,8 +23,8 @@ export function PairingCodeTab({
   return (
     <div className="flex w-full flex-col gap-4">
       <p className="text-muted-foreground text-sm">
-        Ideal para ambientes sem camera. Digite o numero do WhatsApp e insira o
-        codigo de 8 digitos no celular.
+        Ideal para ambientes sem câmera. Digite o número do WhatsApp e insira o
+        código de 8 dígitos no celular.
       </p>
 
       <div className="flex gap-2">
@@ -33,7 +33,7 @@ export function PairingCodeTab({
           value={phoneInput}
           onChange={(e) => onPhoneChange(e.target.value)}
           disabled={loading}
-          aria-label="Numero de telefone"
+          aria-label="Número de telefone"
         />
         <Button
           onClick={onRequest}
@@ -61,15 +61,15 @@ function PairingCodeDisplay({ code }: { readonly code: string }) {
   return (
     <div className="flex flex-col items-center gap-2 rounded-lg border p-4">
       <p className="text-muted-foreground text-sm">
-        Abra o WhatsApp no celular e va em:
+        Abra o WhatsApp no celular e vá em:
       </p>
       <p className="text-muted-foreground text-xs">
-        Configuracoes &gt; Aparelhos conectados &gt; Conectar com numero de
+        Configurações &gt; Aparelhos conectados &gt; Conectar com número de
         telefone
       </p>
       <p
         className="font-mono text-3xl font-bold tracking-widest"
-        aria-label={`Codigo de pareamento: ${formatted}`}
+        aria-label={`Código de pareamento: ${formatted}`}
       >
         {formatted}
       </p>

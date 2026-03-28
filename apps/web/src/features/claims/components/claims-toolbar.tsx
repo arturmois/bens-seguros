@@ -47,7 +47,7 @@ export function ClaimsToolbar({
         <div className="relative max-w-sm flex-1">
           <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
           <Input
-            aria-label="Buscar sinistros por numero, cliente ou apolice"
+            aria-label="Buscar sinistros por número, cliente ou apólice"
             placeholder="Buscar sinistro..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -71,7 +71,14 @@ export function ClaimsToolbar({
           items={STATUS_FILTER_OPTIONS}
         >
           <SelectTrigger className="w-48">
-            <SelectValue />
+            <SelectValue>
+              {(value: string) => {
+                const item = STATUS_FILTER_OPTIONS.find(
+                  (o) => o.value === value
+                )
+                return item?.label ?? null
+              }}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {STATUS_FILTER_OPTIONS.map((opt) => (
@@ -90,7 +97,14 @@ export function ClaimsToolbar({
           items={PRIORITY_FILTER_OPTIONS}
         >
           <SelectTrigger className="w-48">
-            <SelectValue />
+            <SelectValue>
+              {(value: string) => {
+                const item = PRIORITY_FILTER_OPTIONS.find(
+                  (o) => o.value === value
+                )
+                return item?.label ?? null
+              }}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {PRIORITY_FILTER_OPTIONS.map((opt) => (

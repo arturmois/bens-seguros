@@ -36,9 +36,6 @@ export function PendingFileCard({
   onCancel,
 }: PendingFileCardProps) {
   const typeOptions = getDocumentTypesForBranch(branch)
-  const selectedLabel =
-    typeOptions.find((opt) => opt.value === selectedType)?.label ?? ''
-
   return (
     <div className="bg-muted/30 mt-3 flex items-start gap-3 rounded-lg border p-3">
       <FileText className="text-muted-foreground mt-0.5 size-5 shrink-0" />
@@ -58,7 +55,10 @@ export function PendingFileCard({
         >
           <SelectTrigger size="sm">
             <SelectValue placeholder="Tipo do documento">
-              {selectedLabel}
+              {(value: string | null) => {
+                const item = typeOptions.find((o) => o.value === value)
+                return item?.label ?? null
+              }}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>

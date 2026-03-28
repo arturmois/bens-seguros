@@ -45,7 +45,7 @@ export function PolicyExportButton({ filters }: PolicyExportButtonProps) {
       size="sm"
       onClick={() => exportCsv.mutate(filters)}
       disabled={exportCsv.isPending}
-      aria-label="Exportar apolices em CSV"
+      aria-label="Exportar apólices em CSV"
     >
       {exportCsv.isPending ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />

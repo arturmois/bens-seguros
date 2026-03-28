@@ -63,7 +63,14 @@ export function AssistancesToolbar({
           items={STATUS_FILTER_OPTIONS}
         >
           <SelectTrigger className="w-48">
-            <SelectValue />
+            <SelectValue>
+              {(value: string) => {
+                const item = STATUS_FILTER_OPTIONS.find(
+                  (o) => o.value === value
+                )
+                return item?.label ?? null
+              }}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {STATUS_FILTER_OPTIONS.map((opt) => (

@@ -90,7 +90,14 @@ export function AutoFields({ register, control }: FieldHelperProps) {
               items={FUEL_TYPE_OPTIONS}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecione" />
+                <SelectValue placeholder="Selecione">
+                  {(value: string | null) => {
+                    const item = FUEL_TYPE_OPTIONS.find(
+                      (o) => o.value === value
+                    )
+                    return item?.label ?? null
+                  }}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {FUEL_TYPE_OPTIONS.map((opt) => (
@@ -114,7 +121,14 @@ export function AutoFields({ register, control }: FieldHelperProps) {
               items={VEHICLE_USAGE_OPTIONS}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecione" />
+                <SelectValue placeholder="Selecione">
+                  {(value: string | null) => {
+                    const item = VEHICLE_USAGE_OPTIONS.find(
+                      (o) => o.value === value
+                    )
+                    return item?.label ?? null
+                  }}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {VEHICLE_USAGE_OPTIONS.map((opt) => (

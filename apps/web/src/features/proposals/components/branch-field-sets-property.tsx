@@ -35,7 +35,14 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
               items={PROPERTY_TYPE_OPTIONS}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecione" />
+                <SelectValue placeholder="Selecione">
+                  {(value: string | null) => {
+                    const item = PROPERTY_TYPE_OPTIONS.find(
+                      (o) => o.value === value
+                    )
+                    return item?.label ?? null
+                  }}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {PROPERTY_TYPE_OPTIONS.map((opt) => (
@@ -59,7 +66,14 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
               items={PROPERTY_USAGE_OPTIONS}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecione" />
+                <SelectValue placeholder="Selecione">
+                  {(value: string | null) => {
+                    const item = PROPERTY_USAGE_OPTIONS.find(
+                      (o) => o.value === value
+                    )
+                    return item?.label ?? null
+                  }}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {PROPERTY_USAGE_OPTIONS.map((opt) => (
@@ -102,7 +116,14 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
               items={CONSTRUCTION_OPTIONS}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecione" />
+                <SelectValue placeholder="Selecione">
+                  {(value: string | null) => {
+                    const item = CONSTRUCTION_OPTIONS.find(
+                      (o) => o.value === value
+                    )
+                    return item?.label ?? null
+                  }}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {CONSTRUCTION_OPTIONS.map((opt) => (

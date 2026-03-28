@@ -54,7 +54,12 @@ export function AuditContent() {
           items={[...ENTITY_TYPE_OPTIONS]}
         >
           <SelectTrigger size="sm" className="w-48">
-            <SelectValue />
+            <SelectValue>
+              {(value: string) => {
+                const item = ENTITY_TYPE_OPTIONS.find((o) => o.value === value)
+                return item?.label ?? null
+              }}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {ENTITY_TYPE_OPTIONS.map((opt) => (
@@ -77,7 +82,12 @@ export function AuditContent() {
           items={[...ACTION_OPTIONS]}
         >
           <SelectTrigger size="sm" className="w-44">
-            <SelectValue />
+            <SelectValue>
+              {(value: string) => {
+                const item = ACTION_OPTIONS.find((o) => o.value === value)
+                return item?.label ?? null
+              }}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {ACTION_OPTIONS.map((opt) => (

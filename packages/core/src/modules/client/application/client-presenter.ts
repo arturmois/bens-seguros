@@ -15,6 +15,8 @@ interface ClientListItem {
   type: ClientData['type']
   tags: string[]
   document: string
+  email?: string | null
+  phone?: string | null
   createdAt: Date
 }
 
@@ -53,6 +55,8 @@ export const ClientPresenter = {
       type: client.type,
       tags: client.tags,
       document: maskDocument(client.document),
+      email: client.email,
+      phone: client.phone,
       createdAt: client.createdAt,
     }
   },
