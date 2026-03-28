@@ -64,15 +64,25 @@ function handleWidgetRedisMessage(
 
   switch (channel) {
     case CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE: {
-      // Only forward messages NOT from CLIENT (bot/agent responses)
+      // Extract the message object from the payload
+      const message = isRecord(payload['message'])
+        ? payload['message']
+        : payload
       const senderType =
-        typeof payload['senderType'] === 'string' ? payload['senderType'] : null
+        typeof message['senderType'] === 'string' ? message['senderType'] : null
 
+      // Only forward messages NOT from CLIENT (bot/agent responses)
       if (senderType === 'CLIENT') return
+
+      // Normalize _id to id for the widget parser
+      const normalized = {
+        ...message,
+        id: String(message['_id'] ?? message['id'] ?? ''),
+      }
 
       widgetNs
         .to(widgetRoom)
-        .emit(SOCKET_EVENTS.WIDGET_INCOMING_MESSAGE, payload)
+        .emit(SOCKET_EVENTS.WIDGET_INCOMING_MESSAGE, normalized)
       break
     }
 
