@@ -155,9 +155,9 @@ systemctl restart ssh
 
 > **Nota:** Algumas distros usam `systemctl restart sshd`, outras `systemctl restart ssh`. Se um falhar, tente o outro.
 
-> A partir daqui, use `ssh deploy@<IP_DA_VPS>` para conectar.
-
 ### 2.4 Criar diretorio do projeto
+
+Ainda como **root** na VPS (precisa de permissao para criar em `/opt/`):
 
 ```bash
 mkdir -p /opt/bens-seguros/nginx/certs
@@ -166,6 +166,8 @@ mkdir -p /opt/bens-seguros/backups
 mkdir -p /opt/bens-seguros/logs
 chown -R deploy:deploy /opt/bens-seguros
 ```
+
+> A partir daqui, use `ssh -i ~/.ssh/bens-deploy deploy@<IP_DA_VPS>` para conectar.
 
 ### 2.5 Enviar arquivos para a VPS
 
