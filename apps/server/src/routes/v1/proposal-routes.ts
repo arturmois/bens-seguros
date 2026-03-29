@@ -1,19 +1,15 @@
 import { renderToBuffer } from '@react-pdf/renderer'
 import {
   AdvanceProposalStage,
-  BranchMismatchError,
-  ChecklistIncompleteError,
   CompleteChecklistByAttachment,
   container,
   CreateProposal,
   ExportProposalsCsv,
   GetProposal,
-  InvalidStageTransitionError,
   ListChecklistItems,
   ListProposals,
   MarkProposalLost,
-  ProposalDetailsRequiredError,
-  ProposalNotFoundError,
+  ReopenProposal,
   UpdateProposalDetails,
   type DocumentRepository,
   type StorageProvider,
@@ -32,40 +28,7 @@ import {
   markLostBodySchema,
 } from '../../schemas/proposal.schemas.js'
 import { auditCreate, auditUpdate } from '../../services/audit-logger.js'
-
-function handleProposalError(error: unknown, reply: FastifyReply) {
-  if (error instanceof ProposalNotFoundError) {
-    return reply.status(404).send({
-      success: false,
-      error: { code: error.code, message: error.message },
-    })
-  }
-  if (error instanceof InvalidStageTransitionError) {
-    return reply.status(422).send({
-      success: false,
-      error: { code: error.code, message: error.message },
-    })
-  }
-  if (error instanceof ProposalDetailsRequiredError) {
-    return reply.status(422).send({
-      success: false,
-      error: { code: error.code, message: error.message },
-    })
-  }
-  if (error instanceof BranchMismatchError) {
-    return reply.status(422).send({
-      success: false,
-      error: { code: error.code, message: error.message },
-    })
-  }
-  if (error instanceof ChecklistIncompleteError) {
-    return reply.status(422).send({
-      success: false,
-      error: { code: error.code, message: error.message },
-    })
-  }
-  throw error
-}
+import { handleDomainError } from './handle-domain-error.js'
 
 export async function proposalRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
@@ -164,7 +127,9 @@ export async function proposalRoutes(app: FastifyInstance) {
           id,
           organizationId
         )
-        const existingPdf = existing.find((doc) => doc.type === 'POLICY_PDF')
+        const existingPdf = existing.find(
+          (doc) => doc.type === 'QUOTATION_PDF' || doc.type === 'POLICY_PDF'
+        )
         if (existingPdf) {
           const url = await storage.getSignedUrl(existingPdf.storageKey)
           return reply.send({ success: true, data: { url, cached: true } })
@@ -176,7 +141,7 @@ export async function proposalRoutes(app: FastifyInstance) {
       try {
         proposal = await getProposalUseCase.execute(id, organizationId)
       } catch (error) {
-        return handleProposalError(error, reply)
+        return handleDomainError(error, reply)
       }
 
       const org = await prisma.organization.findUnique({
@@ -221,7 +186,7 @@ export async function proposalRoutes(app: FastifyInstance) {
         organizationId,
         entityType: 'PROPOSAL',
         entityId: id,
-        type: 'POLICY_PDF',
+        type: 'QUOTATION_PDF',
         fileName: `cotacao-${id.slice(0, 8)}.pdf`,
         mimeType: 'application/pdf',
         sizeBytes: buffer.length,
@@ -244,7 +209,7 @@ export async function proposalRoutes(app: FastifyInstance) {
         const proposal = await useCase.execute(id, request.organizationId!)
         return reply.send({ success: true, data: proposal.toJSON() })
       } catch (error) {
-        return handleProposalError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )
@@ -265,7 +230,7 @@ export async function proposalRoutes(app: FastifyInstance) {
         })
         return reply.send({ success: true, data: result.toJSON() })
       } catch (error) {
-        return handleProposalError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )
@@ -291,7 +256,24 @@ export async function proposalRoutes(app: FastifyInstance) {
         })
         return reply.send({ success: true, data: proposal.toJSON() })
       } catch (error) {
-        return handleProposalError(error, reply)
+        return handleDomainError(error, reply)
+      }
+    }
+  )
+
+  app.post(
+    '/api/v1/proposals/:id/reopen',
+    { preHandler: [requireAbility('update', 'Proposal')] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { id } = idParamSchema.parse(request.params)
+      const organizationId = request.organizationId!
+
+      try {
+        const useCase = container.resolve(ReopenProposal)
+        await useCase.execute(id, organizationId)
+        return reply.send({ success: true, data: null })
+      } catch (error) {
+        return handleDomainError(error, reply)
       }
     }
   )
@@ -313,7 +295,7 @@ export async function proposalRoutes(app: FastifyInstance) {
         })
         return reply.send({ success: true, data: updated.toJSON() })
       } catch (error) {
-        return handleProposalError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )
@@ -328,7 +310,7 @@ export async function proposalRoutes(app: FastifyInstance) {
         const result = await useCase.execute(id, request.organizationId!)
         return reply.send({ success: true, data: result })
       } catch (error) {
-        return handleProposalError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )
@@ -348,7 +330,7 @@ export async function proposalRoutes(app: FastifyInstance) {
         )
         return reply.send({ success: true, data: item })
       } catch (error) {
-        return handleProposalError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )

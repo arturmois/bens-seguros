@@ -39,6 +39,12 @@ export const env = createEnv({
     // SEC-1: PII encryption key — hex-encoded 32-byte key (64 hex chars)
     // Required: all-zeros default removed to prevent trivial decryption of PII
     ENCRYPTION_KEY: encryptionKeySchema,
+    // Dedicated key for HMAC hashing of PII (CPF/CNPJ). Separate from ENCRYPTION_KEY.
+    // Falls back to ENCRYPTION_KEY if not set (backwards compat).
+    HMAC_KEY: z
+      .string()
+      .min(32, 'HMAC_KEY must be at least 32 characters')
+      .optional(),
     // Comma-separated list of extra allowed CORS origins (e.g. staging, mobile preview)
     CORS_ORIGINS: z.string().optional(),
     // Internal API for lead capture from AI bot

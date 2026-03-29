@@ -1,13 +1,10 @@
 import {
-  ClaimNotFoundError,
   CreateClaim,
   CreateOccurrence,
   DeleteClaim,
   GetClaim,
-  InvalidClaimStatusTransitionError,
   ListClaims,
   ListOccurrences,
-  OccurrenceClaimNotFoundError,
   UpdateClaimStatus,
   claimOpenedEmail,
   container,
@@ -30,28 +27,7 @@ import {
   auditDelete,
 } from '../../services/audit-logger.js'
 import { enqueueNotifications } from '../../services/notification-enqueuer.js'
-
-function handleClaimError(error: unknown, reply: FastifyReply) {
-  if (error instanceof ClaimNotFoundError) {
-    return reply.status(404).send({
-      success: false,
-      error: { code: error.code, message: error.message },
-    })
-  }
-  if (error instanceof InvalidClaimStatusTransitionError) {
-    return reply.status(422).send({
-      success: false,
-      error: { code: error.code, message: error.message },
-    })
-  }
-  if (error instanceof OccurrenceClaimNotFoundError) {
-    return reply.status(404).send({
-      success: false,
-      error: { code: error.code, message: error.message },
-    })
-  }
-  throw error
-}
+import { handleDomainError } from './handle-domain-error.js'
 
 export async function claimRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
@@ -117,7 +93,7 @@ export async function claimRoutes(app: FastifyInstance) {
         })
         return reply.status(201).send({ success: true, data: claim })
       } catch (error) {
-        return handleClaimError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )
@@ -151,7 +127,7 @@ export async function claimRoutes(app: FastifyInstance) {
         const claim = await useCase.execute(id, request.organizationId!)
         return reply.send({ success: true, data: claim })
       } catch (error) {
-        return handleClaimError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )
@@ -173,7 +149,7 @@ export async function claimRoutes(app: FastifyInstance) {
         })
         return reply.send({ success: true, data: claim })
       } catch (error) {
-        return handleClaimError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )
@@ -189,7 +165,7 @@ export async function claimRoutes(app: FastifyInstance) {
         auditDelete({ request, entityType: 'Claim', entityId: id })
         return reply.status(204).send()
       } catch (error) {
-        return handleClaimError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )
@@ -214,7 +190,7 @@ function registerOccurrenceSubRoutes(app: FastifyInstance) {
         })
         return reply.status(201).send({ success: true, data: occurrence })
       } catch (error) {
-        return handleClaimError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )

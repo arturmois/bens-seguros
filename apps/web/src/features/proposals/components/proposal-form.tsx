@@ -58,6 +58,7 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
 
   const form = useForm<ProposalFormValues>({
     resolver: zodResolver(proposalFormSchema),
+    mode: 'onBlur',
     defaultValues: {
       clientId: '',
       branch: '',

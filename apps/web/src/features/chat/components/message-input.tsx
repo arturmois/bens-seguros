@@ -38,6 +38,7 @@ export function MessageInput({
           value={inputValue}
           onChange={handleChange}
           placeholder="Digite uma mensagem..."
+          aria-label="Mensagem"
           className="bg-muted/50 focus-visible:ring-primary flex-1 border-0 focus-visible:ring-1"
           disabled={disabled}
         />
@@ -45,6 +46,7 @@ export function MessageInput({
           type="submit"
           size="icon"
           disabled={!inputValue.trim() || disabled}
+          aria-label="Enviar mensagem"
           className="bg-primary hover:bg-primary/90 h-9 w-9 shrink-0"
         >
           <Send className="h-4 w-4" />

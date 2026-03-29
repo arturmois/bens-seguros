@@ -2,6 +2,7 @@
 
 import { type Role, ROLES } from '@repo/auth/roles'
 import { AppShell } from '@/components/layout/app-shell'
+import { Spinner } from '@/components/ui/spinner'
 import { useOrgs } from '@/features/org/hooks/use-orgs'
 import { TermsAcceptanceModal } from '@/features/legal/components/terms-acceptance-modal'
 
@@ -17,7 +18,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   if (isLoading || !activeOrg) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <div className="text-muted-foreground text-sm">Carregando...</div>
+        <Spinner className="text-muted-foreground size-6" />
       </div>
     )
   }

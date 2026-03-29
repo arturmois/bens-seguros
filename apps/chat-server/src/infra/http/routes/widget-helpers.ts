@@ -74,8 +74,8 @@ export function isValidOrigin(
   allowedOrigins: readonly string[],
   requestOrigin: string | undefined
 ): boolean {
-  if (allowedOrigins.length === 0) return true
   if (!requestOrigin) return false
+  if (allowedOrigins.length === 0) return false
   return allowedOrigins.some((origin) => requestOrigin === origin)
 }
 

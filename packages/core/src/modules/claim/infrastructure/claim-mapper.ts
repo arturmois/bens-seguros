@@ -23,6 +23,7 @@ export class ClaimMapper {
       status: row.status,
       priority: row.priority,
       description: row.description,
+      estimatedValueInCents: row.estimatedValueInCents,
       incidentDate: row.incidentDate,
       incidentLocation: row.incidentLocation,
       reportedAt: row.reportedAt,

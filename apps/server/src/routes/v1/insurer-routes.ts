@@ -1,11 +1,6 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { container } from '@repo/core'
-import {
-  CreateInsurer,
-  ListInsurers,
-  InsurerAlreadyExistsError,
-  type CacheService,
-} from '@repo/core'
+import { CreateInsurer, ListInsurers, type CacheService } from '@repo/core'
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
 import {
@@ -13,22 +8,13 @@ import {
   listInsurersQuerySchema,
 } from '../../schemas/insurer.schemas.js'
 import { auditCreate } from '../../services/audit-logger.js'
+import { handleDomainError } from './handle-domain-error.js'
 
 const INSURER_CACHE_TTL = 86400 // 24h
 
 interface InsurerCacheData {
   items: unknown[]
   nextCursor: string | null | undefined
-}
-
-function handleInsurerError(error: unknown, reply: FastifyReply) {
-  if (error instanceof InsurerAlreadyExistsError) {
-    return reply.status(409).send({
-      success: false,
-      error: { code: error.code, message: error.message },
-    })
-  }
-  throw error
 }
 
 function resolveCache(): CacheService | null {
@@ -62,7 +48,7 @@ export async function insurerRoutes(app: FastifyInstance) {
 
         return reply.status(201).send({ success: true, data: insurer })
       } catch (error) {
-        return handleInsurerError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )

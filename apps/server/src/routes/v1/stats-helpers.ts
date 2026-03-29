@@ -4,6 +4,12 @@ import { prisma } from '@repo/db'
 import type { DashboardPreset } from '../../schemas/stats.schemas.js'
 import { presetToDays } from '../../schemas/stats.schemas.js'
 
+// NOTE: Uses global prisma (not tenantPrisma) because dashboard runs 19+
+// queries in Promise.all. TenantPrisma wraps each in a $transaction for RLS,
+// which exhausts the connection pool (P2028 timeout). All queries already
+// filter by organizationId — RLS is redundant here. (P3 #21 audit)
+type DbClient = typeof prisma
+
 export function calculateChangePercent(
   current: number,
   previous: number
@@ -92,10 +98,10 @@ function buildDateRanges(preset: DashboardPreset): DateRange {
   return { currentFrom, previousFrom, previousTo, now, thirtyDaysFromNow }
 }
 
-async function fetchChartData(orgId: string, ranges: DateRange) {
+async function fetchChartData(orgId: string, ranges: DateRange, db: DbClient) {
   const { currentFrom, thirtyDaysFromNow, now } = ranges
   return Promise.all([
-    prisma.proposal.groupBy({
+    db.proposal.groupBy({
       by: ['stage'],
       where: {
         organizationId: orgId,
@@ -105,10 +111,10 @@ async function fetchChartData(orgId: string, ranges: DateRange) {
       },
       _count: true,
     }),
-    prisma.policy.count({
+    db.policy.count({
       where: { organizationId: orgId, status: 'ACTIVE', deletedAt: null },
     }),
-    prisma.policy.count({
+    db.policy.count({
       where: {
         organizationId: orgId,
         status: 'ACTIVE',
@@ -116,7 +122,7 @@ async function fetchChartData(orgId: string, ranges: DateRange) {
         deletedAt: null,
       },
     }),
-    prisma.claim.groupBy({
+    db.claim.groupBy({
       by: ['priority'],
       where: {
         organizationId: orgId,
@@ -126,7 +132,7 @@ async function fetchChartData(orgId: string, ranges: DateRange) {
       },
       _count: true,
     }),
-    prisma.commission.groupBy({
+    db.commission.groupBy({
       by: ['status'],
       where: {
         organizationId: orgId,
@@ -137,18 +143,18 @@ async function fetchChartData(orgId: string, ranges: DateRange) {
       _count: true,
     }),
     Promise.all([
-      prisma.proposal.count({
+      db.proposal.count({
         where: {
           organizationId: orgId,
           createdAt: { gte: currentFrom },
           deletedAt: null,
         },
       }),
-      prisma.proposal.count({
+      db.proposal.count({
         where: {
           organizationId: orgId,
           stage: 'POLICY_ISSUED',
-          createdAt: { gte: currentFrom },
+          updatedAt: { gte: currentFrom },
           deletedAt: null,
         },
       }),
@@ -157,7 +163,7 @@ async function fetchChartData(orgId: string, ranges: DateRange) {
       issued,
       rate: total > 0 ? Math.round((issued / total) * 100) : 0,
     })),
-    prisma.$queryRaw<readonly MonthlyTrendRow[]>`
+    db.$queryRaw<readonly MonthlyTrendRow[]>`
       SELECT
         TO_CHAR(DATE_TRUNC('month', "createdAt"), 'YYYY-MM') as month,
         COUNT(*) FILTER (WHERE "stage" != 'LOST')::int as proposals,
@@ -172,52 +178,56 @@ async function fetchChartData(orgId: string, ranges: DateRange) {
   ])
 }
 
-async function fetchComparisonData(orgId: string, ranges: DateRange) {
+async function fetchComparisonData(
+  orgId: string,
+  ranges: DateRange,
+  db: DbClient
+) {
   const { currentFrom, previousFrom, previousTo, now } = ranges
   return Promise.all([
-    prisma.proposal.count({
+    db.proposal.count({
       where: {
         organizationId: orgId,
         createdAt: { gte: currentFrom, lte: now },
         deletedAt: null,
       },
     }),
-    prisma.proposal.count({
+    db.proposal.count({
       where: {
         organizationId: orgId,
         createdAt: { gte: previousFrom, lt: previousTo },
         deletedAt: null,
       },
     }),
-    prisma.policy.count({
+    db.policy.count({
       where: {
         organizationId: orgId,
         createdAt: { gte: currentFrom, lte: now },
         deletedAt: null,
       },
     }),
-    prisma.policy.count({
+    db.policy.count({
       where: {
         organizationId: orgId,
         createdAt: { gte: previousFrom, lt: previousTo },
         deletedAt: null,
       },
     }),
-    prisma.claim.count({
+    db.claim.count({
       where: {
         organizationId: orgId,
         createdAt: { gte: currentFrom, lte: now },
         deletedAt: null,
       },
     }),
-    prisma.claim.count({
+    db.claim.count({
       where: {
         organizationId: orgId,
         createdAt: { gte: previousFrom, lt: previousTo },
         deletedAt: null,
       },
     }),
-    prisma.commission.aggregate({
+    db.commission.aggregate({
       where: {
         organizationId: orgId,
         status: { in: ['PENDING_COMMERCIAL', 'PENDING_ADMIN'] },
@@ -226,7 +236,7 @@ async function fetchComparisonData(orgId: string, ranges: DateRange) {
       },
       _sum: { commissionValueInCents: true },
     }),
-    prisma.commission.aggregate({
+    db.commission.aggregate({
       where: {
         organizationId: orgId,
         status: { in: ['PENDING_COMMERCIAL', 'PENDING_ADMIN'] },
@@ -235,7 +245,7 @@ async function fetchComparisonData(orgId: string, ranges: DateRange) {
       },
       _sum: { commissionValueInCents: true },
     }),
-    prisma.policy.aggregate({
+    db.policy.aggregate({
       where: {
         organizationId: orgId,
         createdAt: { gte: currentFrom, lte: now },
@@ -244,7 +254,7 @@ async function fetchComparisonData(orgId: string, ranges: DateRange) {
       _sum: { premiumValueInCents: true },
       _count: true,
     }),
-    prisma.policy.aggregate({
+    db.policy.aggregate({
       where: {
         organizationId: orgId,
         createdAt: { gte: previousFrom, lt: previousTo },
@@ -253,7 +263,7 @@ async function fetchComparisonData(orgId: string, ranges: DateRange) {
       _sum: { premiumValueInCents: true },
       _count: true,
     }),
-    prisma.commission.aggregate({
+    db.commission.aggregate({
       where: {
         organizationId: orgId,
         status: 'APPROVED',
@@ -349,9 +359,10 @@ function buildComparisonMetrics(data: ComparisonData) {
 
 async function fetchRanking(
   orgId: string,
-  currentFrom: Date
+  currentFrom: Date,
+  db: DbClient
 ): Promise<readonly RankingEntry[]> {
-  const results = await prisma.$queryRaw<
+  const results = await db.$queryRaw<
     Array<{
       salespersonId: string
       salespersonName: string
@@ -389,14 +400,15 @@ async function fetchRanking(
 
 export async function buildDashboardData(
   orgId: string,
-  preset: DashboardPreset
+  preset: DashboardPreset,
+  db: DbClient = prisma
 ): Promise<DashboardData> {
   const ranges = buildDateRanges(preset)
 
   const [chartResults, comparisonData, ranking] = await Promise.all([
-    fetchChartData(orgId, ranges),
-    fetchComparisonData(orgId, ranges),
-    fetchRanking(orgId, ranges.currentFrom),
+    fetchChartData(orgId, ranges, db),
+    fetchComparisonData(orgId, ranges, db),
+    fetchRanking(orgId, ranges.currentFrom, db),
   ])
 
   const [
