@@ -19,7 +19,7 @@ Veredito: GO ✅ (atualizado 2026-03-29)
 Justificativa: O sistema e arquiteturalmente solido (DDD, DI,
 RBAC, RLS, Zod validation em toda boundary, zero any/
 console.log/eslint-disable). Todos os 62 findings foram
-corrigidos: P0 em #31, P1 em #32, P2 em #33, P3 em #34.
+corrigidos: P0 em #31, P1 em #32, P2 em #33, P3 em #35.
 Unico item deferido: P3 #8 (shared Zod schemas) — refactoring
 grande, sem risco funcional.
 
@@ -668,7 +668,7 @@ if (job?.data?.organizationId !== request.organizationId) return reply.status(40
 | 20  | lead-routes usa global prisma                                  | ✅ Corrigido   |
 | 21  | Raw SQL em stats-helpers sem RLS safety net                    | ✅ Corrigido   |
 
-**Remediacao P3:** 7 commits, PR #34. Detalhes:
+**Remediacao P3:** PR #35 (squash). Detalhes:
 
 - Security: password min 12, session 3d, timing-safe verify, origin enforcement, HMAC key separation
 - Refactor: handleDomainError shared across 6 route files (-90 lines)
@@ -696,4 +696,13 @@ if (job?.data?.organizationId !== request.organizationId) return reply.status(40
 
 ## Nota Final
 
-Os 4 P0 sao todos fixes de 1-2 horas. Apos corrigi-los, o veredito muda para **GO ✅ com monitoramento**. O sistema demonstra maturidade tecnica excepcional (zero `any`, zero `console.log`, DDD bem implementado, 26+ error classes tipadas, Zod em toda boundary, indexes bem desenhados, 4 estados UI em todas as features). Os P1 devem ser enderecados no primeiro sprint pos-lancamento.
+Todos os 62 findings foram corrigidos em 4 PRs (#31, #32, #33, #35).
+Unico item deferido: P3 #8 (shared Zod schemas) — refactoring sem risco funcional.
+
+Bonus fix incluido no PR #35: `createTenantClient` migrado de interactive para batch
+transaction (padrao oficial Prisma RLS). Pool PostgreSQL aumentado de 10 para 20 conexoes.
+Resolve P2028 transaction timeout no dashboard (19+ queries em Promise.all).
+
+O sistema demonstra maturidade tecnica excepcional (zero `any`, zero `console.log`,
+DDD bem implementado, 26+ error classes tipadas, Zod em toda boundary, indexes bem
+desenhados, 4 estados UI em todas as features).
