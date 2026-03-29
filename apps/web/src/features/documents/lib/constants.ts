@@ -8,7 +8,6 @@ export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
   SOCIAL_CONTRACT: 'Contrato Social',
   CNPJ_CARD: 'Cartão CNPJ',
   POLICY_PDF: 'Apólice PDF',
-  QUOTATION_PDF: 'Cotação PDF',
   CLAIM_PHOTO: 'Foto Sinistro',
   CLAIM_REPORT: 'Laudo Sinistro',
   PROOF_OF_PAYMENT: 'Comprovante Pagamento',

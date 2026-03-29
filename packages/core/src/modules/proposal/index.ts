@@ -53,7 +53,6 @@ export { GetProposal } from './application/get-proposal.js'
 export { ListChecklistItems } from './application/list-checklist-items.js'
 export { ListProposals } from './application/list-proposals.js'
 export { MarkProposalLost } from './application/mark-proposal-lost.js'
-export { ReopenProposal } from './application/reopen-proposal.js'
 export { UpdateProposalDetails } from './application/update-proposal-details.js'
 
 // Infrastructure

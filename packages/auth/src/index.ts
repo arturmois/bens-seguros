@@ -50,7 +50,7 @@ export function createAuth(
     trustedOrigins,
     emailAndPassword: {
       enabled: true,
-      minPasswordLength: 12,
+      minPasswordLength: 8,
     },
     advanced: {
       crossSubDomainCookies:
@@ -61,8 +61,8 @@ export function createAuth(
         isProduction && cookieDomain ? { domain: cookieDomain } : undefined,
     },
     session: {
-      expiresIn: 60 * 60 * 24 * 3, // 3 days (reduced from 7)
-      updateAge: 60 * 60 * 12, // 12 hours (rotation on privilege use)
+      expiresIn: 60 * 60 * 24 * 7, // 7 days
+      updateAge: 60 * 60 * 24, // 1 day
       cookieCache: {
         enabled: true,
         maxAge: 5 * 60, // 5 min

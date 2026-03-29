@@ -39,7 +39,6 @@ function makeClaimData(overrides: Partial<ClaimData> = {}): ClaimData {
     status: 'REGISTERED',
     priority: 'NORMAL',
     description: 'Vehicle collision',
-    estimatedValueInCents: null,
     incidentDate: null,
     incidentLocation: null,
     reportedAt: new Date(),

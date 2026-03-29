@@ -26,7 +26,6 @@ export const createClaimBodySchema = z.object({
   assignedToId: optionalString,
   priority: z.enum(CLAIM_PRIORITY_VALUES).optional(),
   description: z.string().min(1),
-  estimatedValueInCents: z.number().int().min(0).optional(),
   incidentDate: optionalDate,
   incidentLocation: optionalString,
 })

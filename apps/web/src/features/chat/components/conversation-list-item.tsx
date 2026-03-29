@@ -31,7 +31,6 @@ export function ConversationListItem({
   return (
     <button
       onClick={onSelect}
-      aria-label={`Conversa com ${displayName}${unreadCount > 0 ? `, ${unreadCount} mensagens não lidas` : ''}`}
       className={cn(
         'flex w-full items-center gap-3 px-3 py-3 text-left transition-colors',
         'hover:bg-sidebar-hover',
@@ -70,10 +69,7 @@ export function ConversationListItem({
               </span>
             )}
             {unreadCount > 0 && (
-              <span
-                aria-label={`${unreadCount > 99 ? 'Mais de 99' : unreadCount} não lidas`}
-                className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-medium"
-              >
+              <span className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-medium">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
@@ -85,10 +81,7 @@ export function ConversationListItem({
           </p>
           {conversation.status === 'HUMAN_ACTIVE' &&
             conversation.assignedToName && (
-              <span
-                aria-label={`Atendido por ${conversation.assignedToName}`}
-                className="text-muted-foreground shrink-0 text-xs"
-              >
+              <span className="text-muted-foreground shrink-0 text-xs">
                 {conversation.assignedToName}
               </span>
             )}

@@ -10,6 +10,10 @@ import {
   ListPolicies,
   MAX_IMPORT_FILE_SIZE,
   ParsePolicyImport,
+  PolicyAlreadyCancelledError,
+  PolicyNotFoundError,
+  PolicyNotIssuableError,
+  ProposalNotFoundError,
   type DocumentRepository,
   type StorageProvider,
 } from '@repo/core'
@@ -33,7 +37,34 @@ import {
   retrieveStagedData,
   stageImportData,
 } from '../../services/csv-import-enqueuer.js'
-import { handleDomainError } from './handle-domain-error.js'
+
+function handlePolicyError(error: unknown, reply: FastifyReply) {
+  if (error instanceof PolicyNotFoundError) {
+    return reply.status(404).send({
+      success: false,
+      error: { code: error.code, message: error.message },
+    })
+  }
+  if (error instanceof ProposalNotFoundError) {
+    return reply.status(404).send({
+      success: false,
+      error: { code: error.code, message: error.message },
+    })
+  }
+  if (error instanceof PolicyAlreadyCancelledError) {
+    return reply.status(409).send({
+      success: false,
+      error: { code: error.code, message: error.message },
+    })
+  }
+  if (error instanceof PolicyNotIssuableError) {
+    return reply.status(422).send({
+      success: false,
+      error: { code: error.code, message: error.message },
+    })
+  }
+  throw error
+}
 
 export async function policyRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
@@ -61,7 +92,7 @@ export async function policyRoutes(app: FastifyInstance) {
         })
         return reply.status(201).send({ success: true, data: policy })
       } catch (error) {
-        return handleDomainError(error, reply)
+        return handlePolicyError(error, reply)
       }
     }
   )
@@ -292,7 +323,7 @@ export async function policyRoutes(app: FastifyInstance) {
       try {
         policy = await getPolicyUseCase.execute(id, organizationId)
       } catch (error) {
-        return handleDomainError(error, reply)
+        return handlePolicyError(error, reply)
       }
 
       const org = await prisma.organization.findUnique({
@@ -360,7 +391,7 @@ export async function policyRoutes(app: FastifyInstance) {
         const policy = await useCase.execute(id, request.organizationId!)
         return reply.send({ success: true, data: policy })
       } catch (error) {
-        return handleDomainError(error, reply)
+        return handlePolicyError(error, reply)
       }
     }
   )
@@ -386,7 +417,7 @@ export async function policyRoutes(app: FastifyInstance) {
         })
         return reply.send({ success: true, data: policy })
       } catch (error) {
-        return handleDomainError(error, reply)
+        return handlePolicyError(error, reply)
       }
     }
   )

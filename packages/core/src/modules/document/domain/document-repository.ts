@@ -13,7 +13,6 @@ export type DocumentType =
   | 'SOCIAL_CONTRACT'
   | 'CNPJ_CARD'
   | 'POLICY_PDF'
-  | 'QUOTATION_PDF'
   | 'CLAIM_PHOTO'
   | 'CLAIM_REPORT'
   | 'PROOF_OF_PAYMENT'

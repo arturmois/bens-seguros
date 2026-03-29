@@ -245,7 +245,6 @@ enum DocumentType {
   SOCIAL_CONTRACT
   CNPJ_CARD
   POLICY_PDF
-  QUOTATION_PDF
   CLAIM_PHOTO
   CLAIM_REPORT
   PROOF_OF_PAYMENT
@@ -401,32 +400,31 @@ model Insurer {
 }
 
 model Claim {
-  id                    String        @id @default(cuid())
-  organizationId        String
-  claimNumber           Int
-  policyId              String
-  clientId              String
-  insurerId             String?
-  assignedToId          String?
-  status                ClaimStatus   @default(REGISTERED)
-  priority              ClaimPriority @default(NORMAL)
-  description           String
-  estimatedValueInCents Int?
-  incidentDate          DateTime?
-  incidentLocation      String?
-  reportedAt            DateTime      @default(now())
-  resolvedAt            DateTime?
-  closedAt              DateTime?
-  deletedAt             DateTime?
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
+  id               String        @id @default(cuid())
+  organizationId   String
+  claimNumber      Int
+  policyId         String
+  clientId         String
+  insurerId        String?
+  assignedToId     String?
+  status           ClaimStatus   @default(REGISTERED)
+  priority         ClaimPriority @default(NORMAL)
+  description      String
+  incidentDate     DateTime?
+  incidentLocation String?
+  reportedAt       DateTime      @default(now())
+  resolvedAt       DateTime?
+  closedAt         DateTime?
+  deletedAt        DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
-  policy       Policy       @relation(fields: [policyId], references: [id])
-  client       Client       @relation(fields: [clientId], references: [id])
-  insurer      Insurer?     @relation(fields: [insurerId], references: [id])
-  assignedTo   User?        @relation("ClaimAssignee", fields: [assignedToId], references: [id])
-  occurrences  Occurrence[]
-  assistances  Assistance[]
+  policy           Policy        @relation(fields: [policyId], references: [id])
+  client           Client        @relation(fields: [clientId], references: [id])
+  insurer          Insurer?      @relation(fields: [insurerId], references: [id])
+  assignedTo       User?         @relation("ClaimAssignee", fields: [assignedToId], references: [id])
+  occurrences      Occurrence[]
+  assistances      Assistance[]
 
   @@unique([organizationId, claimNumber])
   @@index([organizationId, status])

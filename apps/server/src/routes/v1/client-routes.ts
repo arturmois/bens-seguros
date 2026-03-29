@@ -10,6 +10,8 @@ import {
   GetClient,
   UpdateClient,
   DeleteClient,
+  ClientAlreadyExistsError,
+  ClientNotFoundError,
   ClientPresenter,
 } from '@repo/core'
 import {
@@ -33,7 +35,22 @@ import {
   enqueueImportJob,
   getImportJobStatus,
 } from '../../services/csv-import-enqueuer.js'
-import { handleDomainError } from './handle-domain-error.js'
+
+function handleClientError(error: unknown, reply: FastifyReply) {
+  if (error instanceof ClientNotFoundError) {
+    return reply.status(404).send({
+      success: false,
+      error: { code: error.code, message: error.message },
+    })
+  }
+  if (error instanceof ClientAlreadyExistsError) {
+    return reply.status(409).send({
+      success: false,
+      error: { code: error.code, message: error.message },
+    })
+  }
+  throw error
+}
 
 export async function clientRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
@@ -65,7 +82,7 @@ export async function clientRoutes(app: FastifyInstance) {
           }),
         })
       } catch (error) {
-        return handleDomainError(error, reply)
+        return handleClientError(error, reply)
       }
     }
   )
@@ -274,7 +291,7 @@ export async function clientRoutes(app: FastifyInstance) {
           }),
         })
       } catch (error) {
-        return handleDomainError(error, reply)
+        return handleClientError(error, reply)
       }
     }
   )
@@ -302,7 +319,7 @@ export async function clientRoutes(app: FastifyInstance) {
           }),
         })
       } catch (error) {
-        return handleDomainError(error, reply)
+        return handleClientError(error, reply)
       }
     }
   )
@@ -318,7 +335,7 @@ export async function clientRoutes(app: FastifyInstance) {
         auditDelete({ request, entityType: 'Client', entityId: id })
         return reply.status(204).send()
       } catch (error) {
-        return handleDomainError(error, reply)
+        return handleClientError(error, reply)
       }
     }
   )

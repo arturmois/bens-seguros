@@ -50,7 +50,6 @@ import {
   MarkAllNotificationsAsRead,
   MarkNotificationAsRead,
   MarkProposalLost,
-  ReopenProposal,
   OnPolicyIssued,
   PayCommission,
   PrismaAssistanceRepository,
@@ -153,9 +152,6 @@ export function registerDependencies(redis: Redis | null = null) {
   })
   container.register(MarkProposalLost, {
     useFactory: () => new MarkProposalLost(proposalRepo),
-  })
-  container.register(ReopenProposal, {
-    useFactory: () => new ReopenProposal(proposalRepo),
   })
   container.register(ListProposals, {
     useFactory: () => new ListProposals(proposalRepo),

@@ -70,8 +70,7 @@ export function stripNonDigits(value: string): string {
 
 export function hashDocument(document: string): string {
   const digits = stripNonDigits(document)
-  const hmacKeyRaw = process.env.HMAC_KEY
-  const key = hmacKeyRaw ? Buffer.from(hmacKeyRaw, 'utf8') : getEncryptionKey()
+  const key = getEncryptionKey()
   return createHmac('sha256', key).update(digits).digest('hex')
 }
 

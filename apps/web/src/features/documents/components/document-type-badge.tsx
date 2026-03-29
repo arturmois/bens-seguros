@@ -18,8 +18,6 @@ const DOCUMENT_TYPE_COLORS: Record<DocumentType, string> = {
     'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900 dark:text-fuchsia-300',
   POLICY_PDF:
     'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
-  QUOTATION_PDF:
-    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300',
   CLAIM_PHOTO:
     'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
   CLAIM_REPORT:

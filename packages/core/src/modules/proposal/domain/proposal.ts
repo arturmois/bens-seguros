@@ -143,15 +143,6 @@ export class Proposal {
     this.props.updatedAt = new Date()
   }
 
-  reopenFromLost(): void {
-    if (this.props.stage !== 'LOST') {
-      throw new InvalidStageTransitionError(this.props.stage, 'reabrir')
-    }
-    this.props.stage = 'CAPTURE'
-    this.props.lostReason = null
-    this.props.updatedAt = new Date()
-  }
-
   get id(): string {
     return this.props.id
   }

@@ -17,15 +17,6 @@
 
 **Todas as 8 fases do MVP estao concluidas.**
 
-## Pos-MVP
-
-| Item                 | Status    | Descricao                                                                                                              |
-| -------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Audit Remediation P0 | Concluido | Path traversal, Occurrence isolation, ENCRYPTION_KEY, RLS (PR #31)                                                     |
-| Audit Remediation P1 | Concluido | Helmet, error handler, MongoDB plugin, policy expiration, Kanban DnD, middleware tests (PR #32)                        |
-| Audit Remediation P2 | Concluido | CORS, tenant gaps, atomic reversal, Redis cache, CSV streaming, route refactoring, diacritics, virtualization (PR #33) |
-| Audit Remediation P3 | Pendente  | 21 minor findings para pos-lancamento                                                                                  |
-
 ## Proximos Passos
 
 - **Features** — backlog de features futuras em `features/`

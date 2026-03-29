@@ -1,5 +1,5 @@
 import { container, CreateProposal } from '@repo/core'
-import { createTenantClient } from '@repo/db/tenant'
+import { prisma } from '@repo/db'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 import { internalAuthMiddleware } from '../../middlewares/internal-auth-middleware.js'
@@ -29,9 +29,8 @@ export async function internalLeadRoutes(app: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       const body = createLeadBodySchema.parse(request.body)
       const organizationId = request.organizationId!
-      const tenantPrisma = createTenantClient(organizationId)
 
-      const existing = await tenantPrisma.client.findFirst({
+      const existing = await prisma.client.findFirst({
         where: {
           organizationId,
           phone: body.clientPhone,
@@ -41,7 +40,7 @@ export async function internalLeadRoutes(app: FastifyInstance) {
 
       const client =
         existing ??
-        (await tenantPrisma.client.create({
+        (await prisma.client.create({
           data: {
             organizationId,
             name: body.clientName,
@@ -51,7 +50,7 @@ export async function internalLeadRoutes(app: FastifyInstance) {
           },
         }))
 
-      const member = await tenantPrisma.member.findFirst({
+      const member = await prisma.member.findFirst({
         where: { organizationId, active: true },
         orderBy: { createdAt: 'asc' },
       })

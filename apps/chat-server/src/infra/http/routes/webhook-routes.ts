@@ -220,12 +220,7 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
         })
       }
 
-      const tokenBuffer = Buffer.from(verifyToken, 'utf8')
-      const expectedBuffer = Buffer.from(expectedToken, 'utf8')
-      if (
-        tokenBuffer.length !== expectedBuffer.length ||
-        !timingSafeEqual(tokenBuffer, expectedBuffer)
-      ) {
+      if (verifyToken !== expectedToken) {
         return reply.status(403).send({
           success: false,
           error: { code: 'FORBIDDEN', message: 'Invalid verify token' },
