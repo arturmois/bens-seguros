@@ -123,13 +123,19 @@ export async function enqueueImportJob(
 
 export async function getImportJobStatus(jobId: string): Promise<{
   status: 'active' | 'completed' | 'failed' | 'waiting' | 'not_found'
+  organizationId: string | null
   progress: Record<string, unknown> | null
   result: Record<string, unknown> | null
 }> {
   const queue = getQueue()
   const job = await queue.getJob(jobId)
   if (!job) {
-    return { status: 'not_found', progress: null, result: null }
+    return {
+      status: 'not_found',
+      organizationId: null,
+      progress: null,
+      result: null,
+    }
   }
 
   const state = await job.getState()
@@ -141,6 +147,7 @@ export async function getImportJobStatus(jobId: string): Promise<{
       state === 'unknown'
         ? 'not_found'
         : (state as 'active' | 'completed' | 'failed' | 'waiting'),
+    organizationId: job.data.organizationId,
     progress: progress ?? null,
     result: result ?? null,
   }

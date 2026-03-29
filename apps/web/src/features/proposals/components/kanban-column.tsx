@@ -1,11 +1,14 @@
 'use client'
 
+import { useDroppable } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
 import type { ProposalData, ProposalStage } from '../types'
 import { STAGE_LABELS } from '../types'
-import { KanbanCard } from './kanban-card'
+import { KanbanCardDraggable } from './kanban-card-draggable'
 
 const STAGE_COLORS: Record<ProposalStage, string> = {
   CAPTURE: 'bg-blue-500',
@@ -28,6 +31,10 @@ export function KanbanColumn({
   proposals,
   onCardClick,
 }: KanbanColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({ id: stage })
+
+  const itemIds = proposals.map((p) => p.id)
+
   return (
     <div className="bg-muted/30 flex h-full w-[280px] shrink-0 flex-col rounded-xl border">
       <div className="flex items-center gap-2 border-b px-3 py-2.5">
@@ -46,20 +53,28 @@ export function KanbanColumn({
         </Badge>
       </div>
 
-      <div className="flex-1 space-y-2 overflow-y-auto p-2">
-        {proposals.length === 0 && (
-          <p className="text-muted-foreground py-8 text-center text-xs">
-            Nenhuma proposta
-          </p>
-        )}
-        {proposals.map((proposal) => (
-          <KanbanCard
-            key={proposal.id}
-            proposal={proposal}
-            onClick={() => onCardClick(proposal)}
-          />
-        ))}
-      </div>
+      <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
+        <div
+          ref={setNodeRef}
+          className={cn(
+            'flex-1 space-y-2 overflow-y-auto p-2 transition-colors',
+            isOver && 'bg-primary/5 ring-primary/20 ring-2 ring-inset'
+          )}
+        >
+          {proposals.length === 0 && (
+            <p className="text-muted-foreground py-8 text-center text-xs">
+              Nenhuma proposta
+            </p>
+          )}
+          {proposals.map((proposal) => (
+            <KanbanCardDraggable
+              key={proposal.id}
+              proposal={proposal}
+              onClick={() => onCardClick(proposal)}
+            />
+          ))}
+        </div>
+      </SortableContext>
     </div>
   )
 }

@@ -227,12 +227,13 @@ export async function clientRoutes(app: FastifyInstance) {
     { preHandler: [requireAbility('manage', 'Client')] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { jobId } = importJobIdParamSchema.parse(request.params)
-      const { status, progress, result } = await getImportJobStatus(jobId)
+      const { status, organizationId, progress, result } =
+        await getImportJobStatus(jobId)
 
-      if (status === 'not_found') {
+      if (status === 'not_found' || organizationId !== request.organizationId) {
         return reply.status(404).send({
           success: false,
-          error: { code: 'JOB_NOT_FOUND', message: 'Job nao encontrado' },
+          error: { code: 'JOB_NOT_FOUND', message: 'Job não encontrado' },
         })
       }
 

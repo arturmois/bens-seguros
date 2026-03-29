@@ -1,11 +1,18 @@
 import cors from '@fastify/cors'
+import helmet from '@fastify/helmet'
 import fastifyStatic from '@fastify/static'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { env } from '@repo/env'
 import { createAdapter } from '@socket.io/redis-adapter'
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import * as Sentry from '@sentry/node'
+import type {
+  FastifyError,
+  FastifyInstance,
+  FastifyReply,
+  FastifyRequest,
+} from 'fastify'
 import Fastify from 'fastify'
 import {
   serializerCompiler,
@@ -13,6 +20,7 @@ import {
 } from 'fastify-type-provider-zod'
 import type IORedis from 'ioredis'
 import { Server } from 'socket.io'
+import { ZodError } from 'zod'
 
 import { chatAuthMiddleware } from './infra/http/middleware/chat-auth-middleware.js'
 import { PINO_REDACT_CONFIG } from './infra/logger.js'
@@ -71,6 +79,8 @@ export async function buildChatApp(
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   })
+
+  await app.register(helmet)
 
   // Widget routes need permissive CORS (origin validated per-channel in route handler)
   app.addHook('onRequest', async (request, reply) => {
@@ -203,6 +213,36 @@ export async function buildChatApp(
     logger: app.log,
     redisSub: options.redisWidgetSub,
     redisPub: options.redisPub,
+  })
+
+  app.setErrorHandler<FastifyError>((error, request, reply) => {
+    if (error instanceof ZodError) {
+      const firstIssue = error.issues[0]
+      const field = firstIssue?.path.join('.') ?? 'input'
+      return reply.status(400).send({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: `Validação falhou no campo '${field}': ${firstIssue?.message ?? 'valor inválido'}`,
+        },
+      })
+    }
+
+    if (env.SENTRY_DSN) {
+      Sentry.captureException(error, {
+        extra: { url: request.url, method: request.method },
+      })
+    }
+    request.log.error(error)
+    const statusCode = error.statusCode ?? 500
+    return reply.status(statusCode).send({
+      success: false,
+      error: {
+        code: error.code ?? 'INTERNAL_ERROR',
+        message:
+          statusCode === 500 ? 'Erro interno do servidor' : error.message,
+      },
+    })
   })
 
   return { app, io, presence }

@@ -2,6 +2,7 @@ import pino from 'pino'
 import 'reflect-metadata'
 import { setupAuditArchiveProcessor } from './processors/audit-archive-processor.js'
 import { setupCsvImportProcessor } from './processors/csv-import-processor.js'
+import { setupExpirePoliciesProcessor } from './processors/expire-policies-processor.js'
 import { setupNotificationProcessor } from './processors/notification-processor.js'
 import { setupProactiveAlertsProcessor } from './processors/alerts/index.js'
 import { env } from '@repo/env'
@@ -35,6 +36,7 @@ const connection = {
 
 const auditArchive = setupAuditArchiveProcessor(connection)
 const csvImport = setupCsvImportProcessor(connection)
+const expirePolicies = setupExpirePoliciesProcessor(connection)
 const notifications = setupNotificationProcessor(connection)
 const proactiveAlerts = setupProactiveAlertsProcessor(
   connection,
@@ -42,7 +44,7 @@ const proactiveAlerts = setupProactiveAlertsProcessor(
 )
 
 logger.info(
-  'ERP Worker started. Active processors: audit-archive, csv-import, notifications, proactive-alerts'
+  'ERP Worker started. Active processors: audit-archive, csv-import, expire-policies, notifications, proactive-alerts'
 )
 
 const gracefulShutdown = async () => {
@@ -50,12 +52,14 @@ const gracefulShutdown = async () => {
   await Promise.all([
     auditArchive.worker.close(),
     csvImport.worker.close(),
+    expirePolicies.worker.close(),
     notifications.worker.close(),
     proactiveAlerts.worker.close(),
   ])
   await Promise.all([
     auditArchive.queue.close(),
     csvImport.queue.close(),
+    expirePolicies.queue.close(),
     notifications.queue.close(),
     proactiveAlerts.queue.close(),
   ])

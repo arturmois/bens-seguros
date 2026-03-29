@@ -260,10 +260,7 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
       const bodyParsed = metaWebhookPayloadSchema.safeParse(request.body)
 
       if (!bodyParsed.success) {
-        app.log.warn(
-          { body: request.body },
-          'Received malformed Meta webhook payload'
-        )
+        app.log.warn('Received malformed Meta webhook payload')
         return reply.status(200).send({ success: true })
       }
 

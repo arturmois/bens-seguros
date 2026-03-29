@@ -1,4 +1,9 @@
 export { connectMongoDB, disconnectMongoDB } from './connection.js'
+export {
+  tenantStorage,
+  getCurrentTenantId,
+  runWithTenant,
+} from './tenant-context.js'
 
 export { Channel, type ChannelDocument } from './models/channel.model.js'
 export {
