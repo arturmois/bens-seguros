@@ -1,6 +1,7 @@
 'use client'
 
 import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
 import { AlertCircle, Send } from 'lucide-react'
 
 export function MessagesLoading() {
@@ -20,13 +21,20 @@ export function MessagesLoading() {
   )
 }
 
-export function MessagesError() {
+interface MessagesErrorProps {
+  readonly onRetry: () => void
+}
+
+export function MessagesError({ onRetry }: MessagesErrorProps) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-2">
+    <div className="flex flex-1 flex-col items-center justify-center gap-3">
       <AlertCircle className="text-destructive h-10 w-10" />
       <p className="text-muted-foreground text-sm">
         Erro ao carregar mensagens
       </p>
+      <Button variant="outline" size="sm" onClick={onRetry}>
+        Tentar novamente
+      </Button>
     </div>
   )
 }

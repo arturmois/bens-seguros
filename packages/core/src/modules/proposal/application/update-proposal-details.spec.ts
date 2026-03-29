@@ -3,6 +3,7 @@ import { UpdateProposalDetails } from './update-proposal-details.js'
 import { Proposal } from '../domain/proposal.js'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
 import type { AutoDetails } from '../domain/insured-object-details.js'
+import { InvalidStageTransitionError } from '../domain/proposal-errors.js'
 
 const autoDetails: AutoDetails = {
   branch: 'AUTO',
@@ -52,5 +53,27 @@ describe('UpdateProposalDetails', () => {
         commissionBasisPoints: 0,
       })
     ).rejects.toThrow('não encontrada')
+  })
+
+  it('throws InvalidStageTransitionError when proposal is LOST', async () => {
+    const proposal = Proposal.create({
+      organizationId: 'org-1',
+      clientId: 'c-1',
+      salespersonId: 'u-1',
+      branch: 'AUTO',
+      boardType: 'NEW_INSURANCE',
+    })
+    proposal.markAsLost('cliente desistiu')
+    const repo = createMockRepo(proposal)
+    const useCase = new UpdateProposalDetails(repo)
+
+    await expect(
+      useCase.execute(proposal.id, 'org-1', {
+        details: autoDetails,
+        premiumValueInCents: 150000,
+        commissionBasisPoints: 1500,
+      })
+    ).rejects.toThrow(InvalidStageTransitionError)
+    expect(repo.save).not.toHaveBeenCalled()
   })
 })

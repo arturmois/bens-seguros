@@ -35,8 +35,8 @@ export function PolicyExportButton({ filters }: PolicyExportButtonProps) {
         'apolices.csv'
       )
     },
-    onSuccess: () => toast.success('Exportacao concluida'),
-    onError: () => toast.error('Erro ao exportar apolices'),
+    onSuccess: () => toast.success('Exportação concluída'),
+    onError: () => toast.error('Erro ao exportar apólices'),
   })
 
   return (

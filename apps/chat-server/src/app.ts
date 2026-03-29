@@ -65,20 +65,41 @@ export async function buildChatApp(
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
 
-  await app.register(cors, {
-    origin: (origin, callback) => {
-      // Always allow the frontend
-      if (!origin || origin === env.FRONTEND_URL) {
-        callback(null, true)
-        return
+  const allowedOrigins = new Set([
+    env.FRONTEND_URL,
+    ...(env.CORS_ORIGINS?.split(',')
+      .map((o) => o.trim())
+      .filter(Boolean) ?? []),
+  ])
+
+  // Use per-request CORS delegate so we can inspect the URL.
+  // Widget routes accept any origin (validated per-channel in the route handler).
+  // All other routes are restricted to configured origins.
+  await app.register(
+    cors,
+    (_instance: FastifyInstance) =>
+      (
+        request: FastifyRequest,
+        callback: (
+          error: Error | null,
+          corsOptions?: {
+            origin: boolean | string[]
+            credentials: boolean
+            methods: string[]
+          }
+        ) => void
+      ) => {
+        const isWidgetRoute =
+          request.url.startsWith(WIDGET_PATH_PREFIX) ||
+          request.url.startsWith(WIDGET_APP_PREFIX)
+        const origin = isWidgetRoute ? true : [...allowedOrigins]
+        callback(null, {
+          origin,
+          credentials: true,
+          methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        })
       }
-      // Allow any origin for /widget/* routes — origin validated per-channel in route handler
-      // @fastify/cors doesn't have per-route config, so we allow here and validate in handler
-      callback(null, true)
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  })
+  )
 
   await app.register(helmet)
 
@@ -112,12 +133,13 @@ export async function buildChatApp(
   const io = new Server(app.server, {
     cors: {
       origin: (origin, callback) => {
-        if (!origin || origin === env.FRONTEND_URL) {
+        // Allow same-origin and configured origins
+        if (!origin || allowedOrigins.has(origin)) {
           callback(null, true)
           return
         }
-        // All other origins are allowed because the /widget namespace serves
-        // embeddable widgets on arbitrary domains. Auth is enforced per-socket via JWT.
+        // Allow all other origins because the /widget namespace serves embeddable
+        // widgets on arbitrary customer domains. Auth is enforced per-socket via JWT.
         callback(null, true)
       },
       credentials: true,
@@ -127,6 +149,7 @@ export async function buildChatApp(
 
   app.decorate('io', io)
   app.decorate('redisPub', options.redisPub)
+  app.decorate('redisGeneral', options.redisGeneral)
 
   // Health check (no auth)
   app.get('/health', async () => ({ status: 'ok' }))

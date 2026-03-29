@@ -9,7 +9,7 @@ export class ListNotifications {
 
   async execute(filters: NotificationFilters): Promise<{
     data: NotificationData[]
-    total: number
+    total?: number
     nextCursor: string | null
   }> {
     return this.repo.findMany(filters)

@@ -37,7 +37,7 @@ export async function notificationRoutes(app: FastifyInstance) {
       return reply.send({
         success: true,
         data: result.data,
-        meta: { total: result.total, nextCursor: result.nextCursor },
+        meta: { nextCursor: result.nextCursor },
       })
     }
   )

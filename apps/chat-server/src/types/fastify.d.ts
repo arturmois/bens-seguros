@@ -6,6 +6,7 @@ import type { VisitorTokenPayload } from '../infra/http/middleware/widget-auth.j
 declare module 'fastify' {
   interface FastifyInstance {
     redisPub: IORedis
+    redisGeneral: IORedis
   }
 
   interface FastifyRequest {

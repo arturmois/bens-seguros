@@ -4,11 +4,9 @@ import type {
   ClientRepository,
   ClientFilters,
 } from '../domain/client-repository.js'
-import {
-  MAX_EXPORT_ROWS,
-  CSV_BOM,
-  formatCsvRow,
-} from '../../../shared/csv-utils.js'
+import { CSV_BOM, formatCsvRow } from '../../../shared/csv-utils.js'
+
+const BATCH_SIZE = 500
 
 const CLIENT_CSV_COLUMNS = [
   'ID',
@@ -32,15 +30,20 @@ export class ExportClientsCsv {
     private readonly clientRepo: ClientRepository
   ) {}
 
-  async execute(filters: ClientFilters): Promise<string> {
-    const { items } = await this.clientRepo.findMany(filters, {
-      limit: MAX_EXPORT_ROWS,
-    })
+  async *generateCsvRows(filters: ClientFilters): AsyncGenerator<string> {
+    yield CSV_BOM + CLIENT_CSV_COLUMNS.join(',') + '\n'
 
-    const header = CLIENT_CSV_COLUMNS.join(',') + '\n'
-    const rows = items
-      .map((c) =>
-        formatCsvRow([
+    let cursor: string | undefined
+    let hasMore = true
+
+    while (hasMore) {
+      const result = await this.clientRepo.findMany(filters, {
+        limit: BATCH_SIZE,
+        cursor,
+      })
+
+      for (const c of result.items) {
+        yield formatCsvRow([
           c.id,
           c.name,
           maskDocument(c.document),
@@ -53,10 +56,11 @@ export class ExportClientsCsv {
           c.tags.join(';'),
           c.consentLgpd ? 'Sim' : 'Nao',
           c.createdAt.toISOString(),
-        ])
-      )
-      .join('\n')
+        ]) + '\n'
+      }
 
-    return CSV_BOM + header + rows
+      hasMore = result.items.length === BATCH_SIZE
+      cursor = result.items.at(-1)?.id
+    }
   }
 }

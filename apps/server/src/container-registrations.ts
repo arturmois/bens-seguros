@@ -15,6 +15,7 @@ import {
   CreateInsurer,
   CreateOccurrence,
   CreateProposal,
+  DeactivateMember,
   DeleteClaim,
   DeleteClient,
   DeleteDocument,
@@ -59,6 +60,7 @@ import {
   PrismaDocumentRepository,
   PrismaEndorsementRepository,
   PrismaInsurerRepository,
+  PrismaMemberRepository,
   PrismaNotificationRepository,
   PrismaOccurrenceRepository,
   PrismaPolicyRepository,
@@ -71,6 +73,7 @@ import {
   UpdateAssistanceStatus,
   UpdateClaimStatus,
   UpdateClient,
+  UpdateMemberRole,
   UpdateProposalDetails,
   UploadDocument,
 } from '@repo/core'
@@ -293,6 +296,16 @@ export function registerDependencies(redis: Redis | null = null) {
   })
   container.register(ExportCommissionsCsv, {
     useFactory: () => new ExportCommissionsCsv(commissionRepo),
+  })
+
+  // Member use cases
+  const memberRepo = new PrismaMemberRepository(prisma)
+  container.register('MemberRepository', { useValue: memberRepo })
+  container.register(UpdateMemberRole, {
+    useFactory: () => new UpdateMemberRole(memberRepo),
+  })
+  container.register(DeactivateMember, {
+    useFactory: () => new DeactivateMember(memberRepo),
   })
 
   // Notification use cases

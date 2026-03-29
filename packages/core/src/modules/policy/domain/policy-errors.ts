@@ -22,8 +22,18 @@ export class PolicyNotIssuableError extends Error {
   }
 }
 
+export class DuplicatePolicyError extends Error {
+  readonly code = 'DUPLICATE_POLICY' as const
+  constructor(policyNumber: string) {
+    super(`Número de apólice ${policyNumber} já está em uso`)
+    this.name = 'DuplicatePolicyError'
+  }
+}
+
 export const PolicyErrors = {
   notFound: (id: string) => new PolicyNotFoundError(id),
   alreadyCancelled: (id: string) => new PolicyAlreadyCancelledError(id),
   notIssuable: (proposalId: string) => new PolicyNotIssuableError(proposalId),
+  duplicatePolicy: (policyNumber: string) =>
+    new DuplicatePolicyError(policyNumber),
 }

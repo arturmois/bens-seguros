@@ -39,21 +39,23 @@ function makeCommissionData(
 
 function createMockRepo(data: CommissionData | null): CommissionRepository {
   return {
-    save: vi.fn().mockImplementation(async (commission) => {
-      const json = commission.toJSON()
-      return {
-        ...json,
-        splitPercentage: json.splitPercentage,
-      } satisfies CommissionData
-    }),
+    save: vi.fn(),
     findById: vi.fn().mockResolvedValue(data),
     findMany: vi.fn(),
-    update: vi.fn().mockImplementation(async (commission) => {
-      const json = commission.toJSON()
+    update: vi.fn(),
+    reverseAtomic: vi.fn().mockImplementation(async (original, reversal) => {
+      const originalJson = original.toJSON()
+      const reversalJson = reversal.toJSON()
       return {
-        ...json,
-        splitPercentage: json.splitPercentage,
-      } satisfies CommissionData
+        savedOriginal: {
+          ...originalJson,
+          splitPercentage: originalJson.splitPercentage,
+        } satisfies CommissionData,
+        savedReversal: {
+          ...reversalJson,
+          splitPercentage: reversalJson.splitPercentage,
+        } satisfies CommissionData,
+      }
     }),
   }
 }
@@ -66,16 +68,16 @@ describe('ReverseCommission', () => {
 
     const result = await useCase.execute('comm-1', 'org-1')
 
-    expect(repo.save).toHaveBeenCalledTimes(1)
-    expect(repo.update).toHaveBeenCalledTimes(1)
+    expect(repo.reverseAtomic).toHaveBeenCalledTimes(1)
+    expect(repo.save).not.toHaveBeenCalled()
+    expect(repo.update).not.toHaveBeenCalled()
 
-    const savedReversal = vi.mocked(repo.save).mock.calls[0]?.[0]
-    expect(savedReversal?.isReversal).toBe(true)
-    expect(savedReversal?.originalCommissionId).toBe('comm-1')
-    expect(savedReversal?.commissionValueInCents).toBe(-15000)
-    expect(savedReversal?.status).toBe('PENDING_COMMERCIAL')
-
-    const updatedOriginal = vi.mocked(repo.update).mock.calls[0]?.[0]
+    const [updatedOriginal, createdReversal] =
+      vi.mocked(repo.reverseAtomic).mock.calls[0] ?? []
+    expect(createdReversal?.isReversal).toBe(true)
+    expect(createdReversal?.originalCommissionId).toBe('comm-1')
+    expect(createdReversal?.commissionValueInCents).toBe(-15000)
+    expect(createdReversal?.status).toBe('PENDING_COMMERCIAL')
     expect(updatedOriginal?.status).toBe('REVERSED')
 
     expect(result.reversal.isReversal).toBe(true)

@@ -1,45 +1,21 @@
 import { CHAT_LIMITS, isRecord } from '@repo/shared'
 import type { FastifyReply, FastifyRequest } from 'fastify'
+import type IORedis from 'ioredis'
 
 // ---------------------------------------------------------------------------
-// Rate limiter (simple IP-based, in-memory)
+// Rate limiter (Redis-backed, IP-based)
 // ---------------------------------------------------------------------------
 
-interface RateBucket {
-  count: number
-  resetAt: number
-}
+const MAX_REQUESTS_PER_MINUTE = CHAT_LIMITS.WIDGET_RATE_LIMIT_PER_MIN
 
-const ipBuckets = new Map<string, RateBucket>()
-
-const RATE_LIMIT_WINDOW_MS = 60_000
-const RATE_LIMIT_MAX = CHAT_LIMITS.WIDGET_RATE_LIMIT_PER_MIN
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now()
-  const bucket = ipBuckets.get(ip)
-
-  if (!bucket || now >= bucket.resetAt) {
-    ipBuckets.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS })
-    return false
+async function isRateLimited(redis: IORedis, ip: string): Promise<boolean> {
+  const key = `widget:rl:${ip}`
+  const count = await redis.incr(key)
+  if (count === 1) {
+    await redis.expire(key, 60)
   }
-
-  bucket.count += 1
-  return bucket.count > RATE_LIMIT_MAX
+  return count > MAX_REQUESTS_PER_MINUTE
 }
-
-// Periodic cleanup to prevent memory leak
-const cleanupInterval = setInterval(() => {
-  const now = Date.now()
-  for (const [ip, bucket] of ipBuckets) {
-    if (now >= bucket.resetAt) {
-      ipBuckets.delete(ip)
-    }
-  }
-}, RATE_LIMIT_WINDOW_MS)
-
-// Allow Node to exit even if the interval is still running
-cleanupInterval.unref()
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -107,8 +83,10 @@ export async function rateLimitHook(
   request: FastifyRequest,
   reply: FastifyReply
 ): Promise<void> {
+  const redis: IORedis = request.server.redisGeneral
   const ip = getClientIp(request)
-  if (isRateLimited(ip)) {
+  const limited = await isRateLimited(redis, ip)
+  if (limited) {
     await reply.status(429).send({
       success: false,
       error: {

@@ -9,6 +9,7 @@ function createMockRepo(): CommissionRepository {
     findById: vi.fn(),
     findMany: vi.fn(),
     update: vi.fn(),
+    reverseAtomic: vi.fn(),
   }
 }
 

@@ -16,7 +16,7 @@ export interface ProposalCursorPage {
 
 export interface ProposalPage {
   items: Proposal[]
-  total: number
+  total?: number
   nextCursor: string | null
 }
 

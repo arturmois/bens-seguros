@@ -13,6 +13,7 @@ interface CreateProposalDTO {
   premiumValueInCents?: number
   commissionPercentageInCents?: number
   renewalPolicyId?: string
+  insurerId?: string
 }
 
 @injectable()

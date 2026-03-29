@@ -152,6 +152,8 @@ export async function buildApp() {
   }
 
   // Better Auth integration
+  // CSRF protection: Better Auth enforces CSRF via sameSite: lax cookies and Origin header
+  // validation on all state-mutating requests. No separate CSRF token mechanism needed.
   const frontendUrl = env.FRONTEND_URL
   const cookieDomain = env.COOKIE_DOMAIN
   const auth = createAuth(

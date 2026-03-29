@@ -9,6 +9,7 @@ import type {
   PolicyPage,
   CreatePolicyInput,
 } from '../domain/policy-repository.js'
+import { PolicyErrors } from '../domain/policy-errors.js'
 import { PolicyMapper } from './policy-mapper.js'
 
 const POLICY_INCLUDE = {
@@ -23,28 +24,39 @@ export class PrismaPolicyRepository implements PolicyRepository {
   constructor(@inject('PrismaClient') private readonly prisma: PrismaClient) {}
 
   async create(data: CreatePolicyInput): Promise<PolicyData> {
-    const row = await this.prisma.policy.create({
-      data: {
-        id: data.id,
-        organizationId: data.organizationId,
-        proposalId: data.proposalId,
-        clientId: data.clientId,
-        salespersonId: data.salespersonId,
-        policyNumber: data.policyNumber,
-        status: data.status,
-        branch: data.branch,
-        premiumValueInCents: data.premiumValueInCents,
-        coverageDetails:
-          data.coverageDetails === null
-            ? Prisma.JsonNull
-            : data.coverageDetails,
-        startDate: data.startDate,
-        endDate: data.endDate,
-      },
-      include: POLICY_INCLUDE,
-    })
+    try {
+      const row = await this.prisma.policy.create({
+        data: {
+          id: data.id,
+          organizationId: data.organizationId,
+          proposalId: data.proposalId,
+          clientId: data.clientId,
+          salespersonId: data.salespersonId,
+          insurerId: data.insurerId,
+          policyNumber: data.policyNumber,
+          status: data.status,
+          branch: data.branch,
+          premiumValueInCents: data.premiumValueInCents,
+          coverageDetails:
+            data.coverageDetails === null
+              ? Prisma.JsonNull
+              : data.coverageDetails,
+          startDate: data.startDate,
+          endDate: data.endDate,
+        },
+        include: POLICY_INCLUDE,
+      })
 
-    return PolicyMapper.toDomain(row)
+      return PolicyMapper.toDomain(row)
+    } catch (error: unknown) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw PolicyErrors.duplicatePolicy(data.policyNumber)
+      }
+      throw error
+    }
   }
 
   async findById(
@@ -90,23 +102,19 @@ export class PrismaPolicyRepository implements PolicyRepository {
       }),
     }
 
-    const [rows, total] = await Promise.all([
-      this.prisma.policy.findMany({
-        where,
-        include: POLICY_INCLUDE,
-        take: page.limit + 1,
-        ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
-        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      }),
-      this.prisma.policy.count({ where }),
-    ])
+    const rows = await this.prisma.policy.findMany({
+      where,
+      include: POLICY_INCLUDE,
+      take: page.limit + 1,
+      ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    })
 
     const hasNext = rows.length > page.limit
     const items = hasNext ? rows.slice(0, -1) : rows
 
     return {
       items: items.map(PolicyMapper.toDomain),
-      total,
       nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,
     }
   }

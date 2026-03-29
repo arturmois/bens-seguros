@@ -35,8 +35,8 @@ export class ReverseCommission {
     const reversal = Commission.createReversal(original)
     original.markAsReversed()
 
-    const savedOriginal = await this.commissionRepo.update(original)
-    const savedReversal = await this.commissionRepo.save(reversal)
+    const { savedOriginal, savedReversal } =
+      await this.commissionRepo.reverseAtomic(original, reversal)
 
     return { reversal: savedReversal, original: savedOriginal }
   }

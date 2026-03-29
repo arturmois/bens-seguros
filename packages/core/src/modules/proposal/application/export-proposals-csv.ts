@@ -3,11 +3,9 @@ import type {
   ProposalRepository,
   ProposalFilters,
 } from '../domain/proposal-repository.js'
-import {
-  MAX_EXPORT_ROWS,
-  CSV_BOM,
-  formatCsvRow,
-} from '../../../shared/csv-utils.js'
+import { CSV_BOM, formatCsvRow } from '../../../shared/csv-utils.js'
+
+const BATCH_SIZE = 500
 
 const PROPOSAL_CSV_COLUMNS = [
   'ID',
@@ -18,7 +16,7 @@ const PROPOSAL_CSV_COLUMNS = [
   'Tipo',
   'Ramo',
   'Premio (R$)',
-  'Comissao (%)',
+  'Comissão (%)',
   'Seguradora',
   'Criado em',
 ]
@@ -30,15 +28,20 @@ export class ExportProposalsCsv {
     private readonly proposalRepo: ProposalRepository
   ) {}
 
-  async execute(filters: ProposalFilters): Promise<string> {
-    const { items } = await this.proposalRepo.findMany(filters, {
-      limit: MAX_EXPORT_ROWS,
-    })
+  async *generateCsvRows(filters: ProposalFilters): AsyncGenerator<string> {
+    yield CSV_BOM + PROPOSAL_CSV_COLUMNS.join(',') + '\n'
 
-    const header = PROPOSAL_CSV_COLUMNS.join(',') + '\n'
-    const rows = items
-      .map((p) =>
-        formatCsvRow([
+    let cursor: string | undefined
+    let hasMore = true
+
+    while (hasMore) {
+      const result = await this.proposalRepo.findMany(filters, {
+        limit: BATCH_SIZE,
+        cursor,
+      })
+
+      for (const p of result.items) {
+        yield formatCsvRow([
           p.id,
           p.clientName ?? p.clientId,
           p.clientDocument ?? '',
@@ -50,10 +53,11 @@ export class ExportProposalsCsv {
           (p.commissionPercentageInCents / 100).toFixed(2),
           p.insurerName ?? '',
           p.createdAt.toISOString(),
-        ])
-      )
-      .join('\n')
+        ]) + '\n'
+      }
 
-    return CSV_BOM + header + rows
+      hasMore = result.items.length === BATCH_SIZE
+      cursor = result.items.at(-1)?.id
+    }
   }
 }

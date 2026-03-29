@@ -109,11 +109,15 @@ export function ProposalsTable() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Cliente</TableHead>
-                    <TableHead>Ramo</TableHead>
+                    <TableHead className="hidden md:table-cell">Ramo</TableHead>
                     <TableHead>Estágio</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead className="text-right">Valor</TableHead>
-                    <TableHead>Criado em</TableHead>
+                    <TableHead className="hidden md:table-cell">Tipo</TableHead>
+                    <TableHead className="hidden text-right md:table-cell">
+                      Valor
+                    </TableHead>
+                    <TableHead className="hidden lg:table-cell">
+                      Criado em
+                    </TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>

@@ -44,7 +44,7 @@ export class TransferConversation {
     if (!updated) {
       throw ChatErrors.invalidTransition(
         'HUMAN_ACTIVE',
-        'transferir conversa (nao encontrada ou estado alterado concorrentemente)'
+        'transferir conversa (não encontrada ou estado alterado concorrentemente)'
       )
     }
 

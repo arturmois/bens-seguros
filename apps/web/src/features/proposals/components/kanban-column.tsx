@@ -4,8 +4,13 @@ import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
+import {
+  type KanbanFilters,
+  useKanbanProposalsByStage,
+} from '../hooks/use-kanban-proposals'
 import type { ProposalData, ProposalStage } from '../types'
 import { STAGE_LABELS } from '../types'
 import { KanbanCardDraggable } from './kanban-card-draggable'
@@ -22,16 +27,24 @@ const STAGE_COLORS: Record<ProposalStage, string> = {
 
 interface KanbanColumnProps {
   stage: ProposalStage
-  proposals: ProposalData[]
+  filters: KanbanFilters
+  optimisticProposals?: ProposalData[]
   onCardClick: (proposal: ProposalData) => void
 }
 
 export function KanbanColumn({
   stage,
-  proposals,
+  filters,
+  optimisticProposals,
   onCardClick,
 }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: stage })
+
+  const { data, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useKanbanProposalsByStage(stage, filters)
+
+  const fetchedProposals = data?.pages.flatMap((page) => page.data) ?? []
+  const proposals = optimisticProposals ?? fetchedProposals
 
   const itemIds = proposals.map((p) => p.id)
 
@@ -73,6 +86,18 @@ export function KanbanColumn({
               onClick={() => onCardClick(proposal)}
             />
           ))}
+
+          {hasNextPage && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full text-xs"
+              disabled={isFetchingNextPage}
+              onClick={() => void fetchNextPage()}
+            >
+              {isFetchingNextPage ? 'Carregando...' : 'Carregar mais'}
+            </Button>
+          )}
         </div>
       </SortableContext>
     </div>

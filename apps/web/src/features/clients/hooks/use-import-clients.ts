@@ -40,7 +40,7 @@ export function useConfirmImport() {
       return response.data
     },
     onError: () => {
-      toast.error('Erro ao confirmar importacao')
+      toast.error('Erro ao confirmar importação')
     },
   })
 }

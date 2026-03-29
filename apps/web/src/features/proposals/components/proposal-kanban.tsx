@@ -15,17 +15,16 @@ import {
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-import { Button } from '@/components/ui/button'
 import { useDebounce } from '@/hooks/use-debounce'
 import { api, ApiError } from '@/lib/api-client'
 
-import { groupByStage, useKanbanProposals } from '../hooks/use-kanban-proposals'
+import type { KanbanFilters } from '../hooks/use-kanban-proposals'
 import type { BoardType, ProposalData, ProposalStage } from '../types'
 import { STAGES } from '../types'
 import { KanbanCard } from './kanban-card'
 import { KanbanCardDetail } from './kanban-card-detail'
 import { KanbanColumn } from './kanban-column'
-import { KanbanSkeleton, KanbanToolbar } from './kanban-parts'
+import { KanbanToolbar } from './kanban-parts'
 import { LostReasonDialog } from './lost-reason-dialog'
 
 const ADVANCE_TARGETS = new Set<ProposalStage>([
@@ -36,11 +35,11 @@ const ADVANCE_TARGETS = new Set<ProposalStage>([
   'POLICY_ISSUED',
 ])
 
-function findProposalById(
-  proposals: ProposalData[],
-  id: string
-): ProposalData | undefined {
-  return proposals.find((p) => p.id === id)
+interface OptimisticMove {
+  proposalId: string
+  sourceStage: ProposalStage
+  targetStage: ProposalStage
+  proposal: ProposalData
 }
 
 function isNextStage(from: ProposalStage, to: ProposalStage): boolean {
@@ -53,6 +52,27 @@ function isProposalStage(value: string): value is ProposalStage {
   return (STAGES as readonly string[]).includes(value)
 }
 
+function findProposalInCache(
+  queryClient: ReturnType<typeof useQueryClient>,
+  proposalId: string,
+  filters: KanbanFilters
+): { proposal: ProposalData; stage: ProposalStage } | undefined {
+  for (const stage of STAGES) {
+    const queryKey = ['proposals', 'kanban', stage, filters]
+    const cached = queryClient.getQueryData<{
+      pages: Array<{ data: ProposalData[] }>
+    }>(queryKey)
+    if (!cached) continue
+
+    const found = cached.pages
+      .flatMap((p) => p.data)
+      .find((p) => p.id === proposalId)
+
+    if (found) return { proposal: found, stage }
+  }
+  return undefined
+}
+
 export function ProposalKanban() {
   const [boardType, setBoardType] = useState<BoardType>('NEW_INSURANCE')
   const [search, setSearch] = useState('')
@@ -63,14 +83,17 @@ export function ProposalKanban() {
     null
   )
   const [lostProposalId, setLostProposalId] = useState<string | null>(null)
+  const [optimisticMove, setOptimisticMove] = useState<OptimisticMove | null>(
+    null
+  )
 
   const debouncedSearch = useDebounce(search, 300)
   const queryClient = useQueryClient()
 
-  const queryOptions = { boardType, search: debouncedSearch || undefined }
-  const { data, isLoading, isError, refetch } = useKanbanProposals(queryOptions)
-
-  const grouped = groupByStage(data ?? [])
+  const filters: KanbanFilters = {
+    boardType,
+    search: debouncedSearch || undefined,
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -79,27 +102,37 @@ export function ProposalKanban() {
   )
 
   const handleDragStart = (event: DragStartEvent) => {
-    const proposal = findProposalById(data ?? [], String(event.active.id))
-    setActiveProposal(proposal ?? null)
+    const result = findProposalInCache(
+      queryClient,
+      String(event.active.id),
+      filters
+    )
+    setActiveProposal(result?.proposal ?? null)
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
-    setActiveProposal(null)
-
     const { active, over } = event
-    if (!over) return
+    if (!over) {
+      setActiveProposal(null)
+      return
+    }
 
     const proposalId = String(active.id)
     const rawTarget = String(over.data?.current?.stage ?? over.id)
-    if (!isProposalStage(rawTarget)) return
+
+    if (!isProposalStage(rawTarget)) {
+      setActiveProposal(null)
+      return
+    }
+
     const targetStage = rawTarget
+    const found = findProposalInCache(queryClient, proposalId, filters)
 
-    const proposal = findProposalById(data ?? [], proposalId)
-    if (!proposal) return
+    setActiveProposal(null)
 
-    const sourceStage = proposal.stage
+    if (!found || found.stage === targetStage) return
 
-    if (sourceStage === targetStage) return
+    const { proposal, stage: sourceStage } = found
 
     if (targetStage === 'LOST') {
       setLostProposalId(proposalId)
@@ -109,39 +142,50 @@ export function ProposalKanban() {
     if (!ADVANCE_TARGETS.has(targetStage)) return
     if (!isNextStage(sourceStage, targetStage)) return
 
-    const queryKey = ['proposals', 'kanban', queryOptions]
-
-    const previousData = queryClient.getQueryData<ProposalData[]>(queryKey)
-
-    queryClient.setQueryData<ProposalData[]>(queryKey, (old) => {
-      if (!old) return old
-      return old.map((p) =>
-        p.id === proposalId ? { ...p, stage: targetStage } : p
-      )
+    const movedProposal: ProposalData = { ...proposal, stage: targetStage }
+    setOptimisticMove({
+      proposalId,
+      sourceStage,
+      targetStage,
+      proposal: movedProposal,
     })
 
     void api
       .post<ProposalData>(`/api/v1/proposals/${proposalId}/advance`, {})
       .then(() => {
-        void queryClient.invalidateQueries({ queryKey: ['proposals'] })
+        setOptimisticMove(null)
+        void queryClient.invalidateQueries({
+          queryKey: ['proposals', 'kanban'],
+        })
       })
       .catch((error: unknown) => {
-        queryClient.setQueryData(queryKey, previousData)
+        setOptimisticMove(null)
         const message =
           error instanceof ApiError ? error.message : 'Erro ao mover proposta'
         toast.error(message)
       })
   }
 
-  if (isError) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-        <p className="text-destructive text-sm">Erro ao carregar propostas.</p>
-        <Button variant="outline" size="sm" onClick={() => refetch()}>
-          Tentar novamente
-        </Button>
-      </div>
-    )
+  function buildOptimisticProposals(
+    stage: ProposalStage
+  ): ProposalData[] | undefined {
+    if (!optimisticMove) return undefined
+
+    const queryKey = ['proposals', 'kanban', stage, filters]
+    const cached = queryClient.getQueryData<{
+      pages: Array<{ data: ProposalData[] }>
+    }>(queryKey)
+    const fetched = cached?.pages.flatMap((p) => p.data) ?? []
+
+    if (stage === optimisticMove.sourceStage) {
+      return fetched.filter((p) => p.id !== optimisticMove.proposalId)
+    }
+
+    if (stage === optimisticMove.targetStage) {
+      return [optimisticMove.proposal, ...fetched]
+    }
+
+    return undefined
   }
 
   return (
@@ -153,38 +197,35 @@ export function ProposalKanban() {
         onBoardTypeChange={setBoardType}
       />
 
-      {isLoading ? (
-        <KanbanSkeleton />
-      ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCorners}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCorners}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div
+          className="flex gap-3 overflow-x-auto pb-4"
+          style={{ minHeight: '60vh' }}
         >
-          <div
-            className="flex gap-3 overflow-x-auto pb-4"
-            style={{ minHeight: '60vh' }}
-          >
-            {STAGES.map((stage) => (
-              <KanbanColumn
-                key={stage}
-                stage={stage}
-                proposals={grouped[stage] ?? []}
-                onCardClick={setSelectedProposal}
-              />
-            ))}
-          </div>
+          {STAGES.map((stage) => (
+            <KanbanColumn
+              key={stage}
+              stage={stage}
+              filters={filters}
+              optimisticProposals={buildOptimisticProposals(stage)}
+              onCardClick={setSelectedProposal}
+            />
+          ))}
+        </div>
 
-          <DragOverlay>
-            {activeProposal ? (
-              <div className="rotate-2 opacity-90">
-                <KanbanCard proposal={activeProposal} onClick={() => null} />
-              </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
-      )}
+        <DragOverlay>
+          {activeProposal ? (
+            <div className="rotate-2 opacity-90">
+              <KanbanCard proposal={activeProposal} onClick={() => null} />
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
 
       <KanbanCardDetail
         proposal={selectedProposal}

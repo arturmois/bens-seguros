@@ -56,23 +56,19 @@ export class PrismaEndorsementRepository implements EndorsementRepository {
       ...(filters.policyId && { policyId: filters.policyId }),
     }
 
-    const [rows, total] = await Promise.all([
-      this.prisma.endorsement.findMany({
-        where,
-        include: ENDORSEMENT_INCLUDE,
-        take: page.limit + 1,
-        ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
-        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      }),
-      this.prisma.endorsement.count({ where }),
-    ])
+    const rows = await this.prisma.endorsement.findMany({
+      where,
+      include: ENDORSEMENT_INCLUDE,
+      take: page.limit + 1,
+      ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    })
 
     const hasNext = rows.length > page.limit
     const items = hasNext ? rows.slice(0, -1) : rows
 
     return {
       items: items.map(EndorsementMapper.toDomain),
-      total,
       nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,
     }
   }

@@ -32,7 +32,7 @@ export class ReturnToQueue {
     if (!updated) {
       throw ChatErrors.invalidTransition(
         'HUMAN_ACTIVE',
-        'devolver para fila (nao encontrada ou estado alterado concorrentemente)'
+        'devolver para fila (não encontrada ou estado alterado concorrentemente)'
       )
     }
 

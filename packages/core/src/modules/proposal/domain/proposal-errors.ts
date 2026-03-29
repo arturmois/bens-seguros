@@ -38,7 +38,7 @@ export class ChecklistIncompleteError extends Error {
   readonly code = 'CHECKLIST_INCOMPLETE' as const
   constructor(proposalId: string, pendingCount: number) {
     super(
-      `Checklist incompleto: ${pendingCount} itens obrigatorios pendentes (proposta ${proposalId})`
+      `Checklist incompleto: ${pendingCount} itens obrigatórios pendentes (proposta ${proposalId})`
     )
     this.name = 'ChecklistIncompleteError'
   }

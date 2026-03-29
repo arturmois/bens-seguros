@@ -163,7 +163,7 @@ async function processPolicyBatch(
         if (progress.errors.length < MAX_IMPORT_ERRORS) {
           progress.errors.push({
             row: batchStartIndex + i + 2,
-            message: `Cliente com CPF/CNPJ ${row.cpfCnpjCliente} nao encontrado`,
+            message: `Cliente com CPF/CNPJ ${row.cpfCnpjCliente} não encontrado`,
           })
         }
         continue

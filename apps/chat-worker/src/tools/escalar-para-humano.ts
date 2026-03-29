@@ -11,7 +11,7 @@ export function createEscalarParaHumanoTool(
 ) {
   return tool({
     description:
-      'Transfere o atendimento para um atendente humano. Use quando: cliente pede explicitamente, assunto exige decisao humana, voce nao consegue resolver, ou tema e sensivel (sinistro, reclamacao).',
+      'Transfere o atendimento para um atendente humano. Use quando: cliente pede explicitamente, assunto exige decisão humana, você não consegue resolver, ou tema é sensível (sinistro, reclamação).',
     parameters: z.object({
       motivo: z.string().describe('Motivo da transferencia para registro'),
     }),
@@ -26,7 +26,7 @@ export function createEscalarParaHumanoTool(
         return {
           transferred: false,
           motivo,
-          reason: 'Conversa nao esta em atendimento por IA',
+          reason: 'Conversa não está em atendimento por IA',
         }
       }
 

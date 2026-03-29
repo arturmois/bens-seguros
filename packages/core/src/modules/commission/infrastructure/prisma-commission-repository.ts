@@ -6,6 +6,7 @@ import type {
   CommissionRepository,
   CommissionData,
   CommissionFilters,
+  ReverseAtomicResult,
 } from '../domain/commission-repository.js'
 import type { Commission } from '../domain/commission.js'
 import { CommissionMapper } from './commission-mapper.js'
@@ -131,5 +132,62 @@ export class PrismaCommissionRepository implements CommissionRepository {
       include: COMMISSION_INCLUDE,
     })
     return CommissionMapper.toData(row)
+  }
+
+  async reverseAtomic(
+    original: Commission,
+    reversal: Commission
+  ): Promise<ReverseAtomicResult> {
+    const originalData = CommissionMapper.toPersistence(original.toJSON())
+    const reversalData = CommissionMapper.toPersistence(reversal.toJSON())
+
+    const [updatedOriginalRow, createdReversalRow] =
+      await this.prisma.$transaction([
+        this.prisma.commission.update({
+          where: {
+            id: originalData.id,
+            organizationId: originalData.organizationId,
+          },
+          data: {
+            status: originalData.status,
+            commissionValueInCents: originalData.commissionValueInCents,
+            approvedBy: originalData.approvedBy,
+            approvedAt: originalData.approvedAt,
+            paidAt: originalData.paidAt,
+            rejectedBy: originalData.rejectedBy,
+            rejectedAt: originalData.rejectedAt,
+            rejectionReason: originalData.rejectionReason,
+            deletedAt: originalData.deletedAt,
+          },
+          include: COMMISSION_INCLUDE,
+        }),
+        this.prisma.commission.create({
+          data: {
+            id: reversalData.id,
+            organizationId: reversalData.organizationId,
+            policyId: reversalData.policyId,
+            salespersonId: reversalData.salespersonId,
+            status: reversalData.status,
+            commissionValueInCents: reversalData.commissionValueInCents,
+            premiumValueInCents: reversalData.premiumValueInCents,
+            percentageInBasisPoints: reversalData.percentageInBasisPoints,
+            splitPercentage: reversalData.splitPercentage,
+            approvedBy: reversalData.approvedBy,
+            approvedAt: reversalData.approvedAt,
+            paidAt: reversalData.paidAt,
+            rejectedBy: reversalData.rejectedBy,
+            rejectedAt: reversalData.rejectedAt,
+            rejectionReason: reversalData.rejectionReason,
+            isReversal: reversalData.isReversal,
+            originalCommissionId: reversalData.originalCommissionId,
+          },
+          include: COMMISSION_INCLUDE,
+        }),
+      ])
+
+    return {
+      savedOriginal: CommissionMapper.toData(updatedOriginalRow),
+      savedReversal: CommissionMapper.toData(createdReversalRow),
+    }
   }
 }

@@ -1,24 +1,13 @@
-import { Contact } from '@repo/db-chat'
+import { Contact, type ContactDocument } from '@repo/db-chat'
 
 import type { ContactRepository } from '../../domain/ports/contact-repository.js'
 import type { ContactData } from '../../domain/types.js'
 
-interface MongooseContactDoc {
-  _id: unknown
-  tenantId: string
-  whatsappPhone: string
-  pushName?: string | null
-  profilePicUrl?: string | null
-  clientId?: string | null
-  createdAt: Date
-  updatedAt: Date
-}
-
-function toContactData(doc: MongooseContactDoc): ContactData {
+function toContactData(doc: ContactDocument): ContactData {
   return {
     id: String(doc._id),
     tenantId: doc.tenantId,
-    whatsappPhone: doc.whatsappPhone,
+    whatsappPhone: doc.whatsappPhone ?? '',
     pushName: doc.pushName ?? null,
     profilePicUrl: doc.profilePicUrl ?? null,
     clientId: doc.clientId ?? null,
@@ -29,18 +18,24 @@ function toContactData(doc: MongooseContactDoc): ContactData {
 
 export class MongooseContactRepository implements ContactRepository {
   async findById(id: string, tenantId: string): Promise<ContactData | null> {
-    const doc = await Contact.findOne({ _id: id, tenantId }).lean()
+    const doc = await Contact.findOne({
+      _id: id,
+      tenantId,
+    }).lean<ContactDocument>()
     if (!doc) return null
-    return toContactData(doc as unknown as MongooseContactDoc)
+    return toContactData(doc)
   }
 
   async findByPhone(
     tenantId: string,
     whatsappPhone: string
   ): Promise<ContactData | null> {
-    const doc = await Contact.findOne({ tenantId, whatsappPhone }).lean()
+    const doc = await Contact.findOne({
+      tenantId,
+      whatsappPhone,
+    }).lean<ContactDocument>()
     if (!doc) return null
-    return toContactData(doc as unknown as MongooseContactDoc)
+    return toContactData(doc)
   }
 
   async upsertByPhone(
@@ -61,8 +56,10 @@ export class MongooseContactRepository implements ContactRepository {
         $setOnInsert: { tenantId, whatsappPhone },
       },
       { upsert: true, returnDocument: 'after' }
-    ).lean()
+    ).lean<ContactDocument>()
 
-    return toContactData(doc as unknown as MongooseContactDoc)
+    // upsert with returnDocument: 'after' always returns a document
+    if (!doc) throw new Error('Upsert failed to return document')
+    return toContactData(doc)
   }
 }

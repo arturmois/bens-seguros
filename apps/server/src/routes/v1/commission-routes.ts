@@ -74,7 +74,7 @@ export async function commissionRoutes(app: FastifyInstance) {
       const { status, salespersonId, policyId, search, dateFrom, dateTo } =
         listCommissionsQuerySchema.parse(request.query)
       const useCase = container.resolve(ExportCommissionsCsv)
-      const csv = await useCase.execute({
+      const stream = useCase.generateCsvRows({
         organizationId: request.organizationId!,
         status,
         salespersonId,
@@ -83,10 +83,19 @@ export async function commissionRoutes(app: FastifyInstance) {
         dateFrom,
         dateTo,
       })
+
+      reply.raw.writeHead(200, {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': 'attachment; filename="comissoes.csv"',
+        'Transfer-Encoding': 'chunked',
+      })
+
+      for await (const chunk of stream) {
+        reply.raw.write(chunk)
+      }
+
+      reply.raw.end()
       return reply
-        .header('Content-Type', 'text/csv')
-        .header('Content-Disposition', 'attachment; filename="comissoes.csv"')
-        .send(csv)
     }
   )
 
@@ -183,15 +192,15 @@ export async function commissionRoutes(app: FastifyInstance) {
                 organizationId: request.organizationId!,
                 userId: commission.salespersonId,
                 type: 'COMMISSION_APPROVED',
-                title: 'Comissao aprovada',
-                body: `Comissao de ${valueFormatted} aprovada`,
+                title: 'Comissão aprovada',
+                body: `Comissão de ${valueFormatted} aprovada`,
                 entityType: 'Commission',
                 entityId: commission.id,
               },
               email: salesperson.email
                 ? {
                     to: salesperson.email,
-                    subject: 'Sua comissao foi aprovada',
+                    subject: 'Sua comissão foi aprovada',
                     html: commissionApprovedEmail({
                       userName: salesperson.name,
                       policyNumber: String(commission.policyNumber ?? 'N/A'),
@@ -250,15 +259,15 @@ export async function commissionRoutes(app: FastifyInstance) {
                 organizationId: request.organizationId!,
                 userId: commission.salespersonId,
                 type: 'COMMISSION_REJECTED',
-                title: 'Comissao rejeitada',
-                body: `Comissao rejeitada: ${reason}`,
+                title: 'Comissão rejeitada',
+                body: `Comissão rejeitada: ${reason}`,
                 entityType: 'Commission',
                 entityId: commission.id,
               },
               email: salesperson.email
                 ? {
                     to: salesperson.email,
-                    subject: 'Sua comissao foi rejeitada',
+                    subject: 'Sua comissão foi rejeitada',
                     html: commissionRejectedEmail({
                       userName: salesperson.name,
                       policyNumber: String(commission.policyNumber ?? 'N/A'),

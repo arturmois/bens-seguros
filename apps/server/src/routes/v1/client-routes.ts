@@ -94,15 +94,24 @@ export async function clientRoutes(app: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { type, search } = listClientsQuerySchema.parse(request.query)
       const useCase = container.resolve(ExportClientsCsv)
-      const csv = await useCase.execute({
+      const stream = useCase.generateCsvRows({
         organizationId: request.organizationId!,
         type,
         search,
       })
+
+      reply.raw.writeHead(200, {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': 'attachment; filename="clientes.csv"',
+        'Transfer-Encoding': 'chunked',
+      })
+
+      for await (const chunk of stream) {
+        reply.raw.write(chunk)
+      }
+
+      reply.raw.end()
       return reply
-        .header('Content-Type', 'text/csv')
-        .header('Content-Disposition', 'attachment; filename="clientes.csv"')
-        .send(csv)
     }
   )
 
@@ -203,7 +212,7 @@ export async function clientRoutes(app: FastifyInstance) {
           error: {
             code: 'JOB_NOT_FOUND',
             message:
-              'Dados de importacao nao encontrados ou expirados. Faca o upload novamente.',
+              'Dados de importação não encontrados ou expirados. Faça o upload novamente.',
           },
         })
       }

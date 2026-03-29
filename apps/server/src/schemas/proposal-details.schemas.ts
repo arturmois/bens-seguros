@@ -72,4 +72,5 @@ export const updateProposalDetailsBodySchema = z.object({
   details: insuredObjectDetailsSchema,
   premiumValueInCents: z.number().int().min(0),
   commissionBasisPoints: z.number().int().min(0).max(10000),
+  insurerId: z.string().optional().nullable(),
 })

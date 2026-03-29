@@ -43,7 +43,7 @@ export function ProposalTableRow({
       <TableCell className="font-medium">
         {proposal.clientName ?? proposal.clientId}
       </TableCell>
-      <TableCell>
+      <TableCell className="hidden md:table-cell">
         <Badge variant="outline">{BRANCH_LABELS[proposal.branch]}</Badge>
       </TableCell>
       <TableCell>
@@ -51,11 +51,15 @@ export function ProposalTableRow({
           {STAGE_LABELS[proposal.stage]}
         </Badge>
       </TableCell>
-      <TableCell>{BOARD_TYPE_LABELS[proposal.boardType]}</TableCell>
-      <TableCell className="text-right">
+      <TableCell className="hidden md:table-cell">
+        {BOARD_TYPE_LABELS[proposal.boardType]}
+      </TableCell>
+      <TableCell className="hidden text-right md:table-cell">
         {formatCurrency(proposal.premiumValueInCents)}
       </TableCell>
-      <TableCell>{formatDate(proposal.createdAt)}</TableCell>
+      <TableCell className="hidden lg:table-cell">
+        {formatDate(proposal.createdAt)}
+      </TableCell>
       <TableCell className="text-right">
         <div
           className="flex justify-end gap-1"

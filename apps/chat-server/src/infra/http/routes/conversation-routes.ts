@@ -63,7 +63,7 @@ export async function conversationRoutes(app: FastifyInstance): Promise<void> {
 
       const channelIds = [...new Set(result.data.map((c) => c.channelId))]
       const channels = await Channel.find(
-        { _id: { $in: channelIds } },
+        { _id: { $in: channelIds }, tenantId },
         { _id: 1, type: 1 }
       ).lean()
       const channelTypeMap = new Map<string, ChannelType>(

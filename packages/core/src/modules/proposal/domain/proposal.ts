@@ -41,6 +41,7 @@ export interface ProposalProps {
   details: InsuredObjectDetails | null
   lostReason: string | null
   renewalPolicyId: string | null
+  insurerId: string | null
   deletedAt: Date | null
   readonly createdAt: Date
   updatedAt: Date
@@ -59,6 +60,7 @@ interface CreateProposalInput {
   premiumValueInCents?: number
   commissionPercentageInCents?: number
   renewalPolicyId?: string
+  insurerId?: string
 }
 
 export type { Stage, ActiveStage, Branch, BoardType }
@@ -80,6 +82,7 @@ export class Proposal {
       details: null,
       lostReason: null,
       renewalPolicyId: input.renewalPolicyId ?? null,
+      insurerId: input.insurerId ?? null,
       deletedAt: null,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -112,7 +115,8 @@ export class Proposal {
   updateDetails(
     details: InsuredObjectDetails,
     premiumValueInCents: number,
-    commissionBasisPoints: number
+    commissionBasisPoints: number,
+    insurerId?: string | null
   ): void {
     if (details.branch !== this.props.branch) {
       throw ProposalErrors.branchMismatch(this.props.branch, details.branch)
@@ -120,6 +124,9 @@ export class Proposal {
     this.props.details = details
     this.props.premiumValueInCents = premiumValueInCents
     this.props.commissionPercentageInCents = commissionBasisPoints
+    if (insurerId !== undefined) {
+      this.props.insurerId = insurerId
+    }
     this.props.updatedAt = new Date()
   }
 
@@ -171,6 +178,9 @@ export class Proposal {
   }
   get renewalPolicyId(): string | null {
     return this.props.renewalPolicyId
+  }
+  get insurerId(): string | null {
+    return this.props.insurerId
   }
   get createdAt(): Date {
     return this.props.createdAt

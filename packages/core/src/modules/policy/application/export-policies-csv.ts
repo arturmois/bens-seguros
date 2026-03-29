@@ -3,11 +3,9 @@ import type {
   PolicyRepository,
   PolicyFilters,
 } from '../domain/policy-repository.js'
-import {
-  MAX_EXPORT_ROWS,
-  CSV_BOM,
-  formatCsvRow,
-} from '../../../shared/csv-utils.js'
+import { CSV_BOM, formatCsvRow } from '../../../shared/csv-utils.js'
+
+const BATCH_SIZE = 500
 
 const POLICY_CSV_COLUMNS = [
   'ID',
@@ -31,15 +29,20 @@ export class ExportPoliciesCsv {
     private readonly policyRepo: PolicyRepository
   ) {}
 
-  async execute(filters: PolicyFilters): Promise<string> {
-    const { items } = await this.policyRepo.findMany(filters, {
-      limit: MAX_EXPORT_ROWS,
-    })
+  async *generateCsvRows(filters: PolicyFilters): AsyncGenerator<string> {
+    yield CSV_BOM + POLICY_CSV_COLUMNS.join(',') + '\n'
 
-    const header = POLICY_CSV_COLUMNS.join(',') + '\n'
-    const rows = items
-      .map((p) =>
-        formatCsvRow([
+    let cursor: string | undefined
+    let hasMore = true
+
+    while (hasMore) {
+      const result = await this.policyRepo.findMany(filters, {
+        limit: BATCH_SIZE,
+        cursor,
+      })
+
+      for (const p of result.items) {
+        yield formatCsvRow([
           p.id,
           p.policyNumber,
           p.clientName ?? p.clientId,
@@ -52,10 +55,11 @@ export class ExportPoliciesCsv {
           p.startDate.toISOString().split('T')[0] ?? '',
           p.endDate.toISOString().split('T')[0] ?? '',
           p.createdAt.toISOString(),
-        ])
-      )
-      .join('\n')
+        ]) + '\n'
+      }
 
-    return CSV_BOM + header + rows
+      hasMore = result.items.length === BATCH_SIZE
+      cursor = result.items.at(-1)?.id
+    }
   }
 }

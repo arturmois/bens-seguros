@@ -31,6 +31,7 @@ export class ProposalMapper {
       details: isInsuredObjectDetails(row.details) ? row.details : null,
       lostReason: row.lostReason,
       renewalPolicyId: row.renewalPolicyId,
+      insurerId: row.insurerId,
       deletedAt: row.deletedAt,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
@@ -61,6 +62,7 @@ export class ProposalMapper {
       details: json.details ? toJsonValue(json.details) : Prisma.DbNull,
       lostReason: json.lostReason,
       renewalPolicyId: json.renewalPolicyId,
+      insurerId: json.insurerId,
       createdAt: json.createdAt,
       updatedAt: json.updatedAt,
     }

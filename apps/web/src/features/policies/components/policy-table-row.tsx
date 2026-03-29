@@ -39,7 +39,7 @@ export function PolicyTableRow({
       }}
     >
       <TableCell className="font-medium">{policy.policyNumber}</TableCell>
-      <TableCell>
+      <TableCell className="hidden md:table-cell">
         <Badge variant="outline">{POLICY_BRANCH_LABELS[policy.branch]}</Badge>
       </TableCell>
       <TableCell>
@@ -47,13 +47,15 @@ export function PolicyTableRow({
           {POLICY_STATUS_LABELS[policy.status]}
         </Badge>
       </TableCell>
-      <TableCell className="text-right">
+      <TableCell className="hidden text-right md:table-cell">
         {formatCurrency(policy.premiumValueInCents)}
       </TableCell>
-      <TableCell>
+      <TableCell className="hidden md:table-cell">
         {formatDate(policy.startDate)} – {formatDate(policy.endDate)}
       </TableCell>
-      <TableCell>{formatDate(policy.createdAt)}</TableCell>
+      <TableCell className="hidden lg:table-cell">
+        {formatDate(policy.createdAt)}
+      </TableCell>
       <TableCell onClick={(e) => e.stopPropagation()}>
         {policy.status === 'ACTIVE' && (
           <Menu>

@@ -4,6 +4,7 @@ import {
   WHATSAPP_STATE_KEYS,
   isRecord,
 } from '@repo/shared'
+import { Channel } from '@repo/db-chat'
 import type IORedis from 'ioredis'
 import type { Server, Socket } from 'socket.io'
 import { container } from 'tsyringe'
@@ -64,7 +65,7 @@ export function setupSocketHandlers(
     registerMessageEvents(socket, user, logger)
     registerPresenceEvents(socket, user, presence, logger)
     registerCatchUpEvent(socket, user, logger)
-    registerChannelStatusEvents(socket, logger, redis)
+    registerChannelStatusEvents(socket, user, logger, redis)
 
     socket.on('disconnect', () => {
       presence.removeAgent(user.organizationId, user.userId)
@@ -283,6 +284,7 @@ function registerCatchUpEvent(
 
 function registerChannelStatusEvents(
   socket: Socket,
+  user: SocketUserData,
   logger: AppLogger,
   redis: IORedis
 ): void {
@@ -292,6 +294,21 @@ function registerChannelStatusEvents(
       try {
         const channelId = parseChannelId(data)
         if (!channelId) return
+
+        const channel = await Channel.findOne({
+          _id: channelId,
+          tenantId: user.organizationId,
+        }).lean()
+
+        if (!channel) {
+          if (typeof ack === 'function') {
+            ack({
+              success: false,
+              error: { code: 'NOT_FOUND', message: 'Canal não encontrado' },
+            })
+          }
+          return
+        }
 
         const [state, qr] = await Promise.all([
           redis.get(WHATSAPP_STATE_KEYS.state(channelId)),

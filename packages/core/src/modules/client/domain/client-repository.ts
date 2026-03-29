@@ -41,7 +41,7 @@ export interface CursorPage {
 
 export interface Page<TItem> {
   items: TItem[]
-  total: number
+  total?: number
   nextCursor: string | null
 }
 

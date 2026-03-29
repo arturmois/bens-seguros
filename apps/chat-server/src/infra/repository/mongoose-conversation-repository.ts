@@ -1,4 +1,4 @@
-import { Conversation } from '@repo/db-chat'
+import { Conversation, type ConversationDocument } from '@repo/db-chat'
 
 import type { ConversationRepository } from '../../domain/ports/conversation-repository.js'
 import type {
@@ -9,25 +9,7 @@ import type {
   Page,
 } from '../../domain/types.js'
 
-interface MongooseConversationDoc {
-  _id: unknown
-  tenantId: string
-  channelId: string
-  contactId: string
-  status: string
-  assignedTo?: string | null
-  assignedToName?: string | null
-  subject?: string | null
-  lastMessageText?: string | null
-  lastMessageAt?: Date | null
-  whatsappPhone?: string | null
-  closedAt?: Date | null
-  closedBy?: string | null
-  createdAt: Date
-  updatedAt: Date
-}
-
-function toConversationData(doc: MongooseConversationDoc): ConversationData {
+function toConversationData(doc: ConversationDocument): ConversationData {
   return {
     id: String(doc._id),
     tenantId: doc.tenantId,
@@ -52,9 +34,12 @@ export class MongooseConversationRepository implements ConversationRepository {
     id: string,
     tenantId: string
   ): Promise<ConversationData | null> {
-    const doc = await Conversation.findOne({ _id: id, tenantId }).lean()
+    const doc = await Conversation.findOne({
+      _id: id,
+      tenantId,
+    }).lean<ConversationDocument>()
     if (!doc) return null
-    return toConversationData(doc as unknown as MongooseConversationDoc)
+    return toConversationData(doc)
   }
 
   async findOpenByContactAndChannel(
@@ -67,9 +52,9 @@ export class MongooseConversationRepository implements ConversationRepository {
       contactId,
       channelId,
       status: { $ne: 'CLOSED' },
-    }).lean()
+    }).lean<ConversationDocument>()
     if (!doc) return null
-    return toConversationData(doc as unknown as MongooseConversationDoc)
+    return toConversationData(doc)
   }
 
   async findMany(
@@ -95,16 +80,14 @@ export class MongooseConversationRepository implements ConversationRepository {
       Conversation.find(query)
         .sort({ updatedAt: -1, _id: -1 })
         .limit(page.limit)
-        .lean(),
+        .lean<ConversationDocument[]>(),
       Conversation.countDocuments({
         tenantId: filters.tenantId,
         ...buildCountFilter(filters),
       }),
     ])
 
-    const items = (docs as unknown as MongooseConversationDoc[]).map(
-      toConversationData
-    )
+    const items = docs.map(toConversationData)
     const lastItem = items.at(-1)
 
     return {
@@ -134,9 +117,7 @@ export class MongooseConversationRepository implements ConversationRepository {
       closedBy: data.closedBy,
     })
 
-    return toConversationData(
-      doc.toObject() as unknown as MongooseConversationDoc
-    )
+    return toConversationData(doc.toObject<ConversationDocument>())
   }
 
   async updateStatus(
@@ -160,10 +141,10 @@ export class MongooseConversationRepository implements ConversationRepository {
       { _id: id, tenantId },
       { $set: updateFields },
       { returnDocument: 'after' }
-    ).lean()
+    ).lean<ConversationDocument>()
 
     if (!doc) return null
-    return toConversationData(doc as unknown as MongooseConversationDoc)
+    return toConversationData(doc)
   }
 
   async atomicTransition(
@@ -192,10 +173,10 @@ export class MongooseConversationRepository implements ConversationRepository {
       { _id: id, tenantId, status: statusFilter },
       { $set: updateFields },
       { returnDocument: 'after' }
-    ).lean()
+    ).lean<ConversationDocument>()
 
     if (!doc) return null
-    return toConversationData(doc as unknown as MongooseConversationDoc)
+    return toConversationData(doc)
   }
 
   async atomicAssign(
@@ -219,10 +200,10 @@ export class MongooseConversationRepository implements ConversationRepository {
         },
       },
       { returnDocument: 'after' }
-    ).lean()
+    ).lean<ConversationDocument>()
 
     if (!doc) return null
-    return toConversationData(doc as unknown as MongooseConversationDoc)
+    return toConversationData(doc)
   }
 
   async updateLastMessage(
@@ -248,11 +229,9 @@ export class MongooseConversationRepository implements ConversationRepository {
       updatedAt: { $lt: olderThan },
     })
       .limit(limit)
-      .lean()
+      .lean<ConversationDocument[]>()
 
-    return (docs as unknown as MongooseConversationDoc[]).map(
-      toConversationData
-    )
+    return docs.map(toConversationData)
   }
 }
 

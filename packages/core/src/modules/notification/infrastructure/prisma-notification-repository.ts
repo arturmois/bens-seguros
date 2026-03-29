@@ -55,7 +55,7 @@ export class PrismaNotificationRepository implements NotificationRepository {
 
   async findMany(filters: NotificationFilters): Promise<{
     data: NotificationData[]
-    total: number
+    total?: number
     nextCursor: string | null
   }> {
     const limit = filters.limit ?? 20
@@ -65,21 +65,18 @@ export class PrismaNotificationRepository implements NotificationRepository {
       ...(filters.read !== undefined && { read: filters.read }),
     }
 
-    const [rows, total] = await Promise.all([
-      this.prisma.notification.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        take: limit + 1,
-        ...(filters.cursor ? { cursor: { id: filters.cursor }, skip: 1 } : {}),
-      }),
-      this.prisma.notification.count({ where }),
-    ])
+    const rows = await this.prisma.notification.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: limit + 1,
+      ...(filters.cursor ? { cursor: { id: filters.cursor }, skip: 1 } : {}),
+    })
 
     const hasMore = rows.length > limit
     const data = (hasMore ? rows.slice(0, limit) : rows).map(toData)
     const nextCursor = hasMore ? (data.at(-1)?.id ?? null) : null
 
-    return { data, total, nextCursor }
+    return { data, nextCursor }
   }
 
   async markAsRead(

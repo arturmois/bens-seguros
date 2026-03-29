@@ -25,15 +25,15 @@ interface AlertRow {
 const ALERT_ROWS: readonly AlertRow[] = [
   {
     entityType: 'Policy',
-    label: 'apolices vencendo',
+    label: 'apólices vencendo',
     icon: Clock,
     color: 'text-orange-500',
     href: '/policies?filter=expiring',
-    linkLabel: 'apolices',
+    linkLabel: 'apólices',
   },
   {
     entityType: 'Claim',
-    label: 'sinistros sem atualizacao',
+    label: 'sinistros sem atualização',
     icon: AlertTriangle,
     color: 'text-amber-600',
     href: '/claims?filter=stalled',
@@ -41,11 +41,11 @@ const ALERT_ROWS: readonly AlertRow[] = [
   },
   {
     entityType: 'Commission',
-    label: 'comissoes pendentes ha mais de 7 dias',
+    label: 'comissões pendentes há mais de 7 dias',
     icon: DollarSign,
     color: 'text-yellow-500',
     href: '/commissions?filter=pending',
-    linkLabel: 'comissoes',
+    linkLabel: 'comissões',
   },
   {
     entityType: 'Proposal',

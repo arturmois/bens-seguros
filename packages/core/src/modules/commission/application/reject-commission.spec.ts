@@ -49,6 +49,7 @@ function createMockRepo(data: CommissionData | null): CommissionRepository {
         splitPercentage: json.splitPercentage,
       } satisfies CommissionData
     }),
+    reverseAtomic: vi.fn(),
   }
 }
 

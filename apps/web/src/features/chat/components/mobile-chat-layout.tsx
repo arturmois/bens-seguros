@@ -35,6 +35,7 @@ interface MobileChatLayoutProps {
   readonly onSelectConversation: (id: string) => void
   readonly onFiltersChange: (filters: ConversationFilters) => void
   readonly onRetryConversations: () => void
+  readonly onRetryMessages: () => void
   readonly onSendMessage: (text: string) => void
   readonly onEmitTyping: () => void
   readonly onLoadOlderMessages: () => Promise<void>
@@ -65,6 +66,7 @@ export function MobileChatLayout({
   onSelectConversation,
   onFiltersChange,
   onRetryConversations,
+  onRetryMessages,
   onSendMessage,
   onEmitTyping,
   onLoadOlderMessages,
@@ -110,6 +112,7 @@ export function MobileChatLayout({
           isError={isMessagesError}
           isLoadingOlder={isLoadingOlder}
           hasOlderMessages={hasOlderMessages}
+          onRetryMessages={onRetryMessages}
           onSendMessage={onSendMessage}
           onEmitTyping={onEmitTyping}
           onLoadOlderMessages={onLoadOlderMessages}

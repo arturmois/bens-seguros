@@ -105,7 +105,7 @@ export async function policyRoutes(app: FastifyInstance) {
       const { status, clientId, proposalId, branch, search } =
         listPoliciesQuerySchema.parse(request.query)
       const useCase = container.resolve(ExportPoliciesCsv)
-      const csv = await useCase.execute({
+      const stream = useCase.generateCsvRows({
         organizationId: request.organizationId!,
         status,
         clientId,
@@ -113,10 +113,19 @@ export async function policyRoutes(app: FastifyInstance) {
         branch,
         search,
       })
+
+      reply.raw.writeHead(200, {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': 'attachment; filename="apolices.csv"',
+        'Transfer-Encoding': 'chunked',
+      })
+
+      for await (const chunk of stream) {
+        reply.raw.write(chunk)
+      }
+
+      reply.raw.end()
       return reply
-        .header('Content-Type', 'text/csv')
-        .header('Content-Disposition', 'attachment; filename="apolices.csv"')
-        .send(csv)
     }
   )
 
@@ -217,7 +226,7 @@ export async function policyRoutes(app: FastifyInstance) {
           error: {
             code: 'JOB_NOT_FOUND',
             message:
-              'Dados de importacao nao encontrados ou expirados. Faca o upload novamente.',
+              'Dados de importação não encontrados ou expirados. Faça o upload novamente.',
           },
         })
       }
@@ -275,7 +284,7 @@ export async function policyRoutes(app: FastifyInstance) {
       return reply.send({
         success: true,
         data: result.items,
-        meta: { total: result.total, nextCursor: result.nextCursor },
+        meta: { nextCursor: result.nextCursor },
       })
     }
   )
@@ -327,7 +336,7 @@ export async function policyRoutes(app: FastifyInstance) {
           success: false,
           error: {
             code: 'ORGANIZATION_NOT_FOUND',
-            message: 'Organizacao nao encontrada',
+            message: 'Organização não encontrada',
           },
         })
       }

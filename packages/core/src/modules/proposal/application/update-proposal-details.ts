@@ -8,6 +8,7 @@ interface UpdateProposalDetailsDTO {
   details: InsuredObjectDetails
   premiumValueInCents: number
   commissionBasisPoints: number
+  insurerId?: string | null
 }
 
 @injectable()
@@ -27,10 +28,14 @@ export class UpdateProposalDetails {
       organizationId
     )
     if (!proposal) throw ProposalErrors.notFound(proposalId)
+    if (proposal.stage === 'LOST') {
+      throw ProposalErrors.invalidTransition('LOST', 'editar detalhes')
+    }
     proposal.updateDetails(
       dto.details,
       dto.premiumValueInCents,
-      dto.commissionBasisPoints
+      dto.commissionBasisPoints,
+      dto.insurerId
     )
     await this.proposalRepo.save(proposal)
     return proposal

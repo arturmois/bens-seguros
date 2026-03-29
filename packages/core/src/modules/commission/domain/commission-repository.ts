@@ -38,6 +38,11 @@ export interface CommissionFilters {
   dateTo?: Date
 }
 
+export interface ReverseAtomicResult {
+  savedOriginal: CommissionData
+  savedReversal: CommissionData
+}
+
 export interface CommissionRepository {
   save(commission: Commission): Promise<CommissionData>
   findById(id: string, organizationId: string): Promise<CommissionData | null>
@@ -46,4 +51,8 @@ export interface CommissionRepository {
     page: CursorPage
   ): Promise<Page<CommissionData>>
   update(commission: Commission): Promise<CommissionData>
+  reverseAtomic(
+    original: Commission,
+    reversal: Commission
+  ): Promise<ReverseAtomicResult>
 }

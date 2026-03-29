@@ -66,7 +66,7 @@ export async function endorsementRoutes(app: FastifyInstance) {
       return reply.send({
         success: true,
         data: result.items,
-        meta: { total: result.total, nextCursor: result.nextCursor },
+        meta: { nextCursor: result.nextCursor },
       })
     }
   )

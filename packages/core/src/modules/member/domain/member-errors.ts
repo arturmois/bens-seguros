@@ -22,6 +22,14 @@ export class RoleHierarchyError extends Error {
   }
 }
 
+export class SelfRemovalError extends Error {
+  readonly code = 'SELF_REMOVAL' as const
+  constructor() {
+    super('Cannot remove or change your own role')
+    this.name = 'SelfRemovalError'
+  }
+}
+
 export class DuplicateInvitationError extends Error {
   readonly code = 'DUPLICATE_INVITATION' as const
   constructor(email: string) {
@@ -35,13 +43,5 @@ export class InvitationNotFoundError extends Error {
   constructor(id: string) {
     super(`Invitation ${id} not found`)
     this.name = 'InvitationNotFoundError'
-  }
-}
-
-export class SelfRemovalError extends Error {
-  readonly code = 'SELF_REMOVAL' as const
-  constructor() {
-    super('Cannot remove or change your own role')
-    this.name = 'SelfRemovalError'
   }
 }

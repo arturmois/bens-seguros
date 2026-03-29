@@ -29,7 +29,7 @@ export class ReturnToBot {
     if (!updated) {
       throw ChatErrors.invalidTransition(
         'HUMAN_ACTIVE/WAITING_HUMAN',
-        'voltar para IA (nao encontrada ou estado alterado concorrentemente)'
+        'voltar para IA (não encontrada ou estado alterado concorrentemente)'
       )
     }
 

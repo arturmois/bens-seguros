@@ -26,11 +26,11 @@ export function ClientsTableHeader() {
     <TableHeader>
       <TableRow>
         <TableHead>Nome</TableHead>
-        <TableHead>Documento</TableHead>
+        <TableHead className="hidden md:table-cell">Documento</TableHead>
         <TableHead>Tipo</TableHead>
-        <TableHead>E-mail</TableHead>
-        <TableHead>Telefone</TableHead>
-        <TableHead>Criado em</TableHead>
+        <TableHead className="hidden md:table-cell">E-mail</TableHead>
+        <TableHead className="hidden md:table-cell">Telefone</TableHead>
+        <TableHead className="hidden lg:table-cell">Criado em</TableHead>
         <TableHead className="w-12" />
       </TableRow>
     </TableHeader>
@@ -92,15 +92,19 @@ function ClientRow({
       }}
     >
       <TableCell className="font-medium">{client.name}</TableCell>
-      <TableCell>{client.document}</TableCell>
+      <TableCell className="hidden md:table-cell">{client.document}</TableCell>
       <TableCell>
         <Badge variant={TYPE_BADGE_VARIANT[client.type]}>
           {TYPE_LABELS[client.type]}
         </Badge>
       </TableCell>
-      <TableCell>{client.email ?? '-'}</TableCell>
-      <TableCell>{client.phone ?? '-'}</TableCell>
-      <TableCell>
+      <TableCell className="hidden md:table-cell">
+        {client.email ?? '-'}
+      </TableCell>
+      <TableCell className="hidden md:table-cell">
+        {client.phone ?? '-'}
+      </TableCell>
+      <TableCell className="hidden lg:table-cell">
         {new Date(client.createdAt).toLocaleDateString('pt-BR')}
       </TableCell>
       <TableCell>

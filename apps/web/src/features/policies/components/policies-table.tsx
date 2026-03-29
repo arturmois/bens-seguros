@@ -76,11 +76,13 @@ export function PoliciesTable() {
           <TableHeader>
             <TableRow>
               <TableHead>Nº Apólice</TableHead>
-              <TableHead>Ramo</TableHead>
+              <TableHead className="hidden md:table-cell">Ramo</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Valor</TableHead>
-              <TableHead>Vigência</TableHead>
-              <TableHead>Criado em</TableHead>
+              <TableHead className="hidden text-right md:table-cell">
+                Valor
+              </TableHead>
+              <TableHead className="hidden md:table-cell">Vigência</TableHead>
+              <TableHead className="hidden lg:table-cell">Criado em</TableHead>
               <TableHead className="w-10" />
             </TableRow>
           </TableHeader>

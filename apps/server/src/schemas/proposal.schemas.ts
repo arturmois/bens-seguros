@@ -12,6 +12,7 @@ export const createProposalBodySchema = z.object({
   ]),
   boardType: z.enum(['NEW_INSURANCE', 'RENEWAL']),
   renewalPolicyId: z.string().optional(),
+  insurerId: z.string().optional(),
 })
 
 export const listProposalsQuerySchema = z.object({

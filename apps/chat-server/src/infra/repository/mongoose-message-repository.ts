@@ -1,4 +1,4 @@
-import { Message } from '@repo/db-chat'
+import { Message, type MessageDocument } from '@repo/db-chat'
 
 import type { MessageRepository } from '../../domain/ports/message-repository.js'
 import type {
@@ -8,24 +8,7 @@ import type {
   Page,
 } from '../../domain/types.js'
 
-interface MongooseMessageDoc {
-  _id: unknown
-  conversationId: string
-  tenantId: string
-  senderType: string
-  senderName?: string | null
-  senderId?: string | null
-  text?: string | null
-  type: string
-  mediaUrl?: string | null
-  mediaKey?: string | null
-  status: string
-  metadata?: Record<string, unknown> | null
-  externalId?: string | null
-  createdAt: Date
-}
-
-function toMessageData(doc: MongooseMessageDoc): MessageData {
+function toMessageData(doc: MessageDocument): MessageData {
   return {
     id: String(doc._id),
     conversationId: doc.conversationId,
@@ -38,7 +21,7 @@ function toMessageData(doc: MongooseMessageDoc): MessageData {
     mediaUrl: doc.mediaUrl ?? null,
     mediaKey: doc.mediaKey ?? null,
     status: doc.status as MessageData['status'],
-    metadata: doc.metadata ?? null,
+    metadata: (doc.metadata as Record<string, unknown> | undefined) ?? null,
     externalId: doc.externalId ?? null,
     createdAt: doc.createdAt,
   }
@@ -61,7 +44,7 @@ export class MongooseMessageRepository implements MessageRepository {
       externalId: data.externalId,
     })
 
-    return toMessageData(doc.toObject() as unknown as MongooseMessageDoc)
+    return toMessageData(doc.toObject<MessageDocument>())
   }
 
   async findByConversation(
@@ -79,11 +62,11 @@ export class MongooseMessageRepository implements MessageRepository {
       Message.find(query)
         .sort({ createdAt: -1, _id: -1 })
         .limit(page.limit)
-        .lean(),
+        .lean<MessageDocument[]>(),
       Message.countDocuments({ conversationId, tenantId }),
     ])
 
-    const items = (docs as unknown as MongooseMessageDoc[]).map(toMessageData)
+    const items = docs.map(toMessageData)
     const lastItem = items.at(-1)
 
     // Query fetches newest-first for cursor pagination, but UI needs oldest-first (chronological)
@@ -103,9 +86,12 @@ export class MongooseMessageRepository implements MessageRepository {
     externalId: string,
     tenantId: string
   ): Promise<MessageData | null> {
-    const doc = await Message.findOne({ externalId, tenantId }).lean()
+    const doc = await Message.findOne({
+      externalId,
+      tenantId,
+    }).lean<MessageDocument>()
     if (!doc) return null
-    return toMessageData(doc as unknown as MongooseMessageDoc)
+    return toMessageData(doc)
   }
 
   async updateStatus(
@@ -129,8 +115,8 @@ export class MongooseMessageRepository implements MessageRepository {
     })
       .sort({ createdAt: 1 })
       .limit(limit)
-      .lean()
+      .lean<MessageDocument[]>()
 
-    return (docs as unknown as MongooseMessageDoc[]).map(toMessageData)
+    return docs.map(toMessageData)
   }
 }

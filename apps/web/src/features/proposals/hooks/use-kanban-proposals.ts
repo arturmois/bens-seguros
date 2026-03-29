@@ -1,51 +1,43 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
 
 import { api } from '@/lib/api-client'
 
 import type { BoardType, ProposalData, ProposalStage } from '../types'
 
-const KANBAN_LIMIT = 100
-
-interface KanbanFilters {
+export interface KanbanFilters {
   boardType: BoardType
   search?: string
 }
 
-export function useKanbanProposals(filters: KanbanFilters) {
-  return useQuery({
-    queryKey: ['proposals', 'kanban', filters],
-    queryFn: async () => {
-      const params = new URLSearchParams({ limit: String(KANBAN_LIMIT) })
+interface KanbanPage {
+  data: ProposalData[]
+  meta: { nextCursor?: string | null }
+}
+
+export function useKanbanProposalsByStage(
+  stage: ProposalStage,
+  filters: KanbanFilters
+) {
+  return useInfiniteQuery({
+    queryKey: ['proposals', 'kanban', stage, filters],
+    queryFn: async ({ pageParam: cursor }) => {
+      const params = new URLSearchParams({ limit: '20', stage })
       if (filters.boardType) params.set('boardType', filters.boardType)
       if (filters.search) params.set('search', filters.search)
+      if (cursor) params.set('cursor', cursor)
 
       const res = await api.get<ProposalData[]>(
         `/api/v1/proposals?${params.toString()}`
       )
-      return res.data
+      return {
+        data: res.data,
+        meta: { nextCursor: res.meta?.nextCursor },
+      } satisfies KanbanPage
     },
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.meta.nextCursor ?? undefined,
     staleTime: 30_000,
   })
-}
-
-export function groupByStage(
-  proposals: ProposalData[]
-): Record<ProposalStage, ProposalData[]> {
-  const grouped: Record<ProposalStage, ProposalData[]> = {
-    CAPTURE: [],
-    QUOTE: [],
-    PROTOCOL: [],
-    INSPECTION: [],
-    PAYMENT: [],
-    POLICY_ISSUED: [],
-    LOST: [],
-  }
-
-  for (const proposal of proposals) {
-    grouped[proposal.stage].push(proposal)
-  }
-
-  return grouped
 }

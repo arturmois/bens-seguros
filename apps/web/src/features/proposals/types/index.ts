@@ -99,6 +99,8 @@ export interface ProposalData {
   details: InsuredObjectDetails | null
   lostReason: string | null
   renewalPolicyId: string | null
+  insurerId: string | null
+  insurerName?: string
   deletedAt: string | null
   createdAt: string
   updatedAt: string

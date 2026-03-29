@@ -61,7 +61,7 @@ export function RankingSection({
     return (
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Ranking de Corretores</Text>
-        <Text style={styles.label}>Nenhuma apolice emitida no periodo.</Text>
+        <Text style={styles.label}>Nenhuma apólice emitida no período.</Text>
       </View>
     )
   }

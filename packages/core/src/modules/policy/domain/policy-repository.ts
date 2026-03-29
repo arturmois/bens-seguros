@@ -57,7 +57,7 @@ export interface PolicyCursorPage {
 
 export interface PolicyPage {
   items: PolicyData[]
-  total: number
+  total?: number
   nextCursor: string | null
 }
 
@@ -67,6 +67,7 @@ export interface CreatePolicyInput {
   proposalId: string
   clientId: string
   salespersonId: string
+  insurerId: string | null
   policyNumber: string
   status: 'ACTIVE'
   branch: 'AUTO' | 'RESIDENTIAL' | 'CONDOMINIUM' | 'BUSINESS' | 'LIFE' | 'OTHER'

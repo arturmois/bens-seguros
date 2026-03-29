@@ -1,5 +1,6 @@
 'use client'
 
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { Loader2 } from 'lucide-react'
 import { useCallback, useEffect, useRef } from 'react'
 
@@ -18,6 +19,7 @@ interface ChatAreaProps {
   readonly isLoading: boolean
   readonly isError: boolean
   readonly isLoadingOlder: boolean
+  readonly onRetryMessages: () => void
   readonly hasOlderMessages: boolean
   readonly onSendMessage: (text: string) => void
   readonly onEmitTyping: () => void
@@ -26,6 +28,9 @@ interface ChatAreaProps {
   readonly onOpenProfile: () => void
   readonly onTransfer: () => void
 }
+
+const NEAR_BOTTOM_THRESHOLD = 120 // px from bottom to consider "at bottom"
+const NEAR_TOP_THRESHOLD = 80 // px from top to trigger older messages load
 
 export function ChatArea({
   conversation,
@@ -37,6 +42,7 @@ export function ChatArea({
   isError,
   isLoadingOlder,
   hasOlderMessages,
+  onRetryMessages,
   onSendMessage,
   onEmitTyping,
   onLoadOlderMessages,
@@ -44,44 +50,71 @@ export function ChatArea({
   onOpenProfile,
   onTransfer,
 }: ChatAreaProps) {
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
   const isAtBottomRef = useRef(true)
-  const observerTargetRef = useRef<HTMLDivElement>(null)
+  const prevMessageCountRef = useRef(messages.length)
+  const wasLoadingRef = useRef(isLoading)
+
+  const virtualizer = useVirtualizer({
+    count: messages.length,
+    getScrollElement: () => scrollContainerRef.current,
+    estimateSize: () => 80,
+    overscan: 5,
+    getItemKey: (index) => messages[index]?.id ?? index,
+  })
+
+  const scrollToBottom = useCallback(
+    (behavior: ScrollBehavior = 'smooth') => {
+      if (messages.length === 0) return
+      virtualizer.scrollToIndex(messages.length - 1, { behavior })
+    },
+    [virtualizer, messages.length]
+  )
+
+  // Track whether user is near the bottom of the scroll container
+  const updateBottomState = useCallback(() => {
+    const el = scrollContainerRef.current
+    if (!el) return
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
+    isAtBottomRef.current = distanceFromBottom <= NEAR_BOTTOM_THRESHOLD
+  }, [])
 
   const handleScroll = useCallback(
     (e: React.UIEvent<HTMLDivElement>) => {
+      updateBottomState()
       if (
-        e.currentTarget.scrollTop === 0 &&
+        e.currentTarget.scrollTop <= NEAR_TOP_THRESHOLD &&
         hasOlderMessages &&
         !isLoadingOlder
       ) {
         void onLoadOlderMessages()
       }
     },
-    [hasOlderMessages, isLoadingOlder, onLoadOlderMessages]
+    [hasOlderMessages, isLoadingOlder, onLoadOlderMessages, updateBottomState]
   )
 
+  // Auto-scroll to bottom when new messages arrive (only if user was at bottom)
   useEffect(() => {
-    const target = observerTargetRef.current
-    if (!target) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0]
-        if (entry) {
-          isAtBottomRef.current = entry.isIntersecting
-        }
-      },
-      { threshold: 0.1 }
-    )
-    observer.observe(target)
-    return () => observer.disconnect()
-  }, [])
+    const prevCount = prevMessageCountRef.current
+    prevMessageCountRef.current = messages.length
 
-  useEffect(() => {
-    if (isAtBottomRef.current && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    if (messages.length === 0) return
+
+    const isNewMessage = messages.length > prevCount
+    if (isNewMessage && isAtBottomRef.current) {
+      scrollToBottom('smooth')
     }
-  }, [messages])
+  }, [messages.length, scrollToBottom])
+
+  // Scroll to bottom when loading completes (initial load)
+  useEffect(() => {
+    const wasLoading = wasLoadingRef.current
+    wasLoadingRef.current = isLoading
+
+    if (wasLoading && !isLoading && !isError && messages.length > 0) {
+      scrollToBottom('instant')
+    }
+  }, [isLoading, isError, messages.length, scrollToBottom])
 
   if (!conversation) {
     return <EmptyState />
@@ -105,31 +138,54 @@ export function ChatArea({
 
       {/* Messages */}
       <div
+        ref={scrollContainerRef}
         className="chat-scrollbar flex-1 overflow-y-auto p-3 md:p-4"
         onScroll={handleScroll}
       >
         {isLoading && <MessagesLoading />}
-        {isError && !isLoading && <MessagesError />}
+        {isError && !isLoading && <MessagesError onRetry={onRetryMessages} />}
         {!isLoading && !isError && (
-          <div className="space-y-3">
+          <>
             {isLoadingOlder && (
               <div className="flex justify-center py-2">
                 <Loader2 className="text-muted-foreground h-5 w-5 animate-spin" />
               </div>
             )}
-            {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                isFromCurrentUser={
+            <div
+              style={{
+                height: virtualizer.getTotalSize(),
+                position: 'relative',
+              }}
+            >
+              {virtualizer.getVirtualItems().map((virtualRow) => {
+                const message = messages[virtualRow.index]
+                if (!message) return null
+                const isFromCurrentUser =
                   message.senderId === currentUserId ||
                   message.senderType === 'BOT'
-                }
-              />
-            ))}
-            <div ref={observerTargetRef} className="h-1" />
-            <div ref={messagesEndRef} />
-          </div>
+                return (
+                  <div
+                    key={virtualRow.key}
+                    ref={virtualizer.measureElement}
+                    data-index={virtualRow.index}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${virtualRow.start}px)`,
+                    }}
+                    className="pb-3"
+                  >
+                    <MessageBubble
+                      message={message}
+                      isFromCurrentUser={isFromCurrentUser}
+                    />
+                  </div>
+                )
+              })}
+            </div>
+          </>
         )}
       </div>
 

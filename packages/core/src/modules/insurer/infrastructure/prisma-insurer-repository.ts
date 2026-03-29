@@ -59,22 +59,18 @@ export class PrismaInsurerRepository implements InsurerRepository {
       }),
     }
 
-    const [rows, total] = await Promise.all([
-      this.prisma.insurer.findMany({
-        where,
-        take: page.limit + 1,
-        ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
-        orderBy: { name: 'asc' },
-      }),
-      this.prisma.insurer.count({ where }),
-    ])
+    const rows = await this.prisma.insurer.findMany({
+      where,
+      take: page.limit + 1,
+      ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
+      orderBy: { name: 'asc' },
+    })
 
     const hasNext = rows.length > page.limit
     const items = hasNext ? rows.slice(0, -1) : rows
 
     return {
       items: items.map(InsurerMapper.toDomain),
-      total,
       nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,
     }
   }

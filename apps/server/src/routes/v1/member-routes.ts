@@ -1,7 +1,16 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
-import { ROLE_HIERARCHY, type Role } from '@repo/auth/roles'
 import { prisma } from '@repo/db'
-import { container, type CacheService } from '@repo/core'
+import {
+  container,
+  type CacheService,
+  UpdateMemberRole,
+  DeactivateMember,
+  LastOwnerError,
+  MemberNotFoundError,
+  RoleHierarchyError,
+  SelfRemovalError,
+} from '@repo/core'
+import type { Role } from '@repo/auth/roles'
 import { idParamSchema } from '../../schemas/client.schemas.js'
 import {
   changeMemberRoleBodySchema,
@@ -10,12 +19,6 @@ import {
 import { tenantMiddleware } from '../../middlewares/tenant-middleware.js'
 import { requireAbility } from '../../middlewares/ability-middleware.js'
 import { auditDelete, auditUpdate } from '../../services/audit-logger.js'
-import {
-  LastOwnerError,
-  MemberNotFoundError,
-  RoleHierarchyError,
-  SelfRemovalError,
-} from './member-errors.js'
 
 const MEMBER_CACHE_TTL = 3600 // 1h
 
@@ -60,17 +63,6 @@ function handleMemberError(error: unknown, reply: FastifyReply): FastifyReply {
     })
   }
   throw error
-}
-
-function toRole(value: string): Role {
-  if (value in ROLE_HIERARCHY) return value as Role
-  throw new RoleHierarchyError()
-}
-
-function assertCanManageRole(callerRole: Role, targetRole: Role): void {
-  if (ROLE_HIERARCHY[callerRole] <= ROLE_HIERARCHY[targetRole]) {
-    throw new RoleHierarchyError()
-  }
 }
 
 export async function memberRoutes(app: FastifyInstance) {
@@ -144,35 +136,28 @@ export async function memberRoutes(app: FastifyInstance) {
         const { id } = idParamSchema.parse(request.params)
         const { role: newRole } = changeMemberRoleBodySchema.parse(request.body)
         const organizationId = request.organizationId!
-        const callerRole = request.role!
+        const callerRole = request.role! as Role
+        const callerUserId = request.user!.id
 
-        const member = await prisma.member.findFirst({
+        const updateMemberRole = container.resolve(UpdateMemberRole)
+        const before = await prisma.member.findFirst({
           where: { id, organizationId, active: true },
+          select: { role: true },
         })
 
-        if (!member) throw new MemberNotFoundError(id)
-        if (member.userId === request.user!.id) throw new SelfRemovalError()
-
-        assertCanManageRole(callerRole, toRole(member.role))
-        assertCanManageRole(callerRole, toRole(newRole))
-
-        if (member.role === 'OWNER') {
-          const ownerCount = await prisma.member.count({
-            where: { organizationId, role: 'OWNER', active: true },
-          })
-          if (ownerCount <= 1) throw new LastOwnerError()
-        }
-
-        const updated = await prisma.member.update({
-          where: { id },
-          data: { role: newRole },
+        const updated = await updateMemberRole.execute({
+          id,
+          organizationId,
+          callerUserId,
+          callerRole,
+          newRole,
         })
 
         auditUpdate({
           request,
           entityType: 'Member',
           entityId: id,
-          before: { role: member.role },
+          before: { role: before?.role },
           after: { role: newRole },
         })
 
@@ -196,33 +181,27 @@ export async function memberRoutes(app: FastifyInstance) {
       try {
         const { id } = idParamSchema.parse(request.params)
         const organizationId = request.organizationId!
-        const callerRole = request.role!
+        const callerRole = request.role! as Role
+        const callerUserId = request.user!.id
 
-        const member = await prisma.member.findFirst({
+        const before = await prisma.member.findFirst({
           where: { id, organizationId, active: true },
+          select: { role: true, userId: true },
         })
 
-        if (!member) throw new MemberNotFoundError(id)
-        if (member.userId === request.user!.id) throw new SelfRemovalError()
-        assertCanManageRole(callerRole, toRole(member.role))
-
-        if (member.role === 'OWNER') {
-          const ownerCount = await prisma.member.count({
-            where: { organizationId, role: 'OWNER', active: true },
-          })
-          if (ownerCount <= 1) throw new LastOwnerError()
-        }
-
-        await prisma.member.update({
-          where: { id },
-          data: { active: false },
+        const deactivateMember = container.resolve(DeactivateMember)
+        await deactivateMember.execute({
+          id,
+          organizationId,
+          callerUserId,
+          callerRole,
         })
 
         auditDelete({
           request,
           entityType: 'Member',
           entityId: id,
-          before: { role: member.role, userId: member.userId },
+          before: { role: before?.role, userId: before?.userId },
         })
 
         const cacheService = resolveCache()

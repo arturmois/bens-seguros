@@ -22,6 +22,7 @@ interface UseMessagesReturn {
   readonly conversation: ConversationData | null
   readonly isLoading: boolean
   readonly isError: boolean
+  readonly refetch: () => void
   readonly sendMessage: (text: string) => void
   readonly emitTyping: () => void
   readonly typingUser: string | null
@@ -202,6 +203,7 @@ export function useMessages(
     conversation: query.data?.conversation ?? null,
     isLoading: query.isLoading,
     isError: query.isError,
+    refetch: query.refetch,
     sendMessage: sendMessageWithTypingReset,
     emitTyping,
     typingUser,

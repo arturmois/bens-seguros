@@ -9,7 +9,7 @@ export interface NotificationRepository {
   findById(id: string, organizationId: string): Promise<NotificationData | null>
   findMany(filters: NotificationFilters): Promise<{
     data: NotificationData[]
-    total: number
+    total?: number
     nextCursor: string | null
   }>
   markAsRead(id: string, organizationId: string, userId: string): Promise<void>

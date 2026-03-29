@@ -48,6 +48,7 @@ export class IssuePolicy {
       proposalId: dto.proposalId,
       clientId: proposal.clientId,
       salespersonId: proposal.salespersonId,
+      insurerId: proposal.insurerId,
       policyNumber: dto.policyNumber,
       status: 'ACTIVE',
       branch: proposal.branch,

@@ -99,17 +99,26 @@ export async function proposalRoutes(app: FastifyInstance) {
       const { stage, clientId, boardType, search } =
         listProposalsQuerySchema.parse(request.query)
       const useCase = container.resolve(ExportProposalsCsv)
-      const csv = await useCase.execute({
+      const stream = useCase.generateCsvRows({
         organizationId: request.organizationId!,
         stage,
         clientId,
         boardType,
         search,
       })
+
+      reply.raw.writeHead(200, {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': 'attachment; filename="propostas.csv"',
+        'Transfer-Encoding': 'chunked',
+      })
+
+      for await (const chunk of stream) {
+        reply.raw.write(chunk)
+      }
+
+      reply.raw.end()
       return reply
-        .header('Content-Type', 'text/csv')
-        .header('Content-Disposition', 'attachment; filename="propostas.csv"')
-        .send(csv)
     }
   )
 
@@ -127,7 +136,7 @@ export async function proposalRoutes(app: FastifyInstance) {
       return reply.send({
         success: true,
         data: result.items.map((p) => p.toJSON()),
-        meta: { total: result.total, nextCursor: result.nextCursor },
+        meta: { nextCursor: result.nextCursor },
       })
     }
   )
@@ -180,7 +189,7 @@ export async function proposalRoutes(app: FastifyInstance) {
           success: false,
           error: {
             code: 'ORGANIZATION_NOT_FOUND',
-            message: 'Organizacao nao encontrada',
+            message: 'Organização não encontrada',
           },
         })
       }

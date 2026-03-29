@@ -31,8 +31,8 @@ describe('CreateNotification', () => {
       organizationId: 'org-1',
       userId: 'user-1',
       type: 'POLICY_EXPIRING',
-      title: 'Apolice vence em 7 dias',
-      body: 'A apolice pol-1 vence em 7 dias',
+      title: 'Apólice vence em 7 dias',
+      body: 'A apólice pol-1 vence em 7 dias',
       entityType: 'Policy',
       entityId: 'pol-1',
     })
@@ -41,8 +41,8 @@ describe('CreateNotification', () => {
       organizationId: 'org-1',
       userId: 'user-1',
       type: 'POLICY_EXPIRING',
-      title: 'Apolice vence em 7 dias',
-      body: 'A apolice pol-1 vence em 7 dias',
+      title: 'Apólice vence em 7 dias',
+      body: 'A apólice pol-1 vence em 7 dias',
       entityType: 'Policy',
       entityId: 'pol-1',
     })

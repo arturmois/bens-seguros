@@ -89,7 +89,7 @@ export async function organizationRoutes(app: FastifyInstance) {
           success: false,
           error: {
             code: 'ORGANIZATION_NOT_FOUND',
-            message: 'Organizacao nao encontrada',
+            message: 'Organização não encontrada',
           },
         })
       }
@@ -149,7 +149,7 @@ export async function organizationRoutes(app: FastifyInstance) {
           success: false,
           error: {
             code: 'SLUG_CONFLICT',
-            message: 'Este slug ja esta em uso por outra organizacao',
+            message: 'Este slug já está em uso por outra organização',
           },
         })
       }
@@ -217,7 +217,7 @@ export async function organizationRoutes(app: FastifyInstance) {
           success: false,
           error: {
             code: 'FILE_REQUIRED',
-            message: 'Um arquivo de imagem e obrigatorio',
+            message: 'Um arquivo de imagem é obrigatório',
           },
         })
       }

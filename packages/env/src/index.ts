@@ -39,6 +39,8 @@ export const env = createEnv({
     // SEC-1: PII encryption key — hex-encoded 32-byte key (64 hex chars)
     // Required: all-zeros default removed to prevent trivial decryption of PII
     ENCRYPTION_KEY: encryptionKeySchema,
+    // Comma-separated list of extra allowed CORS origins (e.g. staging, mobile preview)
+    CORS_ORIGINS: z.string().optional(),
     // Internal API for lead capture from AI bot
     INTERNAL_API_URL: z.string().url().optional(),
     INTERNAL_API_SECRET: z

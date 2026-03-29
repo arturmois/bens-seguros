@@ -18,7 +18,6 @@ const INSURER_CACHE_TTL = 86400 // 24h
 
 interface InsurerCacheData {
   items: unknown[]
-  total: number
   nextCursor: string | null | undefined
 }
 
@@ -83,7 +82,7 @@ export async function insurerRoutes(app: FastifyInstance) {
           return reply.send({
             success: true,
             data: cached.items,
-            meta: { total: cached.total, nextCursor: cached.nextCursor },
+            meta: { nextCursor: cached.nextCursor },
           })
         }
       }
@@ -100,7 +99,6 @@ export async function insurerRoutes(app: FastifyInstance) {
           cacheKey,
           {
             items: result.items,
-            total: result.total,
             nextCursor: result.nextCursor,
           },
           INSURER_CACHE_TTL
@@ -110,7 +108,7 @@ export async function insurerRoutes(app: FastifyInstance) {
       return reply.send({
         success: true,
         data: result.items,
-        meta: { total: result.total, nextCursor: result.nextCursor },
+        meta: { nextCursor: result.nextCursor },
       })
     }
   )

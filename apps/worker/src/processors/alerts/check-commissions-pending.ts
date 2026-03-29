@@ -50,7 +50,7 @@ export async function checkCommissionsPending(
       (Date.now() - commission.createdAt.getTime()) / (1000 * 60 * 60 * 24)
     )
     const policyNumber = commission.policy?.policyNumber ?? 'N/A'
-    const body = `Comissao da apolice ${policyNumber} pendente ha ${daysPending} dias`
+    const body = `Comissão da apólice ${policyNumber} pendente há ${daysPending} dias`
 
     // Notify salesperson
     await notificationQueue.add(
@@ -60,7 +60,7 @@ export async function checkCommissionsPending(
           organizationId,
           userId: commission.salespersonId,
           type: 'COMMISSION_PENDING',
-          title: 'Comissao pendente',
+          title: 'Comissão pendente',
           body,
           entityType: 'Commission',
           entityId: commission.id,
@@ -81,7 +81,7 @@ export async function checkCommissionsPending(
             organizationId,
             userId: admin.userId,
             type: 'COMMISSION_PENDING',
-            title: 'Comissao pendente',
+            title: 'Comissão pendente',
             body,
             entityType: 'Commission',
             entityId: commission.id,

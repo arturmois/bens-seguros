@@ -17,7 +17,7 @@ import {
   DuplicateInvitationError,
   InvitationNotFoundError,
   RoleHierarchyError,
-} from './member-errors.js'
+} from '@repo/core'
 
 function resolveCache(): CacheService | null {
   try {
@@ -178,7 +178,7 @@ export async function invitationRoutes(app: FastifyInstance) {
 
           const html = invitationEmail({
             inviterName: inviter,
-            organizationName: org?.name ?? 'Organizacao',
+            organizationName: org?.name ?? 'Organização',
             role,
             frontendUrl: env.FRONTEND_URL,
             invitationId: invitation.id,
@@ -186,7 +186,7 @@ export async function invitationRoutes(app: FastifyInstance) {
 
           await emailProvider.send({
             to: email,
-            subject: `Convite para ${org?.name ?? 'Organizacao'}`,
+            subject: `Convite para ${org?.name ?? 'Organização'}`,
             html,
           })
         }

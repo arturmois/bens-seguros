@@ -31,6 +31,7 @@ export class PrismaProposalRepository implements ProposalRepository {
         commissionPercentageInCents: data.commissionPercentageInCents,
         details: data.details,
         lostReason: data.lostReason,
+        insurerId: data.insurerId,
         updatedAt: data.updatedAt,
       },
     })
@@ -55,6 +56,9 @@ export class PrismaProposalRepository implements ProposalRepository {
       ...(filters.clientId && { clientId: filters.clientId }),
       ...(filters.salespersonId && { salespersonId: filters.salespersonId }),
       ...(filters.boardType && { boardType: filters.boardType }),
+      // Search via join on Client.name — no trigram index needed on Proposal.clientName
+      // because clientName is a denormalized read-only field only used for display/export,
+      // not for querying. The (organizationId, name) index on Client covers this path.
       ...(filters.search && {
         client: {
           name: { contains: filters.search, mode: 'insensitive' },
@@ -62,23 +66,19 @@ export class PrismaProposalRepository implements ProposalRepository {
       }),
     }
 
-    const [rows, total] = await Promise.all([
-      this.prisma.proposal.findMany({
-        where,
-        include: PROPOSAL_INCLUDE,
-        take: page.limit + 1,
-        ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
-        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      }),
-      this.prisma.proposal.count({ where }),
-    ])
+    const rows = await this.prisma.proposal.findMany({
+      where,
+      include: PROPOSAL_INCLUDE,
+      take: page.limit + 1,
+      ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    })
 
     const hasNext = rows.length > page.limit
     const items = hasNext ? rows.slice(0, -1) : rows
 
     return {
       items: items.map(ProposalMapper.toDomain),
-      total,
       nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,
     }
   }

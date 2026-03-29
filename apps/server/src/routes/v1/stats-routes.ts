@@ -1,6 +1,7 @@
 import { renderToBuffer } from '@react-pdf/renderer'
 import {
   container,
+  type CacheService,
   type DocumentRepository,
   type StorageProvider,
 } from '@repo/core'
@@ -14,10 +15,10 @@ import { dashboardStatsQuerySchema } from '../../schemas/stats.schemas.js'
 import { buildDashboardData } from './stats-helpers.js'
 
 const PRESET_LABELS: Record<string, string> = {
-  '7d': 'Ultimos 7 dias',
-  '30d': 'Ultimos 30 dias',
-  '90d': 'Ultimos 90 dias',
-  '6m': 'Ultimos 6 meses',
+  '7d': 'Últimos 7 dias',
+  '30d': 'Últimos 30 dias',
+  '90d': 'Últimos 90 dias',
+  '6m': 'Últimos 6 meses',
 }
 
 export async function statsRoutes(app: FastifyInstance) {
@@ -30,7 +31,16 @@ export async function statsRoutes(app: FastifyInstance) {
       const { preset } = dashboardStatsQuerySchema.parse(request.query)
       const orgId = request.organizationId!
 
+      const cache = container.resolve<CacheService>('CacheService')
+      const cacheKey = `dashboard:stats:${orgId}:${preset}`
+
+      const cached = await cache.get(cacheKey)
+      if (cached) {
+        return reply.send({ success: true, data: cached })
+      }
+
       const data = await buildDashboardData(orgId, preset)
+      await cache.set(cacheKey, data, 60)
 
       return reply.send({ success: true, data })
     }
@@ -55,7 +65,7 @@ export async function statsRoutes(app: FastifyInstance) {
           success: false,
           error: {
             code: 'ORGANIZATION_NOT_FOUND',
-            message: 'Organizacao nao encontrada',
+            message: 'Organização não encontrada',
           },
         })
       }
