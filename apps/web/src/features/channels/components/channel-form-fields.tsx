@@ -131,6 +131,7 @@ export function WhatsAppFields({
 
       {watchedBrokerType === 'META' && (
         <>
+          <MetaAppFields register={register} errors={errors} />
           <FormField label="Token" error={errors.metaToken?.message} required>
             <Input
               type="password"
@@ -189,12 +190,47 @@ export function WebChatFields({ register }: WebChatFieldsProps) {
   )
 }
 
+interface MetaAppFieldsProps {
+  readonly register: UseFormRegister<ChannelFormValues>
+  readonly errors: FieldErrors<ChannelFormValues>
+}
+
+export function MetaAppFields({ register, errors }: MetaAppFieldsProps) {
+  return (
+    <>
+      <FormField
+        label="App ID"
+        error={errors.metaAppId?.message}
+        helperText="Encontre em Meta for Developers > seu App > Configurações > Básico"
+        required
+      >
+        <Input placeholder="ID do Facebook App" {...register('metaAppId')} />
+      </FormField>
+
+      <FormField
+        label="App Secret"
+        error={errors.metaAppSecret?.message}
+        helperText="Chave Secreta do Aplicativo (mesmo painel, clique Mostrar)"
+        required
+      >
+        <Input
+          type="password"
+          placeholder="Chave secreta do app"
+          {...register('metaAppSecret')}
+        />
+      </FormField>
+    </>
+  )
+}
+
 interface MetaSocialFieldsProps {
   readonly register: UseFormRegister<ChannelFormValues>
   readonly errors: FieldErrors<ChannelFormValues>
   readonly channelType: 'MESSENGER' | 'INSTAGRAM'
   readonly watchMetaPageId?: string
   readonly watchMetaToken?: string
+  readonly watchMetaAppId?: string
+  readonly watchMetaAppSecret?: string
 }
 
 export function MetaSocialFields({
@@ -203,6 +239,8 @@ export function MetaSocialFields({
   channelType,
   watchMetaPageId,
   watchMetaToken,
+  watchMetaAppId,
+  watchMetaAppSecret,
 }: MetaSocialFieldsProps) {
   const isInstagram = channelType === 'INSTAGRAM'
   const validate = useValidateMetaChannel()
@@ -217,11 +255,15 @@ export function MetaSocialFields({
       pageId: watchMetaPageId,
       token: watchMetaToken,
       channelType,
+      metaAppId: watchMetaAppId,
+      metaAppSecret: watchMetaAppSecret,
     })
   }
 
   return (
     <>
+      <MetaAppFields register={register} errors={errors} />
+
       <FormField
         label="Page ID"
         error={errors.metaPageId?.message}
@@ -299,7 +341,14 @@ export function buildCreatePayload(
       brokerType: values.brokerType ?? 'BAILEYS',
       phoneNumber: values.phoneNumber,
       ...(values.brokerType === 'META'
-        ? { metaToken: values.metaToken, phoneNumberId: values.phoneNumberId }
+        ? {
+            config: {
+              metaAppId: values.metaAppId,
+              metaAppSecret: values.metaAppSecret,
+              metaToken: values.metaToken,
+              metaPhoneNumberId: values.phoneNumberId,
+            },
+          }
         : {}),
     }
   }
@@ -325,6 +374,8 @@ export function buildCreatePayload(
     type: values.channelType,
     brokerType: values.channelType,
     config: {
+      metaAppId: values.metaAppId,
+      metaAppSecret: values.metaAppSecret,
       metaPageId: values.metaPageId,
       metaToken: values.metaToken,
     },

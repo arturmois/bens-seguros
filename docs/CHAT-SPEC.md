@@ -131,10 +131,12 @@ Canal 5: Web Chat + Widget embedado no site
 
 ### Meta API (WhatsApp, Messenger, Instagram)
 
-- Webhook compartilhado: `POST /chat/webhook/meta` com validacao HMAC-SHA256 (`META_APP_SECRET`)
+- Webhook: `POST /chat/webhook/meta` com validacao HMAC-SHA256 por canal (`config.metaAppSecret`)
+- App ID e App Secret armazenados por canal em `config.metaAppId` e `config.metaAppSecret`
+- Webhook registrado automaticamente via Graph API ao criar canal
 - Roteamento por campo: `entry[].messaging` (Messenger/Instagram) vs `entry[].changes` (WhatsApp)
 - Messenger: requer Facebook Page token + subscription `messages`, `messaging_postbacks`
-- Instagram: requer Instagram account vinculada a Facebook Page + subscription `messages`
+- Instagram: requer Instagram account vinculada a Facebook Page + subscription `messages` (ativacao manual do campo no Meta for Developers)
 - WhatsApp: requer phoneNumberId + token
 - Validacao de credenciais: `POST /chat/channels/validate-meta` (verifica token antes de salvar)
 - Sempre online (sem QR, sem sessao)

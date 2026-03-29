@@ -81,6 +81,8 @@ export function ChannelFormSheet({
   const watchedBrokerType = form.watch('brokerType')
   const watchedMetaPageId = form.watch('metaPageId')
   const watchedMetaToken = form.watch('metaToken')
+  const watchedMetaAppId = form.watch('metaAppId')
+  const watchedMetaAppSecret = form.watch('metaAppSecret')
 
   useEffect(() => {
     if (!open) return
@@ -105,6 +107,8 @@ export function ChannelFormSheet({
         brokerType: toFormBrokerType(channel.brokerType),
         phoneNumber: channel.phoneNumber ?? '',
         aiAgentId: channel.aiAgentId ?? null,
+        metaAppId: cfgString('metaAppId'),
+        metaAppSecret: cfgString('metaAppSecret'),
         metaPageId: cfgString('metaPageId'),
         metaToken: cfgString('metaToken'),
         phoneNumberId: cfgString('metaPhoneNumberId'),
@@ -135,6 +139,8 @@ export function ChannelFormSheet({
             ...(isMetaSocial
               ? {
                   config: {
+                    metaAppId: values.metaAppId,
+                    metaAppSecret: values.metaAppSecret,
                     metaPageId: values.metaPageId,
                     metaToken: values.metaToken,
                   },
@@ -143,6 +149,8 @@ export function ChannelFormSheet({
             ...(isWhatsAppMeta
               ? {
                   config: {
+                    metaAppId: values.metaAppId,
+                    metaAppSecret: values.metaAppSecret,
                     metaToken: values.metaToken,
                     metaPhoneNumberId: values.phoneNumberId,
                   },
@@ -217,6 +225,8 @@ export function ChannelFormSheet({
               channelType={watchedChannelType}
               watchMetaPageId={watchedMetaPageId}
               watchMetaToken={watchedMetaToken}
+              watchMetaAppId={watchedMetaAppId}
+              watchMetaAppSecret={watchedMetaAppSecret}
             />
           )}
 

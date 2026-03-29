@@ -23,6 +23,8 @@ export const channelFormSchema = z
     metaToken: z.string().optional(),
     phoneNumberId: z.string().optional(),
     metaPageId: z.string().optional(),
+    metaAppId: z.string().optional(),
+    metaAppSecret: z.string().optional(),
     widgetColor: z.string().optional(),
     welcomeMessage: z.string().optional(),
     allowedOrigins: z.string().optional(),
@@ -62,6 +64,28 @@ export const channelFormSchema = z
         })
       }
     }
+
+    const needsMetaApp =
+      data.channelType === 'MESSENGER' ||
+      data.channelType === 'INSTAGRAM' ||
+      (data.channelType === 'WHATSAPP' && data.brokerType === 'META')
+
+    if (needsMetaApp) {
+      if (!data.metaAppId || data.metaAppId.trim().length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'App ID é obrigatório para canais Meta',
+          path: ['metaAppId'],
+        })
+      }
+      if (!data.metaAppSecret || data.metaAppSecret.trim().length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'App Secret é obrigatório para canais Meta',
+          path: ['metaAppSecret'],
+        })
+      }
+    }
   })
 
 export type ChannelFormValues = z.infer<typeof channelFormSchema>
@@ -77,6 +101,8 @@ export function buildEmptyChannelForm(
     metaToken: '',
     phoneNumberId: '',
     metaPageId: '',
+    metaAppId: '',
+    metaAppSecret: '',
     widgetColor: '#1f4b5f',
     welcomeMessage: '',
     allowedOrigins: '',

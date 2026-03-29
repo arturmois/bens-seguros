@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select'
 
 import type { ChannelFormValues } from '../lib/schemas'
+import { MetaAppFields } from './channel-form-fields'
 
 const BROKER_TYPE_OPTIONS = [
   { value: 'BAILEYS', label: 'Baileys (WhatsApp Web)' },
@@ -82,6 +83,8 @@ export function ChannelMetaFields({
 }: ChannelMetaFieldsProps) {
   return (
     <>
+      <MetaAppFields register={register} errors={errors} />
+
       <FormField label="Token" error={errors.metaToken?.message} required>
         <Input
           type="password"

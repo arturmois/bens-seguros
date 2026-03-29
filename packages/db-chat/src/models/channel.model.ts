@@ -33,6 +33,7 @@ const channelSchema = new Schema(
 )
 
 channelSchema.index({ tenantId: 1, type: 1 })
+channelSchema.index({ 'config.metaPageId': 1, isActive: 1 })
 
 export type ChannelDocument = InferSchemaType<typeof channelSchema> & {
   _id: string

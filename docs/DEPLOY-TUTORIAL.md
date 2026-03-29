@@ -294,9 +294,9 @@ TAG=latest
 # NEXT_PUBLIC_SENTRY_DSN=
 # INTERNAL_API_URL=http://server:3001
 # INTERNAL_API_SECRET=<gere-com-openssl-rand-base64-32>
-# META_APP_SECRET=
 # META_WEBHOOK_VERIFY_TOKEN=
 # META_WHATSAPP_PHONE_NUMBER_ID=
+# CHAT_WEBHOOK_PUBLIC_URL=https://chat.bensseg.com/chat/webhook/meta
 ```
 
 Proteger o arquivo:

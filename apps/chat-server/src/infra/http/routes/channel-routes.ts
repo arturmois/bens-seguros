@@ -3,6 +3,7 @@ import { container } from 'tsyringe'
 import { z } from 'zod'
 
 import { Channel, AiAgent } from '@repo/db-chat'
+import { env } from '@repo/env'
 import { CHAT_QUEUES } from '@repo/shared'
 import { ChannelNotFoundError } from '../../../domain/errors.js'
 import type { QueueProducer } from '../../queue/queue-producer.js'
@@ -37,7 +38,9 @@ const pairChannelBodySchema = z.object({
 const validateMetaBodySchema = z.object({
   pageId: z.string().min(1),
   token: z.string().min(1),
-  channelType: z.enum(['INSTAGRAM', 'MESSENGER']),
+  channelType: z.enum(['INSTAGRAM', 'MESSENGER', 'WHATSAPP_META']),
+  metaAppId: z.string().min(1).optional(),
+  metaAppSecret: z.string().min(1).optional(),
 })
 
 const META_GRAPH_API = 'https://graph.facebook.com/v21.0'
@@ -45,7 +48,7 @@ const META_GRAPH_API = 'https://graph.facebook.com/v21.0'
 async function validateMetaCredentials(
   pageId: string,
   token: string,
-  channelType: 'INSTAGRAM' | 'MESSENGER'
+  channelType: 'INSTAGRAM' | 'MESSENGER' | 'WHATSAPP_META'
 ): Promise<
   | { valid: true; name: string; username?: string }
   | { valid: false; error: string }
@@ -92,6 +95,137 @@ async function validateMetaCredentials(
   } catch {
     return { valid: false, error: 'Falha ao conectar com a API do Meta' }
   }
+}
+
+interface WebhookSetupResult {
+  appSubscription: string
+  pageSubscription: string
+}
+
+async function registerAppWebhookSubscription(
+  metaAppId: string,
+  metaAppSecret: string
+): Promise<{ success: boolean; error?: string }> {
+  const verifyToken = env.META_WEBHOOK_VERIFY_TOKEN
+  if (!verifyToken) {
+    return { success: false, error: 'META_WEBHOOK_VERIFY_TOKEN not configured' }
+  }
+
+  const callbackUrl =
+    env.CHAT_WEBHOOK_PUBLIC_URL ?? `${env.CHAT_SERVER_URL}/chat/webhook/meta`
+
+  try {
+    const response = await fetch(
+      `${META_GRAPH_API}/${metaAppId}/subscriptions`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          object: 'page',
+          callback_url: callbackUrl,
+          verify_token: verifyToken,
+          fields: 'messages,messaging_postbacks',
+          access_token: `${metaAppId}|${metaAppSecret}`,
+        }),
+      }
+    )
+
+    const data = (await response.json()) as Record<string, unknown>
+
+    if (!response.ok) {
+      const err = data['error'] as Record<string, unknown> | undefined
+      const message =
+        typeof err?.['message'] === 'string'
+          ? err['message']
+          : 'Failed to register app webhook subscription'
+      return { success: false, error: message }
+    }
+
+    return { success: true }
+  } catch {
+    return {
+      success: false,
+      error: 'Failed to connect to Meta API for webhook registration',
+    }
+  }
+}
+
+async function subscribePageToWebhooks(
+  metaPageId: string,
+  metaToken: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const response = await fetch(
+      `${META_GRAPH_API}/${metaPageId}/subscribed_apps`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subscribed_fields: 'messages,messaging_postbacks',
+          access_token: metaToken,
+        }),
+      }
+    )
+
+    const data = (await response.json()) as Record<string, unknown>
+
+    if (!response.ok) {
+      const err = data['error'] as Record<string, unknown> | undefined
+      const message =
+        typeof err?.['message'] === 'string'
+          ? err['message']
+          : 'Failed to subscribe page to webhooks'
+      return { success: false, error: message }
+    }
+
+    return { success: true }
+  } catch {
+    return {
+      success: false,
+      error: 'Failed to connect to Meta API for page subscription',
+    }
+  }
+}
+
+async function autoRegisterWebhook(
+  channelType: string,
+  config: Record<string, unknown>
+): Promise<WebhookSetupResult> {
+  const metaAppId =
+    typeof config['metaAppId'] === 'string' ? config['metaAppId'] : undefined
+  const metaAppSecret =
+    typeof config['metaAppSecret'] === 'string'
+      ? config['metaAppSecret']
+      : undefined
+  const metaPageId =
+    typeof config['metaPageId'] === 'string' ? config['metaPageId'] : undefined
+  const metaToken =
+    typeof config['metaToken'] === 'string' ? config['metaToken'] : undefined
+
+  if (!metaAppId || !metaAppSecret) {
+    return {
+      appSubscription: 'skipped: missing appId or appSecret',
+      pageSubscription: 'skipped',
+    }
+  }
+
+  const appResult = await registerAppWebhookSubscription(
+    metaAppId,
+    metaAppSecret
+  )
+  const appSubscription = appResult.success
+    ? 'registered'
+    : `failed: ${appResult.error}`
+
+  let pageSubscription = 'skipped'
+  if (channelType === 'MESSENGER' && metaPageId && metaToken) {
+    const pageResult = await subscribePageToWebhooks(metaPageId, metaToken)
+    pageSubscription = pageResult.success
+      ? 'subscribed'
+      : `failed: ${pageResult.error}`
+  }
+
+  return { appSubscription, pageSubscription }
 }
 
 function buildChannelNotFoundResponse(id: string): {
@@ -172,11 +306,22 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
         ...(body.config ? { config: body.config } : {}),
       })
 
+      const isMetaChannel =
+        body.type === 'MESSENGER' ||
+        body.type === 'INSTAGRAM' ||
+        (body.type === 'WHATSAPP' && body.brokerType === 'META')
+
+      let webhookSetup: WebhookSetupResult | undefined
+      if (isMetaChannel && body.config) {
+        webhookSetup = await autoRegisterWebhook(body.type, body.config)
+      }
+
       return reply.status(201).send({
         success: true,
         data: mapChannel(
           channel.toObject() as unknown as Record<string, unknown>
         ),
+        ...(webhookSetup ? { meta: { webhookSetup } } : {}),
       })
     }
   )
@@ -251,6 +396,28 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
         return reply.status(404).send(buildChannelNotFoundResponse(id))
       }
 
+      if (body.config && channel) {
+        const chType = String(channel.type)
+        const isMetaChannel =
+          chType === 'MESSENGER' ||
+          chType === 'INSTAGRAM' ||
+          (chType === 'WHATSAPP' && String(channel.brokerType) === 'META')
+
+        if (isMetaChannel) {
+          const mergedConfig = {
+            ...(channel.config as Record<string, unknown> | undefined),
+            ...body.config,
+          }
+          const webhookSetup = await autoRegisterWebhook(chType, mergedConfig)
+
+          return reply.send({
+            success: true,
+            data: mapChannel(channel as unknown as Record<string, unknown>),
+            meta: { webhookSetup },
+          })
+        }
+      }
+
       return reply.send({
         success: true,
         data: mapChannel(channel as unknown as Record<string, unknown>),
@@ -266,9 +433,8 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
       }>,
       reply: FastifyReply
     ) => {
-      const { pageId, token, channelType } = validateMetaBodySchema.parse(
-        request.body
-      )
+      const { pageId, token, channelType, metaAppId, metaAppSecret } =
+        validateMetaBodySchema.parse(request.body)
 
       const result = await validateMetaCredentials(pageId, token, channelType)
 
@@ -280,6 +446,35 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
             message: result.error,
           },
         })
+      }
+
+      if (metaAppId && metaAppSecret) {
+        try {
+          const appUrl = `${META_GRAPH_API}/${metaAppId}`
+          const appResponse = await fetch(appUrl, {
+            headers: {
+              Authorization: `Bearer ${metaAppId}|${metaAppSecret}`,
+            },
+          })
+
+          if (!appResponse.ok) {
+            return reply.status(422).send({
+              success: false,
+              error: {
+                code: 'INVALID_APP_CREDENTIALS',
+                message: 'App ID ou App Secret inválido',
+              },
+            })
+          }
+        } catch {
+          return reply.status(422).send({
+            success: false,
+            error: {
+              code: 'INVALID_APP_CREDENTIALS',
+              message: 'Falha ao validar credenciais do App',
+            },
+          })
+        }
       }
 
       return reply.send({

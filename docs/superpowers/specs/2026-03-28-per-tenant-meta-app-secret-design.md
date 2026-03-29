@@ -93,7 +93,7 @@ Ao criar ou atualizar um canal Meta, o backend tenta registrar o webhook automat
 ### Passo A — Registrar callback URL no App
 
 ```
-POST https://graph.facebook.com/v25.0/{metaAppId}/subscriptions
+POST https://graph.facebook.com/v21.0/{metaAppId}/subscriptions
   object=page
   callback_url={CHAT_WEBHOOK_PUBLIC_URL}
   verify_token={META_WEBHOOK_VERIFY_TOKEN}
@@ -108,7 +108,7 @@ POST https://graph.facebook.com/v25.0/{metaAppId}/subscriptions
 ### Passo B — Inscrever Page nos webhooks (so Messenger)
 
 ```
-POST https://graph.facebook.com/v25.0/{metaPageId}/subscribed_apps
+POST https://graph.facebook.com/v21.0/{metaPageId}/subscribed_apps
   subscribed_fields=messages,messaging_postbacks
   access_token={metaToken}
 ```
@@ -172,7 +172,7 @@ Apos criacao de canal Instagram, exibir alerta:
 Continua existindo. Agora tambem valida o App Access Token (`{metaAppId}|{metaAppSecret}`) fazendo uma chamada de teste:
 
 ```
-GET https://graph.facebook.com/v25.0/{metaAppId}?access_token={metaAppId}|{metaAppSecret}
+GET https://graph.facebook.com/v21.0/{metaAppId}?access_token={metaAppId}|{metaAppSecret}
 ```
 
 Se retornar sucesso, as credenciais do App estao corretas.

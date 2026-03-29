@@ -1,6 +1,8 @@
+import { Channel } from '@repo/db-chat'
 import { env } from '@repo/env'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { createHmac, timingSafeEqual } from 'node:crypto'
+import pino from 'pino'
 import { container } from 'tsyringe'
 import { z } from 'zod'
 
@@ -65,21 +67,12 @@ function getVerifyToken(): string {
   return token
 }
 
-function getAppSecret(): string {
-  const secret = env.META_APP_SECRET
-  if (!secret) {
-    throw new Error('META_APP_SECRET is not configured')
-  }
-  return secret
-}
-
 function validateHmacSignature(
   rawBody: Buffer,
-  signatureHeader: string
+  signatureHeader: string,
+  appSecret: string
 ): boolean {
-  const secret = getAppSecret()
-
-  const expectedSignature = `sha256=${createHmac('sha256', secret).update(rawBody).digest('hex')}`
+  const expectedSignature = `sha256=${createHmac('sha256', appSecret).update(rawBody).digest('hex')}`
 
   const expectedBuffer = Buffer.from(expectedSignature, 'utf8')
   const receivedBuffer = Buffer.from(signatureHeader, 'utf8')
@@ -89,6 +82,42 @@ function validateHmacSignature(
   }
 
   return timingSafeEqual(expectedBuffer, receivedBuffer)
+}
+
+async function findChannelByAccountId(
+  accountId: string,
+  objectType: string
+): Promise<{ appSecret: string; channelId: string; tenantId: string } | null> {
+  const isPageOrInstagram = objectType === 'page' || objectType === 'instagram'
+  const filter = isPageOrInstagram
+    ? { 'config.metaPageId': accountId, isActive: true }
+    : { 'config.metaPhoneNumberId': accountId, isActive: true }
+
+  const channel = await Channel.findOne(filter).lean().exec()
+  if (!channel) {
+    return null
+  }
+
+  const config = channel.config as Record<string, unknown> | undefined
+  const appSecret = config?.['metaAppSecret']
+  if (typeof appSecret !== 'string' || appSecret.length === 0) {
+    const logger = pino({ name: 'webhook-routes' })
+    logger.warn(
+      {
+        accountId,
+        channelId: String(channel._id),
+        tenantId: String(channel.tenantId),
+      },
+      'Channel found but missing metaAppSecret in config'
+    )
+    return null
+  }
+
+  return {
+    appSecret,
+    channelId: String(channel._id),
+    tenantId: String(channel.tenantId),
+  }
 }
 
 interface WebhookAttachment {
@@ -227,19 +256,41 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
         })
       }
 
-      let isValid: boolean
-      try {
-        isValid = validateHmacSignature(rawBody, signatureHeader)
-      } catch {
-        app.log.error('META_APP_SECRET is not configured for HMAC validation')
-        return reply.status(500).send({
-          success: false,
-          error: {
-            code: 'MISCONFIGURED',
-            message: 'Webhook signature validation not configured',
-          },
-        })
+      // Parse JSON first to identify the channel before HMAC validation
+      const bodyParsed = metaWebhookPayloadSchema.safeParse(request.body)
+
+      if (!bodyParsed.success) {
+        app.log.warn(
+          { body: request.body },
+          'Received malformed Meta webhook payload'
+        )
+        return reply.status(200).send({ success: true })
       }
+
+      const { object, entry } = bodyParsed.data
+      const firstEntry = entry[0]
+
+      if (!firstEntry) {
+        return reply.status(200).send({ success: true })
+      }
+
+      // Look up channel by accountId to get the per-channel appSecret
+      const channelInfo = await findChannelByAccountId(firstEntry.id, object)
+
+      if (!channelInfo) {
+        app.log.warn(
+          { accountId: firstEntry.id, object },
+          'No active channel found for webhook accountId'
+        )
+        return reply.status(200).send({ success: true })
+      }
+
+      // Validate HMAC using the channel's stored appSecret
+      const isValid = validateHmacSignature(
+        rawBody,
+        signatureHeader,
+        channelInfo.appSecret
+      )
 
       if (!isValid) {
         return reply.status(401).send({
@@ -251,18 +302,7 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
         })
       }
 
-      const bodyParsed = metaWebhookPayloadSchema.safeParse(request.body)
-
-      if (!bodyParsed.success) {
-        app.log.warn(
-          { body: request.body },
-          'Received malformed Meta webhook payload'
-        )
-        return reply.status(200).send({ success: true })
-      }
-
       const queueProducer = container.resolve<QueueProducer>('QueueProducer')
-      const { object, entry } = bodyParsed.data
 
       if (object === 'page' || object === 'instagram') {
         const source = object === 'page' ? 'MESSENGER' : 'INSTAGRAM'

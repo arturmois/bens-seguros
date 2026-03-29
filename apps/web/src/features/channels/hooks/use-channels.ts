@@ -99,7 +99,9 @@ export function useDeactivateChannel() {
 interface ValidateMetaPayload {
   pageId: string
   token: string
-  channelType: 'INSTAGRAM' | 'MESSENGER'
+  channelType: 'INSTAGRAM' | 'MESSENGER' | 'WHATSAPP_META'
+  metaAppId?: string
+  metaAppSecret?: string
 }
 
 interface ValidateMetaResult {
