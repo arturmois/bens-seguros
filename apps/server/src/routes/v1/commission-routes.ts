@@ -1,15 +1,11 @@
 import {
   ApproveCommissionAdmin,
   ApproveCommissionCommercial,
-  CommissionAlreadyPaidError,
   commissionApprovedEmail,
-  CommissionNotFoundError,
-  CommissionNotPaidError,
   commissionRejectedEmail,
   container,
   ExportCommissionsCsv,
   GetCommission,
-  InvalidCommissionTransitionError,
   ListCommissions,
   PayCommission,
   RejectCommission,
@@ -31,37 +27,7 @@ import {
   auditUpdate,
 } from '../../services/audit-logger.js'
 import { enqueueNotification } from '../../services/notification-enqueuer.js'
-
-function handleCommissionError(
-  error: unknown,
-  reply: FastifyReply
-): FastifyReply {
-  if (error instanceof CommissionNotFoundError) {
-    return reply.status(404).send({
-      success: false,
-      error: { code: error.code, message: error.message },
-    })
-  }
-  if (error instanceof InvalidCommissionTransitionError) {
-    return reply.status(422).send({
-      success: false,
-      error: { code: error.code, message: error.message },
-    })
-  }
-  if (error instanceof CommissionNotPaidError) {
-    return reply.status(422).send({
-      success: false,
-      error: { code: error.code, message: error.message },
-    })
-  }
-  if (error instanceof CommissionAlreadyPaidError) {
-    return reply.status(409).send({
-      success: false,
-      error: { code: error.code, message: error.message },
-    })
-  }
-  throw error
-}
+import { handleDomainError } from './handle-domain-error.js'
 
 export async function commissionRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
@@ -128,7 +94,7 @@ export async function commissionRoutes(app: FastifyInstance) {
         const commission = await useCase.execute(id, request.organizationId!)
         return reply.send({ success: true, data: commission })
       } catch (error) {
-        return handleCommissionError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )
@@ -153,7 +119,7 @@ export async function commissionRoutes(app: FastifyInstance) {
         })
         return reply.send({ success: true, data: commission })
       } catch (error) {
-        return handleCommissionError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )
@@ -221,7 +187,7 @@ export async function commissionRoutes(app: FastifyInstance) {
 
         return reply.send({ success: true, data: commission })
       } catch (error) {
-        return handleCommissionError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )
@@ -288,7 +254,7 @@ export async function commissionRoutes(app: FastifyInstance) {
 
         return reply.send({ success: true, data: commission })
       } catch (error) {
-        return handleCommissionError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )
@@ -309,7 +275,7 @@ export async function commissionRoutes(app: FastifyInstance) {
         })
         return reply.send({ success: true, data: commission })
       } catch (error) {
-        return handleCommissionError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )
@@ -330,7 +296,7 @@ export async function commissionRoutes(app: FastifyInstance) {
         })
         return reply.status(201).send({ success: true, data: result })
       } catch (error) {
-        return handleCommissionError(error, reply)
+        return handleDomainError(error, reply)
       }
     }
   )

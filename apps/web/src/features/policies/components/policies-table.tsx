@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight, Shield } from 'lucide-react'
 
@@ -107,6 +108,9 @@ export function PoliciesTable() {
               As apólices serão criadas a partir de propostas aprovadas.
             </p>
           </div>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/proposals">Ver propostas</Link>
+          </Button>
         </div>
       ) : (
         <>

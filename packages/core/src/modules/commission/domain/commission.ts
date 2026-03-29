@@ -81,6 +81,8 @@ export class Commission {
     return new Commission(props)
   }
 
+  // NOTE: Caller role validation is delegated to CASL middleware (requireAbility).
+  // Domain validates status transitions only — no coupling to auth layer. (P3 #11 audit)
   approveByCommercial(_userId: string): void {
     if (this.props.status !== 'PENDING_COMMERCIAL') {
       throw CommissionErrors.invalidTransition(

@@ -84,6 +84,7 @@ export class PrismaClaimRepository implements ClaimRepository {
         assignedToId: data.assignedToId ?? null,
         priority: data.priority ?? 'NORMAL',
         description: data.description,
+        estimatedValueInCents: data.estimatedValueInCents ?? null,
         incidentDate: data.incidentDate ?? null,
         incidentLocation: data.incidentLocation ?? null,
       },

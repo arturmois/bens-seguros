@@ -46,6 +46,7 @@ export function ContactProfile({
           variant="ghost"
           size="icon"
           onClick={onClose}
+          aria-label="Fechar perfil"
           className="h-8 w-8"
         >
           <X className="h-5 w-5" />

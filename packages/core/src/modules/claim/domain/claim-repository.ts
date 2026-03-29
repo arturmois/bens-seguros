@@ -23,6 +23,7 @@ export interface ClaimData {
   status: ClaimStatus
   priority: ClaimPriority
   description: string
+  estimatedValueInCents: number | null
   incidentDate: Date | null
   incidentLocation: string | null
   reportedAt: Date
@@ -53,6 +54,7 @@ export interface CreateClaimInput {
   assignedToId?: string
   priority?: ClaimPriority
   description: string
+  estimatedValueInCents?: number
   incidentDate?: Date
   incidentLocation?: string
 }
