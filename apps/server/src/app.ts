@@ -111,8 +111,9 @@ export async function buildApp() {
   // Serve local uploads in dev (production uses R2 presigned URLs)
   if (env.STORAGE_PROVIDER !== 'r2') {
     const { createReadStream, existsSync } = await import('node:fs')
-    const { resolve, join, extname } = await import('node:path')
+    const { resolve, extname, sep } = await import('node:path')
     const uploadsDir = resolve('./uploads')
+    const safeBase = uploadsDir + sep
 
     const MIME_MAP: Record<string, string> = {
       '.pdf': 'application/pdf',
@@ -126,8 +127,14 @@ export async function buildApp() {
     app.get<{ Params: { '*': string } }>(
       '/uploads/*',
       async (request, reply) => {
-        const filePath = join(uploadsDir, request.params['*'])
-        if (!existsSync(filePath)) {
+        const resolved = resolve(uploadsDir, request.params['*'])
+        if (!resolved.startsWith(safeBase)) {
+          return reply.status(403).send({
+            success: false,
+            error: { code: 'FORBIDDEN', message: 'Acesso não permitido' },
+          })
+        }
+        if (!existsSync(resolved)) {
           return reply.status(404).send({
             success: false,
             error: {
@@ -136,10 +143,10 @@ export async function buildApp() {
             },
           })
         }
-        const ext = extname(filePath)
+        const ext = extname(resolved)
         const contentType = MIME_MAP[ext] ?? 'application/octet-stream'
         void reply.header('Content-Type', contentType)
-        return reply.send(createReadStream(filePath))
+        return reply.send(createReadStream(resolved))
       }
     )
   }

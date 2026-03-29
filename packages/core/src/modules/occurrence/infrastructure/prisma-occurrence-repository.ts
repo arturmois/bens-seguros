@@ -16,6 +16,7 @@ export class PrismaOccurrenceRepository implements OccurrenceRepository {
     const row = await this.prisma.occurrence.create({
       data: {
         claimId: data.claimId,
+        organizationId: data.organizationId,
         type: data.type,
         description: data.description,
         metadata:
@@ -30,9 +31,12 @@ export class PrismaOccurrenceRepository implements OccurrenceRepository {
     return OccurrenceMapper.toDomain(row, createdByName)
   }
 
-  async findByClaimId(claimId: string): Promise<OccurrenceData[]> {
+  async findByClaimId(
+    claimId: string,
+    organizationId: string
+  ): Promise<OccurrenceData[]> {
     const rows = await this.prisma.occurrence.findMany({
-      where: { claimId },
+      where: { claimId, organizationId },
       orderBy: { createdAt: 'desc' },
     })
 

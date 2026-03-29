@@ -11,7 +11,10 @@ export class ListOccurrences {
     private readonly occurrenceRepo: OccurrenceRepository
   ) {}
 
-  async execute(claimId: string): Promise<OccurrenceData[]> {
-    return this.occurrenceRepo.findByClaimId(claimId)
+  async execute(
+    claimId: string,
+    organizationId: string
+  ): Promise<OccurrenceData[]> {
+    return this.occurrenceRepo.findByClaimId(claimId, organizationId)
   }
 }

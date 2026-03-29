@@ -434,17 +434,19 @@ model Claim {
 }
 
 model Occurrence {
-  id          String   @id @default(cuid())
-  claimId     String
-  type        String
-  description String
-  metadata    Json?
-  createdBy   String?
-  createdAt   DateTime @default(now())
+  id             String   @id @default(cuid())
+  claimId        String
+  organizationId String
+  type           String
+  description    String
+  metadata       Json?
+  createdBy      String?
+  createdAt      DateTime @default(now())
 
-  claim       Claim    @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  claim          Claim    @relation(fields: [claimId], references: [id], onDelete: Cascade)
 
   @@index([claimId])
+  @@index([organizationId, claimId])
 }
 
 model Endorsement {

@@ -208,6 +208,7 @@ function registerOccurrenceSubRoutes(app: FastifyInstance) {
       try {
         const occurrence = await useCase.execute({
           claimId: id,
+          organizationId: request.organizationId!,
           createdBy: request.user!.id,
           ...body,
         })
@@ -224,7 +225,7 @@ function registerOccurrenceSubRoutes(app: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = idParamSchema.parse(request.params)
       const useCase = container.resolve(ListOccurrences)
-      const occurrences = await useCase.execute(id)
+      const occurrences = await useCase.execute(id, request.organizationId!)
       return reply.send({ success: true, data: occurrences })
     }
   )

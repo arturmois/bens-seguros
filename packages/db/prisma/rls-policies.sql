@@ -2,7 +2,11 @@
 -- PostgreSQL Row Level Security (RLS) Policies — Reference File
 -- ============================================================================
 -- This file documents the RLS policies applied to tenant-scoped tables.
--- The actual migration is in: migrations/20260325120000_enable_rls/migration.sql
+-- Migrations:
+--   migrations/0_init/migration.sql                  — original 10 tables
+--   migrations/2_occurrence_tenant_isolation/        — Occurrence
+--   migrations/3_add_rls_missing_tables/             — Insurer, Member, Invitation, AuditLogArchive
+--   migrations/4_fix_insurer_rls_strict/             — Insurer strict fix + Occurrence composite index
 --
 -- How it works:
 --   1. Each request sets: SET LOCAL app.current_tenant = '<organizationId>'
@@ -10,15 +14,27 @@
 --   3. If app.current_tenant is not set, current_setting(..., true) returns NULL
 --      which matches 0 rows — safe default (deny all)
 --
--- Tables with RLS enabled (10):
---   Client, Proposal, Policy, Claim, Commission,
---   Endorsement, Assistance, Document, Notification, AuditLog
+-- Tables with RLS enabled (15):
+--
+--   STRICT policy (no IS NULL escape — always queried through tenantPrisma):
+--     Client, Proposal, Policy, Claim, Commission,
+--     Endorsement, Assistance, Document, Notification, AuditLog,
+--     Occurrence, Insurer
+--
+--   PERMISSIVE policy (with IS NULL escape):
+--     Member         — Better Auth queries without tenant context
+--     Invitation     — Better Auth queries without tenant context
+--     AuditLogArchive — worker batch jobs use global prisma
 --
 -- Verify policies are active:
 --   SELECT tablename, policyname, permissive, cmd, qual
 --   FROM pg_policies
 --   WHERE schemaname = 'public'
 --   ORDER BY tablename;
+-- ============================================================================
+
+-- ============================================================================
+-- STRICT policies (no IS NULL — always accessed through tenantPrisma)
 -- ============================================================================
 
 -- Enable RLS
@@ -32,6 +48,8 @@ ALTER TABLE "Assistance" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Document" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Notification" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "AuditLog" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Occurrence" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Insurer" ENABLE ROW LEVEL SECURITY;
 
 -- Tenant isolation policies
 CREATE POLICY tenant_isolation ON "Client"
@@ -64,6 +82,12 @@ CREATE POLICY tenant_isolation ON "Notification"
 CREATE POLICY tenant_isolation ON "AuditLog"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
+CREATE POLICY tenant_isolation ON "Occurrence"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+CREATE POLICY tenant_isolation ON "Insurer"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
 -- Force RLS for table owner too (defense-in-depth)
 ALTER TABLE "Client" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Proposal" FORCE ROW LEVEL SECURITY;
@@ -75,6 +99,36 @@ ALTER TABLE "Assistance" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Document" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Notification" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "AuditLog" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Occurrence" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Insurer" FORCE ROW LEVEL SECURITY;
+
+-- ============================================================================
+-- PERMISSIVE policies (with IS NULL escape)
+-- ============================================================================
+-- These tables are accessed by Better Auth or background workers that operate
+-- without a tenant context (app.current_tenant not set).
+-- IS NULL allows those queries through while still filtering by tenant when set.
+
+-- Member — Better Auth queries without tenant context
+ALTER TABLE "Member" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON "Member"
+  USING ("organizationId" = current_setting('app.current_tenant', true)
+         OR current_setting('app.current_tenant', true) IS NULL);
+ALTER TABLE "Member" FORCE ROW LEVEL SECURITY;
+
+-- Invitation — Better Auth queries without tenant context
+ALTER TABLE "Invitation" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON "Invitation"
+  USING ("organizationId" = current_setting('app.current_tenant', true)
+         OR current_setting('app.current_tenant', true) IS NULL);
+ALTER TABLE "Invitation" FORCE ROW LEVEL SECURITY;
+
+-- AuditLogArchive — audit archive worker uses global prisma (batch jobs)
+ALTER TABLE "AuditLogArchive" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON "AuditLogArchive"
+  USING ("organizationId" = current_setting('app.current_tenant', true)
+         OR current_setting('app.current_tenant', true) IS NULL);
+ALTER TABLE "AuditLogArchive" FORCE ROW LEVEL SECURITY;
 
 -- ============================================================================
 -- To DROP all policies (rollback):
@@ -89,6 +143,11 @@ ALTER TABLE "AuditLog" FORCE ROW LEVEL SECURITY;
 -- DROP POLICY IF EXISTS tenant_isolation ON "Document";
 -- DROP POLICY IF EXISTS tenant_isolation ON "Notification";
 -- DROP POLICY IF EXISTS tenant_isolation ON "AuditLog";
+-- DROP POLICY IF EXISTS tenant_isolation ON "Occurrence";
+-- DROP POLICY IF EXISTS tenant_isolation ON "Insurer";
+-- DROP POLICY IF EXISTS tenant_isolation ON "Member";
+-- DROP POLICY IF EXISTS tenant_isolation ON "Invitation";
+-- DROP POLICY IF EXISTS tenant_isolation ON "AuditLogArchive";
 --
 -- ALTER TABLE "Client" DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE "Proposal" DISABLE ROW LEVEL SECURITY;
@@ -100,3 +159,8 @@ ALTER TABLE "AuditLog" FORCE ROW LEVEL SECURITY;
 -- ALTER TABLE "Document" DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE "Notification" DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE "AuditLog" DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE "Occurrence" DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE "Insurer" DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE "Member" DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE "Invitation" DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE "AuditLogArchive" DISABLE ROW LEVEL SECURITY;

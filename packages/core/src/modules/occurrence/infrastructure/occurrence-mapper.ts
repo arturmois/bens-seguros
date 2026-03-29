@@ -16,6 +16,7 @@ export class OccurrenceMapper {
     return {
       id: row.id,
       claimId: row.claimId,
+      organizationId: row.organizationId,
       type: row.type,
       description: row.description,
       metadata: isJsonObject(row.metadata) ? row.metadata : null,

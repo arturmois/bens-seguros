@@ -213,7 +213,7 @@ export function registerDependencies(redis: Redis | null = null) {
 
   // Occurrence use cases
   container.register(CreateOccurrence, {
-    useFactory: () => new CreateOccurrence(occurrenceRepo),
+    useFactory: () => new CreateOccurrence(occurrenceRepo, claimRepo),
   })
   container.register(ListOccurrences, {
     useFactory: () => new ListOccurrences(occurrenceRepo),

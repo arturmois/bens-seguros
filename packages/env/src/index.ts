@@ -37,8 +37,8 @@ export const env = createEnv({
     META_WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
     STORAGE_PROVIDER: z.enum(['local', 'r2']).default('local'),
     // SEC-1: PII encryption key — hex-encoded 32-byte key (64 hex chars)
-    // Optional for now (demo phase); will be required before onboarding real clients
-    ENCRYPTION_KEY: encryptionKeySchema.default('0'.repeat(64)),
+    // Required: all-zeros default removed to prevent trivial decryption of PII
+    ENCRYPTION_KEY: encryptionKeySchema,
     // Internal API for lead capture from AI bot
     INTERNAL_API_URL: z.string().url().optional(),
     INTERNAL_API_SECRET: z

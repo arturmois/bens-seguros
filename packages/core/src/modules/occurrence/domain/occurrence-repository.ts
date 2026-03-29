@@ -5,6 +5,7 @@ export type JsonObject = { [key: string]: JsonValue }
 export interface OccurrenceData {
   id: string
   claimId: string
+  organizationId: string
   type: string
   description: string
   metadata: JsonObject | null
@@ -15,6 +16,7 @@ export interface OccurrenceData {
 
 export interface CreateOccurrenceInput {
   claimId: string
+  organizationId: string
   type: string
   description: string
   metadata?: JsonObject
@@ -23,5 +25,8 @@ export interface CreateOccurrenceInput {
 
 export interface OccurrenceRepository {
   create(data: CreateOccurrenceInput): Promise<OccurrenceData>
-  findByClaimId(claimId: string): Promise<OccurrenceData[]>
+  findByClaimId(
+    claimId: string,
+    organizationId: string
+  ): Promise<OccurrenceData[]>
 }
