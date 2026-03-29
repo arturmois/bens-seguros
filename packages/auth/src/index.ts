@@ -50,7 +50,7 @@ export function createAuth(
     trustedOrigins,
     emailAndPassword: {
       enabled: true,
-      minPasswordLength: 12,
+      minPasswordLength: 8,
     },
     advanced: {
       crossSubDomainCookies:

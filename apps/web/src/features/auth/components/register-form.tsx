@@ -54,7 +54,7 @@ export function RegisterForm() {
         invitationId,
       },
       {
-        onError: () => toast.error('Erro ao criar conta'),
+        onError: (error) => toast.error(error.message || 'Erro ao criar conta'),
       }
     )
   }

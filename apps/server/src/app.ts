@@ -53,6 +53,7 @@ export async function buildApp() {
       redact: PINO_REDACT_CONFIG,
     },
     bodyLimit: 10 * 1024 * 1024, // S6: 10MB
+    trustProxy: true,
   })
 
   app.setValidatorCompiler(validatorCompiler)

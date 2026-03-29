@@ -60,6 +60,7 @@ export async function buildChatApp(
       level: env.NODE_ENV === 'production' ? 'info' : 'debug',
       redact: PINO_REDACT_CONFIG,
     },
+    trustProxy: true,
   })
 
   app.setValidatorCompiler(validatorCompiler)
