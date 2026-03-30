@@ -1,7 +1,14 @@
 'use client'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+
+import {
+  getGetProposalChecklistQueryOptions,
+  getGetProposalChecklistQueryKey,
+  completeProposalChecklistItem,
+} from '@/api/endpoints/proposals/proposals'
 import { api } from '@/lib/api-client'
+
 import type { ChecklistItem, ChecklistSummary } from '../types'
 
 interface ChecklistResponse {
@@ -10,8 +17,10 @@ interface ChecklistResponse {
 }
 
 export function useChecklist(proposalId: string) {
+  const orvalOptions = getGetProposalChecklistQueryOptions(proposalId)
+
   return useQuery({
-    queryKey: ['proposal-checklist', proposalId],
+    queryKey: orvalOptions.queryKey,
     queryFn: async () => {
       const res = await api.get<ChecklistResponse>(
         `/api/v1/proposals/${proposalId}/checklist`
@@ -26,16 +35,11 @@ export function useCompleteChecklistItem(proposalId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (itemId: string) => {
-      const res = await api.post<ChecklistItem>(
-        `/api/v1/proposals/${proposalId}/checklist/${itemId}/complete`,
-        {}
-      )
-      return res.data
-    },
+    mutationFn: (itemId: string) =>
+      completeProposalChecklistItem(proposalId, itemId),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['proposal-checklist', proposalId],
+      void queryClient.invalidateQueries({
+        queryKey: getGetProposalChecklistQueryKey(proposalId),
       })
     },
   })

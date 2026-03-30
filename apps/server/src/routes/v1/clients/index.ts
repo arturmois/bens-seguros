@@ -1,0 +1,23 @@
+import type { FastifyInstance } from 'fastify'
+import { tenantMiddleware } from '../../../middlewares/tenant-middleware.js'
+import { createClientRoute } from './create-client.js'
+import { exportClientsRoute } from './export-clients.js'
+import { importClientsRoutes } from './import-clients.js'
+import { listClientsRoute } from './list-clients.js'
+import { getClientRoute } from './get-client.js'
+import { updateClientRoute } from './update-client.js'
+import { deleteClientRoute } from './delete-client.js'
+
+export async function clientRoutes(app: FastifyInstance) {
+  app.addHook('preHandler', tenantMiddleware)
+
+  // Order matters: static paths (export, import) must be registered
+  // BEFORE parametric paths (/:id) to avoid route conflicts.
+  createClientRoute(app)
+  exportClientsRoute(app)
+  importClientsRoutes(app)
+  listClientsRoute(app)
+  getClientRoute(app)
+  updateClientRoute(app)
+  deleteClientRoute(app)
+}

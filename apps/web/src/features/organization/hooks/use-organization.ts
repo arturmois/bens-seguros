@@ -3,12 +3,11 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { api } from '@/lib/api-client'
+import { getGetOrganizationQueryKey } from '@/api/endpoints/organization/organization'
 
 import type { OrganizationData } from '../types'
 
-const ORGANIZATION_KEY = ['organization'] as const
-
-export { ORGANIZATION_KEY }
+export const ORGANIZATION_KEY = getGetOrganizationQueryKey()
 
 export function useOrganization() {
   return useQuery({

@@ -3,11 +3,10 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { api } from '@/lib/api-client'
+import { getGetDashboardStatsQueryKey } from '@/api/endpoints/stats/stats'
 import { getActiveOrgCookie } from '@/lib/org-cookie'
 
 import type { DashboardPreset, DashboardStats } from '../types'
-
-const DASHBOARD_STATS_KEY = 'dashboard-stats'
 
 export function useDashboardStats(preset: DashboardPreset = '30d') {
   // Defense-in-depth: DashboardShell already gates rendering on activeOrg,
@@ -15,7 +14,7 @@ export function useDashboardStats(preset: DashboardPreset = '30d') {
   const hasActiveOrg = !!getActiveOrgCookie()
 
   return useQuery({
-    queryKey: [DASHBOARD_STATS_KEY, preset],
+    queryKey: getGetDashboardStatsQueryKey({ preset }),
     queryFn: async () => {
       const response = await api.get<DashboardStats>(
         `/api/v1/stats/dashboard?preset=${preset}`

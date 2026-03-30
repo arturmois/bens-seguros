@@ -1,12 +1,22 @@
 'use client'
 
-import { api } from '@/lib/api-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+
+import { api } from '@/lib/api-client'
+import {
+  getListNotificationsQueryKey,
+  getGetUnreadCountQueryKey,
+  markNotificationRead,
+  markAllNotificationsRead,
+} from '@/api/endpoints/notifications/notifications'
+
 import type { NotificationData } from '../types/index'
+
+const NOTIFICATIONS_BASE_KEY = getListNotificationsQueryKey()
 
 export function useNotifications(limit = 10) {
   return useQuery({
-    queryKey: ['notifications', limit],
+    queryKey: getListNotificationsQueryKey({ limit }),
     queryFn: async () => {
       const res = await api.get<NotificationData[]>(
         `/api/v1/notifications?limit=${limit}`
@@ -23,7 +33,7 @@ export function useNotifications(limit = 10) {
 
 export function useUnreadCount() {
   return useQuery({
-    queryKey: ['notifications', 'unread-count'],
+    queryKey: getGetUnreadCountQueryKey(),
     queryFn: async () => {
       const res = await api.get<{ count: number }>(
         '/api/v1/notifications/unread-count'
@@ -40,10 +50,10 @@ export function useMarkAsRead() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await api.post(`/api/v1/notifications/${id}/read`, {})
+      await markNotificationRead(id)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_BASE_KEY })
     },
   })
 }
@@ -53,10 +63,10 @@ export function useMarkAllAsRead() {
 
   return useMutation({
     mutationFn: async () => {
-      await api.post('/api/v1/notifications/read-all', {})
+      await markAllNotificationsRead()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_BASE_KEY })
     },
   })
 }

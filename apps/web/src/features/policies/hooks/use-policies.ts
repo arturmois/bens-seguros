@@ -3,6 +3,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
+import {
+  getGetPolicyQueryOptions,
+  getListPoliciesUrl,
+  getIssuePolicyUrl,
+  cancelPolicy,
+} from '@/api/endpoints/policies/policies'
 import { api } from '@/lib/api-client'
 
 import type { PolicyData, PolicyStatus } from '../types'
@@ -31,8 +37,6 @@ interface PolicyResult {
   data: PolicyData
 }
 
-const POLICIES_KEY = 'policies'
-
 export function usePolicies(filters: PoliciesFilters = {}) {
   const params = new URLSearchParams()
 
@@ -50,7 +54,7 @@ export function usePolicies(filters: PoliciesFilters = {}) {
     : '/api/v1/policies'
 
   return useQuery<PoliciesResult>({
-    queryKey: [POLICIES_KEY, filters],
+    queryKey: ['/api/v1/policies', filters],
     queryFn: async () => {
       const response = await api.get<PolicyData[]>(url)
       return {
@@ -68,8 +72,10 @@ export function usePolicies(filters: PoliciesFilters = {}) {
 }
 
 export function usePolicy(id: string) {
+  const orvalOptions = getGetPolicyQueryOptions(id)
+
   return useQuery<PolicyResult>({
-    queryKey: [POLICIES_KEY, id],
+    queryKey: orvalOptions.queryKey,
     queryFn: async () => {
       const response = await api.get<PolicyData>(`/api/v1/policies/${id}`)
       return { data: response.data }
@@ -79,23 +85,21 @@ export function usePolicy(id: string) {
   })
 }
 
-interface IssuePolicyInput {
-  proposalId: string
-  policyNumber: string
-  startDate: string
-  endDate: string
-}
-
 export function useIssuePolicy() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (values: IssuePolicyInput) => {
-      const response = await api.post<PolicyData>('/api/v1/policies', values)
+    mutationFn: async (values: {
+      proposalId: string
+      policyNumber: string
+      startDate: string
+      endDate: string
+    }) => {
+      const response = await api.post<PolicyData>(getIssuePolicyUrl(), values)
       return response.data
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: [POLICIES_KEY] })
+      await queryClient.invalidateQueries({ queryKey: ['/api/v1/policies'] })
       toast.success('Apólice emitida com sucesso!')
     },
     onError: () => {
@@ -108,10 +112,10 @@ export function useIssuePolicy() {
 
 export function usePolicyByProposal(proposalId: string) {
   return useQuery<PolicyData | null>({
-    queryKey: [POLICIES_KEY, 'by-proposal', proposalId],
+    queryKey: ['/api/v1/policies', { proposalId, limit: 1 }],
     queryFn: async () => {
       const response = await api.get<PolicyData[]>(
-        `/api/v1/policies?proposalId=${encodeURIComponent(proposalId)}&limit=1`
+        getListPoliciesUrl({ proposalId, limit: 1 })
       )
       const firstPolicy = response.data[0]
       return firstPolicy ?? null
@@ -126,9 +130,9 @@ export function useCancelPolicy() {
 
   return useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) =>
-      api.post(`/api/v1/policies/${id}/cancel`, { reason }),
+      cancelPolicy(id, { reason }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: [POLICIES_KEY] })
+      await queryClient.invalidateQueries({ queryKey: ['/api/v1/policies'] })
       toast.success('Apólice cancelada com sucesso.')
     },
     onError: () => {

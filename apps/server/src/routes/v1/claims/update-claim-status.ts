@@ -1,0 +1,42 @@
+import { UpdateClaimStatus, container } from '@repo/core'
+import type { FastifyInstance } from 'fastify'
+import type { ZodTypeProvider } from 'fastify-type-provider-zod'
+
+import { requireAbility } from '../../../middlewares/ability-middleware.js'
+import { auditUpdate } from '../../../services/audit-logger.js'
+import { handleDomainError } from '../handle-domain-error.js'
+import { idParamSchema, updateClaimStatusBodySchema } from './_schemas.js'
+
+export function updateClaimStatusRoute(app: FastifyInstance) {
+  app.withTypeProvider<ZodTypeProvider>().route({
+    method: 'POST',
+    url: '/api/v1/claims/:id/status',
+    schema: {
+      tags: ['Claims'],
+      summary: 'Update the status of a claim',
+      operationId: 'updateClaimStatus',
+      params: idParamSchema,
+      body: updateClaimStatusBodySchema,
+    },
+    preHandler: [requireAbility('update', 'Claim')],
+    handler: async (request, reply) => {
+      const useCase = container.resolve(UpdateClaimStatus)
+      try {
+        const claim = await useCase.execute(
+          request.params.id,
+          request.organizationId!,
+          request.body.status
+        )
+        auditUpdate({
+          request,
+          entityType: 'Claim',
+          entityId: request.params.id,
+          after: { status: claim.status },
+        })
+        return reply.send({ success: true, data: claim })
+      } catch (error) {
+        return handleDomainError(error, reply)
+      }
+    },
+  })
+}

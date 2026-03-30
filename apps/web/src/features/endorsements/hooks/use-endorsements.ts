@@ -4,6 +4,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import { api } from '@/lib/api-client'
+import {
+  getListEndorsementsQueryKey,
+  createEndorsement,
+} from '@/api/endpoints/endorsements/endorsements'
+import type { CreateEndorsementBody } from '@/api/model'
 
 import type {
   EndorsementData,
@@ -11,24 +16,24 @@ import type {
   EndorsementListMeta,
 } from '../types'
 
-const ENDORSEMENTS_KEY = 'endorsements'
-
-function buildEndorsementsUrl(filters: EndorsementFilters): string {
-  const params = new URLSearchParams()
-
-  if (filters.policyId) params.set('policyId', filters.policyId)
-  if (filters.cursor) params.set('cursor', filters.cursor)
-  params.set('limit', String(filters.limit ?? 20))
-
-  return `/api/v1/endorsements?${params.toString()}`
-}
-
 export function useEndorsements(filters: EndorsementFilters) {
+  const params = {
+    policyId: filters.policyId,
+    cursor: filters.cursor,
+    limit: filters.limit ?? 20,
+  }
+
   return useQuery({
-    queryKey: [ENDORSEMENTS_KEY, filters],
+    queryKey: getListEndorsementsQueryKey(params),
     queryFn: async () => {
+      const qs = new URLSearchParams()
+      for (const [key, value] of Object.entries(params)) {
+        if (value !== undefined && value !== null) {
+          qs.set(key, String(value))
+        }
+      }
       const response = await api.get<EndorsementData[]>(
-        buildEndorsementsUrl(filters)
+        `/api/v1/endorsements?${qs.toString()}`
       )
       return {
         data: response.data,
@@ -39,28 +44,17 @@ export function useEndorsements(filters: EndorsementFilters) {
   })
 }
 
-interface CreateEndorsementInput {
-  readonly policyId: string
-  readonly type: string
-  readonly description: string
-  readonly effectiveDate: string
-  readonly previousVersionSnapshot: Record<string, unknown>
-  readonly changes: Record<string, unknown>
-}
-
 export function useCreateEndorsement() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (values: CreateEndorsementInput) => {
-      const response = await api.post<EndorsementData>(
-        '/api/v1/endorsements',
-        values
-      )
-      return response.data
+    mutationFn: async (values: CreateEndorsementBody) => {
+      return createEndorsement(values)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [ENDORSEMENTS_KEY] })
+      queryClient.invalidateQueries({
+        queryKey: getListEndorsementsQueryKey(),
+      })
       toast.success('Endosso registrado com sucesso')
     },
     onError: () => {

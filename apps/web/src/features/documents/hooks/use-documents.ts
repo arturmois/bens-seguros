@@ -4,16 +4,19 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import { api } from '@/lib/api-client'
+import {
+  getListDocumentsQueryKey,
+  getGetDocumentUrlQueryKey,
+  deleteDocument,
+} from '@/api/endpoints/documents/documents'
 
 import type { DocumentData, DocumentEntityType, DocumentType } from '../types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
-const DOCUMENTS_KEY = 'documents'
-
 export function useDocuments(entityType: DocumentEntityType, entityId: string) {
   return useQuery({
-    queryKey: [DOCUMENTS_KEY, entityType, entityId],
+    queryKey: getListDocumentsQueryKey({ entityType, entityId }),
     queryFn: async () => {
       const params = new URLSearchParams({ entityType, entityId })
       const response = await api.get<DocumentData[]>(
@@ -33,6 +36,9 @@ interface UploadInput {
   readonly type?: DocumentType
 }
 
+/**
+ * Upload stays manual because Orval does not handle multipart FormData uploads.
+ */
 export function useUploadDocument() {
   const queryClient = useQueryClient()
 
@@ -66,7 +72,10 @@ export function useUploadDocument() {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [DOCUMENTS_KEY, variables.entityType, variables.entityId],
+        queryKey: getListDocumentsQueryKey({
+          entityType: variables.entityType,
+          entityId: variables.entityId,
+        }),
       })
       toast.success('Documento enviado com sucesso')
     },
@@ -78,7 +87,7 @@ export function useUploadDocument() {
 
 export function useDocumentUrl(id: string) {
   return useQuery({
-    queryKey: [DOCUMENTS_KEY, 'url', id],
+    queryKey: getGetDocumentUrlQueryKey(id),
     queryFn: async () => {
       const response = await api.get<{ url: string }>(
         `/api/v1/documents/${id}/url`
@@ -95,11 +104,13 @@ export function useDeleteDocument() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await api.delete(`/api/v1/documents/${id}`)
+      await deleteDocument(id)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [DOCUMENTS_KEY] })
-      toast.success('Documento excluido com sucesso')
+      queryClient.invalidateQueries({
+        queryKey: getListDocumentsQueryKey(),
+      })
+      toast.success('Documento excluído com sucesso')
     },
     onError: () => {
       toast.error('Erro ao excluir documento')

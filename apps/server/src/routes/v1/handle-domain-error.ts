@@ -39,8 +39,9 @@ const CODE_TO_STATUS: Record<string, number> = {
   POLICY_NOT_ISSUABLE: 422,
   INVALID_FILE_TYPE: 422,
   LAST_OWNER: 422,
-  ROLE_HIERARCHY_VIOLATION: 422,
   SELF_REMOVAL: 422,
+  // 403 Forbidden
+  ROLE_HIERARCHY_VIOLATION: 403,
 }
 
 function isDomainError(error: unknown): error is DomainErrorLike {

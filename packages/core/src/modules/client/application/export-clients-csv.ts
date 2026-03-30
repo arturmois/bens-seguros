@@ -16,7 +16,7 @@ const CLIENT_CSV_COLUMNS = [
   'Email',
   'Telefone',
   'Data Nascimento',
-  'Profissao',
+  'Profissão',
   'Estado Civil',
   'Tags',
   'Consentimento LGPD',

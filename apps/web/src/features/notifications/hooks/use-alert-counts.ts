@@ -1,7 +1,9 @@
 'use client'
 
-import { api } from '@/lib/api-client'
 import { useQuery } from '@tanstack/react-query'
+
+import { api } from '@/lib/api-client'
+import { getGetAlertCountsQueryKey } from '@/api/endpoints/notifications/notifications'
 
 export interface AlertCounts {
   readonly Policy: number
@@ -13,7 +15,7 @@ export interface AlertCounts {
 
 export function useAlertCounts() {
   return useQuery({
-    queryKey: ['notifications', 'alert-counts'],
+    queryKey: getGetAlertCountsQueryKey(),
     queryFn: async () => {
       const res = await api.get<AlertCounts>(
         '/api/v1/notifications/alert-counts'

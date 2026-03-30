@@ -4,29 +4,26 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import { api } from '@/lib/api-client'
+import {
+  getListClientsQueryKey,
+  getGetClientQueryKey,
+  getListClientsUrl,
+  getGetClientUrl,
+  createClient,
+  updateClient,
+  deleteClient,
+} from '@/api/endpoints/clients/clients'
 
 import type { ClientData, ClientFilters, ClientListMeta } from '../types'
 import type { ClientFormValues } from '../lib/schemas'
 
-const CLIENTS_KEY = 'clients'
-const CLIENT_KEY = 'client'
-
-function buildClientsUrl(filters: ClientFilters): string {
-  const params = new URLSearchParams()
-
-  if (filters.search) params.set('search', filters.search)
-  if (filters.type) params.set('type', filters.type)
-  if (filters.cursor) params.set('cursor', filters.cursor)
-  params.set('limit', String(filters.limit ?? 20))
-
-  return `/api/v1/clients?${params.toString()}`
-}
+export const CLIENTS_QUERY_KEY = getListClientsQueryKey
 
 export function useClients(filters: ClientFilters) {
   return useQuery({
-    queryKey: [CLIENTS_KEY, filters],
+    queryKey: getListClientsQueryKey(filters),
     queryFn: async () => {
-      const response = await api.get<ClientData[]>(buildClientsUrl(filters))
+      const response = await api.get<ClientData[]>(getListClientsUrl(filters))
       return {
         data: response.data,
         meta: response.meta as ClientListMeta,
@@ -38,9 +35,9 @@ export function useClients(filters: ClientFilters) {
 
 export function useClient(id: string) {
   return useQuery({
-    queryKey: [CLIENT_KEY, id],
+    queryKey: getGetClientQueryKey(id),
     queryFn: async () => {
-      const response = await api.get<ClientData>(`/api/v1/clients/${id}`)
+      const response = await api.get<ClientData>(getGetClientUrl(id))
       return response.data
     },
     staleTime: 60_000,
@@ -52,12 +49,11 @@ export function useCreateClient() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (values: ClientFormValues) => {
-      const response = await api.post<ClientData>('/api/v1/clients', values)
-      return response.data
-    },
+    mutationFn: (values: ClientFormValues) => createClient(values),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [CLIENTS_KEY] })
+      queryClient.invalidateQueries({
+        queryKey: getListClientsQueryKey(),
+      })
       toast.success('Cliente criado com sucesso')
     },
     onError: () => {
@@ -70,23 +66,14 @@ export function useUpdateClient() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({
-      id,
-      values,
-    }: {
-      id: string
-      values: ClientFormValues
-    }) => {
-      const response = await api.put<ClientData>(
-        `/api/v1/clients/${id}`,
-        values
-      )
-      return response.data
-    },
+    mutationFn: ({ id, values }: { id: string; values: ClientFormValues }) =>
+      updateClient(id, values),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: [CLIENTS_KEY] })
       queryClient.invalidateQueries({
-        queryKey: [CLIENT_KEY, variables.id],
+        queryKey: getListClientsQueryKey(),
+      })
+      queryClient.invalidateQueries({
+        queryKey: getGetClientQueryKey(variables.id),
       })
       toast.success('Cliente atualizado com sucesso')
     },
@@ -100,12 +87,12 @@ export function useDeleteClient() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      await api.delete(`/api/v1/clients/${id}`)
-    },
+    mutationFn: (id: string) => deleteClient(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [CLIENTS_KEY] })
-      toast.success('Cliente excluido com sucesso')
+      queryClient.invalidateQueries({
+        queryKey: getListClientsQueryKey(),
+      })
+      toast.success('Cliente excluído com sucesso')
     },
     onError: () => {
       toast.error('Erro ao excluir cliente')

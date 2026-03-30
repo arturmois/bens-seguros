@@ -5,13 +5,18 @@ import { useRef, useCallback } from 'react'
 import { toast } from 'sonner'
 
 import { api } from '@/lib/api-client'
+import {
+  getListClientsQueryKey,
+  getImportStatusClientsQueryKey,
+  getImportUploadClientsUrl,
+  getImportConfirmClientsUrl,
+  getImportStatusClientsUrl,
+} from '@/api/endpoints/clients/clients'
 
 import type {
   ImportPreviewResponse,
   ImportStatusResponse,
 } from '../types/import-types'
-
-const CLIENTS_KEY = 'clients'
 
 export function useUploadCsv() {
   return useMutation({
@@ -19,7 +24,7 @@ export function useUploadCsv() {
       const formData = new FormData()
       formData.append('file', file)
       const response = await api.post<ImportPreviewResponse>(
-        '/api/v1/clients/import',
+        getImportUploadClientsUrl(),
         formData
       )
       return response.data
@@ -34,7 +39,7 @@ export function useConfirmImport() {
   return useMutation({
     mutationFn: async (jobId: string) => {
       const response = await api.post<{ jobId: string }>(
-        `/api/v1/clients/import/${jobId}/confirm`,
+        getImportConfirmClientsUrl(jobId),
         {}
       )
       return response.data
@@ -52,14 +57,16 @@ export function useImportStatus(jobId: string, enabled: boolean) {
   const handleCompleted = useCallback(() => {
     if (didInvalidate.current) return
     didInvalidate.current = true
-    queryClient.invalidateQueries({ queryKey: [CLIENTS_KEY] })
+    queryClient.invalidateQueries({
+      queryKey: getListClientsQueryKey(),
+    })
   }, [queryClient])
 
   return useQuery({
-    queryKey: ['import-status', jobId],
+    queryKey: getImportStatusClientsQueryKey(jobId),
     queryFn: async () => {
       const response = await api.get<ImportStatusResponse>(
-        `/api/v1/clients/import/${jobId}/status`
+        getImportStatusClientsUrl(jobId)
       )
       const data = response.data
       if (data.status === 'completed') {

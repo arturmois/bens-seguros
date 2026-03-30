@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import { api, ApiError } from '@/lib/api-client'
+import { getExportDashboardPdfUrl } from '@/api/endpoints/stats/stats'
 
 import type { DashboardPreset } from '../types'
 
@@ -15,21 +16,21 @@ export function useExportDashboardPdf() {
   return useMutation({
     mutationFn: async (preset: DashboardPreset) => {
       const response = await api.post<ExportResponse>(
-        `/api/v1/stats/dashboard/pdf?preset=${preset}`,
+        getExportDashboardPdfUrl({ preset }),
         {}
       )
       return response.data
     },
     onSuccess: (data) => {
       window.open(data.url, '_blank')
-      toast.success('Relatorio gerado com sucesso')
+      toast.success('Relatório gerado com sucesso')
     },
     onError: (error) => {
       if (error instanceof ApiError) {
         toast.error(error.message)
         return
       }
-      toast.error('Erro ao gerar relatorio')
+      toast.error('Erro ao gerar relatório')
     },
   })
 }

@@ -12,6 +12,7 @@ import IORedis from 'ioredis'
 import type { FastifyError, FastifyRequest } from 'fastify'
 import Fastify from 'fastify'
 import {
+  jsonSchemaTransform,
   serializerCompiler,
   validatorCompiler,
 } from 'fastify-type-provider-zod'
@@ -23,26 +24,26 @@ import { requireAbility } from './middlewares/ability-middleware.js'
 import { createAuthMiddleware } from './middlewares/auth-middleware.js'
 import { tenantMiddleware } from './middlewares/tenant-middleware.js'
 import { registerAuthRoutes } from './routes/auth-routes.js'
-import { assistanceRoutes } from './routes/v1/assistance-routes.js'
-import { auditLogRoutes } from './routes/v1/audit-log-routes.js'
-import { chatTokenRoute } from './routes/v1/chat-token-route.js'
-import { claimRoutes } from './routes/v1/claim-routes.js'
-import { clientRoutes } from './routes/v1/client-routes.js'
-import { commissionRoutes } from './routes/v1/commission-routes.js'
-import { documentRoutes } from './routes/v1/document-routes.js'
-import { endorsementRoutes } from './routes/v1/endorsement-routes.js'
-import { insurerRoutes } from './routes/v1/insurer-routes.js'
-import { invitationRoutes } from './routes/v1/invitation-routes.js'
-import { memberRoutes } from './routes/v1/member-routes.js'
-import { organizationRoutes } from './routes/v1/organization-routes.js'
-import { notificationRoutes } from './routes/v1/notification-routes.js'
-import { policyRoutes } from './routes/v1/policy-routes.js'
-import { proposalRoutes } from './routes/v1/proposal-routes.js'
-import { searchRoutes } from './routes/v1/search-routes.js'
-import { termsRoutes } from './routes/terms-routes.js'
-import { statsRoutes } from './routes/v1/stats-routes.js'
-import { internalLeadRoutes } from './routes/internal/lead-routes.js'
-import { tenantRoutes } from './routes/v1/tenant-routes.js'
+import { assistanceRoutes } from './routes/v1/assistances/index.js'
+import { auditLogRoutes } from './routes/v1/audit-logs/index.js'
+import { chatTokenRoute } from './routes/v1/chat/index.js'
+import { claimRoutes } from './routes/v1/claims/index.js'
+import { clientRoutes } from './routes/v1/clients/index.js'
+import { commissionRoutes } from './routes/v1/commissions/index.js'
+import { documentRoutes } from './routes/v1/documents/index.js'
+import { endorsementRoutes } from './routes/v1/endorsements/index.js'
+import { insurerRoutes } from './routes/v1/insurers/index.js'
+import { invitationRoutes } from './routes/v1/invitations/index.js'
+import { memberRoutes } from './routes/v1/members/index.js'
+import { organizationRoutes } from './routes/v1/organization/index.js'
+import { notificationRoutes } from './routes/v1/notifications/index.js'
+import { policyRoutes } from './routes/v1/policies/index.js'
+import { proposalRoutes } from './routes/v1/proposals/index.js'
+import { searchRoutes } from './routes/v1/search/index.js'
+import { termsRoutes } from './routes/terms/index.js'
+import { statsRoutes } from './routes/v1/stats/index.js'
+import { internalLeadRoutes } from './routes/internal/leads/index.js'
+import { tenantRoutes } from './routes/v1/tenants/index.js'
 
 export async function buildApp() {
   const redis = new IORedis(env.REDIS_URL)
@@ -65,7 +66,19 @@ export async function buildApp() {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   })
 
-  await app.register(helmet)
+  await app.register(helmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", 'cdn.jsdelivr.net'],
+        styleSrc: ["'self'", "'unsafe-inline'", 'cdn.jsdelivr.net'],
+        imgSrc: ["'self'", 'data:', 'cdn.jsdelivr.net'],
+        fontSrc: ["'self'", 'cdn.jsdelivr.net', 'fonts.scalar.com'],
+        connectSrc: ["'self'", 'proxy.scalar.com'],
+        workerSrc: ["'self'", 'blob:'],
+      },
+    },
+  })
 
   await app.register(rateLimit, {
     max: RATE_LIMITS.GLOBAL.max,
@@ -89,6 +102,25 @@ export async function buildApp() {
         version: '1.0.0',
       },
     },
+    transform({ schema, url, ...rest }) {
+      const transformed = jsonSchemaTransform({ schema, url, ...rest })
+      if (!transformed.schema?.tags?.length) {
+        const match = /^\/api\/v1\/([^/]+)/.exec(url)
+        if (match) {
+          const segment = match[1] ?? ''
+          const tag = segment
+            .split('-')
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(' ')
+          transformed.schema = { ...transformed.schema, tags: [tag] }
+        }
+      }
+      return transformed
+    },
+  })
+
+  await app.register(import('@scalar/fastify-api-reference'), {
+    routePrefix: '/api/docs',
   })
 
   await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } })

@@ -3,6 +3,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
+import { getGeneratePolicyPdfUrl } from '@/api/endpoints/policies/policies'
 import { api, ApiError } from '@/lib/api-client'
 
 interface PdfResponse {
@@ -12,7 +13,7 @@ interface PdfResponse {
 export function useGeneratePolicyPdf(policyId: string) {
   return useMutation({
     mutationFn: () =>
-      api.post<PdfResponse>(`/api/v1/policies/${policyId}/pdf`, {}),
+      api.post<PdfResponse>(getGeneratePolicyPdfUrl(policyId), {}),
     onSuccess: (response) => {
       window.open(response.data.url, '_blank')
       toast.success('PDF gerado com sucesso!')

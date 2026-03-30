@@ -25,6 +25,8 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { FormField } from '@/components/shared/form-field'
 
+import type { CreateEndorsementBodyChanges } from '@/api/model'
+
 import { ENDORSEMENT_TYPE_OPTIONS } from '../lib/constants'
 import { useCreateEndorsement } from '../hooks/use-endorsements'
 
@@ -73,16 +75,16 @@ function formatDateToISO(date: Date | undefined): string {
   return `${year}-${month}-${day}`
 }
 
-function parseJsonSafe(value: string): Record<string, unknown> {
+function isRecord(value: unknown): value is CreateEndorsementBodyChanges {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function parseJsonSafe(value: string): CreateEndorsementBodyChanges {
   if (!value.trim()) return {}
   try {
     const parsed: unknown = JSON.parse(value)
-    if (
-      typeof parsed === 'object' &&
-      parsed !== null &&
-      !Array.isArray(parsed)
-    ) {
-      return parsed as Record<string, unknown>
+    if (isRecord(parsed)) {
+      return parsed
     }
     return {}
   } catch {

@@ -4,6 +4,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import { api } from '@/lib/api-client'
+import {
+  getListAssistancesQueryKey,
+  getGetAssistanceQueryKey,
+  createAssistance,
+  updateAssistanceStatus,
+} from '@/api/endpoints/assistances/assistances'
 
 import type {
   AssistanceData,
@@ -13,28 +19,27 @@ import type {
 } from '../types'
 import type { AssistanceFormValues } from '../lib/schemas'
 
-const ASSISTANCES_KEY = 'assistances'
-const ASSISTANCE_KEY = 'assistance'
-
-function buildAssistancesUrl(filters: AssistanceFilters): string {
-  const params = new URLSearchParams()
-
-  if (filters.status) params.set('status', filters.status)
-  if (filters.policyId) params.set('policyId', filters.policyId)
-  if (filters.clientId) params.set('clientId', filters.clientId)
-  if (filters.type) params.set('type', filters.type)
-  if (filters.cursor) params.set('cursor', filters.cursor)
-  params.set('limit', String(filters.limit ?? 20))
-
-  return `/api/v1/assistances?${params.toString()}`
-}
-
 export function useAssistances(filters: AssistanceFilters) {
+  const params = {
+    status: filters.status,
+    policyId: filters.policyId,
+    clientId: filters.clientId,
+    type: filters.type,
+    cursor: filters.cursor,
+    limit: filters.limit ?? 20,
+  }
+
   return useQuery({
-    queryKey: [ASSISTANCES_KEY, filters],
+    queryKey: getListAssistancesQueryKey(params),
     queryFn: async () => {
+      const qs = new URLSearchParams()
+      for (const [key, value] of Object.entries(params)) {
+        if (value !== undefined && value !== null) {
+          qs.set(key, String(value))
+        }
+      }
       const response = await api.get<AssistanceData[]>(
-        buildAssistancesUrl(filters)
+        `/api/v1/assistances?${qs.toString()}`
       )
       return {
         data: response.data,
@@ -47,7 +52,7 @@ export function useAssistances(filters: AssistanceFilters) {
 
 export function useAssistance(id: string) {
   return useQuery({
-    queryKey: [ASSISTANCE_KEY, id],
+    queryKey: getGetAssistanceQueryKey(id),
     queryFn: async () => {
       const response = await api.get<AssistanceData>(
         `/api/v1/assistances/${id}`
@@ -64,14 +69,12 @@ export function useCreateAssistance() {
 
   return useMutation({
     mutationFn: async (values: AssistanceFormValues) => {
-      const response = await api.post<AssistanceData>(
-        '/api/v1/assistances',
-        values
-      )
-      return response.data
+      return createAssistance(values)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [ASSISTANCES_KEY] })
+      queryClient.invalidateQueries({
+        queryKey: getListAssistancesQueryKey(),
+      })
       toast.success('Assistência registrada com sucesso')
     },
     onError: () => {
@@ -91,18 +94,14 @@ export function useUpdateAssistanceStatus() {
       id: string
       status: AssistanceStatus
     }) => {
-      const response = await api.post<AssistanceData>(
-        `/api/v1/assistances/${id}/status`,
-        {
-          status,
-        }
-      )
-      return response.data
+      return updateAssistanceStatus(id, { status })
     },
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: [ASSISTANCES_KEY] })
       queryClient.invalidateQueries({
-        queryKey: [ASSISTANCE_KEY, variables.id],
+        queryKey: getListAssistancesQueryKey(),
+      })
+      queryClient.invalidateQueries({
+        queryKey: getGetAssistanceQueryKey(variables.id),
       })
       toast.success('Status da assistência atualizado com sucesso')
     },

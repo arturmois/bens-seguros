@@ -4,12 +4,14 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import { api, ApiError } from '@/lib/api-client'
-
 import type { OrganizationData } from '../types'
 import { ORGANIZATION_KEY } from './use-organization'
 
 const ORGS_KEY = ['orgs'] as const
 
+/**
+ * Upload stays manual because Orval does not handle multipart FormData uploads.
+ */
 export function useUploadLogo() {
   const queryClient = useQueryClient()
 
@@ -25,7 +27,7 @@ export function useUploadLogo() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ORGANIZATION_KEY })
-      queryClient.invalidateQueries({ queryKey: ORGS_KEY })
+      queryClient.invalidateQueries({ queryKey: [...ORGS_KEY] })
       toast.success('Logo atualizado com sucesso')
     },
     onError: (error) => {

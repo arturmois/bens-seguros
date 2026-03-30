@@ -4,11 +4,29 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import { api, ApiError } from '@/lib/api-client'
+import {
+  getListMembersQueryKey,
+  updateMemberRole,
+  deactivateMember,
+} from '@/api/endpoints/members/members'
+import type {
+  UpdateMemberRoleBody,
+  UpdateMemberRoleBodyRole,
+} from '@/api/model'
+import {
+  getListInvitationsQueryKey,
+  createInvitation,
+  revokeInvitation,
+} from '@/api/endpoints/invitations/invitations'
+import type {
+  CreateInvitationBody,
+  CreateInvitationBodyRole,
+} from '@/api/model'
 
 import type { InvitationData, MemberData } from '../types'
 
-const MEMBERS_KEY = ['members'] as const
-const INVITATIONS_KEY = ['invitations'] as const
+const MEMBERS_KEY = getListMembersQueryKey()
+const INVITATIONS_KEY = getListInvitationsQueryKey()
 
 export function useMembers() {
   return useQuery({
@@ -36,12 +54,11 @@ export function useInviteMember() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (payload: { email: string; role: string }) => {
-      const response = await api.post<InvitationData>(
-        '/api/v1/invitations',
-        payload
-      )
-      return response.data
+    mutationFn: async (payload: {
+      email: string
+      role: CreateInvitationBodyRole
+    }) => {
+      return createInvitation(payload satisfies CreateInvitationBody)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: MEMBERS_KEY })
@@ -62,11 +79,14 @@ export function useChangeMemberRole() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, role }: { id: string; role: string }) => {
-      const response = await api.put<MemberData>(`/api/v1/members/${id}/role`, {
-        role,
-      })
-      return response.data
+    mutationFn: async ({
+      id,
+      role,
+    }: {
+      id: string
+      role: UpdateMemberRoleBodyRole
+    }) => {
+      return updateMemberRole(id, { role } satisfies UpdateMemberRoleBody)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: MEMBERS_KEY })
@@ -103,7 +123,7 @@ export function useRemoveMember() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await api.delete(`/api/v1/members/${id}`)
+      await deactivateMember(id)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: MEMBERS_KEY })
@@ -142,7 +162,7 @@ export function useRevokeInvitation() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await api.delete(`/api/v1/invitations/${id}`)
+      await revokeInvitation(id)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: INVITATIONS_KEY })

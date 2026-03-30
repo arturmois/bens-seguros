@@ -3,28 +3,37 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { api } from '@/lib/api-client'
+import { getListAuditLogsQueryKey } from '@/api/endpoints/audit-logs/audit-logs'
 
 import type { AuditLogEntry, AuditLogFilters } from '../types'
 
-const AUDIT_LOGS_KEY = 'audit-logs'
-
-function buildAuditUrl(filters: AuditLogFilters): string {
-  const params = new URLSearchParams()
-  if (filters.entityType) params.set('entityType', filters.entityType)
-  if (filters.action) params.set('action', filters.action)
-  if (filters.userId) params.set('userId', filters.userId)
-  if (filters.dateFrom) params.set('dateFrom', filters.dateFrom)
-  if (filters.dateTo) params.set('dateTo', filters.dateTo)
-  if (filters.cursor) params.set('cursor', filters.cursor)
-  params.set('limit', String(filters.limit ?? 30))
-  return `/api/v1/audit-logs?${params.toString()}`
+function buildAuditParams(filters: AuditLogFilters) {
+  return {
+    entityType: filters.entityType,
+    action: filters.action,
+    userId: filters.userId,
+    dateFrom: filters.dateFrom,
+    dateTo: filters.dateTo,
+    cursor: filters.cursor,
+    limit: filters.limit ?? 30,
+  }
 }
 
 export function useAuditLogs(filters: AuditLogFilters) {
+  const params = buildAuditParams(filters)
+
   return useQuery({
-    queryKey: [AUDIT_LOGS_KEY, filters],
+    queryKey: getListAuditLogsQueryKey(params),
     queryFn: async () => {
-      const response = await api.get<AuditLogEntry[]>(buildAuditUrl(filters))
+      const qs = new URLSearchParams()
+      for (const [key, value] of Object.entries(params)) {
+        if (value !== undefined && value !== null) {
+          qs.set(key, String(value))
+        }
+      }
+      const response = await api.get<AuditLogEntry[]>(
+        `/api/v1/audit-logs?${qs.toString()}`
+      )
       return {
         data: response.data,
         meta: response.meta as { total: number; nextCursor: string | null },

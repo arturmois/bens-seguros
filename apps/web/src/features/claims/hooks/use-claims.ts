@@ -4,6 +4,18 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import { api } from '@/lib/api-client'
+import {
+  getListClaimsQueryKey,
+  getGetClaimQueryKey,
+  getListClaimOccurrencesQueryKey,
+  getListClaimsUrl,
+  getGetClaimUrl,
+  getListClaimOccurrencesUrl,
+  createClaim,
+  updateClaimStatus,
+  deleteClaim,
+  createClaimOccurrence,
+} from '@/api/endpoints/claims/claims'
 
 import type {
   ClaimData,
@@ -12,31 +24,17 @@ import type {
   ClaimStatus,
   OccurrenceData,
 } from '../types'
+import type { CreateClaimOccurrenceBodyMetadata } from '@/api/model'
+
 import type { ClaimFormValues } from '../lib/schemas'
 
-const CLAIMS_KEY = 'claims'
-const CLAIM_KEY = 'claim'
-const OCCURRENCES_KEY = 'occurrences'
-
-function buildClaimsUrl(filters: ClaimFilters): string {
-  const params = new URLSearchParams()
-
-  if (filters.status) params.set('status', filters.status)
-  if (filters.priority) params.set('priority', filters.priority)
-  if (filters.policyId) params.set('policyId', filters.policyId)
-  if (filters.clientId) params.set('clientId', filters.clientId)
-  if (filters.search) params.set('search', filters.search)
-  if (filters.cursor) params.set('cursor', filters.cursor)
-  params.set('limit', String(filters.limit ?? 20))
-
-  return `/api/v1/claims?${params.toString()}`
-}
+export const CLAIMS_QUERY_KEY = getListClaimsQueryKey
 
 export function useClaims(filters: ClaimFilters) {
   return useQuery({
-    queryKey: [CLAIMS_KEY, filters],
+    queryKey: getListClaimsQueryKey(filters),
     queryFn: async () => {
-      const response = await api.get<ClaimData[]>(buildClaimsUrl(filters))
+      const response = await api.get<ClaimData[]>(getListClaimsUrl(filters))
       return {
         data: response.data,
         meta: response.meta as ClaimListMeta,
@@ -48,9 +46,9 @@ export function useClaims(filters: ClaimFilters) {
 
 export function useClaim(id: string) {
   return useQuery({
-    queryKey: [CLAIM_KEY, id],
+    queryKey: getGetClaimQueryKey(id),
     queryFn: async () => {
-      const response = await api.get<ClaimData>(`/api/v1/claims/${id}`)
+      const response = await api.get<ClaimData>(getGetClaimUrl(id))
       return response.data
     },
     staleTime: 60_000,
@@ -62,12 +60,11 @@ export function useCreateClaim() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (values: ClaimFormValues) => {
-      const response = await api.post<ClaimData>('/api/v1/claims', values)
-      return response.data
-    },
+    mutationFn: (values: ClaimFormValues) => createClaim(values),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [CLAIMS_KEY] })
+      queryClient.invalidateQueries({
+        queryKey: getListClaimsQueryKey(),
+      })
       toast.success('Sinistro registrado com sucesso')
     },
     onError: () => {
@@ -80,16 +77,15 @@ export function useUpdateClaimStatus() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: ClaimStatus }) => {
-      const response = await api.post<ClaimData>(
-        `/api/v1/claims/${id}/status`,
-        { status }
-      )
-      return response.data
-    },
+    mutationFn: ({ id, status }: { id: string; status: ClaimStatus }) =>
+      updateClaimStatus(id, { status }),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: [CLAIMS_KEY] })
-      queryClient.invalidateQueries({ queryKey: [CLAIM_KEY, variables.id] })
+      queryClient.invalidateQueries({
+        queryKey: getListClaimsQueryKey(),
+      })
+      queryClient.invalidateQueries({
+        queryKey: getGetClaimQueryKey(variables.id),
+      })
       toast.success('Status do sinistro atualizado com sucesso')
     },
     onError: () => {
@@ -102,11 +98,11 @@ export function useDeleteClaim() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      await api.delete(`/api/v1/claims/${id}`)
-    },
+    mutationFn: (id: string) => deleteClaim(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [CLAIMS_KEY] })
+      queryClient.invalidateQueries({
+        queryKey: getListClaimsQueryKey(),
+      })
       toast.success('Sinistro excluído com sucesso')
     },
     onError: () => {
@@ -117,10 +113,10 @@ export function useDeleteClaim() {
 
 export function useClaimOccurrences(claimId: string) {
   return useQuery({
-    queryKey: [OCCURRENCES_KEY, claimId],
+    queryKey: getListClaimOccurrencesQueryKey(claimId),
     queryFn: async () => {
       const response = await api.get<OccurrenceData[]>(
-        `/api/v1/claims/${claimId}/occurrences`
+        getListClaimOccurrencesUrl(claimId)
       )
       return response.data
     },
@@ -133,7 +129,7 @@ export function useCreateOccurrence() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({
+    mutationFn: ({
       claimId,
       type,
       description,
@@ -142,21 +138,11 @@ export function useCreateOccurrence() {
       claimId: string
       type: string
       description: string
-      metadata?: Record<string, unknown>
-    }) => {
-      const response = await api.post<OccurrenceData>(
-        `/api/v1/claims/${claimId}/occurrences`,
-        {
-          type,
-          description,
-          metadata,
-        }
-      )
-      return response.data
-    },
+      metadata?: CreateClaimOccurrenceBodyMetadata
+    }) => createClaimOccurrence(claimId, { type, description, metadata }),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [OCCURRENCES_KEY, variables.claimId],
+        queryKey: getListClaimOccurrencesQueryKey(variables.claimId),
       })
       toast.success('Ocorrência registrada com sucesso')
     },

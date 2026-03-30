@@ -42,7 +42,7 @@ function extractClientRow(raw: Record<string, unknown>) {
     email: raw['Email'] ? String(raw['Email']) : null,
     telefone: raw['Telefone'] ? String(raw['Telefone']) : null,
     birthDate: birthDate && !isNaN(birthDate.getTime()) ? birthDate : null,
-    profissao: raw['Profissao'] ? String(raw['Profissao']) : null,
+    profissao: raw['Profissão'] ? String(raw['Profissão']) : null,
     estadoCivil:
       estadoCivil && MARITAL_STATUSES.has(estadoCivil)
         ? (estadoCivil as

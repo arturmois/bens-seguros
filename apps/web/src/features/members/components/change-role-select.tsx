@@ -10,12 +10,20 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
+import type { UpdateMemberRoleBodyRole } from '@/api/model'
+
 import { useChangeMemberRole } from '../hooks/use-members'
 import {
   ASSIGNABLE_ROLES,
   getRoleLevel,
   ROLE_LABELS,
 } from '../lib/member-schemas'
+
+const VALID_ROLES: ReadonlySet<string> = new Set<string>(ASSIGNABLE_ROLES)
+
+function isValidRole(value: string): value is UpdateMemberRoleBodyRole {
+  return VALID_ROLES.has(value)
+}
 
 interface ChangeRoleSelectProps {
   readonly memberId: string
@@ -38,6 +46,7 @@ export function ChangeRoleSelect({
 
   function handleRoleChange(value: string | null) {
     if (!value || value === currentRole) return
+    if (!isValidRole(value)) return
     changeMemberRole.mutate({ id: memberId, role: value })
   }
 

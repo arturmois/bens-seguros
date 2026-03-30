@@ -5,7 +5,12 @@ import {
   CURRENT_TERMS_VERSION,
   CURRENT_PRIVACY_VERSION,
 } from '@repo/core/legal'
+
 import { api } from '@/lib/api-client'
+import {
+  getGetTermsStatusQueryKey,
+  acceptTerms,
+} from '@/api/endpoints/terms/terms'
 
 interface TermsStatusData {
   needsReAccept: boolean
@@ -15,39 +20,30 @@ interface TermsStatusData {
   userPrivacyVersion: string | null
 }
 
-interface AcceptTermsResult {
-  termsVersion: string
-  privacyVersion: string
-  acceptedAt: string
-}
-
-async function fetchTermsStatus(): Promise<TermsStatusData> {
-  const response = await api.get<TermsStatusData>('/api/terms/status')
-  return response.data
-}
-
-async function acceptTerms(): Promise<AcceptTermsResult> {
-  const response = await api.post<AcceptTermsResult>('/api/terms/accept', {
-    termsVersion: CURRENT_TERMS_VERSION,
-    privacyVersion: CURRENT_PRIVACY_VERSION,
-  })
-  return response.data
-}
-
 export function useTermsAcceptance() {
   const queryClient = useQueryClient()
 
   const status = useQuery({
-    queryKey: ['terms', 'status'],
-    queryFn: fetchTermsStatus,
+    queryKey: getGetTermsStatusQueryKey(),
+    queryFn: async () => {
+      const response = await api.get<TermsStatusData>('/api/terms/status')
+      return response.data
+    },
     staleTime: 60_000,
     retry: false,
   })
 
   const accept = useMutation({
-    mutationFn: acceptTerms,
+    mutationFn: async () => {
+      return acceptTerms({
+        termsVersion: CURRENT_TERMS_VERSION,
+        privacyVersion: CURRENT_PRIVACY_VERSION,
+      })
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['terms', 'status'] })
+      queryClient.invalidateQueries({
+        queryKey: getGetTermsStatusQueryKey(),
+      })
     },
   })
 
