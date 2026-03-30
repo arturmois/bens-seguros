@@ -4,6 +4,12 @@ import { prisma } from '@repo/db'
 import pino from 'pino'
 import type { CsvImportJobData, CsvImportProgress } from '@repo/core'
 import { IMPORT_BATCH_SIZE, MAX_IMPORT_ERRORS } from '@repo/core'
+import {
+  hashDocument,
+  maskDocument,
+  encrypt,
+  getEncryptionKey,
+} from '@repo/shared'
 
 const logger = pino({ name: 'csv-import-processor' })
 const QUEUE_NAME = 'csv-import'
@@ -88,13 +94,20 @@ async function processClientBatch(
   progress: CsvImportProgress,
   batchStartIndex: number
 ): Promise<void> {
+  const encryptionKey = getEncryptionKey()
   const mappedData = batch.map((raw) => {
     const row = extractClientRow(raw)
+    const rawDocument = row.cpfCnpj
+    const masked = maskDocument(rawDocument)
+    const hash = hashDocument(rawDocument)
+    const encrypted = encrypt(rawDocument, encryptionKey)
 
     return {
       organizationId,
       name: row.nome,
-      document: row.cpfCnpj,
+      document: masked,
+      documentEncrypted: JSON.stringify(encrypted),
+      documentHash: hash,
       type: row.tipo,
       email: row.email,
       phone: row.telefone,
@@ -148,11 +161,12 @@ async function processPolicyBatch(
     const row = extractPolicyRow(raw)
 
     try {
-      // Look up client by document
+      // Look up client by documentHash (document column stores masked value)
+      const clientHash = hashDocument(row.cpfCnpjCliente)
       const client = await prisma.client.findFirst({
         where: {
           organizationId,
-          document: row.cpfCnpjCliente,
+          documentHash: clientHash,
           deletedAt: null,
         },
         select: { id: true },

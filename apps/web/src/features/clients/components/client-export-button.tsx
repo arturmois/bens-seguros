@@ -24,7 +24,7 @@ export function ClientExportButton({ filters }: ClientExportButtonProps) {
         'clientes.csv'
       )
     },
-    onSuccess: () => toast.success('Exportacao concluida'),
+    onSuccess: () => toast.success('Exportação concluída'),
     onError: () => toast.error('Erro ao exportar clientes'),
   })
 

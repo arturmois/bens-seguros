@@ -1,3 +1,4 @@
+import { Readable } from 'node:stream'
 import { container, ExportCommissionsCsv } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
@@ -30,18 +31,12 @@ export async function exportCommissionsRoute(app: FastifyInstance) {
         dateTo,
       })
 
-      reply.raw.writeHead(200, {
-        'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': 'attachment; filename="comissoes.csv"',
-        'Transfer-Encoding': 'chunked',
-      })
+      const readable = Readable.from(stream)
 
-      for await (const chunk of stream) {
-        reply.raw.write(chunk)
-      }
-
-      reply.raw.end()
       return reply
+        .header('Content-Type', 'text/csv; charset=utf-8')
+        .header('Content-Disposition', 'attachment; filename="comissoes.csv"')
+        .send(readable)
     },
   })
 }

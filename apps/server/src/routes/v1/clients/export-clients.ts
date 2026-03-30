@@ -1,3 +1,4 @@
+import { Readable } from 'node:stream'
 import { container, ExportClientsCsv } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
@@ -19,24 +20,18 @@ export function exportClientsRoute(app: FastifyInstance) {
     handler: async (request, reply) => {
       const { type, search } = request.query
       const useCase = container.resolve(ExportClientsCsv)
-      const stream = useCase.generateCsvRows({
+      const csvGenerator = useCase.generateCsvRows({
         organizationId: request.organizationId!,
         type,
         search,
       })
 
-      reply.raw.writeHead(200, {
-        'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': 'attachment; filename="clientes.csv"',
-        'Transfer-Encoding': 'chunked',
-      })
+      const readable = Readable.from(csvGenerator)
 
-      for await (const chunk of stream) {
-        reply.raw.write(chunk)
-      }
-
-      reply.raw.end()
       return reply
+        .header('Content-Type', 'text/csv; charset=utf-8')
+        .header('Content-Disposition', 'attachment; filename="clientes.csv"')
+        .send(readable)
     },
   })
 }

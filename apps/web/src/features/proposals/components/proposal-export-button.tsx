@@ -33,7 +33,7 @@ export function ProposalExportButton({ filters }: ProposalExportButtonProps) {
         'propostas.csv'
       )
     },
-    onSuccess: () => toast.success('Exportacao concluida'),
+    onSuccess: () => toast.success('Exportação concluída'),
     onError: () => toast.error('Erro ao exportar propostas'),
   })
 

@@ -54,7 +54,7 @@ export class ExportClientsCsv {
           c.profession ?? '',
           c.maritalStatus ?? '',
           c.tags.join(';'),
-          c.consentLgpd ? 'Sim' : 'Nao',
+          c.consentLgpd ? 'Sim' : 'Não',
           c.createdAt.toISOString(),
         ]) + '\n'
       }

@@ -13,6 +13,7 @@
     "@repo/core": "workspace:*",
     "@repo/db": "workspace:*",
     "@repo/env": "workspace:*",
+    "@repo/shared": "workspace:*",
     "bullmq": "^5.70.0",
     "ioredis": "^5.4.0",
     "reflect-metadata": "^0.2.0",

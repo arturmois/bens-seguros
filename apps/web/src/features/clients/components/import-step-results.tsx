@@ -29,7 +29,7 @@ export function ImportStepResults({ status, onClose }: ImportStepResultsProps) {
           <CheckCircle2 className="h-5 w-5 text-green-500" />
         )}
         <span className="text-sm font-medium">
-          {isFailed ? 'Importacao falhou' : 'Importacao concluida'}
+          {isFailed ? 'Importação falhou' : 'Importação concluída'}
         </span>
       </div>
 
