@@ -28,3 +28,24 @@ export function documentMask(value: string): {
   }
   return CPF_MASK
 }
+
+export function formatDocument(raw: string): string {
+  const digits = raw.replace(/\D/g, '').slice(0, 14)
+  if (digits.length <= 11) {
+    // CPF: 000.000.000-00
+    return digits
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+  }
+  // CNPJ: 00.000.000/0000-00
+  return digits
+    .replace(/(\d{2})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1/$2')
+    .replace(/(\d{4})(\d{1,2})$/, '$1-$2')
+}
+
+export function stripDocument(formatted: string): string {
+  return formatted.replace(/\D/g, '').slice(0, 14)
+}

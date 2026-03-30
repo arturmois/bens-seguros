@@ -31,6 +31,7 @@ import {
   BRANCHES,
 } from '../lib/constants'
 import { ClientSearch } from './client-search'
+import { PolicySearch } from './policy-search'
 
 type ProposalFormValues = z.infer<typeof CreateProposalBody>
 
@@ -58,6 +59,8 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
       clientId: '',
     },
   })
+
+  const boardType = form.watch('boardType')
 
   const handleSubmit = (values: ProposalFormValues) => {
     createMutation.mutate(values, {
@@ -167,6 +170,27 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
               </div>
             )}
           />
+
+          {boardType === 'RENEWAL' && (
+            <Controller
+              control={form.control}
+              name="renewalPolicyId"
+              render={({ field, fieldState }) => (
+                <div className="space-y-2">
+                  <Label>Apólice sendo renovada</Label>
+                  <PolicySearch
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                  />
+                  {fieldState.error?.message ? (
+                    <p className="text-destructive text-sm">
+                      {fieldState.error.message}
+                    </p>
+                  ) : null}
+                </div>
+              )}
+            />
+          )}
 
           <div className="flex justify-end gap-2 pt-2">
             <Button

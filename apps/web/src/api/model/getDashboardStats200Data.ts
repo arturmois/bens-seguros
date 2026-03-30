@@ -18,6 +18,7 @@ export type GetDashboardStats200Data = {
   proposalsByStage: GetDashboardStats200DataProposalsByStageItem[]
   activePolicies: number
   expiringPolicies: number
+  renewalsNext7Days: number
   claimsByPriority: GetDashboardStats200DataClaimsByPriorityItem[]
   commissionsThisMonth: GetDashboardStats200DataCommissionsThisMonthItem[]
   conversionRate: GetDashboardStats200DataConversionRate

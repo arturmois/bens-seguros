@@ -70,6 +70,7 @@ const dashboardDataSchema = z.object({
   proposalsByStage: z.array(proposalByStageSchema).readonly(),
   activePolicies: z.number(),
   expiringPolicies: z.number(),
+  renewalsNext7Days: z.number(),
   claimsByPriority: z.array(claimByPrioritySchema).readonly(),
   commissionsThisMonth: z.array(commissionByStatusSchema).readonly(),
   conversionRate: conversionRateSchema,

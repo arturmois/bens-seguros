@@ -25,6 +25,7 @@ import {
 } from '../lib/constants'
 import { InsuredObjectSection } from './insured-object-section'
 import { IssuePolicyCard } from './issue-policy-card'
+import { RenewalPolicyCard } from './renewal-policy-card'
 import { LostReasonDialog } from './lost-reason-dialog'
 import { ProposalChecklistPanel } from './proposal-checklist-panel'
 import { DetailSkeleton, InfoItem } from './proposal-detail-helpers'
@@ -188,6 +189,10 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
           proposalId={proposalId}
           policyId={existingPolicy?.id}
         />
+      )}
+
+      {proposal.renewalPolicyId && (
+        <RenewalPolicyCard policyId={proposal.renewalPolicyId} />
       )}
 
       <Separator />

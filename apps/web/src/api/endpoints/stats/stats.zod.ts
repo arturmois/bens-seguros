@@ -28,6 +28,7 @@ export const GetDashboardStatsResponse = zod.object({
     ),
     activePolicies: zod.number(),
     expiringPolicies: zod.number(),
+    renewalsNext7Days: zod.number(),
     claimsByPriority: zod.array(
       zod.object({
         priority: zod.string(),

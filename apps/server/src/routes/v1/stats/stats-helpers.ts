@@ -24,6 +24,7 @@ interface DateRange {
   readonly previousTo: Date
   readonly now: Date
   readonly thirtyDaysFromNow: Date
+  readonly sevenDaysFromNow: Date
 }
 
 interface MetricComparison {
@@ -72,6 +73,7 @@ export interface DashboardData {
   readonly proposalsByStage: readonly ProposalByStage[]
   readonly activePolicies: number
   readonly expiringPolicies: number
+  readonly renewalsNext7Days: number
   readonly claimsByPriority: readonly ClaimByPriority[]
   readonly commissionsThisMonth: readonly CommissionByStatus[]
   readonly conversionRate: ConversionRate
@@ -95,11 +97,19 @@ function buildDateRanges(preset: DashboardPreset): DateRange {
   const previousFrom = new Date(now.getTime() - 2 * days * 24 * 60 * 60 * 1000)
   const previousTo = currentFrom
   const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
-  return { currentFrom, previousFrom, previousTo, now, thirtyDaysFromNow }
+  const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+  return {
+    currentFrom,
+    previousFrom,
+    previousTo,
+    now,
+    thirtyDaysFromNow,
+    sevenDaysFromNow,
+  }
 }
 
 async function fetchChartData(orgId: string, ranges: DateRange, db: DbClient) {
-  const { currentFrom, thirtyDaysFromNow, now } = ranges
+  const { currentFrom, thirtyDaysFromNow, sevenDaysFromNow, now } = ranges
   return Promise.all([
     db.proposal.groupBy({
       by: ['stage'],
@@ -175,6 +185,14 @@ async function fetchChartData(orgId: string, ranges: DateRange, db: DbClient) {
       GROUP BY DATE_TRUNC('month', "createdAt")
       ORDER BY month
     `,
+    db.policy.count({
+      where: {
+        organizationId: orgId,
+        status: 'ACTIVE',
+        endDate: { lte: sevenDaysFromNow, gte: now },
+        deletedAt: null,
+      },
+    }),
   ])
 }
 
@@ -419,12 +437,14 @@ export async function buildDashboardData(
     commissionsThisMonth,
     conversionRate,
     monthlyTrends,
+    renewalsNext7Days,
   ] = chartResults
 
   return {
     proposalsByStage,
     activePolicies,
     expiringPolicies,
+    renewalsNext7Days,
     claimsByPriority,
     commissionsThisMonth,
     conversionRate,

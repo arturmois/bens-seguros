@@ -1,6 +1,12 @@
 'use client'
 
-import { FileText, Shield, AlertTriangle, DollarSign } from 'lucide-react'
+import {
+  FileText,
+  Shield,
+  AlertTriangle,
+  DollarSign,
+  RefreshCw,
+} from 'lucide-react'
 
 import { formatCurrency } from '@/lib/formatters'
 
@@ -29,7 +35,7 @@ export function StatsCards({ data, isLoading }: StatsCardsProps) {
     : 0
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
       <ComparisonStatCard
         title="Propostas ativas"
         value={activeProposals}
@@ -56,6 +62,12 @@ export function StatsCards({ data, isLoading }: StatsCardsProps) {
         value={formatCurrency(pendingCommissions)}
         icon={<DollarSign className="size-5" />}
         comparison={data?.comparison.commissionsPending}
+        isLoading={isLoading}
+      />
+      <ComparisonStatCard
+        title="Renovações em 7 dias"
+        value={data?.renewalsNext7Days ?? 0}
+        icon={<RefreshCw className="size-5" />}
         isLoading={isLoading}
       />
     </div>

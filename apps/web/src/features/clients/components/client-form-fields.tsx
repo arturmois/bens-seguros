@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { documentMask, PHONE_MASK } from '@/lib/masks'
+import { formatDocument, stripDocument, PHONE_MASK } from '@/lib/masks'
 
 import type { z } from 'zod'
 
@@ -69,13 +69,17 @@ export function ClientFormFields({ form, isReadOnly }: ClientFormFieldsProps) {
           name="document"
           control={form.control}
           render={({ field }) => (
-            <InputMask
-              component={Input}
-              mask={documentMask(field.value ?? '').mask}
-              replacement={documentMask(field.value ?? '').replacement}
+            <Input
               placeholder="000.000.000-00"
               disabled={isReadOnly}
-              {...field}
+              value={formatDocument(field.value ?? '')}
+              onChange={(e) => {
+                const raw = stripDocument(e.target.value)
+                field.onChange(raw)
+              }}
+              onBlur={field.onBlur}
+              name={field.name}
+              ref={field.ref}
             />
           )}
         />

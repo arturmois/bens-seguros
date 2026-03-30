@@ -10,7 +10,11 @@ export const VEHICLE_USAGE_OPTIONS = [
   { value: '', label: 'Selecione' },
   { value: 'Particular', label: 'Particular' },
   { value: 'Comercial', label: 'Comercial' },
-  { value: 'Taxi', label: 'Taxi' },
+  { value: 'Taxi', label: 'Táxi' },
+  {
+    value: 'Motorista de Aplicativo',
+    label: 'Motorista de Aplicativo (99, Uber)',
+  },
 ] as const
 
 export const PROPERTY_TYPE_OPTIONS = [
