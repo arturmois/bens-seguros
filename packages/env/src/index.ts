@@ -24,7 +24,6 @@ export const env = createEnv({
     R2_ACCESS_KEY_ID: z.string().optional(),
     R2_SECRET_ACCESS_KEY: z.string().optional(),
     R2_BUCKET_NAME: z.string().default('bens-seguros'),
-    R2_PUBLIC_URL: z.string().url().optional(),
     ANTHROPIC_API_KEY: z.string().optional(),
     OPENAI_API_KEY: z.string().optional(),
     RESEND_API_KEY: z.string().optional(),
@@ -34,7 +33,6 @@ export const env = createEnv({
     SENTRY_DSN: z.string().url().optional(),
     COOKIE_DOMAIN: z.string().optional(),
     META_WEBHOOK_VERIFY_TOKEN: z.string().optional(),
-    META_WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
     STORAGE_PROVIDER: z.enum(['local', 'r2']).default('local'),
     // SEC-1: PII encryption key — hex-encoded 32-byte key (64 hex chars)
     // Required: all-zeros default removed to prevent trivial decryption of PII
@@ -45,14 +43,22 @@ export const env = createEnv({
       .string()
       .min(32, 'HMAC_KEY must be at least 32 characters')
       .optional(),
-    // Comma-separated list of extra allowed CORS origins (e.g. staging, mobile preview)
-    CORS_ORIGINS: z.string().optional(),
     // Internal API for lead capture from AI bot
     INTERNAL_API_URL: z.string().url().optional(),
     INTERNAL_API_SECRET: z
       .string()
       .min(32, 'INTERNAL_API_SECRET must be at least 32 characters')
       .optional(),
+    // Deployment: runtime port/host (platforms like Railway/Render set PORT automatically)
+    PORT: z.coerce.number().int().positive().optional(),
+    HOST: z.string().default('0.0.0.0'),
+    // Chat-server: path to widget dist directory for static serving
+    WIDGET_DIST_PATH: z.string().optional(),
+    // Chat-worker: Baileys WhatsApp session storage
+    BAILEYS_SESSIONS_DIR: z.string().default('./baileys-sessions'),
+    BAILEYS_LOG_LEVEL: z
+      .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
+      .default('warn'),
   },
   clientPrefix: 'NEXT_PUBLIC_',
   client: {

@@ -58,6 +58,7 @@ export interface CreateDocumentInput {
 
 export interface DocumentRepository {
   create(data: CreateDocumentInput): Promise<DocumentData>
+  upsertByStorageKey(data: CreateDocumentInput): Promise<DocumentData>
   findById(id: string, organizationId: string): Promise<DocumentData | null>
   findByEntity(
     entityType: DocumentEntityType,

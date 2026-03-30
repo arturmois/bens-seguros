@@ -101,7 +101,7 @@ export function generatePolicyPdfRoute(app: FastifyInstance) {
       const storageKey = `organizations/${organizationId}/policies/${request.params.id}/apolice.pdf`
       await storage.upload(storageKey, buffer, 'application/pdf')
 
-      await documentRepo.create({
+      await documentRepo.upsertByStorageKey({
         organizationId,
         entityType: 'POLICY',
         entityId: request.params.id,

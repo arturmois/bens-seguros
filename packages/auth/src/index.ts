@@ -1,4 +1,5 @@
 import { prisma } from '@repo/db'
+import { env } from '@repo/env'
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { organization } from 'better-auth/plugins'
@@ -41,7 +42,7 @@ export function createAuth(
   trustedOrigins: string[],
   cookieDomain?: string
 ) {
-  const isProduction = process.env.NODE_ENV === 'production'
+  const isProduction = env.NODE_ENV === 'production'
 
   return betterAuth({
     database: prismaAdapter(prisma, { provider: 'postgresql' }),

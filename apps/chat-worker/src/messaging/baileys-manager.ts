@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 
 import pino from 'pino'
 import { Channel } from '@repo/db-chat'
+import { env } from '@repo/env'
 import { CHAT_LIMITS } from '@repo/shared'
 
 import { BaileysBroker } from './baileys-broker.js'
@@ -17,7 +18,7 @@ const logger = pino({ level: 'info' }).child({ module: 'baileys-manager' })
 
 const connections = new Map<string, ManagedConnection>()
 
-const SESSIONS_DIR = process.env['BAILEYS_SESSIONS_DIR'] ?? './baileys-sessions'
+const SESSIONS_DIR = env.BAILEYS_SESSIONS_DIR
 
 export async function cleanupSession(channelId: string): Promise<void> {
   const sessionPath = resolve(SESSIONS_DIR, channelId)

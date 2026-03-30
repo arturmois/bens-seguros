@@ -1,4 +1,5 @@
 import { Message } from '@repo/db-chat'
+import { env } from '@repo/env'
 import makeWASocket, {
   type ConnectionState,
   type WAMessageKey,
@@ -40,7 +41,7 @@ export class BaileysBroker implements Broker {
   private reconnectAttempts = 0
   private readonly maxReconnectAttempts = 20
   private readonly logger = pino({
-    level: process.env['BAILEYS_LOG_LEVEL'] ?? 'warn',
+    level: env.BAILEYS_LOG_LEVEL,
   })
 
   /**

@@ -1,12 +1,12 @@
 import { PrismaClient } from '../generated/client/client.js'
 import { PrismaPg } from '@prisma/adapter-pg'
+import { env } from '@repo/env'
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
 
 function createPrismaClient(): PrismaClient {
-  const connectionString = process.env.DATABASE_URL
   const adapter = new PrismaPg({
-    connectionString,
+    connectionString: env.DATABASE_URL,
     max: 20,
     idleTimeoutMillis: 30_000,
   })
@@ -15,7 +15,7 @@ function createPrismaClient(): PrismaClient {
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient()
 
-if (process.env.NODE_ENV !== 'production') {
+if (env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma
 }
 

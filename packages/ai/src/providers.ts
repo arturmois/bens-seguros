@@ -1,8 +1,12 @@
-import { anthropic } from '@ai-sdk/anthropic'
-import { openai } from '@ai-sdk/openai'
+import { createAnthropic } from '@ai-sdk/anthropic'
+import { createOpenAI } from '@ai-sdk/openai'
+import { env } from '@repo/env'
 import type { AIProvider } from './types.js'
 
-export function getModel(provider: AIProvider = 'claude') {
+const anthropic = createAnthropic({ apiKey: env.ANTHROPIC_API_KEY })
+const openai = createOpenAI({ apiKey: env.OPENAI_API_KEY })
+
+export function getModel(provider: AIProvider = 'openai') {
   switch (provider) {
     case 'claude':
       return anthropic('claude-sonnet-4-20250514')

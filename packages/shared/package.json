@@ -15,6 +15,7 @@
     "test:watch": "vitest watch"
   },
   "dependencies": {
+    "@repo/env": "workspace:*",
     "zod": "^3.24.0"
   },
   "devDependencies": {

@@ -81,7 +81,7 @@ export function exportDashboardPdfRoute(app: FastifyInstance) {
 
       const documentRepo =
         container.resolve<DocumentRepository>('DocumentRepository')
-      await documentRepo.create({
+      await documentRepo.upsertByStorageKey({
         organizationId: orgId,
         entityType: 'CLIENT',
         entityId: orgId,

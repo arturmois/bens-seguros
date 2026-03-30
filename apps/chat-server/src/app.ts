@@ -66,12 +66,7 @@ export async function buildChatApp(
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
 
-  const allowedOrigins = new Set([
-    env.FRONTEND_URL,
-    ...(env.CORS_ORIGINS?.split(',')
-      .map((o) => o.trim())
-      .filter(Boolean) ?? []),
-  ])
+  const allowedOrigins = new Set([env.FRONTEND_URL])
 
   // Use per-request CORS delegate so we can inspect the URL.
   // Widget routes accept any origin (validated per-channel in the route handler).
@@ -158,8 +153,7 @@ export async function buildChatApp(
   // Widget static assets — SPA served at /widget-app/, embed.js at /widget/embed.js
   const currentDir = path.dirname(fileURLToPath(import.meta.url))
   const widgetDistPath =
-    process.env['WIDGET_DIST_PATH'] ??
-    path.resolve(currentDir, '../../widget/dist')
+    env.WIDGET_DIST_PATH ?? path.resolve(currentDir, '../../widget/dist')
 
   const widgetDistExists = existsSync(widgetDistPath)
   if (widgetDistExists) {

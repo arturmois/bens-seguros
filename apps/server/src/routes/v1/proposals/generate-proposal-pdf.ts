@@ -99,7 +99,7 @@ export function generateProposalPdfRoute(app: FastifyInstance) {
       const storageKey = `organizations/${organizationId}/proposals/${id}/cotacao.pdf`
       await storage.upload(storageKey, buffer, 'application/pdf')
 
-      await documentRepo.create({
+      await documentRepo.upsertByStorageKey({
         organizationId,
         entityType: 'PROPOSAL',
         entityId: id,

@@ -4,6 +4,7 @@ import {
   createHmac,
   randomBytes,
 } from 'node:crypto'
+import { env } from '@repo/env'
 
 const ALGORITHM = 'aes-256-gcm'
 const IV_LENGTH = 12
@@ -16,14 +17,7 @@ export interface EncryptedField {
 }
 
 export function getEncryptionKey(): Buffer {
-  const keyHex = process.env.ENCRYPTION_KEY ?? ''
-  const key = Buffer.from(keyHex, 'hex')
-  if (key.length !== 32) {
-    throw new Error(
-      `ENCRYPTION_KEY must decode to exactly 32 bytes (got ${key.length}). Provide a 64-character hex string.`
-    )
-  }
-  return key
+  return Buffer.from(env.ENCRYPTION_KEY, 'hex')
 }
 
 export function encrypt(plaintext: string, key: Buffer): EncryptedField {
@@ -70,8 +64,9 @@ export function stripNonDigits(value: string): string {
 
 export function hashDocument(document: string): string {
   const digits = stripNonDigits(document)
-  const hmacKeyRaw = process.env.HMAC_KEY
-  const key = hmacKeyRaw ? Buffer.from(hmacKeyRaw, 'utf8') : getEncryptionKey()
+  const key = env.HMAC_KEY
+    ? Buffer.from(env.HMAC_KEY, 'utf8')
+    : getEncryptionKey()
   return createHmac('sha256', key).update(digits).digest('hex')
 }
 

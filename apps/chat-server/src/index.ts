@@ -74,8 +74,8 @@ const start = async (): Promise<void> => {
   const subscriber = new RedisSubscriber(redisSubscriber, io, logger)
   await subscriber.subscribe()
 
-  const port = Number(process.env.PORT ?? 3002)
-  const host = '0.0.0.0'
+  const port = env.PORT ?? 3002
+  const host = env.HOST
 
   await app.listen({ port, host })
   logger.info({ port, host }, 'Chat server running')

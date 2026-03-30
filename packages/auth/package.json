@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@repo/db": "workspace:*",
+    "@repo/env": "workspace:*",
     "better-auth": "^1.0.0",
     "@casl/ability": "^6.7.0",
     "zod": "^3.24.0"

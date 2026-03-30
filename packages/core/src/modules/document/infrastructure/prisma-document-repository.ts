@@ -33,6 +33,33 @@ export class PrismaDocumentRepository implements DocumentRepository {
     return DocumentMapper.toDomain(row)
   }
 
+  async upsertByStorageKey(data: CreateDocumentInput): Promise<DocumentData> {
+    const row = await this.prisma.document.upsert({
+      where: { storageKey: data.storageKey },
+      create: {
+        organizationId: data.organizationId,
+        entityType: data.entityType,
+        entityId: data.entityId,
+        clientId: data.clientId ?? null,
+        type: data.type ?? 'OTHER',
+        fileName: data.fileName,
+        mimeType: data.mimeType,
+        sizeBytes: data.sizeBytes,
+        storageKey: data.storageKey,
+        url: data.url ?? null,
+        createdBy: data.createdBy ?? null,
+      },
+      update: {
+        fileName: data.fileName,
+        mimeType: data.mimeType,
+        sizeBytes: data.sizeBytes,
+        createdBy: data.createdBy ?? null,
+      },
+    })
+
+    return DocumentMapper.toDomain(row)
+  }
+
   async findById(
     id: string,
     organizationId: string
