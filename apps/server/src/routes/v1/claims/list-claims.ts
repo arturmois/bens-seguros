@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { listClaimsQuerySchema } from './_schemas.js'
+import { listClaimsQuerySchema, claimListResponse } from './_schemas.js'
 
 export function listClaimsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -14,6 +14,7 @@ export function listClaimsRoute(app: FastifyInstance) {
       summary: 'List claims with pagination and filters',
       operationId: 'listClaims',
       querystring: listClaimsQuerySchema,
+      response: { 200: claimListResponse },
     },
     preHandler: [requireAbility('read', 'Claim')],
     handler: async (request, reply) => {

@@ -1,14 +1,4 @@
 import { ROLE_HIERARCHY } from '@repo/auth/roles'
-import { z } from 'zod'
-
-export const inviteMemberSchema = z.object({
-  email: z.string().email('Email inválido'),
-  role: z.enum(['ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'], {
-    required_error: 'Selecione um cargo',
-  }),
-})
-
-export type InviteMemberFormValues = z.infer<typeof inviteMemberSchema>
 
 export const ROLE_LABELS: Record<string, string> = {
   OWNER: 'Proprietário',

@@ -29,10 +29,41 @@ export const ExportPoliciesQueryParams = zod.object({
 })
 
 /**
+ * @summary Upload and parse a policy CSV for import preview
+ */
+export const ImportUploadPoliciesResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    jobId: zod.string().uuid(),
+    preview: zod.array(zod.record(zod.string(), zod.string())),
+    validationSummary: zod.object({
+      total: zod.number(),
+      valid: zod.number(),
+      invalid: zod.number(),
+      errors: zod.array(
+        zod.object({
+          row: zod.number(),
+          field: zod.string(),
+          message: zod.string(),
+          value: zod.string().optional(),
+        })
+      ),
+    }),
+  }),
+})
+
+/**
  * @summary Confirm and enqueue a staged policy import job
  */
 export const ImportConfirmPoliciesParams = zod.object({
   jobId: zod.string().uuid(),
+})
+
+export const ImportConfirmPoliciesResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    jobId: zod.string().uuid(),
+  }),
 })
 
 /**
@@ -40,6 +71,14 @@ export const ImportConfirmPoliciesParams = zod.object({
  */
 export const ImportStatusPoliciesParams = zod.object({
   jobId: zod.string().uuid(),
+})
+
+export const ImportStatusPoliciesResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    status: zod.enum(['active', 'completed', 'failed', 'waiting', 'not_found']),
+    progress: zod.record(zod.string(), zod.unknown()).nullable(),
+  }),
 })
 
 /**
@@ -54,6 +93,14 @@ export const GeneratePolicyPdfQueryParams = zod.object({
   force: zod.string().optional(),
 })
 
+export const GeneratePolicyPdfResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    url: zod.string(),
+    cached: zod.boolean(),
+  }),
+})
+
 /**
  * @summary Cancel an active policy
  */
@@ -64,6 +111,40 @@ export const CancelPolicyParams = zod.object({
 
 export const CancelPolicyBody = zod.object({
   reason: zod.string().min(1),
+})
+
+export const CancelPolicyResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    proposalId: zod.string(),
+    clientId: zod.string(),
+    salespersonId: zod.string(),
+    policyNumber: zod.string(),
+    status: zod.enum(['ACTIVE', 'CANCELLED', 'EXPIRED']),
+    branch: zod.enum([
+      'AUTO',
+      'RESIDENTIAL',
+      'CONDOMINIUM',
+      'BUSINESS',
+      'LIFE',
+      'OTHER',
+    ]),
+    premiumValueInCents: zod.number(),
+    coverageDetails: zod.record(zod.string(), zod.unknown()).nullable(),
+    startDate: zod.string().datetime({}),
+    endDate: zod.string().datetime({}),
+    cancelledAt: zod.string().datetime({}).nullable(),
+    cancelReason: zod.string().nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    clientName: zod.string().optional(),
+    clientDocument: zod.string().optional(),
+    salespersonName: zod.string().optional(),
+    insurerName: zod.string().optional(),
+    proposalIdentifier: zod.string().optional(),
+  }),
 })
 
 /**
@@ -100,10 +181,83 @@ export const ListPoliciesQueryParams = zod.object({
   search: zod.string().optional(),
 })
 
+export const ListPoliciesResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      organizationId: zod.string(),
+      proposalId: zod.string(),
+      clientId: zod.string(),
+      salespersonId: zod.string(),
+      policyNumber: zod.string(),
+      status: zod.enum(['ACTIVE', 'CANCELLED', 'EXPIRED']),
+      branch: zod.enum([
+        'AUTO',
+        'RESIDENTIAL',
+        'CONDOMINIUM',
+        'BUSINESS',
+        'LIFE',
+        'OTHER',
+      ]),
+      premiumValueInCents: zod.number(),
+      coverageDetails: zod.record(zod.string(), zod.unknown()).nullable(),
+      startDate: zod.string().datetime({}),
+      endDate: zod.string().datetime({}),
+      cancelledAt: zod.string().datetime({}).nullable(),
+      cancelReason: zod.string().nullable(),
+      createdAt: zod.string().datetime({}),
+      updatedAt: zod.string().datetime({}),
+      clientName: zod.string().optional(),
+      clientDocument: zod.string().optional(),
+      salespersonName: zod.string().optional(),
+      insurerName: zod.string().optional(),
+      proposalIdentifier: zod.string().optional(),
+    })
+  ),
+  meta: zod.object({
+    nextCursor: zod.string().nullable(),
+  }),
+})
+
 /**
  * @summary Get a single policy by ID
  */
 
 export const GetPolicyParams = zod.object({
   id: zod.string().min(1),
+})
+
+export const GetPolicyResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    proposalId: zod.string(),
+    clientId: zod.string(),
+    salespersonId: zod.string(),
+    policyNumber: zod.string(),
+    status: zod.enum(['ACTIVE', 'CANCELLED', 'EXPIRED']),
+    branch: zod.enum([
+      'AUTO',
+      'RESIDENTIAL',
+      'CONDOMINIUM',
+      'BUSINESS',
+      'LIFE',
+      'OTHER',
+    ]),
+    premiumValueInCents: zod.number(),
+    coverageDetails: zod.record(zod.string(), zod.unknown()).nullable(),
+    startDate: zod.string().datetime({}),
+    endDate: zod.string().datetime({}),
+    cancelledAt: zod.string().datetime({}).nullable(),
+    cancelReason: zod.string().nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    clientName: zod.string().optional(),
+    clientDocument: zod.string().optional(),
+    salespersonName: zod.string().optional(),
+    insurerName: zod.string().optional(),
+    proposalIdentifier: zod.string().optional(),
+  }),
 })

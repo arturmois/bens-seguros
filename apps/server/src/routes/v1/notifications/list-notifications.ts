@@ -2,7 +2,10 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { container, ListNotifications } from '@repo/core'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { listNotificationsQuerySchema } from './_schemas.js'
+import {
+  listNotificationsQuerySchema,
+  notificationListResponse,
+} from './_schemas.js'
 
 export function listNotificationsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -13,6 +16,7 @@ export function listNotificationsRoute(app: FastifyInstance) {
       tags: ['Notifications'],
       summary: 'List notifications with cursor pagination',
       querystring: listNotificationsQuerySchema,
+      response: { 200: notificationListResponse },
     },
     preHandler: [requireAbility('read', 'Notification')],
     handler: async (request, reply) => {

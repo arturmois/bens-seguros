@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { useDebounce } from '@/hooks/use-debounce'
 import { api } from '@/lib/api-client'
 
-import type { PolicyData } from '@/features/policies/types'
+import type { PolicyData } from '@/features/policies/lib/constants'
 
 const BRANCH_LABELS: Record<string, string> = {
   AUTO: 'Auto',

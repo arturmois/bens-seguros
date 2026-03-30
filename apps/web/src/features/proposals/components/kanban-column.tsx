@@ -11,8 +11,8 @@ import {
   type KanbanFilters,
   useKanbanProposalsByStage,
 } from '../hooks/use-kanban-proposals'
-import type { ProposalData, ProposalStage } from '../types'
-import { STAGE_LABELS } from '../types'
+import type { ProposalData, ProposalStage } from '../lib/constants'
+import { STAGE_LABELS } from '../lib/constants'
 import { KanbanCardDraggable } from './kanban-card-draggable'
 
 const STAGE_COLORS: Record<ProposalStage, string> = {

@@ -5,7 +5,10 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditCreate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { createAssistanceBodySchema } from './_schemas.js'
+import {
+  createAssistanceBodySchema,
+  assistanceDetailResponse,
+} from './_schemas.js'
 
 export function createAssistanceRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -16,6 +19,7 @@ export function createAssistanceRoute(app: FastifyInstance) {
       tags: ['Assistances'],
       summary: 'Create a new assistance request',
       body: createAssistanceBodySchema,
+      response: { 201: assistanceDetailResponse },
     },
     preHandler: [requireAbility('create', 'Assistance')],
     handler: async (request, reply) => {

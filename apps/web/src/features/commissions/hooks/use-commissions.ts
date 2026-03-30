@@ -1,67 +1,42 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import {
-  getGetCommissionQueryOptions,
-  getListCommissionsUrl,
+  useListCommissions,
+  useGetCommission,
   approveCommissionCommercial,
   approveCommissionAdmin,
   rejectCommission,
   payCommission,
   reverseCommission,
+  getListCommissionsQueryKey,
+  getGetCommissionQueryKey,
 } from '@/api/endpoints/commissions/commissions'
-import { api } from '@/lib/api-client'
 import { downloadCsvBlob } from '@/lib/csv-download'
 
-import type {
-  CommissionData,
-  CommissionFilters,
-  CommissionListMeta,
-} from '../types'
+import type { CommissionFilters } from '../lib/constants'
 
-const COMMISSIONS_LIST_KEY = '/api/v1/commissions' as const
+const COMMISSIONS_LIST_KEY = getListCommissionsQueryKey()
 
 export function useCommissions(filters: CommissionFilters) {
-  return useQuery({
-    queryKey: [COMMISSIONS_LIST_KEY, filters],
-    queryFn: async () => {
-      const params: Record<string, string | number | undefined> = {
-        status: filters.status,
-        salespersonId: filters.salespersonId,
-        policyId: filters.policyId,
-        search: filters.search,
-        dateFrom: filters.dateFrom,
-        dateTo: filters.dateTo,
-        cursor: filters.cursor,
-        limit: filters.limit ?? 20,
-      }
-      const response = await api.get<CommissionData[]>(
-        getListCommissionsUrl(params)
-      )
-      return {
-        data: response.data,
-        meta: response.meta as CommissionListMeta,
-      }
+  return useListCommissions(filters, {
+    query: {
+      select: (response) => ({
+        data: response.data.data,
+        meta: response.data.meta,
+      }),
     },
-    staleTime: 60_000,
   })
 }
 
 export function useCommission(id: string) {
-  const orvalOptions = getGetCommissionQueryOptions(id)
-
-  return useQuery({
-    queryKey: orvalOptions.queryKey,
-    queryFn: async () => {
-      const response = await api.get<CommissionData>(
-        `/api/v1/commissions/${id}`
-      )
-      return response.data
+  return useGetCommission(id, {
+    query: {
+      enabled: id.length > 0,
+      select: (response) => response.data.data,
     },
-    staleTime: 60_000,
-    enabled: id.length > 0,
   })
 }
 
@@ -72,10 +47,10 @@ export function useApproveCommercial() {
     mutationFn: (id: string) => approveCommissionCommercial(id),
     onSuccess: (_data, id) => {
       void queryClient.invalidateQueries({
-        queryKey: [COMMISSIONS_LIST_KEY],
+        queryKey: COMMISSIONS_LIST_KEY,
       })
       void queryClient.invalidateQueries({
-        queryKey: [`/api/v1/commissions/${id}`],
+        queryKey: getGetCommissionQueryKey(id),
       })
       toast.success('Aprovação comercial realizada com sucesso')
     },
@@ -92,10 +67,10 @@ export function useApproveAdmin() {
     mutationFn: (id: string) => approveCommissionAdmin(id),
     onSuccess: (_data, id) => {
       void queryClient.invalidateQueries({
-        queryKey: [COMMISSIONS_LIST_KEY],
+        queryKey: COMMISSIONS_LIST_KEY,
       })
       void queryClient.invalidateQueries({
-        queryKey: [`/api/v1/commissions/${id}`],
+        queryKey: getGetCommissionQueryKey(id),
       })
       toast.success('Aprovação administrativa realizada com sucesso')
     },
@@ -113,10 +88,10 @@ export function useRejectCommission() {
       rejectCommission(id, { reason }),
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({
-        queryKey: [COMMISSIONS_LIST_KEY],
+        queryKey: COMMISSIONS_LIST_KEY,
       })
       void queryClient.invalidateQueries({
-        queryKey: [`/api/v1/commissions/${variables.id}`],
+        queryKey: getGetCommissionQueryKey(variables.id),
       })
       toast.success('Comissão rejeitada')
     },
@@ -133,10 +108,10 @@ export function usePayCommission() {
     mutationFn: (id: string) => payCommission(id),
     onSuccess: (_data, id) => {
       void queryClient.invalidateQueries({
-        queryKey: [COMMISSIONS_LIST_KEY],
+        queryKey: COMMISSIONS_LIST_KEY,
       })
       void queryClient.invalidateQueries({
-        queryKey: [`/api/v1/commissions/${id}`],
+        queryKey: getGetCommissionQueryKey(id),
       })
       toast.success('Comissão marcada como paga')
     },
@@ -153,10 +128,10 @@ export function useReverseCommission() {
     mutationFn: (id: string) => reverseCommission(id),
     onSuccess: (_data, id) => {
       void queryClient.invalidateQueries({
-        queryKey: [COMMISSIONS_LIST_KEY],
+        queryKey: COMMISSIONS_LIST_KEY,
       })
       void queryClient.invalidateQueries({
-        queryKey: [`/api/v1/commissions/${id}`],
+        queryKey: getGetCommissionQueryKey(id),
       })
       toast.success('Comissão estornada com sucesso')
     },
@@ -177,6 +152,9 @@ function buildFilterParams(filters: CommissionFilters): URLSearchParams {
   return params
 }
 
+/**
+ * CSV export stays manual because it downloads a blob via fetch, not JSON.
+ */
 export function useExportCommissionsCsv() {
   return useMutation({
     mutationFn: async (filters: CommissionFilters) => {

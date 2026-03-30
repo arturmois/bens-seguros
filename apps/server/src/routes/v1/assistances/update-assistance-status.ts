@@ -5,7 +5,11 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditUpdate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { idParamSchema, updateAssistanceStatusBodySchema } from './_schemas.js'
+import {
+  idParamSchema,
+  updateAssistanceStatusBodySchema,
+  assistanceDetailResponse,
+} from './_schemas.js'
 
 export function updateAssistanceStatusRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -17,6 +21,7 @@ export function updateAssistanceStatusRoute(app: FastifyInstance) {
       summary: 'Update the status of an assistance request',
       params: idParamSchema,
       body: updateAssistanceStatusBodySchema,
+      response: { 200: assistanceDetailResponse },
     },
     preHandler: [requireAbility('update', 'Assistance')],
     handler: async (request, reply) => {

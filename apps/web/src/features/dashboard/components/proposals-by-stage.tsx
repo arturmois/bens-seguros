@@ -13,7 +13,7 @@ import {
 import { Card, CardHeader, CardTitle, CardPanel } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import type { ProposalByStage } from '../types'
+import type { ProposalByStage } from '../lib/constants'
 
 const STAGE_LABELS: Record<string, string> = {
   CAPTURE: 'Captação',

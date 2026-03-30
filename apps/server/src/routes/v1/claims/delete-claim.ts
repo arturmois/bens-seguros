@@ -5,7 +5,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditDelete } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { idParamSchema } from './_schemas.js'
+import { idParamSchema, deleteResponse } from './_schemas.js'
 
 export function deleteClaimRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -16,6 +16,7 @@ export function deleteClaimRoute(app: FastifyInstance) {
       summary: 'Soft-delete a claim',
       operationId: 'deleteClaim',
       params: idParamSchema,
+      response: { 204: deleteResponse },
     },
     preHandler: [requireAbility('delete', 'Claim')],
     handler: async (request, reply) => {

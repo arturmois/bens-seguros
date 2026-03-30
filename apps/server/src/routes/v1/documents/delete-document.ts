@@ -1,6 +1,7 @@
 import { container, DeleteDocument } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
+import { z } from 'zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditDelete } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
@@ -15,6 +16,7 @@ export function deleteDocumentRoute(app: FastifyInstance) {
       tags: ['Documents'],
       summary: 'Delete a document by ID',
       params: idParamSchema,
+      response: { 204: z.void() },
     },
     preHandler: [requireAbility('delete', 'Document')],
     handler: async (request, reply) => {

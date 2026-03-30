@@ -13,8 +13,13 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-import type { BoardType, ProposalStage } from '../types'
-import { BOARD_TYPE_LABELS, BOARD_TYPES, STAGE_LABELS, STAGES } from '../types'
+import type { BoardType, ProposalStage } from '../lib/constants'
+import {
+  BOARD_TYPE_LABELS,
+  BOARD_TYPES,
+  STAGE_LABELS,
+  STAGES,
+} from '../lib/constants'
 import { ProposalExportButton } from './proposal-export-button'
 
 const ALL_VALUE = '__all__'

@@ -18,7 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 import { api } from '@/lib/api-client'
 
-import type { DocumentData, DocumentEntityType } from '../types'
+import type { DocumentData, DocumentEntityType } from '../lib/constants'
 import { useDeleteDocument, useDocuments } from '../hooks/use-documents'
 import { formatFileSize } from '../lib/format-file-size'
 import { DocumentTypeBadge } from './document-type-badge'

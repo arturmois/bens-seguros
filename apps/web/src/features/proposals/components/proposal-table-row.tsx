@@ -4,13 +4,13 @@ import { Badge } from '@/components/ui/badge'
 import { TableCell, TableRow } from '@/components/ui/table'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 
-import type { ProposalData } from '../types'
+import type { ProposalData } from '../lib/constants'
 import {
   BOARD_TYPE_LABELS,
   BRANCH_LABELS,
   STAGE_BADGE_VARIANT,
   STAGE_LABELS,
-} from '../types'
+} from '../lib/constants'
 import { ProposalActionButtons } from './proposal-action-buttons'
 
 interface ProposalTableRowProps {

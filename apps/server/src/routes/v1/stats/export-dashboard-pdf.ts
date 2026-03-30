@@ -10,7 +10,8 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { DashboardReportPdf } from '../../../pdf-templates/dashboard-report-pdf.js'
-import { dashboardStatsQuerySchema } from './_schemas.js'
+import { dashboardStatsQuerySchema, dashboardPdfResponse } from './_schemas.js'
+import { errorResponse } from '../../_shared/response.schema.js'
 import { buildDashboardData } from './stats-helpers.js'
 
 const PRESET_LABELS: Record<string, string> = {
@@ -29,6 +30,7 @@ export function exportDashboardPdfRoute(app: FastifyInstance) {
       tags: ['Stats'],
       summary: 'Export dashboard report as PDF',
       querystring: dashboardStatsQuerySchema,
+      response: { 200: dashboardPdfResponse, 404: errorResponse },
     },
     preHandler: [requireAbility('read', 'Client')],
     handler: async (request, reply) => {

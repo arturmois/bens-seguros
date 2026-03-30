@@ -1,4 +1,27 @@
-import type { ClaimPriority, ClaimStatus } from '../types'
+import type {
+  ListClaims200DataItemStatus,
+  ListClaims200DataItemPriority,
+  ListClaims200DataItem,
+} from '@/api/model'
+
+export type ClaimStatus = ListClaims200DataItemStatus
+export type ClaimPriority = ListClaims200DataItemPriority
+export type ClaimData = ListClaims200DataItem
+
+export interface ClaimFilters {
+  readonly status?: ClaimStatus
+  readonly priority?: ClaimPriority
+  readonly policyId?: string
+  readonly clientId?: string
+  readonly search?: string
+  readonly cursor?: string
+  readonly limit?: number
+}
+
+export interface ClaimListMeta {
+  readonly total: number
+  readonly nextCursor: string | null
+}
 
 interface SelectOption<TValue extends string> {
   readonly value: TValue

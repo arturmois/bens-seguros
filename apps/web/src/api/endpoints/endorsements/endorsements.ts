@@ -20,7 +20,13 @@ import type {
   UseQueryResult,
 } from '@tanstack/react-query'
 
-import type { CreateEndorsementBody, ListEndorsementsParams } from '../../model'
+import type {
+  CreateEndorsement201,
+  CreateEndorsementBody,
+  GetEndorsement200,
+  ListEndorsements200,
+  ListEndorsementsParams,
+} from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
 
@@ -29,12 +35,12 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
 /**
  * @summary Create a new endorsement
  */
-export type createEndorsementResponse200 = {
-  data: void
-  status: 200
+export type createEndorsementResponse201 = {
+  data: CreateEndorsement201
+  status: 201
 }
 
-export type createEndorsementResponseSuccess = createEndorsementResponse200 & {
+export type createEndorsementResponseSuccess = createEndorsementResponse201 & {
   headers: Headers
 }
 export type createEndorsementResponse = createEndorsementResponseSuccess
@@ -125,7 +131,7 @@ export const useCreateEndorsement = <TError = unknown, TContext = unknown>(
  * @summary List endorsements with pagination
  */
 export type listEndorsementsResponse200 = {
-  data: void
+  data: ListEndorsements200
   status: 200
 }
 
@@ -344,7 +350,7 @@ export const prefetchListEndorsementsQuery = async <
  * @summary Get an endorsement by ID
  */
 export type getEndorsementResponse200 = {
-  data: void
+  data: GetEndorsement200
   status: 200
 }
 

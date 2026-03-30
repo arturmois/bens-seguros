@@ -159,7 +159,7 @@ function MemberRow({
           className="bg-primary/10 text-primary flex size-9 items-center justify-center rounded-full text-sm font-medium"
           aria-hidden="true"
         >
-          {getInitials(member.name)}
+          {getInitials(member.name ?? '')}
         </div>
       </TableCell>
       <TableCell className="font-medium">{member.name}</TableCell>

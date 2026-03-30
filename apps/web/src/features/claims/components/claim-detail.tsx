@@ -141,8 +141,8 @@ function ClaimDetailHeader({
   priority,
 }: {
   readonly formattedNumber: string
-  readonly status: import('../types').ClaimStatus
-  readonly priority: import('../types').ClaimPriority
+  readonly status: import('../lib/constants').ClaimStatus
+  readonly priority: import('../lib/constants').ClaimPriority
 }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -156,7 +156,7 @@ function ClaimDetailHeader({
 function ClaimInfoGrid({
   claim,
 }: {
-  readonly claim: import('../types').ClaimData
+  readonly claim: import('../lib/constants').ClaimData
 }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

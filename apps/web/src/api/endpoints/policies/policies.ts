@@ -21,10 +21,24 @@ import type {
 } from '@tanstack/react-query'
 
 import type {
+  CancelPolicy200,
   CancelPolicyBody,
   ExportPoliciesParams,
+  GeneratePolicyPdf200,
+  GeneratePolicyPdf404,
   GeneratePolicyPdfParams,
+  GetPolicy200,
+  ImportConfirmPolicies200,
+  ImportConfirmPolicies404,
+  ImportStatusPolicies200,
+  ImportStatusPolicies404,
+  ImportUploadPolicies200,
+  ImportUploadPolicies400,
+  ImportUploadPolicies413,
+  ImportUploadPolicies422,
+  IssuePolicy201,
   IssuePolicyBody,
+  ListPolicies200,
   ListPoliciesParams,
 } from '../../model'
 
@@ -430,15 +444,40 @@ export const prefetchImportTemplatePoliciesQuery = async <
  * @summary Upload and parse a policy CSV for import preview
  */
 export type importUploadPoliciesResponse200 = {
-  data: void
+  data: ImportUploadPolicies200
   status: 200
+}
+
+export type importUploadPoliciesResponse400 = {
+  data: ImportUploadPolicies400
+  status: 400
+}
+
+export type importUploadPoliciesResponse413 = {
+  data: ImportUploadPolicies413
+  status: 413
+}
+
+export type importUploadPoliciesResponse422 = {
+  data: ImportUploadPolicies422
+  status: 422
 }
 
 export type importUploadPoliciesResponseSuccess =
   importUploadPoliciesResponse200 & {
     headers: Headers
   }
-export type importUploadPoliciesResponse = importUploadPoliciesResponseSuccess
+export type importUploadPoliciesResponseError = (
+  | importUploadPoliciesResponse400
+  | importUploadPoliciesResponse413
+  | importUploadPoliciesResponse422
+) & {
+  headers: Headers
+}
+
+export type importUploadPoliciesResponse =
+  | importUploadPoliciesResponseSuccess
+  | importUploadPoliciesResponseError
 
 export const getImportUploadPoliciesUrl = () => {
   return `/api/v1/policies/import`
@@ -457,7 +496,10 @@ export const importUploadPolicies = async (
 }
 
 export const getImportUploadPoliciesMutationOptions = <
-  TError = unknown,
+  TError =
+    | ImportUploadPolicies400
+    | ImportUploadPolicies413
+    | ImportUploadPolicies422,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -496,12 +538,21 @@ export type ImportUploadPoliciesMutationResult = NonNullable<
   Awaited<ReturnType<typeof importUploadPolicies>>
 >
 
-export type ImportUploadPoliciesMutationError = unknown
+export type ImportUploadPoliciesMutationError =
+  | ImportUploadPolicies400
+  | ImportUploadPolicies413
+  | ImportUploadPolicies422
 
 /**
  * @summary Upload and parse a policy CSV for import preview
  */
-export const useImportUploadPolicies = <TError = unknown, TContext = unknown>(
+export const useImportUploadPolicies = <
+  TError =
+    | ImportUploadPolicies400
+    | ImportUploadPolicies413
+    | ImportUploadPolicies422,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof importUploadPolicies>>,
@@ -527,15 +578,27 @@ export const useImportUploadPolicies = <TError = unknown, TContext = unknown>(
  * @summary Confirm and enqueue a staged policy import job
  */
 export type importConfirmPoliciesResponse200 = {
-  data: void
+  data: ImportConfirmPolicies200
   status: 200
+}
+
+export type importConfirmPoliciesResponse404 = {
+  data: ImportConfirmPolicies404
+  status: 404
 }
 
 export type importConfirmPoliciesResponseSuccess =
   importConfirmPoliciesResponse200 & {
     headers: Headers
   }
-export type importConfirmPoliciesResponse = importConfirmPoliciesResponseSuccess
+export type importConfirmPoliciesResponseError =
+  importConfirmPoliciesResponse404 & {
+    headers: Headers
+  }
+
+export type importConfirmPoliciesResponse =
+  | importConfirmPoliciesResponseSuccess
+  | importConfirmPoliciesResponseError
 
 export const getImportConfirmPoliciesUrl = (jobId: string) => {
   return `/api/v1/policies/import/${jobId}/confirm`
@@ -555,7 +618,7 @@ export const importConfirmPolicies = async (
 }
 
 export const getImportConfirmPoliciesMutationOptions = <
-  TError = unknown,
+  TError = ImportConfirmPolicies404,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -596,12 +659,15 @@ export type ImportConfirmPoliciesMutationResult = NonNullable<
   Awaited<ReturnType<typeof importConfirmPolicies>>
 >
 
-export type ImportConfirmPoliciesMutationError = unknown
+export type ImportConfirmPoliciesMutationError = ImportConfirmPolicies404
 
 /**
  * @summary Confirm and enqueue a staged policy import job
  */
-export const useImportConfirmPolicies = <TError = unknown, TContext = unknown>(
+export const useImportConfirmPolicies = <
+  TError = ImportConfirmPolicies404,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof importConfirmPolicies>>,
@@ -627,15 +693,27 @@ export const useImportConfirmPolicies = <TError = unknown, TContext = unknown>(
  * @summary Check the status of a policy import job
  */
 export type importStatusPoliciesResponse200 = {
-  data: void
+  data: ImportStatusPolicies200
   status: 200
+}
+
+export type importStatusPoliciesResponse404 = {
+  data: ImportStatusPolicies404
+  status: 404
 }
 
 export type importStatusPoliciesResponseSuccess =
   importStatusPoliciesResponse200 & {
     headers: Headers
   }
-export type importStatusPoliciesResponse = importStatusPoliciesResponseSuccess
+export type importStatusPoliciesResponseError =
+  importStatusPoliciesResponse404 & {
+    headers: Headers
+  }
+
+export type importStatusPoliciesResponse =
+  | importStatusPoliciesResponseSuccess
+  | importStatusPoliciesResponseError
 
 export const getImportStatusPoliciesUrl = (jobId: string) => {
   return `/api/v1/policies/import/${jobId}/status`
@@ -660,7 +738,7 @@ export const getImportStatusPoliciesQueryKey = (jobId: string) => {
 
 export const getImportStatusPoliciesQueryOptions = <
   TData = Awaited<ReturnType<typeof importStatusPolicies>>,
-  TError = unknown,
+  TError = ImportStatusPolicies404,
 >(
   jobId: string,
   options?: {
@@ -699,11 +777,11 @@ export const getImportStatusPoliciesQueryOptions = <
 export type ImportStatusPoliciesQueryResult = NonNullable<
   Awaited<ReturnType<typeof importStatusPolicies>>
 >
-export type ImportStatusPoliciesQueryError = unknown
+export type ImportStatusPoliciesQueryError = ImportStatusPolicies404
 
 export function useImportStatusPolicies<
   TData = Awaited<ReturnType<typeof importStatusPolicies>>,
-  TError = unknown,
+  TError = ImportStatusPolicies404,
 >(
   jobId: string,
   options: {
@@ -730,7 +808,7 @@ export function useImportStatusPolicies<
 }
 export function useImportStatusPolicies<
   TData = Awaited<ReturnType<typeof importStatusPolicies>>,
-  TError = unknown,
+  TError = ImportStatusPolicies404,
 >(
   jobId: string,
   options?: {
@@ -757,7 +835,7 @@ export function useImportStatusPolicies<
 }
 export function useImportStatusPolicies<
   TData = Awaited<ReturnType<typeof importStatusPolicies>>,
-  TError = unknown,
+  TError = ImportStatusPolicies404,
 >(
   jobId: string,
   options?: {
@@ -780,7 +858,7 @@ export function useImportStatusPolicies<
 
 export function useImportStatusPolicies<
   TData = Awaited<ReturnType<typeof importStatusPolicies>>,
-  TError = unknown,
+  TError = ImportStatusPolicies404,
 >(
   jobId: string,
   options?: {
@@ -812,7 +890,7 @@ export function useImportStatusPolicies<
  */
 export const prefetchImportStatusPoliciesQuery = async <
   TData = Awaited<ReturnType<typeof importStatusPolicies>>,
-  TError = unknown,
+  TError = ImportStatusPolicies404,
 >(
   queryClient: QueryClient,
   jobId: string,
@@ -838,14 +916,25 @@ export const prefetchImportStatusPoliciesQuery = async <
  * @summary Generate or retrieve a cached policy PDF
  */
 export type generatePolicyPdfResponse200 = {
-  data: void
+  data: GeneratePolicyPdf200
   status: 200
+}
+
+export type generatePolicyPdfResponse404 = {
+  data: GeneratePolicyPdf404
+  status: 404
 }
 
 export type generatePolicyPdfResponseSuccess = generatePolicyPdfResponse200 & {
   headers: Headers
 }
-export type generatePolicyPdfResponse = generatePolicyPdfResponseSuccess
+export type generatePolicyPdfResponseError = generatePolicyPdfResponse404 & {
+  headers: Headers
+}
+
+export type generatePolicyPdfResponse =
+  | generatePolicyPdfResponseSuccess
+  | generatePolicyPdfResponseError
 
 export const getGeneratePolicyPdfUrl = (
   id: string,
@@ -881,7 +970,7 @@ export const generatePolicyPdf = async (
 }
 
 export const getGeneratePolicyPdfMutationOptions = <
-  TError = unknown,
+  TError = GeneratePolicyPdf404,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -922,12 +1011,15 @@ export type GeneratePolicyPdfMutationResult = NonNullable<
   Awaited<ReturnType<typeof generatePolicyPdf>>
 >
 
-export type GeneratePolicyPdfMutationError = unknown
+export type GeneratePolicyPdfMutationError = GeneratePolicyPdf404
 
 /**
  * @summary Generate or retrieve a cached policy PDF
  */
-export const useGeneratePolicyPdf = <TError = unknown, TContext = unknown>(
+export const useGeneratePolicyPdf = <
+  TError = GeneratePolicyPdf404,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof generatePolicyPdf>>,
@@ -950,7 +1042,7 @@ export const useGeneratePolicyPdf = <TError = unknown, TContext = unknown>(
  * @summary Cancel an active policy
  */
 export type cancelPolicyResponse200 = {
-  data: void
+  data: CancelPolicy200
   status: 200
 }
 
@@ -1045,12 +1137,12 @@ export const useCancelPolicy = <TError = unknown, TContext = unknown>(
 /**
  * @summary Issue a new policy from a proposal
  */
-export type issuePolicyResponse200 = {
-  data: void
-  status: 200
+export type issuePolicyResponse201 = {
+  data: IssuePolicy201
+  status: 201
 }
 
-export type issuePolicyResponseSuccess = issuePolicyResponse200 & {
+export type issuePolicyResponseSuccess = issuePolicyResponse201 & {
   headers: Headers
 }
 export type issuePolicyResponse = issuePolicyResponseSuccess
@@ -1141,7 +1233,7 @@ export const useIssuePolicy = <TError = unknown, TContext = unknown>(
  * @summary List policies with cursor pagination
  */
 export type listPoliciesResponse200 = {
-  data: void
+  data: ListPolicies200
   status: 200
 }
 
@@ -1334,7 +1426,7 @@ export const prefetchListPoliciesQuery = async <
  * @summary Get a single policy by ID
  */
 export type getPolicyResponse200 = {
-  data: void
+  data: GetPolicy200
   status: 200
 }
 

@@ -3,7 +3,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { InsuranceBranch } from '@repo/db'
 import { hashDocument, stripNonDigits } from '@repo/shared'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { searchQuerySchema } from './_schemas.js'
+import { searchQuerySchema, globalSearchResponse } from './_schemas.js'
 
 function toInsuranceBranch(value: string): InsuranceBranch | null {
   const upper = value.toUpperCase()
@@ -22,6 +22,7 @@ export function globalSearchRoute(app: FastifyInstance) {
       tags: ['Search'],
       summary: 'Global search across clients, proposals, policies and claims',
       querystring: searchQuerySchema,
+      response: { 200: globalSearchResponse },
     },
     preHandler: [requireAbility('read', 'all')],
     handler: async (request, reply) => {

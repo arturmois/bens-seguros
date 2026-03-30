@@ -1,32 +1,33 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-import { api } from '@/lib/api-client'
 import {
-  getListDocumentsQueryKey,
-  getGetDocumentUrlQueryKey,
+  useListDocuments,
+  useGetDocumentUrl,
   deleteDocument,
+  getListDocumentsQueryKey,
 } from '@/api/endpoints/documents/documents'
 
-import type { DocumentData, DocumentEntityType, DocumentType } from '../types'
+import type {
+  DocumentData,
+  DocumentEntityType,
+  DocumentType,
+} from '../lib/constants'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
 export function useDocuments(entityType: DocumentEntityType, entityId: string) {
-  return useQuery({
-    queryKey: getListDocumentsQueryKey({ entityType, entityId }),
-    queryFn: async () => {
-      const params = new URLSearchParams({ entityType, entityId })
-      const response = await api.get<DocumentData[]>(
-        `/api/v1/documents?${params.toString()}`
-      )
-      return response.data
-    },
-    staleTime: 60_000,
-    enabled: entityId.length > 0,
-  })
+  return useListDocuments(
+    { entityType, entityId },
+    {
+      query: {
+        enabled: entityId.length > 0,
+        select: (response) => response.data.data,
+      },
+    }
+  )
 }
 
 interface UploadInput {
@@ -86,16 +87,11 @@ export function useUploadDocument() {
 }
 
 export function useDocumentUrl(id: string) {
-  return useQuery({
-    queryKey: getGetDocumentUrlQueryKey(id),
-    queryFn: async () => {
-      const response = await api.get<{ url: string }>(
-        `/api/v1/documents/${id}/url`
-      )
-      return response.data
+  return useGetDocumentUrl(id, {
+    query: {
+      enabled: id.length > 0,
+      select: (response) => response.data.data,
     },
-    staleTime: 60_000,
-    enabled: id.length > 0,
   })
 }
 

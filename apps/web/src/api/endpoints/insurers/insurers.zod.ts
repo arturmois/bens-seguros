@@ -31,3 +31,21 @@ export const ListInsurersQueryParams = zod.object({
     .max(listInsurersQueryLimitMax)
     .default(listInsurersQueryLimitDefault),
 })
+
+export const ListInsurersResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      organizationId: zod.string(),
+      name: zod.string(),
+      code: zod.string().nullable(),
+      active: zod.boolean(),
+      createdAt: zod.string().datetime({}),
+      updatedAt: zod.string().datetime({}),
+    })
+  ),
+  meta: zod.object({
+    nextCursor: zod.string().nullish(),
+  }),
+})

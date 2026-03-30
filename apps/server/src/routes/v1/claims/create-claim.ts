@@ -8,7 +8,7 @@ import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditCreate } from '../../../services/audit-logger.js'
 import { enqueueNotifications } from '../../../services/notification-enqueuer.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { createClaimBodySchema } from './_schemas.js'
+import { createClaimBodySchema, claimDetailResponse } from './_schemas.js'
 
 export function createClaimRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -19,6 +19,7 @@ export function createClaimRoute(app: FastifyInstance) {
       summary: 'Create a new claim',
       operationId: 'createClaim',
       body: createClaimBodySchema,
+      response: { 201: claimDetailResponse },
     },
     preHandler: [requireAbility('create', 'Claim')],
     handler: async (request, reply) => {

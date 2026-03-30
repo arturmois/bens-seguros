@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 
-import type { CommissionData } from '../types'
+import type { CommissionData } from '../lib/constants'
 import { useCommission } from '../hooks/use-commissions'
 import { CommissionStatusBadge } from './commission-status-badge'
 import { CommissionActions } from './commission-actions'

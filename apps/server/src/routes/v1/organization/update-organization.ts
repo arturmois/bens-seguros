@@ -4,7 +4,11 @@ import { container, type StorageProvider, type CacheService } from '@repo/core'
 import { prisma } from '@repo/db'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditUpdate } from '../../../services/audit-logger.js'
-import { updateOrganizationSchema } from './_schemas.js'
+import {
+  updateOrganizationSchema,
+  organizationDetailResponse,
+} from './_schemas.js'
+import { errorResponse } from '../../_shared/response.schema.js'
 
 function resolveCache(): CacheService | null {
   try {
@@ -23,6 +27,7 @@ export function updateOrganizationRoute(app: FastifyInstance) {
       tags: ['Organization'],
       summary: 'Update organization name and slug',
       body: updateOrganizationSchema,
+      response: { 200: organizationDetailResponse, 409: errorResponse },
     },
     preHandler: [requireAbility('manage', 'Organization')],
     handler: async (request, reply) => {

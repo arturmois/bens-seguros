@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-import type { DashboardPreset } from '../types'
+import type { DashboardPreset } from '../lib/constants'
 
 const PRESETS: Array<{
   readonly value: DashboardPreset

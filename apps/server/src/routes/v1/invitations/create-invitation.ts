@@ -9,7 +9,10 @@ import { ROLE_HIERARCHY, type Role } from '@repo/auth/roles'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditCreate } from '../../../services/audit-logger.js'
 import { DuplicateInvitationError, RoleHierarchyError } from '@repo/core'
-import { createInvitationBodySchema } from './_schemas.js'
+import {
+  createInvitationBodySchema,
+  invitationDetailResponse,
+} from './_schemas.js'
 import { handleDomainError } from '../handle-domain-error.js'
 
 function resolveCache(): CacheService | null {
@@ -40,6 +43,7 @@ export function createInvitationRoute(app: FastifyInstance) {
       tags: ['Invitations'],
       summary: 'Create an invitation',
       body: createInvitationBodySchema,
+      response: { 201: invitationDetailResponse },
     },
     preHandler: [requireAbility('create', 'Invitation')],
     config: {

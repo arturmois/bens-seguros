@@ -3,8 +3,11 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { dashboardStatsQuerySchema } from './_schemas.js'
-import { buildDashboardData } from './stats-helpers.js'
+import {
+  dashboardStatsQuerySchema,
+  dashboardStatsResponse,
+} from './_schemas.js'
+import { buildDashboardData, type DashboardData } from './stats-helpers.js'
 
 export function getDashboardStatsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -15,6 +18,7 @@ export function getDashboardStatsRoute(app: FastifyInstance) {
       tags: ['Stats'],
       summary: 'Get dashboard statistics',
       querystring: dashboardStatsQuerySchema,
+      response: { 200: dashboardStatsResponse },
     },
     preHandler: [requireAbility('read', 'Client')],
     handler: async (request, reply) => {
@@ -24,7 +28,7 @@ export function getDashboardStatsRoute(app: FastifyInstance) {
       const cache = container.resolve<CacheService>('CacheService')
       const cacheKey = `dashboard:stats:${orgId}:${preset}`
 
-      const cached = await cache.get(cacheKey)
+      const cached = await cache.get<DashboardData>(cacheKey)
       if (cached) {
         return reply.send({ success: true, data: cached })
       }

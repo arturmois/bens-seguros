@@ -20,7 +20,12 @@ import type {
   UseQueryResult,
 } from '@tanstack/react-query'
 
-import type { CreateInsurerBody, ListInsurersParams } from '../../model'
+import type {
+  CreateInsurer201,
+  CreateInsurerBody,
+  ListInsurers200,
+  ListInsurersParams,
+} from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
 
@@ -29,12 +34,12 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
 /**
  * @summary Create a new insurer
  */
-export type createInsurerResponse200 = {
-  data: void
-  status: 200
+export type createInsurerResponse201 = {
+  data: CreateInsurer201
+  status: 201
 }
 
-export type createInsurerResponseSuccess = createInsurerResponse200 & {
+export type createInsurerResponseSuccess = createInsurerResponse201 & {
   headers: Headers
 }
 export type createInsurerResponse = createInsurerResponseSuccess
@@ -125,7 +130,7 @@ export const useCreateInsurer = <TError = unknown, TContext = unknown>(
  * @summary List insurers with cursor pagination and caching
  */
 export type listInsurersResponse200 = {
-  data: void
+  data: ListInsurers200
   status: 200
 }
 

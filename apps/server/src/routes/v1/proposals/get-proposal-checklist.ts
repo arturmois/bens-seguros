@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { idParam } from './_schemas.js'
+import { idParam, checklistResponse, errorResponse } from './_schemas.js'
 
 export function getProposalChecklistRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -14,6 +14,7 @@ export function getProposalChecklistRoute(app: FastifyInstance) {
       summary: 'Get proposal checklist items',
       operationId: 'getProposalChecklist',
       params: idParam,
+      response: { 200: checklistResponse, 404: errorResponse },
     },
     preHandler: [requireAbility('read', 'Proposal')],
     handler: async (request, reply) => {

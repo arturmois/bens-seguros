@@ -12,7 +12,11 @@ import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditReject } from '../../../services/audit-logger.js'
 import { enqueueNotification } from '../../../services/notification-enqueuer.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { commissionIdParam, rejectCommissionBody } from './_schemas.js'
+import {
+  commissionIdParam,
+  rejectCommissionBody,
+  commissionDetailResponse,
+} from './_schemas.js'
 
 export async function rejectCommissionRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -24,6 +28,7 @@ export async function rejectCommissionRoute(app: FastifyInstance) {
       operationId: 'rejectCommission',
       params: commissionIdParam,
       body: rejectCommissionBody,
+      response: { 200: commissionDetailResponse },
     },
     preHandler: [requireAbility('approve', 'Commission')],
     async handler(request, reply) {

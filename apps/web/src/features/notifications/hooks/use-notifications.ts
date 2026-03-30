@@ -1,47 +1,41 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { api } from '@/lib/api-client'
 import {
-  getListNotificationsQueryKey,
-  getGetUnreadCountQueryKey,
+  useListNotifications as useListNotificationsOrval,
+  useGetUnreadCount,
   markNotificationRead,
   markAllNotificationsRead,
+  getListNotificationsQueryKey,
+  getGetUnreadCountQueryKey,
 } from '@/api/endpoints/notifications/notifications'
-
-import type { NotificationData } from '../types/index'
 
 const NOTIFICATIONS_BASE_KEY = getListNotificationsQueryKey()
 
 export function useNotifications(limit = 10) {
-  return useQuery({
-    queryKey: getListNotificationsQueryKey({ limit }),
-    queryFn: async () => {
-      const res = await api.get<NotificationData[]>(
-        `/api/v1/notifications?limit=${limit}`
-      )
-      return {
-        data: res.data,
-        meta: res.meta,
-      }
-    },
-    staleTime: 30_000,
-    refetchInterval: 60_000,
-  })
+  return useListNotificationsOrval(
+    { limit },
+    {
+      query: {
+        staleTime: 30_000,
+        refetchInterval: 60_000,
+        select: (response) => ({
+          data: response.data.data,
+          meta: response.data.meta,
+        }),
+      },
+    }
+  )
 }
 
 export function useUnreadCount() {
-  return useQuery({
-    queryKey: getGetUnreadCountQueryKey(),
-    queryFn: async () => {
-      const res = await api.get<{ count: number }>(
-        '/api/v1/notifications/unread-count'
-      )
-      return res.data.count
+  return useGetUnreadCount({
+    query: {
+      staleTime: 15_000,
+      refetchInterval: 30_000,
+      select: (response) => response.data.data.count,
     },
-    staleTime: 15_000,
-    refetchInterval: 30_000,
   })
 }
 
@@ -54,6 +48,7 @@ export function useMarkAsRead() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_BASE_KEY })
+      queryClient.invalidateQueries({ queryKey: getGetUnreadCountQueryKey() })
     },
   })
 }
@@ -67,6 +62,7 @@ export function useMarkAllAsRead() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_BASE_KEY })
+      queryClient.invalidateQueries({ queryKey: getGetUnreadCountQueryKey() })
     },
   })
 }

@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { prisma } from '@repo/db'
 import { CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION } from '@repo/core'
+import { termsStatusResponse } from './_schemas.js'
 
 export function getTermsStatusRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -11,6 +12,7 @@ export function getTermsStatusRoute(app: FastifyInstance) {
       operationId: 'getTermsStatus',
       tags: ['Terms'],
       summary: 'Get terms and privacy acceptance status',
+      response: { 200: termsStatusResponse },
     },
     handler: async (request) => {
       const userId = request.user!.id
@@ -25,7 +27,7 @@ export function getTermsStatusRoute(app: FastifyInstance) {
         user.privacyVersion !== CURRENT_PRIVACY_VERSION
 
       return {
-        success: true,
+        success: true as const,
         data: {
           needsReAccept,
           currentTermsVersion: CURRENT_TERMS_VERSION,

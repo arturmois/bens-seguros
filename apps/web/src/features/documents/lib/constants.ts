@@ -1,4 +1,12 @@
-import type { DocumentEntityType, DocumentType } from '../types'
+import type {
+  ListDocuments200DataItemEntityType,
+  ListDocuments200DataItemType,
+  ListDocuments200DataItem,
+} from '@/api/model'
+
+export type DocumentEntityType = ListDocuments200DataItemEntityType
+export type DocumentType = ListDocuments200DataItemType
+export type DocumentData = ListDocuments200DataItem
 
 export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
   DRIVER_LICENSE: 'CNH',

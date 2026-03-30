@@ -1,7 +1,7 @@
 export interface MemberData {
   readonly id: string
   readonly userId: string
-  readonly name: string
+  readonly name: string | null
   readonly email: string
   readonly role: string
   readonly active: boolean

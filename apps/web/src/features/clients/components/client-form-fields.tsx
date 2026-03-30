@@ -15,9 +15,14 @@ import {
 } from '@/components/ui/select'
 import { documentMask, PHONE_MASK } from '@/lib/masks'
 
+import type { z } from 'zod'
+
+import { CreateClientBody } from '@/api/endpoints/clients/clients.zod'
+
 import { MARITAL_OPTIONS, TYPE_OPTIONS } from '../lib/constants'
-import type { ClientFormValues } from '../lib/schemas'
 import { FormField } from './form-field'
+
+type ClientFormValues = z.infer<typeof CreateClientBody>
 
 const MARITAL_SELECT_OPTIONS = [
   { value: '', label: 'Selecione' },

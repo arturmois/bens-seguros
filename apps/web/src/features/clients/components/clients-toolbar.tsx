@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select'
 
 import { TYPE_OPTIONS } from '../lib/constants'
-import type { ClientFilters } from '../types'
+import type { ClientFilters } from '../lib/constants'
 import { ClientExportButton } from './client-export-button'
 import { ClientImportButton } from './client-import-button'
 

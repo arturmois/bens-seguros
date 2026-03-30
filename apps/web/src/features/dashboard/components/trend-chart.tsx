@@ -14,7 +14,7 @@ import {
 import { Card, CardHeader, CardTitle, CardPanel } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import type { MonthlyTrend } from '../types'
+import type { MonthlyTrend } from '../lib/constants'
 
 const MONTH_LABELS: Record<string, string> = {
   '01': 'Jan',

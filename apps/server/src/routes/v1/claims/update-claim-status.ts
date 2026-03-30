@@ -5,7 +5,11 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditUpdate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { idParamSchema, updateClaimStatusBodySchema } from './_schemas.js'
+import {
+  idParamSchema,
+  updateClaimStatusBodySchema,
+  claimDetailResponse,
+} from './_schemas.js'
 
 export function updateClaimStatusRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -17,6 +21,7 @@ export function updateClaimStatusRoute(app: FastifyInstance) {
       operationId: 'updateClaimStatus',
       params: idParamSchema,
       body: updateClaimStatusBodySchema,
+      response: { 200: claimDetailResponse },
     },
     preHandler: [requireAbility('update', 'Claim')],
     handler: async (request, reply) => {

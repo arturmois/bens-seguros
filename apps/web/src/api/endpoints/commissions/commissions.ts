@@ -21,15 +21,25 @@ import type {
 } from '@tanstack/react-query'
 
 import type {
+  ApproveCommissionAdmin200,
+  ApproveCommissionCommercial200,
   ExportCommissionsParams,
+  GetCommission200,
+  ListCommissions200,
   ListCommissionsParams,
+  PayCommission200,
+  RejectCommission200,
   RejectCommissionBody,
+  ReverseCommission201,
 } from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
 
+/**
+ * @summary Export commissions as CSV
+ */
 export type exportCommissionsResponse200 = {
   data: void
   status: 200
@@ -190,6 +200,9 @@ export function useExportCommissions<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>
 }
+/**
+ * @summary Export commissions as CSV
+ */
 
 export function useExportCommissions<
   TData = Awaited<ReturnType<typeof exportCommissions>>,
@@ -220,6 +233,9 @@ export function useExportCommissions<
   return { ...query, queryKey: queryOptions.queryKey }
 }
 
+/**
+ * @summary Export commissions as CSV
+ */
 export const prefetchExportCommissionsQuery = async <
   TData = Awaited<ReturnType<typeof exportCommissions>>,
   TError = unknown,
@@ -244,8 +260,11 @@ export const prefetchExportCommissionsQuery = async <
   return queryClient
 }
 
+/**
+ * @summary List commissions with filters
+ */
 export type listCommissionsResponse200 = {
-  data: void
+  data: ListCommissions200
   status: 200
 }
 
@@ -398,6 +417,9 @@ export function useListCommissions<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>
 }
+/**
+ * @summary List commissions with filters
+ */
 
 export function useListCommissions<
   TData = Awaited<ReturnType<typeof listCommissions>>,
@@ -428,6 +450,9 @@ export function useListCommissions<
   return { ...query, queryKey: queryOptions.queryKey }
 }
 
+/**
+ * @summary List commissions with filters
+ */
 export const prefetchListCommissionsQuery = async <
   TData = Awaited<ReturnType<typeof listCommissions>>,
   TError = unknown,
@@ -452,8 +477,11 @@ export const prefetchListCommissionsQuery = async <
   return queryClient
 }
 
+/**
+ * @summary Get commission by ID
+ */
 export type getCommissionResponse200 = {
-  data: void
+  data: GetCommission200
   status: 200
 }
 
@@ -579,6 +607,9 @@ export function useGetCommission<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>
 }
+/**
+ * @summary Get commission by ID
+ */
 
 export function useGetCommission<
   TData = Awaited<ReturnType<typeof getCommission>>,
@@ -605,6 +636,9 @@ export function useGetCommission<
   return { ...query, queryKey: queryOptions.queryKey }
 }
 
+/**
+ * @summary Get commission by ID
+ */
 export const prefetchGetCommissionQuery = async <
   TData = Awaited<ReturnType<typeof getCommission>>,
   TError = unknown,
@@ -625,8 +659,11 @@ export const prefetchGetCommissionQuery = async <
   return queryClient
 }
 
+/**
+ * @summary Approve commission (commercial step)
+ */
 export type approveCommissionCommercialResponse200 = {
-  data: void
+  data: ApproveCommissionCommercial200
   status: 200
 }
 
@@ -698,6 +735,9 @@ export type ApproveCommissionCommercialMutationResult = NonNullable<
 
 export type ApproveCommissionCommercialMutationError = unknown
 
+/**
+ * @summary Approve commission (commercial step)
+ */
 export const useApproveCommissionCommercial = <
   TError = unknown,
   TContext = unknown,
@@ -723,8 +763,11 @@ export const useApproveCommissionCommercial = <
     queryClient
   )
 }
+/**
+ * @summary Approve commission (admin step)
+ */
 export type approveCommissionAdminResponse200 = {
-  data: void
+  data: ApproveCommissionAdmin200
   status: 200
 }
 
@@ -796,6 +839,9 @@ export type ApproveCommissionAdminMutationResult = NonNullable<
 
 export type ApproveCommissionAdminMutationError = unknown
 
+/**
+ * @summary Approve commission (admin step)
+ */
 export const useApproveCommissionAdmin = <TError = unknown, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
@@ -818,8 +864,11 @@ export const useApproveCommissionAdmin = <TError = unknown, TContext = unknown>(
     queryClient
   )
 }
+/**
+ * @summary Reject commission with reason
+ */
 export type rejectCommissionResponse200 = {
-  data: void
+  data: RejectCommission200
   status: 200
 }
 
@@ -889,6 +938,9 @@ export type RejectCommissionMutationResult = NonNullable<
 export type RejectCommissionMutationBody = RejectCommissionBody
 export type RejectCommissionMutationError = unknown
 
+/**
+ * @summary Reject commission with reason
+ */
 export const useRejectCommission = <TError = unknown, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
@@ -908,8 +960,11 @@ export const useRejectCommission = <TError = unknown, TContext = unknown>(
 > => {
   return useMutation(getRejectCommissionMutationOptions(options), queryClient)
 }
+/**
+ * @summary Mark commission as paid
+ */
 export type payCommissionResponse200 = {
-  data: void
+  data: PayCommission200
   status: 200
 }
 
@@ -976,6 +1031,9 @@ export type PayCommissionMutationResult = NonNullable<
 
 export type PayCommissionMutationError = unknown
 
+/**
+ * @summary Mark commission as paid
+ */
 export const usePayCommission = <TError = unknown, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
@@ -995,12 +1053,15 @@ export const usePayCommission = <TError = unknown, TContext = unknown>(
 > => {
   return useMutation(getPayCommissionMutationOptions(options), queryClient)
 }
-export type reverseCommissionResponse200 = {
-  data: void
-  status: 200
+/**
+ * @summary Reverse commission payment
+ */
+export type reverseCommissionResponse201 = {
+  data: ReverseCommission201
+  status: 201
 }
 
-export type reverseCommissionResponseSuccess = reverseCommissionResponse200 & {
+export type reverseCommissionResponseSuccess = reverseCommissionResponse201 & {
   headers: Headers
 }
 export type reverseCommissionResponse = reverseCommissionResponseSuccess
@@ -1063,6 +1124,9 @@ export type ReverseCommissionMutationResult = NonNullable<
 
 export type ReverseCommissionMutationError = unknown
 
+/**
+ * @summary Reverse commission payment
+ */
 export const useReverseCommission = <TError = unknown, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<

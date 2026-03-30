@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { idParamSchema } from './_schemas.js'
+import { idParamSchema, documentUrlResponse } from './_schemas.js'
 
 export function getDocumentUrlRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -14,6 +14,7 @@ export function getDocumentUrlRoute(app: FastifyInstance) {
       tags: ['Documents'],
       summary: 'Get a signed URL for a document',
       params: idParamSchema,
+      response: { 200: documentUrlResponse },
     },
     preHandler: [requireAbility('read', 'Document')],
     handler: async (request, reply) => {

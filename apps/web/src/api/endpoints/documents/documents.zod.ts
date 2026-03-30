@@ -42,12 +42,60 @@ export const ListDocumentsQueryParams = zod.object({
   entityId: zod.string().min(1),
 })
 
+export const ListDocumentsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      organizationId: zod.string(),
+      entityType: zod.enum([
+        'CLIENT',
+        'PROPOSAL',
+        'POLICY',
+        'CLAIM',
+        'ASSISTANCE',
+      ]),
+      entityId: zod.string(),
+      clientId: zod.string().nullable(),
+      type: zod.enum([
+        'DRIVER_LICENSE',
+        'VEHICLE_REGISTRATION',
+        'HEALTH_DECLARATION',
+        'PROOF_OF_ADDRESS',
+        'SOCIAL_CONTRACT',
+        'CNPJ_CARD',
+        'POLICY_PDF',
+        'QUOTATION_PDF',
+        'CLAIM_PHOTO',
+        'CLAIM_REPORT',
+        'PROOF_OF_PAYMENT',
+        'CONTRACT',
+        'OTHER',
+      ]),
+      fileName: zod.string(),
+      mimeType: zod.string(),
+      sizeBytes: zod.number(),
+      storageKey: zod.string(),
+      url: zod.string().nullable(),
+      createdBy: zod.string().nullable(),
+      createdAt: zod.string().datetime({}),
+    })
+  ),
+})
+
 /**
  * @summary Get a signed URL for a document
  */
 
 export const GetDocumentUrlParams = zod.object({
   id: zod.string().min(1),
+})
+
+export const GetDocumentUrlResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    url: zod.string(),
+  }),
 })
 
 /**

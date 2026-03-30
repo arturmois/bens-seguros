@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Table } from '@/components/ui/table'
 import { useDebounce } from '@/hooks/use-debounce'
 
-import type { ClientData, ClientType } from '../types'
+import type { ClientData, ClientType } from '../lib/constants'
 import { useClients, useDeleteClient } from '../hooks/use-clients'
 import { ClientForm } from './client-form'
 import { ClientsPagination } from './clients-pagination'

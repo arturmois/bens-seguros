@@ -4,7 +4,7 @@ import { prisma } from '@repo/db'
 import { InvitationNotFoundError } from '@repo/core'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditDelete } from '../../../services/audit-logger.js'
-import { idParamSchema } from './_schemas.js'
+import { idParamSchema, invitationDeleteResponse } from './_schemas.js'
 import { handleDomainError } from '../handle-domain-error.js'
 
 export function deleteInvitationRoute(app: FastifyInstance) {
@@ -16,6 +16,7 @@ export function deleteInvitationRoute(app: FastifyInstance) {
       tags: ['Invitations'],
       summary: 'Cancel a pending invitation',
       params: idParamSchema,
+      response: { 200: invitationDeleteResponse },
     },
     preHandler: [requireAbility('delete', 'Invitation')],
     handler: async (request, reply) => {

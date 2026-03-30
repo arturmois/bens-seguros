@@ -12,7 +12,7 @@ import {
 import { Spinner } from '@/components/ui/spinner'
 
 import { useChecklist, useCompleteChecklistItem } from '../hooks/use-checklist'
-import type { ChecklistItem } from '../types'
+import type { ChecklistItem } from '../lib/constants'
 
 interface ProposalChecklistPanelProps {
   proposalId: string

@@ -21,7 +21,10 @@ import type {
 } from '@tanstack/react-query'
 
 import type {
+  ExportDashboardPdf200,
+  ExportDashboardPdf404,
   ExportDashboardPdfParams,
+  GetDashboardStats200,
   GetDashboardStatsParams,
 } from '../../model'
 
@@ -33,7 +36,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
  * @summary Get dashboard statistics
  */
 export type getDashboardStatsResponse200 = {
-  data: void
+  data: GetDashboardStats200
   status: 200
 }
 
@@ -256,15 +259,26 @@ export const prefetchGetDashboardStatsQuery = async <
  * @summary Export dashboard report as PDF
  */
 export type exportDashboardPdfResponse200 = {
-  data: void
+  data: ExportDashboardPdf200
   status: 200
+}
+
+export type exportDashboardPdfResponse404 = {
+  data: ExportDashboardPdf404
+  status: 404
 }
 
 export type exportDashboardPdfResponseSuccess =
   exportDashboardPdfResponse200 & {
     headers: Headers
   }
-export type exportDashboardPdfResponse = exportDashboardPdfResponseSuccess
+export type exportDashboardPdfResponseError = exportDashboardPdfResponse404 & {
+  headers: Headers
+}
+
+export type exportDashboardPdfResponse =
+  | exportDashboardPdfResponseSuccess
+  | exportDashboardPdfResponseError
 
 export const getExportDashboardPdfUrl = (params?: ExportDashboardPdfParams) => {
   const normalizedParams = new URLSearchParams()
@@ -296,7 +310,7 @@ export const exportDashboardPdf = async (
 }
 
 export const getExportDashboardPdfMutationOptions = <
-  TError = unknown,
+  TError = ExportDashboardPdf404,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -337,12 +351,15 @@ export type ExportDashboardPdfMutationResult = NonNullable<
   Awaited<ReturnType<typeof exportDashboardPdf>>
 >
 
-export type ExportDashboardPdfMutationError = unknown
+export type ExportDashboardPdfMutationError = ExportDashboardPdf404
 
 /**
  * @summary Export dashboard report as PDF
  */
-export const useExportDashboardPdf = <TError = unknown, TContext = unknown>(
+export const useExportDashboardPdf = <
+  TError = ExportDashboardPdf404,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof exportDashboardPdf>>,

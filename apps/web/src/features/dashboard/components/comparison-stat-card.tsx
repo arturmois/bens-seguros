@@ -7,7 +7,7 @@ import { Card, CardPanel } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
-import type { ComparisonMetric } from '../types'
+import type { ComparisonMetric } from '../lib/constants'
 
 interface ComparisonStatCardProps {
   readonly title: string

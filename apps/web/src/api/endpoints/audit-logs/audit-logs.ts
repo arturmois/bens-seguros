@@ -17,7 +17,7 @@ import type {
   UseQueryResult,
 } from '@tanstack/react-query'
 
-import type { ListAuditLogsParams } from '../../model'
+import type { ListAuditLogs200, ListAuditLogsParams } from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
 
@@ -27,7 +27,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
  * @summary List audit logs with cursor pagination
  */
 export type listAuditLogsResponse200 = {
-  data: void
+  data: ListAuditLogs200
   status: 200
 }
 

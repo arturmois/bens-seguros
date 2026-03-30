@@ -4,7 +4,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditUpdate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { cancelPolicyBody, idParam } from './_schemas.js'
+import { cancelPolicyBody, idParam, policyDetailResponse } from './_schemas.js'
 
 export function cancelPolicyRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -16,6 +16,7 @@ export function cancelPolicyRoute(app: FastifyInstance) {
       operationId: 'cancelPolicy',
       params: idParam,
       body: cancelPolicyBody,
+      response: { 200: policyDetailResponse },
     },
     preHandler: [requireAbility('delete', 'Policy')],
     handler: async (request, reply) => {

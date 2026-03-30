@@ -21,6 +21,27 @@ export const ListInvitationsQueryParams = zod.object({
     .default(listInvitationsQueryLimitDefault),
 })
 
+export const ListInvitationsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      organizationId: zod.string(),
+      email: zod.string(),
+      role: zod.string(),
+      status: zod.string(),
+      expiresAt: zod.string().datetime({}),
+      invitedBy: zod.string(),
+      createdAt: zod.string().datetime({}),
+      updatedAt: zod.string().datetime({}),
+    })
+  ),
+  meta: zod.object({
+    total: zod.number().optional(),
+    nextCursor: zod.string().nullish(),
+  }),
+})
+
 /**
  * @summary Create an invitation
  */
@@ -35,4 +56,11 @@ export const CreateInvitationBody = zod.object({
 
 export const RevokeInvitationParams = zod.object({
   id: zod.string().min(1),
+})
+
+export const RevokeInvitationResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+  }),
 })

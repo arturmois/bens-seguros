@@ -25,7 +25,7 @@ import {
   POLICY_BRANCH_LABELS,
   POLICY_STATUS_BADGE_VARIANT,
   POLICY_STATUS_LABELS,
-} from '../types'
+} from '../lib/constants'
 import { PolicyCancellationCard, PolicyInfoCard } from './policy-info-cards'
 import { PolicyTabs } from './policy-tabs'
 

@@ -19,12 +19,27 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 
+import type { z } from 'zod'
+
+import { CreateClaimBody } from '@/api/endpoints/claims/claims.zod'
+
 import { FormField } from '@/components/shared/form-field'
 import { PolicySearch } from '@/components/shared/policy-search'
 import { CLAIM_PRIORITY_OPTIONS } from '../lib/constants'
-import { claimFormSchema, EMPTY_CLAIM_FORM_VALUES } from '../lib/schemas'
-import type { ClaimFormValues } from '../lib/schemas'
 import { useCreateClaim } from '../hooks/use-claims'
+
+type ClaimFormValues = z.infer<typeof CreateClaimBody>
+
+const EMPTY_CLAIM_FORM_VALUES: ClaimFormValues = {
+  policyId: '',
+  clientId: '',
+  insurerId: '',
+  assignedToId: '',
+  priority: 'NORMAL',
+  description: '',
+  incidentDate: '',
+  incidentLocation: '',
+}
 
 const PRIORITY_SELECT_OPTIONS = [
   { value: '', label: 'Selecione' },
@@ -51,7 +66,7 @@ export function ClaimForm() {
   const createClaim = useCreateClaim()
 
   const form = useForm<ClaimFormValues>({
-    resolver: zodResolver(claimFormSchema),
+    resolver: zodResolver(CreateClaimBody),
     defaultValues: EMPTY_CLAIM_FORM_VALUES,
   })
 

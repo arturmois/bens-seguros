@@ -7,6 +7,20 @@
 import * as zod from 'zod'
 
 /**
+ * @summary Get current organization details
+ */
+export const GetOrganizationResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    name: zod.string(),
+    slug: zod.string(),
+    logo: zod.string().nullable(),
+    createdAt: zod.string(),
+  }),
+})
+
+/**
  * @summary Update organization name and slug
  */
 export const updateOrganizationBodyNameMin = 2
@@ -27,4 +41,29 @@ export const UpdateOrganizationBody = zod.object({
     .min(updateOrganizationBodySlugMin)
     .max(updateOrganizationBodySlugMax)
     .regex(updateOrganizationBodySlugRegExp),
+})
+
+export const UpdateOrganizationResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    name: zod.string(),
+    slug: zod.string(),
+    logo: zod.string().nullable(),
+    createdAt: zod.string(),
+  }),
+})
+
+/**
+ * @summary Upload organization logo
+ */
+export const UploadOrganizationLogoResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    name: zod.string(),
+    slug: zod.string(),
+    logo: zod.string().nullable(),
+    createdAt: zod.string(),
+  }),
 })

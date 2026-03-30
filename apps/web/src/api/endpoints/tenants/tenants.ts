@@ -17,6 +17,8 @@ import type {
   UseQueryResult,
 } from '@tanstack/react-query'
 
+import type { ListTenants200, ListTenants401 } from '../../model'
+
 import { customFetch } from '../../../lib/api-mutator'
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
@@ -25,14 +27,25 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
  * @summary List tenants for authenticated user
  */
 export type listTenantsResponse200 = {
-  data: void
+  data: ListTenants200
   status: 200
+}
+
+export type listTenantsResponse401 = {
+  data: ListTenants401
+  status: 401
 }
 
 export type listTenantsResponseSuccess = listTenantsResponse200 & {
   headers: Headers
 }
-export type listTenantsResponse = listTenantsResponseSuccess
+export type listTenantsResponseError = listTenantsResponse401 & {
+  headers: Headers
+}
+
+export type listTenantsResponse =
+  | listTenantsResponseSuccess
+  | listTenantsResponseError
 
 export const getListTenantsUrl = () => {
   return `/api/v1/tenants`
@@ -53,7 +66,7 @@ export const getListTenantsQueryKey = () => {
 
 export const getListTenantsQueryOptions = <
   TData = Awaited<ReturnType<typeof listTenants>>,
-  TError = unknown,
+  TError = ListTenants401,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof listTenants>>, TError, TData>
@@ -83,11 +96,11 @@ export const getListTenantsQueryOptions = <
 export type ListTenantsQueryResult = NonNullable<
   Awaited<ReturnType<typeof listTenants>>
 >
-export type ListTenantsQueryError = unknown
+export type ListTenantsQueryError = ListTenants401
 
 export function useListTenants<
   TData = Awaited<ReturnType<typeof listTenants>>,
-  TError = unknown,
+  TError = ListTenants401,
 >(
   options: {
     query: Partial<
@@ -109,7 +122,7 @@ export function useListTenants<
 }
 export function useListTenants<
   TData = Awaited<ReturnType<typeof listTenants>>,
-  TError = unknown,
+  TError = ListTenants401,
 >(
   options?: {
     query?: Partial<
@@ -131,7 +144,7 @@ export function useListTenants<
 }
 export function useListTenants<
   TData = Awaited<ReturnType<typeof listTenants>>,
-  TError = unknown,
+  TError = ListTenants401,
 >(
   options?: {
     query?: Partial<
@@ -149,7 +162,7 @@ export function useListTenants<
 
 export function useListTenants<
   TData = Awaited<ReturnType<typeof listTenants>>,
-  TError = unknown,
+  TError = ListTenants401,
 >(
   options?: {
     query?: Partial<
@@ -176,7 +189,7 @@ export function useListTenants<
  */
 export const prefetchListTenantsQuery = async <
   TData = Awaited<ReturnType<typeof listTenants>>,
-  TError = unknown,
+  TError = ListTenants401,
 >(
   queryClient: QueryClient,
   options?: {

@@ -2,7 +2,7 @@ import { AlertTriangle } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
-import type { ClaimPriority } from '../types'
+import type { ClaimPriority } from '../lib/constants'
 import { CLAIM_PRIORITY_COLORS, CLAIM_PRIORITY_LABELS } from '../lib/constants'
 
 interface ClaimPriorityBadgeProps {

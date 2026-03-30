@@ -4,31 +4,17 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
-import { z } from 'zod'
+import type { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
 import { Input } from '@/components/ui/input'
+import { UpdateOrganizationBody } from '@/api/endpoints/organization/organization.zod'
 
 import type { OrganizationData } from '../types'
 import { useUpdateOrganization } from '../hooks/use-update-organization'
 
-const organizationSchema = z.object({
-  name: z
-    .string()
-    .min(2, 'Nome deve ter no mínimo 2 caracteres')
-    .max(100, 'Nome deve ter no máximo 100 caracteres'),
-  slug: z
-    .string()
-    .min(2, 'Slug deve ter no mínimo 2 caracteres')
-    .max(50, 'Slug deve ter no máximo 50 caracteres')
-    .regex(
-      /^[a-z0-9-]+$/,
-      'Slug deve conter apenas letras minúsculas, números e hifens'
-    ),
-})
-
-type OrganizationFormValues = z.infer<typeof organizationSchema>
+type OrganizationFormValues = z.infer<typeof UpdateOrganizationBody>
 
 interface OrganizationFormProps {
   readonly organization: OrganizationData
@@ -42,7 +28,7 @@ export function OrganizationForm({
   const updateOrganization = useUpdateOrganization()
 
   const form = useForm<OrganizationFormValues>({
-    resolver: zodResolver(organizationSchema),
+    resolver: zodResolver(UpdateOrganizationBody),
     defaultValues: {
       name: organization.name,
       slug: organization.slug,

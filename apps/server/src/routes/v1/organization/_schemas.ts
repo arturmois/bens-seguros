@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { successResponse } from '../../_shared/response.schema.js'
+
 export const updateOrganizationSchema = z.object({
   name: z
     .string()
@@ -16,3 +18,17 @@ export const updateOrganizationSchema = z.object({
 })
 
 export type UpdateOrganizationInput = z.infer<typeof updateOrganizationSchema>
+
+// --- Response schemas ---
+
+const organizationDataSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  logo: z.string().nullable(),
+  createdAt: z.string(),
+})
+
+export const organizationDetailResponse = successResponse(
+  organizationDataSchema
+)

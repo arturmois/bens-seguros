@@ -17,6 +17,89 @@ export const GetDashboardStatsQueryParams = zod.object({
     .default(getDashboardStatsQueryPresetDefault),
 })
 
+export const GetDashboardStatsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    proposalsByStage: zod.array(
+      zod.object({
+        stage: zod.string(),
+        _count: zod.number(),
+      })
+    ),
+    activePolicies: zod.number(),
+    expiringPolicies: zod.number(),
+    claimsByPriority: zod.array(
+      zod.object({
+        priority: zod.string(),
+        _count: zod.number(),
+      })
+    ),
+    commissionsThisMonth: zod.array(
+      zod.object({
+        status: zod.string(),
+        _count: zod.number(),
+        _sum: zod.object({
+          commissionValueInCents: zod.number().nullable(),
+        }),
+      })
+    ),
+    conversionRate: zod.object({
+      total: zod.number(),
+      issued: zod.number(),
+      rate: zod.number(),
+    }),
+    monthlyTrends: zod.array(
+      zod.object({
+        month: zod.string(),
+        proposals: zod.number(),
+        issued: zod.number(),
+      })
+    ),
+    comparison: zod.object({
+      proposals: zod.object({
+        current: zod.number(),
+        previous: zod.number(),
+        changePercent: zod.number(),
+      }),
+      policies: zod.object({
+        current: zod.number(),
+        previous: zod.number(),
+        changePercent: zod.number(),
+      }),
+      claims: zod.object({
+        current: zod.number(),
+        previous: zod.number(),
+        changePercent: zod.number(),
+      }),
+      commissionsPending: zod.object({
+        current: zod.number(),
+        previous: zod.number(),
+        changePercent: zod.number(),
+      }),
+    }),
+    totalPremium: zod.object({
+      current: zod.number(),
+      previous: zod.number(),
+      changePercent: zod.number(),
+    }),
+    averageTicket: zod.object({
+      current: zod.number(),
+      previous: zod.number(),
+      changePercent: zod.number(),
+    }),
+    commissionsReceivable: zod.number(),
+    ranking: zod.array(
+      zod.object({
+        salespersonId: zod.string(),
+        salespersonName: zod.string(),
+        policiesIssued: zod.number(),
+        totalPremiumCents: zod.number(),
+        averageTicketCents: zod.number(),
+      })
+    ),
+  }),
+})
+
 /**
  * @summary Export dashboard report as PDF
  */
@@ -26,4 +109,11 @@ export const ExportDashboardPdfQueryParams = zod.object({
   preset: zod
     .enum(['7d', '30d', '90d', '6m'])
     .default(exportDashboardPdfQueryPresetDefault),
+})
+
+export const ExportDashboardPdfResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    url: zod.string(),
+  }),
 })

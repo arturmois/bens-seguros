@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
-import { z } from 'zod'
+import type { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
 
+import { CreateClaimOccurrenceBody } from '@/api/endpoints/claims/claims.zod'
 import { FormField } from '@/components/shared/form-field'
 import { useCreateOccurrence } from '../hooks/use-claims'
 
@@ -35,13 +36,9 @@ const OCCURRENCE_TYPE_OPTIONS = [
   { value: 'outro', label: 'Outro' },
 ] as const
 
-const occurrenceFormSchema = z.object({
-  type: z
-    .string({ required_error: 'Tipo é obrigatório' })
-    .min(1, 'Tipo é obrigatório'),
-  description: z
-    .string({ required_error: 'Descrição é obrigatória' })
-    .min(1, 'Descrição é obrigatória'),
+const occurrenceFormSchema = CreateClaimOccurrenceBody.pick({
+  type: true,
+  description: true,
 })
 
 type OccurrenceFormValues = z.infer<typeof occurrenceFormSchema>

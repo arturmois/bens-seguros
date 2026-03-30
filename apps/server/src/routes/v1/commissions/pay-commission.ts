@@ -5,7 +5,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditUpdate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { commissionIdParam } from './_schemas.js'
+import { commissionIdParam, commissionDetailResponse } from './_schemas.js'
 
 export async function payCommissionRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -16,6 +16,7 @@ export async function payCommissionRoute(app: FastifyInstance) {
       summary: 'Mark commission as paid',
       operationId: 'payCommission',
       params: commissionIdParam,
+      response: { 200: commissionDetailResponse },
     },
     preHandler: [requireAbility('manage', 'Commission')],
     async handler(request, reply) {

@@ -23,14 +23,18 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 
+import type { z } from 'zod'
+
+import { CreateInvitationBody } from '@/api/endpoints/invitations/invitations.zod'
+
 import { useInviteMember } from '../hooks/use-members'
 import {
   ASSIGNABLE_ROLES,
-  inviteMemberSchema,
-  type InviteMemberFormValues,
   getRoleLevel,
   ROLE_LABELS,
 } from '../lib/member-schemas'
+
+type InviteMemberFormValues = z.infer<typeof CreateInvitationBody>
 
 interface InviteMemberDialogProps {
   readonly open: boolean
@@ -56,7 +60,7 @@ export function InviteMemberDialog({
   const inviteMember = useInviteMember()
 
   const form = useForm<InviteMemberFormValues>({
-    resolver: zodResolver(inviteMemberSchema),
+    resolver: zodResolver(CreateInvitationBody),
     defaultValues: DEFAULT_VALUES,
   })
 

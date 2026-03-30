@@ -4,7 +4,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditCreate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { createInsurerBodySchema } from './_schemas.js'
+import { createInsurerBodySchema, insurerDetailResponse } from './_schemas.js'
 
 function resolveCache(): CacheService | null {
   try {
@@ -23,6 +23,7 @@ export function createInsurerRoute(app: FastifyInstance) {
       tags: ['Insurers'],
       summary: 'Create a new insurer',
       body: createInsurerBodySchema,
+      response: { 201: insurerDetailResponse },
     },
     preHandler: [requireAbility('manage', 'all')],
     handler: async (request, reply) => {

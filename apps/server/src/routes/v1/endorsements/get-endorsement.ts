@@ -4,7 +4,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { idParamSchema } from './_schemas.js'
+import { idParamSchema, endorsementDetailResponse } from './_schemas.js'
 
 export function getEndorsementRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -15,6 +15,7 @@ export function getEndorsementRoute(app: FastifyInstance) {
       tags: ['Endorsements'],
       summary: 'Get an endorsement by ID',
       params: idParamSchema,
+      response: { 200: endorsementDetailResponse },
     },
     preHandler: [requireAbility('read', 'Endorsement')],
     handler: async (request, reply) => {

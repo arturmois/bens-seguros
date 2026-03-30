@@ -43,6 +43,14 @@ export const GenerateProposalPdfParams = zod.object({
   id: zod.string().min(1),
 })
 
+export const GenerateProposalPdfResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    url: zod.string(),
+    cached: zod.boolean(),
+  }),
+})
+
 /**
  * @summary Create a new proposal
  */
@@ -91,6 +99,145 @@ export const ListProposalsQueryParams = zod.object({
   search: zod.string().optional(),
 })
 
+export const listProposalsResponseDataItemDetailsOneManufacturingYearMin = 1900
+export const listProposalsResponseDataItemDetailsOneManufacturingYearMax = 2100
+
+export const listProposalsResponseDataItemDetailsOneModelYearMin = 1900
+export const listProposalsResponseDataItemDetailsOneModelYearMax = 2100
+
+export const listProposalsResponseDataItemDetailsFiveMonthlyIncomeCentsMin = 0
+
+export const listProposalsResponseDataItemDetailsFiveHeightInCentimetersMin = 100
+export const listProposalsResponseDataItemDetailsFiveHeightInCentimetersMax = 250
+
+export const listProposalsResponseDataItemDetailsFiveWeightInGramsMin = 20000
+export const listProposalsResponseDataItemDetailsFiveWeightInGramsMax = 300000
+
+export const ListProposalsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      organizationId: zod.string(),
+      clientId: zod.string(),
+      salespersonId: zod.string(),
+      stage: zod.enum([
+        'CAPTURE',
+        'QUOTE',
+        'PROTOCOL',
+        'INSPECTION',
+        'PAYMENT',
+        'POLICY_ISSUED',
+        'LOST',
+      ]),
+      boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL']),
+      branch: zod.enum([
+        'AUTO',
+        'RESIDENTIAL',
+        'CONDOMINIUM',
+        'BUSINESS',
+        'LIFE',
+        'OTHER',
+      ]),
+      premiumValueInCents: zod.number(),
+      commissionPercentageInCents: zod.number(),
+      details: zod
+        .union([
+          zod.object({
+            branch: zod.enum(['AUTO']),
+            brand: zod.string().min(1),
+            model: zod.string().min(1),
+            manufacturingYear: zod
+              .number()
+              .min(listProposalsResponseDataItemDetailsOneManufacturingYearMin)
+              .max(listProposalsResponseDataItemDetailsOneManufacturingYearMax),
+            modelYear: zod
+              .number()
+              .min(listProposalsResponseDataItemDetailsOneModelYearMin)
+              .max(listProposalsResponseDataItemDetailsOneModelYearMax),
+            licensePlate: zod.string().optional(),
+            vin: zod.string().optional(),
+            color: zod.string().optional(),
+            fuelType: zod.string().optional(),
+            vehicleUsage: zod.string().optional(),
+          }),
+          zod.object({
+            branch: zod.enum(['RESIDENTIAL']),
+            propertyType: zod.string().min(1),
+            propertyUsage: zod.string().min(1),
+            cep: zod.string().min(1),
+            address: zod.string().optional(),
+            construction: zod.string().optional(),
+            areaM2: zod.number().optional(),
+          }),
+          zod.object({
+            branch: zod.enum(['CONDOMINIUM']),
+            condominiumName: zod.string().min(1),
+            unitCount: zod.number().min(1),
+            cep: zod.string().min(1),
+            address: zod.string().optional(),
+            constructionYear: zod.number().optional(),
+            floorCount: zod.number().optional(),
+          }),
+          zod.object({
+            branch: zod.enum(['BUSINESS']),
+            legalName: zod.string().min(1),
+            cnpj: zod.string().min(1),
+            businessActivity: zod.string().min(1),
+            cep: zod.string().optional(),
+            address: zod.string().optional(),
+            areaM2: zod.number().optional(),
+          }),
+          zod.object({
+            branch: zod.enum(['LIFE']),
+            occupation: zod.string().min(1),
+            monthlyIncomeCents: zod
+              .number()
+              .min(
+                listProposalsResponseDataItemDetailsFiveMonthlyIncomeCentsMin
+              )
+              .optional(),
+            isSmoker: zod.boolean().optional(),
+            extremeSports: zod.boolean().optional(),
+            heightInCentimeters: zod
+              .number()
+              .min(
+                listProposalsResponseDataItemDetailsFiveHeightInCentimetersMin
+              )
+              .max(
+                listProposalsResponseDataItemDetailsFiveHeightInCentimetersMax
+              )
+              .optional(),
+            weightInGrams: zod
+              .number()
+              .min(listProposalsResponseDataItemDetailsFiveWeightInGramsMin)
+              .max(listProposalsResponseDataItemDetailsFiveWeightInGramsMax)
+              .optional(),
+            beneficiaries: zod.string().optional(),
+          }),
+          zod.object({
+            branch: zod.enum(['OTHER']),
+            description: zod.string().min(1),
+          }),
+        ])
+        .nullable(),
+      lostReason: zod.string().nullable(),
+      renewalPolicyId: zod.string().nullable(),
+      insurerId: zod.string().nullable(),
+      deletedAt: zod.string().datetime({}).nullable(),
+      createdAt: zod.string().datetime({}),
+      updatedAt: zod.string().datetime({}),
+      clientName: zod.string().optional(),
+      clientDocument: zod.string().optional(),
+      salespersonName: zod.string().optional(),
+      insurerName: zod.string().optional(),
+    })
+  ),
+  meta: zod.object({
+    nextCursor: zod.string().nullable(),
+  }),
+})
+
 /**
  * @summary Get a proposal by ID
  */
@@ -99,12 +246,268 @@ export const GetProposalParams = zod.object({
   id: zod.string().min(1),
 })
 
+export const getProposalResponseDataDetailsOneManufacturingYearMin = 1900
+export const getProposalResponseDataDetailsOneManufacturingYearMax = 2100
+
+export const getProposalResponseDataDetailsOneModelYearMin = 1900
+export const getProposalResponseDataDetailsOneModelYearMax = 2100
+
+export const getProposalResponseDataDetailsFiveMonthlyIncomeCentsMin = 0
+
+export const getProposalResponseDataDetailsFiveHeightInCentimetersMin = 100
+export const getProposalResponseDataDetailsFiveHeightInCentimetersMax = 250
+
+export const getProposalResponseDataDetailsFiveWeightInGramsMin = 20000
+export const getProposalResponseDataDetailsFiveWeightInGramsMax = 300000
+
+export const GetProposalResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    clientId: zod.string(),
+    salespersonId: zod.string(),
+    stage: zod.enum([
+      'CAPTURE',
+      'QUOTE',
+      'PROTOCOL',
+      'INSPECTION',
+      'PAYMENT',
+      'POLICY_ISSUED',
+      'LOST',
+    ]),
+    boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL']),
+    branch: zod.enum([
+      'AUTO',
+      'RESIDENTIAL',
+      'CONDOMINIUM',
+      'BUSINESS',
+      'LIFE',
+      'OTHER',
+    ]),
+    premiumValueInCents: zod.number(),
+    commissionPercentageInCents: zod.number(),
+    details: zod
+      .union([
+        zod.object({
+          branch: zod.enum(['AUTO']),
+          brand: zod.string().min(1),
+          model: zod.string().min(1),
+          manufacturingYear: zod
+            .number()
+            .min(getProposalResponseDataDetailsOneManufacturingYearMin)
+            .max(getProposalResponseDataDetailsOneManufacturingYearMax),
+          modelYear: zod
+            .number()
+            .min(getProposalResponseDataDetailsOneModelYearMin)
+            .max(getProposalResponseDataDetailsOneModelYearMax),
+          licensePlate: zod.string().optional(),
+          vin: zod.string().optional(),
+          color: zod.string().optional(),
+          fuelType: zod.string().optional(),
+          vehicleUsage: zod.string().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['RESIDENTIAL']),
+          propertyType: zod.string().min(1),
+          propertyUsage: zod.string().min(1),
+          cep: zod.string().min(1),
+          address: zod.string().optional(),
+          construction: zod.string().optional(),
+          areaM2: zod.number().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['CONDOMINIUM']),
+          condominiumName: zod.string().min(1),
+          unitCount: zod.number().min(1),
+          cep: zod.string().min(1),
+          address: zod.string().optional(),
+          constructionYear: zod.number().optional(),
+          floorCount: zod.number().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['BUSINESS']),
+          legalName: zod.string().min(1),
+          cnpj: zod.string().min(1),
+          businessActivity: zod.string().min(1),
+          cep: zod.string().optional(),
+          address: zod.string().optional(),
+          areaM2: zod.number().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['LIFE']),
+          occupation: zod.string().min(1),
+          monthlyIncomeCents: zod
+            .number()
+            .min(getProposalResponseDataDetailsFiveMonthlyIncomeCentsMin)
+            .optional(),
+          isSmoker: zod.boolean().optional(),
+          extremeSports: zod.boolean().optional(),
+          heightInCentimeters: zod
+            .number()
+            .min(getProposalResponseDataDetailsFiveHeightInCentimetersMin)
+            .max(getProposalResponseDataDetailsFiveHeightInCentimetersMax)
+            .optional(),
+          weightInGrams: zod
+            .number()
+            .min(getProposalResponseDataDetailsFiveWeightInGramsMin)
+            .max(getProposalResponseDataDetailsFiveWeightInGramsMax)
+            .optional(),
+          beneficiaries: zod.string().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['OTHER']),
+          description: zod.string().min(1),
+        }),
+      ])
+      .nullable(),
+    lostReason: zod.string().nullable(),
+    renewalPolicyId: zod.string().nullable(),
+    insurerId: zod.string().nullable(),
+    deletedAt: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    clientName: zod.string().optional(),
+    clientDocument: zod.string().optional(),
+    salespersonName: zod.string().optional(),
+    insurerName: zod.string().optional(),
+  }),
+})
+
 /**
  * @summary Advance proposal to next stage
  */
 
 export const AdvanceProposalParams = zod.object({
   id: zod.string().min(1),
+})
+
+export const advanceProposalResponseDataDetailsOneManufacturingYearMin = 1900
+export const advanceProposalResponseDataDetailsOneManufacturingYearMax = 2100
+
+export const advanceProposalResponseDataDetailsOneModelYearMin = 1900
+export const advanceProposalResponseDataDetailsOneModelYearMax = 2100
+
+export const advanceProposalResponseDataDetailsFiveMonthlyIncomeCentsMin = 0
+
+export const advanceProposalResponseDataDetailsFiveHeightInCentimetersMin = 100
+export const advanceProposalResponseDataDetailsFiveHeightInCentimetersMax = 250
+
+export const advanceProposalResponseDataDetailsFiveWeightInGramsMin = 20000
+export const advanceProposalResponseDataDetailsFiveWeightInGramsMax = 300000
+
+export const AdvanceProposalResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    clientId: zod.string(),
+    salespersonId: zod.string(),
+    stage: zod.enum([
+      'CAPTURE',
+      'QUOTE',
+      'PROTOCOL',
+      'INSPECTION',
+      'PAYMENT',
+      'POLICY_ISSUED',
+      'LOST',
+    ]),
+    boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL']),
+    branch: zod.enum([
+      'AUTO',
+      'RESIDENTIAL',
+      'CONDOMINIUM',
+      'BUSINESS',
+      'LIFE',
+      'OTHER',
+    ]),
+    premiumValueInCents: zod.number(),
+    commissionPercentageInCents: zod.number(),
+    details: zod
+      .union([
+        zod.object({
+          branch: zod.enum(['AUTO']),
+          brand: zod.string().min(1),
+          model: zod.string().min(1),
+          manufacturingYear: zod
+            .number()
+            .min(advanceProposalResponseDataDetailsOneManufacturingYearMin)
+            .max(advanceProposalResponseDataDetailsOneManufacturingYearMax),
+          modelYear: zod
+            .number()
+            .min(advanceProposalResponseDataDetailsOneModelYearMin)
+            .max(advanceProposalResponseDataDetailsOneModelYearMax),
+          licensePlate: zod.string().optional(),
+          vin: zod.string().optional(),
+          color: zod.string().optional(),
+          fuelType: zod.string().optional(),
+          vehicleUsage: zod.string().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['RESIDENTIAL']),
+          propertyType: zod.string().min(1),
+          propertyUsage: zod.string().min(1),
+          cep: zod.string().min(1),
+          address: zod.string().optional(),
+          construction: zod.string().optional(),
+          areaM2: zod.number().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['CONDOMINIUM']),
+          condominiumName: zod.string().min(1),
+          unitCount: zod.number().min(1),
+          cep: zod.string().min(1),
+          address: zod.string().optional(),
+          constructionYear: zod.number().optional(),
+          floorCount: zod.number().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['BUSINESS']),
+          legalName: zod.string().min(1),
+          cnpj: zod.string().min(1),
+          businessActivity: zod.string().min(1),
+          cep: zod.string().optional(),
+          address: zod.string().optional(),
+          areaM2: zod.number().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['LIFE']),
+          occupation: zod.string().min(1),
+          monthlyIncomeCents: zod
+            .number()
+            .min(advanceProposalResponseDataDetailsFiveMonthlyIncomeCentsMin)
+            .optional(),
+          isSmoker: zod.boolean().optional(),
+          extremeSports: zod.boolean().optional(),
+          heightInCentimeters: zod
+            .number()
+            .min(advanceProposalResponseDataDetailsFiveHeightInCentimetersMin)
+            .max(advanceProposalResponseDataDetailsFiveHeightInCentimetersMax)
+            .optional(),
+          weightInGrams: zod
+            .number()
+            .min(advanceProposalResponseDataDetailsFiveWeightInGramsMin)
+            .max(advanceProposalResponseDataDetailsFiveWeightInGramsMax)
+            .optional(),
+          beneficiaries: zod.string().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['OTHER']),
+          description: zod.string().min(1),
+        }),
+      ])
+      .nullable(),
+    lostReason: zod.string().nullable(),
+    renewalPolicyId: zod.string().nullable(),
+    insurerId: zod.string().nullable(),
+    deletedAt: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    clientName: zod.string().optional(),
+    clientDocument: zod.string().optional(),
+    salespersonName: zod.string().optional(),
+    insurerName: zod.string().optional(),
+  }),
 })
 
 /**
@@ -119,12 +522,145 @@ export const MarkProposalLostBody = zod.object({
   reason: zod.string().min(1),
 })
 
+export const markProposalLostResponseDataDetailsOneManufacturingYearMin = 1900
+export const markProposalLostResponseDataDetailsOneManufacturingYearMax = 2100
+
+export const markProposalLostResponseDataDetailsOneModelYearMin = 1900
+export const markProposalLostResponseDataDetailsOneModelYearMax = 2100
+
+export const markProposalLostResponseDataDetailsFiveMonthlyIncomeCentsMin = 0
+
+export const markProposalLostResponseDataDetailsFiveHeightInCentimetersMin = 100
+export const markProposalLostResponseDataDetailsFiveHeightInCentimetersMax = 250
+
+export const markProposalLostResponseDataDetailsFiveWeightInGramsMin = 20000
+export const markProposalLostResponseDataDetailsFiveWeightInGramsMax = 300000
+
+export const MarkProposalLostResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    clientId: zod.string(),
+    salespersonId: zod.string(),
+    stage: zod.enum([
+      'CAPTURE',
+      'QUOTE',
+      'PROTOCOL',
+      'INSPECTION',
+      'PAYMENT',
+      'POLICY_ISSUED',
+      'LOST',
+    ]),
+    boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL']),
+    branch: zod.enum([
+      'AUTO',
+      'RESIDENTIAL',
+      'CONDOMINIUM',
+      'BUSINESS',
+      'LIFE',
+      'OTHER',
+    ]),
+    premiumValueInCents: zod.number(),
+    commissionPercentageInCents: zod.number(),
+    details: zod
+      .union([
+        zod.object({
+          branch: zod.enum(['AUTO']),
+          brand: zod.string().min(1),
+          model: zod.string().min(1),
+          manufacturingYear: zod
+            .number()
+            .min(markProposalLostResponseDataDetailsOneManufacturingYearMin)
+            .max(markProposalLostResponseDataDetailsOneManufacturingYearMax),
+          modelYear: zod
+            .number()
+            .min(markProposalLostResponseDataDetailsOneModelYearMin)
+            .max(markProposalLostResponseDataDetailsOneModelYearMax),
+          licensePlate: zod.string().optional(),
+          vin: zod.string().optional(),
+          color: zod.string().optional(),
+          fuelType: zod.string().optional(),
+          vehicleUsage: zod.string().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['RESIDENTIAL']),
+          propertyType: zod.string().min(1),
+          propertyUsage: zod.string().min(1),
+          cep: zod.string().min(1),
+          address: zod.string().optional(),
+          construction: zod.string().optional(),
+          areaM2: zod.number().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['CONDOMINIUM']),
+          condominiumName: zod.string().min(1),
+          unitCount: zod.number().min(1),
+          cep: zod.string().min(1),
+          address: zod.string().optional(),
+          constructionYear: zod.number().optional(),
+          floorCount: zod.number().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['BUSINESS']),
+          legalName: zod.string().min(1),
+          cnpj: zod.string().min(1),
+          businessActivity: zod.string().min(1),
+          cep: zod.string().optional(),
+          address: zod.string().optional(),
+          areaM2: zod.number().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['LIFE']),
+          occupation: zod.string().min(1),
+          monthlyIncomeCents: zod
+            .number()
+            .min(markProposalLostResponseDataDetailsFiveMonthlyIncomeCentsMin)
+            .optional(),
+          isSmoker: zod.boolean().optional(),
+          extremeSports: zod.boolean().optional(),
+          heightInCentimeters: zod
+            .number()
+            .min(markProposalLostResponseDataDetailsFiveHeightInCentimetersMin)
+            .max(markProposalLostResponseDataDetailsFiveHeightInCentimetersMax)
+            .optional(),
+          weightInGrams: zod
+            .number()
+            .min(markProposalLostResponseDataDetailsFiveWeightInGramsMin)
+            .max(markProposalLostResponseDataDetailsFiveWeightInGramsMax)
+            .optional(),
+          beneficiaries: zod.string().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['OTHER']),
+          description: zod.string().min(1),
+        }),
+      ])
+      .nullable(),
+    lostReason: zod.string().nullable(),
+    renewalPolicyId: zod.string().nullable(),
+    insurerId: zod.string().nullable(),
+    deletedAt: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    clientName: zod.string().optional(),
+    clientDocument: zod.string().optional(),
+    salespersonName: zod.string().optional(),
+    insurerName: zod.string().optional(),
+  }),
+})
+
 /**
  * @summary Reopen a lost proposal
  */
 
 export const ReopenProposalParams = zod.object({
   id: zod.string().min(1),
+})
+
+export const ReopenProposalResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.enum(['null']).nullable(),
 })
 
 /**
@@ -237,12 +773,176 @@ export const UpdateProposalDetailsBody = zod.object({
   insurerId: zod.string().nullish(),
 })
 
+export const updateProposalDetailsResponseDataDetailsOneManufacturingYearMin = 1900
+export const updateProposalDetailsResponseDataDetailsOneManufacturingYearMax = 2100
+
+export const updateProposalDetailsResponseDataDetailsOneModelYearMin = 1900
+export const updateProposalDetailsResponseDataDetailsOneModelYearMax = 2100
+
+export const updateProposalDetailsResponseDataDetailsFiveMonthlyIncomeCentsMin = 0
+
+export const updateProposalDetailsResponseDataDetailsFiveHeightInCentimetersMin = 100
+export const updateProposalDetailsResponseDataDetailsFiveHeightInCentimetersMax = 250
+
+export const updateProposalDetailsResponseDataDetailsFiveWeightInGramsMin = 20000
+export const updateProposalDetailsResponseDataDetailsFiveWeightInGramsMax = 300000
+
+export const UpdateProposalDetailsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    clientId: zod.string(),
+    salespersonId: zod.string(),
+    stage: zod.enum([
+      'CAPTURE',
+      'QUOTE',
+      'PROTOCOL',
+      'INSPECTION',
+      'PAYMENT',
+      'POLICY_ISSUED',
+      'LOST',
+    ]),
+    boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL']),
+    branch: zod.enum([
+      'AUTO',
+      'RESIDENTIAL',
+      'CONDOMINIUM',
+      'BUSINESS',
+      'LIFE',
+      'OTHER',
+    ]),
+    premiumValueInCents: zod.number(),
+    commissionPercentageInCents: zod.number(),
+    details: zod
+      .union([
+        zod.object({
+          branch: zod.enum(['AUTO']),
+          brand: zod.string().min(1),
+          model: zod.string().min(1),
+          manufacturingYear: zod
+            .number()
+            .min(
+              updateProposalDetailsResponseDataDetailsOneManufacturingYearMin
+            )
+            .max(
+              updateProposalDetailsResponseDataDetailsOneManufacturingYearMax
+            ),
+          modelYear: zod
+            .number()
+            .min(updateProposalDetailsResponseDataDetailsOneModelYearMin)
+            .max(updateProposalDetailsResponseDataDetailsOneModelYearMax),
+          licensePlate: zod.string().optional(),
+          vin: zod.string().optional(),
+          color: zod.string().optional(),
+          fuelType: zod.string().optional(),
+          vehicleUsage: zod.string().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['RESIDENTIAL']),
+          propertyType: zod.string().min(1),
+          propertyUsage: zod.string().min(1),
+          cep: zod.string().min(1),
+          address: zod.string().optional(),
+          construction: zod.string().optional(),
+          areaM2: zod.number().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['CONDOMINIUM']),
+          condominiumName: zod.string().min(1),
+          unitCount: zod.number().min(1),
+          cep: zod.string().min(1),
+          address: zod.string().optional(),
+          constructionYear: zod.number().optional(),
+          floorCount: zod.number().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['BUSINESS']),
+          legalName: zod.string().min(1),
+          cnpj: zod.string().min(1),
+          businessActivity: zod.string().min(1),
+          cep: zod.string().optional(),
+          address: zod.string().optional(),
+          areaM2: zod.number().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['LIFE']),
+          occupation: zod.string().min(1),
+          monthlyIncomeCents: zod
+            .number()
+            .min(
+              updateProposalDetailsResponseDataDetailsFiveMonthlyIncomeCentsMin
+            )
+            .optional(),
+          isSmoker: zod.boolean().optional(),
+          extremeSports: zod.boolean().optional(),
+          heightInCentimeters: zod
+            .number()
+            .min(
+              updateProposalDetailsResponseDataDetailsFiveHeightInCentimetersMin
+            )
+            .max(
+              updateProposalDetailsResponseDataDetailsFiveHeightInCentimetersMax
+            )
+            .optional(),
+          weightInGrams: zod
+            .number()
+            .min(updateProposalDetailsResponseDataDetailsFiveWeightInGramsMin)
+            .max(updateProposalDetailsResponseDataDetailsFiveWeightInGramsMax)
+            .optional(),
+          beneficiaries: zod.string().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['OTHER']),
+          description: zod.string().min(1),
+        }),
+      ])
+      .nullable(),
+    lostReason: zod.string().nullable(),
+    renewalPolicyId: zod.string().nullable(),
+    insurerId: zod.string().nullable(),
+    deletedAt: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    clientName: zod.string().optional(),
+    clientDocument: zod.string().optional(),
+    salespersonName: zod.string().optional(),
+    insurerName: zod.string().optional(),
+  }),
+})
+
 /**
  * @summary Get proposal checklist items
  */
 
 export const GetProposalChecklistParams = zod.object({
   id: zod.string().min(1),
+})
+
+export const GetProposalChecklistResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    items: zod.array(
+      zod.object({
+        id: zod.string(),
+        proposalId: zod.string(),
+        itemKey: zod.string(),
+        label: zod.string(),
+        isRequired: zod.boolean(),
+        isCompleted: zod.boolean(),
+        completedAt: zod.string().datetime({}).nullable(),
+        completedBy: zod.string().nullable(),
+        createdAt: zod.string().datetime({}),
+      })
+    ),
+    summary: zod.object({
+      total: zod.number(),
+      completed: zod.number(),
+      required: zod.number(),
+      requiredCompleted: zod.number(),
+      canAdvance: zod.boolean(),
+    }),
+  }),
 })
 
 /**
@@ -252,4 +952,19 @@ export const GetProposalChecklistParams = zod.object({
 export const CompleteProposalChecklistItemParams = zod.object({
   id: zod.string().min(1),
   itemId: zod.string().min(1),
+})
+
+export const CompleteProposalChecklistItemResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    proposalId: zod.string(),
+    itemKey: zod.string(),
+    label: zod.string(),
+    isRequired: zod.boolean(),
+    isCompleted: zod.boolean(),
+    completedAt: zod.string().datetime({}).nullable(),
+    completedBy: zod.string().nullable(),
+    createdAt: zod.string().datetime({}),
+  }),
 })

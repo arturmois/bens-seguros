@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { container, CountUnreadNotifications } from '@repo/core'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
+import { unreadCountResponse } from './_schemas.js'
 
 export function getUnreadCountRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -11,6 +12,7 @@ export function getUnreadCountRoute(app: FastifyInstance) {
       operationId: 'getUnreadCount',
       tags: ['Notifications'],
       summary: 'Get unread notification count',
+      response: { 200: unreadCountResponse },
     },
     preHandler: [requireAbility('read', 'Notification')],
     handler: async (request, reply) => {

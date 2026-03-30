@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge'
 import { formatCurrency } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 
-import type { ProposalData } from '../types'
-import { BRANCH_LABELS } from '../types'
+import type { ProposalData } from '../lib/constants'
+import { BRANCH_LABELS } from '../lib/constants'
 
 const BRANCH_COLORS: Record<string, string> = {
   AUTO: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',

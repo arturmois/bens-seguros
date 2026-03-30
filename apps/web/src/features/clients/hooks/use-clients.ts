@@ -1,47 +1,45 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-import { api } from '@/lib/api-client'
 import {
-  getListClientsQueryKey,
-  getGetClientQueryKey,
-  getListClientsUrl,
-  getGetClientUrl,
+  useListClients,
+  useGetClient,
   createClient,
   updateClient,
   deleteClient,
+  getListClientsQueryKey,
+  getGetClientQueryKey,
 } from '@/api/endpoints/clients/clients'
 
-import type { ClientData, ClientFilters, ClientListMeta } from '../types'
-import type { ClientFormValues } from '../lib/schemas'
+import type { z } from 'zod'
+
+import { CreateClientBody } from '@/api/endpoints/clients/clients.zod'
+
+import type { ClientFilters } from '../lib/constants'
+
+type ClientFormValues = z.infer<typeof CreateClientBody>
 
 export const CLIENTS_QUERY_KEY = getListClientsQueryKey
 
 export function useClients(filters: ClientFilters) {
-  return useQuery({
-    queryKey: getListClientsQueryKey(filters),
-    queryFn: async () => {
-      const response = await api.get<ClientData[]>(getListClientsUrl(filters))
-      return {
-        data: response.data,
-        meta: response.meta as ClientListMeta,
-      }
+  return useListClients(filters, {
+    query: {
+      select: (response) => ({
+        data: response.data.data,
+        meta: response.data.meta,
+      }),
     },
-    staleTime: 60_000,
   })
 }
 
 export function useClient(id: string) {
-  return useQuery({
-    queryKey: getGetClientQueryKey(id),
-    queryFn: async () => {
-      const response = await api.get<ClientData>(getGetClientUrl(id))
-      return response.data
+  return useGetClient(id, {
+    query: {
+      enabled: id.length > 0,
+      select: (response) => response.data.data,
     },
-    staleTime: 60_000,
-    enabled: id.length > 0,
   })
 }
 

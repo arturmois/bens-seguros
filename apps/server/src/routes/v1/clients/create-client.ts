@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { auditCreate } from '../../../services/audit-logger.js'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { createClientBodySchema } from './_schemas.js'
+import { createClientBodySchema, clientDetailResponse } from './_schemas.js'
 import { handleDomainError } from '../handle-domain-error.js'
 
 export function createClientRoute(app: FastifyInstance) {
@@ -15,6 +15,7 @@ export function createClientRoute(app: FastifyInstance) {
       summary: 'Create a new client',
       operationId: 'createClient',
       body: createClientBodySchema,
+      response: { 201: clientDetailResponse },
     },
     preHandler: [requireAbility('create', 'Client')],
     handler: async (request, reply) => {

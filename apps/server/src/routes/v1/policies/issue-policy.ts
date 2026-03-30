@@ -4,7 +4,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditCreate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { issuePolicyBody } from './_schemas.js'
+import { issuePolicyBody, policyDetailResponse } from './_schemas.js'
 
 export function issuePolicyRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -15,6 +15,7 @@ export function issuePolicyRoute(app: FastifyInstance) {
       summary: 'Issue a new policy from a proposal',
       operationId: 'issuePolicy',
       body: issuePolicyBody,
+      response: { 201: policyDetailResponse },
     },
     preHandler: [requireAbility('create', 'Policy')],
     handler: async (request, reply) => {

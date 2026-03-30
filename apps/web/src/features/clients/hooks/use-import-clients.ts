@@ -18,6 +18,9 @@ import type {
   ImportStatusResponse,
 } from '../types/import-types'
 
+/**
+ * Upload stays manual because Orval does not handle multipart FormData uploads.
+ */
 export function useUploadCsv() {
   return useMutation({
     mutationFn: async (file: File) => {
@@ -35,6 +38,10 @@ export function useUploadCsv() {
   })
 }
 
+/**
+ * Confirm stays manual because Orval confirm hook expects no body,
+ * but the endpoint needs to be called with POST and empty body via api.post.
+ */
 export function useConfirmImport() {
   return useMutation({
     mutationFn: async (jobId: string) => {
@@ -50,6 +57,10 @@ export function useConfirmImport() {
   })
 }
 
+/**
+ * Import status polling stays manual because Orval hook does not support
+ * refetchInterval or custom completion side-effects.
+ */
 export function useImportStatus(jobId: string, enabled: boolean) {
   const queryClient = useQueryClient()
   const didInvalidate = useRef(false)

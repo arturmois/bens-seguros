@@ -1,23 +1,24 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-import { api } from '@/lib/api-client'
 import {
-  getListAssistancesQueryKey,
-  getGetAssistanceQueryKey,
+  useListAssistances,
+  useGetAssistance,
   createAssistance,
   updateAssistanceStatus,
+  getListAssistancesQueryKey,
+  getGetAssistanceQueryKey,
 } from '@/api/endpoints/assistances/assistances'
 
-import type {
-  AssistanceData,
-  AssistanceFilters,
-  AssistanceListMeta,
-  AssistanceStatus,
-} from '../types'
-import type { AssistanceFormValues } from '../lib/schemas'
+import type { z } from 'zod'
+
+import { CreateAssistanceBody } from '@/api/endpoints/assistances/assistances.zod'
+
+import type { AssistanceFilters, AssistanceStatus } from '../lib/constants'
+
+type AssistanceFormValues = z.infer<typeof CreateAssistanceBody>
 
 export function useAssistances(filters: AssistanceFilters) {
   const params = {
@@ -29,38 +30,22 @@ export function useAssistances(filters: AssistanceFilters) {
     limit: filters.limit ?? 20,
   }
 
-  return useQuery({
-    queryKey: getListAssistancesQueryKey(params),
-    queryFn: async () => {
-      const qs = new URLSearchParams()
-      for (const [key, value] of Object.entries(params)) {
-        if (value !== undefined && value !== null) {
-          qs.set(key, String(value))
-        }
-      }
-      const response = await api.get<AssistanceData[]>(
-        `/api/v1/assistances?${qs.toString()}`
-      )
-      return {
-        data: response.data,
-        meta: response.meta as AssistanceListMeta,
-      }
+  return useListAssistances(params, {
+    query: {
+      select: (response) => ({
+        data: response.data.data,
+        meta: response.data.meta,
+      }),
     },
-    staleTime: 60_000,
   })
 }
 
 export function useAssistance(id: string) {
-  return useQuery({
-    queryKey: getGetAssistanceQueryKey(id),
-    queryFn: async () => {
-      const response = await api.get<AssistanceData>(
-        `/api/v1/assistances/${id}`
-      )
-      return response.data
+  return useGetAssistance(id, {
+    query: {
+      enabled: id.length > 0,
+      select: (response) => response.data.data,
     },
-    staleTime: 60_000,
-    enabled: id.length > 0,
   })
 }
 

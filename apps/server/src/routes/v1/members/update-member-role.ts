@@ -5,7 +5,11 @@ import { container, type CacheService, UpdateMemberRole } from '@repo/core'
 import type { Role } from '@repo/auth/roles'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditUpdate } from '../../../services/audit-logger.js'
-import { idParamSchema, changeMemberRoleBodySchema } from './_schemas.js'
+import {
+  idParamSchema,
+  changeMemberRoleBodySchema,
+  memberUpdateResponse,
+} from './_schemas.js'
 import { handleDomainError } from '../handle-domain-error.js'
 
 function resolveCache(): CacheService | null {
@@ -26,6 +30,7 @@ export function updateMemberRoleRoute(app: FastifyInstance) {
       summary: 'Update a member role',
       params: idParamSchema,
       body: changeMemberRoleBodySchema,
+      response: { 200: memberUpdateResponse },
     },
     preHandler: [requireAbility('update', 'Member')],
     handler: async (request, reply) => {

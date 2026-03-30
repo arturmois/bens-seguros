@@ -18,7 +18,7 @@ import { formatDate } from '@/lib/formatters'
 
 import { useAuditLogs } from '../hooks/use-audit-logs'
 import { AuditDetailModal } from './audit-detail-modal'
-import type { AuditLogEntry, AuditLogFilters } from '../types'
+import type { AuditLogEntry, AuditLogFilters } from '../lib/constants'
 
 const ACTION_VARIANT: Record<
   string,

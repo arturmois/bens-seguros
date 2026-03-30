@@ -1,52 +1,46 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-import { api, ApiError } from '@/lib/api-client'
+import { ApiError } from '@/lib/api-client'
 import {
-  getListMembersQueryKey,
+  useListMembers,
   updateMemberRole,
   deactivateMember,
+  getListMembersQueryKey,
 } from '@/api/endpoints/members/members'
 import type {
   UpdateMemberRoleBody,
   UpdateMemberRoleBodyRole,
 } from '@/api/model'
 import {
-  getListInvitationsQueryKey,
+  useListInvitations,
   createInvitation,
   revokeInvitation,
+  getListInvitationsQueryKey,
 } from '@/api/endpoints/invitations/invitations'
 import type {
   CreateInvitationBody,
   CreateInvitationBodyRole,
 } from '@/api/model'
 
-import type { InvitationData, MemberData } from '../types'
-
 const MEMBERS_KEY = getListMembersQueryKey()
 const INVITATIONS_KEY = getListInvitationsQueryKey()
 
 export function useMembers() {
-  return useQuery({
-    queryKey: MEMBERS_KEY,
-    queryFn: async () => {
-      const response = await api.get<MemberData[]>('/api/v1/members')
-      return response.data
+  return useListMembers(undefined, {
+    query: {
+      select: (response) => response.data.data,
     },
-    staleTime: 60_000,
   })
 }
 
 export function useInvitations() {
-  return useQuery({
-    queryKey: INVITATIONS_KEY,
-    queryFn: async () => {
-      const response = await api.get<InvitationData[]>('/api/v1/invitations')
-      return response.data
+  return useListInvitations(undefined, {
+    query: {
+      select: (response) => response.data.data,
     },
-    staleTime: 60_000,
   })
 }
 

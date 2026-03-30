@@ -20,7 +20,13 @@ import type {
   UseQueryResult,
 } from '@tanstack/react-query'
 
-import type { ListMembersParams, UpdateMemberRoleBody } from '../../model'
+import type {
+  DeactivateMember200,
+  ListMembers200,
+  ListMembersParams,
+  UpdateMemberRole200,
+  UpdateMemberRoleBody,
+} from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
 
@@ -30,7 +36,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
  * @summary List organization members
  */
 export type listMembersResponse200 = {
-  data: void
+  data: ListMembers200
   status: 200
 }
 
@@ -223,7 +229,7 @@ export const prefetchListMembersQuery = async <
  * @summary Update a member role
  */
 export type updateMemberRoleResponse200 = {
-  data: void
+  data: UpdateMemberRole200
   status: 200
 }
 
@@ -319,7 +325,7 @@ export const useUpdateMemberRole = <TError = unknown, TContext = unknown>(
  * @summary Deactivate a member
  */
 export type deactivateMemberResponse200 = {
-  data: void
+  data: DeactivateMember200
   status: 200
 }
 

@@ -1,4 +1,32 @@
-import type { ClientType, MaritalStatus } from '../types'
+import type {
+  ListClients200DataItemType,
+  ListClients200DataItem,
+  GetClient200Data,
+} from '@/api/model'
+
+export type ClientType = ListClients200DataItemType
+
+/** Non-nullable marital status (Orval generates nullable variant) */
+export type MaritalStatus =
+  | 'SINGLE'
+  | 'MARRIED'
+  | 'DIVORCED'
+  | 'WIDOWED'
+  | 'OTHER'
+export type ClientData = ListClients200DataItem
+export type ClientDetail = GetClient200Data
+
+export interface ClientFilters {
+  readonly search?: string
+  readonly type?: ClientType
+  readonly cursor?: string
+  readonly limit?: number
+}
+
+export interface ClientListMeta {
+  readonly total: number
+  readonly nextCursor: string | null
+}
 
 interface SelectOption<TValue extends string> {
   readonly value: TValue

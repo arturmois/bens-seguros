@@ -1,6 +1,10 @@
 import { z } from 'zod'
 
 import { idParam } from '../../_shared/params.schema.js'
+import {
+  successResponse,
+  paginatedResponse,
+} from '../../_shared/response.schema.js'
 
 const ASSISTANCE_STATUS_VALUES = [
   'REQUESTED',
@@ -45,3 +49,31 @@ export const listAssistancesQuerySchema = z.object({
 })
 
 export { idParam as idParamSchema }
+
+// --- Response schemas ---
+
+const assistanceSchema = z.object({
+  id: z.string(),
+  organizationId: z.string(),
+  policyId: z.string(),
+  clientId: z.string(),
+  claimId: z.string().nullable(),
+  type: z.string(),
+  status: z.enum(ASSISTANCE_STATUS_VALUES),
+  description: z.string().nullable(),
+  address: z.string().nullable(),
+  latitude: z.number().nullable(),
+  longitude: z.number().nullable(),
+  providerName: z.string().nullable(),
+  providerPhone: z.string().nullable(),
+  requestedAt: z.coerce.date(),
+  scheduledAt: z.coerce.date().nullable(),
+  completedAt: z.coerce.date().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  policyNumber: z.string().optional(),
+  clientName: z.string().optional(),
+})
+
+export const assistanceDetailResponse = successResponse(assistanceSchema)
+export const assistanceListResponse = paginatedResponse(assistanceSchema)

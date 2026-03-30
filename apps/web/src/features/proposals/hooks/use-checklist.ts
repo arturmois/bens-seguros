@@ -1,33 +1,20 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import {
-  getGetProposalChecklistQueryOptions,
-  getGetProposalChecklistQueryKey,
+  useGetProposalChecklist,
   completeProposalChecklistItem,
+  getGetProposalChecklistQueryKey,
 } from '@/api/endpoints/proposals/proposals'
-import { api } from '@/lib/api-client'
-
-import type { ChecklistItem, ChecklistSummary } from '../types'
-
-interface ChecklistResponse {
-  items: ChecklistItem[]
-  summary: ChecklistSummary
-}
 
 export function useChecklist(proposalId: string) {
-  const orvalOptions = getGetProposalChecklistQueryOptions(proposalId)
-
-  return useQuery({
-    queryKey: orvalOptions.queryKey,
-    queryFn: async () => {
-      const res = await api.get<ChecklistResponse>(
-        `/api/v1/proposals/${proposalId}/checklist`
-      )
-      return res.data
+  return useGetProposalChecklist(proposalId, {
+    query: {
+      staleTime: 30_000,
+      select: (response) =>
+        'data' in response.data ? response.data.data : undefined,
     },
-    staleTime: 30_000,
   })
 }
 

@@ -12,7 +12,9 @@ import {
   UserCheck,
   XCircle,
 } from 'lucide-react'
-import type { NotificationData } from '../types/index'
+import type { ListNotifications200DataItem } from '@/api/model'
+
+type NotificationData = ListNotifications200DataItem
 
 const ICON_MAP: Record<string, React.ElementType> = {
   CLAIM_OPENED: FileWarning,

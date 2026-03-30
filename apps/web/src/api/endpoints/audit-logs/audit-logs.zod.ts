@@ -25,3 +25,26 @@ export const ListAuditLogsQueryParams = zod.object({
     .max(listAuditLogsQueryLimitMax)
     .default(listAuditLogsQueryLimitDefault),
 })
+
+export const ListAuditLogsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      organizationId: zod.string(),
+      userId: zod.string().nullable(),
+      action: zod.string(),
+      entityType: zod.string(),
+      entityId: zod.string().nullable(),
+      before: zod.unknown().nullish(),
+      after: zod.unknown().nullish(),
+      ipAddress: zod.string().nullable(),
+      userAgent: zod.string().nullable(),
+      createdAt: zod.string().datetime({}),
+    })
+  ),
+  meta: zod.object({
+    total: zod.number().optional(),
+    nextCursor: zod.string().nullish(),
+  }),
+})

@@ -21,6 +21,25 @@ export const ListMembersQueryParams = zod.object({
     .default(listMembersQueryLimitDefault),
 })
 
+export const ListMembersResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      userId: zod.string(),
+      name: zod.string().nullable(),
+      email: zod.string(),
+      role: zod.string(),
+      active: zod.boolean(),
+      createdAt: zod.string(),
+    })
+  ),
+  meta: zod.object({
+    total: zod.number().optional(),
+    nextCursor: zod.string().nullish(),
+  }),
+})
+
 /**
  * @summary Update a member role
  */
@@ -33,10 +52,28 @@ export const UpdateMemberRoleBody = zod.object({
   role: zod.enum(['ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER']),
 })
 
+export const UpdateMemberRoleResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    userId: zod.string(),
+    organizationId: zod.string(),
+    role: zod.string(),
+    active: zod.boolean(),
+  }),
+})
+
 /**
  * @summary Deactivate a member
  */
 
 export const DeactivateMemberParams = zod.object({
   id: zod.string().min(1),
+})
+
+export const DeactivateMemberResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+  }),
 })

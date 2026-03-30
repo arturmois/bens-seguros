@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 import { Loader2 } from 'lucide-react'
-import { z } from 'zod'
+import type { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -22,22 +22,17 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 
+import { CreateProposalBody } from '@/api/endpoints/proposals/proposals.zod'
 import { useCreateProposal } from '../hooks/use-proposals'
 import {
   BOARD_TYPE_LABELS,
   BOARD_TYPES,
   BRANCH_LABELS,
   BRANCHES,
-} from '../types'
+} from '../lib/constants'
 import { ClientSearch } from './client-search'
 
-const proposalFormSchema = z.object({
-  clientId: z.string().min(1, 'Cliente é obrigatório'),
-  branch: z.string().min(1, 'Ramo é obrigatório'),
-  boardType: z.string().min(1, 'Tipo é obrigatório'),
-})
-
-type ProposalFormValues = z.infer<typeof proposalFormSchema>
+type ProposalFormValues = z.infer<typeof CreateProposalBody>
 
 const BRANCH_OPTIONS = BRANCHES.map((b) => ({
   value: b,
@@ -57,12 +52,10 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
   const createMutation = useCreateProposal()
 
   const form = useForm<ProposalFormValues>({
-    resolver: zodResolver(proposalFormSchema),
+    resolver: zodResolver(CreateProposalBody),
     mode: 'onBlur',
     defaultValues: {
       clientId: '',
-      branch: '',
-      boardType: '',
     },
   })
 

@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-import type { CommissionFilters, CommissionStatus } from '../types'
+import type { CommissionFilters, CommissionStatus } from '../lib/constants'
 import { COMMISSION_STATUS_OPTIONS } from '../lib/constants'
 import { CommissionExportButton } from './commission-export-button'
 

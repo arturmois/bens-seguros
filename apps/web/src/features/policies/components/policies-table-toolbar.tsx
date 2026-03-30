@@ -11,8 +11,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-import type { PolicyStatus } from '../types'
-import { POLICY_STATUS_LABELS, POLICY_STATUSES } from '../types'
+import type { PolicyStatus } from '../lib/constants'
+import { POLICY_STATUS_LABELS, POLICY_STATUSES } from '../lib/constants'
 import { PolicyExportButton } from './policy-export-button'
 
 interface PoliciesTableToolbarProps {

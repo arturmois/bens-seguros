@@ -20,7 +20,13 @@ import type {
   UseQueryResult,
 } from '@tanstack/react-query'
 
-import type { CreateInvitationBody, ListInvitationsParams } from '../../model'
+import type {
+  CreateInvitation201,
+  CreateInvitationBody,
+  ListInvitations200,
+  ListInvitationsParams,
+  RevokeInvitation200,
+} from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
 
@@ -30,7 +36,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
  * @summary List pending invitations
  */
 export type listInvitationsResponse200 = {
-  data: void
+  data: ListInvitations200
   status: 200
 }
 
@@ -246,12 +252,12 @@ export const prefetchListInvitationsQuery = async <
 /**
  * @summary Create an invitation
  */
-export type createInvitationResponse200 = {
-  data: void
-  status: 200
+export type createInvitationResponse201 = {
+  data: CreateInvitation201
+  status: 201
 }
 
-export type createInvitationResponseSuccess = createInvitationResponse200 & {
+export type createInvitationResponseSuccess = createInvitationResponse201 & {
   headers: Headers
 }
 export type createInvitationResponse = createInvitationResponseSuccess
@@ -342,7 +348,7 @@ export const useCreateInvitation = <TError = unknown, TContext = unknown>(
  * @summary Cancel a pending invitation
  */
 export type revokeInvitationResponse200 = {
-  data: void
+  data: RevokeInvitation200
   status: 200
 }
 

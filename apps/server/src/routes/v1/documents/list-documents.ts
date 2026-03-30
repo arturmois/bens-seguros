@@ -2,7 +2,7 @@ import { container, ListDocuments } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { listDocumentsQuerySchema } from './_schemas.js'
+import { listDocumentsQuerySchema, documentListResponse } from './_schemas.js'
 
 export function listDocumentsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -13,6 +13,7 @@ export function listDocumentsRoute(app: FastifyInstance) {
       tags: ['Documents'],
       summary: 'List documents for a given entity',
       querystring: listDocumentsQuerySchema,
+      response: { 200: documentListResponse },
     },
     preHandler: [requireAbility('read', 'Document')],
     handler: async (request, reply) => {

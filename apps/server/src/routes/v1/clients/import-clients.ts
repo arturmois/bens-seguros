@@ -7,7 +7,13 @@ import {
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { importJobIdParamSchema } from './_schemas.js'
+import {
+  importJobIdParamSchema,
+  importUploadResponse,
+  importConfirmResponse,
+  importStatusResponse,
+  errorResponse,
+} from './_schemas.js'
 import {
   stageImportData,
   retrieveStagedData,
@@ -51,6 +57,12 @@ export function importClientsRoutes(app: FastifyInstance) {
       tags: ['Clients'],
       summary: 'Upload CSV file for client import (preview + validation)',
       operationId: 'importUploadClients',
+      response: {
+        200: importUploadResponse,
+        400: errorResponse,
+        413: errorResponse,
+        422: errorResponse,
+      },
     },
     preHandler: [requireAbility('manage', 'Client')],
     handler: async (request, reply) => {
@@ -124,6 +136,7 @@ export function importClientsRoutes(app: FastifyInstance) {
       summary: 'Confirm and enqueue a staged client import job',
       operationId: 'importConfirmClients',
       params: importJobIdParamSchema,
+      response: { 200: importConfirmResponse, 404: errorResponse },
     },
     preHandler: [requireAbility('manage', 'Client')],
     handler: async (request, reply) => {
@@ -162,6 +175,7 @@ export function importClientsRoutes(app: FastifyInstance) {
       summary: 'Get the status of a client import job',
       operationId: 'importStatusClients',
       params: importJobIdParamSchema,
+      response: { 200: importStatusResponse, 404: errorResponse },
     },
     preHandler: [requireAbility('manage', 'Client')],
     handler: async (request, reply) => {

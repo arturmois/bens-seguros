@@ -12,7 +12,7 @@ import {
 import { Card, CardHeader, CardTitle, CardPanel } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import type { ClaimByPriority } from '../types'
+import type { ClaimByPriority } from '../lib/constants'
 
 const PRIORITY_CONFIG: Record<string, { label: string; color: string }> = {
   NORMAL: { label: 'Normal', color: 'var(--color-info)' },

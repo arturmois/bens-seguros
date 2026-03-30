@@ -1,6 +1,8 @@
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { prisma } from '@repo/db'
+import { tenantListResponse } from './_schemas.js'
+import { errorResponse } from '../../_shared/response.schema.js'
 
 interface OrganizationData {
   id: string
@@ -22,6 +24,7 @@ export function listTenantsRoute(app: FastifyInstance) {
       operationId: 'listTenants',
       tags: ['Tenants'],
       summary: 'List tenants for authenticated user',
+      response: { 200: tenantListResponse, 401: errorResponse },
     },
     handler: async (request, reply) => {
       if (!request.user) {

@@ -10,7 +10,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { formatDate } from '@/lib/formatters'
 
-import type { AuditLogEntry } from '../types'
+import type { AuditLogEntry } from '../lib/constants'
 
 interface AuditDetailModalProps {
   entry: AuditLogEntry | null
@@ -29,14 +29,8 @@ const ACTION_VARIANT: Record<
   REJECT: 'warning',
 }
 
-function JsonBlock({
-  label,
-  data,
-}: {
-  label: string
-  data: Record<string, unknown> | null
-}) {
-  if (!data) return null
+function JsonBlock({ label, data }: { label: string; data: unknown }) {
+  if (data == null) return null
   return (
     <div>
       <p className="text-muted-foreground mb-1 text-xs font-medium">{label}</p>
@@ -89,8 +83,8 @@ export function AuditDetailModal({
               <p className="truncate text-xs">{entry.userAgent ?? '-'}</p>
             </div>
           </div>
-          <JsonBlock label="Antes" data={entry.before} />
-          <JsonBlock label="Depois" data={entry.after} />
+          <JsonBlock label="Antes" data={entry.before ?? null} />
+          <JsonBlock label="Depois" data={entry.after ?? null} />
         </div>
         <DialogFooter showCloseButton />
       </DialogContent>

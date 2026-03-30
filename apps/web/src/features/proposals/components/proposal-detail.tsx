@@ -22,7 +22,7 @@ import {
   BRANCH_LABELS,
   STAGE_BADGE_VARIANT,
   STAGE_LABELS,
-} from '../types'
+} from '../lib/constants'
 import { InsuredObjectSection } from './insured-object-section'
 import { IssuePolicyCard } from './issue-policy-card'
 import { LostReasonDialog } from './lost-reason-dialog'

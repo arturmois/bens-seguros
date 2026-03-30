@@ -18,7 +18,7 @@ import {
 import { useDebounce } from '@/hooks/use-debounce'
 
 import { usePolicies } from '../hooks/use-policies'
-import type { PolicyData, PolicyStatus } from '../types'
+import type { PolicyData, PolicyStatus } from '../lib/constants'
 import { CancelPolicyDialog } from './cancel-policy-dialog'
 import { PoliciesTableToolbar } from './policies-table-toolbar'
 import { PolicyTableRow } from './policy-table-row'
@@ -150,7 +150,7 @@ export function PoliciesTable() {
             <Button
               variant="outline"
               size="sm"
-              disabled={!meta?.hasMore}
+              disabled={!meta?.nextCursor}
               onClick={() => {
                 if (meta?.nextCursor) setCursor(meta.nextCursor)
               }}

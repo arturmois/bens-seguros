@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Table } from '@/components/ui/table'
 import { useDebounce } from '@/hooks/use-debounce'
 
-import type { CommissionStatus } from '../types'
+import type { CommissionStatus } from '../lib/constants'
 import { useCommissions } from '../hooks/use-commissions'
 import { CommissionsPagination } from './commissions-pagination'
 import {

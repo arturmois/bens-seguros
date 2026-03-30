@@ -20,7 +20,14 @@ import type {
   UseQueryResult,
 } from '@tanstack/react-query'
 
-import type { ListDocumentsParams, UploadDocumentParams } from '../../model'
+import type {
+  GetDocumentUrl200,
+  ListDocuments200,
+  ListDocumentsParams,
+  UploadDocument201,
+  UploadDocument400,
+  UploadDocumentParams,
+} from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
 
@@ -29,15 +36,26 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
 /**
  * @summary Upload a document for an entity
  */
-export type uploadDocumentResponse200 = {
-  data: void
-  status: 200
+export type uploadDocumentResponse201 = {
+  data: UploadDocument201
+  status: 201
 }
 
-export type uploadDocumentResponseSuccess = uploadDocumentResponse200 & {
+export type uploadDocumentResponse400 = {
+  data: UploadDocument400
+  status: 400
+}
+
+export type uploadDocumentResponseSuccess = uploadDocumentResponse201 & {
   headers: Headers
 }
-export type uploadDocumentResponse = uploadDocumentResponseSuccess
+export type uploadDocumentResponseError = uploadDocumentResponse400 & {
+  headers: Headers
+}
+
+export type uploadDocumentResponse =
+  | uploadDocumentResponseSuccess
+  | uploadDocumentResponseError
 
 export const getUploadDocumentUrl = (params: UploadDocumentParams) => {
   const normalizedParams = new URLSearchParams()
@@ -66,7 +84,7 @@ export const uploadDocument = async (
 }
 
 export const getUploadDocumentMutationOptions = <
-  TError = unknown,
+  TError = UploadDocument400,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -107,12 +125,15 @@ export type UploadDocumentMutationResult = NonNullable<
   Awaited<ReturnType<typeof uploadDocument>>
 >
 
-export type UploadDocumentMutationError = unknown
+export type UploadDocumentMutationError = UploadDocument400
 
 /**
  * @summary Upload a document for an entity
  */
-export const useUploadDocument = <TError = unknown, TContext = unknown>(
+export const useUploadDocument = <
+  TError = UploadDocument400,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof uploadDocument>>,
@@ -135,7 +156,7 @@ export const useUploadDocument = <TError = unknown, TContext = unknown>(
  * @summary List documents for a given entity
  */
 export type listDocumentsResponse200 = {
-  data: void
+  data: ListDocuments200
   status: 200
 }
 
@@ -328,7 +349,7 @@ export const prefetchListDocumentsQuery = async <
  * @summary Get a signed URL for a document
  */
 export type getDocumentUrlResponse200 = {
-  data: void
+  data: GetDocumentUrl200
   status: 200
 }
 
@@ -509,12 +530,12 @@ export const prefetchGetDocumentUrlQuery = async <
 /**
  * @summary Delete a document by ID
  */
-export type deleteDocumentResponse200 = {
-  data: void
-  status: 200
+export type deleteDocumentResponse204 = {
+  data: unknown
+  status: 204
 }
 
-export type deleteDocumentResponseSuccess = deleteDocumentResponse200 & {
+export type deleteDocumentResponseSuccess = deleteDocumentResponse204 & {
   headers: Headers
 }
 export type deleteDocumentResponse = deleteDocumentResponseSuccess

@@ -3,7 +3,11 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { auditUpdate } from '../../../services/audit-logger.js'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { idParamSchema, updateClientBodySchema } from './_schemas.js'
+import {
+  idParamSchema,
+  updateClientBodySchema,
+  clientDetailResponse,
+} from './_schemas.js'
 import { handleDomainError } from '../handle-domain-error.js'
 
 export function updateClientRoute(app: FastifyInstance) {
@@ -16,6 +20,7 @@ export function updateClientRoute(app: FastifyInstance) {
       operationId: 'updateClient',
       params: idParamSchema,
       body: updateClientBodySchema,
+      response: { 200: clientDetailResponse },
     },
     preHandler: [requireAbility('update', 'Client')],
     handler: async (request, reply) => {

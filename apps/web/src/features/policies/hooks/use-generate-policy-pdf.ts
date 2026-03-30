@@ -10,6 +10,9 @@ interface PdfResponse {
   url: string
 }
 
+/**
+ * PDF generation stays manual because it uses window.open on the response URL.
+ */
 export function useGeneratePolicyPdf(policyId: string) {
   return useMutation({
     mutationFn: () =>

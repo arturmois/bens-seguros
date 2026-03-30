@@ -3,7 +3,11 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { checklistItemIdParam } from './_schemas.js'
+import {
+  checklistItemIdParam,
+  checklistItemResponse,
+  errorResponse,
+} from './_schemas.js'
 
 export function completeChecklistItemRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -14,6 +18,7 @@ export function completeChecklistItemRoute(app: FastifyInstance) {
       summary: 'Mark a checklist item as complete',
       operationId: 'completeProposalChecklistItem',
       params: checklistItemIdParam,
+      response: { 200: checklistItemResponse, 404: errorResponse },
     },
     preHandler: [requireAbility('update', 'Proposal')],
     handler: async (request, reply) => {

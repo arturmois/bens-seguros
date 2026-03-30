@@ -4,7 +4,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { idParamSchema } from './_schemas.js'
+import { idParamSchema, claimDetailResponse } from './_schemas.js'
 
 export function getClaimRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -15,6 +15,7 @@ export function getClaimRoute(app: FastifyInstance) {
       summary: 'Get a claim by ID',
       operationId: 'getClaim',
       params: idParamSchema,
+      response: { 200: claimDetailResponse },
     },
     preHandler: [requireAbility('read', 'Claim')],
     handler: async (request, reply) => {

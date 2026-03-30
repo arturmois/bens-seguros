@@ -21,10 +21,33 @@ import type {
 } from '@tanstack/react-query'
 
 import type {
+  AdvanceProposal200,
+  AdvanceProposal400,
+  AdvanceProposal404,
+  CompleteProposalChecklistItem200,
+  CompleteProposalChecklistItem404,
+  CreateProposal201,
+  CreateProposal400,
   CreateProposalBody,
   ExportProposalsParams,
+  GenerateProposalPdf200,
+  GenerateProposalPdf404,
+  GetProposal200,
+  GetProposal404,
+  GetProposalChecklist200,
+  GetProposalChecklist404,
+  ListProposals200,
   ListProposalsParams,
+  MarkProposalLost200,
+  MarkProposalLost400,
+  MarkProposalLost404,
   MarkProposalLostBody,
+  ReopenProposal200,
+  ReopenProposal400,
+  ReopenProposal404,
+  UpdateProposalDetails200,
+  UpdateProposalDetails400,
+  UpdateProposalDetails404,
   UpdateProposalDetailsBody,
 } from '../../model'
 
@@ -253,15 +276,27 @@ export const prefetchExportProposalsQuery = async <
  * @summary Generate or retrieve proposal PDF
  */
 export type generateProposalPdfResponse200 = {
-  data: void
+  data: GenerateProposalPdf200
   status: 200
+}
+
+export type generateProposalPdfResponse404 = {
+  data: GenerateProposalPdf404
+  status: 404
 }
 
 export type generateProposalPdfResponseSuccess =
   generateProposalPdfResponse200 & {
     headers: Headers
   }
-export type generateProposalPdfResponse = generateProposalPdfResponseSuccess
+export type generateProposalPdfResponseError =
+  generateProposalPdfResponse404 & {
+    headers: Headers
+  }
+
+export type generateProposalPdfResponse =
+  | generateProposalPdfResponseSuccess
+  | generateProposalPdfResponseError
 
 export const getGenerateProposalPdfUrl = (id: string) => {
   return `/api/v1/proposals/${id}/pdf`
@@ -281,7 +316,7 @@ export const generateProposalPdf = async (
 }
 
 export const getGenerateProposalPdfMutationOptions = <
-  TError = unknown,
+  TError = GenerateProposalPdf404,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -322,12 +357,15 @@ export type GenerateProposalPdfMutationResult = NonNullable<
   Awaited<ReturnType<typeof generateProposalPdf>>
 >
 
-export type GenerateProposalPdfMutationError = unknown
+export type GenerateProposalPdfMutationError = GenerateProposalPdf404
 
 /**
  * @summary Generate or retrieve proposal PDF
  */
-export const useGenerateProposalPdf = <TError = unknown, TContext = unknown>(
+export const useGenerateProposalPdf = <
+  TError = GenerateProposalPdf404,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof generateProposalPdf>>,
@@ -352,15 +390,26 @@ export const useGenerateProposalPdf = <TError = unknown, TContext = unknown>(
 /**
  * @summary Create a new proposal
  */
-export type createProposalResponse200 = {
-  data: void
-  status: 200
+export type createProposalResponse201 = {
+  data: CreateProposal201
+  status: 201
 }
 
-export type createProposalResponseSuccess = createProposalResponse200 & {
+export type createProposalResponse400 = {
+  data: CreateProposal400
+  status: 400
+}
+
+export type createProposalResponseSuccess = createProposalResponse201 & {
   headers: Headers
 }
-export type createProposalResponse = createProposalResponseSuccess
+export type createProposalResponseError = createProposalResponse400 & {
+  headers: Headers
+}
+
+export type createProposalResponse =
+  | createProposalResponseSuccess
+  | createProposalResponseError
 
 export const getCreateProposalUrl = () => {
   return `/api/v1/proposals`
@@ -379,7 +428,7 @@ export const createProposal = async (
 }
 
 export const getCreateProposalMutationOptions = <
-  TError = unknown,
+  TError = CreateProposal400,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -420,12 +469,15 @@ export type CreateProposalMutationResult = NonNullable<
   Awaited<ReturnType<typeof createProposal>>
 >
 export type CreateProposalMutationBody = CreateProposalBody
-export type CreateProposalMutationError = unknown
+export type CreateProposalMutationError = CreateProposal400
 
 /**
  * @summary Create a new proposal
  */
-export const useCreateProposal = <TError = unknown, TContext = unknown>(
+export const useCreateProposal = <
+  TError = CreateProposal400,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof createProposal>>,
@@ -448,7 +500,7 @@ export const useCreateProposal = <TError = unknown, TContext = unknown>(
  * @summary List proposals with cursor pagination
  */
 export type listProposalsResponse200 = {
-  data: void
+  data: ListProposals200
   status: 200
 }
 
@@ -641,14 +693,25 @@ export const prefetchListProposalsQuery = async <
  * @summary Get a proposal by ID
  */
 export type getProposalResponse200 = {
-  data: void
+  data: GetProposal200
   status: 200
+}
+
+export type getProposalResponse404 = {
+  data: GetProposal404
+  status: 404
 }
 
 export type getProposalResponseSuccess = getProposalResponse200 & {
   headers: Headers
 }
-export type getProposalResponse = getProposalResponseSuccess
+export type getProposalResponseError = getProposalResponse404 & {
+  headers: Headers
+}
+
+export type getProposalResponse =
+  | getProposalResponseSuccess
+  | getProposalResponseError
 
 export const getGetProposalUrl = (id: string) => {
   return `/api/v1/proposals/${id}`
@@ -670,7 +733,7 @@ export const getGetProposalQueryKey = (id: string) => {
 
 export const getGetProposalQueryOptions = <
   TData = Awaited<ReturnType<typeof getProposal>>,
-  TError = unknown,
+  TError = GetProposal404,
 >(
   id: string,
   options?: {
@@ -704,11 +767,11 @@ export const getGetProposalQueryOptions = <
 export type GetProposalQueryResult = NonNullable<
   Awaited<ReturnType<typeof getProposal>>
 >
-export type GetProposalQueryError = unknown
+export type GetProposalQueryError = GetProposal404
 
 export function useGetProposal<
   TData = Awaited<ReturnType<typeof getProposal>>,
-  TError = unknown,
+  TError = GetProposal404,
 >(
   id: string,
   options: {
@@ -731,7 +794,7 @@ export function useGetProposal<
 }
 export function useGetProposal<
   TData = Awaited<ReturnType<typeof getProposal>>,
-  TError = unknown,
+  TError = GetProposal404,
 >(
   id: string,
   options?: {
@@ -754,7 +817,7 @@ export function useGetProposal<
 }
 export function useGetProposal<
   TData = Awaited<ReturnType<typeof getProposal>>,
-  TError = unknown,
+  TError = GetProposal404,
 >(
   id: string,
   options?: {
@@ -773,7 +836,7 @@ export function useGetProposal<
 
 export function useGetProposal<
   TData = Awaited<ReturnType<typeof getProposal>>,
-  TError = unknown,
+  TError = GetProposal404,
 >(
   id: string,
   options?: {
@@ -801,7 +864,7 @@ export function useGetProposal<
  */
 export const prefetchGetProposalQuery = async <
   TData = Awaited<ReturnType<typeof getProposal>>,
-  TError = unknown,
+  TError = GetProposal404,
 >(
   queryClient: QueryClient,
   id: string,
@@ -823,14 +886,33 @@ export const prefetchGetProposalQuery = async <
  * @summary Advance proposal to next stage
  */
 export type advanceProposalResponse200 = {
-  data: void
+  data: AdvanceProposal200
   status: 200
+}
+
+export type advanceProposalResponse400 = {
+  data: AdvanceProposal400
+  status: 400
+}
+
+export type advanceProposalResponse404 = {
+  data: AdvanceProposal404
+  status: 404
 }
 
 export type advanceProposalResponseSuccess = advanceProposalResponse200 & {
   headers: Headers
 }
-export type advanceProposalResponse = advanceProposalResponseSuccess
+export type advanceProposalResponseError = (
+  | advanceProposalResponse400
+  | advanceProposalResponse404
+) & {
+  headers: Headers
+}
+
+export type advanceProposalResponse =
+  | advanceProposalResponseSuccess
+  | advanceProposalResponseError
 
 export const getAdvanceProposalUrl = (id: string) => {
   return `/api/v1/proposals/${id}/advance`
@@ -847,7 +929,7 @@ export const advanceProposal = async (
 }
 
 export const getAdvanceProposalMutationOptions = <
-  TError = unknown,
+  TError = AdvanceProposal400 | AdvanceProposal404,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -888,12 +970,17 @@ export type AdvanceProposalMutationResult = NonNullable<
   Awaited<ReturnType<typeof advanceProposal>>
 >
 
-export type AdvanceProposalMutationError = unknown
+export type AdvanceProposalMutationError =
+  | AdvanceProposal400
+  | AdvanceProposal404
 
 /**
  * @summary Advance proposal to next stage
  */
-export const useAdvanceProposal = <TError = unknown, TContext = unknown>(
+export const useAdvanceProposal = <
+  TError = AdvanceProposal400 | AdvanceProposal404,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof advanceProposal>>,
@@ -916,14 +1003,33 @@ export const useAdvanceProposal = <TError = unknown, TContext = unknown>(
  * @summary Mark proposal as lost
  */
 export type markProposalLostResponse200 = {
-  data: void
+  data: MarkProposalLost200
   status: 200
+}
+
+export type markProposalLostResponse400 = {
+  data: MarkProposalLost400
+  status: 400
+}
+
+export type markProposalLostResponse404 = {
+  data: MarkProposalLost404
+  status: 404
 }
 
 export type markProposalLostResponseSuccess = markProposalLostResponse200 & {
   headers: Headers
 }
-export type markProposalLostResponse = markProposalLostResponseSuccess
+export type markProposalLostResponseError = (
+  | markProposalLostResponse400
+  | markProposalLostResponse404
+) & {
+  headers: Headers
+}
+
+export type markProposalLostResponse =
+  | markProposalLostResponseSuccess
+  | markProposalLostResponseError
 
 export const getMarkProposalLostUrl = (id: string) => {
   return `/api/v1/proposals/${id}/lost`
@@ -943,7 +1049,7 @@ export const markProposalLost = async (
 }
 
 export const getMarkProposalLostMutationOptions = <
-  TError = unknown,
+  TError = MarkProposalLost400 | MarkProposalLost404,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -984,12 +1090,17 @@ export type MarkProposalLostMutationResult = NonNullable<
   Awaited<ReturnType<typeof markProposalLost>>
 >
 export type MarkProposalLostMutationBody = MarkProposalLostBody
-export type MarkProposalLostMutationError = unknown
+export type MarkProposalLostMutationError =
+  | MarkProposalLost400
+  | MarkProposalLost404
 
 /**
  * @summary Mark proposal as lost
  */
-export const useMarkProposalLost = <TError = unknown, TContext = unknown>(
+export const useMarkProposalLost = <
+  TError = MarkProposalLost400 | MarkProposalLost404,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof markProposalLost>>,
@@ -1012,14 +1123,33 @@ export const useMarkProposalLost = <TError = unknown, TContext = unknown>(
  * @summary Reopen a lost proposal
  */
 export type reopenProposalResponse200 = {
-  data: void
+  data: ReopenProposal200
   status: 200
+}
+
+export type reopenProposalResponse400 = {
+  data: ReopenProposal400
+  status: 400
+}
+
+export type reopenProposalResponse404 = {
+  data: ReopenProposal404
+  status: 404
 }
 
 export type reopenProposalResponseSuccess = reopenProposalResponse200 & {
   headers: Headers
 }
-export type reopenProposalResponse = reopenProposalResponseSuccess
+export type reopenProposalResponseError = (
+  | reopenProposalResponse400
+  | reopenProposalResponse404
+) & {
+  headers: Headers
+}
+
+export type reopenProposalResponse =
+  | reopenProposalResponseSuccess
+  | reopenProposalResponseError
 
 export const getReopenProposalUrl = (id: string) => {
   return `/api/v1/proposals/${id}/reopen`
@@ -1036,7 +1166,7 @@ export const reopenProposal = async (
 }
 
 export const getReopenProposalMutationOptions = <
-  TError = unknown,
+  TError = ReopenProposal400 | ReopenProposal404,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -1077,12 +1207,15 @@ export type ReopenProposalMutationResult = NonNullable<
   Awaited<ReturnType<typeof reopenProposal>>
 >
 
-export type ReopenProposalMutationError = unknown
+export type ReopenProposalMutationError = ReopenProposal400 | ReopenProposal404
 
 /**
  * @summary Reopen a lost proposal
  */
-export const useReopenProposal = <TError = unknown, TContext = unknown>(
+export const useReopenProposal = <
+  TError = ReopenProposal400 | ReopenProposal404,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof reopenProposal>>,
@@ -1105,15 +1238,34 @@ export const useReopenProposal = <TError = unknown, TContext = unknown>(
  * @summary Update proposal insured object details
  */
 export type updateProposalDetailsResponse200 = {
-  data: void
+  data: UpdateProposalDetails200
   status: 200
+}
+
+export type updateProposalDetailsResponse400 = {
+  data: UpdateProposalDetails400
+  status: 400
+}
+
+export type updateProposalDetailsResponse404 = {
+  data: UpdateProposalDetails404
+  status: 404
 }
 
 export type updateProposalDetailsResponseSuccess =
   updateProposalDetailsResponse200 & {
     headers: Headers
   }
-export type updateProposalDetailsResponse = updateProposalDetailsResponseSuccess
+export type updateProposalDetailsResponseError = (
+  | updateProposalDetailsResponse400
+  | updateProposalDetailsResponse404
+) & {
+  headers: Headers
+}
+
+export type updateProposalDetailsResponse =
+  | updateProposalDetailsResponseSuccess
+  | updateProposalDetailsResponseError
 
 export const getUpdateProposalDetailsUrl = (id: string) => {
   return `/api/v1/proposals/${id}/details`
@@ -1136,7 +1288,7 @@ export const updateProposalDetails = async (
 }
 
 export const getUpdateProposalDetailsMutationOptions = <
-  TError = unknown,
+  TError = UpdateProposalDetails400 | UpdateProposalDetails404,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -1177,12 +1329,17 @@ export type UpdateProposalDetailsMutationResult = NonNullable<
   Awaited<ReturnType<typeof updateProposalDetails>>
 >
 export type UpdateProposalDetailsMutationBody = UpdateProposalDetailsBody
-export type UpdateProposalDetailsMutationError = unknown
+export type UpdateProposalDetailsMutationError =
+  | UpdateProposalDetails400
+  | UpdateProposalDetails404
 
 /**
  * @summary Update proposal insured object details
  */
-export const useUpdateProposalDetails = <TError = unknown, TContext = unknown>(
+export const useUpdateProposalDetails = <
+  TError = UpdateProposalDetails400 | UpdateProposalDetails404,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof updateProposalDetails>>,
@@ -1208,15 +1365,27 @@ export const useUpdateProposalDetails = <TError = unknown, TContext = unknown>(
  * @summary Get proposal checklist items
  */
 export type getProposalChecklistResponse200 = {
-  data: void
+  data: GetProposalChecklist200
   status: 200
+}
+
+export type getProposalChecklistResponse404 = {
+  data: GetProposalChecklist404
+  status: 404
 }
 
 export type getProposalChecklistResponseSuccess =
   getProposalChecklistResponse200 & {
     headers: Headers
   }
-export type getProposalChecklistResponse = getProposalChecklistResponseSuccess
+export type getProposalChecklistResponseError =
+  getProposalChecklistResponse404 & {
+    headers: Headers
+  }
+
+export type getProposalChecklistResponse =
+  | getProposalChecklistResponseSuccess
+  | getProposalChecklistResponseError
 
 export const getGetProposalChecklistUrl = (id: string) => {
   return `/api/v1/proposals/${id}/checklist`
@@ -1241,7 +1410,7 @@ export const getGetProposalChecklistQueryKey = (id: string) => {
 
 export const getGetProposalChecklistQueryOptions = <
   TData = Awaited<ReturnType<typeof getProposalChecklist>>,
-  TError = unknown,
+  TError = GetProposalChecklist404,
 >(
   id: string,
   options?: {
@@ -1279,11 +1448,11 @@ export const getGetProposalChecklistQueryOptions = <
 export type GetProposalChecklistQueryResult = NonNullable<
   Awaited<ReturnType<typeof getProposalChecklist>>
 >
-export type GetProposalChecklistQueryError = unknown
+export type GetProposalChecklistQueryError = GetProposalChecklist404
 
 export function useGetProposalChecklist<
   TData = Awaited<ReturnType<typeof getProposalChecklist>>,
-  TError = unknown,
+  TError = GetProposalChecklist404,
 >(
   id: string,
   options: {
@@ -1310,7 +1479,7 @@ export function useGetProposalChecklist<
 }
 export function useGetProposalChecklist<
   TData = Awaited<ReturnType<typeof getProposalChecklist>>,
-  TError = unknown,
+  TError = GetProposalChecklist404,
 >(
   id: string,
   options?: {
@@ -1337,7 +1506,7 @@ export function useGetProposalChecklist<
 }
 export function useGetProposalChecklist<
   TData = Awaited<ReturnType<typeof getProposalChecklist>>,
-  TError = unknown,
+  TError = GetProposalChecklist404,
 >(
   id: string,
   options?: {
@@ -1360,7 +1529,7 @@ export function useGetProposalChecklist<
 
 export function useGetProposalChecklist<
   TData = Awaited<ReturnType<typeof getProposalChecklist>>,
-  TError = unknown,
+  TError = GetProposalChecklist404,
 >(
   id: string,
   options?: {
@@ -1392,7 +1561,7 @@ export function useGetProposalChecklist<
  */
 export const prefetchGetProposalChecklistQuery = async <
   TData = Awaited<ReturnType<typeof getProposalChecklist>>,
-  TError = unknown,
+  TError = GetProposalChecklist404,
 >(
   queryClient: QueryClient,
   id: string,
@@ -1418,16 +1587,27 @@ export const prefetchGetProposalChecklistQuery = async <
  * @summary Mark a checklist item as complete
  */
 export type completeProposalChecklistItemResponse200 = {
-  data: void
+  data: CompleteProposalChecklistItem200
   status: 200
+}
+
+export type completeProposalChecklistItemResponse404 = {
+  data: CompleteProposalChecklistItem404
+  status: 404
 }
 
 export type completeProposalChecklistItemResponseSuccess =
   completeProposalChecklistItemResponse200 & {
     headers: Headers
   }
+export type completeProposalChecklistItemResponseError =
+  completeProposalChecklistItemResponse404 & {
+    headers: Headers
+  }
+
 export type completeProposalChecklistItemResponse =
-  completeProposalChecklistItemResponseSuccess
+  | completeProposalChecklistItemResponseSuccess
+  | completeProposalChecklistItemResponseError
 
 export const getCompleteProposalChecklistItemUrl = (
   id: string,
@@ -1451,7 +1631,7 @@ export const completeProposalChecklistItem = async (
 }
 
 export const getCompleteProposalChecklistItemMutationOptions = <
-  TError = unknown,
+  TError = CompleteProposalChecklistItem404,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -1492,13 +1672,14 @@ export type CompleteProposalChecklistItemMutationResult = NonNullable<
   Awaited<ReturnType<typeof completeProposalChecklistItem>>
 >
 
-export type CompleteProposalChecklistItemMutationError = unknown
+export type CompleteProposalChecklistItemMutationError =
+  CompleteProposalChecklistItem404
 
 /**
  * @summary Mark a checklist item as complete
  */
 export const useCompleteProposalChecklistItem = <
-  TError = unknown,
+  TError = CompleteProposalChecklistItem404,
   TContext = unknown,
 >(
   options?: {

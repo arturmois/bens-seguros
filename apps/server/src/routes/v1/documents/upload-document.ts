@@ -4,7 +4,11 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditCreate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { uploadDocumentQuerySchema } from './_schemas.js'
+import {
+  uploadDocumentQuerySchema,
+  documentDetailResponse,
+} from './_schemas.js'
+import { errorResponse } from '../../_shared/response.schema.js'
 
 export function uploadDocumentRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -15,6 +19,7 @@ export function uploadDocumentRoute(app: FastifyInstance) {
       tags: ['Documents'],
       summary: 'Upload a document for an entity',
       querystring: uploadDocumentQuerySchema,
+      response: { 201: documentDetailResponse, 400: errorResponse },
     },
     preHandler: [requireAbility('create', 'Document')],
     handler: async (request, reply) => {

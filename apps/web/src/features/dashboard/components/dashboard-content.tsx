@@ -10,7 +10,7 @@ import { useOrgs } from '@/features/org/hooks/use-orgs'
 
 import { useDashboardStats } from '../hooks/use-dashboard-stats'
 import { useExportDashboardPdf } from '../hooks/use-export-dashboard-pdf'
-import type { DashboardPreset } from '../types'
+import type { DashboardPreset } from '../lib/constants'
 import { BrokerRanking } from './broker-ranking'
 import { ConversionRate } from './conversion-rate'
 import { DashboardPeriodFilter } from './dashboard-period-filter'

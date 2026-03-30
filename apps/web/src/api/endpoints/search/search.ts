@@ -17,7 +17,7 @@ import type {
   UseQueryResult,
 } from '@tanstack/react-query'
 
-import type { GlobalSearchParams } from '../../model'
+import type { GlobalSearch200, GlobalSearchParams } from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
 
@@ -27,7 +27,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
  * @summary Global search across clients, proposals, policies and claims
  */
 export type globalSearchResponse200 = {
-  data: void
+  data: GlobalSearch200
   status: 200
 }
 

@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { downloadCsvBlob } from '@/lib/csv-download'
 
-import type { ClientFilters } from '../types'
+import type { ClientFilters } from '../lib/constants'
 
 interface ClientExportButtonProps {
   readonly filters: ClientFilters

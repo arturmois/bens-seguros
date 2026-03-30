@@ -14,10 +14,14 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 
+import { type z } from 'zod'
+
+import { CreateClientBody } from '@/api/endpoints/clients/clients.zod'
+
 import { EMPTY_FORM_VALUES } from '../lib/constants'
-import { clientFormSchema } from '../lib/schemas'
-import type { ClientFormValues } from '../lib/schemas'
 import { useCreateClient, useUpdateClient } from '../hooks/use-clients'
+
+type ClientFormValues = z.infer<typeof CreateClientBody>
 import { ClientFormFields } from './client-form-fields'
 
 interface ClientFormProps {
@@ -39,7 +43,7 @@ export function ClientForm({
   const isPending = createClient.isPending || updateClient.isPending
 
   const form = useForm<ClientFormValues>({
-    resolver: zodResolver(clientFormSchema),
+    resolver: zodResolver(CreateClientBody),
     defaultValues: defaultValues ?? EMPTY_FORM_VALUES,
   })
 

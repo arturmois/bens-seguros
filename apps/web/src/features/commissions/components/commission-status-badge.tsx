@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-import type { CommissionStatus } from '../types'
+import type { CommissionStatus } from '../lib/constants'
 import {
   COMMISSION_STATUS_COLORS,
   COMMISSION_STATUS_LABELS,

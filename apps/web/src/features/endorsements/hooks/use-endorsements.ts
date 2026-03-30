@@ -1,20 +1,16 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-import { api } from '@/lib/api-client'
 import {
-  getListEndorsementsQueryKey,
+  useListEndorsements,
   createEndorsement,
+  getListEndorsementsQueryKey,
 } from '@/api/endpoints/endorsements/endorsements'
 import type { CreateEndorsementBody } from '@/api/model'
 
-import type {
-  EndorsementData,
-  EndorsementFilters,
-  EndorsementListMeta,
-} from '../types'
+import type { EndorsementFilters } from '../lib/constants'
 
 export function useEndorsements(filters: EndorsementFilters) {
   const params = {
@@ -23,24 +19,13 @@ export function useEndorsements(filters: EndorsementFilters) {
     limit: filters.limit ?? 20,
   }
 
-  return useQuery({
-    queryKey: getListEndorsementsQueryKey(params),
-    queryFn: async () => {
-      const qs = new URLSearchParams()
-      for (const [key, value] of Object.entries(params)) {
-        if (value !== undefined && value !== null) {
-          qs.set(key, String(value))
-        }
-      }
-      const response = await api.get<EndorsementData[]>(
-        `/api/v1/endorsements?${qs.toString()}`
-      )
-      return {
-        data: response.data,
-        meta: response.meta as EndorsementListMeta,
-      }
+  return useListEndorsements(params, {
+    query: {
+      select: (response) => ({
+        data: response.data.data,
+        meta: response.data.meta,
+      }),
     },
-    staleTime: 60_000,
   })
 }
 

@@ -21,9 +21,15 @@ import type {
 } from '@tanstack/react-query'
 
 import type {
+  CreateClaim201,
   CreateClaimBody,
+  CreateClaimOccurrence201,
   CreateClaimOccurrenceBody,
+  GetClaim200,
+  ListClaimOccurrences200,
+  ListClaims200,
   ListClaimsParams,
+  UpdateClaimStatus200,
   UpdateClaimStatusBody,
 } from '../../model'
 
@@ -34,12 +40,12 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
 /**
  * @summary Create a new claim
  */
-export type createClaimResponse200 = {
-  data: void
-  status: 200
+export type createClaimResponse201 = {
+  data: CreateClaim201
+  status: 201
 }
 
-export type createClaimResponseSuccess = createClaimResponse200 & {
+export type createClaimResponseSuccess = createClaimResponse201 & {
   headers: Headers
 }
 export type createClaimResponse = createClaimResponseSuccess
@@ -130,7 +136,7 @@ export const useCreateClaim = <TError = unknown, TContext = unknown>(
  * @summary List claims with pagination and filters
  */
 export type listClaimsResponse200 = {
-  data: void
+  data: ListClaims200
   status: 200
 }
 
@@ -323,7 +329,7 @@ export const prefetchListClaimsQuery = async <
  * @summary Get a claim by ID
  */
 export type getClaimResponse200 = {
-  data: void
+  data: GetClaim200
   status: 200
 }
 
@@ -502,12 +508,12 @@ export const prefetchGetClaimQuery = async <
 /**
  * @summary Soft-delete a claim
  */
-export type deleteClaimResponse200 = {
-  data: void
-  status: 200
+export type deleteClaimResponse204 = {
+  data: unknown
+  status: 204
 }
 
-export type deleteClaimResponseSuccess = deleteClaimResponse200 & {
+export type deleteClaimResponseSuccess = deleteClaimResponse204 & {
   headers: Headers
 }
 export type deleteClaimResponse = deleteClaimResponseSuccess
@@ -596,7 +602,7 @@ export const useDeleteClaim = <TError = unknown, TContext = unknown>(
  * @summary Update the status of a claim
  */
 export type updateClaimStatusResponse200 = {
-  data: void
+  data: UpdateClaimStatus200
   status: 200
 }
 
@@ -691,13 +697,13 @@ export const useUpdateClaimStatus = <TError = unknown, TContext = unknown>(
 /**
  * @summary Create an occurrence for a claim
  */
-export type createClaimOccurrenceResponse200 = {
-  data: void
-  status: 200
+export type createClaimOccurrenceResponse201 = {
+  data: CreateClaimOccurrence201
+  status: 201
 }
 
 export type createClaimOccurrenceResponseSuccess =
-  createClaimOccurrenceResponse200 & {
+  createClaimOccurrenceResponse201 & {
     headers: Headers
   }
 export type createClaimOccurrenceResponse = createClaimOccurrenceResponseSuccess
@@ -795,7 +801,7 @@ export const useCreateClaimOccurrence = <TError = unknown, TContext = unknown>(
  * @summary List occurrences for a claim
  */
 export type listClaimOccurrencesResponse200 = {
-  data: void
+  data: ListClaimOccurrences200
   status: 200
 }
 

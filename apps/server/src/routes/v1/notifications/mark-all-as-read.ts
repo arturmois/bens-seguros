@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { container, MarkAllNotificationsAsRead } from '@repo/core'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
+import { markAllAsReadResponse } from './_schemas.js'
 
 export function markAllAsReadRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -11,6 +12,7 @@ export function markAllAsReadRoute(app: FastifyInstance) {
       operationId: 'markAllNotificationsRead',
       tags: ['Notifications'],
       summary: 'Mark all notifications as read',
+      response: { 200: markAllAsReadResponse },
     },
     preHandler: [requireAbility('read', 'Notification')],
     handler: async (request, reply) => {

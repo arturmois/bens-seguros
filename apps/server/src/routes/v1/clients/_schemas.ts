@@ -64,10 +64,45 @@ const clientDetailSchema = clientListItemSchema.extend({
   birthDate: z.coerce.date().nullable().optional(),
   profession: z.string().nullable().optional(),
   maritalStatus: maritalStatusEnum.nullable().optional(),
-  address: z.record(z.string()).nullable().optional(),
+  address: z.record(z.string().optional()).nullable().optional(),
 })
 
 export const clientListResponse = paginatedResponse(clientListItemSchema)
 export const clientDetailResponse = successResponse(clientDetailSchema)
 export const deleteResponse = z.void()
 export { errorResponse }
+
+// --- Import response schemas (OpenAPI) ---
+
+const csvRowErrorSchema = z.object({
+  row: z.number(),
+  field: z.string(),
+  message: z.string(),
+  value: z.string().optional(),
+})
+
+const importUploadDataSchema = z.object({
+  jobId: z.string().uuid(),
+  preview: z.array(z.record(z.string())).readonly(),
+  validationSummary: z.object({
+    total: z.number(),
+    valid: z.number(),
+    invalid: z.number(),
+    errors: z.array(csvRowErrorSchema).readonly(),
+  }),
+})
+
+export const importUploadResponse = successResponse(importUploadDataSchema)
+
+const importConfirmDataSchema = z.object({
+  jobId: z.string().uuid(),
+})
+
+export const importConfirmResponse = successResponse(importConfirmDataSchema)
+
+const importStatusDataSchema = z.object({
+  status: z.enum(['active', 'completed', 'failed', 'waiting', 'not_found']),
+  progress: z.record(z.unknown()).nullable(),
+})
+
+export const importStatusResponse = successResponse(importStatusDataSchema)

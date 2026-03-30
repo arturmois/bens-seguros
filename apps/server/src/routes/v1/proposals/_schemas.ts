@@ -2,6 +2,10 @@ import { z } from 'zod'
 import { paginationQuery } from '../../_shared/pagination.schema.js'
 import { idParam } from '../../_shared/params.schema.js'
 import { branchEnum } from '../../_shared/enums.schema.js'
+import {
+  successResponse,
+  errorResponse,
+} from '../../_shared/response.schema.js'
 
 // ── Entity-specific enums ───────────────────────────────────────────
 
@@ -130,28 +134,75 @@ export const listProposalsQuery = paginationQuery().extend({
   search: z.string().optional(),
 })
 
-// ── Response schemas (for OpenAPI) ──────────────────────────────────
+// ── Response schemas (typed for OpenAPI) ────────────────────────────
 
-export const proposalResponse = z.object({
-  success: z.literal(true),
-  data: z.record(z.unknown()),
+const proposalDataSchema = z.object({
+  id: z.string(),
+  organizationId: z.string(),
+  clientId: z.string(),
+  salespersonId: z.string(),
+  stage: proposalStageEnum,
+  boardType: boardTypeEnum,
+  branch: branchEnum,
+  premiumValueInCents: z.number(),
+  commissionPercentageInCents: z.number(),
+  details: insuredObjectDetails.nullable(),
+  lostReason: z.string().nullable(),
+  renewalPolicyId: z.string().nullable(),
+  insurerId: z.string().nullable(),
+  deletedAt: z.coerce.date().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  clientName: z.string().optional(),
+  clientDocument: z.string().optional(),
+  salespersonName: z.string().optional(),
+  insurerName: z.string().optional(),
 })
+
+export const proposalDetailResponse = successResponse(proposalDataSchema)
 
 export const proposalListResponse = z.object({
   success: z.literal(true),
-  data: z.array(z.record(z.unknown())),
+  data: z.array(proposalDataSchema),
   meta: z.object({ nextCursor: z.string().nullable() }),
 })
 
-export const proposalPdfResponse = z.object({
-  success: z.literal(true),
-  data: z.object({
+export const proposalNullResponse = successResponse(z.null())
+
+export const proposalPdfResponse = successResponse(
+  z.object({
     url: z.string(),
     cached: z.boolean(),
-  }),
+  })
+)
+
+const checklistItemSchema = z.object({
+  id: z.string(),
+  proposalId: z.string(),
+  itemKey: z.string(),
+  label: z.string(),
+  isRequired: z.boolean(),
+  isCompleted: z.boolean(),
+  completedAt: z.coerce.date().nullable(),
+  completedBy: z.string().nullable(),
+  createdAt: z.coerce.date(),
 })
 
-export const errorResponse = z.object({
-  success: z.literal(false),
-  error: z.object({ code: z.string(), message: z.string() }),
+const checklistSummarySchema = z.object({
+  total: z.number(),
+  completed: z.number(),
+  required: z.number(),
+  requiredCompleted: z.number(),
+  canAdvance: z.boolean(),
 })
+
+export const checklistResponse = successResponse(
+  z.object({
+    items: z.array(checklistItemSchema),
+    summary: checklistSummarySchema,
+  })
+)
+
+export const checklistItemResponse = successResponse(checklistItemSchema)
+
+export { errorResponse }

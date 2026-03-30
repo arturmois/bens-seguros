@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { idParam } from './_schemas.js'
+import { idParam, proposalNullResponse, errorResponse } from './_schemas.js'
 
 export function reopenProposalRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -14,6 +14,11 @@ export function reopenProposalRoute(app: FastifyInstance) {
       summary: 'Reopen a lost proposal',
       operationId: 'reopenProposal',
       params: idParam,
+      response: {
+        200: proposalNullResponse,
+        400: errorResponse,
+        404: errorResponse,
+      },
     },
     preHandler: [requireAbility('update', 'Proposal')],
     handler: async (request, reply) => {

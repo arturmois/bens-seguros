@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-import type { ClaimStatus } from '../types'
+import type { ClaimStatus } from '../lib/constants'
 import { CLAIM_STATUS_COLORS, CLAIM_STATUS_LABELS } from '../lib/constants'
 
 interface ClaimStatusBadgeProps {

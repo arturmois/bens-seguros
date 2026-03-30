@@ -5,7 +5,7 @@ import { Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 
-import type { CommissionStatus } from '../types'
+import type { CommissionStatus } from '../lib/constants'
 import { TERMINAL_COMMISSION_STATUSES } from '../lib/constants'
 import {
   useApproveAdmin,

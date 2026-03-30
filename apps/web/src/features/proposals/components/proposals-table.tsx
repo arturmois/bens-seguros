@@ -14,7 +14,7 @@ import {
 import { useDebounce } from '@/hooks/use-debounce'
 
 import { useAdvanceProposal, useProposals } from '../hooks/use-proposals'
-import type { BoardType, ProposalData, ProposalStage } from '../types'
+import type { BoardType, ProposalData, ProposalStage } from '../lib/constants'
 import { LostReasonDialog } from './lost-reason-dialog'
 import { ProposalTableRow } from './proposal-table-row'
 import {
@@ -136,7 +136,7 @@ export function ProposalsTable() {
               </Table>
             </div>
           )}
-          {data?.meta.hasMore && (
+          {data?.meta.nextCursor && (
             <div className="flex justify-center">
               <Button
                 variant="outline"

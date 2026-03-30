@@ -1,26 +1,23 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import {
-  getListProposalsQueryKey,
-  getGetProposalQueryOptions,
-  getGetProposalChecklistQueryKey,
-  getListProposalsUrl,
-  getCreateProposalUrl,
+  useListProposals,
+  useGetProposal,
+  createProposal,
   advanceProposal,
   markProposalLost,
   updateProposalDetails,
+  getListProposalsQueryKey,
+  getGetProposalQueryKey,
+  getGetProposalChecklistQueryKey,
 } from '@/api/endpoints/proposals/proposals'
-import { api, ApiError } from '@/lib/api-client'
+import type { CreateProposalBody, UpdateProposalDetailsBody } from '@/api/model'
+import { ApiError } from '@/lib/api-client'
 
-import type {
-  BoardType,
-  InsuredObjectDetails,
-  ProposalData,
-  ProposalStage,
-} from '../types'
+import type { ProposalStage, BoardType } from '../lib/constants'
 
 interface ProposalFilters {
   stage?: ProposalStage
@@ -31,56 +28,26 @@ interface ProposalFilters {
   limit?: number
 }
 
-interface PaginatedResult {
-  data: ProposalData[]
-  meta: {
-    nextCursor: string | null
-    hasMore: boolean
-  }
-}
-
-interface SingleResult {
-  data: ProposalData
-}
-
-interface CreateProposalInput {
-  clientId: string
-  branch: string
-  boardType: string
-}
-
 export function useProposals(filters: ProposalFilters) {
-  return useQuery<PaginatedResult>({
-    queryKey: getListProposalsQueryKey(filters),
-    queryFn: async () => {
-      const response = await api.get<ProposalData[]>(
-        getListProposalsUrl(filters)
-      )
-      return {
-        data: response.data,
-        meta: {
-          nextCursor: response.meta?.nextCursor ?? null,
-          hasMore:
-            response.meta?.nextCursor !== null &&
-            response.meta?.nextCursor !== undefined,
-        },
-      }
+  return useListProposals(filters, {
+    query: {
+      select: (response) => ({
+        data: response.data.data,
+        meta: response.data.meta,
+      }),
     },
-    staleTime: 60_000,
   })
 }
 
 export function useProposal(id: string) {
-  const orvalOptions = getGetProposalQueryOptions(id)
-
-  return useQuery<SingleResult>({
-    queryKey: orvalOptions.queryKey,
-    queryFn: async () => {
-      const response = await api.get<ProposalData>(`/api/v1/proposals/${id}`)
-      return { data: response.data }
+  return useGetProposal(id, {
+    query: {
+      enabled: Boolean(id),
+      select: (response) =>
+        'data' in response.data
+          ? { data: response.data.data }
+          : { data: undefined },
     },
-    staleTime: 60_000,
-    enabled: Boolean(id),
   })
 }
 
@@ -88,12 +55,11 @@ export function useCreateProposal() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: CreateProposalInput) =>
-      api.post<ProposalData>(getCreateProposalUrl(), data),
+    mutationFn: (data: CreateProposalBody) => createProposal(data),
     onSuccess: () => {
       toast.success('Proposta criada com sucesso')
       void queryClient.invalidateQueries({
-        queryKey: ['/api/v1/proposals'],
+        queryKey: getListProposalsQueryKey(),
       })
     },
     onError: () => {
@@ -110,10 +76,10 @@ export function useAdvanceProposal() {
     onSuccess: (_data, id) => {
       toast.success('Estágio avançado com sucesso')
       void queryClient.invalidateQueries({
-        queryKey: ['/api/v1/proposals'],
+        queryKey: getListProposalsQueryKey(),
       })
       void queryClient.invalidateQueries({
-        queryKey: [`/api/v1/proposals/${id}`],
+        queryKey: getGetProposalQueryKey(id),
       })
       void queryClient.invalidateQueries({
         queryKey: getGetProposalChecklistQueryKey(id),
@@ -141,10 +107,10 @@ export function useMarkProposalLost() {
     onSuccess: (_data, { id }) => {
       toast.success('Proposta marcada como perda')
       void queryClient.invalidateQueries({
-        queryKey: ['/api/v1/proposals'],
+        queryKey: getListProposalsQueryKey(),
       })
       void queryClient.invalidateQueries({
-        queryKey: [`/api/v1/proposals/${id}`],
+        queryKey: getGetProposalQueryKey(id),
       })
     },
     onError: () => {
@@ -153,30 +119,23 @@ export function useMarkProposalLost() {
   })
 }
 
-interface UpdateProposalDetailsInput {
-  id: string
-  details: InsuredObjectDetails
-  premiumValueInCents: number
-  commissionBasisPoints: number
-}
-
 export function useUpdateProposalDetails() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, ...rest }: UpdateProposalDetailsInput) =>
-      updateProposalDetails(id, {
-        details: rest.details,
-        premiumValueInCents: rest.premiumValueInCents,
-        commissionBasisPoints: rest.commissionBasisPoints,
-      }),
+    mutationFn: ({
+      id,
+      ...body
+    }: { id: string } & Omit<UpdateProposalDetailsBody, 'details'> & {
+        details: UpdateProposalDetailsBody['details']
+      }) => updateProposalDetails(id, body),
     onSuccess: (_data, variables) => {
       toast.success('Dados do objeto segurado salvos')
       void queryClient.invalidateQueries({
-        queryKey: ['/api/v1/proposals'],
+        queryKey: getListProposalsQueryKey(),
       })
       void queryClient.invalidateQueries({
-        queryKey: [`/api/v1/proposals/${variables.id}`],
+        queryKey: getGetProposalQueryKey(variables.id),
       })
     },
     onError: () => {

@@ -14,7 +14,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 
-import type { ClaimStatus } from '../types'
+import type { ClaimStatus } from '../lib/constants'
 import {
   CLAIM_STATUS_BUTTON_STYLES,
   CLAIM_STATUS_LABELS,

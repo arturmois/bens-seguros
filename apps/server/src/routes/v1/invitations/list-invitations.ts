@@ -2,7 +2,10 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { prisma } from '@repo/db'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { listInvitationsQuerySchema } from './_schemas.js'
+import {
+  listInvitationsQuerySchema,
+  invitationListResponse,
+} from './_schemas.js'
 
 export function listInvitationsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -13,6 +16,7 @@ export function listInvitationsRoute(app: FastifyInstance) {
       tags: ['Invitations'],
       summary: 'List pending invitations',
       querystring: listInvitationsQuerySchema,
+      response: { 200: invitationListResponse },
     },
     preHandler: [requireAbility('read', 'Invitation')],
     handler: async (request, reply) => {

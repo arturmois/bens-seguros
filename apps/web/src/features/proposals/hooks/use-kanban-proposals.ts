@@ -4,7 +4,7 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 
 import { api } from '@/lib/api-client'
 
-import type { BoardType, ProposalData, ProposalStage } from '../types'
+import type { BoardType, ProposalData, ProposalStage } from '../lib/constants'
 
 export interface KanbanFilters {
   boardType: BoardType

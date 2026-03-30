@@ -2,12 +2,20 @@ import { container, type CacheService, ListInsurers } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { listInsurersQuerySchema } from './_schemas.js'
+import { listInsurersQuerySchema, insurerListResponse } from './_schemas.js'
 
 const INSURER_CACHE_TTL = 86400 // 24h
 
 interface InsurerCacheData {
-  items: unknown[]
+  items: {
+    id: string
+    organizationId: string
+    name: string
+    code: string | null
+    active: boolean
+    createdAt: Date
+    updatedAt: Date
+  }[]
   nextCursor: string | null | undefined
 }
 
@@ -28,6 +36,7 @@ export function listInsurersRoute(app: FastifyInstance) {
       tags: ['Insurers'],
       summary: 'List insurers with cursor pagination and caching',
       querystring: listInsurersQuerySchema,
+      response: { 200: insurerListResponse },
     },
     preHandler: [requireAbility('read', 'Policy')],
     handler: async (request, reply) => {

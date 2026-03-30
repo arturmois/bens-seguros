@@ -11,7 +11,12 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { PolicySummaryPdf } from '../../../pdf-templates/policy-summary-pdf.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { generatePdfQuery, idParam } from './_schemas.js'
+import {
+  generatePdfQuery,
+  idParam,
+  policyPdfResponse,
+  errorResponse,
+} from './_schemas.js'
 
 export function generatePolicyPdfRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -23,6 +28,7 @@ export function generatePolicyPdfRoute(app: FastifyInstance) {
       operationId: 'generatePolicyPdf',
       params: idParam,
       querystring: generatePdfQuery,
+      response: { 200: policyPdfResponse, 404: errorResponse },
     },
     preHandler: [requireAbility('read', 'Policy')],
     handler: async (request, reply) => {

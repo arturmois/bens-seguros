@@ -1,58 +1,49 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-import { api } from '@/lib/api-client'
 import {
-  getListClaimsQueryKey,
-  getGetClaimQueryKey,
-  getListClaimOccurrencesQueryKey,
-  getListClaimsUrl,
-  getGetClaimUrl,
-  getListClaimOccurrencesUrl,
+  useListClaims,
+  useGetClaim,
+  useListClaimOccurrences,
   createClaim,
   updateClaimStatus,
   deleteClaim,
   createClaimOccurrence,
+  getListClaimsQueryKey,
+  getGetClaimQueryKey,
+  getListClaimOccurrencesQueryKey,
 } from '@/api/endpoints/claims/claims'
 
-import type {
-  ClaimData,
-  ClaimFilters,
-  ClaimListMeta,
-  ClaimStatus,
-  OccurrenceData,
-} from '../types'
+import type { z } from 'zod'
+
+import { CreateClaimBody } from '@/api/endpoints/claims/claims.zod'
+
+import type { ClaimFilters, ClaimStatus } from '../lib/constants'
 import type { CreateClaimOccurrenceBodyMetadata } from '@/api/model'
 
-import type { ClaimFormValues } from '../lib/schemas'
+type ClaimFormValues = z.infer<typeof CreateClaimBody>
 
 export const CLAIMS_QUERY_KEY = getListClaimsQueryKey
 
 export function useClaims(filters: ClaimFilters) {
-  return useQuery({
-    queryKey: getListClaimsQueryKey(filters),
-    queryFn: async () => {
-      const response = await api.get<ClaimData[]>(getListClaimsUrl(filters))
-      return {
-        data: response.data,
-        meta: response.meta as ClaimListMeta,
-      }
+  return useListClaims(filters, {
+    query: {
+      select: (response) => ({
+        data: response.data.data,
+        meta: response.data.meta,
+      }),
     },
-    staleTime: 60_000,
   })
 }
 
 export function useClaim(id: string) {
-  return useQuery({
-    queryKey: getGetClaimQueryKey(id),
-    queryFn: async () => {
-      const response = await api.get<ClaimData>(getGetClaimUrl(id))
-      return response.data
+  return useGetClaim(id, {
+    query: {
+      enabled: id.length > 0,
+      select: (response) => response.data.data,
     },
-    staleTime: 60_000,
-    enabled: id.length > 0,
   })
 }
 
@@ -112,16 +103,11 @@ export function useDeleteClaim() {
 }
 
 export function useClaimOccurrences(claimId: string) {
-  return useQuery({
-    queryKey: getListClaimOccurrencesQueryKey(claimId),
-    queryFn: async () => {
-      const response = await api.get<OccurrenceData[]>(
-        getListClaimOccurrencesUrl(claimId)
-      )
-      return response.data
+  return useListClaimOccurrences(claimId, {
+    query: {
+      enabled: claimId.length > 0,
+      select: (response) => response.data.data,
     },
-    staleTime: 60_000,
-    enabled: claimId.length > 0,
   })
 }
 

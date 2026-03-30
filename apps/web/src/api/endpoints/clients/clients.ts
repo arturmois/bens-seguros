@@ -21,9 +21,21 @@ import type {
 } from '@tanstack/react-query'
 
 import type {
+  CreateClient201,
   CreateClientBody,
   ExportClientsParams,
+  GetClient200,
+  ImportConfirmClients200,
+  ImportConfirmClients404,
+  ImportStatusClients200,
+  ImportStatusClients404,
+  ImportUploadClients200,
+  ImportUploadClients400,
+  ImportUploadClients413,
+  ImportUploadClients422,
+  ListClients200,
   ListClientsParams,
+  UpdateClient200,
   UpdateClientBody,
 } from '../../model'
 
@@ -34,12 +46,12 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
 /**
  * @summary Create a new client
  */
-export type createClientResponse200 = {
-  data: void
-  status: 200
+export type createClientResponse201 = {
+  data: CreateClient201
+  status: 201
 }
 
-export type createClientResponseSuccess = createClientResponse200 & {
+export type createClientResponseSuccess = createClientResponse201 & {
   headers: Headers
 }
 export type createClientResponse = createClientResponseSuccess
@@ -130,7 +142,7 @@ export const useCreateClient = <TError = unknown, TContext = unknown>(
  * @summary List clients with cursor pagination
  */
 export type listClientsResponse200 = {
-  data: void
+  data: ListClients200
   status: 200
 }
 
@@ -716,15 +728,40 @@ export const prefetchImportTemplateClientsQuery = async <
  * @summary Upload CSV file for client import (preview + validation)
  */
 export type importUploadClientsResponse200 = {
-  data: void
+  data: ImportUploadClients200
   status: 200
+}
+
+export type importUploadClientsResponse400 = {
+  data: ImportUploadClients400
+  status: 400
+}
+
+export type importUploadClientsResponse413 = {
+  data: ImportUploadClients413
+  status: 413
+}
+
+export type importUploadClientsResponse422 = {
+  data: ImportUploadClients422
+  status: 422
 }
 
 export type importUploadClientsResponseSuccess =
   importUploadClientsResponse200 & {
     headers: Headers
   }
-export type importUploadClientsResponse = importUploadClientsResponseSuccess
+export type importUploadClientsResponseError = (
+  | importUploadClientsResponse400
+  | importUploadClientsResponse413
+  | importUploadClientsResponse422
+) & {
+  headers: Headers
+}
+
+export type importUploadClientsResponse =
+  | importUploadClientsResponseSuccess
+  | importUploadClientsResponseError
 
 export const getImportUploadClientsUrl = () => {
   return `/api/v1/clients/import`
@@ -740,7 +777,10 @@ export const importUploadClients = async (
 }
 
 export const getImportUploadClientsMutationOptions = <
-  TError = unknown,
+  TError =
+    | ImportUploadClients400
+    | ImportUploadClients413
+    | ImportUploadClients422,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -779,12 +819,21 @@ export type ImportUploadClientsMutationResult = NonNullable<
   Awaited<ReturnType<typeof importUploadClients>>
 >
 
-export type ImportUploadClientsMutationError = unknown
+export type ImportUploadClientsMutationError =
+  | ImportUploadClients400
+  | ImportUploadClients413
+  | ImportUploadClients422
 
 /**
  * @summary Upload CSV file for client import (preview + validation)
  */
-export const useImportUploadClients = <TError = unknown, TContext = unknown>(
+export const useImportUploadClients = <
+  TError =
+    | ImportUploadClients400
+    | ImportUploadClients413
+    | ImportUploadClients422,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof importUploadClients>>,
@@ -810,15 +859,27 @@ export const useImportUploadClients = <TError = unknown, TContext = unknown>(
  * @summary Confirm and enqueue a staged client import job
  */
 export type importConfirmClientsResponse200 = {
-  data: void
+  data: ImportConfirmClients200
   status: 200
+}
+
+export type importConfirmClientsResponse404 = {
+  data: ImportConfirmClients404
+  status: 404
 }
 
 export type importConfirmClientsResponseSuccess =
   importConfirmClientsResponse200 & {
     headers: Headers
   }
-export type importConfirmClientsResponse = importConfirmClientsResponseSuccess
+export type importConfirmClientsResponseError =
+  importConfirmClientsResponse404 & {
+    headers: Headers
+  }
+
+export type importConfirmClientsResponse =
+  | importConfirmClientsResponseSuccess
+  | importConfirmClientsResponseError
 
 export const getImportConfirmClientsUrl = (jobId: string) => {
   return `/api/v1/clients/import/${jobId}/confirm`
@@ -838,7 +899,7 @@ export const importConfirmClients = async (
 }
 
 export const getImportConfirmClientsMutationOptions = <
-  TError = unknown,
+  TError = ImportConfirmClients404,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -879,12 +940,15 @@ export type ImportConfirmClientsMutationResult = NonNullable<
   Awaited<ReturnType<typeof importConfirmClients>>
 >
 
-export type ImportConfirmClientsMutationError = unknown
+export type ImportConfirmClientsMutationError = ImportConfirmClients404
 
 /**
  * @summary Confirm and enqueue a staged client import job
  */
-export const useImportConfirmClients = <TError = unknown, TContext = unknown>(
+export const useImportConfirmClients = <
+  TError = ImportConfirmClients404,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof importConfirmClients>>,
@@ -910,15 +974,27 @@ export const useImportConfirmClients = <TError = unknown, TContext = unknown>(
  * @summary Get the status of a client import job
  */
 export type importStatusClientsResponse200 = {
-  data: void
+  data: ImportStatusClients200
   status: 200
+}
+
+export type importStatusClientsResponse404 = {
+  data: ImportStatusClients404
+  status: 404
 }
 
 export type importStatusClientsResponseSuccess =
   importStatusClientsResponse200 & {
     headers: Headers
   }
-export type importStatusClientsResponse = importStatusClientsResponseSuccess
+export type importStatusClientsResponseError =
+  importStatusClientsResponse404 & {
+    headers: Headers
+  }
+
+export type importStatusClientsResponse =
+  | importStatusClientsResponseSuccess
+  | importStatusClientsResponseError
 
 export const getImportStatusClientsUrl = (jobId: string) => {
   return `/api/v1/clients/import/${jobId}/status`
@@ -943,7 +1019,7 @@ export const getImportStatusClientsQueryKey = (jobId: string) => {
 
 export const getImportStatusClientsQueryOptions = <
   TData = Awaited<ReturnType<typeof importStatusClients>>,
-  TError = unknown,
+  TError = ImportStatusClients404,
 >(
   jobId: string,
   options?: {
@@ -982,11 +1058,11 @@ export const getImportStatusClientsQueryOptions = <
 export type ImportStatusClientsQueryResult = NonNullable<
   Awaited<ReturnType<typeof importStatusClients>>
 >
-export type ImportStatusClientsQueryError = unknown
+export type ImportStatusClientsQueryError = ImportStatusClients404
 
 export function useImportStatusClients<
   TData = Awaited<ReturnType<typeof importStatusClients>>,
-  TError = unknown,
+  TError = ImportStatusClients404,
 >(
   jobId: string,
   options: {
@@ -1013,7 +1089,7 @@ export function useImportStatusClients<
 }
 export function useImportStatusClients<
   TData = Awaited<ReturnType<typeof importStatusClients>>,
-  TError = unknown,
+  TError = ImportStatusClients404,
 >(
   jobId: string,
   options?: {
@@ -1040,7 +1116,7 @@ export function useImportStatusClients<
 }
 export function useImportStatusClients<
   TData = Awaited<ReturnType<typeof importStatusClients>>,
-  TError = unknown,
+  TError = ImportStatusClients404,
 >(
   jobId: string,
   options?: {
@@ -1063,7 +1139,7 @@ export function useImportStatusClients<
 
 export function useImportStatusClients<
   TData = Awaited<ReturnType<typeof importStatusClients>>,
-  TError = unknown,
+  TError = ImportStatusClients404,
 >(
   jobId: string,
   options?: {
@@ -1095,7 +1171,7 @@ export function useImportStatusClients<
  */
 export const prefetchImportStatusClientsQuery = async <
   TData = Awaited<ReturnType<typeof importStatusClients>>,
-  TError = unknown,
+  TError = ImportStatusClients404,
 >(
   queryClient: QueryClient,
   jobId: string,
@@ -1121,7 +1197,7 @@ export const prefetchImportStatusClientsQuery = async <
  * @summary Get a client by ID
  */
 export type getClientResponse200 = {
-  data: void
+  data: GetClient200
   status: 200
 }
 
@@ -1301,7 +1377,7 @@ export const prefetchGetClientQuery = async <
  * @summary Update a client
  */
 export type updateClientResponse200 = {
-  data: void
+  data: UpdateClient200
   status: 200
 }
 

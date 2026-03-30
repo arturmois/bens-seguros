@@ -8,12 +8,12 @@ import { Menu, MenuPopup, MenuItem, MenuTrigger } from '@/components/ui/menu'
 import { TableCell, TableRow } from '@/components/ui/table'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 
-import type { PolicyData } from '../types'
+import type { PolicyData } from '../lib/constants'
 import {
   POLICY_BRANCH_LABELS,
   POLICY_STATUS_BADGE_VARIANT,
   POLICY_STATUS_LABELS,
-} from '../types'
+} from '../lib/constants'
 
 interface PolicyTableRowProps {
   readonly policy: PolicyData

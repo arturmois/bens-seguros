@@ -13,8 +13,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
-import type { EndorsementData } from '../types'
-import { ENDORSEMENT_TYPE_LABELS } from '../lib/constants'
+import type { EndorsementData } from '../lib/constants'
+import { getEndorsementTypeLabel } from '../lib/constants'
 import { useEndorsements } from '../hooks/use-endorsements'
 
 interface EndorsementListProps {
@@ -85,7 +85,7 @@ function EndorsementRow({
     <TableRow>
       <TableCell>
         <span className="bg-muted rounded px-2 py-0.5 text-xs font-medium">
-          {ENDORSEMENT_TYPE_LABELS[endorsement.type]}
+          {getEndorsementTypeLabel(endorsement.type)}
         </span>
       </TableCell>
       <TableCell className="max-w-xs truncate">

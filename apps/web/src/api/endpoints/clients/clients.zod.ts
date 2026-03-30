@@ -50,6 +50,26 @@ export const ListClientsQueryParams = zod.object({
   search: zod.string().optional(),
 })
 
+export const ListClientsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      name: zod.string(),
+      type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']),
+      tags: zod.array(zod.string()),
+      document: zod.string(),
+      email: zod.string().nullish(),
+      phone: zod.string().nullish(),
+      createdAt: zod.string().datetime({}),
+    })
+  ),
+  meta: zod.object({
+    total: zod.number().optional(),
+    nextCursor: zod.string().nullish(),
+  }),
+})
+
 /**
  * @summary Export clients as CSV
  */
@@ -68,10 +88,41 @@ export const ExportClientsQueryParams = zod.object({
 })
 
 /**
+ * @summary Upload CSV file for client import (preview + validation)
+ */
+export const ImportUploadClientsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    jobId: zod.string().uuid(),
+    preview: zod.array(zod.record(zod.string(), zod.string())),
+    validationSummary: zod.object({
+      total: zod.number(),
+      valid: zod.number(),
+      invalid: zod.number(),
+      errors: zod.array(
+        zod.object({
+          row: zod.number(),
+          field: zod.string(),
+          message: zod.string(),
+          value: zod.string().optional(),
+        })
+      ),
+    }),
+  }),
+})
+
+/**
  * @summary Confirm and enqueue a staged client import job
  */
 export const ImportConfirmClientsParams = zod.object({
   jobId: zod.string().uuid(),
+})
+
+export const ImportConfirmClientsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    jobId: zod.string().uuid(),
+  }),
 })
 
 /**
@@ -81,12 +132,44 @@ export const ImportStatusClientsParams = zod.object({
   jobId: zod.string().uuid(),
 })
 
+export const ImportStatusClientsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    status: zod.enum(['active', 'completed', 'failed', 'waiting', 'not_found']),
+    progress: zod.record(zod.string(), zod.unknown()).nullable(),
+  }),
+})
+
 /**
  * @summary Get a client by ID
  */
 
 export const GetClientParams = zod.object({
   id: zod.string().min(1),
+})
+
+export const GetClientResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    name: zod.string(),
+    type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']),
+    tags: zod.array(zod.string()),
+    document: zod.string(),
+    email: zod.string().nullish(),
+    phone: zod.string().nullish(),
+    createdAt: zod.string().datetime({}),
+    consentLgpd: zod.boolean(),
+    updatedAt: zod.string().datetime({}),
+    birthDate: zod.string().datetime({}).nullish(),
+    profession: zod.string().nullish(),
+    maritalStatus: zod
+      .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
+      .nullish(),
+    address: zod
+      .record(zod.string(), zod.union([zod.unknown(), zod.string()]))
+      .nullish(),
+  }),
 })
 
 /**
@@ -112,6 +195,30 @@ export const UpdateClientBody = zod.object({
   address: zod.record(zod.string(), zod.string()).optional(),
   tags: zod.array(zod.string()).optional(),
   consentLgpd: zod.boolean().optional(),
+})
+
+export const UpdateClientResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    name: zod.string(),
+    type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']),
+    tags: zod.array(zod.string()),
+    document: zod.string(),
+    email: zod.string().nullish(),
+    phone: zod.string().nullish(),
+    createdAt: zod.string().datetime({}),
+    consentLgpd: zod.boolean(),
+    updatedAt: zod.string().datetime({}),
+    birthDate: zod.string().datetime({}).nullish(),
+    profession: zod.string().nullish(),
+    maritalStatus: zod
+      .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
+      .nullish(),
+    address: zod
+      .record(zod.string(), zod.union([zod.unknown(), zod.string()]))
+      .nullish(),
+  }),
 })
 
 /**

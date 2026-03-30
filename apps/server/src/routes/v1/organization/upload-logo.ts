@@ -4,6 +4,8 @@ import { container, type StorageProvider, type CacheService } from '@repo/core'
 import { prisma } from '@repo/db'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditUpdate } from '../../../services/audit-logger.js'
+import { organizationDetailResponse } from './_schemas.js'
+import { errorResponse } from '../../_shared/response.schema.js'
 
 const ALLOWED_IMAGE_TYPES = new Set([
   'image/jpeg',
@@ -37,6 +39,7 @@ export function uploadLogoRoute(app: FastifyInstance) {
       operationId: 'uploadOrganizationLogo',
       tags: ['Organization'],
       summary: 'Upload organization logo',
+      response: { 200: organizationDetailResponse, 400: errorResponse },
     },
     preHandler: [requireAbility('manage', 'Organization')],
     handler: async (request, reply) => {

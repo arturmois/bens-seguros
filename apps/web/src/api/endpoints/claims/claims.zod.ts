@@ -60,12 +60,92 @@ export const ListClaimsQueryParams = zod.object({
   search: zod.string().optional(),
 })
 
+export const ListClaimsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      organizationId: zod.string(),
+      claimNumber: zod.number(),
+      policyId: zod.string(),
+      clientId: zod.string(),
+      insurerId: zod.string().nullable(),
+      assignedToId: zod.string().nullable(),
+      status: zod.enum([
+        'REGISTERED',
+        'IN_ANALYSIS',
+        'AWAITING_DOCUMENT',
+        'PENDING_INSPECTION',
+        'APPROVED',
+        'REJECTED',
+        'PAID',
+        'COMPLETED',
+      ]),
+      priority: zod.enum(['NORMAL', 'HIGH', 'URGENT']),
+      description: zod.string(),
+      estimatedValueInCents: zod.number().nullable(),
+      incidentDate: zod.string().datetime({}).nullable(),
+      incidentLocation: zod.string().nullable(),
+      reportedAt: zod.string().datetime({}),
+      resolvedAt: zod.string().datetime({}).nullable(),
+      closedAt: zod.string().datetime({}).nullable(),
+      createdAt: zod.string().datetime({}),
+      updatedAt: zod.string().datetime({}),
+      policyNumber: zod.string().optional(),
+      clientName: zod.string().optional(),
+      insurerName: zod.string().optional(),
+      assignedToName: zod.string().optional(),
+    })
+  ),
+  meta: zod.object({
+    total: zod.number().optional(),
+    nextCursor: zod.string().nullish(),
+  }),
+})
+
 /**
  * @summary Get a claim by ID
  */
 
 export const GetClaimParams = zod.object({
   id: zod.string().min(1),
+})
+
+export const GetClaimResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    claimNumber: zod.number(),
+    policyId: zod.string(),
+    clientId: zod.string(),
+    insurerId: zod.string().nullable(),
+    assignedToId: zod.string().nullable(),
+    status: zod.enum([
+      'REGISTERED',
+      'IN_ANALYSIS',
+      'AWAITING_DOCUMENT',
+      'PENDING_INSPECTION',
+      'APPROVED',
+      'REJECTED',
+      'PAID',
+      'COMPLETED',
+    ]),
+    priority: zod.enum(['NORMAL', 'HIGH', 'URGENT']),
+    description: zod.string(),
+    estimatedValueInCents: zod.number().nullable(),
+    incidentDate: zod.string().datetime({}).nullable(),
+    incidentLocation: zod.string().nullable(),
+    reportedAt: zod.string().datetime({}),
+    resolvedAt: zod.string().datetime({}).nullable(),
+    closedAt: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    policyNumber: zod.string().optional(),
+    clientName: zod.string().optional(),
+    insurerName: zod.string().optional(),
+    assignedToName: zod.string().optional(),
+  }),
 })
 
 /**
@@ -95,6 +175,43 @@ export const UpdateClaimStatusBody = zod.object({
     'PAID',
     'COMPLETED',
   ]),
+})
+
+export const UpdateClaimStatusResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    claimNumber: zod.number(),
+    policyId: zod.string(),
+    clientId: zod.string(),
+    insurerId: zod.string().nullable(),
+    assignedToId: zod.string().nullable(),
+    status: zod.enum([
+      'REGISTERED',
+      'IN_ANALYSIS',
+      'AWAITING_DOCUMENT',
+      'PENDING_INSPECTION',
+      'APPROVED',
+      'REJECTED',
+      'PAID',
+      'COMPLETED',
+    ]),
+    priority: zod.enum(['NORMAL', 'HIGH', 'URGENT']),
+    description: zod.string(),
+    estimatedValueInCents: zod.number().nullable(),
+    incidentDate: zod.string().datetime({}).nullable(),
+    incidentLocation: zod.string().nullable(),
+    reportedAt: zod.string().datetime({}),
+    resolvedAt: zod.string().datetime({}).nullable(),
+    closedAt: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    policyNumber: zod.string().optional(),
+    clientName: zod.string().optional(),
+    insurerName: zod.string().optional(),
+    assignedToName: zod.string().optional(),
+  }),
 })
 
 /**
@@ -131,4 +248,35 @@ export const CreateClaimOccurrenceBody = zod.object({
 
 export const ListClaimOccurrencesParams = zod.object({
   id: zod.string().min(1),
+})
+
+export const ListClaimOccurrencesResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      claimId: zod.string(),
+      organizationId: zod.string(),
+      type: zod.string(),
+      description: zod.string(),
+      metadata: zod
+        .record(
+          zod.string(),
+          zod.union([
+            zod.union([
+              zod.string(),
+              zod.number(),
+              zod.boolean(),
+              zod.enum(['null']).nullable(),
+            ]),
+            zod.array(zod.unknown()),
+            zod.record(zod.string(), zod.unknown()),
+          ])
+        )
+        .nullable(),
+      createdBy: zod.string().nullable(),
+      createdAt: zod.string().datetime({}),
+      createdByName: zod.string().optional(),
+    })
+  ),
 })

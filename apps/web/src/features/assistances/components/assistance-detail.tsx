@@ -12,8 +12,8 @@ import { DocumentList } from '@/features/documents/components/document-list'
 import { DocumentUpload } from '@/features/documents/components/document-upload'
 import { formatDate } from '@/lib/formatters'
 
-import type { AssistanceData } from '../types'
-import { ASSISTANCE_TYPE_LABELS } from '../lib/constants'
+import type { AssistanceData } from '../lib/constants'
+import { getAssistanceTypeLabel } from '../lib/constants'
 import { useAssistance } from '../hooks/use-assistances'
 import { AssistanceStatusActions } from './assistance-status-actions'
 import { AssistanceStatusBadge } from './assistance-status-badge'
@@ -70,7 +70,7 @@ export function AssistanceDetail({ assistanceId }: AssistanceDetailProps) {
         </Button>
         <span className="text-muted-foreground">/</span>
         <span className="text-muted-foreground">
-          {ASSISTANCE_TYPE_LABELS[data.type]}
+          {getAssistanceTypeLabel(data.type)}
         </span>
       </nav>
 
@@ -101,7 +101,7 @@ function DetailHeader({ assistance }: { readonly assistance: AssistanceData }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
       <h2 className="text-xl font-semibold">
-        {ASSISTANCE_TYPE_LABELS[assistance.type]}
+        {getAssistanceTypeLabel(assistance.type)}
       </h2>
       <AssistanceStatusBadge status={assistance.status} />
       <span className="text-muted-foreground text-sm">

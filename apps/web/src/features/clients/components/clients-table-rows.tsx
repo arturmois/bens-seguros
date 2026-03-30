@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/menu'
 
-import type { ClientData } from '../types'
+import type { ClientData } from '../lib/constants'
 import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
 
 export function ClientsTableHeader() {

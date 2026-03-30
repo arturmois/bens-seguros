@@ -4,7 +4,11 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { idParamSchema, createOccurrenceBodySchema } from './_schemas.js'
+import {
+  idParamSchema,
+  createOccurrenceBodySchema,
+  occurrenceResponse,
+} from './_schemas.js'
 
 export function createOccurrenceRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -16,6 +20,7 @@ export function createOccurrenceRoute(app: FastifyInstance) {
       operationId: 'createClaimOccurrence',
       params: idParamSchema,
       body: createOccurrenceBodySchema,
+      response: { 201: occurrenceResponse },
     },
     preHandler: [requireAbility('update', 'Claim')],
     handler: async (request, reply) => {

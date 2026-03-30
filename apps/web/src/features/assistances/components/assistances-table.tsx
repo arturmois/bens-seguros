@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Table } from '@/components/ui/table'
 
-import type { AssistanceStatus } from '../types'
+import type { AssistanceStatus } from '../lib/constants'
 import { useAssistances } from '../hooks/use-assistances'
 import { AssistancesPagination } from './assistances-pagination'
 import {

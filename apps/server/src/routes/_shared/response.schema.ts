@@ -9,8 +9,8 @@ export function paginatedResponse<T extends z.ZodType>(itemSchema: T) {
     success: z.literal(true),
     data: z.array(itemSchema),
     meta: z.object({
-      total: z.number(),
-      nextCursor: z.string().nullable(),
+      total: z.number().optional(),
+      nextCursor: z.string().nullable().optional(),
     }),
   })
 }

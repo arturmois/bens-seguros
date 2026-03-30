@@ -3,7 +3,10 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { listEndorsementsQuerySchema } from './_schemas.js'
+import {
+  listEndorsementsQuerySchema,
+  endorsementListResponse,
+} from './_schemas.js'
 
 export function listEndorsementsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -14,6 +17,7 @@ export function listEndorsementsRoute(app: FastifyInstance) {
       tags: ['Endorsements'],
       summary: 'List endorsements with pagination',
       querystring: listEndorsementsQuerySchema,
+      response: { 200: endorsementListResponse },
     },
     preHandler: [requireAbility('read', 'Endorsement')],
     handler: async (request, reply) => {

@@ -4,7 +4,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditUpdate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { idParam } from './_schemas.js'
+import { idParam, proposalDetailResponse, errorResponse } from './_schemas.js'
 
 export function advanceProposalRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -15,6 +15,11 @@ export function advanceProposalRoute(app: FastifyInstance) {
       summary: 'Advance proposal to next stage',
       operationId: 'advanceProposal',
       params: idParam,
+      response: {
+        200: proposalDetailResponse,
+        400: errorResponse,
+        404: errorResponse,
+      },
     },
     preHandler: [requireAbility('update', 'Proposal')],
     handler: async (request, reply) => {

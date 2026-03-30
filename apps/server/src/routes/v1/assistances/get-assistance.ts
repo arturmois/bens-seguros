@@ -4,7 +4,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { idParamSchema } from './_schemas.js'
+import { idParamSchema, assistanceDetailResponse } from './_schemas.js'
 
 export function getAssistanceRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -15,6 +15,7 @@ export function getAssistanceRoute(app: FastifyInstance) {
       tags: ['Assistances'],
       summary: 'Get an assistance request by ID',
       params: idParamSchema,
+      response: { 200: assistanceDetailResponse },
     },
     preHandler: [requireAbility('read', 'Assistance')],
     handler: async (request, reply) => {

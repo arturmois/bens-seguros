@@ -2,6 +2,8 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { container, type StorageProvider, type CacheService } from '@repo/core'
 import { prisma } from '@repo/db'
+import { organizationDetailResponse } from './_schemas.js'
+import { errorResponse } from '../../_shared/response.schema.js'
 
 const ORG_CACHE_TTL = 3600 // 1h
 
@@ -29,6 +31,7 @@ export function getOrganizationRoute(app: FastifyInstance) {
       operationId: 'getOrganization',
       tags: ['Organization'],
       summary: 'Get current organization details',
+      response: { 200: organizationDetailResponse, 404: errorResponse },
     },
     handler: async (request, reply) => {
       const organizationId = request.organizationId!

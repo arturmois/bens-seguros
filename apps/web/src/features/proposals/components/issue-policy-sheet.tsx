@@ -5,7 +5,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { z } from 'zod'
+import type { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { DatePicker } from '@/components/ui/date-picker'
@@ -18,22 +18,16 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 
+import { IssuePolicyBody } from '@/api/endpoints/policies/policies.zod'
 import { FormField } from '@/components/shared/form-field'
 import { useIssuePolicy } from '@/features/policies/hooks/use-policies'
 
-const issuePolicySchema = z.object({
-  policyNumber: z
-    .string({ required_error: 'Número da apólice é obrigatório' })
-    .min(1, 'Número da apólice é obrigatório'),
-  startDate: z
-    .string({ required_error: 'Data de início é obrigatória' })
-    .min(1, 'Data de início é obrigatória'),
-  endDate: z
-    .string({ required_error: 'Data de fim é obrigatória' })
-    .min(1, 'Data de fim é obrigatória'),
+const issuePolicyFormSchema = IssuePolicyBody.omit({
+  proposalId: true,
+  coverageDetails: true,
 })
 
-type IssuePolicyFormValues = z.infer<typeof issuePolicySchema>
+type IssuePolicyFormValues = z.infer<typeof issuePolicyFormSchema>
 
 const EMPTY_VALUES: IssuePolicyFormValues = {
   policyNumber: '',
@@ -56,10 +50,7 @@ function parseDateString(value: string | undefined): Date | undefined {
 
 function formatDateToISO(date: Date | undefined): string {
   if (!date) return ''
-  const year = date.getUTCFullYear()
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
-  const day = String(date.getUTCDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+  return date.toISOString()
 }
 
 export function IssuePolicySheet({
@@ -71,7 +62,7 @@ export function IssuePolicySheet({
   const issuePolicy = useIssuePolicy()
 
   const form = useForm<IssuePolicyFormValues>({
-    resolver: zodResolver(issuePolicySchema),
+    resolver: zodResolver(issuePolicyFormSchema),
     defaultValues: EMPTY_VALUES,
   })
 

@@ -20,7 +20,12 @@ import type {
   UseQueryResult,
 } from '@tanstack/react-query'
 
-import type { AcceptTermsBody } from '../../model'
+import type {
+  AcceptTerms200,
+  AcceptTerms409,
+  AcceptTermsBody,
+  GetTermsStatus200,
+} from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
 
@@ -30,7 +35,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
  * @summary Get terms and privacy acceptance status
  */
 export type getTermsStatusResponse200 = {
-  data: void
+  data: GetTermsStatus200
   status: 200
 }
 
@@ -202,14 +207,25 @@ export const prefetchGetTermsStatusQuery = async <
  * @summary Accept current terms and privacy policy
  */
 export type acceptTermsResponse200 = {
-  data: void
+  data: AcceptTerms200
   status: 200
+}
+
+export type acceptTermsResponse409 = {
+  data: AcceptTerms409
+  status: 409
 }
 
 export type acceptTermsResponseSuccess = acceptTermsResponse200 & {
   headers: Headers
 }
-export type acceptTermsResponse = acceptTermsResponseSuccess
+export type acceptTermsResponseError = acceptTermsResponse409 & {
+  headers: Headers
+}
+
+export type acceptTermsResponse =
+  | acceptTermsResponseSuccess
+  | acceptTermsResponseError
 
 export const getAcceptTermsUrl = () => {
   return `/api/terms/accept`
@@ -228,7 +244,7 @@ export const acceptTerms = async (
 }
 
 export const getAcceptTermsMutationOptions = <
-  TError = unknown,
+  TError = AcceptTerms409,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -269,12 +285,12 @@ export type AcceptTermsMutationResult = NonNullable<
   Awaited<ReturnType<typeof acceptTerms>>
 >
 export type AcceptTermsMutationBody = AcceptTermsBody
-export type AcceptTermsMutationError = unknown
+export type AcceptTermsMutationError = AcceptTerms409
 
 /**
  * @summary Accept current terms and privacy policy
  */
-export const useAcceptTerms = <TError = unknown, TContext = unknown>(
+export const useAcceptTerms = <TError = AcceptTerms409, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof acceptTerms>>,

@@ -6,6 +6,9 @@
  */
 import * as zod from 'zod'
 
+/**
+ * @summary Export commissions as CSV
+ */
 export const exportCommissionsQueryLimitDefault = 20
 export const exportCommissionsQueryLimitMax = 100
 
@@ -33,6 +36,9 @@ export const ExportCommissionsQueryParams = zod.object({
   search: zod.string().optional(),
 })
 
+/**
+ * @summary List commissions with filters
+ */
 export const listCommissionsQueryLimitDefault = 20
 export const listCommissionsQueryLimitMax = 100
 
@@ -60,17 +66,183 @@ export const ListCommissionsQueryParams = zod.object({
   search: zod.string().optional(),
 })
 
+export const ListCommissionsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      organizationId: zod.string(),
+      policyId: zod.string(),
+      salespersonId: zod.string(),
+      status: zod.enum([
+        'PENDING_COMMERCIAL',
+        'PENDING_ADMIN',
+        'APPROVED',
+        'PAID',
+        'REJECTED',
+        'REVERSED',
+      ]),
+      commissionValueInCents: zod.number(),
+      premiumValueInCents: zod.number(),
+      percentageInBasisPoints: zod.number(),
+      splitPercentage: zod.number().nullable(),
+      approvedBy: zod.string().nullable(),
+      approvedAt: zod.string().datetime({}).nullable(),
+      paidAt: zod.string().datetime({}).nullable(),
+      rejectedBy: zod.string().nullable(),
+      rejectedAt: zod.string().datetime({}).nullable(),
+      rejectionReason: zod.string().nullable(),
+      isReversal: zod.boolean(),
+      originalCommissionId: zod.string().nullable(),
+      deletedAt: zod.string().datetime({}).nullable(),
+      createdAt: zod.string().datetime({}),
+      updatedAt: zod.string().datetime({}),
+      salespersonName: zod.string().optional(),
+      policyNumber: zod.string().optional(),
+      clientName: zod.string().optional(),
+    })
+  ),
+  meta: zod.object({
+    total: zod.number().optional(),
+    nextCursor: zod.string().nullish(),
+  }),
+})
+
+/**
+ * @summary Get commission by ID
+ */
+
 export const GetCommissionParams = zod.object({
   id: zod.string().min(1),
 })
+
+export const GetCommissionResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    policyId: zod.string(),
+    salespersonId: zod.string(),
+    status: zod.enum([
+      'PENDING_COMMERCIAL',
+      'PENDING_ADMIN',
+      'APPROVED',
+      'PAID',
+      'REJECTED',
+      'REVERSED',
+    ]),
+    commissionValueInCents: zod.number(),
+    premiumValueInCents: zod.number(),
+    percentageInBasisPoints: zod.number(),
+    splitPercentage: zod.number().nullable(),
+    approvedBy: zod.string().nullable(),
+    approvedAt: zod.string().datetime({}).nullable(),
+    paidAt: zod.string().datetime({}).nullable(),
+    rejectedBy: zod.string().nullable(),
+    rejectedAt: zod.string().datetime({}).nullable(),
+    rejectionReason: zod.string().nullable(),
+    isReversal: zod.boolean(),
+    originalCommissionId: zod.string().nullable(),
+    deletedAt: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    salespersonName: zod.string().optional(),
+    policyNumber: zod.string().optional(),
+    clientName: zod.string().optional(),
+  }),
+})
+
+/**
+ * @summary Approve commission (commercial step)
+ */
 
 export const ApproveCommissionCommercialParams = zod.object({
   id: zod.string().min(1),
 })
 
+export const ApproveCommissionCommercialResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    policyId: zod.string(),
+    salespersonId: zod.string(),
+    status: zod.enum([
+      'PENDING_COMMERCIAL',
+      'PENDING_ADMIN',
+      'APPROVED',
+      'PAID',
+      'REJECTED',
+      'REVERSED',
+    ]),
+    commissionValueInCents: zod.number(),
+    premiumValueInCents: zod.number(),
+    percentageInBasisPoints: zod.number(),
+    splitPercentage: zod.number().nullable(),
+    approvedBy: zod.string().nullable(),
+    approvedAt: zod.string().datetime({}).nullable(),
+    paidAt: zod.string().datetime({}).nullable(),
+    rejectedBy: zod.string().nullable(),
+    rejectedAt: zod.string().datetime({}).nullable(),
+    rejectionReason: zod.string().nullable(),
+    isReversal: zod.boolean(),
+    originalCommissionId: zod.string().nullable(),
+    deletedAt: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    salespersonName: zod.string().optional(),
+    policyNumber: zod.string().optional(),
+    clientName: zod.string().optional(),
+  }),
+})
+
+/**
+ * @summary Approve commission (admin step)
+ */
+
 export const ApproveCommissionAdminParams = zod.object({
   id: zod.string().min(1),
 })
+
+export const ApproveCommissionAdminResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    policyId: zod.string(),
+    salespersonId: zod.string(),
+    status: zod.enum([
+      'PENDING_COMMERCIAL',
+      'PENDING_ADMIN',
+      'APPROVED',
+      'PAID',
+      'REJECTED',
+      'REVERSED',
+    ]),
+    commissionValueInCents: zod.number(),
+    premiumValueInCents: zod.number(),
+    percentageInBasisPoints: zod.number(),
+    splitPercentage: zod.number().nullable(),
+    approvedBy: zod.string().nullable(),
+    approvedAt: zod.string().datetime({}).nullable(),
+    paidAt: zod.string().datetime({}).nullable(),
+    rejectedBy: zod.string().nullable(),
+    rejectedAt: zod.string().datetime({}).nullable(),
+    rejectionReason: zod.string().nullable(),
+    isReversal: zod.boolean(),
+    originalCommissionId: zod.string().nullable(),
+    deletedAt: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    salespersonName: zod.string().optional(),
+    policyNumber: zod.string().optional(),
+    clientName: zod.string().optional(),
+  }),
+})
+
+/**
+ * @summary Reject commission with reason
+ */
 
 export const RejectCommissionParams = zod.object({
   id: zod.string().min(1),
@@ -80,9 +252,89 @@ export const RejectCommissionBody = zod.object({
   reason: zod.string().min(1),
 })
 
+export const RejectCommissionResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    policyId: zod.string(),
+    salespersonId: zod.string(),
+    status: zod.enum([
+      'PENDING_COMMERCIAL',
+      'PENDING_ADMIN',
+      'APPROVED',
+      'PAID',
+      'REJECTED',
+      'REVERSED',
+    ]),
+    commissionValueInCents: zod.number(),
+    premiumValueInCents: zod.number(),
+    percentageInBasisPoints: zod.number(),
+    splitPercentage: zod.number().nullable(),
+    approvedBy: zod.string().nullable(),
+    approvedAt: zod.string().datetime({}).nullable(),
+    paidAt: zod.string().datetime({}).nullable(),
+    rejectedBy: zod.string().nullable(),
+    rejectedAt: zod.string().datetime({}).nullable(),
+    rejectionReason: zod.string().nullable(),
+    isReversal: zod.boolean(),
+    originalCommissionId: zod.string().nullable(),
+    deletedAt: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    salespersonName: zod.string().optional(),
+    policyNumber: zod.string().optional(),
+    clientName: zod.string().optional(),
+  }),
+})
+
+/**
+ * @summary Mark commission as paid
+ */
+
 export const PayCommissionParams = zod.object({
   id: zod.string().min(1),
 })
+
+export const PayCommissionResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    policyId: zod.string(),
+    salespersonId: zod.string(),
+    status: zod.enum([
+      'PENDING_COMMERCIAL',
+      'PENDING_ADMIN',
+      'APPROVED',
+      'PAID',
+      'REJECTED',
+      'REVERSED',
+    ]),
+    commissionValueInCents: zod.number(),
+    premiumValueInCents: zod.number(),
+    percentageInBasisPoints: zod.number(),
+    splitPercentage: zod.number().nullable(),
+    approvedBy: zod.string().nullable(),
+    approvedAt: zod.string().datetime({}).nullable(),
+    paidAt: zod.string().datetime({}).nullable(),
+    rejectedBy: zod.string().nullable(),
+    rejectedAt: zod.string().datetime({}).nullable(),
+    rejectionReason: zod.string().nullable(),
+    isReversal: zod.boolean(),
+    originalCommissionId: zod.string().nullable(),
+    deletedAt: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    salespersonName: zod.string().optional(),
+    policyNumber: zod.string().optional(),
+    clientName: zod.string().optional(),
+  }),
+})
+
+/**
+ * @summary Reverse commission payment
+ */
 
 export const ReverseCommissionParams = zod.object({
   id: zod.string().min(1),

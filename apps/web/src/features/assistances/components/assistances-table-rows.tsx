@@ -17,8 +17,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/menu'
 
-import type { AssistanceData } from '../types'
-import { ASSISTANCE_TYPE_LABELS } from '../lib/constants'
+import type { AssistanceData } from '../lib/constants'
+import { getAssistanceTypeLabel } from '../lib/constants'
 import { AssistanceStatusBadge } from './assistance-status-badge'
 
 const COLUMN_COUNT = 7
@@ -89,7 +89,7 @@ function AssistanceRow({
       }}
     >
       <TableCell className="font-medium">
-        {ASSISTANCE_TYPE_LABELS[assistance.type]}
+        {getAssistanceTypeLabel(assistance.type)}
       </TableCell>
       <TableCell>{assistance.clientName ?? '-'}</TableCell>
       <TableCell className="hidden md:table-cell">

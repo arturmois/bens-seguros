@@ -17,13 +17,13 @@ import { formatCurrency } from '@/lib/formatters'
 
 import { useChecklist } from '../hooks/use-checklist'
 import { useAdvanceProposal } from '../hooks/use-proposals'
-import type { ProposalData } from '../types'
+import type { ProposalData } from '../lib/constants'
 import {
   BOARD_TYPE_LABELS,
   BRANCH_LABELS,
   STAGE_BADGE_VARIANT,
   STAGE_LABELS,
-} from '../types'
+} from '../lib/constants'
 import { ProposalChecklistPanel } from './proposal-checklist-panel'
 import { ProposalStageActions } from './proposal-stage-actions'
 

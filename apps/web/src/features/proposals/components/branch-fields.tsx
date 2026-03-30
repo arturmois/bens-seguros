@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
-import type { InsuranceBranch, InsuredObjectDetails } from '../types'
+import type { InsuranceBranch, InsuredObjectDetails } from '../lib/constants'
 import {
   AutoFields,
   FieldWrapper,

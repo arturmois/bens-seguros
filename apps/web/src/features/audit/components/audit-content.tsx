@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/select'
 
 import { AuditTable } from './audit-table'
-import type { AuditLogFilters } from '../types'
+import type { AuditLogFilters } from '../lib/constants'
 
 const ENTITY_TYPE_OPTIONS = [
   { value: 'ALL', label: 'Todas entidades' },

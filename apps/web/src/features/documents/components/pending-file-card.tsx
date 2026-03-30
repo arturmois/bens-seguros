@@ -10,11 +10,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import type { InsuranceBranch } from '@/features/proposals/types'
+import type { InsuranceBranch } from '@/features/proposals/lib/constants'
 
 import { getDocumentTypesForBranch } from '../lib/branch-document-types'
 import { formatFileSize } from '../lib/format-file-size'
-import type { DocumentType } from '../types'
+import type { DocumentType } from '../lib/constants'
 
 interface PendingFileCardProps {
   readonly file: File

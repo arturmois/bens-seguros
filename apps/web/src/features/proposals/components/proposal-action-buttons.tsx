@@ -2,7 +2,7 @@ import { Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 
-import type { ProposalStage } from '../types'
+import type { ProposalStage } from '../lib/constants'
 
 interface ProposalActionButtonsProps {
   stage: ProposalStage

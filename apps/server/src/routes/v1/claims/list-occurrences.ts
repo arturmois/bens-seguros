@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { idParamSchema } from './_schemas.js'
+import { idParamSchema, occurrenceListResponse } from './_schemas.js'
 
 export function listOccurrencesRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -14,6 +14,7 @@ export function listOccurrencesRoute(app: FastifyInstance) {
       summary: 'List occurrences for a claim',
       operationId: 'listClaimOccurrences',
       params: idParamSchema,
+      response: { 200: occurrenceListResponse },
     },
     preHandler: [requireAbility('read', 'Claim')],
     handler: async (request, reply) => {

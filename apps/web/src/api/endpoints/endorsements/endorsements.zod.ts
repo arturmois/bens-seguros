@@ -59,10 +59,51 @@ export const ListEndorsementsQueryParams = zod.object({
     .default(listEndorsementsQueryLimitDefault),
 })
 
+export const ListEndorsementsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      organizationId: zod.string(),
+      policyId: zod.string(),
+      type: zod.string(),
+      description: zod.string(),
+      effectiveDate: zod.string().datetime({}),
+      previousVersionSnapshot: zod.record(zod.string(), zod.unknown()),
+      changes: zod.record(zod.string(), zod.unknown()),
+      createdBy: zod.string().nullable(),
+      createdAt: zod.string().datetime({}),
+      updatedAt: zod.string().datetime({}),
+      policyNumber: zod.string().optional(),
+    })
+  ),
+  meta: zod.object({
+    nextCursor: zod.string().nullable(),
+  }),
+})
+
 /**
  * @summary Get an endorsement by ID
  */
 
 export const GetEndorsementParams = zod.object({
   id: zod.string().min(1),
+})
+
+export const GetEndorsementResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    policyId: zod.string(),
+    type: zod.string(),
+    description: zod.string(),
+    effectiveDate: zod.string().datetime({}),
+    previousVersionSnapshot: zod.record(zod.string(), zod.unknown()),
+    changes: zod.record(zod.string(), zod.unknown()),
+    createdBy: zod.string().nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    policyNumber: zod.string().optional(),
+  }),
 })

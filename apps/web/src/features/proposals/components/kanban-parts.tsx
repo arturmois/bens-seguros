@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import type { BoardType } from '../types'
-import { BOARD_TYPE_LABELS, BOARD_TYPES, STAGES } from '../types'
+import type { BoardType } from '../lib/constants'
+import { BOARD_TYPE_LABELS, BOARD_TYPES, STAGES } from '../lib/constants'
 
 interface KanbanToolbarProps {
   search: string

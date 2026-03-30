@@ -2,7 +2,8 @@ import { container, CreateProposal } from '@repo/core'
 import { createTenantClient } from '@repo/db/tenant'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { createLeadBodySchema } from './_schemas.js'
+import { createLeadBodySchema, createLeadResponse } from './_schemas.js'
+import { errorResponse } from '../../_shared/response.schema.js'
 
 const INSURANCE_TYPE_TO_BRANCH: Record<string, string> = {
   AUTO: 'AUTO',
@@ -22,6 +23,7 @@ export function createLeadRoute(app: FastifyInstance) {
       tags: ['Internal'],
       summary: 'Create a lead from chat conversation',
       body: createLeadBodySchema,
+      response: { 201: createLeadResponse, 400: errorResponse },
     },
     handler: async (request, reply) => {
       const body = request.body

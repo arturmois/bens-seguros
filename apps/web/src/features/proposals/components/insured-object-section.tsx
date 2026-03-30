@@ -7,7 +7,7 @@ import type {
   InsuranceBranch,
   InsuredObjectDetails,
   ProposalData,
-} from '../types'
+} from '../lib/constants'
 import { BranchFields } from './branch-fields'
 
 const BRANCH_SECTION_TITLES: Record<InsuranceBranch, string> = {

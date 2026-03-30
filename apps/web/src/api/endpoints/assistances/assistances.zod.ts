@@ -54,12 +54,84 @@ export const ListAssistancesQueryParams = zod.object({
     .default(listAssistancesQueryLimitDefault),
 })
 
+export const ListAssistancesResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      organizationId: zod.string(),
+      policyId: zod.string(),
+      clientId: zod.string(),
+      claimId: zod.string().nullable(),
+      type: zod.string(),
+      status: zod.enum([
+        'REQUESTED',
+        'AWAITING_DOCUMENT',
+        'PENDING_INSPECTION',
+        'DISPATCHED',
+        'IN_PROGRESS',
+        'COMPLETED',
+      ]),
+      description: zod.string().nullable(),
+      address: zod.string().nullable(),
+      latitude: zod.number().nullable(),
+      longitude: zod.number().nullable(),
+      providerName: zod.string().nullable(),
+      providerPhone: zod.string().nullable(),
+      requestedAt: zod.string().datetime({}),
+      scheduledAt: zod.string().datetime({}).nullable(),
+      completedAt: zod.string().datetime({}).nullable(),
+      createdAt: zod.string().datetime({}),
+      updatedAt: zod.string().datetime({}),
+      policyNumber: zod.string().optional(),
+      clientName: zod.string().optional(),
+    })
+  ),
+  meta: zod.object({
+    total: zod.number().optional(),
+    nextCursor: zod.string().nullish(),
+  }),
+})
+
 /**
  * @summary Get an assistance request by ID
  */
 
 export const GetAssistanceParams = zod.object({
   id: zod.string().min(1),
+})
+
+export const GetAssistanceResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    policyId: zod.string(),
+    clientId: zod.string(),
+    claimId: zod.string().nullable(),
+    type: zod.string(),
+    status: zod.enum([
+      'REQUESTED',
+      'AWAITING_DOCUMENT',
+      'PENDING_INSPECTION',
+      'DISPATCHED',
+      'IN_PROGRESS',
+      'COMPLETED',
+    ]),
+    description: zod.string().nullable(),
+    address: zod.string().nullable(),
+    latitude: zod.number().nullable(),
+    longitude: zod.number().nullable(),
+    providerName: zod.string().nullable(),
+    providerPhone: zod.string().nullable(),
+    requestedAt: zod.string().datetime({}),
+    scheduledAt: zod.string().datetime({}).nullable(),
+    completedAt: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    policyNumber: zod.string().optional(),
+    clientName: zod.string().optional(),
+  }),
 })
 
 /**
@@ -79,4 +151,37 @@ export const UpdateAssistanceStatusBody = zod.object({
     'IN_PROGRESS',
     'COMPLETED',
   ]),
+})
+
+export const UpdateAssistanceStatusResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    policyId: zod.string(),
+    clientId: zod.string(),
+    claimId: zod.string().nullable(),
+    type: zod.string(),
+    status: zod.enum([
+      'REQUESTED',
+      'AWAITING_DOCUMENT',
+      'PENDING_INSPECTION',
+      'DISPATCHED',
+      'IN_PROGRESS',
+      'COMPLETED',
+    ]),
+    description: zod.string().nullable(),
+    address: zod.string().nullable(),
+    latitude: zod.number().nullable(),
+    longitude: zod.number().nullable(),
+    providerName: zod.string().nullable(),
+    providerPhone: zod.string().nullable(),
+    requestedAt: zod.string().datetime({}),
+    scheduledAt: zod.string().datetime({}).nullable(),
+    completedAt: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    policyNumber: zod.string().optional(),
+    clientName: zod.string().optional(),
+  }),
 })

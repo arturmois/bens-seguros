@@ -15,7 +15,7 @@ import { Card, CardHeader, CardTitle, CardPanel } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatCurrency } from '@/lib/formatters'
 
-import type { CommissionByStatus } from '../types'
+import type { CommissionByStatus } from '../lib/constants'
 
 const STATUS_GROUPS: Record<string, { label: string; key: string }> = {
   PENDING_COMMERCIAL: { label: 'Pendente Comercial', key: 'pending' },

@@ -5,7 +5,10 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditCreate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { createEndorsementBodySchema } from './_schemas.js'
+import {
+  createEndorsementBodySchema,
+  endorsementDetailResponse,
+} from './_schemas.js'
 
 export function createEndorsementRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -16,6 +19,7 @@ export function createEndorsementRoute(app: FastifyInstance) {
       tags: ['Endorsements'],
       summary: 'Create a new endorsement',
       body: createEndorsementBodySchema,
+      response: { 201: endorsementDetailResponse },
     },
     preHandler: [requireAbility('create', 'Endorsement')],
     handler: async (request, reply) => {

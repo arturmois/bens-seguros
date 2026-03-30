@@ -3,7 +3,7 @@ import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { listAuditLogsQuerySchema } from './_schemas.js'
+import { listAuditLogsQuerySchema, auditLogListResponse } from './_schemas.js'
 
 export function listAuditLogsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -14,6 +14,7 @@ export function listAuditLogsRoute(app: FastifyInstance) {
       tags: ['Audit Logs'],
       summary: 'List audit logs with cursor pagination',
       querystring: listAuditLogsQuerySchema,
+      response: { 200: auditLogListResponse },
     },
     preHandler: [requireAbility('manage', 'all')],
     handler: async (request, reply) => {

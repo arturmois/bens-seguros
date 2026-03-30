@@ -1,6 +1,6 @@
-import type { InsuranceBranch } from '@/features/proposals/types'
+import type { InsuranceBranch } from '@/features/proposals/lib/constants'
 
-import type { DocumentType } from '../types'
+import type { DocumentType } from '../lib/constants'
 
 interface DocumentTypeOption {
   readonly value: DocumentType

@@ -1,4 +1,32 @@
-import type { AssistanceStatus, AssistanceType } from '../types'
+import type {
+  ListAssistances200DataItemStatus,
+  ListAssistances200DataItem,
+} from '@/api/model'
+
+export type AssistanceStatus = ListAssistances200DataItemStatus
+export type AssistanceData = ListAssistances200DataItem
+
+/** Assistance type is a plain string in the Orval schema */
+export type AssistanceType =
+  | 'TOW_TRUCK'
+  | 'MECHANIC'
+  | 'LOCKSMITH'
+  | 'GLASS'
+  | 'OTHER'
+
+export interface AssistanceFilters {
+  readonly status?: AssistanceStatus
+  readonly policyId?: string
+  readonly clientId?: string
+  readonly type?: string
+  readonly cursor?: string
+  readonly limit?: number
+}
+
+export interface AssistanceListMeta {
+  readonly total: number
+  readonly nextCursor: string | null
+}
 
 interface SelectOption<TValue extends string> {
   readonly value: TValue
@@ -50,6 +78,11 @@ export const ASSISTANCE_TYPE_LABELS: Record<AssistanceType, string> = {
   LOCKSMITH: 'Chaveiro',
   GLASS: 'Vidros',
   OTHER: 'Outro',
+}
+
+/** Safe lookup — Orval types `type` as plain string */
+export function getAssistanceTypeLabel(type: string): string {
+  return (ASSISTANCE_TYPE_LABELS as Record<string, string>)[type] ?? type
 }
 
 export const ASSISTANCE_STATUS_OPTIONS: readonly SelectOption<AssistanceStatus>[] =

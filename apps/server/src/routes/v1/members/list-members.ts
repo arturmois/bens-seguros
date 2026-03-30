@@ -3,7 +3,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { prisma } from '@repo/db'
 import { container, type CacheService } from '@repo/core'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { listMembersQuerySchema } from './_schemas.js'
+import { listMembersQuerySchema, memberListResponse } from './_schemas.js'
 
 const MEMBER_CACHE_TTL = 3600 // 1h
 
@@ -37,6 +37,7 @@ export function listMembersRoute(app: FastifyInstance) {
       tags: ['Members'],
       summary: 'List organization members',
       querystring: listMembersQuerySchema,
+      response: { 200: memberListResponse },
     },
     preHandler: [requireAbility('read', 'Member')],
     handler: async (request, reply) => {

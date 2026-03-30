@@ -14,7 +14,13 @@ import {
   retrieveStagedData,
   stageImportData,
 } from '../../../services/csv-import-enqueuer.js'
-import { importJobIdParam } from './_schemas.js'
+import {
+  importJobIdParam,
+  importUploadResponse,
+  importConfirmResponse,
+  importStatusResponse,
+  errorResponse,
+} from './_schemas.js'
 
 export function importPoliciesRoutes(app: FastifyInstance) {
   const typedApp = app.withTypeProvider<ZodTypeProvider>()
@@ -49,6 +55,12 @@ export function importPoliciesRoutes(app: FastifyInstance) {
       tags: ['Policies'],
       summary: 'Upload and parse a policy CSV for import preview',
       operationId: 'importUploadPolicies',
+      response: {
+        200: importUploadResponse,
+        400: errorResponse,
+        413: errorResponse,
+        422: errorResponse,
+      },
     },
     preHandler: [requireAbility('manage', 'Policy')],
     handler: async (request, reply) => {
@@ -122,6 +134,7 @@ export function importPoliciesRoutes(app: FastifyInstance) {
       summary: 'Confirm and enqueue a staged policy import job',
       operationId: 'importConfirmPolicies',
       params: importJobIdParam,
+      response: { 200: importConfirmResponse, 404: errorResponse },
     },
     preHandler: [requireAbility('manage', 'Policy')],
     handler: async (request, reply) => {
@@ -165,6 +178,7 @@ export function importPoliciesRoutes(app: FastifyInstance) {
       summary: 'Check the status of a policy import job',
       operationId: 'importStatusPolicies',
       params: importJobIdParam,
+      response: { 200: importStatusResponse, 404: errorResponse },
     },
     preHandler: [requireAbility('manage', 'Policy')],
     handler: async (request, reply) => {

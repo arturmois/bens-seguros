@@ -1,8 +1,9 @@
+import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION } from '@repo/core'
+import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { prisma } from '@repo/db'
-import { CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION } from '@repo/core'
-import { acceptTermsSchema } from './_schemas.js'
+import { acceptTermsResponse, acceptTermsSchema } from './_schemas.js'
+import { errorResponse } from '../_shared/response.schema.js'
 
 export function acceptTermsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -13,6 +14,7 @@ export function acceptTermsRoute(app: FastifyInstance) {
       tags: ['Terms'],
       summary: 'Accept current terms and privacy policy',
       body: acceptTermsSchema,
+      response: { 200: acceptTermsResponse, 409: errorResponse },
     },
     handler: async (request, reply) => {
       const userId = request.user!.id
@@ -64,7 +66,7 @@ export function acceptTermsRoute(app: FastifyInstance) {
       ])
 
       return {
-        success: true,
+        success: true as const,
         data: {
           termsVersion: CURRENT_TERMS_VERSION,
           privacyVersion: CURRENT_PRIVACY_VERSION,

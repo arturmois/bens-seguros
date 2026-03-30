@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { downloadCsvBlob } from '@/lib/csv-download'
 
-import type { PolicyStatus } from '../types'
+import type { PolicyStatus } from '../lib/constants'
 
 interface PolicyExportFilters {
   readonly status?: PolicyStatus

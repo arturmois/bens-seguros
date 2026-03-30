@@ -12,7 +12,7 @@ import type {
   UseMutationResult,
 } from '@tanstack/react-query'
 
-import type { CreateLeadBody } from '../../model'
+import type { CreateLead201, CreateLead400, CreateLeadBody } from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
 
@@ -21,15 +21,26 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
 /**
  * @summary Create a lead from chat conversation
  */
-export type createLeadResponse200 = {
-  data: void
-  status: 200
+export type createLeadResponse201 = {
+  data: CreateLead201
+  status: 201
 }
 
-export type createLeadResponseSuccess = createLeadResponse200 & {
+export type createLeadResponse400 = {
+  data: CreateLead400
+  status: 400
+}
+
+export type createLeadResponseSuccess = createLeadResponse201 & {
   headers: Headers
 }
-export type createLeadResponse = createLeadResponseSuccess
+export type createLeadResponseError = createLeadResponse400 & {
+  headers: Headers
+}
+
+export type createLeadResponse =
+  | createLeadResponseSuccess
+  | createLeadResponseError
 
 export const getCreateLeadUrl = () => {
   return `/api/internal/leads`
@@ -48,7 +59,7 @@ export const createLead = async (
 }
 
 export const getCreateLeadMutationOptions = <
-  TError = unknown,
+  TError = CreateLead400,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -89,12 +100,12 @@ export type CreateLeadMutationResult = NonNullable<
   Awaited<ReturnType<typeof createLead>>
 >
 export type CreateLeadMutationBody = CreateLeadBody
-export type CreateLeadMutationError = unknown
+export type CreateLeadMutationError = CreateLead400
 
 /**
  * @summary Create a lead from chat conversation
  */
-export const useCreateLead = <TError = unknown, TContext = unknown>(
+export const useCreateLead = <TError = CreateLead400, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof createLead>>,

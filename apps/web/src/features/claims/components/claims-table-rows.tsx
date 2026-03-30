@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/menu'
 
-import type { ClaimData } from '../types'
+import type { ClaimData } from '../lib/constants'
 import { formatClaimNumber } from '../lib/constants'
 import { ClaimPriorityBadge } from './claim-priority-badge'
 import { ClaimStatusBadge } from './claim-status-badge'

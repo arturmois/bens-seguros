@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-import type { AssistanceStatus } from '../types'
+import type { AssistanceStatus } from '../lib/constants'
 import {
   ASSISTANCE_STATUS_COLORS,
   ASSISTANCE_STATUS_LABELS,

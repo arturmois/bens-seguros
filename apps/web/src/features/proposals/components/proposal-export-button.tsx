@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { downloadCsvBlob } from '@/lib/csv-download'
 
-import type { ProposalStage, BoardType } from '../types'
+import type { ProposalStage, BoardType } from '../lib/constants'
 
 interface ProposalExportFilters {
   readonly stage?: ProposalStage

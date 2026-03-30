@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-import type { DocumentType } from '../types'
+import type { DocumentType } from '../lib/constants'
 import { DOCUMENT_TYPE_LABELS } from '../lib/constants'
 
 const DOCUMENT_TYPE_COLORS: Record<DocumentType, string> = {

@@ -23,3 +23,45 @@ export const GlobalSearchQueryParams = zod.object({
     .max(globalSearchQueryLimitMax)
     .default(globalSearchQueryLimitDefault),
 })
+
+export const GlobalSearchResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    clients: zod.array(
+      zod.object({
+        id: zod.string(),
+        name: zod.string(),
+        document: zod.string(),
+        type: zod.string(),
+      })
+    ),
+    proposals: zod.array(
+      zod.object({
+        id: zod.string(),
+        stage: zod.string(),
+        branch: zod.string(),
+        clientName: zod.string(),
+      })
+    ),
+    policies: zod.array(
+      zod.object({
+        id: zod.string(),
+        policyNumber: zod.string(),
+        branch: zod.string(),
+        clientName: zod.string(),
+      })
+    ),
+    claims: zod.array(
+      zod.object({
+        id: zod.string(),
+        claimNumber: zod.number(),
+        status: zod.string(),
+        clientName: zod.string(),
+      })
+    ),
+  }),
+  meta: zod.object({
+    query: zod.string(),
+    totalResults: zod.number(),
+  }),
+})

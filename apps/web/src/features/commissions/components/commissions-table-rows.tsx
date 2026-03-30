@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/table'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 
-import type { CommissionData } from '../types'
+import type { CommissionData } from '../lib/constants'
 import { CommissionStatusBadge } from './commission-status-badge'
 
 const COLUMN_COUNT = 8

@@ -4,7 +4,7 @@ import { FileText, Shield, AlertTriangle, DollarSign } from 'lucide-react'
 
 import { formatCurrency } from '@/lib/formatters'
 
-import type { DashboardStats } from '../types'
+import type { DashboardStats } from '../lib/constants'
 import { ComparisonStatCard } from './comparison-stat-card'
 
 interface StatsCardsProps {

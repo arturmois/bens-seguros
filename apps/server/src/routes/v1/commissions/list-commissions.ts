@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { listCommissionsQuery } from './_schemas.js'
+import { listCommissionsQuery, commissionListResponse } from './_schemas.js'
 
 export async function listCommissionsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -14,6 +14,7 @@ export async function listCommissionsRoute(app: FastifyInstance) {
       summary: 'List commissions with filters',
       operationId: 'listCommissions',
       querystring: listCommissionsQuery,
+      response: { 200: commissionListResponse },
     },
     preHandler: [requireAbility('read', 'Commission')],
     async handler(request, reply) {

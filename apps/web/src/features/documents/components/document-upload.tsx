@@ -6,12 +6,12 @@ import { toast } from 'sonner'
 
 import { cn } from '@/lib/utils'
 
-import type { InsuranceBranch } from '@/features/proposals/types'
+import type { InsuranceBranch } from '@/features/proposals/lib/constants'
 
 import { useUploadDocument } from '../hooks/use-documents'
 import { getDocumentTypesForBranch } from '../lib/branch-document-types'
 import { formatFileSize } from '../lib/format-file-size'
-import type { DocumentEntityType, DocumentType } from '../types'
+import type { DocumentEntityType, DocumentType } from '../lib/constants'
 import { PendingFileCard } from './pending-file-card'
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024

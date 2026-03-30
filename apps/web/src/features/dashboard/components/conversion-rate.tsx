@@ -5,7 +5,7 @@ import { TrendingUp } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardPanel } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import type { ConversionRate as ConversionRateType } from '../types'
+import type { ConversionRate as ConversionRateType } from '../lib/constants'
 
 interface ConversionRateProps {
   data: ConversionRateType | undefined

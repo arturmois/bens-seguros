@@ -20,7 +20,14 @@ import type {
   UseQueryResult,
 } from '@tanstack/react-query'
 
-import type { ListNotificationsParams } from '../../model'
+import type {
+  GetAlertCounts200,
+  GetUnreadCount200,
+  ListNotifications200,
+  ListNotificationsParams,
+  MarkAllNotificationsRead200,
+  MarkNotificationRead200,
+} from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
 
@@ -30,7 +37,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
  * @summary Get unread notification count
  */
 export type getUnreadCountResponse200 = {
-  data: void
+  data: GetUnreadCount200
   status: 200
 }
 
@@ -202,7 +209,7 @@ export const prefetchGetUnreadCountQuery = async <
  * @summary Get alert counts grouped by entity type
  */
 export type getAlertCountsResponse200 = {
-  data: void
+  data: GetAlertCounts200
   status: 200
 }
 
@@ -374,7 +381,7 @@ export const prefetchGetAlertCountsQuery = async <
  * @summary Mark all notifications as read
  */
 export type markAllNotificationsReadResponse200 = {
-  data: void
+  data: MarkAllNotificationsRead200
   status: 200
 }
 
@@ -475,7 +482,7 @@ export const useMarkAllNotificationsRead = <
  * @summary List notifications with cursor pagination
  */
 export type listNotificationsResponse200 = {
-  data: void
+  data: ListNotifications200
   status: 200
 }
 
@@ -698,7 +705,7 @@ export const prefetchListNotificationsQuery = async <
  * @summary Mark a notification as read
  */
 export type markNotificationReadResponse200 = {
-  data: void
+  data: MarkNotificationRead200
   status: 200
 }
 

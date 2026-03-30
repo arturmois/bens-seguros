@@ -3,7 +3,11 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditCreate } from '../../../services/audit-logger.js'
-import { createProposalBody } from './_schemas.js'
+import {
+  createProposalBody,
+  proposalDetailResponse,
+  errorResponse,
+} from './_schemas.js'
 
 export function createProposalRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -14,6 +18,7 @@ export function createProposalRoute(app: FastifyInstance) {
       summary: 'Create a new proposal',
       operationId: 'createProposal',
       body: createProposalBody,
+      response: { 201: proposalDetailResponse, 400: errorResponse },
     },
     preHandler: [requireAbility('create', 'Proposal')],
     handler: async (request, reply) => {

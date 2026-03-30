@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
-import { z } from 'zod'
+import * as zod from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { DatePicker } from '@/components/ui/date-picker'
@@ -25,26 +25,22 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { FormField } from '@/components/shared/form-field'
 
+import { CreateEndorsementBody } from '@/api/endpoints/endorsements/endorsements.zod'
 import type { CreateEndorsementBodyChanges } from '@/api/model'
 
 import { ENDORSEMENT_TYPE_OPTIONS } from '../lib/constants'
 import { useCreateEndorsement } from '../hooks/use-endorsements'
 
-const endorsementFormSchema = z.object({
-  type: z
-    .string({ required_error: 'Tipo é obrigatório' })
-    .min(1, 'Tipo é obrigatório'),
-  description: z
-    .string({ required_error: 'Descrição é obrigatória' })
-    .min(1, 'Descrição é obrigatória'),
-  effectiveDate: z
-    .string({ required_error: 'Data efetiva é obrigatória' })
-    .min(1, 'Data efetiva é obrigatória'),
-  previousVersionSnapshot: z.string().optional().or(z.literal('')),
-  changes: z.string().optional().or(z.literal('')),
+const endorsementFormSchema = CreateEndorsementBody.pick({
+  type: true,
+  description: true,
+  effectiveDate: true,
+}).extend({
+  previousVersionSnapshot: zod.string().optional().or(zod.literal('')),
+  changes: zod.string().optional().or(zod.literal('')),
 })
 
-type EndorsementFormValues = z.infer<typeof endorsementFormSchema>
+type EndorsementFormValues = zod.infer<typeof endorsementFormSchema>
 
 const EMPTY_VALUES: EndorsementFormValues = {
   type: '',
@@ -69,10 +65,7 @@ function parseDateString(value: string | undefined): Date | undefined {
 
 function formatDateToISO(date: Date | undefined): string {
   if (!date) return ''
-  const year = date.getUTCFullYear()
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
-  const day = String(date.getUTCDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+  return date.toISOString()
 }
 
 function isRecord(value: unknown): value is CreateEndorsementBodyChanges {

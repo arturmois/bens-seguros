@@ -21,13 +21,26 @@ import { Textarea } from '@/components/ui/textarea'
 import { FormField } from '@/components/shared/form-field'
 import { PolicySearch } from '@/components/shared/policy-search'
 
+import type { z } from 'zod'
+
+import { CreateAssistanceBody } from '@/api/endpoints/assistances/assistances.zod'
+
 import { ASSISTANCE_TYPE_OPTIONS } from '../lib/constants'
-import {
-  assistanceFormSchema,
-  EMPTY_ASSISTANCE_FORM_VALUES,
-} from '../lib/schemas'
-import type { AssistanceFormValues } from '../lib/schemas'
 import { useCreateAssistance } from '../hooks/use-assistances'
+
+type AssistanceFormValues = z.infer<typeof CreateAssistanceBody>
+
+const EMPTY_ASSISTANCE_FORM_VALUES: AssistanceFormValues = {
+  policyId: '',
+  clientId: '',
+  claimId: '',
+  type: '',
+  description: '',
+  address: '',
+  providerName: '',
+  providerPhone: '',
+  scheduledAt: '',
+}
 
 function parseDateString(value: string | undefined): Date | undefined {
   if (!value) return undefined
@@ -49,7 +62,7 @@ export function AssistanceForm() {
   const createAssistance = useCreateAssistance()
 
   const form = useForm<AssistanceFormValues>({
-    resolver: zodResolver(assistanceFormSchema),
+    resolver: zodResolver(CreateAssistanceBody),
     defaultValues: EMPTY_ASSISTANCE_FORM_VALUES,
   })
 

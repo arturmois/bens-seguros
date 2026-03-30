@@ -7,6 +7,34 @@
 import * as zod from 'zod'
 
 /**
+ * @summary Get unread notification count
+ */
+export const GetUnreadCountResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    count: zod.number(),
+  }),
+})
+
+/**
+ * @summary Get alert counts grouped by entity type
+ */
+export const GetAlertCountsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.record(zod.string(), zod.number()),
+})
+
+/**
+ * @summary Mark all notifications as read
+ */
+export const MarkAllNotificationsReadResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    count: zod.number(),
+  }),
+})
+
+/**
  * @summary List notifications with cursor pagination
  */
 export const listNotificationsQueryLimitDefault = 20
@@ -22,10 +50,38 @@ export const ListNotificationsQueryParams = zod.object({
     .default(listNotificationsQueryLimitDefault),
 })
 
+export const ListNotificationsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      organizationId: zod.string(),
+      userId: zod.string(),
+      type: zod.string(),
+      title: zod.string(),
+      body: zod.string(),
+      entityType: zod.string().nullable(),
+      entityId: zod.string().nullable(),
+      read: zod.boolean(),
+      readAt: zod.string().datetime({}).nullable(),
+      emailSent: zod.boolean(),
+      createdAt: zod.string().datetime({}),
+    })
+  ),
+  meta: zod.object({
+    nextCursor: zod.string().nullable(),
+  }),
+})
+
 /**
  * @summary Mark a notification as read
  */
 
 export const MarkNotificationReadParams = zod.object({
   id: zod.string().min(1),
+})
+
+export const MarkNotificationReadResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.enum(['null']).nullable(),
 })

@@ -21,8 +21,12 @@ import type {
 } from '@tanstack/react-query'
 
 import type {
+  CreateAssistance201,
   CreateAssistanceBody,
+  GetAssistance200,
+  ListAssistances200,
   ListAssistancesParams,
+  UpdateAssistanceStatus200,
   UpdateAssistanceStatusBody,
 } from '../../model'
 
@@ -33,12 +37,12 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
 /**
  * @summary Create a new assistance request
  */
-export type createAssistanceResponse200 = {
-  data: void
-  status: 200
+export type createAssistanceResponse201 = {
+  data: CreateAssistance201
+  status: 201
 }
 
-export type createAssistanceResponseSuccess = createAssistanceResponse200 & {
+export type createAssistanceResponseSuccess = createAssistanceResponse201 & {
   headers: Headers
 }
 export type createAssistanceResponse = createAssistanceResponseSuccess
@@ -129,7 +133,7 @@ export const useCreateAssistance = <TError = unknown, TContext = unknown>(
  * @summary List assistance requests with pagination and filters
  */
 export type listAssistancesResponse200 = {
-  data: void
+  data: ListAssistances200
   status: 200
 }
 
@@ -346,7 +350,7 @@ export const prefetchListAssistancesQuery = async <
  * @summary Get an assistance request by ID
  */
 export type getAssistanceResponse200 = {
-  data: void
+  data: GetAssistance200
   status: 200
 }
 
@@ -528,7 +532,7 @@ export const prefetchGetAssistanceQuery = async <
  * @summary Update the status of an assistance request
  */
 export type updateAssistanceStatusResponse200 = {
-  data: void
+  data: UpdateAssistanceStatus200
   status: 200
 }
 

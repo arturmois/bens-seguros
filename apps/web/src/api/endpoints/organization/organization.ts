@@ -20,7 +20,15 @@ import type {
   UseQueryResult,
 } from '@tanstack/react-query'
 
-import type { UpdateOrganizationBody } from '../../model'
+import type {
+  GetOrganization200,
+  GetOrganization404,
+  UpdateOrganization200,
+  UpdateOrganization409,
+  UpdateOrganizationBody,
+  UploadOrganizationLogo200,
+  UploadOrganizationLogo400,
+} from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
 
@@ -30,14 +38,25 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
  * @summary Get current organization details
  */
 export type getOrganizationResponse200 = {
-  data: void
+  data: GetOrganization200
   status: 200
+}
+
+export type getOrganizationResponse404 = {
+  data: GetOrganization404
+  status: 404
 }
 
 export type getOrganizationResponseSuccess = getOrganizationResponse200 & {
   headers: Headers
 }
-export type getOrganizationResponse = getOrganizationResponseSuccess
+export type getOrganizationResponseError = getOrganizationResponse404 & {
+  headers: Headers
+}
+
+export type getOrganizationResponse =
+  | getOrganizationResponseSuccess
+  | getOrganizationResponseError
 
 export const getGetOrganizationUrl = () => {
   return `/api/v1/organization`
@@ -58,7 +77,7 @@ export const getGetOrganizationQueryKey = () => {
 
 export const getGetOrganizationQueryOptions = <
   TData = Awaited<ReturnType<typeof getOrganization>>,
-  TError = unknown,
+  TError = GetOrganization404,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getOrganization>>, TError, TData>
@@ -88,11 +107,11 @@ export const getGetOrganizationQueryOptions = <
 export type GetOrganizationQueryResult = NonNullable<
   Awaited<ReturnType<typeof getOrganization>>
 >
-export type GetOrganizationQueryError = unknown
+export type GetOrganizationQueryError = GetOrganization404
 
 export function useGetOrganization<
   TData = Awaited<ReturnType<typeof getOrganization>>,
-  TError = unknown,
+  TError = GetOrganization404,
 >(
   options: {
     query: Partial<
@@ -118,7 +137,7 @@ export function useGetOrganization<
 }
 export function useGetOrganization<
   TData = Awaited<ReturnType<typeof getOrganization>>,
-  TError = unknown,
+  TError = GetOrganization404,
 >(
   options?: {
     query?: Partial<
@@ -144,7 +163,7 @@ export function useGetOrganization<
 }
 export function useGetOrganization<
   TData = Awaited<ReturnType<typeof getOrganization>>,
-  TError = unknown,
+  TError = GetOrganization404,
 >(
   options?: {
     query?: Partial<
@@ -166,7 +185,7 @@ export function useGetOrganization<
 
 export function useGetOrganization<
   TData = Awaited<ReturnType<typeof getOrganization>>,
-  TError = unknown,
+  TError = GetOrganization404,
 >(
   options?: {
     query?: Partial<
@@ -197,7 +216,7 @@ export function useGetOrganization<
  */
 export const prefetchGetOrganizationQuery = async <
   TData = Awaited<ReturnType<typeof getOrganization>>,
-  TError = unknown,
+  TError = GetOrganization404,
 >(
   queryClient: QueryClient,
   options?: {
@@ -222,15 +241,26 @@ export const prefetchGetOrganizationQuery = async <
  * @summary Update organization name and slug
  */
 export type updateOrganizationResponse200 = {
-  data: void
+  data: UpdateOrganization200
   status: 200
+}
+
+export type updateOrganizationResponse409 = {
+  data: UpdateOrganization409
+  status: 409
 }
 
 export type updateOrganizationResponseSuccess =
   updateOrganizationResponse200 & {
     headers: Headers
   }
-export type updateOrganizationResponse = updateOrganizationResponseSuccess
+export type updateOrganizationResponseError = updateOrganizationResponse409 & {
+  headers: Headers
+}
+
+export type updateOrganizationResponse =
+  | updateOrganizationResponseSuccess
+  | updateOrganizationResponseError
 
 export const getUpdateOrganizationUrl = () => {
   return `/api/v1/organization`
@@ -249,7 +279,7 @@ export const updateOrganization = async (
 }
 
 export const getUpdateOrganizationMutationOptions = <
-  TError = unknown,
+  TError = UpdateOrganization409,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -290,12 +320,15 @@ export type UpdateOrganizationMutationResult = NonNullable<
   Awaited<ReturnType<typeof updateOrganization>>
 >
 export type UpdateOrganizationMutationBody = UpdateOrganizationBody
-export type UpdateOrganizationMutationError = unknown
+export type UpdateOrganizationMutationError = UpdateOrganization409
 
 /**
  * @summary Update organization name and slug
  */
-export const useUpdateOrganization = <TError = unknown, TContext = unknown>(
+export const useUpdateOrganization = <
+  TError = UpdateOrganization409,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof updateOrganization>>,
@@ -318,16 +351,27 @@ export const useUpdateOrganization = <TError = unknown, TContext = unknown>(
  * @summary Upload organization logo
  */
 export type uploadOrganizationLogoResponse200 = {
-  data: void
+  data: UploadOrganizationLogo200
   status: 200
+}
+
+export type uploadOrganizationLogoResponse400 = {
+  data: UploadOrganizationLogo400
+  status: 400
 }
 
 export type uploadOrganizationLogoResponseSuccess =
   uploadOrganizationLogoResponse200 & {
     headers: Headers
   }
+export type uploadOrganizationLogoResponseError =
+  uploadOrganizationLogoResponse400 & {
+    headers: Headers
+  }
+
 export type uploadOrganizationLogoResponse =
-  uploadOrganizationLogoResponseSuccess
+  | uploadOrganizationLogoResponseSuccess
+  | uploadOrganizationLogoResponseError
 
 export const getUploadOrganizationLogoUrl = () => {
   return `/api/v1/organization/logo`
@@ -346,7 +390,7 @@ export const uploadOrganizationLogo = async (
 }
 
 export const getUploadOrganizationLogoMutationOptions = <
-  TError = unknown,
+  TError = UploadOrganizationLogo400,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -385,12 +429,15 @@ export type UploadOrganizationLogoMutationResult = NonNullable<
   Awaited<ReturnType<typeof uploadOrganizationLogo>>
 >
 
-export type UploadOrganizationLogoMutationError = unknown
+export type UploadOrganizationLogoMutationError = UploadOrganizationLogo400
 
 /**
  * @summary Upload organization logo
  */
-export const useUploadOrganizationLogo = <TError = unknown, TContext = unknown>(
+export const useUploadOrganizationLogo = <
+  TError = UploadOrganizationLogo400,
+  TContext = unknown,
+>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof uploadOrganizationLogo>>,

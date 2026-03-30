@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Table } from '@/components/ui/table'
 import { useDebounce } from '@/hooks/use-debounce'
 
-import type { ClaimPriority, ClaimStatus } from '../types'
+import type { ClaimPriority, ClaimStatus } from '../lib/constants'
 import { useClaims, useDeleteClaim } from '../hooks/use-claims'
 import { ClaimsPagination } from './claims-pagination'
 import { ClaimsTableBody, ClaimsTableHeader } from './claims-table-rows'

@@ -64,37 +64,44 @@ export { idParam as idParamSchema }
 
 // --- Response schemas (OpenAPI) ---
 
-const claimListItemSchema = z.object({
+const claimDetailSchema = z.object({
   id: z.string(),
+  organizationId: z.string(),
   claimNumber: z.number(),
-  status: z.enum(CLAIM_STATUS_VALUES),
-  priority: z.enum(CLAIM_PRIORITY_VALUES).nullable(),
-  description: z.string(),
   policyId: z.string(),
   clientId: z.string(),
+  insurerId: z.string().nullable(),
+  assignedToId: z.string().nullable(),
+  status: z.enum(CLAIM_STATUS_VALUES),
+  priority: z.enum(CLAIM_PRIORITY_VALUES),
+  description: z.string(),
+  estimatedValueInCents: z.number().nullable(),
+  incidentDate: z.coerce.date().nullable(),
+  incidentLocation: z.string().nullable(),
+  reportedAt: z.coerce.date(),
+  resolvedAt: z.coerce.date().nullable(),
+  closedAt: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),
-})
-
-const claimDetailSchema = claimListItemSchema.extend({
-  insurerId: z.string().nullable().optional(),
-  assignedToId: z.string().nullable().optional(),
-  estimatedValueInCents: z.number().nullable().optional(),
-  incidentDate: z.coerce.date().nullable().optional(),
-  incidentLocation: z.string().nullable().optional(),
   updatedAt: z.coerce.date(),
+  policyNumber: z.string().optional(),
+  clientName: z.string().optional(),
+  insurerName: z.string().optional(),
+  assignedToName: z.string().optional(),
 })
 
 const occurrenceSchema = z.object({
   id: z.string(),
   claimId: z.string(),
+  organizationId: z.string(),
   type: z.string(),
   description: z.string(),
-  metadata: jsonObjectSchema.nullable().optional(),
-  createdBy: z.string(),
+  metadata: jsonObjectSchema.nullable(),
+  createdBy: z.string().nullable(),
   createdAt: z.coerce.date(),
+  createdByName: z.string().optional(),
 })
 
-export const claimListResponse = paginatedResponse(claimListItemSchema)
+export const claimListResponse = paginatedResponse(claimDetailSchema)
 export const claimDetailResponse = successResponse(claimDetailSchema)
 export const occurrenceResponse = successResponse(occurrenceSchema)
 export const occurrenceListResponse = successResponse(z.array(occurrenceSchema))

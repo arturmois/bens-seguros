@@ -7,9 +7,32 @@
 import * as zod from 'zod'
 
 /**
+ * @summary Get terms and privacy acceptance status
+ */
+export const GetTermsStatusResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    needsReAccept: zod.boolean(),
+    currentTermsVersion: zod.string(),
+    currentPrivacyVersion: zod.string(),
+    userTermsVersion: zod.string().nullable(),
+    userPrivacyVersion: zod.string().nullable(),
+  }),
+})
+
+/**
  * @summary Accept current terms and privacy policy
  */
 export const AcceptTermsBody = zod.object({
   termsVersion: zod.string(),
   privacyVersion: zod.string(),
+})
+
+export const AcceptTermsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    termsVersion: zod.string(),
+    privacyVersion: zod.string(),
+    acceptedAt: zod.string(),
+  }),
 })

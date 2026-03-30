@@ -1,36 +1,26 @@
 'use client'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   CURRENT_TERMS_VERSION,
   CURRENT_PRIVACY_VERSION,
 } from '@repo/core/legal'
 
-import { api } from '@/lib/api-client'
 import {
-  getGetTermsStatusQueryKey,
+  useGetTermsStatus,
   acceptTerms,
+  getGetTermsStatusQueryKey,
 } from '@/api/endpoints/terms/terms'
-
-interface TermsStatusData {
-  needsReAccept: boolean
-  currentTermsVersion: string
-  currentPrivacyVersion: string
-  userTermsVersion: string | null
-  userPrivacyVersion: string | null
-}
 
 export function useTermsAcceptance() {
   const queryClient = useQueryClient()
 
-  const status = useQuery({
-    queryKey: getGetTermsStatusQueryKey(),
-    queryFn: async () => {
-      const response = await api.get<TermsStatusData>('/api/terms/status')
-      return response.data
+  const status = useGetTermsStatus({
+    query: {
+      staleTime: 60_000,
+      retry: false,
+      select: (response) => response.data.data,
     },
-    staleTime: 60_000,
-    retry: false,
   })
 
   const accept = useMutation({

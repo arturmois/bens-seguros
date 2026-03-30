@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/table'
 import { formatCurrency } from '@/lib/formatters'
 
-import type { RankingEntry } from '../types'
+import type { RankingEntry } from '../lib/constants'
 
 interface BrokerRankingProps {
   readonly ranking: RankingEntry[] | undefined
