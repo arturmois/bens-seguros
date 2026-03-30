@@ -154,6 +154,7 @@ pnpm --filter @app/widget build
 - **NO `// @ts-ignore` or `// @ts-expect-error`** — fix the type, not the compiler
 - **NO `as` type assertions** — use type guards, generics, or redesign. Exception: test mocks only
 - **NO hardcoded secrets** — use `@repo/env` (t3-env + Zod validated)
+- **NO `process.env` in app or package code** — always import `{ env }` from `@repo/env`. Exception: `apps/web` (Next.js client-side uses `process.env.NEXT_PUBLIC_*`)
 - **NO `--no-verify` on git hooks** — fix the hook failure
 - **NO empty catch blocks** — handle or rethrow with context
 - **NO barrel exports that re-export everything** — explicit named exports only
@@ -241,6 +242,17 @@ pnpm --filter @app/widget build
 ---
 
 ## Architecture Rules
+
+### Environment Variables (`@repo/env`)
+
+- **Single source of truth:** all env vars are defined and validated in `packages/env/src/index.ts` via `@t3-oss/env-core` + Zod
+- **Usage:** `import { env } from '@repo/env'` — never `process.env` directly
+- **Scope:** all apps (server, chat-server, chat-worker, worker) and packages (shared, auth, db, ai, core) use `@repo/env`
+- **Exception:** `apps/web` uses `process.env.NEXT_PUBLIC_*` (Next.js client-side bundling requirement)
+- **Adding a new env var:** add to `packages/env/src/index.ts` schema, add commented entry to `.env.example` and `.env.example.prod`, add to vitest configs if required (vars without defaults)
+- **AI SDK keys:** passed explicitly via `createAnthropic({ apiKey: env.ANTHROPIC_API_KEY })` — never let SDKs read `process.env` implicitly
+- **tsup bundling:** when adding `@repo/env` as a dependency to a workspace package, ensure that package is in `noExternal` in all tsup configs (`apps/server`, `apps/worker`, `apps/chat-server`, `apps/chat-worker`)
+- **Test environment:** vitest configs must include `env` block with required vars (`DATABASE_URL`, `MONGODB_URL`, `AUTH_SECRET`, `SOCKET_JWT_SECRET`, `ENCRYPTION_KEY`) since `@repo/env` validates at import time
 
 ### Backend (Fastify + Core)
 
