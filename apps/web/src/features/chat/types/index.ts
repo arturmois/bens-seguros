@@ -12,7 +12,12 @@ export type MessageType =
   | 'DOCUMENT'
   | 'OTHER'
 export type MessageStatus = 'PENDING' | 'SENT' | 'DELIVERED' | 'READ' | 'FAILED'
-export type ChannelStatus = 'CONNECTED' | 'DISCONNECTED' | 'QR_PENDING'
+export type ChannelStatus =
+  | 'CONNECTED'
+  | 'DISCONNECTED'
+  | 'QR_PENDING'
+  | 'TOKEN_EXPIRED'
+  | 'NEEDS_REAUTH'
 export type ChannelType = 'WHATSAPP' | 'WEB_CHAT' | 'MESSENGER' | 'INSTAGRAM'
 
 export interface ConversationData {

@@ -26,6 +26,21 @@ export const PII_REDACT_PATHS = [
   'req.body.birthDate',
   'req.headers.authorization',
   'req.headers.cookie',
+  // Meta OAuth tokens and secrets
+  'metaToken',
+  'access_token',
+  'fb_exchange_token',
+  'client_secret',
+  'code',
+  'config.metaToken',
+  '*.metaToken',
+  '*.access_token',
+  '*.code',
+  'body.code',
+  'body.access_token',
+  'body.metaToken',
+  'req.body.code',
+  'req.body.access_token',
 ] as const
 
 /** Pino redact configuration to protect PII in logs */

@@ -33,6 +33,11 @@ export const env = createEnv({
     SENTRY_DSN: z.string().url().optional(),
     COOKIE_DOMAIN: z.string().optional(),
     META_WEBHOOK_VERIFY_TOKEN: z.string().optional(),
+    // Meta centralized app — OAuth + webhook HMAC
+    META_APP_ID: z.string().min(1).optional(),
+    META_APP_SECRET: z.string().min(1).optional(),
+    META_OAUTH_REDIRECT_URI: z.string().url().optional(),
+    META_WA_CONFIG_ID: z.string().optional(),
     STORAGE_PROVIDER: z.enum(['local', 'r2']).default('local'),
     // SEC-1: PII encryption key — hex-encoded 32-byte key (64 hex chars)
     // Required: all-zeros default removed to prevent trivial decryption of PII
@@ -68,6 +73,8 @@ export const env = createEnv({
       .url()
       .default('http://localhost:3002'),
     NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
+    NEXT_PUBLIC_META_APP_ID: z.string().min(1).optional(),
+    NEXT_PUBLIC_META_WA_CONFIG_ID: z.string().optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

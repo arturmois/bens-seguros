@@ -30,7 +30,6 @@ import {
   buildCreatePayload,
   ChannelTypeSelect,
   getNamePlaceholder,
-  MetaSocialFields,
   WebChatFields,
   WhatsAppFields,
 } from './channel-form-fields'
@@ -78,11 +77,6 @@ export function ChannelFormSheet({
   })
 
   const watchedChannelType = form.watch('channelType')
-  const watchedBrokerType = form.watch('brokerType')
-  const watchedMetaPageId = form.watch('metaPageId')
-  const watchedMetaToken = form.watch('metaToken')
-  const watchedMetaAppId = form.watch('metaAppId')
-  const watchedMetaAppSecret = form.watch('metaAppSecret')
 
   useEffect(() => {
     if (!open) return
@@ -107,11 +101,6 @@ export function ChannelFormSheet({
         brokerType: toFormBrokerType(channel.brokerType),
         phoneNumber: channel.phoneNumber ?? '',
         aiAgentId: channel.aiAgentId ?? null,
-        metaAppId: cfgString('metaAppId'),
-        metaAppSecret: cfgString('metaAppSecret'),
-        metaPageId: cfgString('metaPageId'),
-        metaToken: cfgString('metaToken'),
-        phoneNumberId: cfgString('metaPhoneNumberId'),
         widgetColor: cfgString('widgetColor') || '#1f4b5f',
         welcomeMessage: cfgString('welcomeMessage'),
         allowedOrigins: allowedOriginsValue,
@@ -124,11 +113,6 @@ export function ChannelFormSheet({
 
   function handleSubmit(values: ChannelFormValues) {
     if (isEditMode && channel) {
-      const isMetaSocial =
-        channel.type === 'MESSENGER' || channel.type === 'INSTAGRAM'
-      const isWhatsAppMeta =
-        channel.type === 'WHATSAPP' && channel.brokerType === 'META'
-
       updateChannel.mutate(
         {
           id: channel.id,
@@ -136,23 +120,15 @@ export function ChannelFormSheet({
             name: values.name,
             phoneNumber: values.phoneNumber,
             aiAgentId: values.aiAgentId,
-            ...(isMetaSocial
+            ...(channel.type === 'WEB_CHAT'
               ? {
                   config: {
-                    metaAppId: values.metaAppId,
-                    metaAppSecret: values.metaAppSecret,
-                    metaPageId: values.metaPageId,
-                    metaToken: values.metaToken,
-                  },
-                }
-              : {}),
-            ...(isWhatsAppMeta
-              ? {
-                  config: {
-                    metaAppId: values.metaAppId,
-                    metaAppSecret: values.metaAppSecret,
-                    metaToken: values.metaToken,
-                    metaPhoneNumberId: values.phoneNumberId,
+                    widgetColor: values.widgetColor,
+                    welcomeMessage: values.welcomeMessage,
+                    allowedOrigins: values.allowedOrigins
+                      ?.split(',')
+                      .map((o) => o.trim())
+                      .filter(Boolean),
                   },
                 }
               : {}),
@@ -208,26 +184,12 @@ export function ChannelFormSheet({
               control={form.control}
               register={form.register}
               errors={form.formState.errors}
-              watchedBrokerType={watchedBrokerType}
               isEditMode={isEditMode}
             />
           )}
 
           {watchedChannelType === 'WEB_CHAT' && (
             <WebChatFields register={form.register} />
-          )}
-
-          {(watchedChannelType === 'MESSENGER' ||
-            watchedChannelType === 'INSTAGRAM') && (
-            <MetaSocialFields
-              register={form.register}
-              errors={form.formState.errors}
-              channelType={watchedChannelType}
-              watchMetaPageId={watchedMetaPageId}
-              watchMetaToken={watchedMetaToken}
-              watchMetaAppId={watchedMetaAppId}
-              watchMetaAppSecret={watchedMetaAppSecret}
-            />
           )}
 
           {isEditMode && (

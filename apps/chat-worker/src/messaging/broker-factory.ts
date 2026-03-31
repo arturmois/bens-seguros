@@ -4,6 +4,7 @@ import { MetaBroker } from './meta-broker.js'
 import { WebChatBroker } from './web-chat-broker.js'
 import { MessengerBroker } from './messenger-broker.js'
 import { InstagramBroker } from './instagram-broker.js'
+import { decryptToken, isEncryptedField } from '@repo/shared/meta-crypto'
 
 export type BrokerType =
   | 'BAILEYS'
@@ -11,6 +12,16 @@ export type BrokerType =
   | 'WEB_CHAT'
   | 'MESSENGER'
   | 'INSTAGRAM'
+
+function decryptConfigToken(
+  config: Record<string, unknown>
+): Record<string, unknown> {
+  const metaToken = config['metaToken']
+  if (isEncryptedField(metaToken)) {
+    return { ...config, metaToken: decryptToken(metaToken) }
+  }
+  return config
+}
 
 export function createBroker(
   type: BrokerType,
@@ -29,12 +40,12 @@ export function createBroker(
       return new BaileysBroker(tenantId, channelId)
     }
     case 'META':
-      return new MetaBroker(config)
+      return new MetaBroker(decryptConfigToken(config))
     case 'WEB_CHAT':
       return new WebChatBroker()
     case 'MESSENGER':
-      return new MessengerBroker(config)
+      return new MessengerBroker(decryptConfigToken(config))
     case 'INSTAGRAM':
-      return new InstagramBroker(config)
+      return new InstagramBroker(decryptConfigToken(config))
   }
 }

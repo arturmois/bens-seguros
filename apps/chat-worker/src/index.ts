@@ -1,6 +1,11 @@
-import { connectMongoDB, disconnectMongoDB } from '@repo/db-chat'
+import { Channel, connectMongoDB, disconnectMongoDB } from '@repo/db-chat'
 import { env } from '@repo/env'
 import { CHAT_PUBSUB_CHANNELS, CHAT_QUEUES } from '@repo/shared'
+import {
+  decryptToken,
+  encryptToken,
+  isEncryptedField,
+} from '@repo/shared/meta-crypto'
 import { Queue, Worker } from 'bullmq'
 import IORedis from 'ioredis'
 import pino from 'pino'
@@ -139,6 +144,123 @@ function attachWorkerErrorLogger(worker: Worker, queue: string): void {
   })
 }
 
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000
+
+async function processMetaTokenRefresh(): Promise<void> {
+  const now = new Date()
+  const expiryThreshold = new Date(now.getTime() + SEVEN_DAYS_MS)
+
+  const channels = await Channel.find({
+    connectionMethod: 'oauth',
+    status: 'CONNECTED',
+    isActive: true,
+    tokenExpiresAt: { $lt: expiryThreshold },
+  })
+
+  logger.info(
+    { count: channels.length },
+    'Meta token refresh: channels to process'
+  )
+
+  for (const channel of channels) {
+    const channelId = String(channel._id)
+    const tenantId = String(channel.tenantId)
+
+    const rawToken = (channel.config as Record<string, unknown>)['metaToken']
+
+    if (!isEncryptedField(rawToken)) {
+      logger.warn(
+        { channelId, tenantId },
+        'meta.token.refresh_failed: metaToken not an encrypted field, skipping'
+      )
+      continue
+    }
+
+    let plainToken: string
+    try {
+      plainToken = decryptToken(rawToken)
+    } catch (err) {
+      logger.warn(
+        { channelId, tenantId, err },
+        'meta.token.refresh_failed: failed to decrypt token'
+      )
+      await Channel.updateOne({ _id: channelId }, { status: 'TOKEN_EXPIRED' })
+      continue
+    }
+
+    const appId = env.META_APP_ID
+    const appSecret = env.META_APP_SECRET
+
+    if (!appId || !appSecret) {
+      logger.warn(
+        { channelId, tenantId },
+        'meta.token.refresh_failed: META_APP_ID or META_APP_SECRET not configured'
+      )
+      continue
+    }
+
+    const url = `https://graph.facebook.com/v21.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${appId}&client_secret=${appSecret}&fb_exchange_token=${plainToken}`
+
+    let newToken: string
+    let newExpiresAt: Date
+
+    try {
+      const response = await fetch(url)
+
+      if (!response.ok) {
+        const body = await response.text()
+        logger.warn(
+          { channelId, tenantId, status: response.status, body },
+          'meta.token.refresh_failed: Meta API returned error'
+        )
+        await Channel.updateOne({ _id: channelId }, { status: 'TOKEN_EXPIRED' })
+        continue
+      }
+
+      const data = (await response.json()) as Record<string, unknown>
+      const accessToken = data['access_token']
+      const expiresIn = data['expires_in']
+
+      if (typeof accessToken !== 'string' || !accessToken) {
+        logger.warn(
+          { channelId, tenantId },
+          'meta.token.refresh_failed: no access_token in response'
+        )
+        await Channel.updateOne({ _id: channelId }, { status: 'TOKEN_EXPIRED' })
+        continue
+      }
+
+      newToken = accessToken
+      newExpiresAt =
+        typeof expiresIn === 'number'
+          ? new Date(Date.now() + expiresIn * 1000)
+          : new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
+    } catch (err) {
+      logger.warn(
+        { channelId, tenantId, err },
+        'meta.token.refresh_failed: network error calling Meta API'
+      )
+      await Channel.updateOne({ _id: channelId }, { status: 'TOKEN_EXPIRED' })
+      continue
+    }
+
+    const encryptedToken = encryptToken(newToken)
+
+    await Channel.updateOne(
+      { _id: channelId },
+      {
+        'config.metaToken': encryptedToken,
+        tokenExpiresAt: newExpiresAt,
+      }
+    )
+
+    logger.info(
+      { channelId, tenantId, expiresAt: newExpiresAt },
+      'meta.token.refreshed'
+    )
+  }
+}
+
 async function bootstrap(): Promise<void> {
   logger.info('Connecting to MongoDB...')
   await connectMongoDB(env.MONGODB_URL)
@@ -261,6 +383,25 @@ async function bootstrap(): Promise<void> {
   )
   attachWorkerErrorLogger(mediaMigrationWorker, 'chat-media-migration')
 
+  // Meta token refresh: daily cron at 3AM to refresh expiring OAuth tokens
+  const metaTokenRefreshQueue = new Queue(CHAT_QUEUES.META_TOKEN_REFRESH, {
+    connection: bullmqConnection,
+  })
+  await metaTokenRefreshQueue.upsertJobScheduler(
+    'meta-token-refresh-daily',
+    { pattern: '0 3 * * *' },
+    { name: 'refresh-meta-tokens' }
+  )
+  const metaTokenRefreshWorker = new Worker(
+    CHAT_QUEUES.META_TOKEN_REFRESH,
+    processMetaTokenRefresh,
+    { ...workerDefaults, concurrency: 1 }
+  )
+  attachWorkerErrorLogger(
+    metaTokenRefreshWorker,
+    CHAT_QUEUES.META_TOKEN_REFRESH
+  )
+
   logger.info('Loading active Baileys channels...')
   await BaileysManager.loadActiveChannels((channelId, tenantId) =>
     buildChannelEvents(channelId, tenantId, incomingQueue, qrStateManager)
@@ -282,6 +423,7 @@ async function bootstrap(): Promise<void> {
       pairChannelWorker.close(),
       disconnectChannelWorker.close(),
       mediaMigrationWorker.close(),
+      metaTokenRefreshWorker.close(),
     ])
 
     await aiBotQueue.close()
@@ -289,6 +431,7 @@ async function bootstrap(): Promise<void> {
     await incomingQueue.close()
     await autoCloseQueue.close()
     await mediaMigrationQueue.close()
+    await metaTokenRefreshQueue.close()
 
     await disconnectMongoDB()
     await pubsubRedis.quit()

@@ -1,4 +1,10 @@
-import { CheckCircle2, Circle, Loader2 } from 'lucide-react'
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Circle,
+  Loader2,
+  RefreshCw,
+} from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -35,6 +41,18 @@ const STATUS_CONFIG: Record<
     variant: 'warning',
     icon: Loader2,
     pulse: true,
+  },
+  TOKEN_EXPIRED: {
+    label: 'Token expirado',
+    variant: 'warning',
+    icon: AlertTriangle,
+    pulse: false,
+  },
+  NEEDS_REAUTH: {
+    label: 'Reautenticação necessária',
+    variant: 'warning',
+    icon: RefreshCw,
+    pulse: false,
   },
 }
 

@@ -2,7 +2,6 @@ import { Channel } from '@repo/db-chat'
 import { env } from '@repo/env'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { createHmac, timingSafeEqual } from 'node:crypto'
-import pino from 'pino'
 import { container } from 'tsyringe'
 import { z } from 'zod'
 
@@ -86,8 +85,9 @@ function validateHmacSignature(
 
 async function findChannelByAccountId(
   accountId: string,
-  objectType: string
-): Promise<{ appSecret: string; channelId: string; tenantId: string } | null> {
+  objectType: string,
+  requireAppSecret: boolean
+): Promise<{ appSecret?: string; channelId: string; tenantId: string } | null> {
   const isPageOrInstagram = objectType === 'page' || objectType === 'instagram'
   const filter = isPageOrInstagram
     ? { 'config.metaPageId': accountId, isActive: true }
@@ -99,22 +99,20 @@ async function findChannelByAccountId(
   }
 
   const config = channel.config as Record<string, unknown> | undefined
-  const appSecret = config?.['metaAppSecret']
-  if (typeof appSecret !== 'string' || appSecret.length === 0) {
-    const logger = pino({ name: 'webhook-routes' })
-    logger.warn(
-      {
-        accountId,
-        channelId: String(channel._id),
-        tenantId: String(channel.tenantId),
-      },
-      'Channel found but missing metaAppSecret in config'
-    )
-    return null
+
+  if (requireAppSecret) {
+    const appSecret = config?.['metaAppSecret']
+    if (typeof appSecret !== 'string' || appSecret.length === 0) {
+      return null
+    }
+    return {
+      appSecret,
+      channelId: String(channel._id),
+      tenantId: String(channel.tenantId),
+    }
   }
 
   return {
-    appSecret,
     channelId: String(channel._id),
     tenantId: String(channel.tenantId),
   }
@@ -261,7 +259,30 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
         })
       }
 
-      // Parse JSON first to identify the channel before HMAC validation
+      // Validate HMAC with global app secret (centralized app model)
+      const globalAppSecret = env.META_APP_SECRET
+      if (globalAppSecret) {
+        const isValid = validateHmacSignature(
+          rawBody,
+          signatureHeader,
+          globalAppSecret
+        )
+        if (!isValid) {
+          app.log.warn(
+            { event: 'meta.webhook.hmac_failed' },
+            'Meta webhook HMAC validation failed (global secret)'
+          )
+          return reply.status(401).send({
+            success: false,
+            error: {
+              code: 'INVALID_SIGNATURE',
+              message: 'Invalid HMAC signature',
+            },
+          })
+        }
+      }
+
+      // Parse JSON to identify the channel for routing
       const bodyParsed = metaWebhookPayloadSchema.safeParse(request.body)
 
       if (!bodyParsed.success) {
@@ -276,8 +297,13 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
         return reply.status(200).send({ success: true })
       }
 
-      // Look up channel by accountId to get the per-channel appSecret
-      const channelInfo = await findChannelByAccountId(firstEntry.id, object)
+      // Look up channel by accountId for routing; require per-channel appSecret only when no global secret
+      const requireAppSecret = !globalAppSecret
+      const channelInfo = await findChannelByAccountId(
+        firstEntry.id,
+        object,
+        requireAppSecret
+      )
 
       if (!channelInfo) {
         app.log.warn(
@@ -287,21 +313,37 @@ export async function webhookRoutes(app: FastifyInstance): Promise<void> {
         return reply.status(200).send({ success: true })
       }
 
-      // Validate HMAC using the channel's stored appSecret
-      const isValid = validateHmacSignature(
-        rawBody,
-        signatureHeader,
-        channelInfo.appSecret
-      )
+      // Validate HMAC with per-channel secret when no global secret is configured (backwards compat)
+      if (!globalAppSecret) {
+        const perChannelSecret = channelInfo.appSecret
+        if (!perChannelSecret) {
+          app.log.error(
+            { accountId: firstEntry.id },
+            'No HMAC secret available — neither global META_APP_SECRET nor per-channel metaAppSecret configured'
+          )
+          return reply.status(500).send({
+            success: false,
+            error: {
+              code: 'NO_HMAC_SECRET',
+              message: 'Webhook HMAC validation not configured',
+            },
+          })
+        }
 
-      if (!isValid) {
-        return reply.status(401).send({
-          success: false,
-          error: {
-            code: 'INVALID_SIGNATURE',
-            message: 'HMAC signature verification failed',
-          },
-        })
+        const isValid = validateHmacSignature(
+          rawBody,
+          signatureHeader,
+          perChannelSecret
+        )
+        if (!isValid) {
+          return reply.status(401).send({
+            success: false,
+            error: {
+              code: 'INVALID_SIGNATURE',
+              message: 'HMAC signature verification failed',
+            },
+          })
+        }
       }
 
       const queueProducer = container.resolve<QueueProducer>('QueueProducer')

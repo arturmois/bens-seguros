@@ -9,6 +9,7 @@ import { MessengerBroker } from '../messaging/messenger-broker.js'
 import { InstagramBroker } from '../messaging/instagram-broker.js'
 import type { Broker } from '../messaging/broker.js'
 import type { PubsubClient } from '../types/pubsub-client.js'
+import { decryptToken, isEncryptedField } from '@repo/shared/meta-crypto'
 
 const logger = pino({ name: 'send-message-processor' })
 
@@ -36,8 +37,14 @@ function isPermanentError(errorCode: string): boolean {
 
 function toConfigRecord(config: unknown): Record<string, unknown> {
   if (config !== null && typeof config === 'object' && !Array.isArray(config)) {
-    const entries = Object.entries(config as Record<string, unknown>)
-    return Object.fromEntries(entries)
+    const record = Object.fromEntries(
+      Object.entries(config as Record<string, unknown>)
+    )
+    // Decrypt encrypted metaToken if present
+    if (isEncryptedField(record['metaToken'])) {
+      record['metaToken'] = decryptToken(record['metaToken'])
+    }
+    return record
   }
   return {}
 }

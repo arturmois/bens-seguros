@@ -27,6 +27,10 @@ import { PINO_REDACT_CONFIG } from './infra/logger.js'
 import { aiAgentRoutes } from './infra/http/routes/ai-agent-routes.js'
 import { channelRoutes } from './infra/http/routes/channel-routes.js'
 import { conversationRoutes } from './infra/http/routes/conversation-routes.js'
+import {
+  metaCallbackRoute,
+  metaRoutes,
+} from './infra/http/routes/meta-routes.js'
 import { webhookRoutes } from './infra/http/routes/webhook-routes.js'
 import { rateLimitHook } from './infra/http/routes/widget-helpers.js'
 import { widgetRoutes } from './infra/http/routes/widget-routes.js'
@@ -35,7 +39,11 @@ import { createSocketAuthMiddleware } from './infra/socket/socket-auth.js'
 import { setupSocketHandlers } from './infra/socket/socket-handler.js'
 import { setupWidgetNamespace } from './infra/socket/widget-namespace.js'
 
-const UNAUTHENTICATED_PATHS = new Set(['/health', '/chat/webhook/meta'])
+const UNAUTHENTICATED_PATHS = new Set([
+  '/health',
+  '/chat/webhook/meta',
+  '/meta/auth/callback',
+])
 const WIDGET_PATH_PREFIX = '/widget/'
 const WIDGET_APP_PREFIX = '/widget-app/'
 
@@ -186,8 +194,9 @@ export async function buildChatApp(
     )
   }
 
-  // Unauthenticated routes (Meta webhook)
+  // Unauthenticated routes (Meta webhook + OAuth callback)
   await app.register(webhookRoutes)
+  await app.register(metaCallbackRoute)
 
   // Widget routes (own auth via visitorToken, registered before chatAuthMiddleware)
   await app.register(widgetRoutes, { prefix: '/widget' })
@@ -220,6 +229,7 @@ export async function buildChatApp(
   await app.register(conversationRoutes)
   await app.register(channelRoutes)
   await app.register(aiAgentRoutes)
+  await app.register(metaRoutes)
 
   // Socket.IO auth + handlers (main namespace for operators/agents)
   io.use(createSocketAuthMiddleware(app.log))

@@ -14,8 +14,6 @@ export interface CreateChannelPayload {
     | 'MESSENGER'
     | 'INSTAGRAM'
   readonly phoneNumber?: string
-  readonly metaToken?: string
-  readonly phoneNumberId?: string
   readonly config?: Record<string, unknown>
 }
 
@@ -39,4 +37,18 @@ export interface PairingCodeResultEvent {
   readonly success: boolean
   readonly code?: string
   readonly error?: string
+}
+
+export type ConnectionMethod =
+  | 'oauth'
+  | 'embedded_signup'
+  | 'qr_code'
+  | 'manual'
+
+export interface MetaAsset {
+  pageId: string
+  pageName: string
+  hasInstagram: boolean
+  instagramAccountId: string | null
+  instagramUsername?: string | null
 }

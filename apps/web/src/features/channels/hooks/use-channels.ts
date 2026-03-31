@@ -120,3 +120,28 @@ export function useValidateMetaChannel() {
     },
   })
 }
+
+export function useDisconnectMetaChannel() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (channelId: string) => {
+      const response = await chatApi.post<{ disconnected: boolean }>(
+        '/meta/disconnect',
+        { channelId }
+      )
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [CHANNELS_KEY] })
+      toast.success('Canal desconectado com sucesso')
+    },
+    onError: (error: unknown) => {
+      const msg =
+        error instanceof ChatApiError
+          ? error.message
+          : 'Erro ao desconectar canal'
+      toast.error(msg)
+    },
+  })
+}

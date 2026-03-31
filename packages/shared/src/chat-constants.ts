@@ -7,6 +7,7 @@ export const CHAT_QUEUES = {
   DISCONNECT_CHANNEL: 'chat-disconnect-channel',
   PAIR_CHANNEL: 'chat-pair-channel',
   DEAD_LETTER: 'chat-dead-letter',
+  META_TOKEN_REFRESH: 'chat-meta-token-refresh',
 } as const
 
 export const CHAT_LIMITS = {

@@ -8,7 +8,8 @@
     "./api-types": "./src/api-types.ts",
     "./socket-events": "./src/socket-events.ts",
     "./sentry-pii": "./src/sentry-pii.ts",
-    "./pino-redact": "./src/pino-redact.ts"
+    "./pino-redact": "./src/pino-redact.ts",
+    "./meta-crypto": "./src/meta-crypto.ts"
   },
   "scripts": {
     "test": "vitest run --passWithNoTests",
