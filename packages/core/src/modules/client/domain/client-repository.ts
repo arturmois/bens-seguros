@@ -1,5 +1,4 @@
 export interface ClientSocialMedia {
-  [key: string]: string | undefined
   instagram?: string
   facebook?: string
   linkedin?: string
