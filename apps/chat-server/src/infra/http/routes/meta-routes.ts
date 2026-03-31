@@ -173,6 +173,16 @@ export async function metaCallbackRoute(app: FastifyInstance): Promise<void> {
         )
       }
 
+      // Prevent double-processing of the same authorization code
+      const codeKey = `meta:code:${code.slice(-16)}`
+      const alreadyUsed = await redis.set(codeKey, '1', 'EX', 300, 'NX')
+      if (!alreadyUsed) {
+        app.log.warn('OAuth callback received duplicate code — ignoring')
+        return reply.redirect(
+          `${frontendUrl}/settings?section=canais&meta_error=${encodeURIComponent('Código já utilizado. Tente conectar novamente.')}`
+        )
+      }
+
       try {
         const oauthState = validateState(state)
         const tenantId = oauthState.tenantId
