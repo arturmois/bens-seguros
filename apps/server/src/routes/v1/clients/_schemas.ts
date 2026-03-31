@@ -16,6 +16,15 @@ import { maritalStatusEnum } from '../../_shared/enums.schema.js'
 
 const CLIENT_TYPE_VALUES = ['LEAD', 'CLIENT', 'FORMER_CLIENT'] as const
 
+const socialMediaSchema = z
+  .object({
+    instagram: z.string().optional(),
+    facebook: z.string().optional(),
+    linkedin: z.string().optional(),
+    tiktok: z.string().optional(),
+  })
+  .optional()
+
 export const createClientBodySchema = z.object({
   name: z.string().min(2),
   document: z.string().min(11).max(14),
@@ -28,6 +37,7 @@ export const createClientBodySchema = z.object({
   address: z.record(z.string()).optional(),
   tags: z.array(z.string()).optional(),
   consentLgpd: z.boolean().optional(),
+  socialMedia: socialMediaSchema,
 })
 
 export const updateClientBodySchema = createClientBodySchema
@@ -56,6 +66,7 @@ const clientListItemSchema = z.object({
   email: z.string().nullable().optional(),
   phone: z.string().nullable().optional(),
   createdAt: z.coerce.date(),
+  socialMedia: socialMediaSchema.nullable(),
 })
 
 const clientDetailSchema = clientListItemSchema.extend({
@@ -65,6 +76,7 @@ const clientDetailSchema = clientListItemSchema.extend({
   profession: z.string().nullable().optional(),
   maritalStatus: maritalStatusEnum.nullable().optional(),
   address: z.record(z.string().optional()).nullable().optional(),
+  socialMedia: socialMediaSchema.nullable(),
 })
 
 export const clientListResponse = paginatedResponse(clientListItemSchema)

@@ -7,12 +7,20 @@ import {
   getEncryptionKey,
 } from '@repo/shared'
 import type { EncryptedField } from '@repo/shared'
-import type { ClientData, ClientAddress } from '../domain/client-repository.js'
+import type {
+  ClientData,
+  ClientAddress,
+  ClientSocialMedia,
+} from '../domain/client-repository.js'
 import pino from 'pino'
 
 const logger = pino({ name: 'client-mapper' })
 
 function isAddressObject(value: unknown): value is ClientAddress {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+function isSocialMediaObject(value: unknown): value is ClientSocialMedia {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
@@ -75,6 +83,9 @@ export class ClientMapper {
       profession: row.profession,
       maritalStatus: row.maritalStatus,
       address: isAddressObject(row.address) ? row.address : null,
+      socialMedia: isSocialMediaObject(row.socialMedia)
+        ? row.socialMedia
+        : null,
       tags: row.tags,
       consentLgpd: row.consentLgpd,
       salespersonId: row.salespersonId ?? null,

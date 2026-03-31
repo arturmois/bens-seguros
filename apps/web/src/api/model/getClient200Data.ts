@@ -7,6 +7,7 @@
 import type { GetClient200DataAddress } from './getClient200DataAddress'
 import type { GetClient200DataMaritalStatus } from './getClient200DataMaritalStatus'
 import type { GetClient200DataType } from './getClient200DataType'
+import type { ClientSocialMedia } from './clientSocialMedia'
 
 export type GetClient200Data = {
   id: string
@@ -29,4 +30,6 @@ export type GetClient200Data = {
   maritalStatus?: GetClient200DataMaritalStatus
   /** @nullable */
   address?: GetClient200DataAddress
+  /** @nullable */
+  socialMedia?: ClientSocialMedia | null
 }

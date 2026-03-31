@@ -181,6 +181,12 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
             : '',
           profession: client.profession ?? '',
           maritalStatus: client.maritalStatus ?? undefined,
+          socialMedia: {
+            instagram: client.socialMedia?.instagram ?? '',
+            facebook: client.socialMedia?.facebook ?? '',
+            linkedin: client.socialMedia?.linkedin ?? '',
+            tiktok: client.socialMedia?.tiktok ?? '',
+          },
         }}
       />
 

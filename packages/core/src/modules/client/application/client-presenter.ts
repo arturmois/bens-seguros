@@ -1,5 +1,8 @@
 import { maskDocument } from '@repo/shared'
-import type { ClientData } from '../domain/client-repository.js'
+import type {
+  ClientData,
+  ClientSocialMedia,
+} from '../domain/client-repository.js'
 
 /** Mirrors Role from @repo/auth/roles — duplicated to avoid cross-package dependency */
 type Role = 'OWNER' | 'ADMIN' | 'MANAGER' | 'COMMERCIAL' | 'VIEWER'
@@ -18,6 +21,7 @@ interface ClientListItem {
   email?: string | null
   phone?: string | null
   createdAt: Date
+  socialMedia?: ClientSocialMedia | null
 }
 
 interface ClientDetail {
@@ -35,6 +39,7 @@ interface ClientDetail {
   profession?: string | null
   maritalStatus?: ClientData['maritalStatus']
   address?: ClientData['address']
+  socialMedia?: ClientSocialMedia | null
 }
 
 function canSeeFullPii(client: ClientData, ctx: PresenterContext): boolean {
@@ -58,6 +63,7 @@ export const ClientPresenter = {
       email: client.email,
       phone: client.phone,
       createdAt: client.createdAt,
+      socialMedia: client.socialMedia,
     }
   },
 
@@ -82,6 +88,7 @@ export const ClientPresenter = {
       base.profession = client.profession
       base.maritalStatus = client.maritalStatus
       base.address = client.address
+      base.socialMedia = client.socialMedia
     }
 
     return base

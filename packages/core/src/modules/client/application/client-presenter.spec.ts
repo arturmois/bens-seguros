@@ -15,6 +15,7 @@ function makeClient(overrides: Partial<ClientData> = {}): ClientData {
     profession: 'Engenheira',
     maritalStatus: 'SINGLE',
     address: { street: 'Rua A', city: 'SP', state: 'SP', zip: '01000000' },
+    socialMedia: null,
     tags: ['vip'],
     consentLgpd: true,
     salespersonId: 'user-sales-1',
@@ -40,7 +41,7 @@ describe('ClientPresenter.toList', () => {
     expect(result).not.toHaveProperty('documentHash')
   })
 
-  it('includes only id, name, type, tags, document, createdAt', () => {
+  it('includes only id, name, type, tags, document, createdAt, socialMedia', () => {
     const client = makeClient()
     const result = ClientPresenter.toList(client)
 
@@ -54,6 +55,7 @@ describe('ClientPresenter.toList', () => {
         'email',
         'phone',
         'createdAt',
+        'socialMedia',
       ].sort()
     )
   })

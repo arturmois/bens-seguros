@@ -1,3 +1,11 @@
+export interface ClientSocialMedia {
+  [key: string]: string | undefined
+  instagram?: string
+  facebook?: string
+  linkedin?: string
+  tiktok?: string
+}
+
 export interface ClientData {
   id: string
   organizationId: string
@@ -10,6 +18,7 @@ export interface ClientData {
   profession: string | null
   maritalStatus: 'SINGLE' | 'MARRIED' | 'DIVORCED' | 'WIDOWED' | 'OTHER' | null
   address: ClientAddress | null
+  socialMedia: ClientSocialMedia | null
   tags: string[]
   consentLgpd: boolean
   salespersonId: string | null
@@ -56,6 +65,7 @@ export interface CreateClientInput {
   profession?: string | null
   maritalStatus?: 'SINGLE' | 'MARRIED' | 'DIVORCED' | 'WIDOWED' | 'OTHER' | null
   address?: ClientAddress | null
+  socialMedia?: ClientSocialMedia | null
   tags?: string[]
   consentLgpd?: boolean
   salespersonId?: string | null
@@ -74,6 +84,7 @@ export interface UpdateClientInput {
   profession?: string | null
   maritalStatus?: 'SINGLE' | 'MARRIED' | 'DIVORCED' | 'WIDOWED' | 'OTHER' | null
   address?: ClientAddress | null
+  socialMedia?: ClientSocialMedia | null
   tags?: string[]
   consentLgpd?: boolean
   type?: 'LEAD' | 'CLIENT' | 'FORMER_CLIENT'

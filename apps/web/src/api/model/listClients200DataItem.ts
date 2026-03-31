@@ -5,6 +5,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { ListClients200DataItemType } from './listClients200DataItemType'
+import type { ClientSocialMedia } from './clientSocialMedia'
 
 export type ListClients200DataItem = {
   id: string
@@ -17,4 +18,6 @@ export type ListClients200DataItem = {
   /** @nullable */
   phone?: string | null
   createdAt: string
+  /** @nullable */
+  socialMedia?: ClientSocialMedia | null
 }
