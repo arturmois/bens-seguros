@@ -21,3 +21,4 @@ task*.png
 .claude/
 skills-lock.json
 *.pem
+.vercel

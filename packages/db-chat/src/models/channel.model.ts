@@ -55,6 +55,7 @@ const channelSchema = new Schema(
 
 channelSchema.index({ tenantId: 1, type: 1 })
 channelSchema.index({ 'config.metaPageId': 1, isActive: 1 })
+channelSchema.index({ 'config.metaInstagramAccountId': 1, isActive: 1 })
 channelSchema.index({ connectionMethod: 1, status: 1, tokenExpiresAt: 1 })
 
 export type ChannelDocument = InferSchemaType<typeof channelSchema> & {

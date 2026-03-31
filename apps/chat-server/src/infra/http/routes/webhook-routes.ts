@@ -88,10 +88,17 @@ async function findChannelByAccountId(
   objectType: string,
   requireAppSecret: boolean
 ): Promise<{ appSecret?: string; channelId: string; tenantId: string } | null> {
-  const isPageOrInstagram = objectType === 'page' || objectType === 'instagram'
-  const filter = isPageOrInstagram
-    ? { 'config.metaPageId': accountId, isActive: true }
-    : { 'config.metaPhoneNumberId': accountId, isActive: true }
+  const filter =
+    objectType === 'instagram'
+      ? {
+          $or: [
+            { 'config.metaInstagramAccountId': accountId, isActive: true },
+            { 'config.metaPageId': accountId, isActive: true },
+          ],
+        }
+      : objectType === 'page'
+        ? { 'config.metaPageId': accountId, isActive: true }
+        : { 'config.metaPhoneNumberId': accountId, isActive: true }
 
   const channel = await Channel.findOne(filter).lean().exec()
   if (!channel) {
