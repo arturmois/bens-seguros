@@ -35,7 +35,7 @@ export function DatePicker({
     if (!open) return
     function handleClickOutside(event: MouseEvent) {
       if (ref.current && !ref.current.contains(event.target as Node)) {
-        setOpen(false)
+        requestAnimationFrame(() => setOpen(false))
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
