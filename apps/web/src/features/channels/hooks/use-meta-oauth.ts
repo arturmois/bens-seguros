@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useRef, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import { chatApi, ChatApiError } from '@/features/chat/lib/chat-api'
@@ -41,6 +42,7 @@ type OAuthStep =
   | 'error'
 
 export function useMetaOAuth() {
+  const queryClient = useQueryClient()
   const [step, setStep] = useState<OAuthStep>('idle')
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [assets, setAssets] = useState<MetaAsset[]>([])
@@ -113,6 +115,7 @@ export function useMetaOAuth() {
         })
         setStep('done')
         toast.success(`Canal "${input.name}" conectado com sucesso`)
+        void queryClient.invalidateQueries({ queryKey: ['channels'] })
         return data.channel
       } catch (err) {
         setStep('error')
