@@ -76,7 +76,6 @@ const clientDetailSchema = clientListItemSchema.extend({
   profession: z.string().nullable().optional(),
   maritalStatus: maritalStatusEnum.nullable().optional(),
   address: z.record(z.string().optional()).nullable().optional(),
-  socialMedia: socialMediaSchema.nullable(),
 })
 
 export const clientListResponse = paginatedResponse(clientListItemSchema)
