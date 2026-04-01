@@ -107,7 +107,7 @@ export function useOrgs() {
   return {
     orgs: orgsQuery.data ?? [],
     activeOrg,
-    isLoading: orgsQuery.isLoading,
+    isLoading: orgsQuery.isPending,
     switchOrg,
   }
 }

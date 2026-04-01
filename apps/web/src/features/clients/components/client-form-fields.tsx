@@ -1,7 +1,6 @@
 'use client'
 
-import { Controller } from 'react-hook-form'
-import type { UseFormReturn } from 'react-hook-form'
+import { Controller, useFormContext } from 'react-hook-form'
 import { InputMask } from '@react-input/mask'
 
 import { DatePicker } from '@/components/ui/date-picker'
@@ -32,7 +31,9 @@ const MARITAL_SELECT_OPTIONS = [
 
 export function parseDateString(value: string | undefined): Date | undefined {
   if (!value) return undefined
-  const date = new Date(`${value}T00:00:00Z`)
+  const date = value.includes('T')
+    ? new Date(value)
+    : new Date(`${value}T00:00:00Z`)
   if (Number.isNaN(date.getTime())) return undefined
   return date
 }
@@ -46,11 +47,12 @@ export function formatDateToISO(date: Date | undefined): string {
 }
 
 interface ClientFormFieldsProps {
-  readonly form: UseFormReturn<ClientFormValues>
+  readonly form?: never
   readonly isReadOnly: boolean
 }
 
-export function ClientFormFields({ form, isReadOnly }: ClientFormFieldsProps) {
+export function ClientFormFields({ isReadOnly }: ClientFormFieldsProps) {
+  const form = useFormContext<ClientFormValues>()
   return (
     <>
       <FormField
@@ -207,7 +209,7 @@ export function ClientFormFields({ form, isReadOnly }: ClientFormFieldsProps) {
         />
       </FormField>
 
-      <SocialMediaFields form={form} />
+      <SocialMediaFields />
     </>
   )
 }

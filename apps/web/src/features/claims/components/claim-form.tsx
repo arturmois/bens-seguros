@@ -48,7 +48,9 @@ const PRIORITY_SELECT_OPTIONS = [
 
 function parseDateString(value: string | undefined): Date | undefined {
   if (!value) return undefined
-  const date = new Date(`${value}T00:00:00Z`)
+  const date = value.includes('T')
+    ? new Date(value)
+    : new Date(`${value}T00:00:00Z`)
   if (Number.isNaN(date.getTime())) return undefined
   return date
 }

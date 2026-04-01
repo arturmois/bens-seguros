@@ -1,6 +1,6 @@
 'use client'
 
-import type { UseFormReturn } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import type { z } from 'zod'
 
 import { Input } from '@/components/ui/input'
@@ -11,14 +11,11 @@ import { FormField } from './form-field'
 type ClientFormValues = z.infer<typeof CreateClientBody>
 
 interface SocialMediaFieldsProps {
-  readonly form: UseFormReturn<ClientFormValues>
   readonly isReadOnly?: boolean
 }
 
-export function SocialMediaFields({
-  form,
-  isReadOnly,
-}: SocialMediaFieldsProps) {
+export function SocialMediaFields({ isReadOnly }: SocialMediaFieldsProps) {
+  const form = useFormContext<ClientFormValues>()
   return (
     <div className="pt-2">
       <p className="mb-3 text-sm font-medium">Redes Sociais</p>

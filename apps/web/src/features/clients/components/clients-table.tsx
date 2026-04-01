@@ -8,7 +8,7 @@ import { Table } from '@/components/ui/table'
 import { useDebounce } from '@/hooks/use-debounce'
 
 import type { ClientData, ClientType } from '../lib/constants'
-import { useClients, useDeleteClient } from '../hooks/use-clients'
+import { useClient, useClients, useDeleteClient } from '../hooks/use-clients'
 import { ClientForm } from './client-form'
 import { ClientsPagination } from './clients-pagination'
 import { ClientsTableBody, ClientsTableHeader } from './clients-table-rows'
@@ -21,8 +21,10 @@ export function ClientsContent() {
   const [typeFilter, setTypeFilter] = useState<string>('ALL')
   const [cursors, setCursors] = useState<string[]>([])
   const [formOpen, setFormOpen] = useState(false)
-  const [editingClient, setEditingClient] = useState<ClientData | null>(null)
+  const [editingClientId, setEditingClientId] = useState<string | null>(null)
   const [deletingClientId, setDeletingClientId] = useState<string | null>(null)
+
+  const { data: editingClientDetail } = useClient(editingClientId ?? '')
 
   const debouncedSearch = useDebounce(search, 300)
   const currentCursor = cursors.at(-1)
@@ -40,13 +42,12 @@ export function ClientsContent() {
   }
 
   function handleEdit(client: ClientData) {
-    setEditingClient(client)
-    setFormOpen(true)
+    setEditingClientId(client.id)
   }
 
   function handleFormClose(open: boolean) {
     setFormOpen(open)
-    if (!open) setEditingClient(null)
+    if (!open) setEditingClientId(null)
   }
 
   function handleNextPage() {
@@ -89,7 +90,7 @@ export function ClientsContent() {
           setCursors([])
         }}
         onNewClient={() => {
-          setEditingClient(null)
+          setEditingClientId(null)
           setFormOpen(true)
         }}
         currentFilters={{
@@ -120,17 +121,31 @@ export function ClientsContent() {
       />
 
       <ClientForm
-        open={formOpen}
+        open={
+          formOpen || (Boolean(editingClientId) && Boolean(editingClientDetail))
+        }
         onOpenChange={handleFormClose}
-        clientId={editingClient?.id}
+        clientId={editingClientId ?? undefined}
         defaultValues={
-          editingClient
+          editingClientDetail
             ? {
-                name: editingClient.name,
-                document: editingClient.document,
-                type: editingClient.type,
-                email: editingClient.email ?? '',
-                phone: editingClient.phone ?? '',
+                name: editingClientDetail.name,
+                document: editingClientDetail.document,
+                type: editingClientDetail.type,
+                email: editingClientDetail.email ?? '',
+                phone: editingClientDetail.phone ?? '',
+                birthDate: editingClientDetail.birthDate ?? '',
+                profession: editingClientDetail.profession ?? '',
+                maritalStatus: editingClientDetail.maritalStatus ?? undefined,
+                socialMedia: editingClientDetail.socialMedia
+                  ? {
+                      instagram:
+                        editingClientDetail.socialMedia.instagram ?? '',
+                      facebook: editingClientDetail.socialMedia.facebook ?? '',
+                      linkedin: editingClientDetail.socialMedia.linkedin ?? '',
+                      tiktok: editingClientDetail.socialMedia.tiktok ?? '',
+                    }
+                  : undefined,
               }
             : undefined
         }
