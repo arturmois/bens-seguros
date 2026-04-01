@@ -32,7 +32,6 @@ const ADVANCE_TARGETS = new Set<ProposalStage>([
   'PROTOCOL',
   'INSPECTION',
   'PAYMENT',
-  'POLICY_ISSUED',
 ])
 
 interface OptimisticMove {
@@ -133,6 +132,8 @@ export function ProposalKanban() {
     if (!found || found.stage === targetStage) return
 
     const { proposal, stage: sourceStage } = found
+
+    if (sourceStage === 'POLICY_ISSUED') return
 
     if (targetStage === 'LOST') {
       setLostProposalId(proposalId)

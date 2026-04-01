@@ -279,6 +279,7 @@ model Client {
   maritalStatus     MaritalStatus?
   address           Json?
   tags              String[]       @default([])
+  socialMedia       Json?
   consentLgpd       Boolean        @default(false)
   salespersonId     String?
   deletedAt         DateTime?

@@ -1,6 +1,7 @@
 'use client'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 import {
   useListNotifications as useListNotificationsOrval,
@@ -32,8 +33,8 @@ export function useNotifications(limit = 10) {
 export function useUnreadCount() {
   return useGetUnreadCount({
     query: {
-      staleTime: 15_000,
-      refetchInterval: 30_000,
+      staleTime: 60_000,
+      refetchInterval: 60_000,
       select: (response) => response.data.data.count,
     },
   })
@@ -50,6 +51,9 @@ export function useMarkAsRead() {
       queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_BASE_KEY })
       queryClient.invalidateQueries({ queryKey: getGetUnreadCountQueryKey() })
     },
+    onError: () => {
+      toast.error('Erro ao marcar notificação como lida')
+    },
   })
 }
 
@@ -63,6 +67,9 @@ export function useMarkAllAsRead() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_BASE_KEY })
       queryClient.invalidateQueries({ queryKey: getGetUnreadCountQueryKey() })
+    },
+    onError: () => {
+      toast.error('Erro ao marcar notificações como lidas')
     },
   })
 }

@@ -34,7 +34,7 @@ const BASE_ITEMS: Partial<Record<Stage, readonly ChecklistItemConfig[]>> = {
   PROTOCOL: [
     {
       itemKey: 'protocol_registered',
-      label: 'Proposta protocolada na seguradora',
+      label: 'Proposta protocolada no Broker/Qualex',
       isRequired: true,
     },
   ],

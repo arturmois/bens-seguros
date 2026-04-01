@@ -3,7 +3,10 @@ import type { OnPolicyIssued } from '../../commission/application/on-policy-issu
 import { ProposalNotFoundError } from '../../proposal/domain/proposal-errors.js'
 import type { ProposalRepository } from '../../proposal/domain/proposal-repository.js'
 import { Proposal } from '../../proposal/domain/proposal.js'
-import { PolicyNotIssuableError } from '../domain/policy-errors.js'
+import {
+  PolicyMissingInsurerError,
+  PolicyNotIssuableError,
+} from '../domain/policy-errors.js'
 import type {
   PolicyData,
   PolicyRepository,
@@ -39,7 +42,8 @@ function createProposalAtStage(
     | 'PROTOCOL'
     | 'INSPECTION'
     | 'PAYMENT'
-    | 'POLICY_ISSUED'
+    | 'POLICY_ISSUED',
+  insurerId?: string
 ): Proposal {
   const proposal = Proposal.create({
     organizationId: 'org-1',
@@ -49,6 +53,7 @@ function createProposalAtStage(
     boardType: 'NEW_INSURANCE',
     premiumValueInCents: 150000,
     commissionPercentageInCents: 1500,
+    insurerId,
   })
 
   const stageOrder = [
@@ -111,7 +116,7 @@ function createMockOnPolicyIssued(): OnPolicyIssued {
 
 describe('IssuePolicy', () => {
   it('issues policy from proposal at POLICY_ISSUED stage', async () => {
-    const proposal = createProposalAtStage('POLICY_ISSUED')
+    const proposal = createProposalAtStage('POLICY_ISSUED', 'ins-1')
     const policyRepo = createMockPolicyRepo()
     const proposalRepo = createMockProposalRepo(proposal)
     const onPolicyIssued = createMockOnPolicyIssued()
@@ -145,6 +150,68 @@ describe('IssuePolicy', () => {
         endDate: new Date('2025-01-01'),
       })
     ).rejects.toThrow(ProposalNotFoundError)
+    expect(policyRepo.create).not.toHaveBeenCalled()
+  })
+
+  it('uses provided insurerId when given', async () => {
+    const proposal = createProposalAtStage('POLICY_ISSUED')
+    const policyRepo = createMockPolicyRepo()
+    const proposalRepo = createMockProposalRepo(proposal)
+    const onPolicyIssued = createMockOnPolicyIssued()
+    const useCase = new IssuePolicy(policyRepo, proposalRepo, onPolicyIssued)
+
+    await useCase.execute({
+      organizationId: 'org-1',
+      proposalId: proposal.id,
+      policyNumber: 'POL-2024-001',
+      startDate: new Date('2024-01-01'),
+      endDate: new Date('2025-01-01'),
+      insurerId: 'ins-override',
+    })
+
+    expect(policyRepo.create).toHaveBeenCalledWith(
+      expect.objectContaining({ insurerId: 'ins-override' })
+    )
+  })
+
+  it('falls back to proposal insurerId when not provided', async () => {
+    const proposal = createProposalAtStage('POLICY_ISSUED', 'ins-456')
+    const policyRepo = createMockPolicyRepo()
+    const proposalRepo = createMockProposalRepo(proposal)
+    const onPolicyIssued = createMockOnPolicyIssued()
+    const useCase = new IssuePolicy(policyRepo, proposalRepo, onPolicyIssued)
+
+    await useCase.execute({
+      organizationId: 'org-1',
+      proposalId: proposal.id,
+      policyNumber: 'POL-2024-001',
+      startDate: new Date('2024-01-01'),
+      endDate: new Date('2025-01-01'),
+    })
+
+    expect(policyRepo.create).toHaveBeenCalledWith(
+      expect.objectContaining({ insurerId: proposal.insurerId })
+    )
+  })
+
+  it('throws PolicyMissingInsurerError when neither dto nor proposal has insurerId', async () => {
+    const proposal = createProposalAtStage('POLICY_ISSUED')
+    // Proposal has no insurerId (null by default from Proposal.create)
+    const policyRepo = createMockPolicyRepo()
+    const proposalRepo = createMockProposalRepo(proposal)
+    const onPolicyIssued = createMockOnPolicyIssued()
+    const useCase = new IssuePolicy(policyRepo, proposalRepo, onPolicyIssued)
+
+    await expect(
+      useCase.execute({
+        organizationId: 'org-1',
+        proposalId: proposal.id,
+        policyNumber: 'POL-2024-001',
+        startDate: new Date('2024-01-01'),
+        endDate: new Date('2025-01-01'),
+        // no insurerId provided
+      })
+    ).rejects.toThrow(PolicyMissingInsurerError)
     expect(policyRepo.create).not.toHaveBeenCalled()
   })
 

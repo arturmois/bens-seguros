@@ -63,7 +63,7 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
         branch: policy.branch,
       }))
     },
-    enabled: debouncedSearch.length >= 2,
+    enabled: debouncedSearch.length >= 2 && !selectedLabel,
   })
 
   useEffect(() => {

@@ -37,6 +37,10 @@ export class PrismaClientRepository implements ClientRepository {
           data.address === null || data.address === undefined
             ? Prisma.JsonNull
             : data.address,
+        socialMedia:
+          data.socialMedia === null || data.socialMedia === undefined
+            ? Prisma.JsonNull
+            : data.socialMedia,
         tags: data.tags ?? [],
         consentLgpd: data.consentLgpd ?? false,
         salespersonId: data.salespersonId ?? null,
@@ -128,6 +132,10 @@ export class PrismaClientRepository implements ClientRepository {
     if (data.address !== undefined) {
       updateData.address =
         data.address === null ? Prisma.JsonNull : data.address
+    }
+    if (data.socialMedia !== undefined) {
+      updateData.socialMedia =
+        data.socialMedia === null ? Prisma.JsonNull : data.socialMedia
     }
 
     const row = await this.prisma.client.update({

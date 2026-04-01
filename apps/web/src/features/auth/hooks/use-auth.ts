@@ -3,7 +3,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { authClient } from '@/lib/auth-client'
-import { setActiveOrgCookie, getActiveOrgCookie } from '@/lib/org-cookie'
+import {
+  setActiveOrgCookie,
+  getActiveOrgCookie,
+  clearActiveOrgCookie,
+} from '@/lib/org-cookie'
 import { api } from '@/lib/api-client'
 import {
   CURRENT_TERMS_VERSION,
@@ -58,15 +62,17 @@ export function useAuth() {
       // Try to restore last active org from cookie (survives logout)
       const lastOrgId = getActiveOrgCookie()
       if (lastOrgId) {
-        try {
-          await authClient.organization.setActive({ organizationId: lastOrgId })
+        const res = await authClient.organization.setActive({
+          organizationId: lastOrgId,
+        })
+        if (!res.error) {
           setActiveOrgCookie(lastOrgId)
           await queryClient.invalidateQueries({ queryKey: ['auth'] })
           router.push('/dashboard')
           return
-        } catch {
-          // Org no longer valid (removed, deactivated) — fall through to select-org
         }
+        // Org no longer valid for this user — clear stale cookie
+        clearActiveOrgCookie()
       }
 
       await queryClient.invalidateQueries({ queryKey: ['auth'] })

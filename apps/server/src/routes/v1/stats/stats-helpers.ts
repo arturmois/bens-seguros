@@ -166,6 +166,7 @@ async function fetchChartData(orgId: string, ranges: DateRange, db: DbClient) {
           stage: 'POLICY_ISSUED',
           updatedAt: { gte: currentFrom },
           deletedAt: null,
+          policy: { isNot: null },
         },
       }),
     ]).then(([total, issued]) => ({
@@ -175,14 +176,15 @@ async function fetchChartData(orgId: string, ranges: DateRange, db: DbClient) {
     })),
     db.$queryRaw<readonly MonthlyTrendRow[]>`
       SELECT
-        TO_CHAR(DATE_TRUNC('month', "createdAt"), 'YYYY-MM') as month,
-        COUNT(*) FILTER (WHERE "stage" != 'LOST')::int as proposals,
-        COUNT(*) FILTER (WHERE "stage" = 'POLICY_ISSUED')::int as issued
-      FROM "Proposal"
-      WHERE "organizationId" = ${orgId}
-        AND "createdAt" >= ${currentFrom}
-        AND "deletedAt" IS NULL
-      GROUP BY DATE_TRUNC('month', "createdAt")
+        TO_CHAR(DATE_TRUNC('month', p."createdAt"), 'YYYY-MM') as month,
+        COUNT(*) FILTER (WHERE p."stage" != 'LOST')::int as proposals,
+        COUNT(*) FILTER (WHERE pol."id" IS NOT NULL)::int as issued
+      FROM "Proposal" p
+      LEFT JOIN "Policy" pol ON pol."proposalId" = p."id" AND pol."deletedAt" IS NULL
+      WHERE p."organizationId" = ${orgId}
+        AND p."createdAt" >= ${currentFrom}
+        AND p."deletedAt" IS NULL
+      GROUP BY DATE_TRUNC('month', p."createdAt")
       ORDER BY month
     `,
     db.policy.count({

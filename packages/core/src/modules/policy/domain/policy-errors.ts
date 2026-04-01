@@ -30,10 +30,22 @@ export class DuplicatePolicyError extends Error {
   }
 }
 
+export class PolicyMissingInsurerError extends Error {
+  readonly code = 'POLICY_MISSING_INSURER' as const
+  constructor(proposalId: string) {
+    super(
+      `Proposta ${proposalId} não possui seguradora definida — selecione uma para emitir a apólice`
+    )
+    this.name = 'PolicyMissingInsurerError'
+  }
+}
+
 export const PolicyErrors = {
   notFound: (id: string) => new PolicyNotFoundError(id),
   alreadyCancelled: (id: string) => new PolicyAlreadyCancelledError(id),
   notIssuable: (proposalId: string) => new PolicyNotIssuableError(proposalId),
   duplicatePolicy: (policyNumber: string) =>
     new DuplicatePolicyError(policyNumber),
+  missingInsurer: (proposalId: string) =>
+    new PolicyMissingInsurerError(proposalId),
 }

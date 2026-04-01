@@ -41,6 +41,7 @@ export function useIssuePolicy() {
       policyNumber: string
       startDate: string
       endDate: string
+      insurerId?: string
     }) => {
       const response = await issuePolicy(values)
       return response.data.data

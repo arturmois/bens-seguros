@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 
@@ -53,14 +53,31 @@ export function ClientForm({
   }, [open, defaultValues, form])
 
   function handleSubmit(values: ClientFormValues) {
+    const sm = values.socialMedia
+    const cleanedSocialMedia = sm
+      ? {
+          ...(sm.instagram ? { instagram: sm.instagram } : {}),
+          ...(sm.facebook ? { facebook: sm.facebook } : {}),
+          ...(sm.linkedin ? { linkedin: sm.linkedin } : {}),
+          ...(sm.tiktok ? { tiktok: sm.tiktok } : {}),
+        }
+      : undefined
+
+    const hasSocialMedia =
+      cleanedSocialMedia && Object.keys(cleanedSocialMedia).length > 0
+    const payload: ClientFormValues = {
+      ...values,
+      socialMedia: hasSocialMedia ? cleanedSocialMedia : undefined,
+    }
+
     if (isEditMode && clientId) {
       updateClient.mutate(
-        { id: clientId, values },
+        { id: clientId, values: payload },
         { onSuccess: () => onOpenChange(false) }
       )
       return
     }
-    createClient.mutate(values, {
+    createClient.mutate(payload, {
       onSuccess: () => onOpenChange(false),
     })
   }
@@ -79,26 +96,28 @@ export function ClientForm({
           </SheetDescription>
         </SheetHeader>
 
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="mt-6 space-y-4 px-6"
-        >
-          <ClientFormFields form={form} isReadOnly={isEditMode} />
+        <FormProvider {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="mt-6 space-y-4 px-6"
+          >
+            <ClientFormFields isReadOnly={isEditMode} />
 
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isEditMode ? 'Salvar' : 'Criar Cliente'}
-            </Button>
-          </div>
-        </form>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isEditMode ? 'Salvar' : 'Criar Cliente'}
+              </Button>
+            </div>
+          </form>
+        </FormProvider>
       </SheetContent>
     </Sheet>
   )

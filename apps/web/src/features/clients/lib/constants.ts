@@ -70,4 +70,10 @@ export const EMPTY_FORM_VALUES = {
   phone: '',
   birthDate: '',
   profession: '',
+  socialMedia: {
+    instagram: '',
+    facebook: '',
+    linkedin: '',
+    tiktok: '',
+  },
 }

@@ -7,6 +7,7 @@
 import type { CreateClientBodyAddress } from './createClientBodyAddress'
 import type { CreateClientBodyMaritalStatus } from './createClientBodyMaritalStatus'
 import type { CreateClientBodyType } from './createClientBodyType'
+import type { ClientSocialMedia } from './clientSocialMedia'
 
 export type CreateClientBody = {
   /** @minLength 2 */
@@ -25,4 +26,5 @@ export type CreateClientBody = {
   address?: CreateClientBodyAddress
   tags?: string[]
   consentLgpd?: boolean
+  socialMedia?: ClientSocialMedia
 }

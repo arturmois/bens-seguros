@@ -1,5 +1,7 @@
 'use client'
 
+import { cloneElement, isValidElement, useId } from 'react'
+
 import { Label } from '@/components/ui/label'
 
 interface FormFieldProps {
@@ -15,15 +17,28 @@ export function FormField({
   required,
   children,
 }: FormFieldProps) {
+  const id = useId()
+  const errorId = `${id}-error`
+
+  const childProps: Record<string, string> = { id }
+  if (error) {
+    childProps['aria-describedby'] = errorId
+    childProps['aria-invalid'] = 'true'
+  }
+
+  const enhancedChildren = isValidElement(children)
+    ? cloneElement(children, childProps)
+    : children
+
   return (
     <div className="space-y-2">
-      <Label>
+      <Label htmlFor={id}>
         {label}
         {required && <span className="text-destructive ml-1">*</span>}
       </Label>
-      <div aria-required={required || undefined}>{children}</div>
+      {enhancedChildren}
       {error && (
-        <p role="alert" className="text-destructive text-sm">
+        <p id={errorId} role="alert" className="text-destructive text-sm">
           {error}
         </p>
       )}
