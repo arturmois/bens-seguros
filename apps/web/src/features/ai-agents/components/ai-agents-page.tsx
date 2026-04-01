@@ -137,7 +137,7 @@ function AiAgentsContent({
           </EmptyMedia>
           <EmptyTitle>Erro ao carregar agentes</EmptyTitle>
           <EmptyDescription>
-            Nao foi possivel carregar os agentes. Tente novamente.
+            Não foi possível carregar os agentes. Tente novamente.
           </EmptyDescription>
         </EmptyHeader>
         <Button variant="outline" onClick={onRetry}>

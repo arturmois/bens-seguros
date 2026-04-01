@@ -4,8 +4,8 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
+import type { ListClients200DataItemSocialMedia } from './listClients200DataItemSocialMedia'
 import type { ListClients200DataItemType } from './listClients200DataItemType'
-import type { ClientSocialMedia } from './clientSocialMedia'
 
 export type ListClients200DataItem = {
   id: string
@@ -19,5 +19,5 @@ export type ListClients200DataItem = {
   phone?: string | null
   createdAt: string
   /** @nullable */
-  socialMedia?: ClientSocialMedia | null
+  socialMedia?: ListClients200DataItemSocialMedia
 }

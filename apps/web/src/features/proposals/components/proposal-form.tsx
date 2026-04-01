@@ -113,7 +113,7 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
                   <span className="text-destructive ml-1">*</span>
                 </Label>
                 <Select
-                  value={field.value}
+                  value={field.value ?? ''}
                   onValueChange={field.onChange}
                   items={BRANCH_OPTIONS}
                 >
@@ -147,7 +147,7 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
                   <span className="text-destructive ml-1">*</span>
                 </Label>
                 <Select
-                  value={field.value}
+                  value={field.value ?? ''}
                   onValueChange={field.onChange}
                   items={BOARD_TYPE_OPTIONS}
                 >

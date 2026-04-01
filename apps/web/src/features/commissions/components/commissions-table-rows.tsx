@@ -143,7 +143,7 @@ function EmptyRow() {
             </p>
           </div>
           <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/proposals">Ver propostas</Link>
+            <Link href="/proposals">Ver propostas</Link>
           </Button>
         </div>
       </TableCell>

@@ -43,7 +43,7 @@ export const MARITAL_OPTIONS: readonly SelectOption<MaritalStatus>[] = [
   { value: 'SINGLE', label: 'Solteiro(a)' },
   { value: 'MARRIED', label: 'Casado(a)' },
   { value: 'DIVORCED', label: 'Divorciado(a)' },
-  { value: 'WIDOWED', label: 'Viuvo(a)' },
+  { value: 'WIDOWED', label: 'Viúvo(a)' },
   { value: 'OTHER', label: 'Outro' },
 ] as const
 
@@ -70,10 +70,5 @@ export const EMPTY_FORM_VALUES = {
   phone: '',
   birthDate: '',
   profession: '',
-  socialMedia: {
-    instagram: '',
-    facebook: '',
-    linkedin: '',
-    tiktok: '',
-  },
+  socialMedia: undefined,
 }

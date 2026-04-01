@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs'
 import { DocumentList } from '@/features/documents/components/document-list'
 import { DocumentUpload } from '@/features/documents/components/document-upload'
 
+import { formatDocument } from '@/lib/masks'
 import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
 import { useClient, useDeleteClient } from '../hooks/use-clients'
 import { ClientForm } from './client-form'
@@ -106,7 +107,9 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
                 {TYPE_LABELS[client.type]}
               </Badge>
             </div>
-            <p className="text-muted-foreground text-sm">{client.document}</p>
+            <p className="text-muted-foreground text-sm">
+              {formatDocument(client.document)}
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -181,12 +184,14 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
             : '',
           profession: client.profession ?? '',
           maritalStatus: client.maritalStatus ?? undefined,
-          socialMedia: {
-            instagram: client.socialMedia?.instagram ?? '',
-            facebook: client.socialMedia?.facebook ?? '',
-            linkedin: client.socialMedia?.linkedin ?? '',
-            tiktok: client.socialMedia?.tiktok ?? '',
-          },
+          socialMedia: client.socialMedia
+            ? {
+                instagram: client.socialMedia.instagram ?? '',
+                facebook: client.socialMedia.facebook ?? '',
+                linkedin: client.socialMedia.linkedin ?? '',
+                tiktok: client.socialMedia.tiktok ?? '',
+              }
+            : undefined,
         }}
       />
 

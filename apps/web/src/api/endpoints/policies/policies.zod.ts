@@ -157,6 +157,7 @@ export const IssuePolicyBody = zod.object({
   startDate: zod.string().datetime({}),
   endDate: zod.string().datetime({}),
   coverageDetails: zod.record(zod.string(), zod.unknown()).optional(),
+  insurerId: zod.union([zod.enum(['']), zod.string()]).optional(),
 })
 
 /**

@@ -6,8 +6,8 @@
  */
 import type { UpdateClientBodyAddress } from './updateClientBodyAddress'
 import type { UpdateClientBodyMaritalStatus } from './updateClientBodyMaritalStatus'
+import type { UpdateClientBodySocialMedia } from './updateClientBodySocialMedia'
 import type { UpdateClientBodyType } from './updateClientBodyType'
-import type { ClientSocialMedia } from './clientSocialMedia'
 
 export type UpdateClientBody = {
   /** @minLength 2 */
@@ -21,5 +21,5 @@ export type UpdateClientBody = {
   address?: UpdateClientBodyAddress
   tags?: string[]
   consentLgpd?: boolean
-  socialMedia?: ClientSocialMedia
+  socialMedia?: UpdateClientBodySocialMedia
 }

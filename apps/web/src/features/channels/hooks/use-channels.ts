@@ -118,6 +118,9 @@ export function useValidateMetaChannel() {
       )
       return response.data
     },
+    onError: () => {
+      toast.error('Erro ao validar canal Meta')
+    },
   })
 }
 

@@ -54,7 +54,7 @@ interface IssuePolicySheetProps {
 
 function parseDateString(value: string | undefined): Date | undefined {
   if (!value) return undefined
-  const date = new Date(`${value}T00:00:00Z`)
+  const date = new Date(value)
   if (Number.isNaN(date.getTime())) return undefined
   return date
 }
@@ -132,7 +132,12 @@ export function IssuePolicySheet({
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione a seguradora" />
+                    <SelectValue placeholder="Selecione a seguradora">
+                      {(value: string | null) => {
+                        const item = insurers.find((i) => i.id === value)
+                        return item?.name ?? null
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {insurers.map((insurer) => (

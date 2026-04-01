@@ -1,6 +1,7 @@
 'use client'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 import {
   useGetProposalChecklist,
@@ -28,6 +29,9 @@ export function useCompleteChecklistItem(proposalId: string) {
       void queryClient.invalidateQueries({
         queryKey: getGetProposalChecklistQueryKey(proposalId),
       })
+    },
+    onError: () => {
+      toast.error('Erro ao completar item do checklist')
     },
   })
 }

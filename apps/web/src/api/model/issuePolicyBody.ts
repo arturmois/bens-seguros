@@ -14,4 +14,5 @@ export type IssuePolicyBody = {
   startDate: string
   endDate: string
   coverageDetails?: IssuePolicyBodyCoverageDetails
+  insurerId?: '' | string
 }

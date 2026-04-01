@@ -138,7 +138,7 @@ export function ChannelQrDialog({
         return
       }
 
-      setPairingError(data.error ?? 'Erro ao gerar codigo de pareamento')
+      setPairingError(data.error ?? 'Erro ao gerar código de pareamento')
     },
     [channel]
   )
@@ -219,7 +219,7 @@ export function ChannelQrDialog({
       })
       .catch(() => {
         setPairingLoading(false)
-        setPairingError('Erro ao solicitar codigo de pareamento')
+        setPairingError('Erro ao solicitar código de pareamento')
       })
   }, [channel, phoneInput])
 
@@ -246,7 +246,7 @@ export function ChannelQrDialog({
               </TabsTab>
               <TabsTab value="pairing">
                 <Smartphone className="size-4" />
-                Codigo de Pareamento
+                Código de Pareamento
               </TabsTab>
             </TabsList>
 

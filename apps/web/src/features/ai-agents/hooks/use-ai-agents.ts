@@ -108,7 +108,7 @@ export function useDeleteAiAgent() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [AI_AGENTS_KEY] })
-      toast.success('Agente excluido com sucesso')
+      toast.success('Agente excluído com sucesso')
     },
     onError: () => {
       toast.error('Erro ao excluir agente')

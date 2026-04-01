@@ -14,15 +14,6 @@ export const createClientBodyNameMin = 2
 export const createClientBodyDocumentMin = 11
 export const createClientBodyDocumentMax = 14
 
-const socialMediaBody = zod
-  .object({
-    instagram: zod.string().optional(),
-    facebook: zod.string().optional(),
-    linkedin: zod.string().optional(),
-    tiktok: zod.string().optional(),
-  })
-  .optional()
-
 export const CreateClientBody = zod.object({
   name: zod.string().min(createClientBodyNameMin),
   document: zod
@@ -40,7 +31,14 @@ export const CreateClientBody = zod.object({
   address: zod.record(zod.string(), zod.string()).optional(),
   tags: zod.array(zod.string()).optional(),
   consentLgpd: zod.boolean().optional(),
-  socialMedia: socialMediaBody,
+  socialMedia: zod
+    .object({
+      instagram: zod.union([zod.enum(['']), zod.string()]).optional(),
+      facebook: zod.union([zod.enum(['']), zod.string()]).optional(),
+      linkedin: zod.union([zod.enum(['']), zod.string()]).optional(),
+      tiktok: zod.union([zod.enum(['']), zod.string()]).optional(),
+    })
+    .optional(),
 })
 
 /**
@@ -72,7 +70,14 @@ export const ListClientsResponse = zod.object({
       email: zod.string().nullish(),
       phone: zod.string().nullish(),
       createdAt: zod.string().datetime({}),
-      socialMedia: socialMediaBody.nullable(),
+      socialMedia: zod
+        .object({
+          instagram: zod.union([zod.enum(['']), zod.string()]).optional(),
+          facebook: zod.union([zod.enum(['']), zod.string()]).optional(),
+          linkedin: zod.union([zod.enum(['']), zod.string()]).optional(),
+          tiktok: zod.union([zod.enum(['']), zod.string()]).optional(),
+        })
+        .nullish(),
     })
   ),
   meta: zod.object({
@@ -170,6 +175,14 @@ export const GetClientResponse = zod.object({
     email: zod.string().nullish(),
     phone: zod.string().nullish(),
     createdAt: zod.string().datetime({}),
+    socialMedia: zod
+      .object({
+        instagram: zod.union([zod.enum(['']), zod.string()]).optional(),
+        facebook: zod.union([zod.enum(['']), zod.string()]).optional(),
+        linkedin: zod.union([zod.enum(['']), zod.string()]).optional(),
+        tiktok: zod.union([zod.enum(['']), zod.string()]).optional(),
+      })
+      .nullish(),
     consentLgpd: zod.boolean(),
     updatedAt: zod.string().datetime({}),
     birthDate: zod.string().datetime({}).nullish(),
@@ -180,7 +193,6 @@ export const GetClientResponse = zod.object({
     address: zod
       .record(zod.string(), zod.union([zod.unknown(), zod.string()]))
       .nullish(),
-    socialMedia: socialMediaBody.nullable(),
   }),
 })
 
@@ -207,7 +219,14 @@ export const UpdateClientBody = zod.object({
   address: zod.record(zod.string(), zod.string()).optional(),
   tags: zod.array(zod.string()).optional(),
   consentLgpd: zod.boolean().optional(),
-  socialMedia: socialMediaBody,
+  socialMedia: zod
+    .object({
+      instagram: zod.union([zod.enum(['']), zod.string()]).optional(),
+      facebook: zod.union([zod.enum(['']), zod.string()]).optional(),
+      linkedin: zod.union([zod.enum(['']), zod.string()]).optional(),
+      tiktok: zod.union([zod.enum(['']), zod.string()]).optional(),
+    })
+    .optional(),
 })
 
 export const UpdateClientResponse = zod.object({
@@ -221,6 +240,14 @@ export const UpdateClientResponse = zod.object({
     email: zod.string().nullish(),
     phone: zod.string().nullish(),
     createdAt: zod.string().datetime({}),
+    socialMedia: zod
+      .object({
+        instagram: zod.union([zod.enum(['']), zod.string()]).optional(),
+        facebook: zod.union([zod.enum(['']), zod.string()]).optional(),
+        linkedin: zod.union([zod.enum(['']), zod.string()]).optional(),
+        tiktok: zod.union([zod.enum(['']), zod.string()]).optional(),
+      })
+      .nullish(),
     consentLgpd: zod.boolean(),
     updatedAt: zod.string().datetime({}),
     birthDate: zod.string().datetime({}).nullish(),
@@ -231,7 +258,6 @@ export const UpdateClientResponse = zod.object({
     address: zod
       .record(zod.string(), zod.union([zod.unknown(), zod.string()]))
       .nullish(),
-    socialMedia: socialMediaBody.nullable(),
   }),
 })
 

@@ -20,18 +20,18 @@ export function NewAssistanceContent() {
           className="gap-1"
         >
           <ArrowLeft className="h-4 w-4" />
-          Assistencias
+          Assistências
         </Button>
         <span className="text-muted-foreground">/</span>
-        <span className="text-muted-foreground">Nova Assistencia</span>
+        <span className="text-muted-foreground">Nova Assistência</span>
       </nav>
 
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">
-          Nova Assistencia
+          Nova Assistência
         </h1>
         <p className="text-muted-foreground text-sm">
-          Preencha os dados para registrar uma nova assistencia.
+          Preencha os dados para registrar uma nova assistência.
         </p>
       </div>
 

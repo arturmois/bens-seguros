@@ -6,8 +6,8 @@
  */
 import type { CreateClient201DataAddress } from './createClient201DataAddress'
 import type { CreateClient201DataMaritalStatus } from './createClient201DataMaritalStatus'
+import type { CreateClient201DataSocialMedia } from './createClient201DataSocialMedia'
 import type { CreateClient201DataType } from './createClient201DataType'
-import type { ClientSocialMedia } from './clientSocialMedia'
 
 export type CreateClient201Data = {
   id: string
@@ -20,6 +20,8 @@ export type CreateClient201Data = {
   /** @nullable */
   phone?: string | null
   createdAt: string
+  /** @nullable */
+  socialMedia?: CreateClient201DataSocialMedia
   consentLgpd: boolean
   updatedAt: string
   /** @nullable */
@@ -30,6 +32,4 @@ export type CreateClient201Data = {
   maritalStatus?: CreateClient201DataMaritalStatus
   /** @nullable */
   address?: CreateClient201DataAddress
-  /** @nullable */
-  socialMedia?: ClientSocialMedia | null
 }

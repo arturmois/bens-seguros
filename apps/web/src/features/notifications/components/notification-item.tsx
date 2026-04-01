@@ -75,7 +75,7 @@ export function NotificationItem({
           onMarkAsRead(notification.id)
         }
       }}
-      aria-label={`${notification.read ? '' : 'Nova '}notificacao: ${notification.title}`}
+      aria-label={`${notification.read ? '' : 'Nova '}notificação: ${notification.title}`}
     >
       <Icon className={cn('mt-0.5 size-4 shrink-0', iconColor)} />
       <div className="min-w-0 flex-1">
