@@ -18,16 +18,16 @@ const CLIENT_TYPE_VALUES = ['LEAD', 'CLIENT', 'FORMER_CLIENT'] as const
 
 const socialMediaSchema = z
   .object({
-    instagram: z.string().min(1).optional(),
-    facebook: z.string().min(1).optional(),
-    linkedin: z.string().min(1).optional(),
-    tiktok: z.string().min(1).optional(),
+    instagram: optionalString,
+    facebook: optionalString,
+    linkedin: optionalString,
+    tiktok: optionalString,
   })
   .optional()
 
 export const createClientBodySchema = z.object({
-  name: z.string().min(2),
-  document: z.string().min(11).max(14),
+  name: z.string().trim().min(2),
+  document: z.string().trim().min(11).max(14),
   type: z.enum(CLIENT_TYPE_VALUES).optional(),
   email: optionalEmail,
   phone: optionalString,
