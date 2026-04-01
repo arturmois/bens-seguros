@@ -20,6 +20,7 @@ export const issuePolicyBody = z
     startDate: z.coerce.date(),
     endDate: z.coerce.date(),
     coverageDetails: z.record(z.unknown()).optional(),
+    insurerId: z.string().min(1).optional(),
   })
   .refine((d) => d.endDate > d.startDate, {
     message: 'Data de fim deve ser posterior à data de início',

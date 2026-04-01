@@ -5,11 +5,18 @@ import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import type { z } from 'zod'
+import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Sheet,
   SheetContent,
@@ -19,12 +26,15 @@ import {
 } from '@/components/ui/sheet'
 
 import { IssuePolicyBody } from '@/api/endpoints/policies/policies.zod'
+import { useListInsurers } from '@/api/endpoints/insurers/insurers'
 import { FormField } from '@/components/shared/form-field'
 import { useIssuePolicy } from '@/features/policies/hooks/use-policies'
 
 const issuePolicyFormSchema = IssuePolicyBody.omit({
   proposalId: true,
   coverageDetails: true,
+}).extend({
+  insurerId: z.string().min(1, 'Selecione uma seguradora'),
 })
 
 type IssuePolicyFormValues = z.infer<typeof issuePolicyFormSchema>
@@ -33,6 +43,7 @@ const EMPTY_VALUES: IssuePolicyFormValues = {
   policyNumber: '',
   startDate: '',
   endDate: '',
+  insurerId: '',
 }
 
 interface IssuePolicySheetProps {
@@ -60,6 +71,8 @@ export function IssuePolicySheet({
 }: IssuePolicySheetProps) {
   const router = useRouter()
   const issuePolicy = useIssuePolicy()
+  const { data: insurersResponse } = useListInsurers({ active: true })
+  const insurers = insurersResponse?.data.data ?? []
 
   const form = useForm<IssuePolicyFormValues>({
     resolver: zodResolver(issuePolicyFormSchema),
@@ -105,6 +118,31 @@ export function IssuePolicySheet({
             <Input
               placeholder="Ex: AUTO-2026-001"
               {...form.register('policyNumber')}
+            />
+          </FormField>
+
+          <FormField
+            label="Seguradora"
+            error={form.formState.errors.insurerId?.message}
+            required
+          >
+            <Controller
+              name="insurerId"
+              control={form.control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a seguradora" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {insurers.map((insurer) => (
+                      <SelectItem key={insurer.id} value={insurer.id}>
+                        {insurer.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             />
           </FormField>
 

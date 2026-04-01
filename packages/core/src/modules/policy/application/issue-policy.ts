@@ -18,6 +18,7 @@ interface IssuePolicyDTO {
   startDate: Date
   endDate: Date
   coverageDetails?: CoverageDetails
+  insurerId?: string
 }
 
 @injectable()
@@ -48,7 +49,7 @@ export class IssuePolicy {
       proposalId: dto.proposalId,
       clientId: proposal.clientId,
       salespersonId: proposal.salespersonId,
-      insurerId: proposal.insurerId,
+      insurerId: dto.insurerId ?? proposal.insurerId,
       policyNumber: dto.policyNumber,
       status: 'ACTIVE',
       branch: proposal.branch,

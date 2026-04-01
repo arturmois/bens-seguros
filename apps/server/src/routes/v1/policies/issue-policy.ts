@@ -30,10 +30,11 @@ export function issuePolicyRoute(app: FastifyInstance) {
     handler: async (request, reply) => {
       const useCase = container.resolve(IssuePolicy)
       try {
-        const { coverageDetails, ...rest } = request.body
+        const { coverageDetails, insurerId, ...rest } = request.body
         const policy = await useCase.execute({
           organizationId: request.organizationId!,
           ...rest,
+          insurerId,
           coverageDetails: coverageDetails
             ? JSON.parse(JSON.stringify(coverageDetails))
             : undefined,
