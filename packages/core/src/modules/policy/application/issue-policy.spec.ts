@@ -148,6 +148,47 @@ describe('IssuePolicy', () => {
     expect(policyRepo.create).not.toHaveBeenCalled()
   })
 
+  it('uses provided insurerId when given', async () => {
+    const proposal = createProposalAtStage('POLICY_ISSUED')
+    const policyRepo = createMockPolicyRepo()
+    const proposalRepo = createMockProposalRepo(proposal)
+    const onPolicyIssued = createMockOnPolicyIssued()
+    const useCase = new IssuePolicy(policyRepo, proposalRepo, onPolicyIssued)
+
+    await useCase.execute({
+      organizationId: 'org-1',
+      proposalId: proposal.id,
+      policyNumber: 'POL-2024-001',
+      startDate: new Date('2024-01-01'),
+      endDate: new Date('2025-01-01'),
+      insurerId: 'ins-override',
+    })
+
+    expect(policyRepo.create).toHaveBeenCalledWith(
+      expect.objectContaining({ insurerId: 'ins-override' })
+    )
+  })
+
+  it('falls back to proposal insurerId when not provided', async () => {
+    const proposal = createProposalAtStage('POLICY_ISSUED')
+    const policyRepo = createMockPolicyRepo()
+    const proposalRepo = createMockProposalRepo(proposal)
+    const onPolicyIssued = createMockOnPolicyIssued()
+    const useCase = new IssuePolicy(policyRepo, proposalRepo, onPolicyIssued)
+
+    await useCase.execute({
+      organizationId: 'org-1',
+      proposalId: proposal.id,
+      policyNumber: 'POL-2024-001',
+      startDate: new Date('2024-01-01'),
+      endDate: new Date('2025-01-01'),
+    })
+
+    expect(policyRepo.create).toHaveBeenCalledWith(
+      expect.objectContaining({ insurerId: proposal.insurerId })
+    )
+  })
+
   it('throws PolicyNotIssuableError when proposal is not at POLICY_ISSUED stage', async () => {
     const proposal = createProposalAtStage('CAPTURE')
     const policyRepo = createMockPolicyRepo()
