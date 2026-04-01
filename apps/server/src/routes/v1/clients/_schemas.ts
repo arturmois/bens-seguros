@@ -18,10 +18,10 @@ const CLIENT_TYPE_VALUES = ['LEAD', 'CLIENT', 'FORMER_CLIENT'] as const
 
 const socialMediaSchema = z
   .object({
-    instagram: z.string().optional(),
-    facebook: z.string().optional(),
-    linkedin: z.string().optional(),
-    tiktok: z.string().optional(),
+    instagram: z.string().min(1).optional(),
+    facebook: z.string().min(1).optional(),
+    linkedin: z.string().min(1).optional(),
+    tiktok: z.string().min(1).optional(),
   })
   .optional()
 

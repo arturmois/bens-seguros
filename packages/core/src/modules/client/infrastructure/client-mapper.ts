@@ -16,12 +16,23 @@ import pino from 'pino'
 
 const logger = pino({ name: 'client-mapper' })
 
-function isAddressObject(value: unknown): value is ClientAddress {
+function isJsonObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
+function isAddressObject(value: unknown): value is ClientAddress {
+  return isJsonObject(value)
+}
+
 function isSocialMediaObject(value: unknown): value is ClientSocialMedia {
-  return value !== null && typeof value === 'object' && !Array.isArray(value)
+  return (
+    isJsonObject(value) &&
+    ('instagram' in value ||
+      'facebook' in value ||
+      'linkedin' in value ||
+      'tiktok' in value ||
+      Object.keys(value).length === 0)
+  )
 }
 
 function isEncryptedField(value: unknown): value is EncryptedField {

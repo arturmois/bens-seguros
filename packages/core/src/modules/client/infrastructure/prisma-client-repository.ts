@@ -40,7 +40,7 @@ export class PrismaClientRepository implements ClientRepository {
         socialMedia:
           data.socialMedia === null || data.socialMedia === undefined
             ? Prisma.JsonNull
-            : (data.socialMedia as Prisma.InputJsonObject),
+            : data.socialMedia,
         tags: data.tags ?? [],
         consentLgpd: data.consentLgpd ?? false,
         salespersonId: data.salespersonId ?? null,
@@ -135,9 +135,7 @@ export class PrismaClientRepository implements ClientRepository {
     }
     if (data.socialMedia !== undefined) {
       updateData.socialMedia =
-        data.socialMedia === null
-          ? Prisma.JsonNull
-          : (data.socialMedia as Prisma.InputJsonObject)
+        data.socialMedia === null ? Prisma.JsonNull : data.socialMedia
     }
 
     const row = await this.prisma.client.update({

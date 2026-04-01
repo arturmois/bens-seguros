@@ -207,7 +207,7 @@ export function ClientFormFields({ form, isReadOnly }: ClientFormFieldsProps) {
         />
       </FormField>
 
-      <SocialMediaFields form={form} />
+      <SocialMediaFields form={form} isReadOnly={isReadOnly} />
     </>
   )
 }

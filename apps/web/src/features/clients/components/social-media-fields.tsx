@@ -12,9 +12,13 @@ type ClientFormValues = z.infer<typeof CreateClientBody>
 
 interface SocialMediaFieldsProps {
   readonly form: UseFormReturn<ClientFormValues>
+  readonly isReadOnly?: boolean
 }
 
-export function SocialMediaFields({ form }: SocialMediaFieldsProps) {
+export function SocialMediaFields({
+  form,
+  isReadOnly,
+}: SocialMediaFieldsProps) {
   return (
     <div className="pt-2">
       <p className="mb-3 text-sm font-medium">Redes Sociais</p>
@@ -25,6 +29,7 @@ export function SocialMediaFields({ form }: SocialMediaFieldsProps) {
         >
           <Input
             placeholder="@perfil"
+            disabled={isReadOnly}
             {...form.register('socialMedia.instagram')}
           />
         </FormField>
@@ -35,6 +40,7 @@ export function SocialMediaFields({ form }: SocialMediaFieldsProps) {
         >
           <Input
             placeholder="URL ou nome do perfil"
+            disabled={isReadOnly}
             {...form.register('socialMedia.facebook')}
           />
         </FormField>
@@ -45,6 +51,7 @@ export function SocialMediaFields({ form }: SocialMediaFieldsProps) {
         >
           <Input
             placeholder="URL do perfil"
+            disabled={isReadOnly}
             {...form.register('socialMedia.linkedin')}
           />
         </FormField>
@@ -55,6 +62,7 @@ export function SocialMediaFields({ form }: SocialMediaFieldsProps) {
         >
           <Input
             placeholder="@perfil"
+            disabled={isReadOnly}
             {...form.register('socialMedia.tiktok')}
           />
         </FormField>

@@ -43,13 +43,18 @@ export class IssuePolicy {
       throw PolicyErrors.notIssuable(dto.proposalId)
     }
 
+    const insurerId = dto.insurerId ?? proposal.insurerId
+    if (!insurerId) {
+      throw PolicyErrors.missingInsurer(dto.proposalId)
+    }
+
     const policy = await this.policyRepo.create({
       id: randomUUID(),
       organizationId: dto.organizationId,
       proposalId: dto.proposalId,
       clientId: proposal.clientId,
       salespersonId: proposal.salespersonId,
-      insurerId: dto.insurerId ?? proposal.insurerId,
+      insurerId,
       policyNumber: dto.policyNumber,
       status: 'ACTIVE',
       branch: proposal.branch,
