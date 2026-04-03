@@ -57,7 +57,10 @@ export class PrismaInsurerRepository implements InsurerRepository {
       organizationId: filters.organizationId,
       ...(filters.active !== undefined && { active: filters.active }),
       ...(filters.search && {
-        name: { contains: filters.search, mode: 'insensitive' },
+        OR: [
+          { name: { contains: filters.search, mode: 'insensitive' } },
+          { code: { contains: filters.search, mode: 'insensitive' } },
+        ],
       }),
     }
 
