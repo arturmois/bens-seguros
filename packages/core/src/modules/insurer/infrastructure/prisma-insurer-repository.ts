@@ -9,6 +9,7 @@ import type {
   CreateInsurerInput,
   UpdateInsurerInput,
 } from '../domain/insurer-repository.js'
+import { InsurerErrors } from '../domain/insurer-errors.js'
 import { InsurerMapper } from './insurer-mapper.js'
 
 @injectable()
@@ -89,10 +90,22 @@ export class PrismaInsurerRepository implements InsurerRepository {
       updateData.active = data.active
     }
 
-    const row = await this.prisma.insurer.update({
-      where: { id: data.id },
+    const result = await this.prisma.insurer.updateMany({
+      where: { id: data.id, organizationId: data.organizationId },
       data: updateData,
     })
+
+    if (result.count === 0) {
+      throw InsurerErrors.notFound(data.id)
+    }
+
+    const row = await this.prisma.insurer.findFirst({
+      where: { id: data.id, organizationId: data.organizationId },
+    })
+
+    if (!row) {
+      throw InsurerErrors.notFound(data.id)
+    }
 
     return InsurerMapper.toDomain(row)
   }

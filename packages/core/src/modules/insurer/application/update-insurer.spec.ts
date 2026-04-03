@@ -111,8 +111,9 @@ describe('UpdateInsurer', () => {
 })
 
 describe('PrismaInsurerRepository', () => {
-  it('preserves the existing code when updating without code', async () => {
-    const update = vi.fn().mockResolvedValue(
+  it('preserves the existing code and enforces organizationId when updating without code', async () => {
+    const updateMany = vi.fn().mockResolvedValue({ count: 1 })
+    const findFirst = vi.fn().mockResolvedValue(
       makeInsurer({
         id: 'ins-1',
         code: 'BRK',
@@ -121,7 +122,8 @@ describe('PrismaInsurerRepository', () => {
     )
     const prisma = {
       insurer: {
-        update,
+        updateMany,
+        findFirst,
       },
     } as unknown as PrismaClient
     const repo = new PrismaInsurerRepository(prisma)
@@ -133,12 +135,15 @@ describe('PrismaInsurerRepository', () => {
       active: false,
     })
 
-    expect(update).toHaveBeenCalledWith({
-      where: { id: 'ins-1' },
+    expect(updateMany).toHaveBeenCalledWith({
+      where: { id: 'ins-1', organizationId: 'org-1' },
       data: {
         name: 'Bradesco',
         active: false,
       },
+    })
+    expect(findFirst).toHaveBeenCalledWith({
+      where: { id: 'ins-1', organizationId: 'org-1' },
     })
     expect(result.code).toBe('BRK')
   })
