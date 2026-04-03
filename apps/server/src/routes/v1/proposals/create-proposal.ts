@@ -3,6 +3,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditCreate } from '../../../services/audit-logger.js'
+import { handleDomainError } from '../handle-domain-error.js'
 import {
   createProposalBody,
   proposalDetailResponse,
@@ -18,23 +19,33 @@ export function createProposalRoute(app: FastifyInstance) {
       summary: 'Create a new proposal',
       operationId: 'createProposal',
       body: createProposalBody,
-      response: { 201: proposalDetailResponse, 400: errorResponse },
+      response: {
+        201: proposalDetailResponse,
+        400: errorResponse,
+        422: errorResponse,
+      },
     },
     preHandler: [requireAbility('create', 'Proposal')],
     handler: async (request, reply) => {
       const useCase = container.resolve(CreateProposal)
-      const proposal = await useCase.execute({
-        organizationId: request.organizationId!,
-        salespersonId: request.user!.id,
-        ...request.body,
-      })
-      auditCreate({
-        request,
-        entityType: 'Proposal',
-        entityId: proposal.id,
-        after: proposal,
-      })
-      return reply.status(201).send({ success: true, data: proposal.toJSON() })
+      try {
+        const proposal = await useCase.execute({
+          organizationId: request.organizationId!,
+          salespersonId: request.user!.id,
+          ...request.body,
+        })
+        auditCreate({
+          request,
+          entityType: 'Proposal',
+          entityId: proposal.id,
+          after: proposal,
+        })
+        return reply
+          .status(201)
+          .send({ success: true, data: proposal.toJSON() })
+      } catch (error) {
+        return handleDomainError(error, reply)
+      }
     },
   })
 }
