@@ -4,14 +4,28 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
-import type { CreateProposalBodyBoardType } from './createProposalBodyBoardType'
-import type { CreateProposalBodyBranch } from './createProposalBodyBranch'
 
-export type CreateProposalBody = {
-  /** @minLength 1 */
-  clientId: string
-  branch: CreateProposalBodyBranch
-  boardType: CreateProposalBodyBoardType
-  renewalPolicyId?: string
-  insurerId?: string
-}
+export type CreateProposalBody =
+  | {
+      /** @minLength 1 */
+      clientId: string
+      branch:
+        | 'AUTO'
+        | 'RESIDENTIAL'
+        | 'CONDOMINIUM'
+        | 'BUSINESS'
+        | 'LIFE'
+        | 'OTHER'
+      boardType: 'NEW_INSURANCE' | 'RENEWAL'
+      renewalPolicyId?: string
+      insurerId?: string
+    }
+  | {
+      boardType: 'ENDORSEMENT'
+      /** @minLength 1 */
+      sourcePolicyId: string
+      /** @minLength 1 */
+      endorsementType: string
+      /** @minLength 1 */
+      endorsementReason: string
+    }

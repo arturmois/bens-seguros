@@ -119,6 +119,7 @@ export const BRANCH_LABELS: Record<InsuranceBranch, string> = {
 export const BOARD_TYPE_LABELS: Record<BoardType, string> = {
   NEW_INSURANCE: 'Novo Seguro',
   RENEWAL: 'Renovação',
+  ENDORSEMENT: 'Endosso',
 }
 
 export const STAGE_BADGE_VARIANT: Record<

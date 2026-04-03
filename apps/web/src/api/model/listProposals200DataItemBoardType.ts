@@ -11,4 +11,5 @@ export type ListProposals200DataItemBoardType =
 export const ListProposals200DataItemBoardType = {
   NEW_INSURANCE: 'NEW_INSURANCE',
   RENEWAL: 'RENEWAL',
+  ENDORSEMENT: 'ENDORSEMENT',
 } as const

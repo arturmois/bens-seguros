@@ -11,4 +11,5 @@ export type ExportProposalsBoardType =
 export const ExportProposalsBoardType = {
   NEW_INSURANCE: 'NEW_INSURANCE',
   RENEWAL: 'RENEWAL',
+  ENDORSEMENT: 'ENDORSEMENT',
 } as const
