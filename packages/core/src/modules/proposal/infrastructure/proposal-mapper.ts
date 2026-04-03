@@ -48,9 +48,10 @@ export class ProposalMapper {
 
   static toPersistence(proposal: Proposal): Omit<
     ProposalProps,
-    'deletedAt' | 'details'
+    'deletedAt' | 'details' | 'sourcePolicySnapshot'
   > & {
     details: Prisma.InputJsonValue | typeof Prisma.DbNull
+    sourcePolicySnapshot: Prisma.InputJsonValue | typeof Prisma.DbNull
   } {
     const json = proposal.toJSON()
     return {

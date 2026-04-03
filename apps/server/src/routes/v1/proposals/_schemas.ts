@@ -21,7 +21,11 @@ export const PROPOSAL_STAGE_VALUES = [
 
 export const proposalStageEnum = z.enum(PROPOSAL_STAGE_VALUES)
 
-export const BOARD_TYPE_VALUES = ['NEW_INSURANCE', 'RENEWAL'] as const
+export const BOARD_TYPE_VALUES = [
+  'NEW_INSURANCE',
+  'RENEWAL',
+  'ENDORSEMENT',
+] as const
 
 export const boardTypeEnum = z.enum(BOARD_TYPE_VALUES)
 
@@ -36,13 +40,25 @@ export const checklistItemIdParam = z.object({
 
 // ── Body schemas ────────────────────────────────────────────────────
 
-export const createProposalBody = z.object({
+const createNewInsuranceOrRenewalProposalBody = z.object({
   clientId: z.string().min(1),
   branch: branchEnum,
-  boardType: boardTypeEnum,
+  boardType: z.enum(['NEW_INSURANCE', 'RENEWAL']),
   renewalPolicyId: z.string().optional(),
   insurerId: z.string().optional(),
 })
+
+const createEndorsementProposalBody = z.object({
+  boardType: z.literal('ENDORSEMENT'),
+  sourcePolicyId: z.string().min(1),
+  endorsementType: z.string().min(1),
+  endorsementReason: z.string().min(1),
+})
+
+export const createProposalBody = z.discriminatedUnion('boardType', [
+  createNewInsuranceOrRenewalProposalBody,
+  createEndorsementProposalBody,
+])
 
 export const markLostBody = z.object({
   reason: z.string().min(1),
