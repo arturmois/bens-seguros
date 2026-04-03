@@ -20,7 +20,7 @@ import { api, ApiError } from '@/lib/api-client'
 
 import type { KanbanFilters } from '../hooks/use-kanban-proposals'
 import type { BoardType, ProposalData, ProposalStage } from '../lib/constants'
-import { BOARD_TYPES, ENDORSEMENT_STAGES, STAGES } from '../lib/constants'
+import { ENDORSEMENT_STAGES, STAGES } from '../lib/constants'
 import { KanbanCard } from './kanban-card'
 import { KanbanCardDetail } from './kanban-card-detail'
 import { KanbanColumn } from './kanban-column'
@@ -85,7 +85,7 @@ function findProposalInCache(
 
 export function ProposalKanban({
   initialBoardType = 'NEW_INSURANCE',
-  allowedBoardTypes = BOARD_TYPES,
+  allowedBoardTypes = ['NEW_INSURANCE', 'RENEWAL'] as const,
   searchPlaceholder,
 }: ProposalKanbanProps) {
   const [boardType, setBoardType] = useState<BoardType>(initialBoardType)

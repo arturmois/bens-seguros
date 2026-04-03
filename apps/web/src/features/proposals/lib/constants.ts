@@ -168,13 +168,3 @@ export const ENDORSEMENT_STAGES: readonly ProposalStage[] = [
   'POLICY_ISSUED',
   'LOST',
 ] as const
-
-export const ENDORSEMENT_STAGE_LABELS: Partial<Record<ProposalStage, string>> =
-  {
-    QUOTE: 'Cotação',
-    PROTOCOL: 'Protocolo',
-    INSPECTION: 'Pendência',
-    PAYMENT: 'Pagamento',
-    POLICY_ISSUED: 'Apólice',
-    LOST: 'Perda',
-  }
