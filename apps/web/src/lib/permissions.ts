@@ -11,6 +11,8 @@ const PERMISSION_MATRIX: Record<string, Role[]> = {
   'proposals:delete': ['OWNER', 'ADMIN', 'MANAGER'],
   'policies:read': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'],
   'policies:create': ['OWNER', 'ADMIN', 'MANAGER'],
+  'insurers:read': ['OWNER', 'ADMIN', 'MANAGER'],
+  'insurers:manage': ['OWNER', 'ADMIN', 'MANAGER'],
   'commissions:read': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'],
   'commissions:approve': ['OWNER', 'ADMIN', 'MANAGER'],
   'claims:read': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'],
