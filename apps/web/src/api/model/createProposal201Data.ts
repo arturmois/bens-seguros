@@ -7,6 +7,7 @@
 import type { CreateProposal201DataBoardType } from './createProposal201DataBoardType'
 import type { CreateProposal201DataBranch } from './createProposal201DataBranch'
 import type { CreateProposal201DataDetails } from './createProposal201DataDetails'
+import type { CreateProposal201DataSourcePolicySnapshot } from './createProposal201DataSourcePolicySnapshot'
 import type { CreateProposal201DataStage } from './createProposal201DataStage'
 
 export type CreateProposal201Data = {
@@ -24,6 +25,14 @@ export type CreateProposal201Data = {
   lostReason: string | null
   /** @nullable */
   renewalPolicyId: string | null
+  /** @nullable */
+  sourcePolicyId: string | null
+  /** @nullable */
+  endorsementType: string | null
+  /** @nullable */
+  endorsementReason: string | null
+  /** @nullable */
+  sourcePolicySnapshot: CreateProposal201DataSourcePolicySnapshot
   /** @nullable */
   insurerId: string | null
   /** @nullable */
