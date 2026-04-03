@@ -7,6 +7,7 @@ import type {
   InsurerData,
   InsurerFilters,
   CreateInsurerInput,
+  UpdateInsurerInput,
 } from '../domain/insurer-repository.js'
 import { InsurerMapper } from './insurer-mapper.js'
 
@@ -73,5 +74,18 @@ export class PrismaInsurerRepository implements InsurerRepository {
       items: items.map(InsurerMapper.toDomain),
       nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,
     }
+  }
+
+  async update(data: UpdateInsurerInput): Promise<InsurerData> {
+    const row = await this.prisma.insurer.update({
+      where: { id: data.id },
+      data: {
+        name: data.name,
+        code: data.code ?? null,
+        ...(data.active !== undefined && { active: data.active }),
+      },
+    })
+
+    return InsurerMapper.toDomain(row)
   }
 }

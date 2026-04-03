@@ -23,6 +23,14 @@ export interface CreateInsurerInput {
   active?: boolean
 }
 
+export interface UpdateInsurerInput {
+  id: string
+  organizationId: string
+  name: string
+  code?: string
+  active?: boolean
+}
+
 export interface InsurerRepository {
   create(data: CreateInsurerInput): Promise<InsurerData>
   findById(id: string, organizationId: string): Promise<InsurerData | null>
@@ -31,4 +39,5 @@ export interface InsurerRepository {
     filters: InsurerFilters,
     page: CursorPage
   ): Promise<Page<InsurerData>>
+  update(data: UpdateInsurerInput): Promise<InsurerData>
 }
