@@ -40,10 +40,13 @@ const OPERATIONAL_SUBJECTS: Subject[] = [
   'Endorsement',
   'Assistance',
   'Document',
+  'Insurer',
 ]
 
 export function defineAbilitiesFor(role: Role): AppAbility {
-  const { can, build } = new AbilityBuilder<AppAbility>(createMongoAbility)
+  const { can, cannot, build } = new AbilityBuilder<AppAbility>(
+    createMongoAbility
+  )
 
   switch (role) {
     case 'OWNER':
@@ -54,7 +57,6 @@ export function defineAbilitiesFor(role: Role): AppAbility {
       can('manage', OPERATIONAL_SUBJECTS)
       can('manage', 'Commission')
       can('approve', 'Commission')
-      can(['read', 'manage'], 'Insurer')
       can('manage', 'User')
       can('manage', 'Notification')
       can('read', 'AuditLog')
@@ -66,7 +68,6 @@ export function defineAbilitiesFor(role: Role): AppAbility {
       can('manage', OPERATIONAL_SUBJECTS)
       can('manage', 'Commission')
       can('approve', 'Commission')
-      can(['read', 'manage'], 'Insurer')
       can('read', 'Notification')
       can('read', 'AuditLog')
       can('read', 'Member')
@@ -83,6 +84,7 @@ export function defineAbilitiesFor(role: Role): AppAbility {
 
     case 'VIEWER':
       can('read', OPERATIONAL_SUBJECTS)
+      cannot('read', 'Insurer')
       can('read', ['Commission', 'Notification'])
       break
   }

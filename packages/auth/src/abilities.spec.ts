@@ -26,6 +26,7 @@ describe('CASL Abilities', () => {
     expect(defineAbilitiesFor('COMMERCIAL').can('manage', 'Insurer')).toBe(
       false
     )
+    expect(defineAbilitiesFor('VIEWER').can('read', 'Insurer')).toBe(false)
     expect(defineAbilitiesFor('VIEWER').can('manage', 'Insurer')).toBe(false)
   })
 
