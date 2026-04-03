@@ -62,11 +62,6 @@ export function MetaOAuthButton({
     void startOAuth(channelType)
   }
 
-  const label =
-    channelType === 'MESSENGER'
-      ? 'Conectar com Facebook'
-      : 'Conectar com Instagram'
-
   return (
     <Button
       variant="outline"
@@ -79,7 +74,7 @@ export function MetaOAuthButton({
       ) : (
         <ChannelIcon channelType={channelType} size={16} />
       )}
-      {label}
+      Conectar
     </Button>
   )
 }

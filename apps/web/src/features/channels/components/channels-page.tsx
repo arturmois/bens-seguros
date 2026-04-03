@@ -1,9 +1,9 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { toast } from 'sonner'
 import { AlertTriangle, Globe, MessageCircle } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -28,9 +28,9 @@ import {
 } from '@/components/ui/empty'
 
 import { ChannelIcon } from '@/features/chat/components/channel-icon'
-import type { ChannelData } from '../types'
 import { useChannels } from '../hooks/use-channels'
 import { useMetaOAuth } from '../hooks/use-meta-oauth'
+import type { ChannelData } from '../types'
 import { ChannelFormSheet } from './channel-form-sheet'
 import { ChannelQrDialog } from './channel-qr-dialog'
 import { ChannelsTable, ChannelsTableSkeleton } from './channels-table'
