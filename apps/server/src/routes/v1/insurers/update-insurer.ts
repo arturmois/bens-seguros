@@ -1,10 +1,15 @@
-import { container, CreateInsurer, type CacheService } from '@repo/core'
+import { container, UpdateInsurer, type CacheService } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
+
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { auditCreate } from '../../../services/audit-logger.js'
+import { auditUpdate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { createInsurerBodySchema, insurerDetailResponse } from './_schemas.js'
+import {
+  idParamSchema,
+  insurerDetailResponse,
+  updateInsurerBodySchema,
+} from './_schemas.js'
 
 function resolveCache(): CacheService | null {
   try {
@@ -14,33 +19,41 @@ function resolveCache(): CacheService | null {
   }
 }
 
-export function createInsurerRoute(app: FastifyInstance) {
+export function updateInsurerRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
-    method: 'POST',
-    url: '/api/v1/insurers',
+    method: 'PUT',
+    url: '/api/v1/insurers/:id',
     schema: {
-      operationId: 'createInsurer',
+      operationId: 'updateInsurer',
       tags: ['Insurers'],
-      summary: 'Create a new insurer',
-      body: createInsurerBodySchema,
-      response: { 201: insurerDetailResponse },
+      summary: 'Update an insurer',
+      params: idParamSchema,
+      body: updateInsurerBodySchema,
+      response: { 200: insurerDetailResponse },
     },
     preHandler: [requireAbility('manage', 'Insurer')],
     handler: async (request, reply) => {
-      const useCase = container.resolve(CreateInsurer)
+      const useCase = container.resolve(UpdateInsurer)
       try {
         const insurer = await useCase.execute({
+          id: request.params.id,
           organizationId: request.organizationId!,
           ...request.body,
         })
-        auditCreate({ request, entityType: 'Insurer', entityId: insurer.id })
+
+        auditUpdate({
+          request,
+          entityType: 'Insurer',
+          entityId: insurer.id,
+          after: insurer,
+        })
 
         const cacheService = resolveCache()
         if (cacheService) {
           await cacheService.delete(`cache:${request.organizationId!}:insurers`)
         }
 
-        return reply.status(201).send({ success: true, data: insurer })
+        return reply.send({ success: true, data: insurer })
       } catch (error) {
         return handleDomainError(error, reply)
       }

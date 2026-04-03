@@ -38,7 +38,7 @@ export function listInsurersRoute(app: FastifyInstance) {
       querystring: listInsurersQuerySchema,
       response: { 200: insurerListResponse },
     },
-    preHandler: [requireAbility('read', 'Policy')],
+    preHandler: [requireAbility('read', 'Insurer')],
     handler: async (request, reply) => {
       const organizationId = request.organizationId!
       const cacheKey = `cache:${organizationId}:insurers`

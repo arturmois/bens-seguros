@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { idParam } from '../../_shared/params.schema.js'
 import { successResponse } from '../../_shared/response.schema.js'
 
 const emptyToUndefined = z.literal('').transform(() => undefined)
@@ -9,6 +10,12 @@ const optionalString = z.union([emptyToUndefined, z.string()]).optional()
 export const createInsurerBodySchema = z.object({
   name: z.string().min(1),
   code: optionalString,
+})
+
+export const updateInsurerBodySchema = z.object({
+  name: z.string().min(1),
+  code: optionalString,
+  active: z.boolean(),
 })
 
 export const listInsurersQuerySchema = z.object({
@@ -39,3 +46,5 @@ export const insurerListResponse = z.object({
     nextCursor: z.string().nullable().optional(),
   }),
 })
+
+export { idParam as idParamSchema }
