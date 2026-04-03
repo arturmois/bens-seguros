@@ -77,13 +77,21 @@ export class PrismaInsurerRepository implements InsurerRepository {
   }
 
   async update(data: UpdateInsurerInput): Promise<InsurerData> {
+    const updateData: Prisma.InsurerUpdateInput = {
+      name: data.name,
+    }
+
+    if (data.code !== undefined) {
+      updateData.code = data.code
+    }
+
+    if (data.active !== undefined) {
+      updateData.active = data.active
+    }
+
     const row = await this.prisma.insurer.update({
       where: { id: data.id },
-      data: {
-        name: data.name,
-        code: data.code ?? null,
-        ...(data.active !== undefined && { active: data.active }),
-      },
+      data: updateData,
     })
 
     return InsurerMapper.toDomain(row)

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import type { PrismaClient } from '@repo/db'
 import type {
   InsurerData,
   InsurerRepository,
@@ -8,6 +9,7 @@ import {
   InsurerNotFoundError,
 } from '../domain/insurer-errors.js'
 import { UpdateInsurer } from './update-insurer.js'
+import { PrismaInsurerRepository } from '../infrastructure/prisma-insurer-repository.js'
 
 function makeInsurer(overrides: Partial<InsurerData> = {}): InsurerData {
   return {
@@ -105,5 +107,39 @@ describe('UpdateInsurer', () => {
         active: true,
       })
     ).rejects.toThrow(InsurerAlreadyExistsError)
+  })
+})
+
+describe('PrismaInsurerRepository', () => {
+  it('preserves the existing code when updating without code', async () => {
+    const update = vi.fn().mockResolvedValue(
+      makeInsurer({
+        id: 'ins-1',
+        code: 'BRK',
+        active: false,
+      })
+    )
+    const prisma = {
+      insurer: {
+        update,
+      },
+    } as unknown as PrismaClient
+    const repo = new PrismaInsurerRepository(prisma)
+
+    const result = await repo.update({
+      id: 'ins-1',
+      organizationId: 'org-1',
+      name: 'Bradesco',
+      active: false,
+    })
+
+    expect(update).toHaveBeenCalledWith({
+      where: { id: 'ins-1' },
+      data: {
+        name: 'Bradesco',
+        active: false,
+      },
+    })
+    expect(result.code).toBe('BRK')
   })
 })
