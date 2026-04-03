@@ -103,6 +103,11 @@ describe('Proposal Entity', () => {
       details: null,
       lostReason: null,
       renewalPolicyId: null,
+      sourcePolicyId: null,
+      endorsementType: null,
+      endorsementReason: null,
+      sourcePolicySnapshot: null,
+      insurerId: null,
       deletedAt: null,
       createdAt: now,
       updatedAt: now,
@@ -131,6 +136,34 @@ describe('Proposal Entity', () => {
     })
     expect(proposal.boardType).toBe('RENEWAL')
     expect(proposal.renewalPolicyId).toBe('policy-1')
+  })
+
+  it('creates endorsement proposals at QUOTE with source policy metadata', () => {
+    const proposal = Proposal.create({
+      organizationId: 'org-1',
+      clientId: 'client-1',
+      salespersonId: 'user-1',
+      branch: 'AUTO',
+      boardType: 'ENDORSEMENT',
+      sourcePolicyId: 'policy-1',
+      endorsementType: 'COVERAGE_CHANGE',
+      endorsementReason: 'Adicionar cobertura para vidros',
+      sourcePolicySnapshot: {
+        policyNumber: 'POL-001',
+        clientName: 'Maria Souza',
+        startDate: new Date('2026-02-01T00:00:00.000Z'),
+        endDate: new Date('2027-02-01T00:00:00.000Z'),
+        status: 'ACTIVE',
+        insurerId: 'ins-1',
+        insurerName: 'Porto',
+      },
+    })
+
+    expect(proposal.stage).toBe('QUOTE')
+    expect(proposal.boardType).toBe('ENDORSEMENT')
+    expect(proposal.sourcePolicyId).toBe('policy-1')
+    expect(proposal.endorsementType).toBe('COVERAGE_CHANGE')
+    expect(proposal.sourcePolicySnapshot?.policyNumber).toBe('POL-001')
   })
 
   it('serializes to JSON', () => {

@@ -22,10 +22,26 @@ type Branch =
   | 'BUSINESS'
   | 'LIFE'
   | 'OTHER'
-type BoardType = 'NEW_INSURANCE' | 'RENEWAL'
+type BoardType = 'NEW_INSURANCE' | 'RENEWAL' | 'ENDORSEMENT'
+
+export interface SourcePolicySnapshot {
+  policyNumber: string
+  clientName: string
+  startDate: Date
+  endDate: Date
+  status: 'ACTIVE' | 'CANCELLED' | 'EXPIRED'
+  insurerId: string | null
+  insurerName: string | null
+}
 
 function isActiveStage(stage: Stage): stage is ActiveStage {
   return stage !== 'LOST'
+}
+
+export function isSourcePolicySnapshot(
+  value: unknown
+): value is SourcePolicySnapshot {
+  return typeof value === 'object' && value !== null && 'policyNumber' in value
 }
 
 export interface ProposalProps {
@@ -41,6 +57,10 @@ export interface ProposalProps {
   details: InsuredObjectDetails | null
   lostReason: string | null
   renewalPolicyId: string | null
+  sourcePolicyId: string | null
+  endorsementType: string | null
+  endorsementReason: string | null
+  sourcePolicySnapshot: SourcePolicySnapshot | null
   insurerId: string | null
   deletedAt: Date | null
   readonly createdAt: Date
@@ -60,6 +80,10 @@ interface CreateProposalInput {
   premiumValueInCents?: number
   commissionPercentageInCents?: number
   renewalPolicyId?: string
+  sourcePolicyId?: string
+  endorsementType?: string
+  endorsementReason?: string
+  sourcePolicySnapshot?: SourcePolicySnapshot
   insurerId?: string
 }
 
@@ -69,12 +93,15 @@ export class Proposal {
   private constructor(private readonly props: ProposalProps) {}
 
   static create(input: CreateProposalInput): Proposal {
+    const initialStage: Stage =
+      input.boardType === 'ENDORSEMENT' ? 'QUOTE' : 'CAPTURE'
+
     return new Proposal({
       id: randomUUID(),
       organizationId: input.organizationId,
       clientId: input.clientId,
       salespersonId: input.salespersonId,
-      stage: 'CAPTURE',
+      stage: initialStage,
       boardType: input.boardType,
       branch: input.branch,
       premiumValueInCents: input.premiumValueInCents ?? 0,
@@ -82,6 +109,10 @@ export class Proposal {
       details: null,
       lostReason: null,
       renewalPolicyId: input.renewalPolicyId ?? null,
+      sourcePolicyId: input.sourcePolicyId ?? null,
+      endorsementType: input.endorsementType ?? null,
+      endorsementReason: input.endorsementReason ?? null,
+      sourcePolicySnapshot: input.sourcePolicySnapshot ?? null,
       insurerId: input.insurerId ?? null,
       deletedAt: null,
       createdAt: new Date(),
@@ -187,6 +218,18 @@ export class Proposal {
   }
   get renewalPolicyId(): string | null {
     return this.props.renewalPolicyId
+  }
+  get sourcePolicyId(): string | null {
+    return this.props.sourcePolicyId
+  }
+  get endorsementType(): string | null {
+    return this.props.endorsementType
+  }
+  get endorsementReason(): string | null {
+    return this.props.endorsementReason
+  }
+  get sourcePolicySnapshot(): SourcePolicySnapshot | null {
+    return this.props.sourcePolicySnapshot
   }
   get insurerId(): string | null {
     return this.props.insurerId

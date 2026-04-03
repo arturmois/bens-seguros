@@ -1,6 +1,6 @@
 import type { Proposal as PrismaProposalRecord } from '@repo/db'
 import { Prisma } from '@repo/db'
-import { Proposal } from '../domain/proposal.js'
+import { Proposal, isSourcePolicySnapshot } from '../domain/proposal.js'
 import type { ProposalProps } from '../domain/proposal.js'
 import { isInsuredObjectDetails } from '../domain/insured-object-details.js'
 
@@ -31,6 +31,12 @@ export class ProposalMapper {
       details: isInsuredObjectDetails(row.details) ? row.details : null,
       lostReason: row.lostReason,
       renewalPolicyId: row.renewalPolicyId,
+      sourcePolicyId: row.sourcePolicyId,
+      endorsementType: row.endorsementType,
+      endorsementReason: row.endorsementReason,
+      sourcePolicySnapshot: isSourcePolicySnapshot(row.sourcePolicySnapshot)
+        ? row.sourcePolicySnapshot
+        : null,
       insurerId: row.insurerId,
       deletedAt: row.deletedAt,
       createdAt: row.createdAt,
@@ -62,6 +68,12 @@ export class ProposalMapper {
       details: json.details ? toJsonValue(json.details) : Prisma.DbNull,
       lostReason: json.lostReason,
       renewalPolicyId: json.renewalPolicyId,
+      sourcePolicyId: json.sourcePolicyId,
+      endorsementType: json.endorsementType,
+      endorsementReason: json.endorsementReason,
+      sourcePolicySnapshot: json.sourcePolicySnapshot
+        ? toJsonValue(json.sourcePolicySnapshot)
+        : Prisma.DbNull,
       insurerId: json.insurerId,
       createdAt: json.createdAt,
       updatedAt: json.updatedAt,
