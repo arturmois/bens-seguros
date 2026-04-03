@@ -146,6 +146,11 @@ export const updateProposalDetailsBody = z.object({
 export const listProposalsQuery = paginationQuery().extend({
   stage: proposalStageEnum.optional(),
   clientId: z.string().optional(),
+  salespersonId: z.string().optional(),
+  insurerId: z.string().optional(),
+  sourcePolicyId: z.string().optional(),
+  createdFrom: z.coerce.date().optional(),
+  createdTo: z.coerce.date().optional(),
   boardType: boardTypeEnum.optional(),
   search: z.string().optional(),
 })

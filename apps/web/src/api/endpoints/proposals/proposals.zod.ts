@@ -31,6 +31,11 @@ export const ExportProposalsQueryParams = zod.object({
     ])
     .optional(),
   clientId: zod.string().optional(),
+  salespersonId: zod.string().optional(),
+  insurerId: zod.string().optional(),
+  sourcePolicyId: zod.string().optional(),
+  createdFrom: zod.string().datetime({}).optional(),
+  createdTo: zod.string().datetime({}).optional(),
   boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']).optional(),
   search: zod.string().optional(),
 })
@@ -103,6 +108,11 @@ export const ListProposalsQueryParams = zod.object({
     ])
     .optional(),
   clientId: zod.string().optional(),
+  salespersonId: zod.string().optional(),
+  insurerId: zod.string().optional(),
+  sourcePolicyId: zod.string().optional(),
+  createdFrom: zod.string().datetime({}).optional(),
+  createdTo: zod.string().datetime({}).optional(),
   boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']).optional(),
   search: zod.string().optional(),
 })

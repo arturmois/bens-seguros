@@ -16,6 +16,11 @@ export type ListProposalsParams = {
   limit?: number
   stage?: ListProposalsStage
   clientId?: string
+  salespersonId?: string
+  insurerId?: string
+  sourcePolicyId?: string
+  createdFrom?: string
+  createdTo?: string
   boardType?: ListProposalsBoardType
   search?: string
 }
