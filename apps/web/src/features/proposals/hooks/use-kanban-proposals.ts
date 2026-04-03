@@ -9,6 +9,10 @@ import type { BoardType, ProposalData, ProposalStage } from '../lib/constants'
 export interface KanbanFilters {
   boardType: BoardType
   search?: string
+  insurerId?: string
+  salespersonId?: string
+  createdFrom?: string
+  createdTo?: string
 }
 
 interface KanbanPage {
@@ -26,6 +30,11 @@ export function useKanbanProposalsByStage(
       const params = new URLSearchParams({ limit: '20', stage })
       if (filters.boardType) params.set('boardType', filters.boardType)
       if (filters.search) params.set('search', filters.search)
+      if (filters.insurerId) params.set('insurerId', filters.insurerId)
+      if (filters.salespersonId)
+        params.set('salespersonId', filters.salespersonId)
+      if (filters.createdFrom) params.set('createdFrom', filters.createdFrom)
+      if (filters.createdTo) params.set('createdTo', filters.createdTo)
       if (cursor) params.set('cursor', cursor)
 
       const res = await api.get<ProposalData[]>(

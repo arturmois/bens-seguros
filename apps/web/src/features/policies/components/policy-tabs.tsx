@@ -23,12 +23,12 @@ export function PolicyTabs({ policyId }: PolicyTabsProps) {
       <Tabs defaultValue="endorsements">
         <div className="flex items-center justify-between">
           <TabsList>
-            <TabsTab value="endorsements">Endossos</TabsTab>
+            <TabsTab value="endorsements">Registros de Endosso</TabsTab>
             <TabsTab value="documents">Documentos</TabsTab>
           </TabsList>
           <Button size="sm" onClick={() => setEndorsementFormOpen(true)}>
             <Plus className="mr-1 h-4 w-4" />
-            Novo Endosso
+            Registrar Endosso Histórico
           </Button>
         </div>
 

@@ -7,6 +7,7 @@
 import type { GetProposal200DataBoardType } from './getProposal200DataBoardType'
 import type { GetProposal200DataBranch } from './getProposal200DataBranch'
 import type { GetProposal200DataDetails } from './getProposal200DataDetails'
+import type { GetProposal200DataSourcePolicySnapshot } from './getProposal200DataSourcePolicySnapshot'
 import type { GetProposal200DataStage } from './getProposal200DataStage'
 
 export type GetProposal200Data = {
@@ -24,6 +25,14 @@ export type GetProposal200Data = {
   lostReason: string | null
   /** @nullable */
   renewalPolicyId: string | null
+  /** @nullable */
+  sourcePolicyId: string | null
+  /** @nullable */
+  endorsementType: string | null
+  /** @nullable */
+  endorsementReason: string | null
+  /** @nullable */
+  sourcePolicySnapshot: GetProposal200DataSourcePolicySnapshot
   /** @nullable */
   insurerId: string | null
   /** @nullable */

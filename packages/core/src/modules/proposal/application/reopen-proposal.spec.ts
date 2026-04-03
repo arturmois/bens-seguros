@@ -42,6 +42,38 @@ describe('ReopenProposal', () => {
     expect(repo.save).toHaveBeenCalledWith(proposal)
   })
 
+  it('reopens a LOST endorsement proposal back to QUOTE', async () => {
+    const proposal = Proposal.create({
+      organizationId: 'org-1',
+      clientId: 'client-1',
+      salespersonId: 'sp-1',
+      branch: 'AUTO',
+      boardType: 'ENDORSEMENT',
+      sourcePolicyId: 'policy-1',
+      endorsementType: 'COVERAGE_CHANGE',
+      endorsementReason: 'Adicionar cobertura para vidros',
+      sourcePolicySnapshot: {
+        policyNumber: 'POL-001',
+        clientName: 'Maria Souza',
+        startDate: new Date('2026-02-01T00:00:00.000Z'),
+        endDate: new Date('2027-02-01T00:00:00.000Z'),
+        status: 'ACTIVE',
+        insurerId: 'ins-1',
+        insurerName: 'Porto',
+      },
+    })
+    proposal.markAsLost('Cliente desistiu')
+
+    vi.mocked(repo.findById).mockResolvedValue(proposal)
+    vi.mocked(repo.save).mockResolvedValue(undefined)
+
+    await useCase.execute(proposal.id, 'org-1')
+
+    expect(proposal.stage).toBe('QUOTE')
+    expect(proposal.lostReason).toBeNull()
+    expect(repo.save).toHaveBeenCalledWith(proposal)
+  })
+
   it('throws when proposal is not LOST', async () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',

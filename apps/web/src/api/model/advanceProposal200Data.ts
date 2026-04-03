@@ -7,6 +7,7 @@
 import type { AdvanceProposal200DataBoardType } from './advanceProposal200DataBoardType'
 import type { AdvanceProposal200DataBranch } from './advanceProposal200DataBranch'
 import type { AdvanceProposal200DataDetails } from './advanceProposal200DataDetails'
+import type { AdvanceProposal200DataSourcePolicySnapshot } from './advanceProposal200DataSourcePolicySnapshot'
 import type { AdvanceProposal200DataStage } from './advanceProposal200DataStage'
 
 export type AdvanceProposal200Data = {
@@ -24,6 +25,14 @@ export type AdvanceProposal200Data = {
   lostReason: string | null
   /** @nullable */
   renewalPolicyId: string | null
+  /** @nullable */
+  sourcePolicyId: string | null
+  /** @nullable */
+  endorsementType: string | null
+  /** @nullable */
+  endorsementReason: string | null
+  /** @nullable */
+  sourcePolicySnapshot: AdvanceProposal200DataSourcePolicySnapshot
   /** @nullable */
   insurerId: string | null
   /** @nullable */

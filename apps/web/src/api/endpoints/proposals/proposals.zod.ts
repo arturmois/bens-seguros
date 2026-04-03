@@ -31,7 +31,12 @@ export const ExportProposalsQueryParams = zod.object({
     ])
     .optional(),
   clientId: zod.string().optional(),
-  boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL']).optional(),
+  salespersonId: zod.string().optional(),
+  insurerId: zod.string().optional(),
+  sourcePolicyId: zod.string().optional(),
+  createdFrom: zod.string().datetime({}).optional(),
+  createdTo: zod.string().datetime({}).optional(),
+  boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']).optional(),
   search: zod.string().optional(),
 })
 
@@ -55,20 +60,28 @@ export const GenerateProposalPdfResponse = zod.object({
  * @summary Create a new proposal
  */
 
-export const CreateProposalBody = zod.object({
-  clientId: zod.string().min(1),
-  branch: zod.enum([
-    'AUTO',
-    'RESIDENTIAL',
-    'CONDOMINIUM',
-    'BUSINESS',
-    'LIFE',
-    'OTHER',
-  ]),
-  boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL']),
-  renewalPolicyId: zod.string().optional(),
-  insurerId: zod.string().optional(),
-})
+export const CreateProposalBody = zod.union([
+  zod.object({
+    clientId: zod.string().min(1),
+    branch: zod.enum([
+      'AUTO',
+      'RESIDENTIAL',
+      'CONDOMINIUM',
+      'BUSINESS',
+      'LIFE',
+      'OTHER',
+    ]),
+    boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL']),
+    renewalPolicyId: zod.string().optional(),
+    insurerId: zod.string().optional(),
+  }),
+  zod.object({
+    boardType: zod.enum(['ENDORSEMENT']),
+    sourcePolicyId: zod.string().min(1),
+    endorsementType: zod.string().min(1),
+    endorsementReason: zod.string().min(1),
+  }),
+])
 
 /**
  * @summary List proposals with cursor pagination
@@ -95,7 +108,12 @@ export const ListProposalsQueryParams = zod.object({
     ])
     .optional(),
   clientId: zod.string().optional(),
-  boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL']).optional(),
+  salespersonId: zod.string().optional(),
+  insurerId: zod.string().optional(),
+  sourcePolicyId: zod.string().optional(),
+  createdFrom: zod.string().datetime({}).optional(),
+  createdTo: zod.string().datetime({}).optional(),
+  boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']).optional(),
   search: zod.string().optional(),
 })
 
@@ -130,7 +148,7 @@ export const ListProposalsResponse = zod.object({
         'POLICY_ISSUED',
         'LOST',
       ]),
-      boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL']),
+      boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']),
       branch: zod.enum([
         'AUTO',
         'RESIDENTIAL',
@@ -223,6 +241,20 @@ export const ListProposalsResponse = zod.object({
         .nullable(),
       lostReason: zod.string().nullable(),
       renewalPolicyId: zod.string().nullable(),
+      sourcePolicyId: zod.string().nullable(),
+      endorsementType: zod.string().nullable(),
+      endorsementReason: zod.string().nullable(),
+      sourcePolicySnapshot: zod
+        .object({
+          policyNumber: zod.string(),
+          clientName: zod.string(),
+          startDate: zod.string().datetime({}),
+          endDate: zod.string().datetime({}),
+          status: zod.enum(['ACTIVE', 'CANCELLED', 'EXPIRED']),
+          insurerId: zod.string().nullable(),
+          insurerName: zod.string().nullable(),
+        })
+        .nullable(),
       insurerId: zod.string().nullable(),
       deletedAt: zod.string().datetime({}).nullable(),
       createdAt: zod.string().datetime({}),
@@ -276,7 +308,7 @@ export const GetProposalResponse = zod.object({
       'POLICY_ISSUED',
       'LOST',
     ]),
-    boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL']),
+    boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']),
     branch: zod.enum([
       'AUTO',
       'RESIDENTIAL',
@@ -363,6 +395,20 @@ export const GetProposalResponse = zod.object({
       .nullable(),
     lostReason: zod.string().nullable(),
     renewalPolicyId: zod.string().nullable(),
+    sourcePolicyId: zod.string().nullable(),
+    endorsementType: zod.string().nullable(),
+    endorsementReason: zod.string().nullable(),
+    sourcePolicySnapshot: zod
+      .object({
+        policyNumber: zod.string(),
+        clientName: zod.string(),
+        startDate: zod.string().datetime({}),
+        endDate: zod.string().datetime({}),
+        status: zod.enum(['ACTIVE', 'CANCELLED', 'EXPIRED']),
+        insurerId: zod.string().nullable(),
+        insurerName: zod.string().nullable(),
+      })
+      .nullable(),
     insurerId: zod.string().nullable(),
     deletedAt: zod.string().datetime({}).nullable(),
     createdAt: zod.string().datetime({}),
@@ -412,7 +458,7 @@ export const AdvanceProposalResponse = zod.object({
       'POLICY_ISSUED',
       'LOST',
     ]),
-    boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL']),
+    boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']),
     branch: zod.enum([
       'AUTO',
       'RESIDENTIAL',
@@ -499,6 +545,20 @@ export const AdvanceProposalResponse = zod.object({
       .nullable(),
     lostReason: zod.string().nullable(),
     renewalPolicyId: zod.string().nullable(),
+    sourcePolicyId: zod.string().nullable(),
+    endorsementType: zod.string().nullable(),
+    endorsementReason: zod.string().nullable(),
+    sourcePolicySnapshot: zod
+      .object({
+        policyNumber: zod.string(),
+        clientName: zod.string(),
+        startDate: zod.string().datetime({}),
+        endDate: zod.string().datetime({}),
+        status: zod.enum(['ACTIVE', 'CANCELLED', 'EXPIRED']),
+        insurerId: zod.string().nullable(),
+        insurerName: zod.string().nullable(),
+      })
+      .nullable(),
     insurerId: zod.string().nullable(),
     deletedAt: zod.string().datetime({}).nullable(),
     createdAt: zod.string().datetime({}),
@@ -552,7 +612,7 @@ export const MarkProposalLostResponse = zod.object({
       'POLICY_ISSUED',
       'LOST',
     ]),
-    boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL']),
+    boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']),
     branch: zod.enum([
       'AUTO',
       'RESIDENTIAL',
@@ -639,6 +699,20 @@ export const MarkProposalLostResponse = zod.object({
       .nullable(),
     lostReason: zod.string().nullable(),
     renewalPolicyId: zod.string().nullable(),
+    sourcePolicyId: zod.string().nullable(),
+    endorsementType: zod.string().nullable(),
+    endorsementReason: zod.string().nullable(),
+    sourcePolicySnapshot: zod
+      .object({
+        policyNumber: zod.string(),
+        clientName: zod.string(),
+        startDate: zod.string().datetime({}),
+        endDate: zod.string().datetime({}),
+        status: zod.enum(['ACTIVE', 'CANCELLED', 'EXPIRED']),
+        insurerId: zod.string().nullable(),
+        insurerName: zod.string().nullable(),
+      })
+      .nullable(),
     insurerId: zod.string().nullable(),
     deletedAt: zod.string().datetime({}).nullable(),
     createdAt: zod.string().datetime({}),
@@ -803,7 +877,7 @@ export const UpdateProposalDetailsResponse = zod.object({
       'POLICY_ISSUED',
       'LOST',
     ]),
-    boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL']),
+    boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']),
     branch: zod.enum([
       'AUTO',
       'RESIDENTIAL',
@@ -900,6 +974,20 @@ export const UpdateProposalDetailsResponse = zod.object({
       .nullable(),
     lostReason: zod.string().nullable(),
     renewalPolicyId: zod.string().nullable(),
+    sourcePolicyId: zod.string().nullable(),
+    endorsementType: zod.string().nullable(),
+    endorsementReason: zod.string().nullable(),
+    sourcePolicySnapshot: zod
+      .object({
+        policyNumber: zod.string(),
+        clientName: zod.string(),
+        startDate: zod.string().datetime({}),
+        endDate: zod.string().datetime({}),
+        status: zod.enum(['ACTIVE', 'CANCELLED', 'EXPIRED']),
+        insurerId: zod.string().nullable(),
+        insurerName: zod.string().nullable(),
+      })
+      .nullable(),
     insurerId: zod.string().nullable(),
     deletedAt: zod.string().datetime({}).nullable(),
     createdAt: zod.string().datetime({}),

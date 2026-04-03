@@ -6,6 +6,10 @@ export interface ProposalFilters {
   clientId?: string
   salespersonId?: string
   boardType?: BoardType
+  insurerId?: string
+  sourcePolicyId?: string
+  createdFrom?: Date
+  createdTo?: Date
   search?: string
 }
 

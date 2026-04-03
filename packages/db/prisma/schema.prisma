@@ -186,6 +186,7 @@ enum ProposalStage {
 enum ProposalBoardType {
   NEW_INSURANCE
   RENEWAL
+  ENDORSEMENT
 }
 
 enum InsuranceBranch {
@@ -310,6 +311,10 @@ model Proposal {
   commissionPercentageInCents Int               @default(0)
   lostReason                  String?
   renewalPolicyId             String?
+  sourcePolicyId              String?
+  endorsementType             String?
+  endorsementReason           String?
+  sourcePolicySnapshot        Json?
   insurerId                   String?
   details                     Json?
   deletedAt                   DateTime?
@@ -319,6 +324,7 @@ model Proposal {
   client        Client                @relation(fields: [clientId], references: [id])
   salesperson   User                  @relation("ProposalSalesperson", fields: [salespersonId], references: [id])
   renewalPolicy Policy?               @relation("ProposalRenewal", fields: [renewalPolicyId], references: [id])
+  sourcePolicy  Policy?               @relation("ProposalSourcePolicy", fields: [sourcePolicyId], references: [id])
   insurer       Insurer?              @relation(fields: [insurerId], references: [id])
   policy         Policy?               @relation("ProposalPolicy")
   checklistItems ProposalChecklistItem[]
@@ -327,6 +333,8 @@ model Proposal {
   @@index([organizationId, clientId])
   @@index([organizationId, salespersonId])
   @@index([organizationId, insurerId])
+  @@index([organizationId, sourcePolicyId])
+  @@index([organizationId, boardType, createdAt(sort: Desc)])
   @@index([organizationId, createdAt(sort: Desc)])
 }
 
@@ -372,6 +380,7 @@ model Policy {
   salesperson      User          @relation("PolicySalesperson", fields: [salespersonId], references: [id])
   insurer          Insurer?      @relation(fields: [insurerId], references: [id])
   renewalProposals Proposal[]    @relation("ProposalRenewal")
+  endorsementProposals Proposal[] @relation("ProposalSourcePolicy")
   claims           Claim[]
   endorsements     Endorsement[]
   assistances      Assistance[]

@@ -22,10 +22,86 @@ type Branch =
   | 'BUSINESS'
   | 'LIFE'
   | 'OTHER'
-type BoardType = 'NEW_INSURANCE' | 'RENEWAL'
+type BoardType = 'NEW_INSURANCE' | 'RENEWAL' | 'ENDORSEMENT'
+
+export interface SourcePolicySnapshot {
+  policyNumber: string
+  clientName: string
+  startDate: Date
+  endDate: Date
+  status: 'ACTIVE' | 'CANCELLED' | 'EXPIRED'
+  insurerId: string | null
+  insurerName: string | null
+}
 
 function isActiveStage(stage: Stage): stage is ActiveStage {
   return stage !== 'LOST'
+}
+
+function getInitialStage(boardType: BoardType): Stage {
+  return boardType === 'ENDORSEMENT' ? 'QUOTE' : 'CAPTURE'
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function isValidSnapshotStatus(
+  value: unknown
+): value is SourcePolicySnapshot['status'] {
+  return value === 'ACTIVE' || value === 'CANCELLED' || value === 'EXPIRED'
+}
+
+function parseSnapshotDate(value: unknown): Date | null {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return value
+  }
+
+  if (typeof value !== 'string') {
+    return null
+  }
+
+  const parsed = new Date(value)
+  return Number.isNaN(parsed.getTime()) ? null : parsed
+}
+
+export function parseSourcePolicySnapshot(
+  value: unknown
+): SourcePolicySnapshot | null {
+  if (!isRecord(value)) {
+    return null
+  }
+
+  const startDate = parseSnapshotDate(value.startDate)
+  const endDate = parseSnapshotDate(value.endDate)
+
+  if (
+    typeof value.policyNumber !== 'string' ||
+    typeof value.clientName !== 'string' ||
+    startDate === null ||
+    endDate === null ||
+    !isValidSnapshotStatus(value.status) ||
+    (value.insurerId !== null && typeof value.insurerId !== 'string') ||
+    (value.insurerName !== null && typeof value.insurerName !== 'string')
+  ) {
+    return null
+  }
+
+  return {
+    policyNumber: value.policyNumber,
+    clientName: value.clientName,
+    startDate,
+    endDate,
+    status: value.status,
+    insurerId: value.insurerId,
+    insurerName: value.insurerName,
+  }
+}
+
+export function isSourcePolicySnapshot(
+  value: unknown
+): value is SourcePolicySnapshot {
+  return parseSourcePolicySnapshot(value) !== null
 }
 
 export interface ProposalProps {
@@ -41,6 +117,10 @@ export interface ProposalProps {
   details: InsuredObjectDetails | null
   lostReason: string | null
   renewalPolicyId: string | null
+  sourcePolicyId: string | null
+  endorsementType: string | null
+  endorsementReason: string | null
+  sourcePolicySnapshot: SourcePolicySnapshot | null
   insurerId: string | null
   deletedAt: Date | null
   readonly createdAt: Date
@@ -60,7 +140,11 @@ interface CreateProposalInput {
   premiumValueInCents?: number
   commissionPercentageInCents?: number
   renewalPolicyId?: string
-  insurerId?: string
+  sourcePolicyId?: string
+  endorsementType?: string
+  endorsementReason?: string
+  sourcePolicySnapshot?: SourcePolicySnapshot
+  insurerId?: string | null
 }
 
 export type { Stage, ActiveStage, Branch, BoardType }
@@ -74,7 +158,7 @@ export class Proposal {
       organizationId: input.organizationId,
       clientId: input.clientId,
       salespersonId: input.salespersonId,
-      stage: 'CAPTURE',
+      stage: getInitialStage(input.boardType),
       boardType: input.boardType,
       branch: input.branch,
       premiumValueInCents: input.premiumValueInCents ?? 0,
@@ -82,6 +166,10 @@ export class Proposal {
       details: null,
       lostReason: null,
       renewalPolicyId: input.renewalPolicyId ?? null,
+      sourcePolicyId: input.sourcePolicyId ?? null,
+      endorsementType: input.endorsementType ?? null,
+      endorsementReason: input.endorsementReason ?? null,
+      sourcePolicySnapshot: input.sourcePolicySnapshot ?? null,
       insurerId: input.insurerId ?? null,
       deletedAt: null,
       createdAt: new Date(),
@@ -147,7 +235,7 @@ export class Proposal {
     if (this.props.stage !== 'LOST') {
       throw new InvalidStageTransitionError(this.props.stage, 'reabrir')
     }
-    this.props.stage = 'CAPTURE'
+    this.props.stage = getInitialStage(this.props.boardType)
     this.props.lostReason = null
     this.props.updatedAt = new Date()
   }
@@ -187,6 +275,18 @@ export class Proposal {
   }
   get renewalPolicyId(): string | null {
     return this.props.renewalPolicyId
+  }
+  get sourcePolicyId(): string | null {
+    return this.props.sourcePolicyId
+  }
+  get endorsementType(): string | null {
+    return this.props.endorsementType
+  }
+  get endorsementReason(): string | null {
+    return this.props.endorsementReason
+  }
+  get sourcePolicySnapshot(): SourcePolicySnapshot | null {
+    return this.props.sourcePolicySnapshot
   }
   get insurerId(): string | null {
     return this.props.insurerId

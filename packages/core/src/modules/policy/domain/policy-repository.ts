@@ -16,6 +16,7 @@ export interface PolicyData {
   proposalId: string
   clientId: string
   salespersonId: string
+  insurerId: string | null
   policyNumber: string
   status: 'ACTIVE' | 'CANCELLED' | 'EXPIRED'
   branch: 'AUTO' | 'RESIDENTIAL' | 'CONDOMINIUM' | 'BUSINESS' | 'LIFE' | 'OTHER'

@@ -2,7 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Ban, FileText, Loader2, RefreshCw } from 'lucide-react'
+import {
+  ArrowLeft,
+  Ban,
+  FileText,
+  Loader2,
+  Plus,
+  RefreshCw,
+} from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -18,6 +25,7 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import { EndorsementProposalSheet } from '@/features/proposals/components/endorsement-proposal-sheet'
 
 import { useCancelPolicy, usePolicy } from '../hooks/use-policies'
 import { useGeneratePolicyPdf } from '../hooks/use-generate-policy-pdf'
@@ -39,6 +47,7 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
   const cancelMutation = useCancelPolicy()
   const pdfMutation = useGeneratePolicyPdf(policyId)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
+  const [showEndorsementSheet, setShowEndorsementSheet] = useState(false)
   const [cancelReason, setCancelReason] = useState('')
 
   function handleCancelConfirm() {
@@ -122,7 +131,7 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
             </Badge>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -137,14 +146,24 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
             Gerar PDF
           </Button>
           {policy.status === 'ACTIVE' && (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setShowCancelDialog(true)}
-            >
-              <Ban className="mr-2 size-4" />
-              Cancelar apólice
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowEndorsementSheet(true)}
+              >
+                <Plus className="mr-2 size-4" />
+                Criar Endosso
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setShowCancelDialog(true)}
+              >
+                <Ban className="mr-2 size-4" />
+                Cancelar apólice
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -171,6 +190,15 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
       <Separator />
 
       <PolicyTabs policyId={policyId} />
+
+      <EndorsementProposalSheet
+        open={showEndorsementSheet}
+        onOpenChange={setShowEndorsementSheet}
+        policyId={policyId}
+        policyNumber={policy.policyNumber}
+        clientName={policy.clientName}
+        branch={policy.branch}
+      />
 
       <Dialog
         open={showCancelDialog}

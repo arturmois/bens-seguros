@@ -21,7 +21,11 @@ export const PROPOSAL_STAGE_VALUES = [
 
 export const proposalStageEnum = z.enum(PROPOSAL_STAGE_VALUES)
 
-export const BOARD_TYPE_VALUES = ['NEW_INSURANCE', 'RENEWAL'] as const
+export const BOARD_TYPE_VALUES = [
+  'NEW_INSURANCE',
+  'RENEWAL',
+  'ENDORSEMENT',
+] as const
 
 export const boardTypeEnum = z.enum(BOARD_TYPE_VALUES)
 
@@ -36,13 +40,25 @@ export const checklistItemIdParam = z.object({
 
 // ── Body schemas ────────────────────────────────────────────────────
 
-export const createProposalBody = z.object({
+const createNewInsuranceOrRenewalProposalBody = z.object({
   clientId: z.string().min(1),
   branch: branchEnum,
-  boardType: boardTypeEnum,
+  boardType: z.enum(['NEW_INSURANCE', 'RENEWAL']),
   renewalPolicyId: z.string().optional(),
   insurerId: z.string().optional(),
 })
+
+const createEndorsementProposalBody = z.object({
+  boardType: z.literal('ENDORSEMENT'),
+  sourcePolicyId: z.string().min(1),
+  endorsementType: z.string().min(1),
+  endorsementReason: z.string().min(1),
+})
+
+export const createProposalBody = z.discriminatedUnion('boardType', [
+  createNewInsuranceOrRenewalProposalBody,
+  createEndorsementProposalBody,
+])
 
 export const markLostBody = z.object({
   reason: z.string().min(1),
@@ -130,11 +146,46 @@ export const updateProposalDetailsBody = z.object({
 export const listProposalsQuery = paginationQuery().extend({
   stage: proposalStageEnum.optional(),
   clientId: z.string().optional(),
+  salespersonId: z.string().optional(),
+  insurerId: z.string().optional(),
+  sourcePolicyId: z.string().optional(),
+  createdFrom: z.coerce.date().optional(),
+  createdTo: z.coerce.date().optional(),
   boardType: boardTypeEnum.optional(),
   search: z.string().optional(),
 })
 
 // ── Response schemas (typed for OpenAPI) ────────────────────────────
+
+const checklistItemSchema = z.object({
+  id: z.string(),
+  proposalId: z.string(),
+  itemKey: z.string(),
+  label: z.string(),
+  isRequired: z.boolean(),
+  isCompleted: z.boolean(),
+  completedAt: z.coerce.date().nullable(),
+  completedBy: z.string().nullable(),
+  createdAt: z.coerce.date(),
+})
+
+const checklistSummarySchema = z.object({
+  total: z.number(),
+  completed: z.number(),
+  required: z.number(),
+  requiredCompleted: z.number(),
+  canAdvance: z.boolean(),
+})
+
+const sourcePolicySnapshotSchema = z.object({
+  policyNumber: z.string(),
+  clientName: z.string(),
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date(),
+  status: z.enum(['ACTIVE', 'CANCELLED', 'EXPIRED']),
+  insurerId: z.string().nullable(),
+  insurerName: z.string().nullable(),
+})
 
 const proposalDataSchema = z.object({
   id: z.string(),
@@ -149,6 +200,10 @@ const proposalDataSchema = z.object({
   details: insuredObjectDetails.nullable(),
   lostReason: z.string().nullable(),
   renewalPolicyId: z.string().nullable(),
+  sourcePolicyId: z.string().nullable(),
+  endorsementType: z.string().nullable(),
+  endorsementReason: z.string().nullable(),
+  sourcePolicySnapshot: sourcePolicySnapshotSchema.nullable(),
   insurerId: z.string().nullable(),
   deletedAt: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),
@@ -175,26 +230,6 @@ export const proposalPdfResponse = successResponse(
     cached: z.boolean(),
   })
 )
-
-const checklistItemSchema = z.object({
-  id: z.string(),
-  proposalId: z.string(),
-  itemKey: z.string(),
-  label: z.string(),
-  isRequired: z.boolean(),
-  isCompleted: z.boolean(),
-  completedAt: z.coerce.date().nullable(),
-  completedBy: z.string().nullable(),
-  createdAt: z.coerce.date(),
-})
-
-const checklistSummarySchema = z.object({
-  total: z.number(),
-  completed: z.number(),
-  required: z.number(),
-  requiredCompleted: z.number(),
-  canAdvance: z.boolean(),
-})
 
 export const checklistResponse = successResponse(
   z.object({

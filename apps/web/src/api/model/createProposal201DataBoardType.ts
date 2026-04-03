@@ -11,4 +11,5 @@ export type CreateProposal201DataBoardType =
 export const CreateProposal201DataBoardType = {
   NEW_INSURANCE: 'NEW_INSURANCE',
   RENEWAL: 'RENEWAL',
+  ENDORSEMENT: 'ENDORSEMENT',
 } as const

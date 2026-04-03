@@ -14,6 +14,7 @@ const PROPOSAL_INCLUDE = {
   client: { select: { name: true, document: true } },
   salesperson: { select: { name: true } },
   insurer: { select: { name: true } },
+  sourcePolicy: { select: { policyNumber: true } },
 } satisfies Prisma.ProposalInclude
 
 @injectable()
@@ -49,6 +50,16 @@ export class PrismaProposalRepository implements ProposalRepository {
     filters: ProposalFilters,
     page: ProposalCursorPage
   ): Promise<ProposalPage> {
+    const createdAt: Prisma.DateTimeFilter = {}
+
+    if (filters.createdFrom) {
+      createdAt.gte = filters.createdFrom
+    }
+
+    if (filters.createdTo) {
+      createdAt.lte = filters.createdTo
+    }
+
     const where: Prisma.ProposalWhereInput = {
       organizationId: filters.organizationId,
       deletedAt: null,
@@ -56,13 +67,22 @@ export class PrismaProposalRepository implements ProposalRepository {
       ...(filters.clientId && { clientId: filters.clientId }),
       ...(filters.salespersonId && { salespersonId: filters.salespersonId }),
       ...(filters.boardType && { boardType: filters.boardType }),
-      // Search via join on Client.name — no trigram index needed on Proposal.clientName
-      // because clientName is a denormalized read-only field only used for display/export,
-      // not for querying. The (organizationId, name) index on Client covers this path.
+      ...(filters.insurerId && { insurerId: filters.insurerId }),
+      ...(filters.sourcePolicyId && { sourcePolicyId: filters.sourcePolicyId }),
+      ...(Object.keys(createdAt).length > 0 && { createdAt }),
       ...(filters.search && {
-        client: {
-          name: { contains: filters.search, mode: 'insensitive' },
-        },
+        OR: [
+          {
+            client: {
+              name: { contains: filters.search, mode: 'insensitive' },
+            },
+          },
+          {
+            sourcePolicy: {
+              policyNumber: { contains: filters.search, mode: 'insensitive' },
+            },
+          },
+        ],
       }),
     }
 

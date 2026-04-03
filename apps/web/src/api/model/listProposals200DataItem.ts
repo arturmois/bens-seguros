@@ -7,6 +7,7 @@
 import type { ListProposals200DataItemBoardType } from './listProposals200DataItemBoardType'
 import type { ListProposals200DataItemBranch } from './listProposals200DataItemBranch'
 import type { ListProposals200DataItemDetails } from './listProposals200DataItemDetails'
+import type { ListProposals200DataItemSourcePolicySnapshot } from './listProposals200DataItemSourcePolicySnapshot'
 import type { ListProposals200DataItemStage } from './listProposals200DataItemStage'
 
 export type ListProposals200DataItem = {
@@ -24,6 +25,14 @@ export type ListProposals200DataItem = {
   lostReason: string | null
   /** @nullable */
   renewalPolicyId: string | null
+  /** @nullable */
+  sourcePolicyId: string | null
+  /** @nullable */
+  endorsementType: string | null
+  /** @nullable */
+  endorsementReason: string | null
+  /** @nullable */
+  sourcePolicySnapshot: ListProposals200DataItemSourcePolicySnapshot
   /** @nullable */
   insurerId: string | null
   /** @nullable */

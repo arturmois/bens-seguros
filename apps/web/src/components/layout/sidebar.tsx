@@ -11,6 +11,7 @@ import {
   Building2,
   ClipboardList,
   DollarSign,
+  FilePen,
   FileText,
   LayoutDashboard,
   LifeBuoy,
@@ -53,6 +54,12 @@ const MAIN_NAV = [
     href: '/proposals',
     label: 'Propostas',
     icon: FileText,
+    permission: 'proposals:read',
+  },
+  {
+    href: '/endorsements',
+    label: 'Endossos',
+    icon: FilePen,
     permission: 'proposals:read',
   },
   {

@@ -15,6 +15,7 @@ import { useDebounce } from '@/hooks/use-debounce'
 
 import { useAdvanceProposal, useProposals } from '../hooks/use-proposals'
 import type { BoardType, ProposalData, ProposalStage } from '../lib/constants'
+import { BOARD_TYPES } from '../lib/constants'
 import { LostReasonDialog } from './lost-reason-dialog'
 import { ProposalTableRow } from './proposal-table-row'
 import {
@@ -25,7 +26,13 @@ import { ProposalsTableToolbar } from './proposals-table-toolbar'
 
 const ALL_VALUE = '__all__'
 
-export function ProposalsTable() {
+interface ProposalsTableProps {
+  allowedBoardTypes?: readonly BoardType[]
+}
+
+export function ProposalsTable({
+  allowedBoardTypes = BOARD_TYPES,
+}: ProposalsTableProps) {
   const router = useRouter()
   const [search, setSearch] = useState('')
   const [stageFilter, setStageFilter] = useState<string>(ALL_VALUE)
@@ -37,14 +44,18 @@ export function ProposalsTable() {
 
   const debouncedSearch = useDebounce(search, 300)
 
+  const boardType =
+    boardTypeFilter !== ALL_VALUE
+      ? (boardTypeFilter as BoardType)
+      : allowedBoardTypes.length === 1
+        ? allowedBoardTypes[0]
+        : undefined
+
   const filters = {
     search: debouncedSearch || undefined,
     stage:
       stageFilter !== ALL_VALUE ? (stageFilter as ProposalStage) : undefined,
-    boardType:
-      boardTypeFilter !== ALL_VALUE
-        ? (boardTypeFilter as BoardType)
-        : undefined,
+    boardType,
     cursor,
     limit: 20,
   }
@@ -92,6 +103,7 @@ export function ProposalsTable() {
         stageFilter={stageFilter}
         boardTypeFilter={boardTypeFilter}
         debouncedSearch={debouncedSearch}
+        allowedBoardTypes={allowedBoardTypes}
         onSearchChange={handleSearchChange}
         onStageFilterChange={handleStageFilterChange}
         onBoardTypeFilterChange={handleBoardTypeFilterChange}

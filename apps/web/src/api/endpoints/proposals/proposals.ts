@@ -28,6 +28,7 @@ import type {
   CompleteProposalChecklistItem404,
   CreateProposal201,
   CreateProposal400,
+  CreateProposal422,
   CreateProposalBody,
   ExportProposalsParams,
   GenerateProposalPdf200,
@@ -400,10 +401,18 @@ export type createProposalResponse400 = {
   status: 400
 }
 
+export type createProposalResponse422 = {
+  data: CreateProposal422
+  status: 422
+}
+
 export type createProposalResponseSuccess = createProposalResponse201 & {
   headers: Headers
 }
-export type createProposalResponseError = createProposalResponse400 & {
+export type createProposalResponseError = (
+  | createProposalResponse400
+  | createProposalResponse422
+) & {
   headers: Headers
 }
 
@@ -428,7 +437,7 @@ export const createProposal = async (
 }
 
 export const getCreateProposalMutationOptions = <
-  TError = CreateProposal400,
+  TError = CreateProposal400 | CreateProposal422,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -469,13 +478,13 @@ export type CreateProposalMutationResult = NonNullable<
   Awaited<ReturnType<typeof createProposal>>
 >
 export type CreateProposalMutationBody = CreateProposalBody
-export type CreateProposalMutationError = CreateProposal400
+export type CreateProposalMutationError = CreateProposal400 | CreateProposal422
 
 /**
  * @summary Create a new proposal
  */
 export const useCreateProposal = <
-  TError = CreateProposal400,
+  TError = CreateProposal400 | CreateProposal422,
   TContext = unknown,
 >(
   options?: {

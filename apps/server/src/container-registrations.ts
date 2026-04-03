@@ -146,7 +146,12 @@ export function registerDependencies(redis: Redis | null = null) {
   // Proposal use cases
   container.register(CreateProposal, {
     useFactory: () =>
-      new CreateProposal(proposalRepo, checklistRepo, checklistConfig),
+      new CreateProposal(
+        proposalRepo,
+        checklistRepo,
+        checklistConfig,
+        policyRepo
+      ),
   })
   container.register(AdvanceProposalStage, {
     useFactory: () =>

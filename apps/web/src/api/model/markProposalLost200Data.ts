@@ -7,6 +7,7 @@
 import type { MarkProposalLost200DataBoardType } from './markProposalLost200DataBoardType'
 import type { MarkProposalLost200DataBranch } from './markProposalLost200DataBranch'
 import type { MarkProposalLost200DataDetails } from './markProposalLost200DataDetails'
+import type { MarkProposalLost200DataSourcePolicySnapshot } from './markProposalLost200DataSourcePolicySnapshot'
 import type { MarkProposalLost200DataStage } from './markProposalLost200DataStage'
 
 export type MarkProposalLost200Data = {
@@ -24,6 +25,14 @@ export type MarkProposalLost200Data = {
   lostReason: string | null
   /** @nullable */
   renewalPolicyId: string | null
+  /** @nullable */
+  sourcePolicyId: string | null
+  /** @nullable */
+  endorsementType: string | null
+  /** @nullable */
+  endorsementReason: string | null
+  /** @nullable */
+  sourcePolicySnapshot: MarkProposalLost200DataSourcePolicySnapshot
   /** @nullable */
   insurerId: string | null
   /** @nullable */

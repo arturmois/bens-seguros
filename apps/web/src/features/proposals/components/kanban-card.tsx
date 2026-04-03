@@ -25,6 +25,8 @@ interface KanbanCardProps {
 }
 
 export function KanbanCard({ proposal, onClick }: KanbanCardProps) {
+  const isEndorsement = proposal.boardType === 'ENDORSEMENT'
+
   return (
     <div
       role="button"
@@ -41,9 +43,25 @@ export function KanbanCard({ proposal, onClick }: KanbanCardProps) {
       )}
     >
       <div className="min-w-0 space-y-2">
-        <p className="truncate text-sm font-medium">
-          {proposal.clientName ?? 'Cliente'}
-        </p>
+        {isEndorsement ? (
+          <>
+            <p className="truncate text-sm font-medium">
+              {proposal.sourcePolicySnapshot?.clientName ??
+                proposal.clientName ??
+                'Cliente'}
+            </p>
+            <p className="text-muted-foreground text-xs">
+              Apólice {proposal.sourcePolicySnapshot?.policyNumber ?? '—'}
+            </p>
+            <p className="text-muted-foreground text-xs">
+              {proposal.endorsementType ?? 'Endosso'}
+            </p>
+          </>
+        ) : (
+          <p className="truncate text-sm font-medium">
+            {proposal.clientName ?? 'Cliente'}
+          </p>
+        )}
         <div className="flex flex-wrap items-center gap-1.5">
           <Badge
             variant="outline"

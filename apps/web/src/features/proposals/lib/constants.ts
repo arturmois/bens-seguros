@@ -119,6 +119,7 @@ export const BRANCH_LABELS: Record<InsuranceBranch, string> = {
 export const BOARD_TYPE_LABELS: Record<BoardType, string> = {
   NEW_INSURANCE: 'Novo Seguro',
   RENEWAL: 'Renovação',
+  ENDORSEMENT: 'Endosso',
 }
 
 export const STAGE_BADGE_VARIANT: Record<
@@ -156,4 +157,14 @@ export const BRANCHES: readonly InsuranceBranch[] = [
 export const BOARD_TYPES: readonly BoardType[] = [
   'NEW_INSURANCE',
   'RENEWAL',
+  'ENDORSEMENT',
+] as const
+
+export const ENDORSEMENT_STAGES: readonly ProposalStage[] = [
+  'QUOTE',
+  'PROTOCOL',
+  'INSPECTION',
+  'PAYMENT',
+  'POLICY_ISSUED',
+  'LOST',
 ] as const
