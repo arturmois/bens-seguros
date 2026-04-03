@@ -20,6 +20,16 @@ describe('CASL Abilities', () => {
     expect(ability.can('manage', 'User')).toBe(false)
   })
 
+  it('ADMIN and MANAGER can manage insurers while COMMERCIAL and VIEWER cannot', () => {
+    expect(defineAbilitiesFor('ADMIN').can('manage', 'Insurer')).toBe(true)
+    expect(defineAbilitiesFor('MANAGER').can('manage', 'Insurer')).toBe(true)
+    expect(defineAbilitiesFor('COMMERCIAL').can('manage', 'Insurer')).toBe(
+      false
+    )
+    expect(defineAbilitiesFor('VIEWER').can('read', 'Insurer')).toBe(false)
+    expect(defineAbilitiesFor('VIEWER').can('manage', 'Insurer')).toBe(false)
+  })
+
   it('COMMERCIAL can create/read/update clients but not delete', () => {
     const ability = defineAbilitiesFor('COMMERCIAL')
     expect(ability.can('create', 'Client')).toBe(true)

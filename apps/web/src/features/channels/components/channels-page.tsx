@@ -38,7 +38,6 @@ import { DeactivateChannelDialog } from './deactivate-channel-dialog'
 import { EmbedCodeDialog } from './embed-code-dialog'
 import { MetaAssetSelect } from './meta-asset-select'
 import { MetaEmbeddedSignup } from './meta-embedded-signup'
-import { MetaOAuthButton } from './meta-oauth-button'
 import { WhatsAppMethodDialog } from './whatsapp-method-dialog'
 
 type ActiveOAuthChannel = 'MESSENGER' | 'INSTAGRAM' | null
@@ -273,8 +272,8 @@ interface ChannelCardsProps {
 
 function ChannelCards({
   onWhatsAppConnect,
-  onMessengerSuccess,
-  onInstagramSuccess,
+  // onMessengerSuccess,
+  // onInstagramSuccess,
   onWebChatConnect,
 }: ChannelCardsProps) {
   return (
@@ -297,7 +296,7 @@ function ChannelCards({
         </CardFooter>
       </Card>
 
-      <Card>
+      {/* <Card>
         <CardHeader>
           <div className="mb-2">
             <ChannelIcon channelType="MESSENGER" size={28} />
@@ -331,7 +330,7 @@ function ChannelCards({
             onSuccess={onInstagramSuccess}
           />
         </CardFooter>
-      </Card>
+      </Card> */}
 
       <Card>
         <CardHeader>

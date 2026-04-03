@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 
@@ -27,8 +27,10 @@ import {
 
 import { IssuePolicyBody } from '@/api/endpoints/policies/policies.zod'
 import { useListInsurers } from '@/api/endpoints/insurers/insurers'
+import type { ListInsurers200DataItem } from '@/api/model'
 import { FormField } from '@/components/shared/form-field'
 import { useIssuePolicy } from '@/features/policies/hooks/use-policies'
+import { InsurerFormSheet } from '@/features/insurers/components/insurer-form-sheet'
 
 const issuePolicyFormSchema = IssuePolicyBody.omit({
   proposalId: true,
@@ -71,8 +73,22 @@ export function IssuePolicySheet({
 }: IssuePolicySheetProps) {
   const router = useRouter()
   const issuePolicy = useIssuePolicy()
-  const { data: insurersResponse } = useListInsurers({ active: true })
+  const {
+    data: insurersResponse,
+    isLoading: insurersLoading,
+    isError: insurersError,
+  } = useListInsurers({ active: true })
+  const [insurerSheetOpen, setInsurerSheetOpen] = useState(false)
+  const [createdInsurer, setCreatedInsurer] =
+    useState<ListInsurers200DataItem | null>(null)
   const insurers = insurersResponse?.data.data ?? []
+  const visibleInsurers = useMemo(() => {
+    if (!createdInsurer) return insurers
+    if (insurers.some((insurer) => insurer.id === createdInsurer.id)) {
+      return insurers
+    }
+    return [createdInsurer, ...insurers]
+  }, [createdInsurer, insurers])
 
   const form = useForm<IssuePolicyFormValues>({
     resolver: zodResolver(issuePolicyFormSchema),
@@ -80,9 +96,21 @@ export function IssuePolicySheet({
   })
 
   useEffect(() => {
-    if (!open) return
+    if (!open) {
+      setInsurerSheetOpen(false)
+      setCreatedInsurer(null)
+      return
+    }
+
     form.reset(EMPTY_VALUES)
+    setCreatedInsurer(null)
   }, [open, form])
+
+  function handleInsurerCreated(insurer: ListInsurers200DataItem) {
+    setCreatedInsurer(insurer)
+    form.setValue('insurerId', insurer.id, { shouldValidate: true })
+    setInsurerSheetOpen(false)
+  }
 
   function handleSubmit(values: IssuePolicyFormValues) {
     issuePolicy.mutate(
@@ -126,29 +154,68 @@ export function IssuePolicySheet({
             error={form.formState.errors.insurerId?.message}
             required
           >
-            <Controller
-              name="insurerId"
-              control={form.control}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a seguradora">
-                      {(value: string | null) => {
-                        const item = insurers.find((i) => i.id === value)
-                        return item?.name ?? null
-                      }}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {insurers.map((insurer) => (
-                      <SelectItem key={insurer.id} value={insurer.id}>
-                        {insurer.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
+            {!insurersLoading &&
+            !insurersError &&
+            visibleInsurers.length === 0 ? (
+              <div className="border-border bg-muted/20 space-y-3 rounded-lg border border-dashed p-4">
+                <div>
+                  <p className="font-medium">
+                    Nenhuma seguradora ativa cadastrada
+                  </p>
+                  <p className="text-muted-foreground text-sm">
+                    Cadastre uma seguradora para concluir a emissão da apólice.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setInsurerSheetOpen(true)}
+                >
+                  <Plus className="mr-2 size-4" />
+                  Cadastrar seguradora
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <Controller
+                  name="insurerId"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a seguradora">
+                          {(value: string | null) => {
+                            const item = visibleInsurers.find(
+                              (insurer) => insurer.id === value
+                            )
+                            return item?.name ?? null
+                          }}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {visibleInsurers.map((insurer) => (
+                          <SelectItem key={insurer.id} value={insurer.id}>
+                            {insurer.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setInsurerSheetOpen(true)}
+                  >
+                    <Plus className="mr-2 size-4" />
+                    Nova seguradora
+                  </Button>
+                </div>
+              </div>
+            )}
           </FormField>
 
           <FormField
@@ -203,6 +270,12 @@ export function IssuePolicySheet({
             </Button>
           </div>
         </form>
+
+        <InsurerFormSheet
+          open={insurerSheetOpen}
+          onOpenChange={setInsurerSheetOpen}
+          onSuccess={handleInsurerCreated}
+        />
       </SheetContent>
     </Sheet>
   )

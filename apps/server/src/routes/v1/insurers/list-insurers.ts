@@ -38,12 +38,18 @@ export function listInsurersRoute(app: FastifyInstance) {
       querystring: listInsurersQuerySchema,
       response: { 200: insurerListResponse },
     },
-    preHandler: [requireAbility('read', 'Policy')],
+    preHandler: [requireAbility('read', 'Insurer')],
     handler: async (request, reply) => {
       const organizationId = request.organizationId!
+      const { active, search, cursor, limit } = request.query
+      const canUseCache =
+        active === undefined &&
+        search === undefined &&
+        cursor === undefined &&
+        limit === 20
       const cacheKey = `cache:${organizationId}:insurers`
 
-      const cacheService = resolveCache()
+      const cacheService = canUseCache ? resolveCache() : null
       if (cacheService) {
         const cached = await cacheService.get<InsurerCacheData>(cacheKey)
         if (cached) {
@@ -56,9 +62,8 @@ export function listInsurersRoute(app: FastifyInstance) {
       }
 
       const useCase = container.resolve(ListInsurers)
-      const { limit, cursor, ...filters } = request.query
       const result = await useCase.execute(
-        { organizationId, ...filters },
+        { organizationId, active, search },
         { limit, cursor }
       )
 

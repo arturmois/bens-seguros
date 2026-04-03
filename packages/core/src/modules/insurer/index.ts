@@ -4,6 +4,7 @@ export type {
   InsurerFilters,
   InsurerRepository,
   CreateInsurerInput,
+  UpdateInsurerInput,
 } from './domain/insurer-repository.js'
 export {
   InsurerNotFoundError,
@@ -15,6 +16,7 @@ export {
 export { CreateInsurer } from './application/create-insurer.js'
 export { ListInsurers } from './application/list-insurers.js'
 export { GetInsurer } from './application/get-insurer.js'
+export { UpdateInsurer } from './application/update-insurer.js'
 
 // Infrastructure
 export { InsurerMapper } from './infrastructure/insurer-mapper.js'

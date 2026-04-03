@@ -7,7 +7,9 @@ import type {
   InsurerData,
   InsurerFilters,
   CreateInsurerInput,
+  UpdateInsurerInput,
 } from '../domain/insurer-repository.js'
+import { InsurerErrors } from '../domain/insurer-errors.js'
 import { InsurerMapper } from './insurer-mapper.js'
 
 @injectable()
@@ -55,7 +57,10 @@ export class PrismaInsurerRepository implements InsurerRepository {
       organizationId: filters.organizationId,
       ...(filters.active !== undefined && { active: filters.active }),
       ...(filters.search && {
-        name: { contains: filters.search, mode: 'insensitive' },
+        OR: [
+          { name: { contains: filters.search, mode: 'insensitive' } },
+          { code: { contains: filters.search, mode: 'insensitive' } },
+        ],
       }),
     }
 
@@ -73,5 +78,38 @@ export class PrismaInsurerRepository implements InsurerRepository {
       items: items.map(InsurerMapper.toDomain),
       nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,
     }
+  }
+
+  async update(data: UpdateInsurerInput): Promise<InsurerData> {
+    const updateData: Prisma.InsurerUpdateInput = {
+      name: data.name,
+    }
+
+    if (data.code !== undefined) {
+      updateData.code = data.code
+    }
+
+    if (data.active !== undefined) {
+      updateData.active = data.active
+    }
+
+    const result = await this.prisma.insurer.updateMany({
+      where: { id: data.id, organizationId: data.organizationId },
+      data: updateData,
+    })
+
+    if (result.count === 0) {
+      throw InsurerErrors.notFound(data.id)
+    }
+
+    const row = await this.prisma.insurer.findFirst({
+      where: { id: data.id, organizationId: data.organizationId },
+    })
+
+    if (!row) {
+      throw InsurerErrors.notFound(data.id)
+    }
+
+    return InsurerMapper.toDomain(row)
   }
 }

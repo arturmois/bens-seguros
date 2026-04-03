@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import type { Role } from '@repo/auth/roles'
 import {
   AlertTriangle,
+  Building2,
   ClipboardList,
   DollarSign,
   FileText,
@@ -41,6 +42,12 @@ const MAIN_NAV = [
     label: 'Clientes',
     icon: Users,
     permission: 'clients:read',
+  },
+  {
+    href: '/insurers',
+    label: 'Seguradoras',
+    icon: Building2,
+    permission: 'insurers:read',
   },
   {
     href: '/proposals',

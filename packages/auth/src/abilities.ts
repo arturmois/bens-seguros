@@ -28,6 +28,7 @@ export type Subject =
   | 'Notification'
   | 'Member'
   | 'Invitation'
+  | 'Insurer'
 
 export type AppAbility = MongoAbility<[Action, Subject]>
 
@@ -39,10 +40,13 @@ const OPERATIONAL_SUBJECTS: Subject[] = [
   'Endorsement',
   'Assistance',
   'Document',
+  'Insurer',
 ]
 
 export function defineAbilitiesFor(role: Role): AppAbility {
-  const { can, build } = new AbilityBuilder<AppAbility>(createMongoAbility)
+  const { can, cannot, build } = new AbilityBuilder<AppAbility>(
+    createMongoAbility
+  )
 
   switch (role) {
     case 'OWNER':
@@ -80,6 +84,7 @@ export function defineAbilitiesFor(role: Role): AppAbility {
 
     case 'VIEWER':
       can('read', OPERATIONAL_SUBJECTS)
+      cannot('read', 'Insurer')
       can('read', ['Commission', 'Notification'])
       break
   }

@@ -22,3 +22,5 @@ task*.png
 skills-lock.json
 *.pem
 .vercel
+.codex/
+.worktrees/

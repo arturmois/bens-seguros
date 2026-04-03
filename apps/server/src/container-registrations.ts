@@ -76,6 +76,7 @@ import {
   UpdateClient,
   UpdateMemberRole,
   UpdateProposalDetails,
+  UpdateInsurer,
   UploadDocument,
 } from '@repo/core'
 import { prisma } from '@repo/db'
@@ -271,6 +272,9 @@ export function registerDependencies(redis: Redis | null = null) {
   })
   container.register(ListInsurers, {
     useFactory: () => new ListInsurers(insurerRepo),
+  })
+  container.register(UpdateInsurer, {
+    useFactory: () => new UpdateInsurer(insurerRepo),
   })
 
   // Commission use cases
