@@ -25,6 +25,7 @@ export class PolicyMapper {
       proposalId: row.proposalId,
       clientId: row.clientId,
       salespersonId: row.salespersonId,
+      insurerId: row.insurerId,
       policyNumber: row.policyNumber,
       status: row.status,
       branch: row.branch,

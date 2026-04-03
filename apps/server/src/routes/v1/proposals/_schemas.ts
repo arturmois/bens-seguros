@@ -152,6 +152,36 @@ export const listProposalsQuery = paginationQuery().extend({
 
 // ── Response schemas (typed for OpenAPI) ────────────────────────────
 
+const checklistItemSchema = z.object({
+  id: z.string(),
+  proposalId: z.string(),
+  itemKey: z.string(),
+  label: z.string(),
+  isRequired: z.boolean(),
+  isCompleted: z.boolean(),
+  completedAt: z.coerce.date().nullable(),
+  completedBy: z.string().nullable(),
+  createdAt: z.coerce.date(),
+})
+
+const checklistSummarySchema = z.object({
+  total: z.number(),
+  completed: z.number(),
+  required: z.number(),
+  requiredCompleted: z.number(),
+  canAdvance: z.boolean(),
+})
+
+const sourcePolicySnapshotSchema = z.object({
+  policyNumber: z.string(),
+  clientName: z.string(),
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date(),
+  status: z.enum(['ACTIVE', 'CANCELLED', 'EXPIRED']),
+  insurerId: z.string().nullable(),
+  insurerName: z.string().nullable(),
+})
+
 const proposalDataSchema = z.object({
   id: z.string(),
   organizationId: z.string(),
@@ -165,6 +195,10 @@ const proposalDataSchema = z.object({
   details: insuredObjectDetails.nullable(),
   lostReason: z.string().nullable(),
   renewalPolicyId: z.string().nullable(),
+  sourcePolicyId: z.string().nullable(),
+  endorsementType: z.string().nullable(),
+  endorsementReason: z.string().nullable(),
+  sourcePolicySnapshot: sourcePolicySnapshotSchema.nullable(),
   insurerId: z.string().nullable(),
   deletedAt: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),
@@ -191,26 +225,6 @@ export const proposalPdfResponse = successResponse(
     cached: z.boolean(),
   })
 )
-
-const checklistItemSchema = z.object({
-  id: z.string(),
-  proposalId: z.string(),
-  itemKey: z.string(),
-  label: z.string(),
-  isRequired: z.boolean(),
-  isCompleted: z.boolean(),
-  completedAt: z.coerce.date().nullable(),
-  completedBy: z.string().nullable(),
-  createdAt: z.coerce.date(),
-})
-
-const checklistSummarySchema = z.object({
-  total: z.number(),
-  completed: z.number(),
-  required: z.number(),
-  requiredCompleted: z.number(),
-  canAdvance: z.boolean(),
-})
 
 export const checklistResponse = successResponse(
   z.object({

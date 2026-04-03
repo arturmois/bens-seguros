@@ -146,6 +146,7 @@ describe('CreateProposal', () => {
       cancelReason: null,
       createdAt: new Date(),
       updatedAt: new Date(),
+      insurerId: 'ins-1',
       clientName: 'Maria Souza',
       salespersonName: 'Jainne',
       insurerName: 'Porto',
@@ -169,8 +170,9 @@ describe('CreateProposal', () => {
     expect(result.stage).toBe('QUOTE')
     expect(result.clientId).toBe('client-1')
     expect(result.branch).toBe('AUTO')
-    expect(result.insurerId).toBeNull()
+    expect(result.insurerId).toBe('ins-1')
     expect(result.sourcePolicySnapshot?.policyNumber).toBe('POL-001')
+    expect(result.sourcePolicySnapshot?.insurerId).toBe('ins-1')
     expect(checklistConfig.getItems).toHaveBeenCalledWith('QUOTE', 'AUTO')
   })
 

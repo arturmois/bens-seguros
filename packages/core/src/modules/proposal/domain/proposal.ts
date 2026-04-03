@@ -144,7 +144,7 @@ interface CreateProposalInput {
   endorsementType?: string
   endorsementReason?: string
   sourcePolicySnapshot?: SourcePolicySnapshot
-  insurerId?: string
+  insurerId?: string | null
 }
 
 export type { Stage, ActiveStage, Branch, BoardType }

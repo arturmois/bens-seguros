@@ -95,13 +95,14 @@ export class CreateProposal {
       sourcePolicyId: policy.id,
       endorsementType: dto.endorsementType,
       endorsementReason: dto.endorsementReason,
+      insurerId: policy.insurerId,
       sourcePolicySnapshot: {
         policyNumber: policy.policyNumber,
         clientName: policy.clientName ?? 'Sem cliente',
         startDate: policy.startDate,
         endDate: policy.endDate,
         status: policy.status,
-        insurerId: null,
+        insurerId: policy.insurerId,
         insurerName: policy.insurerName ?? null,
       },
     })
