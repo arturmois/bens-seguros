@@ -1,6 +1,13 @@
 'use client'
 
-import { ArrowLeft, FileText, Loader2, RefreshCw } from 'lucide-react'
+import {
+  ArrowLeft,
+  ExternalLink,
+  FileText,
+  Loader2,
+  RefreshCw,
+} from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -158,6 +165,46 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
           value={formatDate(proposal.updatedAt)}
         />
       </div>
+
+      {proposal.boardType === 'ENDORSEMENT' &&
+        proposal.sourcePolicySnapshot && (
+          <>
+            <Separator />
+            <div className="space-y-3 rounded-lg border p-4">
+              <p className="text-sm font-semibold">Apólice de Origem</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <InfoItem
+                  label="Número"
+                  value={proposal.sourcePolicySnapshot.policyNumber}
+                />
+                <InfoItem
+                  label="Segurado"
+                  value={proposal.sourcePolicySnapshot.clientName}
+                />
+                <InfoItem
+                  label="Seguradora"
+                  value={proposal.sourcePolicySnapshot.insurerName ?? '—'}
+                />
+                <InfoItem
+                  label="Tipo de Endosso"
+                  value={proposal.endorsementType ?? '—'}
+                />
+                <InfoItem
+                  label="Motivo"
+                  value={proposal.endorsementReason ?? '—'}
+                />
+              </div>
+              {proposal.sourcePolicyId && (
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/policies/${proposal.sourcePolicyId}`}>
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Ver apólice
+                  </Link>
+                </Button>
+              )}
+            </div>
+          </>
+        )}
 
       {proposal.stage === 'LOST' && proposal.lostReason && (
         <>

@@ -96,6 +96,31 @@ function KanbanCardDetailBody({ proposal }: { proposal: ProposalData }) {
         )}
       </div>
 
+      {proposal.boardType === 'ENDORSEMENT' &&
+        proposal.sourcePolicySnapshot && (
+          <div className="space-y-2 rounded-lg border p-3">
+            <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
+              Apólice de origem
+            </p>
+            <DetailItem label="Número">
+              <span>{proposal.sourcePolicySnapshot.policyNumber}</span>
+            </DetailItem>
+            <DetailItem label="Segurado">
+              <span>{proposal.sourcePolicySnapshot.clientName}</span>
+            </DetailItem>
+            <DetailItem label="Motivo">
+              <span>{proposal.endorsementReason ?? '—'}</span>
+            </DetailItem>
+            {proposal.sourcePolicyId && (
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/policies/${proposal.sourcePolicyId}`}>
+                  Ver apólice
+                </Link>
+              </Button>
+            )}
+          </div>
+        )}
+
       <ProposalStageActions
         canAdvance={canAdvance}
         canMarkLost={false}
