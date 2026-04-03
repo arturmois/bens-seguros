@@ -38,6 +38,10 @@ function isActiveStage(stage: Stage): stage is ActiveStage {
   return stage !== 'LOST'
 }
 
+function getInitialStage(boardType: BoardType): Stage {
+  return boardType === 'ENDORSEMENT' ? 'QUOTE' : 'CAPTURE'
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
@@ -149,15 +153,12 @@ export class Proposal {
   private constructor(private readonly props: ProposalProps) {}
 
   static create(input: CreateProposalInput): Proposal {
-    const initialStage: Stage =
-      input.boardType === 'ENDORSEMENT' ? 'QUOTE' : 'CAPTURE'
-
     return new Proposal({
       id: randomUUID(),
       organizationId: input.organizationId,
       clientId: input.clientId,
       salespersonId: input.salespersonId,
-      stage: initialStage,
+      stage: getInitialStage(input.boardType),
       boardType: input.boardType,
       branch: input.branch,
       premiumValueInCents: input.premiumValueInCents ?? 0,
@@ -234,7 +235,7 @@ export class Proposal {
     if (this.props.stage !== 'LOST') {
       throw new InvalidStageTransitionError(this.props.stage, 'reabrir')
     }
-    this.props.stage = 'CAPTURE'
+    this.props.stage = getInitialStage(this.props.boardType)
     this.props.lostReason = null
     this.props.updatedAt = new Date()
   }
