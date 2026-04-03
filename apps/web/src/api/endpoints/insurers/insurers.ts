@@ -109,24 +109,24 @@ export type CreateInsurerMutationError = unknown
 /**
  * @summary Create a new insurer
  */
-export const useCreateInsurer = <
-  TError = unknown,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof createInsurer>>,
-    TError,
-    { data: CreateInsurerBody },
-    TContext
-  >
-  request?: SecondParameter<typeof customFetch>
-}): UseMutationResult<
+export const useCreateInsurer = <TError = unknown, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof createInsurer>>,
+      TError,
+      { data: CreateInsurerBody },
+      TContext
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
   Awaited<ReturnType<typeof createInsurer>>,
   TError,
   { data: CreateInsurerBody },
   TContext
 > => {
-  return useMutation(getCreateInsurerMutationOptions(options))
+  return useMutation(getCreateInsurerMutationOptions(options), queryClient)
 }
 /**
  * @summary List insurers with cursor pagination and caching
@@ -339,22 +339,22 @@ export type UpdateInsurerMutationError = unknown
 /**
  * @summary Update an insurer
  */
-export const useUpdateInsurer = <
-  TError = unknown,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof updateInsurer>>,
-    TError,
-    { id: string; data: UpdateInsurerBody },
-    TContext
-  >
-  request?: SecondParameter<typeof customFetch>
-}): UseMutationResult<
+export const useUpdateInsurer = <TError = unknown, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof updateInsurer>>,
+      TError,
+      { id: string; data: UpdateInsurerBody },
+      TContext
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
   Awaited<ReturnType<typeof updateInsurer>>,
   TError,
   { id: string; data: UpdateInsurerBody },
   TContext
 > => {
-  return useMutation(getUpdateInsurerMutationOptions(options))
+  return useMutation(getUpdateInsurerMutationOptions(options), queryClient)
 }
