@@ -73,7 +73,8 @@ export function IssuePolicySheet({
 }: IssuePolicySheetProps) {
   const router = useRouter()
   const issuePolicy = useIssuePolicy()
-  const { data: insurersResponse } = useListInsurers({ active: true })
+  const { data: insurersResponse, isLoading: insurersLoading } =
+    useListInsurers({ active: true })
   const [insurerSheetOpen, setInsurerSheetOpen] = useState(false)
   const [createdInsurer, setCreatedInsurer] =
     useState<ListInsurers200DataItem | null>(null)
@@ -92,7 +93,12 @@ export function IssuePolicySheet({
   })
 
   useEffect(() => {
-    if (!open) return
+    if (!open) {
+      setInsurerSheetOpen(false)
+      setCreatedInsurer(null)
+      return
+    }
+
     form.reset(EMPTY_VALUES)
     setCreatedInsurer(null)
   }, [open, form])
@@ -145,7 +151,7 @@ export function IssuePolicySheet({
             error={form.formState.errors.insurerId?.message}
             required
           >
-            {visibleInsurers.length === 0 ? (
+            {!insurersLoading && visibleInsurers.length === 0 ? (
               <div className="border-border bg-muted/20 space-y-3 rounded-lg border border-dashed p-4">
                 <div>
                   <p className="font-medium">
