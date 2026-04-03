@@ -49,3 +49,30 @@ export const ListInsurersResponse = zod.object({
     nextCursor: zod.string().nullish(),
   }),
 })
+
+/**
+ * @summary Update an insurer
+ */
+
+export const UpdateInsurerParams = zod.object({
+  id: zod.string().min(1),
+})
+
+export const UpdateInsurerBody = zod.object({
+  name: zod.string().min(1),
+  code: zod.union([zod.enum(['']), zod.string()]).optional(),
+  active: zod.boolean(),
+})
+
+export const UpdateInsurerResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    name: zod.string(),
+    code: zod.string().nullable(),
+    active: zod.boolean(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+  }),
+})

@@ -6,14 +6,10 @@
  */
 import { useMutation, useQuery } from '@tanstack/react-query'
 import type {
-  DataTag,
-  DefinedInitialDataOptions,
-  DefinedUseQueryResult,
   MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
-  UndefinedInitialDataOptions,
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
@@ -25,9 +21,15 @@ import type {
   CreateInsurerBody,
   ListInsurers200,
   ListInsurersParams,
+  UpdateInsurer200,
+  UpdateInsurerBody,
 } from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
+
+type AwaitedInput<T> = PromiseLike<T> | T
+
+type Awaited<O> = O extends AwaitedInput<infer T> ? T : never
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
 
@@ -107,24 +109,24 @@ export type CreateInsurerMutationError = unknown
 /**
  * @summary Create a new insurer
  */
-export const useCreateInsurer = <TError = unknown, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof createInsurer>>,
-      TError,
-      { data: CreateInsurerBody },
-      TContext
-    >
-    request?: SecondParameter<typeof customFetch>
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
+export const useCreateInsurer = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createInsurer>>,
+    TError,
+    { data: CreateInsurerBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customFetch>
+}): UseMutationResult<
   Awaited<ReturnType<typeof createInsurer>>,
   TError,
   { data: CreateInsurerBody },
   TContext
 > => {
-  return useMutation(getCreateInsurerMutationOptions(options), queryClient)
+  return useMutation(getCreateInsurerMutationOptions(options))
 }
 /**
  * @summary List insurers with cursor pagination and caching
@@ -175,8 +177,10 @@ export const getListInsurersQueryOptions = <
 >(
   params?: ListInsurersParams,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof listInsurers>>, TError, TData>
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listInsurers>>,
+      TError,
+      TData
     >
     request?: SecondParameter<typeof customFetch>
   }
@@ -198,7 +202,7 @@ export const getListInsurersQueryOptions = <
     Awaited<ReturnType<typeof listInsurers>>,
     TError,
     TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> }
+  > & { queryKey: QueryKey }
 }
 
 export type ListInsurersQueryResult = NonNullable<
@@ -206,67 +210,6 @@ export type ListInsurersQueryResult = NonNullable<
 >
 export type ListInsurersQueryError = unknown
 
-export function useListInsurers<
-  TData = Awaited<ReturnType<typeof listInsurers>>,
-  TError = unknown,
->(
-  params: undefined | ListInsurersParams,
-  options: {
-    query: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof listInsurers>>, TError, TData>
-    > &
-      Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof listInsurers>>,
-          TError,
-          Awaited<ReturnType<typeof listInsurers>>
-        >,
-        'initialData'
-      >
-    request?: SecondParameter<typeof customFetch>
-  },
-  queryClient?: QueryClient
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-export function useListInsurers<
-  TData = Awaited<ReturnType<typeof listInsurers>>,
-  TError = unknown,
->(
-  params?: ListInsurersParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof listInsurers>>, TError, TData>
-    > &
-      Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof listInsurers>>,
-          TError,
-          Awaited<ReturnType<typeof listInsurers>>
-        >,
-        'initialData'
-      >
-    request?: SecondParameter<typeof customFetch>
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-export function useListInsurers<
-  TData = Awaited<ReturnType<typeof listInsurers>>,
-  TError = unknown,
->(
-  params?: ListInsurersParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof listInsurers>>, TError, TData>
-    >
-    request?: SecondParameter<typeof customFetch>
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
 /**
  * @summary List insurers with cursor pagination and caching
  */
@@ -277,21 +220,19 @@ export function useListInsurers<
 >(
   params?: ListInsurersParams,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof listInsurers>>, TError, TData>
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listInsurers>>,
+      TError,
+      TData
     >
     request?: SecondParameter<typeof customFetch>
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-} {
+  }
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getListInsurersQueryOptions(params, options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> }
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey
+  }
 
   return { ...query, queryKey: queryOptions.queryKey }
 }
@@ -306,8 +247,10 @@ export const prefetchListInsurersQuery = async <
   queryClient: QueryClient,
   params?: ListInsurersParams,
   options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof listInsurers>>, TError, TData>
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listInsurers>>,
+      TError,
+      TData
     >
     request?: SecondParameter<typeof customFetch>
   }
@@ -317,4 +260,101 @@ export const prefetchListInsurersQuery = async <
   await queryClient.prefetchQuery(queryOptions)
 
   return queryClient
+}
+
+/**
+ * @summary Update an insurer
+ */
+export type updateInsurerResponse200 = {
+  data: UpdateInsurer200
+  status: 200
+}
+
+export type updateInsurerResponseSuccess = updateInsurerResponse200 & {
+  headers: Headers
+}
+export type updateInsurerResponse = updateInsurerResponseSuccess
+
+export const getUpdateInsurerUrl = (id: string) => {
+  return `/api/v1/insurers/${id}`
+}
+
+export const updateInsurer = async (
+  id: string,
+  updateInsurerBody: UpdateInsurerBody,
+  options?: RequestInit
+): Promise<updateInsurerResponse> => {
+  return customFetch<updateInsurerResponse>(getUpdateInsurerUrl(id), {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(updateInsurerBody),
+  })
+}
+
+export const getUpdateInsurerMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateInsurer>>,
+    TError,
+    { id: string; data: UpdateInsurerBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customFetch>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateInsurer>>,
+  TError,
+  { id: string; data: UpdateInsurerBody },
+  TContext
+> => {
+  const mutationKey = ['updateInsurer']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateInsurer>>,
+    { id: string; data: UpdateInsurerBody }
+  > = (props) => {
+    const { id, data } = props ?? {}
+
+    return updateInsurer(id, data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type UpdateInsurerMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateInsurer>>
+>
+export type UpdateInsurerMutationBody = UpdateInsurerBody
+export type UpdateInsurerMutationError = unknown
+
+/**
+ * @summary Update an insurer
+ */
+export const useUpdateInsurer = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateInsurer>>,
+    TError,
+    { id: string; data: UpdateInsurerBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customFetch>
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateInsurer>>,
+  TError,
+  { id: string; data: UpdateInsurerBody },
+  TContext
+> => {
+  return useMutation(getUpdateInsurerMutationOptions(options))
 }
