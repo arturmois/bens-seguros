@@ -44,6 +44,22 @@ export class ChecklistIncompleteError extends Error {
   }
 }
 
+export class SourcePolicyRequiredForEndorsementError extends Error {
+  readonly code = 'SOURCE_POLICY_REQUIRED_FOR_ENDORSEMENT' as const
+  constructor() {
+    super('Endosso exige uma apólice de origem')
+    this.name = 'SourcePolicyRequiredForEndorsementError'
+  }
+}
+
+export class SourcePolicyNotEligibleError extends Error {
+  readonly code = 'SOURCE_POLICY_NOT_ELIGIBLE' as const
+  constructor(policyId: string) {
+    super(`A apólice de origem precisa estar em vigor (${policyId})`)
+    this.name = 'SourcePolicyNotEligibleError'
+  }
+}
+
 export const ProposalErrors = {
   notFound: (id: string) => new ProposalNotFoundError(id),
   invalidTransition: (from: string, action: string) =>
@@ -53,4 +69,7 @@ export const ProposalErrors = {
     new BranchMismatchError(expected, received),
   checklistIncomplete: (id: string, pending: number) =>
     new ChecklistIncompleteError(id, pending),
+  sourcePolicyRequiredForEndorsement: () =>
+    new SourcePolicyRequiredForEndorsementError(),
+  sourcePolicyNotEligible: (id: string) => new SourcePolicyNotEligibleError(id),
 }
