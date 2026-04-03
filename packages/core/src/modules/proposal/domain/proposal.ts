@@ -38,10 +38,66 @@ function isActiveStage(stage: Stage): stage is ActiveStage {
   return stage !== 'LOST'
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function isValidSnapshotStatus(
+  value: unknown
+): value is SourcePolicySnapshot['status'] {
+  return value === 'ACTIVE' || value === 'CANCELLED' || value === 'EXPIRED'
+}
+
+function parseSnapshotDate(value: unknown): Date | null {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return value
+  }
+
+  if (typeof value !== 'string') {
+    return null
+  }
+
+  const parsed = new Date(value)
+  return Number.isNaN(parsed.getTime()) ? null : parsed
+}
+
+export function parseSourcePolicySnapshot(
+  value: unknown
+): SourcePolicySnapshot | null {
+  if (!isRecord(value)) {
+    return null
+  }
+
+  const startDate = parseSnapshotDate(value.startDate)
+  const endDate = parseSnapshotDate(value.endDate)
+
+  if (
+    typeof value.policyNumber !== 'string' ||
+    typeof value.clientName !== 'string' ||
+    startDate === null ||
+    endDate === null ||
+    !isValidSnapshotStatus(value.status) ||
+    (value.insurerId !== null && typeof value.insurerId !== 'string') ||
+    (value.insurerName !== null && typeof value.insurerName !== 'string')
+  ) {
+    return null
+  }
+
+  return {
+    policyNumber: value.policyNumber,
+    clientName: value.clientName,
+    startDate,
+    endDate,
+    status: value.status,
+    insurerId: value.insurerId,
+    insurerName: value.insurerName,
+  }
+}
+
 export function isSourcePolicySnapshot(
   value: unknown
 ): value is SourcePolicySnapshot {
-  return typeof value === 'object' && value !== null && 'policyNumber' in value
+  return parseSourcePolicySnapshot(value) !== null
 }
 
 export interface ProposalProps {

@@ -1,6 +1,6 @@
 import type { Proposal as PrismaProposalRecord } from '@repo/db'
 import { Prisma } from '@repo/db'
-import { Proposal, isSourcePolicySnapshot } from '../domain/proposal.js'
+import { Proposal, parseSourcePolicySnapshot } from '../domain/proposal.js'
 import type { ProposalProps } from '../domain/proposal.js'
 import { isInsuredObjectDetails } from '../domain/insured-object-details.js'
 
@@ -34,9 +34,7 @@ export class ProposalMapper {
       sourcePolicyId: row.sourcePolicyId,
       endorsementType: row.endorsementType,
       endorsementReason: row.endorsementReason,
-      sourcePolicySnapshot: isSourcePolicySnapshot(row.sourcePolicySnapshot)
-        ? row.sourcePolicySnapshot
-        : null,
+      sourcePolicySnapshot: parseSourcePolicySnapshot(row.sourcePolicySnapshot),
       insurerId: row.insurerId,
       deletedAt: row.deletedAt,
       createdAt: row.createdAt,
