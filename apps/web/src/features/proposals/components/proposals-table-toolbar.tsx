@@ -14,12 +14,7 @@ import {
 } from '@/components/ui/select'
 
 import type { BoardType, ProposalStage } from '../lib/constants'
-import {
-  BOARD_TYPE_LABELS,
-  BOARD_TYPES,
-  STAGE_LABELS,
-  STAGES,
-} from '../lib/constants'
+import { BOARD_TYPE_LABELS, STAGE_LABELS, STAGES } from '../lib/constants'
 import { ProposalExportButton } from './proposal-export-button'
 
 const ALL_VALUE = '__all__'
@@ -29,6 +24,7 @@ interface ProposalsTableToolbarProps {
   readonly stageFilter: string
   readonly boardTypeFilter: string
   readonly debouncedSearch: string
+  readonly allowedBoardTypes: readonly BoardType[]
   readonly onSearchChange: (value: string) => void
   readonly onStageFilterChange: (value: string) => void
   readonly onBoardTypeFilterChange: (value: string) => void
@@ -39,6 +35,7 @@ export function ProposalsTableToolbar({
   stageFilter,
   boardTypeFilter,
   debouncedSearch,
+  allowedBoardTypes,
   onSearchChange,
   onStageFilterChange,
   onBoardTypeFilterChange,
@@ -91,7 +88,7 @@ export function ProposalsTableToolbar({
         }}
         items={[
           { value: ALL_VALUE, label: 'Todos' },
-          ...BOARD_TYPES.map((bt) => ({
+          ...allowedBoardTypes.map((bt) => ({
             value: bt,
             label: BOARD_TYPE_LABELS[bt],
           })),
@@ -107,7 +104,7 @@ export function ProposalsTableToolbar({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value={ALL_VALUE}>Todos</SelectItem>
-          {BOARD_TYPES.map((bt) => (
+          {allowedBoardTypes.map((bt) => (
             <SelectItem key={bt} value={bt}>
               {BOARD_TYPE_LABELS[bt]}
             </SelectItem>

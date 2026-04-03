@@ -64,7 +64,14 @@ export function ProposalsContent() {
         </div>
       </div>
 
-      {viewMode === 'table' ? <ProposalsTable /> : <ProposalKanban />}
+      {viewMode === 'table' ? (
+        <ProposalsTable allowedBoardTypes={['NEW_INSURANCE', 'RENEWAL']} />
+      ) : (
+        <ProposalKanban
+          initialBoardType="NEW_INSURANCE"
+          allowedBoardTypes={['NEW_INSURANCE', 'RENEWAL']}
+        />
+      )}
     </div>
   )
 }

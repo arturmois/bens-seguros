@@ -7,13 +7,15 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import type { BoardType } from '../lib/constants'
-import { BOARD_TYPE_LABELS, BOARD_TYPES, STAGES } from '../lib/constants'
+import { BOARD_TYPE_LABELS, STAGES } from '../lib/constants'
 
 interface KanbanToolbarProps {
   search: string
   onSearchChange: (value: string) => void
   boardType: BoardType
   onBoardTypeChange: (value: BoardType) => void
+  allowedBoardTypes: readonly BoardType[]
+  searchPlaceholder?: string
 }
 
 export function KanbanToolbar({
@@ -21,31 +23,37 @@ export function KanbanToolbar({
   onSearchChange,
   boardType,
   onBoardTypeChange,
+  allowedBoardTypes,
+  searchPlaceholder = 'Buscar propostas...',
 }: KanbanToolbarProps) {
+  const showBoardToggle = allowedBoardTypes.length > 1
+
   return (
     <div className="flex flex-wrap items-center gap-3">
       <div className="relative min-w-[200px] flex-1">
         <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
         <Input
           aria-label="Buscar propostas"
-          placeholder="Buscar propostas..."
+          placeholder={searchPlaceholder}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-9"
         />
       </div>
-      <div className="flex gap-1 rounded-md border p-0.5">
-        {BOARD_TYPES.map((bt) => (
-          <Button
-            key={bt}
-            variant={boardType === bt ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => onBoardTypeChange(bt)}
-          >
-            {BOARD_TYPE_LABELS[bt]}
-          </Button>
-        ))}
-      </div>
+      {showBoardToggle && (
+        <div className="flex gap-1 rounded-md border p-0.5">
+          {allowedBoardTypes.map((bt) => (
+            <Button
+              key={bt}
+              variant={boardType === bt ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => onBoardTypeChange(bt)}
+            >
+              {BOARD_TYPE_LABELS[bt]}
+            </Button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

@@ -157,4 +157,24 @@ export const BRANCHES: readonly InsuranceBranch[] = [
 export const BOARD_TYPES: readonly BoardType[] = [
   'NEW_INSURANCE',
   'RENEWAL',
+  'ENDORSEMENT',
 ] as const
+
+export const ENDORSEMENT_STAGES: readonly ProposalStage[] = [
+  'QUOTE',
+  'PROTOCOL',
+  'INSPECTION',
+  'PAYMENT',
+  'POLICY_ISSUED',
+  'LOST',
+] as const
+
+export const ENDORSEMENT_STAGE_LABELS: Partial<Record<ProposalStage, string>> =
+  {
+    QUOTE: 'Cotação',
+    PROTOCOL: 'Protocolo',
+    INSPECTION: 'Pendência',
+    PAYMENT: 'Pagamento',
+    POLICY_ISSUED: 'Apólice',
+    LOST: 'Perda',
+  }

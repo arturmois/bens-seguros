@@ -20,7 +20,7 @@ import { api, ApiError } from '@/lib/api-client'
 
 import type { KanbanFilters } from '../hooks/use-kanban-proposals'
 import type { BoardType, ProposalData, ProposalStage } from '../lib/constants'
-import { STAGES } from '../lib/constants'
+import { BOARD_TYPES, ENDORSEMENT_STAGES, STAGES } from '../lib/constants'
 import { KanbanCard } from './kanban-card'
 import { KanbanCardDetail } from './kanban-card-detail'
 import { KanbanColumn } from './kanban-column'
@@ -41,9 +41,19 @@ interface OptimisticMove {
   proposal: ProposalData
 }
 
-function isNextStage(from: ProposalStage, to: ProposalStage): boolean {
-  const fromIndex = STAGES.indexOf(from)
-  const toIndex = STAGES.indexOf(to)
+interface ProposalKanbanProps {
+  initialBoardType?: BoardType
+  allowedBoardTypes?: readonly BoardType[]
+  searchPlaceholder?: string
+}
+
+function isNextStage(
+  from: ProposalStage,
+  to: ProposalStage,
+  stages: readonly ProposalStage[]
+): boolean {
+  const fromIndex = stages.indexOf(from)
+  const toIndex = stages.indexOf(to)
   return toIndex === fromIndex + 1 && to !== 'LOST'
 }
 
@@ -54,9 +64,10 @@ function isProposalStage(value: string): value is ProposalStage {
 function findProposalInCache(
   queryClient: ReturnType<typeof useQueryClient>,
   proposalId: string,
-  filters: KanbanFilters
+  filters: KanbanFilters,
+  stages: readonly ProposalStage[]
 ): { proposal: ProposalData; stage: ProposalStage } | undefined {
-  for (const stage of STAGES) {
+  for (const stage of stages) {
     const queryKey = ['proposals', 'kanban', stage, filters]
     const cached = queryClient.getQueryData<{
       pages: Array<{ data: ProposalData[] }>
@@ -72,8 +83,12 @@ function findProposalInCache(
   return undefined
 }
 
-export function ProposalKanban() {
-  const [boardType, setBoardType] = useState<BoardType>('NEW_INSURANCE')
+export function ProposalKanban({
+  initialBoardType = 'NEW_INSURANCE',
+  allowedBoardTypes = BOARD_TYPES,
+  searchPlaceholder,
+}: ProposalKanbanProps) {
+  const [boardType, setBoardType] = useState<BoardType>(initialBoardType)
   const [search, setSearch] = useState('')
   const [selectedProposal, setSelectedProposal] = useState<ProposalData | null>(
     null
@@ -88,6 +103,9 @@ export function ProposalKanban() {
 
   const debouncedSearch = useDebounce(search, 300)
   const queryClient = useQueryClient()
+
+  const visibleStages =
+    boardType === 'ENDORSEMENT' ? ENDORSEMENT_STAGES : STAGES
 
   const filters: KanbanFilters = {
     boardType,
@@ -104,7 +122,8 @@ export function ProposalKanban() {
     const result = findProposalInCache(
       queryClient,
       String(event.active.id),
-      filters
+      filters,
+      visibleStages
     )
     setActiveProposal(result?.proposal ?? null)
   }
@@ -125,7 +144,12 @@ export function ProposalKanban() {
     }
 
     const targetStage = rawTarget
-    const found = findProposalInCache(queryClient, proposalId, filters)
+    const found = findProposalInCache(
+      queryClient,
+      proposalId,
+      filters,
+      visibleStages
+    )
 
     setActiveProposal(null)
 
@@ -141,7 +165,7 @@ export function ProposalKanban() {
     }
 
     if (!ADVANCE_TARGETS.has(targetStage)) return
-    if (!isNextStage(sourceStage, targetStage)) return
+    if (!isNextStage(sourceStage, targetStage, visibleStages)) return
 
     const movedProposal: ProposalData = { ...proposal, stage: targetStage }
     setOptimisticMove({
@@ -196,6 +220,8 @@ export function ProposalKanban() {
         onSearchChange={setSearch}
         boardType={boardType}
         onBoardTypeChange={setBoardType}
+        allowedBoardTypes={allowedBoardTypes}
+        searchPlaceholder={searchPlaceholder}
       />
 
       <DndContext
@@ -208,7 +234,7 @@ export function ProposalKanban() {
           className="flex gap-3 overflow-x-auto pb-4"
           style={{ minHeight: '60vh' }}
         >
-          {STAGES.map((stage) => (
+          {visibleStages.map((stage) => (
             <KanbanColumn
               key={stage}
               stage={stage}
