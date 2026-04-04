@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { formatCurrency } from '@/lib/formatters'
+import { usePolicyByProposal } from '@/features/policies/hooks/use-policies'
 
 import { useChecklist } from '../hooks/use-checklist'
 import { useAdvanceProposal } from '../hooks/use-proposals'
@@ -24,6 +25,7 @@ import {
   STAGE_BADGE_VARIANT,
   STAGE_LABELS,
 } from '../lib/constants'
+import { IssuePolicyCard } from './issue-policy-card'
 import { ProposalChecklistPanel } from './proposal-checklist-panel'
 import { ProposalStageActions } from './proposal-stage-actions'
 
@@ -130,6 +132,10 @@ function KanbanCardDetailBody({ proposal }: { proposal: ProposalData }) {
         onMarkLost={() => {}}
       />
 
+      {proposal.stage === 'POLICY_ISSUED' && (
+        <IssuePolicySection proposalId={proposal.id} />
+      )}
+
       <div className="space-y-2">
         <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
           Checklist
@@ -137,6 +143,13 @@ function KanbanCardDetailBody({ proposal }: { proposal: ProposalData }) {
         <ProposalChecklistPanel proposalId={proposal.id} />
       </div>
     </div>
+  )
+}
+
+function IssuePolicySection({ proposalId }: { proposalId: string }) {
+  const { data: existingPolicy } = usePolicyByProposal(proposalId)
+  return (
+    <IssuePolicyCard proposalId={proposalId} policyId={existingPolicy?.id} />
   )
 }
 

@@ -140,6 +140,48 @@ describe('AdvanceProposalStage', () => {
     )
   })
 
+  it('advances proposal from PAYMENT to POLICY_ISSUED', async () => {
+    const proposal = Proposal.create({
+      organizationId: 'org-1',
+      clientId: 'c-1',
+      salespersonId: 'u-1',
+      branch: 'AUTO',
+      boardType: 'NEW_INSURANCE',
+    })
+    // Advance through stages to PAYMENT
+    proposal.advance() // CAPTURE -> QUOTE
+    proposal.updateDetails(
+      {
+        branch: 'AUTO',
+        brand: 'Toyota',
+        model: 'Corolla',
+        manufacturingYear: 2020,
+        modelYear: 2021,
+      },
+      150000,
+      1500
+    )
+    proposal.advance() // QUOTE -> PROTOCOL
+    proposal.advance() // PROTOCOL -> INSPECTION
+    proposal.advance() // INSPECTION -> PAYMENT
+
+    const repo = createMockRepo(proposal)
+    const checklistRepo = createMockChecklistRepo(true)
+    const checklistConfig = createMockChecklistConfig()
+    const useCase = new AdvanceProposalStage(
+      repo,
+      checklistRepo,
+      checklistConfig
+    )
+
+    const result = await useCase.execute(proposal.id, 'org-1')
+
+    expect(result.stage).toBe('POLICY_ISSUED')
+    expect(repo.save).toHaveBeenCalledWith(proposal)
+    // Should NOT create checklist items for POLICY_ISSUED stage
+    expect(checklistConfig.getItems).not.toHaveBeenCalled()
+  })
+
   it('does not validate checklist when advancing from CAPTURE stage', async () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',

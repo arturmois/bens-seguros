@@ -21,6 +21,7 @@ import { api, ApiError } from '@/lib/api-client'
 import type { KanbanFilters } from '../hooks/use-kanban-proposals'
 import type { BoardType, ProposalData, ProposalStage } from '../lib/constants'
 import { ENDORSEMENT_STAGES, STAGES } from '../lib/constants'
+import { IssuePolicySheet } from './issue-policy-sheet'
 import { KanbanCard } from './kanban-card'
 import { KanbanCardDetail } from './kanban-card-detail'
 import { KanbanColumn } from './kanban-column'
@@ -32,6 +33,7 @@ const ADVANCE_TARGETS = new Set<ProposalStage>([
   'PROTOCOL',
   'INSPECTION',
   'PAYMENT',
+  'POLICY_ISSUED',
 ])
 
 interface OptimisticMove {
@@ -100,6 +102,9 @@ export function ProposalKanban({
   const [optimisticMove, setOptimisticMove] = useState<OptimisticMove | null>(
     null
   )
+  const [issuePolicyProposalId, setIssuePolicyProposalId] = useState<
+    string | null
+  >(null)
 
   const debouncedSearch = useDebounce(search, 300)
   const queryClient = useQueryClient()
@@ -182,6 +187,9 @@ export function ProposalKanban({
         void queryClient.invalidateQueries({
           queryKey: ['proposals', 'kanban'],
         })
+        if (targetStage === 'POLICY_ISSUED') {
+          setIssuePolicyProposalId(proposalId)
+        }
       })
       .catch((error: unknown) => {
         setOptimisticMove(null)
@@ -263,6 +271,16 @@ export function ProposalKanban({
         proposalId={lostProposalId}
         onClose={() => setLostProposalId(null)}
       />
+
+      {issuePolicyProposalId && (
+        <IssuePolicySheet
+          proposalId={issuePolicyProposalId}
+          open
+          onOpenChange={(open) => {
+            if (!open) setIssuePolicyProposalId(null)
+          }}
+        />
+      )}
     </div>
   )
 }
