@@ -1,8 +1,10 @@
 'use client'
 
-import { Controller } from 'react-hook-form'
+import type { UseFormRegister } from 'react-hook-form'
+import { Controller, type Control } from 'react-hook-form'
 import { InputMask } from '@react-input/mask'
 
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -147,6 +149,47 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
   )
 }
 
+interface EquipmentToggleProps {
+  name: string
+  detailsName: string
+  label: string
+  placeholder: string
+  control: Control
+  register: UseFormRegister<Record<string, unknown>>
+}
+
+function EquipmentToggle({
+  name,
+  detailsName,
+  label,
+  placeholder,
+  control,
+  register,
+}: EquipmentToggleProps) {
+  return (
+    <div className="col-span-full space-y-2">
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <>
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox
+                checked={field.value === true}
+                onCheckedChange={(checked) => field.onChange(checked === true)}
+              />
+              {label}
+            </label>
+            {field.value === true && (
+              <Input placeholder={placeholder} {...register(detailsName)} />
+            )}
+          </>
+        )}
+      />
+    </div>
+  )
+}
+
 export function CondominiumFields({ register, control }: FieldHelperProps) {
   return (
     <>
@@ -196,6 +239,43 @@ export function CondominiumFields({ register, control }: FieldHelperProps) {
           {...register('floorCount', { valueAsNumber: true })}
         />
       </FieldWrapper>
+      <FieldWrapper label="Quantidade de Blocos">
+        <Input
+          type="number"
+          placeholder="Ex: 4"
+          {...register('blockCount', { valueAsNumber: true })}
+        />
+      </FieldWrapper>
+      <FieldWrapper label="Quantidade de Elevadores">
+        <Input
+          type="number"
+          placeholder="Ex: 2"
+          {...register('elevatorCount', { valueAsNumber: true })}
+        />
+      </FieldWrapper>
+      <FieldWrapper label="Número de Funcionários">
+        <Input
+          type="number"
+          placeholder="Ex: 10"
+          {...register('employeeCount', { valueAsNumber: true })}
+        />
+      </FieldWrapper>
+      <EquipmentToggle
+        name="hasSecurityEquipment"
+        detailsName="securityEquipmentDetails"
+        label="Possui equipamentos de segurança?"
+        placeholder="Ex: Câmeras, portaria 24h, alarme"
+        control={control}
+        register={register}
+      />
+      <EquipmentToggle
+        name="hasFireEquipment"
+        detailsName="fireEquipmentDetails"
+        label="Possui equipamentos de incêndio?"
+        placeholder="Ex: Sprinklers, extintores, hidrantes"
+        control={control}
+        register={register}
+      />
     </>
   )
 }

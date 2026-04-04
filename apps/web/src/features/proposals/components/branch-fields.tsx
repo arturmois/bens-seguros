@@ -88,6 +88,27 @@ function buildDetails(
           ? Number(fields.constructionYear)
           : undefined,
         floorCount: fields.floorCount ? Number(fields.floorCount) : undefined,
+        blockCount: fields.blockCount ? Number(fields.blockCount) : undefined,
+        elevatorCount: fields.elevatorCount
+          ? Number(fields.elevatorCount)
+          : undefined,
+        employeeCount: fields.employeeCount
+          ? Number(fields.employeeCount)
+          : undefined,
+        hasSecurityEquipment:
+          typeof fields.hasSecurityEquipment === 'boolean'
+            ? fields.hasSecurityEquipment
+            : undefined,
+        securityEquipmentDetails: fields.securityEquipmentDetails
+          ? String(fields.securityEquipmentDetails)
+          : undefined,
+        hasFireEquipment:
+          typeof fields.hasFireEquipment === 'boolean'
+            ? fields.hasFireEquipment
+            : undefined,
+        fireEquipmentDetails: fields.fireEquipmentDetails
+          ? String(fields.fireEquipmentDetails)
+          : undefined,
       }
     case 'BUSINESS':
       return {

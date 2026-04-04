@@ -6,10 +6,14 @@
  */
 import { useMutation, useQuery } from '@tanstack/react-query'
 import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
   MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
+  UndefinedInitialDataOptions,
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
@@ -26,10 +30,6 @@ import type {
 } from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
-
-type AwaitedInput<T> = PromiseLike<T> | T
-
-type Awaited<O> = O extends AwaitedInput<infer T> ? T : never
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
 
@@ -177,10 +177,8 @@ export const getListInsurersQueryOptions = <
 >(
   params?: ListInsurersParams,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof listInsurers>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listInsurers>>, TError, TData>
     >
     request?: SecondParameter<typeof customFetch>
   }
@@ -202,7 +200,7 @@ export const getListInsurersQueryOptions = <
     Awaited<ReturnType<typeof listInsurers>>,
     TError,
     TData
-  > & { queryKey: QueryKey }
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
 export type ListInsurersQueryResult = NonNullable<
@@ -210,6 +208,67 @@ export type ListInsurersQueryResult = NonNullable<
 >
 export type ListInsurersQueryError = unknown
 
+export function useListInsurers<
+  TData = Awaited<ReturnType<typeof listInsurers>>,
+  TError = unknown,
+>(
+  params: undefined | ListInsurersParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listInsurers>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listInsurers>>,
+          TError,
+          Awaited<ReturnType<typeof listInsurers>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useListInsurers<
+  TData = Awaited<ReturnType<typeof listInsurers>>,
+  TError = unknown,
+>(
+  params?: ListInsurersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listInsurers>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listInsurers>>,
+          TError,
+          Awaited<ReturnType<typeof listInsurers>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useListInsurers<
+  TData = Awaited<ReturnType<typeof listInsurers>>,
+  TError = unknown,
+>(
+  params?: ListInsurersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listInsurers>>, TError, TData>
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
 /**
  * @summary List insurers with cursor pagination and caching
  */
@@ -220,19 +279,21 @@ export function useListInsurers<
 >(
   params?: ListInsurersParams,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof listInsurers>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listInsurers>>, TError, TData>
     >
     request?: SecondParameter<typeof customFetch>
-  }
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
   const queryOptions = getListInsurersQueryOptions(params, options)
 
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey
-  }
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
   return { ...query, queryKey: queryOptions.queryKey }
 }
@@ -247,10 +308,8 @@ export const prefetchListInsurersQuery = async <
   queryClient: QueryClient,
   params?: ListInsurersParams,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof listInsurers>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listInsurers>>, TError, TData>
     >
     request?: SecondParameter<typeof customFetch>
   }

@@ -51,6 +51,13 @@ export type UpdateProposalDetails200DataDetails =
       address?: string
       constructionYear?: number
       floorCount?: number
+      blockCount?: number
+      elevatorCount?: number
+      employeeCount?: number
+      hasSecurityEquipment?: boolean
+      securityEquipmentDetails?: string
+      hasFireEquipment?: boolean
+      fireEquipmentDetails?: string
     }
   | {
       branch: 'BUSINESS'

@@ -97,6 +97,13 @@ const condominiumDetailsSchema = z.object({
   address: z.string().optional(),
   constructionYear: z.number().int().optional(),
   floorCount: z.number().int().optional(),
+  blockCount: z.number().int().optional(),
+  elevatorCount: z.number().int().optional(),
+  employeeCount: z.number().int().optional(),
+  hasSecurityEquipment: z.boolean().optional(),
+  securityEquipmentDetails: z.string().optional(),
+  hasFireEquipment: z.boolean().optional(),
+  fireEquipmentDetails: z.string().optional(),
 })
 
 const businessDetailsSchema = z.object({
