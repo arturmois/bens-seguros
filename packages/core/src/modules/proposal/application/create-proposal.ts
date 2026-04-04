@@ -53,6 +53,12 @@ export class CreateProposal {
         ? await this.createEndorsementProposal(dto)
         : Proposal.create(dto)
 
+    if (!proposal.quoteValidUntil) {
+      const validity = new Date(proposal.createdAt)
+      validity.setDate(validity.getDate() + 15)
+      proposal.updateQuoteValidity(validity)
+    }
+
     await this.proposalRepo.save(proposal)
 
     const items = this.checklistConfig.getItems(proposal.stage, proposal.branch)

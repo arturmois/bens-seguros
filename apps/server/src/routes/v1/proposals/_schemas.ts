@@ -215,6 +215,11 @@ const proposalDataSchema = z.object({
   deletedAt: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+  coverageStartDate: z.coerce.date().nullable(),
+  coverageEndDate: z.coerce.date().nullable(),
+  sentToClientAt: z.coerce.date().nullable(),
+  clientResponseAt: z.coerce.date().nullable(),
+  quoteValidUntil: z.coerce.date().nullable(),
   clientName: z.string().optional(),
   clientDocument: z.string().optional(),
   salespersonName: z.string().optional(),
@@ -246,5 +251,17 @@ export const checklistResponse = successResponse(
 )
 
 export const checklistItemResponse = successResponse(checklistItemSchema)
+
+export const updateProposalDatesBody = z.object({
+  coverageStartDate: z.coerce.date().optional(),
+  coverageEndDate: z.coerce.date().optional(),
+  clientResponseAt: z.coerce.date().optional(),
+  quoteValidUntil: z.coerce.date().optional(),
+})
+
+export const sendQuoteResponse = z.object({
+  success: z.literal(true),
+  data: z.object({ message: z.string() }),
+})
 
 export { errorResponse }

@@ -18,7 +18,11 @@ export type {
 
 export { PrismaNotificationRepository } from './infrastructure/prisma-notification-repository.js'
 
-export type { EmailPayload, EmailProvider } from './domain/email-provider.js'
+export type {
+  EmailAttachment,
+  EmailPayload,
+  EmailProvider,
+} from './domain/email-provider.js'
 export {
   DEFAULT_FROM_ADDRESS,
   ResendEmailProvider,
@@ -29,3 +33,4 @@ export { commissionApprovedEmail } from './infrastructure/email-templates/commis
 export { commissionRejectedEmail } from './infrastructure/email-templates/commission-rejected.js'
 export { invitationEmail } from './infrastructure/email-templates/invitation.js'
 export { policyExpiringEmail } from './infrastructure/email-templates/policy-expiring.js'
+export { quoteSentEmailHtml } from './infrastructure/email-templates/quote-sent-email.js'

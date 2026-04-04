@@ -1,7 +1,7 @@
 'use client'
 
 import { Badge } from '@/components/ui/badge'
-import { formatCurrency } from '@/lib/formatters'
+import { formatCurrency, formatDate } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 
 import type { ProposalData } from '../lib/constants'
@@ -81,6 +81,11 @@ export function KanbanCard({ proposal, onClick }: KanbanCardProps) {
             </span>
           )}
         </div>
+        {proposal.coverageStartDate && (
+          <span className="text-muted-foreground text-xs">
+            Vigência: {formatDate(proposal.coverageStartDate)}
+          </span>
+        )}
       </div>
     </div>
   )

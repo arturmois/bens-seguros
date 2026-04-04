@@ -1,8 +1,10 @@
 import { randomUUID } from 'node:crypto'
 
 import type { InsuredObjectDetails } from './insured-object-details.js'
-import { ProposalErrors } from './proposal-errors.js'
-import { InvalidStageTransitionError } from './proposal-errors.js'
+import {
+  ProposalErrors,
+  InvalidStageTransitionError,
+} from './proposal-errors.js'
 
 const STAGES = [
   'CAPTURE',
@@ -125,6 +127,11 @@ export interface ProposalProps {
   deletedAt: Date | null
   readonly createdAt: Date
   updatedAt: Date
+  coverageStartDate: Date | null
+  coverageEndDate: Date | null
+  sentToClientAt: Date | null
+  clientResponseAt: Date | null
+  quoteValidUntil: Date | null
   clientName?: string
   clientDocument?: string
   salespersonName?: string
@@ -145,6 +152,7 @@ interface CreateProposalInput {
   endorsementReason?: string
   sourcePolicySnapshot?: SourcePolicySnapshot
   insurerId?: string | null
+  quoteValidUntil?: Date
 }
 
 export type { Stage, ActiveStage, Branch, BoardType }
@@ -174,6 +182,11 @@ export class Proposal {
       deletedAt: null,
       createdAt: new Date(),
       updatedAt: new Date(),
+      coverageStartDate: null,
+      coverageEndDate: null,
+      sentToClientAt: null,
+      clientResponseAt: null,
+      quoteValidUntil: input.quoteValidUntil ?? null,
     })
   }
 
@@ -237,6 +250,30 @@ export class Proposal {
     }
     this.props.stage = getInitialStage(this.props.boardType)
     this.props.lostReason = null
+    this.props.updatedAt = new Date()
+  }
+
+  updateCoverageDates(start: Date, end: Date): void {
+    if (end <= start) {
+      throw ProposalErrors.invalidCoverageDates()
+    }
+    this.props.coverageStartDate = start
+    this.props.coverageEndDate = end
+    this.props.updatedAt = new Date()
+  }
+
+  markAsSentToClient(): void {
+    this.props.sentToClientAt = new Date()
+    this.props.updatedAt = new Date()
+  }
+
+  updateClientResponse(date: Date): void {
+    this.props.clientResponseAt = date
+    this.props.updatedAt = new Date()
+  }
+
+  updateQuoteValidity(date: Date): void {
+    this.props.quoteValidUntil = date
     this.props.updatedAt = new Date()
   }
 
@@ -308,6 +345,27 @@ export class Proposal {
   }
   get insurerName(): string | undefined {
     return this.props.insurerName
+  }
+  get coverageStartDate(): Date | null {
+    return this.props.coverageStartDate
+  }
+  get coverageEndDate(): Date | null {
+    return this.props.coverageEndDate
+  }
+  get sentToClientAt(): Date | null {
+    return this.props.sentToClientAt
+  }
+  get clientResponseAt(): Date | null {
+    return this.props.clientResponseAt
+  }
+  get quoteValidUntil(): Date | null {
+    return this.props.quoteValidUntil
+  }
+  get isQuoteExpired(): boolean {
+    return (
+      this.props.quoteValidUntil !== null &&
+      this.props.quoteValidUntil < new Date()
+    )
   }
 
   toJSON(): ProposalProps {

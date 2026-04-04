@@ -16,8 +16,6 @@ const BRANCH_LABELS: Record<string, string> = {
   OTHER: 'Outros',
 }
 
-const QUOTE_VALIDITY_DAYS = 15
-
 interface OrganizationData {
   readonly id: string
   readonly name: string
@@ -40,13 +38,6 @@ function formatCurrency(cents: number): string {
 function formatDate(date: Date | string): string {
   const d = typeof date === 'string' ? new Date(date) : date
   return d.toLocaleDateString('pt-BR')
-}
-
-function computeValidityDate(createdAt: Date | string): string {
-  const d = typeof createdAt === 'string' ? new Date(createdAt) : createdAt
-  const validity = new Date(d)
-  validity.setDate(validity.getDate() + QUOTE_VALIDITY_DAYS)
-  return formatDate(validity)
 }
 
 function ClientSection({ proposal }: { readonly proposal: ProposalProps }) {
@@ -115,7 +106,45 @@ function CoverageSection({ proposal }: { readonly proposal: ProposalProps }) {
   )
 }
 
+function CoverageDatesSection({
+  proposal,
+}: {
+  readonly proposal: ProposalProps
+}) {
+  if (!proposal.coverageStartDate && !proposal.coverageEndDate) {
+    return null
+  }
+
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>Vigência Proposta</Text>
+      <View style={styles.row}>
+        <View style={styles.col2}>
+          <Text style={styles.label}>Início</Text>
+          <Text style={styles.value}>
+            {proposal.coverageStartDate
+              ? formatDate(proposal.coverageStartDate)
+              : '—'}
+          </Text>
+        </View>
+        <View style={styles.col2}>
+          <Text style={styles.label}>Fim</Text>
+          <Text style={styles.value}>
+            {proposal.coverageEndDate
+              ? formatDate(proposal.coverageEndDate)
+              : '—'}
+          </Text>
+        </View>
+      </View>
+    </View>
+  )
+}
+
 function ValiditySection({ proposal }: { readonly proposal: ProposalProps }) {
+  const validUntil = proposal.quoteValidUntil
+    ? formatDate(proposal.quoteValidUntil)
+    : '—'
+
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Validade da Cotação</Text>
@@ -126,9 +155,7 @@ function ValiditySection({ proposal }: { readonly proposal: ProposalProps }) {
         </View>
         <View style={styles.col2}>
           <Text style={styles.label}>Válida Até</Text>
-          <Text style={styles.value}>
-            {computeValidityDate(proposal.createdAt)}
-          </Text>
+          <Text style={styles.value}>{validUntil}</Text>
         </View>
       </View>
       <View style={styles.row}>
@@ -160,6 +187,8 @@ export function ProposalQuotePdf({
 
         <CoverageSection proposal={proposal} />
 
+        <CoverageDatesSection proposal={proposal} />
+
         {proposal.details ? (
           <InsuredObjectSection details={proposal.details} />
         ) : null}
@@ -169,7 +198,11 @@ export function ProposalQuotePdf({
         <PdfFooter
           salespersonName={proposal.salespersonName ?? organization.name}
           creci={organization.creci}
-          validity={computeValidityDate(proposal.createdAt)}
+          validity={
+            proposal.quoteValidUntil
+              ? formatDate(proposal.quoteValidUntil)
+              : '—'
+          }
         />
       </Page>
     </Document>

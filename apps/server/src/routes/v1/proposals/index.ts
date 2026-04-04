@@ -10,6 +10,8 @@ import { getProposalChecklistRoute } from './get-proposal-checklist.js'
 import { listProposalsRoute } from './list-proposals.js'
 import { markProposalLostRoute } from './mark-proposal-lost.js'
 import { reopenProposalRoute } from './reopen-proposal.js'
+import { sendQuoteRoute } from './send-quote.js'
+import { updateProposalDatesRoute } from './update-proposal-dates.js'
 import { updateProposalDetailsRoute } from './update-proposal-details.js'
 
 export async function proposalRoutes(app: FastifyInstance) {
@@ -18,6 +20,8 @@ export async function proposalRoutes(app: FastifyInstance) {
   // IMPORTANT: export and pdf routes must be registered BEFORE /:id to avoid route conflict
   exportProposalsRoute(app)
   generateProposalPdfRoute(app)
+  sendQuoteRoute(app)
+  updateProposalDatesRoute(app)
 
   createProposalRoute(app)
   listProposalsRoute(app)

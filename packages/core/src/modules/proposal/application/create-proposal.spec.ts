@@ -212,4 +212,30 @@ describe('CreateProposal', () => {
       })
     ).rejects.toThrow('A apólice de origem precisa estar em vigor')
   })
+
+  it('sets quoteValidUntil to 15 days from creation', async () => {
+    const repo = createMockRepo()
+    const checklistRepo = createMockChecklistRepo()
+    const checklistConfig = createMockChecklistConfig()
+    const useCase = new CreateProposal(
+      repo,
+      checklistRepo,
+      checklistConfig,
+      createMockPolicyRepo()
+    )
+
+    const result = await useCase.execute({
+      organizationId: 'org-1',
+      clientId: 'c-1',
+      salespersonId: 'u-1',
+      branch: 'AUTO',
+      boardType: 'NEW_INSURANCE',
+    })
+
+    expect(result.quoteValidUntil).toBeInstanceOf(Date)
+    const diffMs =
+      result.quoteValidUntil!.getTime() - result.createdAt.getTime()
+    const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24))
+    expect(diffDays).toBe(15)
+  })
 })

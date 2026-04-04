@@ -43,4 +43,14 @@ export type GetProposal200Data = {
   clientDocument?: string
   salespersonName?: string
   insurerName?: string
+  /** @nullable */
+  coverageStartDate: string | null
+  /** @nullable */
+  coverageEndDate: string | null
+  /** @nullable */
+  quoteValidUntil: string | null
+  /** @nullable */
+  sentToClientAt: string | null
+  /** @nullable */
+  clientResponseAt: string | null
 }

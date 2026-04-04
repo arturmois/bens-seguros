@@ -24,6 +24,7 @@ import { formatCurrency, formatDate } from '@/lib/formatters'
 import { useChecklist } from '../hooks/use-checklist'
 import { useGenerateProposalPdf } from '../hooks/use-generate-proposal-pdf'
 import { useAdvanceProposal, useProposal } from '../hooks/use-proposals'
+import { useSendQuote } from '../hooks/use-send-quote'
 import {
   BOARD_TYPE_LABELS,
   BRANCH_LABELS,
@@ -32,6 +33,7 @@ import {
 } from '../lib/constants'
 import { InsuredObjectSection } from './insured-object-section'
 import { IssuePolicyCard } from './issue-policy-card'
+import { SendQuoteDialog } from './send-quote-dialog'
 import { RenewalPolicyCard } from './renewal-policy-card'
 import { LostReasonDialog } from './lost-reason-dialog'
 import { ProposalChecklistPanel } from './proposal-checklist-panel'
@@ -49,6 +51,7 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
   const { data: checklistData } = useChecklist(proposalId)
   const advanceMutation = useAdvanceProposal()
   const pdfMutation = useGenerateProposalPdf(proposalId)
+  const sendQuoteMutation = useSendQuote(proposalId)
   const [showLostDialog, setShowLostDialog] = useState(false)
 
   if (isLoading) {
@@ -138,6 +141,18 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
             Gerar PDF
           </Button>
         )}
+        {proposal.stage !== 'CAPTURE' && proposal.stage !== 'LOST' && (
+          <SendQuoteDialog
+            proposalId={proposalId}
+            clientName={proposal.clientName ?? 'Cliente'}
+            premiumValueInCents={proposal.premiumValueInCents}
+            coverageStartDate={proposal.coverageStartDate}
+            sentToClientAt={proposal.sentToClientAt}
+            disabled={sendQuoteMutation.isPending}
+            onSend={() => sendQuoteMutation.mutate()}
+            isPending={sendQuoteMutation.isPending}
+          />
+        )}
       </div>
 
       <Separator />
@@ -217,6 +232,54 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
           </div>
         </>
       )}
+
+      <Separator />
+
+      <div className="space-y-3">
+        <p className="text-sm font-semibold">Datas</p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <InfoItem
+            label="Vigência Início"
+            value={
+              proposal.coverageStartDate
+                ? formatDate(proposal.coverageStartDate)
+                : '—'
+            }
+          />
+          <InfoItem
+            label="Vigência Fim"
+            value={
+              proposal.coverageEndDate
+                ? formatDate(proposal.coverageEndDate)
+                : '—'
+            }
+          />
+          <InfoItem
+            label="Validade da Cotação"
+            value={
+              proposal.quoteValidUntil
+                ? formatDate(proposal.quoteValidUntil)
+                : '—'
+            }
+          />
+          <InfoItem
+            label="Enviada em"
+            value={
+              proposal.sentToClientAt
+                ? formatDate(proposal.sentToClientAt)
+                : '—'
+            }
+          />
+          <InfoItem
+            label="Resposta do Cliente"
+            value={
+              proposal.clientResponseAt
+                ? formatDate(proposal.clientResponseAt)
+                : '—'
+            }
+          />
+        </div>
+      </div>
 
       <InsuredObjectSection proposal={proposal} />
 

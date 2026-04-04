@@ -111,6 +111,11 @@ describe('Proposal Entity', () => {
       deletedAt: null,
       createdAt: now,
       updatedAt: now,
+      coverageStartDate: null,
+      coverageEndDate: null,
+      sentToClientAt: null,
+      clientResponseAt: null,
+      quoteValidUntil: null,
     })
     expect(proposal.id).toBe('prop-1')
     expect(proposal.stage).toBe('PROTOCOL')

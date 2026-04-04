@@ -33,6 +33,11 @@ export class PrismaProposalRepository implements ProposalRepository {
         details: data.details,
         lostReason: data.lostReason,
         insurerId: data.insurerId,
+        coverageStartDate: data.coverageStartDate,
+        coverageEndDate: data.coverageEndDate,
+        sentToClientAt: data.sentToClientAt,
+        clientResponseAt: data.clientResponseAt,
+        quoteValidUntil: data.quoteValidUntil,
         updatedAt: data.updatedAt,
       },
     })

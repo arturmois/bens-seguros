@@ -23,6 +23,15 @@ export class ResendEmailProvider implements EmailProvider {
       to: payload.to,
       subject: payload.subject,
       html: payload.html,
+      ...(payload.replyTo ? { replyTo: payload.replyTo } : {}),
+      ...(payload.attachments?.length
+        ? {
+            attachments: payload.attachments.map((a) => ({
+              filename: a.filename,
+              content: a.content,
+            })),
+          }
+        : {}),
     })
   }
 }

@@ -60,6 +60,30 @@ export class SourcePolicyNotEligibleError extends Error {
   }
 }
 
+export class InvalidCoverageDatesError extends Error {
+  readonly code = 'INVALID_COVERAGE_DATES' as const
+  constructor() {
+    super('Data de fim deve ser posterior à data de início')
+    this.name = 'InvalidCoverageDatesError'
+  }
+}
+
+export class ClientHasNoEmailError extends Error {
+  readonly code = 'CLIENT_NO_EMAIL' as const
+  constructor() {
+    super('Cliente não possui e-mail cadastrado')
+    this.name = 'ClientHasNoEmailError'
+  }
+}
+
+export class CannotSendQuoteForLostProposalError extends Error {
+  readonly code = 'CANNOT_SEND_LOST_QUOTE' as const
+  constructor() {
+    super('Não é possível enviar cotação para proposta perdida')
+    this.name = 'CannotSendQuoteForLostProposalError'
+  }
+}
+
 export const ProposalErrors = {
   notFound: (id: string) => new ProposalNotFoundError(id),
   invalidTransition: (from: string, action: string) =>
@@ -72,4 +96,8 @@ export const ProposalErrors = {
   sourcePolicyRequiredForEndorsement: () =>
     new SourcePolicyRequiredForEndorsementError(),
   sourcePolicyNotEligible: (id: string) => new SourcePolicyNotEligibleError(id),
+  invalidCoverageDates: () => new InvalidCoverageDatesError(),
+  clientHasNoEmail: () => new ClientHasNoEmailError(),
+  cannotSendQuoteForLostProposal: () =>
+    new CannotSendQuoteForLostProposalError(),
 }

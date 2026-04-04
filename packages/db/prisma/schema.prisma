@@ -316,6 +316,11 @@ model Proposal {
   endorsementReason           String?
   sourcePolicySnapshot        Json?
   insurerId                   String?
+  coverageStartDate           DateTime?
+  coverageEndDate             DateTime?
+  sentToClientAt              DateTime?
+  clientResponseAt            DateTime?
+  quoteValidUntil             DateTime?
   details                     Json?
   deletedAt                   DateTime?
   createdAt                   DateTime          @default(now())

@@ -23,7 +23,9 @@ export type {
 } from './domain/insured-object-details.js'
 export {
   BranchMismatchError,
+  CannotSendQuoteForLostProposalError,
   ChecklistIncompleteError,
+  ClientHasNoEmailError,
   InvalidStageTransitionError,
   ProposalDetailsRequiredError,
   ProposalErrors,
@@ -55,6 +57,8 @@ export { ListProposals } from './application/list-proposals.js'
 export { MarkProposalLost } from './application/mark-proposal-lost.js'
 export { ReopenProposal } from './application/reopen-proposal.js'
 export { UpdateProposalDetails } from './application/update-proposal-details.js'
+export { UpdateProposalDates } from './application/update-proposal-dates.js'
+export { SendQuote } from './application/send-quote.js'
 
 // Infrastructure
 export { PrismaChecklistRepository } from './infrastructure/prisma-checklist-repository.js'

@@ -39,6 +39,11 @@ export class ProposalMapper {
       deletedAt: row.deletedAt,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
+      coverageStartDate: row.coverageStartDate ?? null,
+      coverageEndDate: row.coverageEndDate ?? null,
+      sentToClientAt: row.sentToClientAt ?? null,
+      clientResponseAt: row.clientResponseAt ?? null,
+      quoteValidUntil: row.quoteValidUntil ?? null,
       clientName: row.client?.name,
       clientDocument: row.client?.document,
       salespersonName: row.salesperson?.name,
@@ -76,6 +81,11 @@ export class ProposalMapper {
       insurerId: json.insurerId,
       createdAt: json.createdAt,
       updatedAt: json.updatedAt,
+      coverageStartDate: json.coverageStartDate,
+      coverageEndDate: json.coverageEndDate,
+      sentToClientAt: json.sentToClientAt,
+      clientResponseAt: json.clientResponseAt,
+      quoteValidUntil: json.quoteValidUntil,
     }
   }
 }
