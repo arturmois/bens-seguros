@@ -12,6 +12,7 @@ function makeClientData(overrides: Partial<ClientData> = {}): ClientData {
     organizationId: 'org-1',
     name: 'Maria Silva',
     document: '12345678901',
+    personType: 'INDIVIDUAL',
     type: 'CLIENT',
     email: 'maria@test.com',
     phone: '11999990000',

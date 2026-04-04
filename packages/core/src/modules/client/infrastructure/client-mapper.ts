@@ -87,6 +87,7 @@ export class ClientMapper {
       organizationId: row.organizationId,
       name: row.name,
       document,
+      personType: row.personType,
       type: row.type,
       email: row.email,
       phone: row.phone,

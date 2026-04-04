@@ -134,6 +134,7 @@ export interface ProposalProps {
   quoteValidUntil: Date | null
   clientName?: string
   clientDocument?: string
+  clientPersonType?: string
   salespersonName?: string
   insurerName?: string
 }
@@ -339,6 +340,9 @@ export class Proposal {
   }
   get clientDocument(): string | undefined {
     return this.props.clientDocument
+  }
+  get clientPersonType(): string | undefined {
+    return this.props.clientPersonType
   }
   get salespersonName(): string | undefined {
     return this.props.salespersonName

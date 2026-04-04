@@ -4,6 +4,8 @@ import { useEffect } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
+import { type z } from 'zod'
+import * as zod from 'zod'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -14,15 +16,18 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 
-import { type z } from 'zod'
-
 import { CreateClientBody } from '@/api/endpoints/clients/clients.zod'
 
 import { EMPTY_FORM_VALUES } from '../lib/constants'
 import { useCreateClient, useUpdateClient } from '../hooks/use-clients'
-
-type ClientFormValues = z.infer<typeof CreateClientBody>
 import { ClientFormFields } from './client-form-fields'
+
+// Extend Orval-generated schema with personType until next Orval regen
+const ClientFormSchema = CreateClientBody.extend({
+  personType: zod.enum(['INDIVIDUAL', 'COMPANY']).default('INDIVIDUAL'),
+})
+
+type ClientFormValues = z.infer<typeof ClientFormSchema>
 
 interface ClientFormProps {
   readonly open: boolean
@@ -43,7 +48,7 @@ export function ClientForm({
   const isPending = createClient.isPending || updateClient.isPending
 
   const form = useForm<ClientFormValues>({
-    resolver: zodResolver(CreateClientBody),
+    resolver: zodResolver(ClientFormSchema),
     defaultValues: defaultValues ?? EMPTY_FORM_VALUES,
   })
 

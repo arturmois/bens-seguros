@@ -11,6 +11,7 @@ export interface ClientData {
   organizationId: string
   name: string
   document: string
+  personType: 'INDIVIDUAL' | 'COMPANY'
   type: 'LEAD' | 'CLIENT' | 'FORMER_CLIENT'
   email: string | null
   phone: string | null
@@ -58,6 +59,7 @@ export interface CreateClientInput {
   organizationId: string
   name: string
   document: string
+  personType?: 'INDIVIDUAL' | 'COMPANY'
   type?: 'LEAD' | 'CLIENT' | 'FORMER_CLIENT'
   email?: string | null
   phone?: string | null

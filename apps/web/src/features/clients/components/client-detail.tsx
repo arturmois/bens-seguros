@@ -170,6 +170,7 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
         defaultValues={{
           name: client.name,
           document: client.document,
+          personType: client.personType ?? 'INDIVIDUAL',
           type: client.type,
           email: client.email ?? '',
           phone: client.phone ?? '',

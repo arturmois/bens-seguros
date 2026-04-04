@@ -131,6 +131,7 @@ export function ClientsContent() {
             ? {
                 name: editingClientDetail.name,
                 document: editingClientDetail.document,
+                personType: editingClientDetail.personType ?? 'INDIVIDUAL',
                 type: editingClientDetail.type,
                 email: editingClientDetail.email ?? '',
                 phone: editingClientDetail.phone ?? '',

@@ -15,6 +15,7 @@ import {
 import { maritalStatusEnum } from '../../_shared/enums.schema.js'
 
 const CLIENT_TYPE_VALUES = ['LEAD', 'CLIENT', 'FORMER_CLIENT'] as const
+export const PERSON_TYPE_VALUES = ['INDIVIDUAL', 'COMPANY'] as const
 
 const socialMediaSchema = z
   .object({
@@ -25,9 +26,10 @@ const socialMediaSchema = z
   })
   .optional()
 
-export const createClientBodySchema = z.object({
+const createClientBodyBase = z.object({
   name: z.string().trim().min(2),
   document: z.string().trim().min(11).max(14),
+  personType: z.enum(PERSON_TYPE_VALUES).default('INDIVIDUAL'),
   type: z.enum(CLIENT_TYPE_VALUES).optional(),
   email: optionalEmail,
   phone: optionalString,
@@ -40,9 +42,21 @@ export const createClientBodySchema = z.object({
   socialMedia: socialMediaSchema,
 })
 
-export const updateClientBodySchema = createClientBodySchema
+export const createClientBodySchema = createClientBodyBase.refine(
+  (data) => {
+    const digits = data.document.replace(/\D/g, '')
+    if (data.personType === 'COMPANY') return digits.length === 14
+    return digits.length === 11
+  },
+  {
+    message: 'Documento inválido para o tipo de pessoa selecionado',
+    path: ['document'],
+  }
+)
+
+export const updateClientBodySchema = createClientBodyBase
   .partial()
-  .omit({ document: true })
+  .omit({ document: true, personType: true })
 
 export const listClientsQuerySchema = paginationQuery().extend({
   type: z.enum(CLIENT_TYPE_VALUES).optional(),
@@ -61,6 +75,7 @@ const clientListItemSchema = z.object({
   id: z.string(),
   name: z.string(),
   type: z.enum(CLIENT_TYPE_VALUES),
+  personType: z.enum(PERSON_TYPE_VALUES),
   tags: z.array(z.string()),
   document: z.string(),
   email: z.string().nullable().optional(),

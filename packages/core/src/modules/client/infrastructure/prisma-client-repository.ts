@@ -27,6 +27,7 @@ export class PrismaClientRepository implements ClientRepository {
         document: persistence.document,
         documentEncrypted: persistence.documentEncrypted,
         documentHash: persistence.documentHash,
+        personType: data.personType ?? 'INDIVIDUAL',
         type: data.type ?? 'LEAD',
         email: data.email ?? null,
         phone: data.phone ?? null,

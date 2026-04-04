@@ -13,6 +13,8 @@ export type GetClient200Data = {
   id: string
   name: string
   type: GetClient200DataType
+  /** Added manually — Orval regen (Task 6) will overwrite with generated version */
+  personType?: 'INDIVIDUAL' | 'COMPANY'
   tags: string[]
   document: string
   /** @nullable */

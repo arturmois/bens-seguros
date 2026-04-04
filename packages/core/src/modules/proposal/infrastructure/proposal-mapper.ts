@@ -5,7 +5,7 @@ import type { ProposalProps } from '../domain/proposal.js'
 import { isInsuredObjectDetails } from '../domain/insured-object-details.js'
 
 interface ProposalRelations {
-  client?: { name: string; document: string } | null
+  client?: { name: string; document: string; personType?: string } | null
   salesperson?: { name: string } | null
   insurer?: { name: string } | null
 }
@@ -46,6 +46,7 @@ export class ProposalMapper {
       quoteValidUntil: row.quoteValidUntil ?? null,
       clientName: row.client?.name,
       clientDocument: row.client?.document,
+      clientPersonType: row.client?.personType,
       salespersonName: row.salesperson?.name,
       insurerName: row.insurer?.name,
     })

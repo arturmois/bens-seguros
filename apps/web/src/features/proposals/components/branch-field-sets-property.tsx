@@ -1,7 +1,7 @@
 'use client'
 
 import type { UseFormRegister } from 'react-hook-form'
-import { Controller, type Control } from 'react-hook-form'
+import { Controller, useWatch, type Control } from 'react-hook-form'
 import { InputMask } from '@react-input/mask'
 
 import { Checkbox } from '@/components/ui/checkbox'
@@ -22,6 +22,38 @@ import {
 } from '../lib/branch-options'
 import { FieldWrapper } from './branch-field-sets'
 import type { FieldHelperProps } from './branch-field-sets'
+
+export interface AutoFillData {
+  clientName?: string
+  clientDocument?: string
+  clientPersonType?: string
+}
+
+interface PropertyFieldHelperProps extends FieldHelperProps {
+  autoFill?: AutoFillData
+}
+
+function stripToDigits(s: string): string {
+  return s.replace(/\D/g, '')
+}
+
+function AutoFilledBadge({
+  value,
+  originalValue,
+}: {
+  readonly value: string
+  readonly originalValue: string
+}) {
+  if (!originalValue) return null
+  const normalizedValue = stripToDigits(value) || value
+  const normalizedOriginal = stripToDigits(originalValue) || originalValue
+  if (normalizedValue !== normalizedOriginal) return null
+  return (
+    <span className="text-muted-foreground text-xs">
+      Preenchido do cadastro do cliente
+    </span>
+  )
+}
 
 export function ResidentialFields({ register, control }: FieldHelperProps) {
   return (
@@ -190,7 +222,14 @@ function EquipmentToggle({
   )
 }
 
-export function CondominiumFields({ register, control }: FieldHelperProps) {
+export function CondominiumFields({
+  register,
+  control,
+  autoFill,
+}: PropertyFieldHelperProps) {
+  const isCompanyClient = autoFill?.clientPersonType === 'COMPANY'
+  const condominiumNameValue = useWatch({ control, name: 'condominiumName' })
+
   return (
     <>
       <FieldWrapper label="Nome do Condomínio" required>
@@ -198,6 +237,12 @@ export function CondominiumFields({ register, control }: FieldHelperProps) {
           placeholder="Nome do condomínio"
           {...register('condominiumName')}
         />
+        {isCompanyClient && (
+          <AutoFilledBadge
+            value={String(condominiumNameValue ?? '')}
+            originalValue={autoFill?.clientName ?? ''}
+          />
+        )}
       </FieldWrapper>
       <FieldWrapper label="Número de Unidades" required>
         <Input
@@ -280,7 +325,14 @@ export function CondominiumFields({ register, control }: FieldHelperProps) {
   )
 }
 
-export function BusinessFields({ register, control }: FieldHelperProps) {
+export function BusinessFields({
+  register,
+  control,
+  autoFill,
+}: PropertyFieldHelperProps) {
+  const isCompanyClient = autoFill?.clientPersonType === 'COMPANY'
+  const legalNameValue = useWatch({ control, name: 'legalName' })
+
   return (
     <>
       <FieldWrapper label="Razão Social" required>
@@ -288,20 +340,34 @@ export function BusinessFields({ register, control }: FieldHelperProps) {
           placeholder="Razão social da empresa"
           {...register('legalName')}
         />
+        {isCompanyClient && (
+          <AutoFilledBadge
+            value={String(legalNameValue ?? '')}
+            originalValue={autoFill?.clientName ?? ''}
+          />
+        )}
       </FieldWrapper>
       <FieldWrapper label="CNPJ" required>
         <Controller
           name="cnpj"
           control={control}
           render={({ field }) => (
-            <InputMask
-              component={Input}
-              mask={CNPJ_MASK.mask}
-              replacement={CNPJ_MASK.replacement}
-              placeholder="00.000.000/0000-00"
-              {...field}
-              value={String(field.value ?? '')}
-            />
+            <>
+              <InputMask
+                component={Input}
+                mask={CNPJ_MASK.mask}
+                replacement={CNPJ_MASK.replacement}
+                placeholder="00.000.000/0000-00"
+                {...field}
+                value={String(field.value ?? '')}
+              />
+              {isCompanyClient && (
+                <AutoFilledBadge
+                  value={String(field.value ?? '')}
+                  originalValue={autoFill?.clientDocument ?? ''}
+                />
+              )}
+            </>
           )}
         />
       </FieldWrapper>

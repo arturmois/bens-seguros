@@ -15,6 +15,7 @@ import {
   OtherFields,
 } from './branch-field-sets'
 import type { FieldHelperProps } from './branch-field-sets'
+import type { AutoFillData } from './branch-field-sets-property'
 import {
   BusinessFields,
   CondominiumFields,
@@ -26,6 +27,7 @@ interface BranchFieldsProps {
   readonly defaultValues?: InsuredObjectDetails | null
   readonly defaultPremium?: number
   readonly defaultCommission?: number
+  readonly autoFill?: AutoFillData
   readonly onSubmit: (data: {
     details: InsuredObjectDetails
     premiumValueInCents: number
@@ -34,7 +36,11 @@ interface BranchFieldsProps {
   readonly isLoading?: boolean
 }
 
-const BRANCH_FIELD_MAP: Record<InsuranceBranch, React.FC<FieldHelperProps>> = {
+type BranchComponent =
+  | React.FC<FieldHelperProps>
+  | React.FC<FieldHelperProps & { autoFill?: AutoFillData }>
+
+const BRANCH_FIELD_MAP: Record<InsuranceBranch, BranchComponent> = {
   AUTO: AutoFields,
   RESIDENTIAL: ResidentialFields,
   CONDOMINIUM: CondominiumFields,
@@ -144,29 +150,59 @@ function buildDetails(
   }
 }
 
+function buildAutoFillDefaults(
+  branch: InsuranceBranch,
+  autoFill: AutoFillData | undefined,
+  existingDefaults: Record<string, unknown>
+): Record<string, unknown> {
+  if (!autoFill || autoFill.clientPersonType !== 'COMPANY') {
+    return existingDefaults
+  }
+  // Only auto-fill when there are no saved details yet (first-time fill)
+  if (branch === 'BUSINESS' && !existingDefaults.legalName) {
+    return {
+      ...existingDefaults,
+      legalName: autoFill.clientName ?? '',
+      cnpj: autoFill.clientDocument ?? '',
+    }
+  }
+  if (branch === 'CONDOMINIUM' && !existingDefaults.condominiumName) {
+    return {
+      ...existingDefaults,
+      condominiumName: autoFill.clientName ?? '',
+    }
+  }
+  return existingDefaults
+}
+
 export function BranchFields({
   branch,
   defaultValues,
   defaultPremium,
   defaultCommission,
+  autoFill,
   onSubmit,
   isLoading,
 }: BranchFieldsProps) {
-  const defaults = defaultValues ?? {}
-  const formDefaults: Record<string, unknown> = {
-    ...defaults,
+  const rawDefaults = defaultValues ?? {}
+  const baseDefaults: Record<string, unknown> = {
+    ...rawDefaults,
     premiumValueInCents: defaultPremium ?? 0,
     commissionBasisPoints: defaultCommission ?? 0,
   }
+
   if (
-    'branch' in defaults &&
-    defaults.branch === 'LIFE' &&
-    'weightInGrams' in defaults &&
-    typeof defaults.weightInGrams === 'number' &&
-    defaults.weightInGrams > 0
+    'branch' in rawDefaults &&
+    rawDefaults.branch === 'LIFE' &&
+    'weightInGrams' in rawDefaults &&
+    typeof rawDefaults.weightInGrams === 'number' &&
+    rawDefaults.weightInGrams > 0
   ) {
-    formDefaults.weightKg = defaults.weightInGrams / 1000
+    baseDefaults.weightKg = rawDefaults.weightInGrams / 1000
   }
+
+  const formDefaults = buildAutoFillDefaults(branch, autoFill, baseDefaults)
+
   const form = useForm<FieldValues>({ defaultValues: formDefaults })
 
   function handleFormSubmit(values: FieldValues) {
@@ -184,7 +220,11 @@ export function BranchFields({
   return (
     <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <BranchComponent register={form.register} control={form.control} />
+        <BranchComponent
+          register={form.register}
+          control={form.control}
+          autoFill={autoFill}
+        />
       </div>
 
       <div className="border-border border-t pt-4">

@@ -165,6 +165,11 @@ enum ClientType {
   FORMER_CLIENT
 }
 
+enum PersonType {
+  INDIVIDUAL
+  COMPANY
+}
+
 enum MaritalStatus {
   SINGLE
   MARRIED
@@ -273,6 +278,7 @@ model Client {
   documentEncrypted String         @default("") // AES-256-GCM JSON {ciphertext, iv, tag}
   documentHash      String         @default("") // SHA-256 hex for uniqueness + lookup
   type              ClientType     @default(LEAD)
+  personType        PersonType     @default(INDIVIDUAL)
   email             String?
   phone             String?
   birthDate         DateTime?

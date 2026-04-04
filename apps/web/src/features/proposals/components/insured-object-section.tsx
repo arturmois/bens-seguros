@@ -55,6 +55,11 @@ export function InsuredObjectSection({ proposal }: InsuredObjectSectionProps) {
           defaultValues={proposal.details}
           defaultPremium={proposal.premiumValueInCents}
           defaultCommission={proposal.commissionPercentageInCents}
+          autoFill={{
+            clientName: proposal.clientName,
+            clientDocument: proposal.clientDocument,
+            clientPersonType: proposal.clientPersonType,
+          }}
           onSubmit={handleSubmit}
           isLoading={updateMutation.isPending}
         />

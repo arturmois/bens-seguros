@@ -11,7 +11,7 @@ import type {
 import { ProposalMapper } from './proposal-mapper.js'
 
 const PROPOSAL_INCLUDE = {
-  client: { select: { name: true, document: true } },
+  client: { select: { name: true, document: true, personType: true } },
   salesperson: { select: { name: true } },
   insurer: { select: { name: true } },
   sourcePolicy: { select: { policyNumber: true } },

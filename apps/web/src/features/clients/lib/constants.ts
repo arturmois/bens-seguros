@@ -65,6 +65,7 @@ export const TYPE_BADGE_VARIANT: Record<
 export const EMPTY_FORM_VALUES = {
   name: '',
   document: '',
+  personType: 'INDIVIDUAL' as const,
   type: 'LEAD' as const,
   email: '',
   phone: '',

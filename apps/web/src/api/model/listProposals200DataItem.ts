@@ -41,6 +41,8 @@ export type ListProposals200DataItem = {
   updatedAt: string
   clientName?: string
   clientDocument?: string
+  /** Added manually — Orval regen (Task 6) will overwrite with generated version */
+  clientPersonType?: 'INDIVIDUAL' | 'COMPANY'
   salespersonName?: string
   insurerName?: string
   /** @nullable */

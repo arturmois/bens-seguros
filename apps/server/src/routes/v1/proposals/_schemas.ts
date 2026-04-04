@@ -222,6 +222,7 @@ const proposalDataSchema = z.object({
   quoteValidUntil: z.coerce.date().nullable(),
   clientName: z.string().optional(),
   clientDocument: z.string().optional(),
+  clientPersonType: z.string().optional(),
   salespersonName: z.string().optional(),
   insurerName: z.string().optional(),
 })

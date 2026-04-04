@@ -16,6 +16,7 @@ interface ClientListItem {
   id: string
   name: string
   type: ClientData['type']
+  personType: ClientData['personType']
   tags: string[]
   document: string
   email?: string | null
@@ -28,6 +29,7 @@ interface ClientDetail {
   id: string
   name: string
   type: ClientData['type']
+  personType: ClientData['personType']
   tags: string[]
   document: string
   consentLgpd: boolean
@@ -58,6 +60,7 @@ export const ClientPresenter = {
       id: client.id,
       name: client.name,
       type: client.type,
+      personType: client.personType,
       tags: client.tags,
       document: maskDocument(client.document),
       email: client.email,
@@ -74,6 +77,7 @@ export const ClientPresenter = {
       id: client.id,
       name: client.name,
       type: client.type,
+      personType: client.personType,
       tags: client.tags,
       document: full ? client.document : maskDocument(client.document),
       consentLgpd: client.consentLgpd,
