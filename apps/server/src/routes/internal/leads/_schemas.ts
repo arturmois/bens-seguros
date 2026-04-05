@@ -99,3 +99,80 @@ export const createInternalClaimResponse = successResponse(
     message: z.string(),
   })
 )
+
+// --- List proposals ---
+
+export const listInternalProposalsQuerySchema = z.object({
+  clientId: z.string().optional(),
+  phone: z.string().optional(),
+  status: z.enum(['ACTIVE', 'LOST', 'ALL']).optional().default('ACTIVE'),
+})
+
+export const listInternalProposalsResponse = successResponse(
+  z.object({
+    proposals: z.array(
+      z.object({
+        id: z.string(),
+        branch: z.string(),
+        stage: z.string(),
+        premiumValueInCents: z.number().nullable(),
+        coverageStartDate: z.coerce.date().nullable(),
+        createdAt: z.coerce.date(),
+        clientName: z.string(),
+      })
+    ),
+    total: z.number(),
+  })
+)
+
+// --- List policies ---
+
+export const listInternalPoliciesQuerySchema = z.object({
+  clientId: z.string().optional(),
+  phone: z.string().optional(),
+  branch: z
+    .enum([
+      'AUTO',
+      'RESIDENTIAL',
+      'LIFE',
+      'BUSINESS',
+      'TRAVEL',
+      'CONDOMINIUM',
+      'OTHER',
+    ])
+    .optional(),
+})
+
+export const listInternalPoliciesResponse = successResponse(
+  z.object({
+    policies: z.array(
+      z.object({
+        id: z.string(),
+        policyNumber: z.string(),
+        branch: z.string(),
+        status: z.string(),
+        startDate: z.coerce.date(),
+        endDate: z.coerce.date(),
+        premiumValueInCents: z.number(),
+        insurerName: z.string().nullable(),
+      })
+    ),
+    total: z.number(),
+  })
+)
+
+// --- Update proposal details ---
+
+export const updateInternalProposalDetailsParamsSchema = z.object({
+  id: z.string().min(1),
+})
+
+export const updateInternalProposalDetailsBodySchema = z.object({
+  details: z.record(z.unknown()),
+  premiumValueInCents: z.number().int().min(0).optional().default(0),
+  commissionBasisPoints: z.number().int().min(0).optional().default(0),
+})
+
+export const updateInternalProposalDetailsResponse = successResponse(
+  z.object({ success: z.boolean(), message: z.string() })
+)
