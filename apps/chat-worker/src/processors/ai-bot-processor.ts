@@ -14,6 +14,7 @@ import { createRegisterFinancialInquiryTool } from '../tools/register-financial-
 import { createCollectInsuredAssetDataTool } from '../tools/collect-insured-asset-data.js'
 import { createSearchProposalTool } from '../tools/search-proposal.js'
 import { createSearchPolicyTool } from '../tools/search-policy.js'
+import { MANDATORY_TOOLS } from '../tools/tool-registry.js'
 import {
   type AiBotJobData,
   ESCALATION_TOOL_NAME,
@@ -113,11 +114,6 @@ export function createAiBotProcessor(
         : 'Cliente'
 
     const messages = buildConversationMessages(chronologicalMessages)
-    const systemPrompt = buildSystemPrompt(
-      contactName,
-      channelName,
-      config.systemPrompt
-    )
 
     const contactPhone =
       typeof conversation.whatsappPhone === 'string'
@@ -149,12 +145,27 @@ export function createAiBotProcessor(
       searchPolicy: createSearchPolicyTool(tenantId),
     }
 
+    const filteredTools = Object.fromEntries(
+      Object.entries(tools).filter(
+        ([name]) =>
+          MANDATORY_TOOLS.includes(name as (typeof MANDATORY_TOOLS)[number]) ||
+          config.enabledTools.includes(name)
+      )
+    )
+
+    const systemPrompt = buildSystemPrompt(
+      contactName,
+      channelName,
+      config.systemPrompt,
+      config.enabledTools
+    )
+
     let result: Awaited<ReturnType<typeof generateWithTools>>
     try {
       result = await generateWithTools({
         systemPrompt,
         messages,
-        tools,
+        tools: filteredTools,
         provider: config.provider,
         maxTokens: config.maxTokens,
         temperature: config.temperature,

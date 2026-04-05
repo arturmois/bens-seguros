@@ -15,6 +15,7 @@ const aiAgentSchema = new Schema(
     maxTokens: { type: Number, default: 500 },
     maxResponsesPerConversation: { type: Number, default: 20 },
     isActive: { type: Boolean, default: false },
+    enabledTools: { type: [String], default: [] },
   },
   { timestamps: true }
 )

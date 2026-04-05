@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { AiAgent, Channel } from '@repo/db-chat'
 
 import {
+  AVAILABLE_TOOLS,
   agentIdSchema,
   createAgentBodySchema,
   getLinkedChannels,
@@ -74,6 +75,13 @@ export async function aiAgentRoutes(app: FastifyInstance): Promise<void> {
       return reply
         .status(201)
         .send({ success: true, data: mapAgent(agent.toObject()) })
+    }
+  )
+
+  app.get(
+    '/chat/ai-agents/available-tools',
+    async (_request: FastifyRequest, reply: FastifyReply) => {
+      return reply.send({ success: true, data: AVAILABLE_TOOLS })
     }
   )
 

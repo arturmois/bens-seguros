@@ -15,6 +15,7 @@ export const aiAgentFormSchema = z.object({
   maxTokens: z.coerce.number().min(100).max(2000),
   maxResponsesPerConversation: z.coerce.number().min(5).max(100),
   isActive: z.boolean(),
+  enabledTools: z.array(z.string()).default([]),
 })
 
 export type AiAgentFormValues = z.infer<typeof aiAgentFormSchema>
@@ -28,4 +29,5 @@ export const DEFAULT_AGENT_FORM: AiAgentFormValues = {
   maxTokens: 500,
   maxResponsesPerConversation: 20,
   isActive: false,
+  enabledTools: [],
 }

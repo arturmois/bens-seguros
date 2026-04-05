@@ -21,6 +21,7 @@ export interface AiAgentConfig {
   temperature: number
   maxTokens: number
   maxResponsesPerConversation: number
+  enabledTools: string[]
 }
 
 export interface LeanMessage {
@@ -43,6 +44,9 @@ export function getAiAgentConfig(doc: Record<string, unknown>): AiAgentConfig {
       typeof doc['maxResponsesPerConversation'] === 'number'
         ? doc['maxResponsesPerConversation']
         : CHAT_LIMITS.MAX_AI_RESPONSES_PER_CONVERSATION,
+    enabledTools: Array.isArray(doc['enabledTools'])
+      ? doc['enabledTools'].filter((t): t is string => typeof t === 'string')
+      : [],
   }
 }
 
@@ -59,12 +63,38 @@ export function buildConversationMessages(
     })
 }
 
+const TOOL_PROMPT_DESCRIPTIONS: Record<string, string> = {
+  escalateToHuman:
+    'transferir para atendente humano (cliente pediu, tema sensivel, voce nao consegue resolver)',
+  listProducts: 'listar tipos de seguro com coberturas e dados necessarios',
+  captureLead: 'registrar interesse do cliente em um seguro e criar proposta',
+  searchClient:
+    'buscar cliente por telefone ou CPF/CNPJ (verificar se ja tem cadastro)',
+  updateClientData:
+    'atualizar dados cadastrais (CPF, email, endereco, nascimento)',
+  reportClaim:
+    'registrar sinistro/urgencia (cria no sistema se tiver apolice, senao salva e transfere)',
+  registerFinancialInquiry:
+    'registrar duvida financeira e transferir para especialista',
+  collectInsuredAssetData:
+    'salvar dados do bem segurado na proposta (veiculo, imovel, etc.)',
+  searchProposal: 'consultar propostas existentes do cliente',
+  searchPolicy: 'consultar apolices ativas do cliente',
+}
+
 export function buildSystemPrompt(
   contactName: string,
   channelName: string,
-  customPrompt?: string
+  customPrompt?: string,
+  enabledTools: string[] = []
 ): string {
   const base = customPrompt ?? DEFAULT_SYSTEM_PROMPT
+
+  const activeToolNames = ['escalateToHuman', ...enabledTools]
+  const toolLines = activeToolNames
+    .filter((name) => TOOL_PROMPT_DESCRIPTIONS[name])
+    .map((name) => `- ${name}: ${TOOL_PROMPT_DESCRIPTIONS[name]}`)
+
   return [
     base,
     '',
@@ -73,20 +103,15 @@ export function buildSystemPrompt(
     `- Voce esta atendendo pelo canal: ${channelName}`,
     '',
     'Ferramentas disponiveis e quando usar:',
-    '- escalateToHuman: transferir para atendente humano (cliente pediu, tema sensivel, voce nao consegue resolver)',
-    '- listProducts: listar tipos de seguro com coberturas e dados necessarios',
-    '- captureLead: registrar interesse do cliente em um seguro e criar proposta',
-    '- searchClient: buscar cliente por telefone ou CPF/CNPJ (verificar se ja tem cadastro)',
-    '- updateClientData: atualizar dados cadastrais (CPF, email, endereco, nascimento)',
-    '- reportClaim: registrar sinistro/urgencia (cria no sistema se tiver apolice, senao salva e transfere)',
-    '- registerFinancialInquiry: registrar duvida financeira e transferir para especialista',
-    '- collectInsuredAssetData: salvar dados do bem segurado na proposta (veiculo, imovel, etc.)',
-    '- searchProposal: consultar propostas existentes do cliente',
-    '- searchPolicy: consultar apolices ativas do cliente',
+    ...toolLines,
     '',
     'Regras:',
     '- Responda de forma concisa e natural, como em uma conversa de WhatsApp',
-    '- Use searchClient no inicio para verificar se o cliente ja e cadastrado',
+    ...(enabledTools.includes('searchClient')
+      ? [
+          '- Use searchClient no inicio para verificar se o cliente ja e cadastrado',
+        ]
+      : []),
     '- Colete dados um de cada vez, nao peca tudo de uma so vez',
     '- Sempre confirme os dados antes de registrar',
   ].join('\n')

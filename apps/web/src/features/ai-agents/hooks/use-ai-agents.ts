@@ -8,6 +8,7 @@ import { chatApi, ChatApiError } from '@/features/chat/lib/chat-api'
 import type {
   AiAgentData,
   AiAgentDetail,
+  AvailableTool,
   CreateAiAgentPayload,
   UpdateAiAgentPayload,
 } from '../types'
@@ -34,6 +35,21 @@ export function useAiAgent(id: string | null) {
     },
     enabled: id !== null,
     staleTime: 60_000,
+  })
+}
+
+const AVAILABLE_TOOLS_KEY = 'ai-agents-available-tools'
+
+export function useAvailableTools() {
+  return useQuery({
+    queryKey: [AVAILABLE_TOOLS_KEY],
+    queryFn: async () => {
+      const response = await chatApi.get<AvailableTool[]>(
+        '/chat/ai-agents/available-tools'
+      )
+      return response.data
+    },
+    staleTime: 300_000,
   })
 }
 

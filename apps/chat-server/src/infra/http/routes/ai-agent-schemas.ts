@@ -2,6 +2,70 @@ import { z } from 'zod'
 
 import { Channel } from '@repo/db-chat'
 
+export const CONFIGURABLE_TOOL_NAMES = [
+  'listProducts',
+  'captureLead',
+  'searchClient',
+  'updateClientData',
+  'reportClaim',
+  'registerFinancialInquiry',
+  'collectInsuredAssetData',
+  'searchProposal',
+  'searchPolicy',
+] as const
+
+export const AVAILABLE_TOOLS: ReadonlyArray<{
+  name: (typeof CONFIGURABLE_TOOL_NAMES)[number]
+  label: string
+  description: string
+}> = [
+  {
+    name: 'listProducts',
+    label: 'Listar produtos',
+    description: 'Lista os tipos de seguro disponíveis',
+  },
+  {
+    name: 'captureLead',
+    label: 'Capturar lead',
+    description: 'Cria proposta e registra lead no sistema',
+  },
+  {
+    name: 'searchClient',
+    label: 'Buscar cliente',
+    description: 'Encontra cliente por telefone ou CPF/CNPJ',
+  },
+  {
+    name: 'updateClientData',
+    label: 'Atualizar dados do cliente',
+    description: 'Atualiza informações cadastrais do cliente',
+  },
+  {
+    name: 'reportClaim',
+    label: 'Registrar sinistro',
+    description: 'Registra ocorrência de sinistro ou emergência',
+  },
+  {
+    name: 'registerFinancialInquiry',
+    label: 'Consulta financeira',
+    description: 'Registra dúvida financeira e escala para atendente',
+  },
+  {
+    name: 'collectInsuredAssetData',
+    label: 'Coletar dados do bem',
+    description: 'Salva detalhes do bem segurado para cotação',
+  },
+  {
+    name: 'searchProposal',
+    label: 'Buscar proposta',
+    description: 'Encontra propostas existentes no sistema',
+  },
+  {
+    name: 'searchPolicy',
+    label: 'Buscar apólice',
+    description: 'Consulta apólices ativas por cliente ou ramo',
+  },
+]
+
 export const agentIdSchema = z.object({ id: z.string().min(1) })
 
 export const createAgentBodySchema = z.object({
@@ -13,6 +77,7 @@ export const createAgentBodySchema = z.object({
   maxTokens: z.number().min(100).max(2000).optional(),
   maxResponsesPerConversation: z.number().min(5).max(100).optional(),
   isActive: z.boolean().optional(),
+  enabledTools: z.array(z.enum(CONFIGURABLE_TOOL_NAMES)).optional().default([]),
 })
 
 export const updateAgentBodySchema = createAgentBodySchema.partial()

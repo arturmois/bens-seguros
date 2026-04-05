@@ -1,3 +1,9 @@
+export interface AvailableTool {
+  readonly name: string
+  readonly label: string
+  readonly description: string
+}
+
 export interface AiAgentData {
   readonly id: string
   readonly tenantId: string
@@ -9,6 +15,7 @@ export interface AiAgentData {
   readonly maxTokens: number
   readonly maxResponsesPerConversation: number
   readonly isActive: boolean
+  readonly enabledTools: string[]
   readonly linkedChannelCount: number
   readonly createdAt: string
   readonly updatedAt: string
@@ -30,6 +37,7 @@ export interface CreateAiAgentPayload {
   readonly maxTokens?: number
   readonly maxResponsesPerConversation?: number
   readonly isActive?: boolean
+  readonly enabledTools?: string[]
 }
 
 export interface UpdateAiAgentPayload extends Partial<CreateAiAgentPayload> {}

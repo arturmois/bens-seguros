@@ -20,6 +20,7 @@ import { Textarea } from '@/components/ui/textarea'
 import type { AiAgentData } from '../types'
 import {
   useAiAgent,
+  useAvailableTools,
   useCreateAiAgent,
   useUpdateAiAgent,
 } from '../hooks/use-ai-agents'
@@ -34,6 +35,7 @@ import {
   AiAgentProviderSelect,
   LinkedChannelsSection,
 } from './ai-agent-form-parts'
+import { ToolsToggleSection } from './tools-toggle-section'
 
 interface AiAgentFormSheetProps {
   readonly open: boolean
@@ -51,6 +53,7 @@ export function AiAgentFormSheet({
   const createAgent = useCreateAiAgent()
   const updateAgent = useUpdateAiAgent()
   const isPending = createAgent.isPending || updateAgent.isPending
+  const availableTools = useAvailableTools()
 
   const form = useForm<AiAgentFormValues>({
     resolver: zodResolver(aiAgentFormSchema),
@@ -64,6 +67,7 @@ export function AiAgentFormSheet({
           maxTokens: agent.maxTokens,
           maxResponsesPerConversation: agent.maxResponsesPerConversation,
           isActive: agent.isActive,
+          enabledTools: agent.enabledTools ?? [],
         }
       : DEFAULT_AGENT_FORM,
   })
@@ -80,6 +84,7 @@ export function AiAgentFormSheet({
         maxTokens: agent.maxTokens,
         maxResponsesPerConversation: agent.maxResponsesPerConversation,
         isActive: agent.isActive,
+        enabledTools: agent.enabledTools ?? [],
       })
       return
     }
@@ -155,6 +160,14 @@ export function AiAgentFormSheet({
             register={form.register}
             errors={form.formState.errors}
           />
+          {availableTools.data && (
+            <ToolsToggleSection
+              availableTools={availableTools.data}
+              control={form.control}
+              setValue={form.setValue}
+              defaultOpen={isEditMode}
+            />
+          )}
           <Controller
             name="isActive"
             control={form.control}
