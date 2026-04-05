@@ -33,6 +33,7 @@ function createMockDocRepo(): DocumentRepository {
     ),
     findById: vi.fn(),
     findByEntity: vi.fn(),
+    upsertByStorageKey: vi.fn(),
     delete: vi.fn(),
   }
 }

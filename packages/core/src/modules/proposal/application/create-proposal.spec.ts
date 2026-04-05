@@ -41,6 +41,7 @@ function createMockPolicyRepo(
   return {
     create: vi.fn(),
     findById: vi.fn().mockResolvedValue(policy),
+    findByPolicyNumber: vi.fn().mockResolvedValue(policy),
     findMany: vi.fn(),
     cancel: vi.fn(),
   }
@@ -188,6 +189,7 @@ describe('CreateProposal', () => {
         salespersonId: 'user-2',
         proposalId: 'proposal-origin',
         policyNumber: 'POL-001',
+        insurerId: null,
         status: 'CANCELLED',
         branch: 'AUTO',
         premiumValueInCents: 0,
@@ -237,5 +239,96 @@ describe('CreateProposal', () => {
       result.quoteValidUntil!.getTime() - result.createdAt.getTime()
     const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24))
     expect(diffDays).toBe(15)
+  })
+
+  it('resolves renewalPolicyId when renewalPolicyNumber matches an existing policy', async () => {
+    const policyRepo = createMockPolicyRepo()
+    const matchedPolicy: PolicyData = {
+      id: 'pol-existing',
+      organizationId: 'org-1',
+      proposalId: 'prop-old',
+      clientId: 'client-1',
+      salespersonId: 'user-1',
+      policyNumber: 'POL-2025-001',
+      status: 'ACTIVE',
+      branch: 'AUTO',
+      premiumValueInCents: 150000,
+      coverageDetails: null,
+      startDate: new Date('2025-01-01'),
+      endDate: new Date('2026-01-01'),
+      cancelledAt: null,
+      cancelReason: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      insurerId: null,
+    }
+    vi.mocked(policyRepo.findByPolicyNumber).mockResolvedValue(matchedPolicy)
+
+    const useCase = new CreateProposal(
+      createMockRepo(),
+      createMockChecklistRepo(),
+      createMockChecklistConfig(),
+      policyRepo
+    )
+
+    const result = await useCase.execute({
+      organizationId: 'org-1',
+      clientId: 'c-1',
+      salespersonId: 'u-1',
+      branch: 'AUTO',
+      boardType: 'RENEWAL',
+      renewalPolicyNumber: 'POL-2025-001',
+    })
+
+    expect(result.renewalPolicyNumber).toBe('POL-2025-001')
+    expect(result.renewalPolicyId).toBe('pol-existing')
+    expect(policyRepo.findByPolicyNumber).toHaveBeenCalledWith(
+      'POL-2025-001',
+      'org-1'
+    )
+  })
+
+  it('stores renewalPolicyNumber without link when policy number does not exist', async () => {
+    const policyRepo = createMockPolicyRepo()
+    vi.mocked(policyRepo.findByPolicyNumber).mockResolvedValue(null)
+
+    const useCase = new CreateProposal(
+      createMockRepo(),
+      createMockChecklistRepo(),
+      createMockChecklistConfig(),
+      policyRepo
+    )
+
+    const result = await useCase.execute({
+      organizationId: 'org-1',
+      clientId: 'c-1',
+      salespersonId: 'u-1',
+      branch: 'AUTO',
+      boardType: 'RENEWAL',
+      renewalPolicyNumber: 'POL-EXTERNAL-999',
+    })
+
+    expect(result.renewalPolicyNumber).toBe('POL-EXTERNAL-999')
+    expect(result.renewalPolicyId).toBeNull()
+  })
+
+  it('creates renewal without renewalPolicyNumber preserving current behavior', async () => {
+    const useCase = new CreateProposal(
+      createMockRepo(),
+      createMockChecklistRepo(),
+      createMockChecklistConfig(),
+      createMockPolicyRepo()
+    )
+
+    const result = await useCase.execute({
+      organizationId: 'org-1',
+      clientId: 'c-1',
+      salespersonId: 'u-1',
+      branch: 'AUTO',
+      boardType: 'RENEWAL',
+    })
+
+    expect(result.renewalPolicyNumber).toBeNull()
+    expect(result.renewalPolicyId).toBeNull()
   })
 })

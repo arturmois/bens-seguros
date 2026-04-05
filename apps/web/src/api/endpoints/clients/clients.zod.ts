@@ -14,12 +14,17 @@ export const createClientBodyNameMin = 2
 export const createClientBodyDocumentMin = 11
 export const createClientBodyDocumentMax = 14
 
+export const createClientBodyPersonTypeDefault = `INDIVIDUAL`
+
 export const CreateClientBody = zod.object({
   name: zod.string().min(createClientBodyNameMin),
   document: zod
     .string()
     .min(createClientBodyDocumentMin)
     .max(createClientBodyDocumentMax),
+  personType: zod
+    .enum(['INDIVIDUAL', 'COMPANY'])
+    .default(createClientBodyPersonTypeDefault),
   type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']).optional(),
   email: zod.union([zod.enum(['']), zod.string().email()]).optional(),
   phone: zod.union([zod.enum(['']), zod.string()]).optional(),
@@ -65,6 +70,7 @@ export const ListClientsResponse = zod.object({
       id: zod.string(),
       name: zod.string(),
       type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']),
+      personType: zod.enum(['INDIVIDUAL', 'COMPANY']),
       tags: zod.array(zod.string()),
       document: zod.string(),
       email: zod.string().nullish(),
@@ -170,6 +176,7 @@ export const GetClientResponse = zod.object({
     id: zod.string(),
     name: zod.string(),
     type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']),
+    personType: zod.enum(['INDIVIDUAL', 'COMPANY']),
     tags: zod.array(zod.string()),
     document: zod.string(),
     email: zod.string().nullish(),
@@ -235,6 +242,7 @@ export const UpdateClientResponse = zod.object({
     id: zod.string(),
     name: zod.string(),
     type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']),
+    personType: zod.enum(['INDIVIDUAL', 'COMPANY']),
     tags: zod.array(zod.string()),
     document: zod.string(),
     email: zod.string().nullish(),

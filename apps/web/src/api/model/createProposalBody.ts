@@ -18,6 +18,7 @@ export type CreateProposalBody =
         | 'OTHER'
       boardType: 'NEW_INSURANCE' | 'RENEWAL'
       renewalPolicyId?: string
+      renewalPolicyNumber?: string
       insurerId?: string
     }
   | {

@@ -317,6 +317,7 @@ model Proposal {
   commissionPercentageInCents Int               @default(0)
   lostReason                  String?
   renewalPolicyId             String?
+  renewalPolicyNumber         String?
   sourcePolicyId              String?
   endorsementType             String?
   endorsementReason           String?

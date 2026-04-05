@@ -70,6 +70,17 @@ export class PrismaPolicyRepository implements PolicyRepository {
     return row ? PolicyMapper.toDomain(row) : null
   }
 
+  async findByPolicyNumber(
+    policyNumber: string,
+    organizationId: string
+  ): Promise<PolicyData | null> {
+    const row = await this.prisma.policy.findFirst({
+      where: { policyNumber, organizationId, deletedAt: null },
+      include: POLICY_INCLUDE,
+    })
+    return row ? PolicyMapper.toDomain(row) : null
+  }
+
   async findMany(
     filters: PolicyFilters,
     page: PolicyCursorPage

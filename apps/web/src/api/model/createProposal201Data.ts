@@ -26,6 +26,8 @@ export type CreateProposal201Data = {
   /** @nullable */
   renewalPolicyId: string | null
   /** @nullable */
+  renewalPolicyNumber: string | null
+  /** @nullable */
   sourcePolicyId: string | null
   /** @nullable */
   endorsementType: string | null
@@ -39,8 +41,19 @@ export type CreateProposal201Data = {
   deletedAt: string | null
   createdAt: string
   updatedAt: string
+  /** @nullable */
+  coverageStartDate: string | null
+  /** @nullable */
+  coverageEndDate: string | null
+  /** @nullable */
+  sentToClientAt: string | null
+  /** @nullable */
+  clientResponseAt: string | null
+  /** @nullable */
+  quoteValidUntil: string | null
   clientName?: string
   clientDocument?: string
+  clientPersonType?: string
   salespersonName?: string
   insurerName?: string
 }

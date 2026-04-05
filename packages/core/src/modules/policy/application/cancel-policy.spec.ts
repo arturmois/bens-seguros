@@ -17,6 +17,7 @@ function makePolicyData(overrides: Partial<PolicyData> = {}): PolicyData {
     proposalId: 'prop-1',
     clientId: 'c-1',
     salespersonId: 'user-1',
+    insurerId: null,
     policyNumber: 'POL-001',
     branch: 'AUTO',
     status: 'ACTIVE',
@@ -36,6 +37,7 @@ function createMockRepo(data: PolicyData | null): PolicyRepository {
   return {
     create: vi.fn(),
     findById: vi.fn().mockResolvedValue(data),
+    findByPolicyNumber: vi.fn(),
     findMany: vi.fn(),
     cancel: vi.fn().mockImplementation(async (id, orgId, reason) => ({
       ...makePolicyData(),

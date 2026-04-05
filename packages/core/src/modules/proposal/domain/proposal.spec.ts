@@ -103,6 +103,7 @@ describe('Proposal Entity', () => {
       details: null,
       lostReason: null,
       renewalPolicyId: null,
+      renewalPolicyNumber: null,
       sourcePolicyId: null,
       endorsementType: null,
       endorsementReason: null,
@@ -141,6 +142,17 @@ describe('Proposal Entity', () => {
     })
     expect(proposal.boardType).toBe('RENEWAL')
     expect(proposal.renewalPolicyId).toBe('policy-1')
+  })
+
+  it('creates renewal with renewalPolicyNumber', () => {
+    const proposal = Proposal.create({
+      ...validProps,
+      boardType: 'RENEWAL',
+      renewalPolicyNumber: 'POL-EXTERNAL-001',
+    })
+    expect(proposal.boardType).toBe('RENEWAL')
+    expect(proposal.renewalPolicyNumber).toBe('POL-EXTERNAL-001')
+    expect(proposal.renewalPolicyId).toBeNull()
   })
 
   it('creates endorsement proposals at QUOTE with source policy metadata', () => {

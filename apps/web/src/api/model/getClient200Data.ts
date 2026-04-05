@@ -6,6 +6,7 @@
  */
 import type { GetClient200DataAddress } from './getClient200DataAddress'
 import type { GetClient200DataMaritalStatus } from './getClient200DataMaritalStatus'
+import type { GetClient200DataPersonType } from './getClient200DataPersonType'
 import type { GetClient200DataSocialMedia } from './getClient200DataSocialMedia'
 import type { GetClient200DataType } from './getClient200DataType'
 
@@ -13,8 +14,7 @@ export type GetClient200Data = {
   id: string
   name: string
   type: GetClient200DataType
-  /** Added manually — Orval regen (Task 6) will overwrite with generated version */
-  personType?: 'INDIVIDUAL' | 'COMPANY'
+  personType: GetClient200DataPersonType
   tags: string[]
   document: string
   /** @nullable */

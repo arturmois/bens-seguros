@@ -83,6 +83,10 @@ export interface CreatePolicyInput {
 export interface PolicyRepository {
   create(data: CreatePolicyInput): Promise<PolicyData>
   findById(id: string, organizationId: string): Promise<PolicyData | null>
+  findByPolicyNumber(
+    policyNumber: string,
+    organizationId: string
+  ): Promise<PolicyData | null>
   findMany(filters: PolicyFilters, page: PolicyCursorPage): Promise<PolicyPage>
   cancel(
     id: string,

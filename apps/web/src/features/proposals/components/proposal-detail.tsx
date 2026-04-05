@@ -13,6 +13,7 @@ import { useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardPanel, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs'
 
@@ -301,9 +302,28 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
         />
       )}
 
-      {proposal.renewalPolicyId && (
+      {proposal.renewalPolicyId ? (
         <RenewalPolicyCard policyId={proposal.renewalPolicyId} />
-      )}
+      ) : proposal.renewalPolicyNumber ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <RefreshCw className="size-4" />
+              Apólice Anterior
+            </CardTitle>
+          </CardHeader>
+          <CardPanel>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium">
+                {proposal.renewalPolicyNumber}
+              </p>
+              <Badge variant="secondary" className="text-xs">
+                Não vinculada
+              </Badge>
+            </div>
+          </CardPanel>
+        </Card>
+      ) : null}
 
       <Separator />
 

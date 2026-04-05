@@ -45,6 +45,7 @@ const createNewInsuranceOrRenewalProposalBody = z.object({
   branch: branchEnum,
   boardType: z.enum(['NEW_INSURANCE', 'RENEWAL']),
   renewalPolicyId: z.string().optional(),
+  renewalPolicyNumber: z.string().trim().optional(),
   insurerId: z.string().optional(),
 })
 
@@ -207,6 +208,7 @@ const proposalDataSchema = z.object({
   details: insuredObjectDetails.nullable(),
   lostReason: z.string().nullable(),
   renewalPolicyId: z.string().nullable(),
+  renewalPolicyNumber: z.string().nullable(),
   sourcePolicyId: z.string().nullable(),
   endorsementType: z.string().nullable(),
   endorsementReason: z.string().nullable(),

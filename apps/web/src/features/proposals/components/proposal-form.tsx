@@ -31,7 +31,7 @@ import {
   BRANCHES,
 } from '../lib/constants'
 import { ClientSearch } from './client-search'
-import { PolicySearch } from './policy-search'
+import { RenewalPolicyInput } from './renewal-policy-input'
 
 type ProposalFormValues = z.infer<typeof CreateProposalBody>
 
@@ -174,11 +174,11 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
           {boardType === 'RENEWAL' && (
             <Controller
               control={form.control}
-              name="renewalPolicyId"
+              name="renewalPolicyNumber"
               render={({ field, fieldState }) => (
                 <div className="space-y-2">
-                  <Label>Apólice sendo renovada</Label>
-                  <PolicySearch
+                  <Label>Nº da apólice anterior</Label>
+                  <RenewalPolicyInput
                     value={field.value ?? ''}
                     onChange={field.onChange}
                   />

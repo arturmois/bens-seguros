@@ -119,6 +119,7 @@ export interface ProposalProps {
   details: InsuredObjectDetails | null
   lostReason: string | null
   renewalPolicyId: string | null
+  renewalPolicyNumber: string | null
   sourcePolicyId: string | null
   endorsementType: string | null
   endorsementReason: string | null
@@ -148,6 +149,7 @@ interface CreateProposalInput {
   premiumValueInCents?: number
   commissionPercentageInCents?: number
   renewalPolicyId?: string
+  renewalPolicyNumber?: string
   sourcePolicyId?: string
   endorsementType?: string
   endorsementReason?: string
@@ -175,6 +177,7 @@ export class Proposal {
       details: null,
       lostReason: null,
       renewalPolicyId: input.renewalPolicyId ?? null,
+      renewalPolicyNumber: input.renewalPolicyNumber ?? null,
       sourcePolicyId: input.sourcePolicyId ?? null,
       endorsementType: input.endorsementType ?? null,
       endorsementReason: input.endorsementReason ?? null,
@@ -313,6 +316,9 @@ export class Proposal {
   }
   get renewalPolicyId(): string | null {
     return this.props.renewalPolicyId
+  }
+  get renewalPolicyNumber(): string | null {
+    return this.props.renewalPolicyNumber
   }
   get sourcePolicyId(): string | null {
     return this.props.sourcePolicyId

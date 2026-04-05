@@ -4,6 +4,7 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
+import type { ListClients200DataItemPersonType } from './listClients200DataItemPersonType'
 import type { ListClients200DataItemSocialMedia } from './listClients200DataItemSocialMedia'
 import type { ListClients200DataItemType } from './listClients200DataItemType'
 
@@ -11,6 +12,7 @@ export type ListClients200DataItem = {
   id: string
   name: string
   type: ListClients200DataItemType
+  personType: ListClients200DataItemPersonType
   tags: string[]
   document: string
   /** @nullable */

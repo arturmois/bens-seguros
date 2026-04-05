@@ -4,15 +4,47 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
   MutationFunction,
   QueryClient,
+  QueryFunction,
+  QueryKey,
+  UndefinedInitialDataOptions,
   UseMutationOptions,
   UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult,
 } from '@tanstack/react-query'
 
-import type { CreateLead201, CreateLead400, CreateLeadBody } from '../../model'
+import type {
+  CreateInternalClaim201,
+  CreateInternalClaim400,
+  CreateInternalClaimBody,
+  CreateLead201,
+  CreateLead400,
+  CreateLeadBody,
+  ListInternalPolicies200,
+  ListInternalPolicies400,
+  ListInternalPoliciesParams,
+  ListInternalProposals200,
+  ListInternalProposals400,
+  ListInternalProposalsParams,
+  SearchClients200,
+  SearchClients400,
+  SearchClientsParams,
+  UpdateClientInternal200,
+  UpdateClientInternal400,
+  UpdateClientInternal404,
+  UpdateClientInternalBody,
+  UpdateInternalProposalDetails200,
+  UpdateInternalProposalDetails400,
+  UpdateInternalProposalDetails404,
+  UpdateInternalProposalDetailsBody,
+} from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
 
@@ -123,4 +155,1055 @@ export const useCreateLead = <TError = CreateLead400, TContext = unknown>(
   TContext
 > => {
   return useMutation(getCreateLeadMutationOptions(options), queryClient)
+}
+/**
+ * @summary Search client by phone or document
+ */
+export type searchClientsResponse200 = {
+  data: SearchClients200
+  status: 200
+}
+
+export type searchClientsResponse400 = {
+  data: SearchClients400
+  status: 400
+}
+
+export type searchClientsResponseSuccess = searchClientsResponse200 & {
+  headers: Headers
+}
+export type searchClientsResponseError = searchClientsResponse400 & {
+  headers: Headers
+}
+
+export type searchClientsResponse =
+  | searchClientsResponseSuccess
+  | searchClientsResponseError
+
+export const getSearchClientsUrl = (params?: SearchClientsParams) => {
+  const normalizedParams = new URLSearchParams()
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  })
+
+  const stringifiedParams = normalizedParams.toString()
+
+  return stringifiedParams.length > 0
+    ? `/api/internal/clients/search?${stringifiedParams}`
+    : `/api/internal/clients/search`
+}
+
+export const searchClients = async (
+  params?: SearchClientsParams,
+  options?: RequestInit
+): Promise<searchClientsResponse> => {
+  return customFetch<searchClientsResponse>(getSearchClientsUrl(params), {
+    ...options,
+    method: 'GET',
+  })
+}
+
+export const getSearchClientsQueryKey = (params?: SearchClientsParams) => {
+  return [`/api/internal/clients/search`, ...(params ? [params] : [])] as const
+}
+
+export const getSearchClientsQueryOptions = <
+  TData = Awaited<ReturnType<typeof searchClients>>,
+  TError = SearchClients400,
+>(
+  params?: SearchClientsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof searchClients>>, TError, TData>
+    >
+    request?: SecondParameter<typeof customFetch>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getSearchClientsQueryKey(params)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof searchClients>>> = ({
+    signal,
+  }) => searchClients(params, { signal, ...requestOptions })
+
+  return {
+    queryKey,
+    queryFn,
+    staleTime: 60000,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof searchClients>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type SearchClientsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof searchClients>>
+>
+export type SearchClientsQueryError = SearchClients400
+
+export function useSearchClients<
+  TData = Awaited<ReturnType<typeof searchClients>>,
+  TError = SearchClients400,
+>(
+  params: undefined | SearchClientsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof searchClients>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof searchClients>>,
+          TError,
+          Awaited<ReturnType<typeof searchClients>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useSearchClients<
+  TData = Awaited<ReturnType<typeof searchClients>>,
+  TError = SearchClients400,
+>(
+  params?: SearchClientsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof searchClients>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof searchClients>>,
+          TError,
+          Awaited<ReturnType<typeof searchClients>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useSearchClients<
+  TData = Awaited<ReturnType<typeof searchClients>>,
+  TError = SearchClients400,
+>(
+  params?: SearchClientsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof searchClients>>, TError, TData>
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary Search client by phone or document
+ */
+
+export function useSearchClients<
+  TData = Awaited<ReturnType<typeof searchClients>>,
+  TError = SearchClients400,
+>(
+  params?: SearchClientsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof searchClients>>, TError, TData>
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getSearchClientsQueryOptions(params, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+/**
+ * @summary Search client by phone or document
+ */
+export const prefetchSearchClientsQuery = async <
+  TData = Awaited<ReturnType<typeof searchClients>>,
+  TError = SearchClients400,
+>(
+  queryClient: QueryClient,
+  params?: SearchClientsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof searchClients>>, TError, TData>
+    >
+    request?: SecondParameter<typeof customFetch>
+  }
+): Promise<QueryClient> => {
+  const queryOptions = getSearchClientsQueryOptions(params, options)
+
+  await queryClient.prefetchQuery(queryOptions)
+
+  return queryClient
+}
+
+/**
+ * @summary Update client data from chat conversation
+ */
+export type updateClientInternalResponse200 = {
+  data: UpdateClientInternal200
+  status: 200
+}
+
+export type updateClientInternalResponse400 = {
+  data: UpdateClientInternal400
+  status: 400
+}
+
+export type updateClientInternalResponse404 = {
+  data: UpdateClientInternal404
+  status: 404
+}
+
+export type updateClientInternalResponseSuccess =
+  updateClientInternalResponse200 & {
+    headers: Headers
+  }
+export type updateClientInternalResponseError = (
+  | updateClientInternalResponse400
+  | updateClientInternalResponse404
+) & {
+  headers: Headers
+}
+
+export type updateClientInternalResponse =
+  | updateClientInternalResponseSuccess
+  | updateClientInternalResponseError
+
+export const getUpdateClientInternalUrl = (id: string) => {
+  return `/api/internal/clients/${id}`
+}
+
+export const updateClientInternal = async (
+  id: string,
+  updateClientInternalBody: UpdateClientInternalBody,
+  options?: RequestInit
+): Promise<updateClientInternalResponse> => {
+  return customFetch<updateClientInternalResponse>(
+    getUpdateClientInternalUrl(id),
+    {
+      ...options,
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...options?.headers },
+      body: JSON.stringify(updateClientInternalBody),
+    }
+  )
+}
+
+export const getUpdateClientInternalMutationOptions = <
+  TError = UpdateClientInternal400 | UpdateClientInternal404,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateClientInternal>>,
+    TError,
+    { id: string; data: UpdateClientInternalBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customFetch>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateClientInternal>>,
+  TError,
+  { id: string; data: UpdateClientInternalBody },
+  TContext
+> => {
+  const mutationKey = ['updateClientInternal']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateClientInternal>>,
+    { id: string; data: UpdateClientInternalBody }
+  > = (props) => {
+    const { id, data } = props ?? {}
+
+    return updateClientInternal(id, data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type UpdateClientInternalMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateClientInternal>>
+>
+export type UpdateClientInternalMutationBody = UpdateClientInternalBody
+export type UpdateClientInternalMutationError =
+  | UpdateClientInternal400
+  | UpdateClientInternal404
+
+/**
+ * @summary Update client data from chat conversation
+ */
+export const useUpdateClientInternal = <
+  TError = UpdateClientInternal400 | UpdateClientInternal404,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof updateClientInternal>>,
+      TError,
+      { id: string; data: UpdateClientInternalBody },
+      TContext
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof updateClientInternal>>,
+  TError,
+  { id: string; data: UpdateClientInternalBody },
+  TContext
+> => {
+  return useMutation(
+    getUpdateClientInternalMutationOptions(options),
+    queryClient
+  )
+}
+/**
+ * @summary Register a claim from chat conversation
+ */
+export type createInternalClaimResponse201 = {
+  data: CreateInternalClaim201
+  status: 201
+}
+
+export type createInternalClaimResponse400 = {
+  data: CreateInternalClaim400
+  status: 400
+}
+
+export type createInternalClaimResponseSuccess =
+  createInternalClaimResponse201 & {
+    headers: Headers
+  }
+export type createInternalClaimResponseError =
+  createInternalClaimResponse400 & {
+    headers: Headers
+  }
+
+export type createInternalClaimResponse =
+  | createInternalClaimResponseSuccess
+  | createInternalClaimResponseError
+
+export const getCreateInternalClaimUrl = () => {
+  return `/api/internal/claims`
+}
+
+export const createInternalClaim = async (
+  createInternalClaimBody: CreateInternalClaimBody,
+  options?: RequestInit
+): Promise<createInternalClaimResponse> => {
+  return customFetch<createInternalClaimResponse>(getCreateInternalClaimUrl(), {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(createInternalClaimBody),
+  })
+}
+
+export const getCreateInternalClaimMutationOptions = <
+  TError = CreateInternalClaim400,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createInternalClaim>>,
+    TError,
+    { data: CreateInternalClaimBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customFetch>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createInternalClaim>>,
+  TError,
+  { data: CreateInternalClaimBody },
+  TContext
+> => {
+  const mutationKey = ['createInternalClaim']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createInternalClaim>>,
+    { data: CreateInternalClaimBody }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return createInternalClaim(data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type CreateInternalClaimMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createInternalClaim>>
+>
+export type CreateInternalClaimMutationBody = CreateInternalClaimBody
+export type CreateInternalClaimMutationError = CreateInternalClaim400
+
+/**
+ * @summary Register a claim from chat conversation
+ */
+export const useCreateInternalClaim = <
+  TError = CreateInternalClaim400,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof createInternalClaim>>,
+      TError,
+      { data: CreateInternalClaimBody },
+      TContext
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof createInternalClaim>>,
+  TError,
+  { data: CreateInternalClaimBody },
+  TContext
+> => {
+  return useMutation(
+    getCreateInternalClaimMutationOptions(options),
+    queryClient
+  )
+}
+/**
+ * @summary List proposals for a client
+ */
+export type listInternalProposalsResponse200 = {
+  data: ListInternalProposals200
+  status: 200
+}
+
+export type listInternalProposalsResponse400 = {
+  data: ListInternalProposals400
+  status: 400
+}
+
+export type listInternalProposalsResponseSuccess =
+  listInternalProposalsResponse200 & {
+    headers: Headers
+  }
+export type listInternalProposalsResponseError =
+  listInternalProposalsResponse400 & {
+    headers: Headers
+  }
+
+export type listInternalProposalsResponse =
+  | listInternalProposalsResponseSuccess
+  | listInternalProposalsResponseError
+
+export const getListInternalProposalsUrl = (
+  params?: ListInternalProposalsParams
+) => {
+  const normalizedParams = new URLSearchParams()
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  })
+
+  const stringifiedParams = normalizedParams.toString()
+
+  return stringifiedParams.length > 0
+    ? `/api/internal/proposals?${stringifiedParams}`
+    : `/api/internal/proposals`
+}
+
+export const listInternalProposals = async (
+  params?: ListInternalProposalsParams,
+  options?: RequestInit
+): Promise<listInternalProposalsResponse> => {
+  return customFetch<listInternalProposalsResponse>(
+    getListInternalProposalsUrl(params),
+    {
+      ...options,
+      method: 'GET',
+    }
+  )
+}
+
+export const getListInternalProposalsQueryKey = (
+  params?: ListInternalProposalsParams
+) => {
+  return [`/api/internal/proposals`, ...(params ? [params] : [])] as const
+}
+
+export const getListInternalProposalsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listInternalProposals>>,
+  TError = ListInternalProposals400,
+>(
+  params?: ListInternalProposalsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listInternalProposals>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListInternalProposalsQueryKey(params)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listInternalProposals>>
+  > = ({ signal }) =>
+    listInternalProposals(params, { signal, ...requestOptions })
+
+  return {
+    queryKey,
+    queryFn,
+    staleTime: 60000,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof listInternalProposals>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListInternalProposalsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listInternalProposals>>
+>
+export type ListInternalProposalsQueryError = ListInternalProposals400
+
+export function useListInternalProposals<
+  TData = Awaited<ReturnType<typeof listInternalProposals>>,
+  TError = ListInternalProposals400,
+>(
+  params: undefined | ListInternalProposalsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listInternalProposals>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listInternalProposals>>,
+          TError,
+          Awaited<ReturnType<typeof listInternalProposals>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useListInternalProposals<
+  TData = Awaited<ReturnType<typeof listInternalProposals>>,
+  TError = ListInternalProposals400,
+>(
+  params?: ListInternalProposalsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listInternalProposals>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listInternalProposals>>,
+          TError,
+          Awaited<ReturnType<typeof listInternalProposals>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useListInternalProposals<
+  TData = Awaited<ReturnType<typeof listInternalProposals>>,
+  TError = ListInternalProposals400,
+>(
+  params?: ListInternalProposalsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listInternalProposals>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary List proposals for a client
+ */
+
+export function useListInternalProposals<
+  TData = Awaited<ReturnType<typeof listInternalProposals>>,
+  TError = ListInternalProposals400,
+>(
+  params?: ListInternalProposalsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listInternalProposals>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getListInternalProposalsQueryOptions(params, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+/**
+ * @summary List proposals for a client
+ */
+export const prefetchListInternalProposalsQuery = async <
+  TData = Awaited<ReturnType<typeof listInternalProposals>>,
+  TError = ListInternalProposals400,
+>(
+  queryClient: QueryClient,
+  params?: ListInternalProposalsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listInternalProposals>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  }
+): Promise<QueryClient> => {
+  const queryOptions = getListInternalProposalsQueryOptions(params, options)
+
+  await queryClient.prefetchQuery(queryOptions)
+
+  return queryClient
+}
+
+/**
+ * @summary List active policies for a client
+ */
+export type listInternalPoliciesResponse200 = {
+  data: ListInternalPolicies200
+  status: 200
+}
+
+export type listInternalPoliciesResponse400 = {
+  data: ListInternalPolicies400
+  status: 400
+}
+
+export type listInternalPoliciesResponseSuccess =
+  listInternalPoliciesResponse200 & {
+    headers: Headers
+  }
+export type listInternalPoliciesResponseError =
+  listInternalPoliciesResponse400 & {
+    headers: Headers
+  }
+
+export type listInternalPoliciesResponse =
+  | listInternalPoliciesResponseSuccess
+  | listInternalPoliciesResponseError
+
+export const getListInternalPoliciesUrl = (
+  params?: ListInternalPoliciesParams
+) => {
+  const normalizedParams = new URLSearchParams()
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  })
+
+  const stringifiedParams = normalizedParams.toString()
+
+  return stringifiedParams.length > 0
+    ? `/api/internal/policies?${stringifiedParams}`
+    : `/api/internal/policies`
+}
+
+export const listInternalPolicies = async (
+  params?: ListInternalPoliciesParams,
+  options?: RequestInit
+): Promise<listInternalPoliciesResponse> => {
+  return customFetch<listInternalPoliciesResponse>(
+    getListInternalPoliciesUrl(params),
+    {
+      ...options,
+      method: 'GET',
+    }
+  )
+}
+
+export const getListInternalPoliciesQueryKey = (
+  params?: ListInternalPoliciesParams
+) => {
+  return [`/api/internal/policies`, ...(params ? [params] : [])] as const
+}
+
+export const getListInternalPoliciesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listInternalPolicies>>,
+  TError = ListInternalPolicies400,
+>(
+  params?: ListInternalPoliciesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listInternalPolicies>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListInternalPoliciesQueryKey(params)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listInternalPolicies>>
+  > = ({ signal }) =>
+    listInternalPolicies(params, { signal, ...requestOptions })
+
+  return {
+    queryKey,
+    queryFn,
+    staleTime: 60000,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof listInternalPolicies>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListInternalPoliciesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listInternalPolicies>>
+>
+export type ListInternalPoliciesQueryError = ListInternalPolicies400
+
+export function useListInternalPolicies<
+  TData = Awaited<ReturnType<typeof listInternalPolicies>>,
+  TError = ListInternalPolicies400,
+>(
+  params: undefined | ListInternalPoliciesParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listInternalPolicies>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listInternalPolicies>>,
+          TError,
+          Awaited<ReturnType<typeof listInternalPolicies>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useListInternalPolicies<
+  TData = Awaited<ReturnType<typeof listInternalPolicies>>,
+  TError = ListInternalPolicies400,
+>(
+  params?: ListInternalPoliciesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listInternalPolicies>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listInternalPolicies>>,
+          TError,
+          Awaited<ReturnType<typeof listInternalPolicies>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useListInternalPolicies<
+  TData = Awaited<ReturnType<typeof listInternalPolicies>>,
+  TError = ListInternalPolicies400,
+>(
+  params?: ListInternalPoliciesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listInternalPolicies>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary List active policies for a client
+ */
+
+export function useListInternalPolicies<
+  TData = Awaited<ReturnType<typeof listInternalPolicies>>,
+  TError = ListInternalPolicies400,
+>(
+  params?: ListInternalPoliciesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listInternalPolicies>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getListInternalPoliciesQueryOptions(params, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+/**
+ * @summary List active policies for a client
+ */
+export const prefetchListInternalPoliciesQuery = async <
+  TData = Awaited<ReturnType<typeof listInternalPolicies>>,
+  TError = ListInternalPolicies400,
+>(
+  queryClient: QueryClient,
+  params?: ListInternalPoliciesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listInternalPolicies>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  }
+): Promise<QueryClient> => {
+  const queryOptions = getListInternalPoliciesQueryOptions(params, options)
+
+  await queryClient.prefetchQuery(queryOptions)
+
+  return queryClient
+}
+
+/**
+ * @summary Update proposal insured object details from chat conversation
+ */
+export type updateInternalProposalDetailsResponse200 = {
+  data: UpdateInternalProposalDetails200
+  status: 200
+}
+
+export type updateInternalProposalDetailsResponse400 = {
+  data: UpdateInternalProposalDetails400
+  status: 400
+}
+
+export type updateInternalProposalDetailsResponse404 = {
+  data: UpdateInternalProposalDetails404
+  status: 404
+}
+
+export type updateInternalProposalDetailsResponseSuccess =
+  updateInternalProposalDetailsResponse200 & {
+    headers: Headers
+  }
+export type updateInternalProposalDetailsResponseError = (
+  | updateInternalProposalDetailsResponse400
+  | updateInternalProposalDetailsResponse404
+) & {
+  headers: Headers
+}
+
+export type updateInternalProposalDetailsResponse =
+  | updateInternalProposalDetailsResponseSuccess
+  | updateInternalProposalDetailsResponseError
+
+export const getUpdateInternalProposalDetailsUrl = (id: string) => {
+  return `/api/internal/proposals/${id}/details`
+}
+
+export const updateInternalProposalDetails = async (
+  id: string,
+  updateInternalProposalDetailsBody: UpdateInternalProposalDetailsBody,
+  options?: RequestInit
+): Promise<updateInternalProposalDetailsResponse> => {
+  return customFetch<updateInternalProposalDetailsResponse>(
+    getUpdateInternalProposalDetailsUrl(id),
+    {
+      ...options,
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...options?.headers },
+      body: JSON.stringify(updateInternalProposalDetailsBody),
+    }
+  )
+}
+
+export const getUpdateInternalProposalDetailsMutationOptions = <
+  TError = UpdateInternalProposalDetails400 | UpdateInternalProposalDetails404,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateInternalProposalDetails>>,
+    TError,
+    { id: string; data: UpdateInternalProposalDetailsBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customFetch>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateInternalProposalDetails>>,
+  TError,
+  { id: string; data: UpdateInternalProposalDetailsBody },
+  TContext
+> => {
+  const mutationKey = ['updateInternalProposalDetails']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateInternalProposalDetails>>,
+    { id: string; data: UpdateInternalProposalDetailsBody }
+  > = (props) => {
+    const { id, data } = props ?? {}
+
+    return updateInternalProposalDetails(id, data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type UpdateInternalProposalDetailsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateInternalProposalDetails>>
+>
+export type UpdateInternalProposalDetailsMutationBody =
+  UpdateInternalProposalDetailsBody
+export type UpdateInternalProposalDetailsMutationError =
+  | UpdateInternalProposalDetails400
+  | UpdateInternalProposalDetails404
+
+/**
+ * @summary Update proposal insured object details from chat conversation
+ */
+export const useUpdateInternalProposalDetails = <
+  TError = UpdateInternalProposalDetails400 | UpdateInternalProposalDetails404,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof updateInternalProposalDetails>>,
+      TError,
+      { id: string; data: UpdateInternalProposalDetailsBody },
+      TContext
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof updateInternalProposalDetails>>,
+  TError,
+  { id: string; data: UpdateInternalProposalDetailsBody },
+  TContext
+> => {
+  return useMutation(
+    getUpdateInternalProposalDetailsMutationOptions(options),
+    queryClient
+  )
 }

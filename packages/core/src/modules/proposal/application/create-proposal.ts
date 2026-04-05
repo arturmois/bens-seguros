@@ -25,6 +25,7 @@ type CreateProposalDTO =
       premiumValueInCents?: number
       commissionPercentageInCents?: number
       renewalPolicyId?: string
+      renewalPolicyNumber?: string
       insurerId?: string
     })
   | (CreateProposalDTOBase & {
@@ -51,7 +52,7 @@ export class CreateProposal {
     const proposal =
       dto.boardType === 'ENDORSEMENT'
         ? await this.createEndorsementProposal(dto)
-        : Proposal.create(dto)
+        : await this.createRenewalOrNewProposal(dto)
 
     if (!proposal.quoteValidUntil) {
       const validity = new Date(proposal.createdAt)
@@ -74,6 +75,32 @@ export class CreateProposal {
     }
 
     return proposal
+  }
+
+  private async createRenewalOrNewProposal(
+    dto: Extract<CreateProposalDTO, { boardType: 'NEW_INSURANCE' | 'RENEWAL' }>
+  ): Promise<Proposal> {
+    let resolvedPolicyId = dto.renewalPolicyId ?? null
+
+    if (
+      dto.boardType === 'RENEWAL' &&
+      dto.renewalPolicyNumber &&
+      !resolvedPolicyId
+    ) {
+      const found = await this.policyRepo.findByPolicyNumber(
+        dto.renewalPolicyNumber,
+        dto.organizationId
+      )
+      if (found) {
+        resolvedPolicyId = found.id
+      }
+    }
+
+    return Proposal.create({
+      ...dto,
+      renewalPolicyId: resolvedPolicyId ?? undefined,
+      renewalPolicyNumber: dto.renewalPolicyNumber,
+    })
   }
 
   private async createEndorsementProposal(

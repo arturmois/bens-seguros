@@ -6,6 +6,7 @@
  */
 import type { CreateClient201DataAddress } from './createClient201DataAddress'
 import type { CreateClient201DataMaritalStatus } from './createClient201DataMaritalStatus'
+import type { CreateClient201DataPersonType } from './createClient201DataPersonType'
 import type { CreateClient201DataSocialMedia } from './createClient201DataSocialMedia'
 import type { CreateClient201DataType } from './createClient201DataType'
 
@@ -13,6 +14,7 @@ export type CreateClient201Data = {
   id: string
   name: string
   type: CreateClient201DataType
+  personType: CreateClient201DataPersonType
   tags: string[]
   document: string
   /** @nullable */

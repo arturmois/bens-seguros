@@ -57,6 +57,191 @@ export const GenerateProposalPdfResponse = zod.object({
 })
 
 /**
+ * @summary Generate PDF and send quote to client via email
+ */
+
+export const SendQuoteParams = zod.object({
+  id: zod.string().min(1),
+})
+
+/**
+ * @summary Update proposal date fields
+ */
+
+export const UpdateProposalDatesParams = zod.object({
+  id: zod.string().min(1),
+})
+
+export const UpdateProposalDatesBody = zod.object({
+  coverageStartDate: zod.string().datetime({}).optional(),
+  coverageEndDate: zod.string().datetime({}).optional(),
+  clientResponseAt: zod.string().datetime({}).optional(),
+  quoteValidUntil: zod.string().datetime({}).optional(),
+})
+
+export const updateProposalDatesResponseDataDetailsOneManufacturingYearMin = 1900
+export const updateProposalDatesResponseDataDetailsOneManufacturingYearMax = 2100
+
+export const updateProposalDatesResponseDataDetailsOneModelYearMin = 1900
+export const updateProposalDatesResponseDataDetailsOneModelYearMax = 2100
+
+export const updateProposalDatesResponseDataDetailsFiveMonthlyIncomeCentsMin = 0
+
+export const updateProposalDatesResponseDataDetailsFiveHeightInCentimetersMin = 100
+export const updateProposalDatesResponseDataDetailsFiveHeightInCentimetersMax = 250
+
+export const updateProposalDatesResponseDataDetailsFiveWeightInGramsMin = 20000
+export const updateProposalDatesResponseDataDetailsFiveWeightInGramsMax = 300000
+
+export const UpdateProposalDatesResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    clientId: zod.string(),
+    salespersonId: zod.string(),
+    stage: zod.enum([
+      'CAPTURE',
+      'QUOTE',
+      'PROTOCOL',
+      'INSPECTION',
+      'PAYMENT',
+      'POLICY_ISSUED',
+      'LOST',
+    ]),
+    boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']),
+    branch: zod.enum([
+      'AUTO',
+      'RESIDENTIAL',
+      'CONDOMINIUM',
+      'BUSINESS',
+      'LIFE',
+      'OTHER',
+    ]),
+    premiumValueInCents: zod.number(),
+    commissionPercentageInCents: zod.number(),
+    details: zod
+      .union([
+        zod.object({
+          branch: zod.enum(['AUTO']),
+          brand: zod.string().min(1),
+          model: zod.string().min(1),
+          manufacturingYear: zod
+            .number()
+            .min(updateProposalDatesResponseDataDetailsOneManufacturingYearMin)
+            .max(updateProposalDatesResponseDataDetailsOneManufacturingYearMax),
+          modelYear: zod
+            .number()
+            .min(updateProposalDatesResponseDataDetailsOneModelYearMin)
+            .max(updateProposalDatesResponseDataDetailsOneModelYearMax),
+          licensePlate: zod.string().optional(),
+          vin: zod.string().optional(),
+          color: zod.string().optional(),
+          fuelType: zod.string().optional(),
+          vehicleUsage: zod.string().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['RESIDENTIAL']),
+          propertyType: zod.string().min(1),
+          propertyUsage: zod.string().min(1),
+          cep: zod.string().min(1),
+          address: zod.string().optional(),
+          construction: zod.string().optional(),
+          areaM2: zod.number().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['CONDOMINIUM']),
+          condominiumName: zod.string().min(1),
+          unitCount: zod.number().min(1),
+          cep: zod.string().min(1),
+          address: zod.string().optional(),
+          constructionYear: zod.number().optional(),
+          floorCount: zod.number().optional(),
+          blockCount: zod.number().optional(),
+          elevatorCount: zod.number().optional(),
+          employeeCount: zod.number().optional(),
+          hasSecurityEquipment: zod.boolean().optional(),
+          securityEquipmentDetails: zod.string().optional(),
+          hasFireEquipment: zod.boolean().optional(),
+          fireEquipmentDetails: zod.string().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['BUSINESS']),
+          legalName: zod.string().min(1),
+          cnpj: zod.string().min(1),
+          businessActivity: zod.string().min(1),
+          cep: zod.string().optional(),
+          address: zod.string().optional(),
+          areaM2: zod.number().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['LIFE']),
+          occupation: zod.string().min(1),
+          monthlyIncomeCents: zod
+            .number()
+            .min(
+              updateProposalDatesResponseDataDetailsFiveMonthlyIncomeCentsMin
+            )
+            .optional(),
+          isSmoker: zod.boolean().optional(),
+          extremeSports: zod.boolean().optional(),
+          heightInCentimeters: zod
+            .number()
+            .min(
+              updateProposalDatesResponseDataDetailsFiveHeightInCentimetersMin
+            )
+            .max(
+              updateProposalDatesResponseDataDetailsFiveHeightInCentimetersMax
+            )
+            .optional(),
+          weightInGrams: zod
+            .number()
+            .min(updateProposalDatesResponseDataDetailsFiveWeightInGramsMin)
+            .max(updateProposalDatesResponseDataDetailsFiveWeightInGramsMax)
+            .optional(),
+          beneficiaries: zod.string().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['OTHER']),
+          description: zod.string().min(1),
+        }),
+      ])
+      .nullable(),
+    lostReason: zod.string().nullable(),
+    renewalPolicyId: zod.string().nullable(),
+    renewalPolicyNumber: zod.string().nullable(),
+    sourcePolicyId: zod.string().nullable(),
+    endorsementType: zod.string().nullable(),
+    endorsementReason: zod.string().nullable(),
+    sourcePolicySnapshot: zod
+      .object({
+        policyNumber: zod.string(),
+        clientName: zod.string(),
+        startDate: zod.string().datetime({}),
+        endDate: zod.string().datetime({}),
+        status: zod.enum(['ACTIVE', 'CANCELLED', 'EXPIRED']),
+        insurerId: zod.string().nullable(),
+        insurerName: zod.string().nullable(),
+      })
+      .nullable(),
+    insurerId: zod.string().nullable(),
+    deletedAt: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    coverageStartDate: zod.string().datetime({}).nullable(),
+    coverageEndDate: zod.string().datetime({}).nullable(),
+    sentToClientAt: zod.string().datetime({}).nullable(),
+    clientResponseAt: zod.string().datetime({}).nullable(),
+    quoteValidUntil: zod.string().datetime({}).nullable(),
+    clientName: zod.string().optional(),
+    clientDocument: zod.string().optional(),
+    clientPersonType: zod.string().optional(),
+    salespersonName: zod.string().optional(),
+    insurerName: zod.string().optional(),
+  }),
+})
+
+/**
  * @summary Create a new proposal
  */
 
@@ -73,6 +258,7 @@ export const CreateProposalBody = zod.union([
     ]),
     boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL']),
     renewalPolicyId: zod.string().optional(),
+    renewalPolicyNumber: zod.string().optional(),
     insurerId: zod.string().optional(),
   }),
   zod.object({
@@ -248,6 +434,7 @@ export const ListProposalsResponse = zod.object({
         .nullable(),
       lostReason: zod.string().nullable(),
       renewalPolicyId: zod.string().nullable(),
+      renewalPolicyNumber: zod.string().nullable(),
       sourcePolicyId: zod.string().nullable(),
       endorsementType: zod.string().nullable(),
       endorsementReason: zod.string().nullable(),
@@ -266,8 +453,14 @@ export const ListProposalsResponse = zod.object({
       deletedAt: zod.string().datetime({}).nullable(),
       createdAt: zod.string().datetime({}),
       updatedAt: zod.string().datetime({}),
+      coverageStartDate: zod.string().datetime({}).nullable(),
+      coverageEndDate: zod.string().datetime({}).nullable(),
+      sentToClientAt: zod.string().datetime({}).nullable(),
+      clientResponseAt: zod.string().datetime({}).nullable(),
+      quoteValidUntil: zod.string().datetime({}).nullable(),
       clientName: zod.string().optional(),
       clientDocument: zod.string().optional(),
+      clientPersonType: zod.string().optional(),
       salespersonName: zod.string().optional(),
       insurerName: zod.string().optional(),
     })
@@ -409,6 +602,7 @@ export const GetProposalResponse = zod.object({
       .nullable(),
     lostReason: zod.string().nullable(),
     renewalPolicyId: zod.string().nullable(),
+    renewalPolicyNumber: zod.string().nullable(),
     sourcePolicyId: zod.string().nullable(),
     endorsementType: zod.string().nullable(),
     endorsementReason: zod.string().nullable(),
@@ -427,8 +621,14 @@ export const GetProposalResponse = zod.object({
     deletedAt: zod.string().datetime({}).nullable(),
     createdAt: zod.string().datetime({}),
     updatedAt: zod.string().datetime({}),
+    coverageStartDate: zod.string().datetime({}).nullable(),
+    coverageEndDate: zod.string().datetime({}).nullable(),
+    sentToClientAt: zod.string().datetime({}).nullable(),
+    clientResponseAt: zod.string().datetime({}).nullable(),
+    quoteValidUntil: zod.string().datetime({}).nullable(),
     clientName: zod.string().optional(),
     clientDocument: zod.string().optional(),
+    clientPersonType: zod.string().optional(),
     salespersonName: zod.string().optional(),
     insurerName: zod.string().optional(),
   }),
@@ -566,6 +766,7 @@ export const AdvanceProposalResponse = zod.object({
       .nullable(),
     lostReason: zod.string().nullable(),
     renewalPolicyId: zod.string().nullable(),
+    renewalPolicyNumber: zod.string().nullable(),
     sourcePolicyId: zod.string().nullable(),
     endorsementType: zod.string().nullable(),
     endorsementReason: zod.string().nullable(),
@@ -584,8 +785,14 @@ export const AdvanceProposalResponse = zod.object({
     deletedAt: zod.string().datetime({}).nullable(),
     createdAt: zod.string().datetime({}),
     updatedAt: zod.string().datetime({}),
+    coverageStartDate: zod.string().datetime({}).nullable(),
+    coverageEndDate: zod.string().datetime({}).nullable(),
+    sentToClientAt: zod.string().datetime({}).nullable(),
+    clientResponseAt: zod.string().datetime({}).nullable(),
+    quoteValidUntil: zod.string().datetime({}).nullable(),
     clientName: zod.string().optional(),
     clientDocument: zod.string().optional(),
+    clientPersonType: zod.string().optional(),
     salespersonName: zod.string().optional(),
     insurerName: zod.string().optional(),
   }),
@@ -727,6 +934,7 @@ export const MarkProposalLostResponse = zod.object({
       .nullable(),
     lostReason: zod.string().nullable(),
     renewalPolicyId: zod.string().nullable(),
+    renewalPolicyNumber: zod.string().nullable(),
     sourcePolicyId: zod.string().nullable(),
     endorsementType: zod.string().nullable(),
     endorsementReason: zod.string().nullable(),
@@ -745,8 +953,14 @@ export const MarkProposalLostResponse = zod.object({
     deletedAt: zod.string().datetime({}).nullable(),
     createdAt: zod.string().datetime({}),
     updatedAt: zod.string().datetime({}),
+    coverageStartDate: zod.string().datetime({}).nullable(),
+    coverageEndDate: zod.string().datetime({}).nullable(),
+    sentToClientAt: zod.string().datetime({}).nullable(),
+    clientResponseAt: zod.string().datetime({}).nullable(),
+    quoteValidUntil: zod.string().datetime({}).nullable(),
     clientName: zod.string().optional(),
     clientDocument: zod.string().optional(),
+    clientPersonType: zod.string().optional(),
     salespersonName: zod.string().optional(),
     insurerName: zod.string().optional(),
   }),
@@ -1016,6 +1230,7 @@ export const UpdateProposalDetailsResponse = zod.object({
       .nullable(),
     lostReason: zod.string().nullable(),
     renewalPolicyId: zod.string().nullable(),
+    renewalPolicyNumber: zod.string().nullable(),
     sourcePolicyId: zod.string().nullable(),
     endorsementType: zod.string().nullable(),
     endorsementReason: zod.string().nullable(),
@@ -1034,8 +1249,14 @@ export const UpdateProposalDetailsResponse = zod.object({
     deletedAt: zod.string().datetime({}).nullable(),
     createdAt: zod.string().datetime({}),
     updatedAt: zod.string().datetime({}),
+    coverageStartDate: zod.string().datetime({}).nullable(),
+    coverageEndDate: zod.string().datetime({}).nullable(),
+    sentToClientAt: zod.string().datetime({}).nullable(),
+    clientResponseAt: zod.string().datetime({}).nullable(),
+    quoteValidUntil: zod.string().datetime({}).nullable(),
     clientName: zod.string().optional(),
     clientDocument: zod.string().optional(),
+    clientPersonType: zod.string().optional(),
     salespersonName: zod.string().optional(),
     insurerName: zod.string().optional(),
   }),

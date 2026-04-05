@@ -17,3 +17,192 @@ export const CreateLeadBody = zod.object({
   notes: zod.string().optional(),
   source: zod.string().optional(),
 })
+
+/**
+ * @summary Search client by phone or document
+ */
+export const SearchClientsQueryParams = zod.object({
+  phone: zod.string().optional(),
+  document: zod.string().optional(),
+})
+
+export const SearchClientsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    found: zod.boolean(),
+    client: zod
+      .object({
+        id: zod.string(),
+        name: zod.string(),
+        type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']),
+        email: zod.string().nullable(),
+        phone: zod.string().nullable(),
+        hasActivePolicy: zod.boolean(),
+        activePoliciesCount: zod.number(),
+        openProposalsCount: zod.number(),
+      })
+      .nullable(),
+  }),
+})
+
+/**
+ * @summary Update client data from chat conversation
+ */
+
+export const UpdateClientInternalParams = zod.object({
+  id: zod.string().min(1),
+})
+
+export const UpdateClientInternalBody = zod.object({
+  document: zod.string().optional(),
+  email: zod.string().email().optional(),
+  address: zod
+    .object({
+      zipCode: zod.string().optional(),
+      street: zod.string().optional(),
+      number: zod.string().optional(),
+      complement: zod.string().optional(),
+      neighborhood: zod.string().optional(),
+      city: zod.string().optional(),
+      state: zod.string().optional(),
+    })
+    .optional(),
+  birthDate: zod.string().optional(),
+  profession: zod.string().optional(),
+  maritalStatus: zod
+    .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
+    .optional(),
+})
+
+export const UpdateClientInternalResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    success: zod.boolean(),
+    message: zod.string(),
+  }),
+})
+
+/**
+ * @summary Register a claim from chat conversation
+ */
+
+export const CreateInternalClaimBody = zod.object({
+  phoneOrDocument: zod.string().min(1),
+  description: zod.string().min(1),
+  incidentDate: zod.string().optional(),
+  incidentLocation: zod.string().optional(),
+  insuranceType: zod
+    .enum([
+      'AUTO',
+      'RESIDENTIAL',
+      'LIFE',
+      'BUSINESS',
+      'TRAVEL',
+      'CONDOMINIUM',
+      'OTHER',
+    ])
+    .optional(),
+})
+
+/**
+ * @summary List proposals for a client
+ */
+export const listInternalProposalsQueryStatusDefault = `ACTIVE`
+
+export const ListInternalProposalsQueryParams = zod.object({
+  clientId: zod.string().optional(),
+  phone: zod.string().optional(),
+  status: zod
+    .enum(['ACTIVE', 'LOST', 'ALL'])
+    .default(listInternalProposalsQueryStatusDefault),
+})
+
+export const ListInternalProposalsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    proposals: zod.array(
+      zod.object({
+        id: zod.string(),
+        branch: zod.string(),
+        stage: zod.string(),
+        premiumValueInCents: zod.number().nullable(),
+        coverageStartDate: zod.string().datetime({}).nullable(),
+        createdAt: zod.string().datetime({}),
+        clientName: zod.string(),
+      })
+    ),
+    total: zod.number(),
+  }),
+})
+
+/**
+ * @summary List active policies for a client
+ */
+export const ListInternalPoliciesQueryParams = zod.object({
+  clientId: zod.string().optional(),
+  phone: zod.string().optional(),
+  branch: zod
+    .enum([
+      'AUTO',
+      'RESIDENTIAL',
+      'LIFE',
+      'BUSINESS',
+      'TRAVEL',
+      'CONDOMINIUM',
+      'OTHER',
+    ])
+    .optional(),
+})
+
+export const ListInternalPoliciesResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    policies: zod.array(
+      zod.object({
+        id: zod.string(),
+        policyNumber: zod.string(),
+        branch: zod.string(),
+        status: zod.string(),
+        startDate: zod.string().datetime({}),
+        endDate: zod.string().datetime({}),
+        premiumValueInCents: zod.number(),
+        insurerName: zod.string().nullable(),
+      })
+    ),
+    total: zod.number(),
+  }),
+})
+
+/**
+ * @summary Update proposal insured object details from chat conversation
+ */
+
+export const UpdateInternalProposalDetailsParams = zod.object({
+  id: zod.string().min(1),
+})
+
+export const updateInternalProposalDetailsBodyPremiumValueInCentsDefault = 0
+export const updateInternalProposalDetailsBodyPremiumValueInCentsMin = 0
+
+export const updateInternalProposalDetailsBodyCommissionBasisPointsDefault = 0
+export const updateInternalProposalDetailsBodyCommissionBasisPointsMin = 0
+
+export const UpdateInternalProposalDetailsBody = zod.object({
+  details: zod.record(zod.string(), zod.unknown()),
+  premiumValueInCents: zod
+    .number()
+    .min(updateInternalProposalDetailsBodyPremiumValueInCentsMin)
+    .default(updateInternalProposalDetailsBodyPremiumValueInCentsDefault),
+  commissionBasisPoints: zod
+    .number()
+    .min(updateInternalProposalDetailsBodyCommissionBasisPointsMin)
+    .default(updateInternalProposalDetailsBodyCommissionBasisPointsDefault),
+})
+
+export const UpdateInternalProposalDetailsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    success: zod.boolean(),
+    message: zod.string(),
+  }),
+})

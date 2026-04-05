@@ -46,6 +46,13 @@ import type {
   ReopenProposal200,
   ReopenProposal400,
   ReopenProposal404,
+  SendQuote202,
+  SendQuote404,
+  SendQuote422,
+  UpdateProposalDates200,
+  UpdateProposalDates400,
+  UpdateProposalDates404,
+  UpdateProposalDatesBody,
   UpdateProposalDetails200,
   UpdateProposalDetails400,
   UpdateProposalDetails404,
@@ -385,6 +392,248 @@ export const useGenerateProposalPdf = <
 > => {
   return useMutation(
     getGenerateProposalPdfMutationOptions(options),
+    queryClient
+  )
+}
+/**
+ * @summary Generate PDF and send quote to client via email
+ */
+export type sendQuoteResponse202 = {
+  data: SendQuote202
+  status: 202
+}
+
+export type sendQuoteResponse404 = {
+  data: SendQuote404
+  status: 404
+}
+
+export type sendQuoteResponse422 = {
+  data: SendQuote422
+  status: 422
+}
+
+export type sendQuoteResponseSuccess = sendQuoteResponse202 & {
+  headers: Headers
+}
+export type sendQuoteResponseError = (
+  | sendQuoteResponse404
+  | sendQuoteResponse422
+) & {
+  headers: Headers
+}
+
+export type sendQuoteResponse =
+  | sendQuoteResponseSuccess
+  | sendQuoteResponseError
+
+export const getSendQuoteUrl = (id: string) => {
+  return `/api/v1/proposals/${id}/send-quote`
+}
+
+export const sendQuote = async (
+  id: string,
+  options?: RequestInit
+): Promise<sendQuoteResponse> => {
+  return customFetch<sendQuoteResponse>(getSendQuoteUrl(id), {
+    ...options,
+    method: 'POST',
+  })
+}
+
+export const getSendQuoteMutationOptions = <
+  TError = SendQuote404 | SendQuote422,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendQuote>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof customFetch>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof sendQuote>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['sendQuote']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof sendQuote>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {}
+
+    return sendQuote(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type SendQuoteMutationResult = NonNullable<
+  Awaited<ReturnType<typeof sendQuote>>
+>
+
+export type SendQuoteMutationError = SendQuote404 | SendQuote422
+
+/**
+ * @summary Generate PDF and send quote to client via email
+ */
+export const useSendQuote = <
+  TError = SendQuote404 | SendQuote422,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof sendQuote>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof sendQuote>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getSendQuoteMutationOptions(options), queryClient)
+}
+/**
+ * @summary Update proposal date fields
+ */
+export type updateProposalDatesResponse200 = {
+  data: UpdateProposalDates200
+  status: 200
+}
+
+export type updateProposalDatesResponse400 = {
+  data: UpdateProposalDates400
+  status: 400
+}
+
+export type updateProposalDatesResponse404 = {
+  data: UpdateProposalDates404
+  status: 404
+}
+
+export type updateProposalDatesResponseSuccess =
+  updateProposalDatesResponse200 & {
+    headers: Headers
+  }
+export type updateProposalDatesResponseError = (
+  | updateProposalDatesResponse400
+  | updateProposalDatesResponse404
+) & {
+  headers: Headers
+}
+
+export type updateProposalDatesResponse =
+  | updateProposalDatesResponseSuccess
+  | updateProposalDatesResponseError
+
+export const getUpdateProposalDatesUrl = (id: string) => {
+  return `/api/v1/proposals/${id}/dates`
+}
+
+export const updateProposalDates = async (
+  id: string,
+  updateProposalDatesBody: UpdateProposalDatesBody,
+  options?: RequestInit
+): Promise<updateProposalDatesResponse> => {
+  return customFetch<updateProposalDatesResponse>(
+    getUpdateProposalDatesUrl(id),
+    {
+      ...options,
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...options?.headers },
+      body: JSON.stringify(updateProposalDatesBody),
+    }
+  )
+}
+
+export const getUpdateProposalDatesMutationOptions = <
+  TError = UpdateProposalDates400 | UpdateProposalDates404,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateProposalDates>>,
+    TError,
+    { id: string; data: UpdateProposalDatesBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customFetch>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateProposalDates>>,
+  TError,
+  { id: string; data: UpdateProposalDatesBody },
+  TContext
+> => {
+  const mutationKey = ['updateProposalDates']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateProposalDates>>,
+    { id: string; data: UpdateProposalDatesBody }
+  > = (props) => {
+    const { id, data } = props ?? {}
+
+    return updateProposalDates(id, data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type UpdateProposalDatesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateProposalDates>>
+>
+export type UpdateProposalDatesMutationBody = UpdateProposalDatesBody
+export type UpdateProposalDatesMutationError =
+  | UpdateProposalDates400
+  | UpdateProposalDates404
+
+/**
+ * @summary Update proposal date fields
+ */
+export const useUpdateProposalDates = <
+  TError = UpdateProposalDates400 | UpdateProposalDates404,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof updateProposalDates>>,
+      TError,
+      { id: string; data: UpdateProposalDatesBody },
+      TContext
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof updateProposalDates>>,
+  TError,
+  { id: string; data: UpdateProposalDatesBody },
+  TContext
+> => {
+  return useMutation(
+    getUpdateProposalDatesMutationOptions(options),
     queryClient
   )
 }

@@ -32,6 +32,7 @@ function createMockDocRepo(data: DocumentData | null): DocumentRepository {
     create: vi.fn(),
     findById: vi.fn().mockResolvedValue(data),
     findByEntity: vi.fn(),
+    upsertByStorageKey: vi.fn(),
     delete: vi.fn().mockResolvedValue(undefined),
   }
 }

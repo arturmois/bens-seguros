@@ -41,7 +41,7 @@ describe('ListOccurrences', () => {
 
     expect(repo.findByClaimId).toHaveBeenCalledWith('claim-1', 'org-1')
     expect(result).toHaveLength(2)
-    expect(result[0].id).toBe('occ-1')
+    expect(result[0]?.id).toBe('occ-1')
   })
 
   it('passes organizationId to repository for tenant isolation', async () => {
@@ -70,6 +70,6 @@ describe('ListOccurrences', () => {
 
     const result = await useCase.execute('claim-1', 'org-xyz')
 
-    expect(result[0].organizationId).toBe('org-xyz')
+    expect(result[0]?.organizationId).toBe('org-xyz')
   })
 })

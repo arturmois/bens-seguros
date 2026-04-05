@@ -22,6 +22,7 @@ function createTestProposal(stage: Proposal['stage'] = 'QUOTE'): Proposal {
     details: null,
     lostReason: null,
     renewalPolicyId: null,
+    renewalPolicyNumber: null,
     sourcePolicyId: null,
     endorsementType: null,
     endorsementReason: null,

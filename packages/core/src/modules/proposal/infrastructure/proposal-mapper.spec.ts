@@ -68,6 +68,7 @@ describe('ProposalMapper', () => {
       details: null,
       lostReason: null,
       renewalPolicyId: null,
+      renewalPolicyNumber: null,
       sourcePolicyId: 'policy-1',
       endorsementType: 'COVERAGE_CHANGE',
       endorsementReason: 'Adicionar cobertura para vidros',

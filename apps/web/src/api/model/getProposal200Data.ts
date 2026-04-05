@@ -26,6 +26,8 @@ export type GetProposal200Data = {
   /** @nullable */
   renewalPolicyId: string | null
   /** @nullable */
+  renewalPolicyNumber: string | null
+  /** @nullable */
   sourcePolicyId: string | null
   /** @nullable */
   endorsementType: string | null
@@ -39,20 +41,19 @@ export type GetProposal200Data = {
   deletedAt: string | null
   createdAt: string
   updatedAt: string
-  clientName?: string
-  clientDocument?: string
-  /** Added manually — Orval regen (Task 6) will overwrite with generated version */
-  clientPersonType?: 'INDIVIDUAL' | 'COMPANY'
-  salespersonName?: string
-  insurerName?: string
   /** @nullable */
   coverageStartDate: string | null
   /** @nullable */
   coverageEndDate: string | null
   /** @nullable */
-  quoteValidUntil: string | null
-  /** @nullable */
   sentToClientAt: string | null
   /** @nullable */
   clientResponseAt: string | null
+  /** @nullable */
+  quoteValidUntil: string | null
+  clientName?: string
+  clientDocument?: string
+  clientPersonType?: string
+  salespersonName?: string
+  insurerName?: string
 }

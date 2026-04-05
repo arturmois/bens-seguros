@@ -8,6 +8,7 @@ function createMockRepo(): PolicyRepository {
   return {
     create: vi.fn(),
     findById: vi.fn(),
+    findByPolicyNumber: vi.fn(),
     findMany: vi.fn(),
     cancel: vi.fn(),
   }

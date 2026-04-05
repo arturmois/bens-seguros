@@ -6,6 +6,7 @@
  */
 import type { CreateClientBodyAddress } from './createClientBodyAddress'
 import type { CreateClientBodyMaritalStatus } from './createClientBodyMaritalStatus'
+import type { CreateClientBodyPersonType } from './createClientBodyPersonType'
 import type { CreateClientBodySocialMedia } from './createClientBodySocialMedia'
 import type { CreateClientBodyType } from './createClientBodyType'
 
@@ -17,6 +18,7 @@ export type CreateClientBody = {
    * @maxLength 14
    */
   document: string
+  personType?: CreateClientBodyPersonType
   type?: CreateClientBodyType
   email?: '' | string
   phone?: '' | string

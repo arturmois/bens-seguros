@@ -6,6 +6,7 @@
  */
 import type { UpdateClient200DataAddress } from './updateClient200DataAddress'
 import type { UpdateClient200DataMaritalStatus } from './updateClient200DataMaritalStatus'
+import type { UpdateClient200DataPersonType } from './updateClient200DataPersonType'
 import type { UpdateClient200DataSocialMedia } from './updateClient200DataSocialMedia'
 import type { UpdateClient200DataType } from './updateClient200DataType'
 
@@ -13,6 +14,7 @@ export type UpdateClient200Data = {
   id: string
   name: string
   type: UpdateClient200DataType
+  personType: UpdateClient200DataPersonType
   tags: string[]
   document: string
   /** @nullable */

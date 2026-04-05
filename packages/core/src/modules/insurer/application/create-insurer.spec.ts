@@ -32,6 +32,7 @@ function createMockRepo(existingByName: InsurerData | null): InsurerRepository {
     })),
     findById: vi.fn(),
     findByName: vi.fn().mockResolvedValue(existingByName),
+    update: vi.fn(),
     findMany: vi.fn(),
   }
 }
