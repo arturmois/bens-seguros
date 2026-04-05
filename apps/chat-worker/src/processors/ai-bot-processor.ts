@@ -4,9 +4,9 @@ import { generateWithTools } from '@repo/ai'
 import { AiAgent, Conversation, Message, Channel } from '@repo/db-chat'
 import { CHAT_PUBSUB_CHANNELS, CHAT_QUEUES } from '@repo/shared'
 import type { PubsubClient } from '../types/pubsub-client.js'
-import { createEscalarParaHumanoTool } from '../tools/escalar-para-humano.js'
-import { createConsultarProdutosTool } from '../tools/consultar-produtos.js'
-import { createCaptarLeadTool } from '../tools/captar-lead.js'
+import { createEscalateToHumanTool } from '../tools/escalate-to-human.js'
+import { createListProductsTool } from '../tools/list-products.js'
+import { createCaptureLeadTool } from '../tools/capture-lead.js'
 import {
   type AiBotJobData,
   ESCALATION_TOOL_NAME,
@@ -113,13 +113,13 @@ export function createAiBotProcessor(
     )
 
     const tools = {
-      [ESCALATION_TOOL_NAME]: createEscalarParaHumanoTool(
+      [ESCALATION_TOOL_NAME]: createEscalateToHumanTool(
         conversationId,
         tenantId,
         pubsubClient
       ),
-      consultarProdutos: createConsultarProdutosTool(),
-      captarLead: createCaptarLeadTool(
+      listProducts: createListProductsTool(),
+      captureLead: createCaptureLeadTool(
         tenantId,
         typeof conversation.whatsappPhone === 'string'
           ? conversation.whatsappPhone

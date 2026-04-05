@@ -4,25 +4,25 @@ import pino from 'pino'
 import { env } from '@repo/env'
 import { signRequest } from '@repo/shared'
 
-const logger = pino({ name: 'captar-lead-tool' })
+const logger = pino({ name: 'capture-lead-tool' })
 
 const FETCH_TIMEOUT_MS = 10_000
 
-export function createCaptarLeadTool(tenantId: string, contactPhone: string) {
+export function createCaptureLeadTool(tenantId: string, contactPhone: string) {
   return tool({
     description:
       'Registra interesse do cliente em um seguro e cria uma proposta no sistema. Use quando o cliente demonstrar interesse em cotar ou contratar um seguro.',
     parameters: z.object({
-      nomeCliente: z.string().describe('Nome completo do cliente'),
-      tipoSeguro: z
-        .enum(['AUTO', 'VIDA', 'RESIDENCIAL', 'EMPRESARIAL', 'VIAGEM', 'OUTRO'])
+      clientName: z.string().describe('Nome completo do cliente'),
+      insuranceType: z
+        .enum(['AUTO', 'LIFE', 'RESIDENTIAL', 'BUSINESS', 'TRAVEL', 'OTHER'])
         .describe('Tipo de seguro desejado'),
-      detalhes: z
+      details: z
         .string()
         .optional()
         .describe('Detalhes adicionais como modelo do carro, endereco, etc'),
     }),
-    execute: async ({ nomeCliente, tipoSeguro, detalhes }) => {
+    execute: async ({ clientName, insuranceType, details }) => {
       if (!env.INTERNAL_API_URL || !env.INTERNAL_API_SECRET) {
         logger.warn(
           { tenantId },
@@ -37,10 +37,10 @@ export function createCaptarLeadTool(tenantId: string, contactPhone: string) {
 
       try {
         const body = JSON.stringify({
-          clientName: nomeCliente,
+          clientName,
           clientPhone: contactPhone,
-          insuranceType: tipoSeguro,
-          notes: detalhes ?? '',
+          insuranceType,
+          notes: details ?? '',
           source: 'WHATSAPP_BOT',
         })
 
@@ -82,7 +82,7 @@ export function createCaptarLeadTool(tenantId: string, contactPhone: string) {
         const data: unknown = await response.json()
         return {
           success: true,
-          message: `Proposta registrada com sucesso para ${nomeCliente} - ${tipoSeguro}`,
+          message: `Proposta registrada com sucesso para ${clientName} - ${insuranceType}`,
           data,
         }
       } catch (err: unknown) {

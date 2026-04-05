@@ -7,7 +7,7 @@ import type { PubsubClient } from '../types/pubsub-client.js'
 export const DEFAULT_SYSTEM_PROMPT =
   'Voce e um assistente de uma corretora de seguros. Responda de forma educada e profissional em portugues brasileiro. Se o cliente quiser falar com um atendente humano, diga que vai transferi-lo.'
 
-export const ESCALATION_TOOL_NAME = 'escalarParaHumano'
+export const ESCALATION_TOOL_NAME = 'escalateToHuman'
 
 export interface AiBotJobData {
   readonly conversationId: string
@@ -71,9 +71,9 @@ export function buildSystemPrompt(
     'Contexto adicional:',
     `- Voce esta conversando com: ${contactName}`,
     `- Voce esta atendendo pelo canal: ${channelName}`,
-    '- Se o cliente quiser falar com um humano, use a ferramenta escalarParaHumano',
-    '- Se o cliente perguntar sobre seguros disponiveis, use consultarProdutos',
-    '- Se o cliente demonstrar interesse em cotar/contratar, use captarLead',
+    '- Se o cliente quiser falar com um humano, use a ferramenta escalateToHuman',
+    '- Se o cliente perguntar sobre seguros disponiveis, use listProducts',
+    '- Se o cliente demonstrar interesse em cotar/contratar, use captureLead',
     '- Responda de forma concisa e natural, como em uma conversa de WhatsApp',
   ].join('\n')
 }
