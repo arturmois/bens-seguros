@@ -39,10 +39,13 @@ const BRANCH_OPTIONS = BRANCHES.map((b) => ({
   value: b,
   label: BRANCH_LABELS[b],
 }))
-const BOARD_TYPE_OPTIONS = BOARD_TYPES.map((bt) => ({
-  value: bt,
-  label: BOARD_TYPE_LABELS[bt],
-}))
+// ENDORSEMENT proposals are created via EndorsementProposalSheet (from policy detail)
+const BOARD_TYPE_OPTIONS = BOARD_TYPES.filter((bt) => bt !== 'ENDORSEMENT').map(
+  (bt) => ({
+    value: bt,
+    label: BOARD_TYPE_LABELS[bt],
+  })
+)
 
 interface ProposalFormProps {
   open: boolean
