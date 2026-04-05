@@ -16,7 +16,7 @@ const POLICY_INCLUDE = {
   client: { select: { name: true, document: true } },
   salesperson: { select: { name: true } },
   insurer: { select: { name: true } },
-  proposal: { select: { id: true } },
+  proposal: { select: { id: true, details: true, boardType: true } },
 } satisfies Prisma.PolicyInclude
 
 @injectable()

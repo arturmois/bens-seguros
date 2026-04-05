@@ -33,6 +33,8 @@ export interface PolicyData {
   salespersonName?: string
   insurerName?: string
   proposalIdentifier?: string
+  proposalDetails?: Record<string, unknown> | null
+  boardType?: string
 }
 
 export interface PolicyFilters {

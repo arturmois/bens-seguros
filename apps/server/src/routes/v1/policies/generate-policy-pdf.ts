@@ -6,7 +6,11 @@ import {
   type StorageProvider,
 } from '@repo/core'
 import { prisma } from '@repo/db'
+import { decrypt, getEncryptionKey, type EncryptedField } from '@repo/shared'
 import type { FastifyInstance } from 'fastify'
+import pino from 'pino'
+
+const logger = pino({ name: 'generate-policy-pdf' })
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { PolicySummaryPdf } from '../../../pdf-templates/policy-summary-pdf.js'
@@ -17,6 +21,78 @@ import {
   policyPdfResponse,
   errorResponse,
 } from './_schemas.js'
+
+interface ClientFullData {
+  name: string
+  document: string
+  email: string | null
+  phone: string | null
+  address: Record<string, string> | null
+}
+
+interface RawClientRow {
+  name: string
+  email: string | null
+  phone: string | null
+  address: unknown
+  documentEncrypted: string
+}
+
+function isEncryptedField(value: unknown): value is EncryptedField {
+  return (
+    value !== null &&
+    typeof value === 'object' &&
+    'ciphertext' in value &&
+    'iv' in value &&
+    'tag' in value
+  )
+}
+
+function toStringRecord(value: unknown): Record<string, string> | null {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    return null
+  }
+  const result: Record<string, string> = {}
+  for (const [k, v] of Object.entries(value)) {
+    result[k] = v != null ? String(v) : ''
+  }
+  return result
+}
+
+function decryptDocument(documentEncrypted: string): string | null {
+  if (!documentEncrypted || documentEncrypted.length === 0) {
+    return null
+  }
+  try {
+    const parsed: unknown = JSON.parse(documentEncrypted)
+    if (!isEncryptedField(parsed)) {
+      return null
+    }
+    const key = getEncryptionKey()
+    return decrypt(parsed, key)
+  } catch (err: unknown) {
+    logger.warn({ err }, 'Failed to decrypt client document for PDF')
+    return null
+  }
+}
+
+function buildClientFullData(
+  rawClient: RawClientRow | null,
+  fallbackDocument: string | undefined
+): ClientFullData | null {
+  if (!rawClient) {
+    return null
+  }
+  const decrypted = decryptDocument(rawClient.documentEncrypted)
+  const document = decrypted ?? fallbackDocument ?? 'Não informado'
+  return {
+    name: rawClient.name,
+    document,
+    email: rawClient.email,
+    phone: rawClient.phone,
+    address: toStringRecord(rawClient.address),
+  }
+}
 
 export function generatePolicyPdfRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -89,11 +165,28 @@ export function generatePolicyPdfRoute(app: FastifyInstance) {
         logo: logoUrl,
       }
 
+      const rawClient = await prisma.client.findFirst({
+        where: { id: policy.clientId, organizationId },
+        select: {
+          name: true,
+          email: true,
+          phone: true,
+          address: true,
+          documentEncrypted: true,
+        },
+      })
+
+      const clientFullData = buildClientFullData(
+        rawClient,
+        policy.clientDocument
+      )
+
       const buffer = Buffer.from(
         await renderToBuffer(
           PolicySummaryPdf({
             policy,
             organization: organizationData,
+            clientFull: clientFullData,
           })
         )
       )
