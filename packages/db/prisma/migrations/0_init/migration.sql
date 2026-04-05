@@ -1,3 +1,4 @@
+
 -- CreateSchema
 CREATE SCHEMA IF NOT EXISTS "public";
 
@@ -8,13 +9,16 @@ CREATE TYPE "Role" AS ENUM ('OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER')
 CREATE TYPE "ClientType" AS ENUM ('LEAD', 'CLIENT', 'FORMER_CLIENT');
 
 -- CreateEnum
+CREATE TYPE "PersonType" AS ENUM ('INDIVIDUAL', 'COMPANY');
+
+-- CreateEnum
 CREATE TYPE "MaritalStatus" AS ENUM ('SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER');
 
 -- CreateEnum
 CREATE TYPE "ProposalStage" AS ENUM ('CAPTURE', 'QUOTE', 'PROTOCOL', 'INSPECTION', 'PAYMENT', 'POLICY_ISSUED', 'LOST');
 
 -- CreateEnum
-CREATE TYPE "ProposalBoardType" AS ENUM ('NEW_INSURANCE', 'RENEWAL');
+CREATE TYPE "ProposalBoardType" AS ENUM ('NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT');
 
 -- CreateEnum
 CREATE TYPE "InsuranceBranch" AS ENUM ('AUTO', 'RESIDENTIAL', 'CONDOMINIUM', 'BUSINESS', 'LIFE', 'OTHER');
@@ -35,7 +39,7 @@ CREATE TYPE "AssistanceStatus" AS ENUM ('REQUESTED', 'AWAITING_DOCUMENT', 'PENDI
 CREATE TYPE "DocumentEntityType" AS ENUM ('CLIENT', 'PROPOSAL', 'POLICY', 'CLAIM', 'ASSISTANCE');
 
 -- CreateEnum
-CREATE TYPE "DocumentType" AS ENUM ('DRIVER_LICENSE', 'VEHICLE_REGISTRATION', 'HEALTH_DECLARATION', 'PROOF_OF_ADDRESS', 'SOCIAL_CONTRACT', 'CNPJ_CARD', 'POLICY_PDF', 'CLAIM_PHOTO', 'CLAIM_REPORT', 'PROOF_OF_PAYMENT', 'CONTRACT', 'OTHER');
+CREATE TYPE "DocumentType" AS ENUM ('DRIVER_LICENSE', 'VEHICLE_REGISTRATION', 'HEALTH_DECLARATION', 'PROOF_OF_ADDRESS', 'SOCIAL_CONTRACT', 'CNPJ_CARD', 'POLICY_PDF', 'QUOTATION_PDF', 'CLAIM_PHOTO', 'CLAIM_REPORT', 'PROOF_OF_PAYMENT', 'CONTRACT', 'OTHER');
 
 -- CreateEnum
 CREATE TYPE "CommissionStatus" AS ENUM ('PENDING_COMMERCIAL', 'PENDING_ADMIN', 'APPROVED', 'PAID', 'REJECTED', 'REVERSED');
@@ -50,6 +54,9 @@ CREATE TABLE "User" (
     "isSuperAdmin" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "acceptedTermsAt" TIMESTAMP(3),
+    "termsVersion" TEXT,
+    "privacyVersion" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -98,6 +105,18 @@ CREATE TABLE "Verification" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Verification_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TermsAcceptance" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "version" TEXT NOT NULL,
+    "acceptedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "ipAddress" TEXT,
+
+    CONSTRAINT "TermsAcceptance_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -152,6 +171,7 @@ CREATE TABLE "Client" (
     "documentEncrypted" TEXT NOT NULL DEFAULT '',
     "documentHash" TEXT NOT NULL DEFAULT '',
     "type" "ClientType" NOT NULL DEFAULT 'LEAD',
+    "personType" "PersonType" NOT NULL DEFAULT 'INDIVIDUAL',
     "email" TEXT,
     "phone" TEXT,
     "birthDate" TIMESTAMP(3),
@@ -159,6 +179,7 @@ CREATE TABLE "Client" (
     "maritalStatus" "MaritalStatus",
     "address" JSONB,
     "tags" TEXT[] DEFAULT ARRAY[]::TEXT[],
+    "socialMedia" JSONB,
     "consentLgpd" BOOLEAN NOT NULL DEFAULT false,
     "salespersonId" TEXT,
     "deletedAt" TIMESTAMP(3),
@@ -181,7 +202,16 @@ CREATE TABLE "Proposal" (
     "commissionPercentageInCents" INTEGER NOT NULL DEFAULT 0,
     "lostReason" TEXT,
     "renewalPolicyId" TEXT,
+    "sourcePolicyId" TEXT,
+    "endorsementType" TEXT,
+    "endorsementReason" TEXT,
+    "sourcePolicySnapshot" JSONB,
     "insurerId" TEXT,
+    "coverageStartDate" TIMESTAMP(3),
+    "coverageEndDate" TIMESTAMP(3),
+    "sentToClientAt" TIMESTAMP(3),
+    "clientResponseAt" TIMESTAMP(3),
+    "quoteValidUntil" TIMESTAMP(3),
     "details" JSONB,
     "deletedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -254,6 +284,7 @@ CREATE TABLE "Claim" (
     "status" "ClaimStatus" NOT NULL DEFAULT 'REGISTERED',
     "priority" "ClaimPriority" NOT NULL DEFAULT 'NORMAL',
     "description" TEXT NOT NULL,
+    "estimatedValueInCents" INTEGER,
     "incidentDate" TIMESTAMP(3),
     "incidentLocation" TEXT,
     "reportedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -270,6 +301,7 @@ CREATE TABLE "Claim" (
 CREATE TABLE "Occurrence" (
     "id" TEXT NOT NULL,
     "claimId" TEXT NOT NULL,
+    "organizationId" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "metadata" JSONB,
@@ -434,6 +466,12 @@ CREATE INDEX "Session_token_idx" ON "Session"("token");
 CREATE INDEX "Account_userId_idx" ON "Account"("userId");
 
 -- CreateIndex
+CREATE INDEX "TermsAcceptance_userId_idx" ON "TermsAcceptance"("userId");
+
+-- CreateIndex
+CREATE INDEX "TermsAcceptance_userId_type_idx" ON "TermsAcceptance"("userId", "type");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Organization_name_key" ON "Organization"("name");
 
 -- CreateIndex
@@ -480,6 +518,12 @@ CREATE INDEX "Proposal_organizationId_salespersonId_idx" ON "Proposal"("organiza
 
 -- CreateIndex
 CREATE INDEX "Proposal_organizationId_insurerId_idx" ON "Proposal"("organizationId", "insurerId");
+
+-- CreateIndex
+CREATE INDEX "Proposal_organizationId_sourcePolicyId_idx" ON "Proposal"("organizationId", "sourcePolicyId");
+
+-- CreateIndex
+CREATE INDEX "Proposal_organizationId_boardType_createdAt_idx" ON "Proposal"("organizationId", "boardType", "createdAt" DESC);
 
 -- CreateIndex
 CREATE INDEX "Proposal_organizationId_createdAt_idx" ON "Proposal"("organizationId", "createdAt" DESC);
@@ -531,6 +575,9 @@ CREATE UNIQUE INDEX "Claim_organizationId_claimNumber_key" ON "Claim"("organizat
 
 -- CreateIndex
 CREATE INDEX "Occurrence_claimId_idx" ON "Occurrence"("claimId");
+
+-- CreateIndex
+CREATE INDEX "Occurrence_organizationId_claimId_idx" ON "Occurrence"("organizationId", "claimId");
 
 -- CreateIndex
 CREATE INDEX "Endorsement_organizationId_policyId_idx" ON "Endorsement"("organizationId", "policyId");
@@ -593,6 +640,9 @@ ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "TermsAcceptance" ADD CONSTRAINT "TermsAcceptance_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Member" ADD CONSTRAINT "Member_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -612,6 +662,9 @@ ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_salespersonId_fkey" FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_renewalPolicyId_fkey" FOREIGN KEY ("renewalPolicyId") REFERENCES "Policy"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_sourcePolicyId_fkey" FOREIGN KEY ("sourcePolicyId") REFERENCES "Policy"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_insurerId_fkey" FOREIGN KEY ("insurerId") REFERENCES "Insurer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -670,49 +723,3 @@ ALTER TABLE "Commission" ADD CONSTRAINT "Commission_originalCommissionId_fkey" F
 -- AddForeignKey
 ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
-
--- Enable Row Level Security on all tenant-scoped tables
-ALTER TABLE "Client" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Proposal" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Policy" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Claim" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Commission" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Endorsement" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Assistance" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Document" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Notification" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "AuditLog" ENABLE ROW LEVEL SECURITY;
-
--- Create tenant isolation policy on each table
-CREATE POLICY tenant_isolation ON "Client"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-CREATE POLICY tenant_isolation ON "Proposal"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-CREATE POLICY tenant_isolation ON "Policy"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-CREATE POLICY tenant_isolation ON "Claim"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-CREATE POLICY tenant_isolation ON "Commission"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-CREATE POLICY tenant_isolation ON "Endorsement"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-CREATE POLICY tenant_isolation ON "Assistance"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-CREATE POLICY tenant_isolation ON "Document"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-CREATE POLICY tenant_isolation ON "Notification"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-CREATE POLICY tenant_isolation ON "AuditLog"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-
--- Force RLS even for table owner (defense-in-depth)
-ALTER TABLE "Client" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Proposal" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Policy" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Claim" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Commission" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Endorsement" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Assistance" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Document" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Notification" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "AuditLog" FORCE ROW LEVEL SECURITY;
