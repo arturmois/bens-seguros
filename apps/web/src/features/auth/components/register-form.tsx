@@ -7,12 +7,12 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import { Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useSearchParams } from 'next/navigation'
 
 const registerSchema = z
   .object({

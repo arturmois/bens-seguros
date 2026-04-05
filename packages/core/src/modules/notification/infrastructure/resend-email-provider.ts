@@ -6,7 +6,7 @@ interface ResendEmailProviderConfig {
   readonly fromAddress: string
 }
 
-const DEFAULT_FROM_ADDRESS = 'Bens Seguros <noreply@bens.com.br>'
+const DEFAULT_FROM_ADDRESS = 'Bens Seguros <noreply@bensseg.com>'
 
 export class ResendEmailProvider implements EmailProvider {
   private readonly client: Resend

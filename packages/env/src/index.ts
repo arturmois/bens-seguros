@@ -29,7 +29,7 @@ export const env = createEnv({
     RESEND_API_KEY: z.string().optional(),
     RESEND_FROM_ADDRESS: z
       .string()
-      .default('Bens Seguros <noreply@bens.com.br>'),
+      .default('Bens Seguros <noreply@bensseg.com>'),
     SENTRY_DSN: z.string().url().optional(),
     COOKIE_DOMAIN: z.string().optional(),
     META_WEBHOOK_VERIFY_TOKEN: z.string().optional(),

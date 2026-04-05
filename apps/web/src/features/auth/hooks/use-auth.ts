@@ -8,11 +8,6 @@ import {
   getActiveOrgCookie,
   clearActiveOrgCookie,
 } from '@/lib/org-cookie'
-import { api } from '@/lib/api-client'
-import {
-  CURRENT_TERMS_VERSION,
-  CURRENT_PRIVACY_VERSION,
-} from '@repo/core/legal'
 
 async function fetchSession() {
   const response = await authClient.getSession()
@@ -47,11 +42,17 @@ export function useAuth() {
     }) => {
       const response = await authClient.signIn.email({ email, password })
       if (response.error) {
+        if (response.error.code === 'EMAIL_NOT_VERIFIED') {
+          router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+          return null
+        }
         throw new Error(response.error.message ?? 'Falha no login')
       }
       return { ...response, invitationId }
     },
     onSuccess: async (response) => {
+      if (!response) return
+
       const invitationId = response.invitationId
 
       if (invitationId) {
@@ -96,35 +97,16 @@ export function useAuth() {
       if (response.error) {
         throw new Error(response.error.message ?? 'Falha no cadastro')
       }
-      return { ...response, invitationId }
+      return { email, invitationId }
     },
-    onSuccess: async (response) => {
-      // Record terms acceptance immediately after signup — session cookie is
-      // already set by Better Auth at this point, so the authenticated endpoint
-      // is reachable. This prevents the re-acceptance modal from showing on
-      // the very first login.
-      try {
-        await api.post('/api/terms/accept', {
-          termsVersion: CURRENT_TERMS_VERSION,
-          privacyVersion: CURRENT_PRIVACY_VERSION,
-        })
-      } catch {
-        // Non-critical: if this fails, the modal will prompt acceptance on
-        // the next page load. Do not block navigation.
+    onSuccess: (response) => {
+      // With requireEmailVerification, Better Auth does NOT create a session
+      // on signup. sendOnSignUp: true sends the verification email automatically.
+      const params = new URLSearchParams({ email: response.email })
+      if (response.invitationId) {
+        params.set('invitationId', response.invitationId)
       }
-
-      const invitationId = response.invitationId
-
-      if (invitationId) {
-        await handleInvitationAfterLogin(invitationId)
-        return
-      }
-
-      // Better Auth's organizationClient does not expose listUserInvitations()
-      // on the client SDK. Pending invitations are handled via the
-      // /accept-invitation?id=... flow with an email link instead.
-      queryClient.invalidateQueries({ queryKey: ['auth'] })
-      router.push('/onboarding')
+      router.push(`/verify-email?${params.toString()}`)
     },
   })
 

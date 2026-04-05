@@ -4,6 +4,11 @@ import multipart from '@fastify/multipart'
 import rateLimit from '@fastify/rate-limit'
 import swagger from '@fastify/swagger'
 import { createAuth } from '@repo/auth'
+import {
+  ResendEmailProvider,
+  emailVerificationEmail,
+  passwordResetEmail,
+} from '@repo/core/notification'
 import { env } from '@repo/env'
 import { RATE_LIMITS } from '@repo/shared'
 import { PINO_REDACT_CONFIG } from '@repo/shared/pino-redact'
@@ -189,11 +194,51 @@ export async function buildApp() {
   // validation on all state-mutating requests. No separate CSRF token mechanism needed.
   const frontendUrl = env.FRONTEND_URL
   const cookieDomain = env.COOKIE_DOMAIN
+  const resendApiKey = env.RESEND_API_KEY
+  const emailProvider = resendApiKey
+    ? new ResendEmailProvider({
+        apiKey: resendApiKey,
+        fromAddress: env.RESEND_FROM_ADDRESS,
+      })
+    : null
   const auth = createAuth(
     env.AUTH_SECRET,
     env.API_URL,
     [frontendUrl],
-    cookieDomain
+    cookieDomain,
+    emailProvider
+      ? {
+          frontendUrl,
+          sendVerificationEmail: (email, name, url) => {
+            void emailProvider
+              .send({
+                to: email,
+                subject: 'Verifique seu email — Bens Seguros',
+                html: emailVerificationEmail({ name, url }),
+              })
+              .catch((err: unknown) => {
+                app.log.error(
+                  { err, email },
+                  'Failed to send verification email'
+                )
+              })
+          },
+          sendResetPasswordEmail: (email, name, url) => {
+            void emailProvider
+              .send({
+                to: email,
+                subject: 'Redefinir senha — Bens Seguros',
+                html: passwordResetEmail({ name, url }),
+              })
+              .catch((err: unknown) => {
+                app.log.error(
+                  { err, email },
+                  'Failed to send password reset email'
+                )
+              })
+          },
+        }
+      : undefined
   )
   registerAuthRoutes(app, auth, redis)
 

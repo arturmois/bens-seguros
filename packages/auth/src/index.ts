@@ -36,11 +36,26 @@ const COMMERCIAL_ROLE = ac.newRole({
 
 const VIEWER_ROLE = role({})
 
+interface AuthEmailSenders {
+  readonly sendVerificationEmail: (
+    email: string,
+    name: string,
+    url: string
+  ) => void
+  readonly sendResetPasswordEmail: (
+    email: string,
+    name: string,
+    url: string
+  ) => void
+  readonly frontendUrl: string
+}
+
 export function createAuth(
   secret: string,
   baseURL: string,
   trustedOrigins: string[],
-  cookieDomain?: string
+  cookieDomain?: string,
+  emailSenders?: AuthEmailSenders
 ) {
   const isProduction = env.NODE_ENV === 'production'
 
@@ -52,7 +67,29 @@ export function createAuth(
     emailAndPassword: {
       enabled: true,
       minPasswordLength: 8,
+      requireEmailVerification: !!emailSenders,
+      sendResetPassword: emailSenders
+        ? async ({ user, token }) => {
+            const url = `${emailSenders.frontendUrl}/reset-password?token=${token}`
+            emailSenders.sendResetPasswordEmail(user.email, user.name, url)
+          }
+        : undefined,
     },
+    emailVerification: emailSenders
+      ? {
+          sendOnSignUp: true,
+          sendOnSignIn: true,
+          autoSignInAfterVerification: true,
+          expiresIn: 86400, // 24h
+          sendVerificationEmail: async ({ user, token }) => {
+            const callbackURL = encodeURIComponent(
+              `${emailSenders.frontendUrl}/onboarding`
+            )
+            const url = `${baseURL}/api/auth/verify-email?token=${token}&callbackURL=${callbackURL}`
+            emailSenders.sendVerificationEmail(user.email, user.name, url)
+          },
+        }
+      : undefined,
     advanced: {
       crossSubDomainCookies:
         isProduction && cookieDomain
