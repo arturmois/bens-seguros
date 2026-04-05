@@ -44,7 +44,7 @@ export function createLeadRoute(app: FastifyInstance) {
           data: {
             organizationId,
             name: body.clientName,
-            document: `LEAD-${body.clientPhone}`,
+            document: '',
             type: 'LEAD',
             phone: body.clientPhone,
           },
