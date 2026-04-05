@@ -63,6 +63,17 @@ function isProposalStage(value: string): value is ProposalStage {
   return (STAGES as readonly string[]).includes(value)
 }
 
+function getNextStage(
+  current: ProposalStage,
+  stages: readonly ProposalStage[]
+): ProposalStage | null {
+  const index = stages.indexOf(current)
+  if (index === -1 || index >= stages.length - 1) return null
+  const next = stages[index + 1] ?? null
+  if (next === 'LOST') return null
+  return next
+}
+
 function findProposalInCache(
   queryClient: ReturnType<typeof useQueryClient>,
   proposalId: string,
@@ -265,6 +276,18 @@ export function ProposalKanban({
       <KanbanCardDetail
         proposal={selectedProposal}
         onClose={() => setSelectedProposal(null)}
+        onAdvanceSuccess={(proposalId) => {
+          const nextStage = selectedProposal
+            ? getNextStage(selectedProposal.stage, visibleStages)
+            : null
+          setSelectedProposal(null)
+          void queryClient.invalidateQueries({
+            queryKey: ['proposals', 'kanban'],
+          })
+          if (nextStage === 'POLICY_ISSUED') {
+            setIssuePolicyProposalId(proposalId)
+          }
+        }}
       />
 
       <LostReasonDialog

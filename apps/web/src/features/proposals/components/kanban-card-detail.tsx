@@ -32,9 +32,14 @@ import { ProposalStageActions } from './proposal-stage-actions'
 interface KanbanCardDetailProps {
   proposal: ProposalData | null
   onClose: () => void
+  onAdvanceSuccess?: (proposalId: string) => void
 }
 
-export function KanbanCardDetail({ proposal, onClose }: KanbanCardDetailProps) {
+export function KanbanCardDetail({
+  proposal,
+  onClose,
+  onAdvanceSuccess,
+}: KanbanCardDetailProps) {
   if (!proposal) return null
 
   return (
@@ -48,7 +53,10 @@ export function KanbanCardDetail({ proposal, onClose }: KanbanCardDetailProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <KanbanCardDetailBody proposal={proposal} />
+        <KanbanCardDetailBody
+          proposal={proposal}
+          onAdvanceSuccess={onAdvanceSuccess}
+        />
 
         <DialogFooter>
           <Button variant="outline" asChild>
@@ -63,7 +71,13 @@ export function KanbanCardDetail({ proposal, onClose }: KanbanCardDetailProps) {
   )
 }
 
-function KanbanCardDetailBody({ proposal }: { proposal: ProposalData }) {
+function KanbanCardDetailBody({
+  proposal,
+  onAdvanceSuccess,
+}: {
+  proposal: ProposalData
+  onAdvanceSuccess?: (proposalId: string) => void
+}) {
   const { data: checklistData } = useChecklist(proposal.id)
   const advanceMutation = useAdvanceProposal()
 
@@ -74,6 +88,12 @@ function KanbanCardDetailBody({ proposal }: { proposal: ProposalData }) {
     !isTerminalStage &&
     proposal.stage !== 'CAPTURE' &&
     checklistData?.summary.canAdvance === false
+
+  function handleAdvance() {
+    advanceMutation.mutate(proposal.id, {
+      onSuccess: () => onAdvanceSuccess?.(proposal.id),
+    })
+  }
 
   return (
     <div className="space-y-4 px-6">
@@ -128,7 +148,7 @@ function KanbanCardDetailBody({ proposal }: { proposal: ProposalData }) {
         canMarkLost={false}
         checklistBlocking={checklistBlocking}
         advancePending={advanceMutation.isPending}
-        onAdvance={() => advanceMutation.mutate(proposal.id)}
+        onAdvance={handleAdvance}
         onMarkLost={() => {}}
       />
 
