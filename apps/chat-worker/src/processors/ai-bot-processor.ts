@@ -169,14 +169,15 @@ export function createAiBotProcessor(
       return
     }
 
-    const escalatingTools = new Set([
-      ESCALATION_TOOL_NAME,
-      'reportClaim',
-      'registerFinancialInquiry',
-    ])
-    const wasEscalated = result.toolResults.some((tr) =>
-      escalatingTools.has(tr.toolName)
-    )
+    const wasEscalated = result.toolResults.some((tr) => {
+      if (tr.toolName === ESCALATION_TOOL_NAME) return true
+      if (tr.toolName === 'registerFinancialInquiry') return true
+      if (tr.toolName === 'reportClaim') {
+        const claimResult = tr.result as { claimCreated?: boolean } | undefined
+        return claimResult?.claimCreated === false
+      }
+      return false
+    })
 
     if (wasEscalated) {
       logger.info(

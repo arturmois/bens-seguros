@@ -4,6 +4,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { errorResponse } from '../../_shared/response.schema.js'
+import { resolveClientId } from './_helpers.js'
 import {
   listInternalProposalsQuerySchema,
   listInternalProposalsResponse,
@@ -94,22 +95,4 @@ export function listInternalProposalsRoute(app: FastifyInstance) {
       })
     },
   })
-}
-
-async function resolveClientId(
-  tenantPrisma: ReturnType<typeof createTenantClient>,
-  organizationId: string,
-  clientId: string | undefined,
-  phone: string | undefined
-): Promise<string | null> {
-  if (clientId) {
-    return clientId
-  }
-
-  const client = await tenantPrisma.client.findFirst({
-    where: { organizationId, phone, deletedAt: null },
-    select: { id: true },
-  })
-
-  return client?.id ?? null
 }

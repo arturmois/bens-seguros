@@ -54,10 +54,13 @@ export async function internalAuthMiddleware(
 
   // Signer sends JSON.stringify(obj); Fastify parses it back to object.
   // Re-serializing produces identical output because both use simple flat objects.
+  // For GET requests, body is undefined/null — use empty string to match signer.
   const rawBody =
     typeof request.body === 'string'
       ? request.body
-      : JSON.stringify(request.body ?? '')
+      : request.body != null
+        ? JSON.stringify(request.body)
+        : ''
 
   const isValid = verifyRequest({
     secret,

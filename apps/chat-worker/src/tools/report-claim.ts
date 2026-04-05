@@ -46,7 +46,15 @@ export function createReportClaimTool(
         .optional()
         .describe('Local onde ocorreu o incidente'),
       insuranceType: z
-        .enum(['AUTO', 'RESIDENTIAL', 'LIFE', 'BUSINESS', 'TRAVEL', 'OTHER'])
+        .enum([
+          'AUTO',
+          'RESIDENTIAL',
+          'LIFE',
+          'BUSINESS',
+          'CONDOMINIUM',
+          'TRAVEL',
+          'OTHER',
+        ])
         .optional()
         .describe('Tipo de seguro relacionado ao sinistro'),
     }),
