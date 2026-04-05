@@ -1,3 +1,4 @@
+import type { Prisma } from '@repo/db'
 import { createTenantClient } from '@repo/db/tenant'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
@@ -51,19 +52,30 @@ export function listInternalProposalsRoute(app: FastifyInstance) {
         })
       }
 
-      const stageFilter = buildStageFilter(status)
+      const where: Prisma.ProposalWhereInput = {
+        organizationId,
+        clientId: resolvedClientId,
+        deletedAt: null,
+      }
+      if (status === 'LOST') {
+        where.stage = 'LOST'
+      } else if (status === 'ACTIVE') {
+        where.stage = { notIn: ['LOST', 'POLICY_ISSUED'] }
+      }
 
       const proposals = await tenantPrisma.proposal.findMany({
-        where: {
-          organizationId,
-          clientId: resolvedClientId,
-          deletedAt: null,
-          ...stageFilter,
-        },
-        include: { client: { select: { name: true } } },
+        where,
         orderBy: { createdAt: 'desc' },
         take: MAX_PROPOSALS,
       })
+
+      // Resolve client names in a single query
+      const clientIds = [...new Set(proposals.map((p) => p.clientId))]
+      const clients = await tenantPrisma.client.findMany({
+        where: { id: { in: clientIds } },
+        select: { id: true, name: true },
+      })
+      const clientNameMap = new Map(clients.map((c) => [c.id, c.name]))
 
       return reply.status(200).send({
         success: true,
@@ -75,7 +87,7 @@ export function listInternalProposalsRoute(app: FastifyInstance) {
             premiumValueInCents: p.premiumValueInCents,
             coverageStartDate: p.coverageStartDate,
             createdAt: p.createdAt,
-            clientName: p.client?.name ?? '',
+            clientName: clientNameMap.get(p.clientId) ?? '',
           })),
           total: proposals.length,
         },
@@ -100,14 +112,4 @@ async function resolveClientId(
   })
 
   return client?.id ?? null
-}
-
-function buildStageFilter(status: 'ACTIVE' | 'LOST' | 'ALL') {
-  if (status === 'ACTIVE') {
-    return { stage: { notIn: ['LOST', 'POLICY_ISSUED'] as const } }
-  }
-  if (status === 'LOST') {
-    return { stage: 'LOST' as const }
-  }
-  return {}
 }

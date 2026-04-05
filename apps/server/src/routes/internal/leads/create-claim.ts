@@ -1,4 +1,5 @@
 import { container, CreateClaim } from '@repo/core'
+import type { Prisma } from '@repo/db'
 import { createTenantClient } from '@repo/db/tenant'
 import { hashDocument, stripNonDigits } from '@repo/shared'
 import type { FastifyInstance } from 'fastify'
@@ -69,13 +70,17 @@ export function createInternalClaimRoute(app: FastifyInstance) {
         })
       }
 
+      const policyWhere: Prisma.PolicyWhereInput = {
+        organizationId,
+        clientId: client.id,
+        status: 'ACTIVE',
+      }
+      if (insuranceType) {
+        policyWhere.branch = insuranceType as Prisma.PolicyWhereInput['branch']
+      }
+
       const policy = await tenantPrisma.policy.findFirst({
-        where: {
-          organizationId,
-          clientId: client.id,
-          status: 'ACTIVE',
-          ...(insuranceType ? { branch: insuranceType } : {}),
-        },
+        where: policyWhere,
         orderBy: { endDate: 'desc' },
       })
 

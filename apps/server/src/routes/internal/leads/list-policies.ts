@@ -1,3 +1,4 @@
+import type { Prisma } from '@repo/db'
 import { createTenantClient } from '@repo/db/tenant'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
@@ -51,14 +52,18 @@ export function listInternalPoliciesRoute(app: FastifyInstance) {
         })
       }
 
+      const where: Prisma.PolicyWhereInput = {
+        organizationId,
+        clientId: resolvedClientId,
+        status: 'ACTIVE',
+        deletedAt: null,
+      }
+      if (branch) {
+        where.branch = branch as Prisma.PolicyWhereInput['branch']
+      }
+
       const policies = await tenantPrisma.policy.findMany({
-        where: {
-          organizationId,
-          clientId: resolvedClientId,
-          status: 'ACTIVE',
-          deletedAt: null,
-          ...(branch ? { branch } : {}),
-        },
+        where,
         include: { insurer: { select: { name: true } } },
         orderBy: { endDate: 'desc' },
         take: MAX_POLICIES,
