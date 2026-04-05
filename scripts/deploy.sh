@@ -47,9 +47,9 @@ echo "Pulling images with tag ${TAG}..."
 export TAG
 docker compose -f "$COMPOSE_FILE" pull $CONTAINERS
 
-# --- Deploy containers ---
+# --- Deploy containers (force recreate to use newly pulled image) ---
 echo "Deploying ${CONTAINERS}..."
-docker compose -f "$COMPOSE_FILE" up -d $CONTAINERS
+docker compose -f "$COMPOSE_FILE" up -d --force-recreate $CONTAINERS
 
 # --- Reload nginx ---
 echo "Reloading nginx..."
@@ -80,7 +80,7 @@ if ! poll_health "$HEALTH_CONTAINER" 120; then
   echo "Health check failed! Rolling back to ${PREV_TAG}..."
   if [ "$PREV_TAG" != "none" ]; then
     export TAG=${PREV_TAG}
-    docker compose -f "$COMPOSE_FILE" up -d $CONTAINERS
+    docker compose -f "$COMPOSE_FILE" up -d --force-recreate $CONTAINERS
 
     if ! poll_health "$HEALTH_CONTAINER" 120; then
       echo "CRITICAL: Rollback also failed! Manual intervention required."
