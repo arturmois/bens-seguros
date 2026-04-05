@@ -7,7 +7,7 @@ import type { PubsubClient } from '../types/pubsub-client.js'
 export const DEFAULT_SYSTEM_PROMPT =
   'Voce e um assistente de uma corretora de seguros. Responda de forma educada e profissional em portugues brasileiro. Se o cliente quiser falar com um atendente humano, diga que vai transferi-lo.'
 
-export const ESCALATION_TOOL_NAME = 'escalarParaHumano'
+export const ESCALATION_TOOL_NAME = 'escalateToHuman'
 
 export interface AiBotJobData {
   readonly conversationId: string
@@ -71,10 +71,24 @@ export function buildSystemPrompt(
     'Contexto adicional:',
     `- Voce esta conversando com: ${contactName}`,
     `- Voce esta atendendo pelo canal: ${channelName}`,
-    '- Se o cliente quiser falar com um humano, use a ferramenta escalarParaHumano',
-    '- Se o cliente perguntar sobre seguros disponiveis, use consultarProdutos',
-    '- Se o cliente demonstrar interesse em cotar/contratar, use captarLead',
+    '',
+    'Ferramentas disponiveis e quando usar:',
+    '- escalateToHuman: transferir para atendente humano (cliente pediu, tema sensivel, voce nao consegue resolver)',
+    '- listProducts: listar tipos de seguro com coberturas e dados necessarios',
+    '- captureLead: registrar interesse do cliente em um seguro e criar proposta',
+    '- searchClient: buscar cliente por telefone ou CPF/CNPJ (verificar se ja tem cadastro)',
+    '- updateClientData: atualizar dados cadastrais (CPF, email, endereco, nascimento)',
+    '- reportClaim: registrar sinistro/urgencia (cria no sistema se tiver apolice, senao salva e transfere)',
+    '- registerFinancialInquiry: registrar duvida financeira e transferir para especialista',
+    '- collectInsuredAssetData: salvar dados do bem segurado na proposta (veiculo, imovel, etc.)',
+    '- searchProposal: consultar propostas existentes do cliente',
+    '- searchPolicy: consultar apolices ativas do cliente',
+    '',
+    'Regras:',
     '- Responda de forma concisa e natural, como em uma conversa de WhatsApp',
+    '- Use searchClient no inicio para verificar se o cliente ja e cadastrado',
+    '- Colete dados um de cada vez, nao peca tudo de uma so vez',
+    '- Sempre confirme os dados antes de registrar',
   ].join('\n')
 }
 

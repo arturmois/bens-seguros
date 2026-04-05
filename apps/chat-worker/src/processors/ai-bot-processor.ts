@@ -4,9 +4,16 @@ import { generateWithTools } from '@repo/ai'
 import { AiAgent, Conversation, Message, Channel } from '@repo/db-chat'
 import { CHAT_PUBSUB_CHANNELS, CHAT_QUEUES } from '@repo/shared'
 import type { PubsubClient } from '../types/pubsub-client.js'
-import { createEscalarParaHumanoTool } from '../tools/escalar-para-humano.js'
-import { createConsultarProdutosTool } from '../tools/consultar-produtos.js'
-import { createCaptarLeadTool } from '../tools/captar-lead.js'
+import { createEscalateToHumanTool } from '../tools/escalate-to-human.js'
+import { createListProductsTool } from '../tools/list-products.js'
+import { createCaptureLeadTool } from '../tools/capture-lead.js'
+import { createSearchClientTool } from '../tools/search-client.js'
+import { createUpdateClientDataTool } from '../tools/update-client-data.js'
+import { createReportClaimTool } from '../tools/report-claim.js'
+import { createRegisterFinancialInquiryTool } from '../tools/register-financial-inquiry.js'
+import { createCollectInsuredAssetDataTool } from '../tools/collect-insured-asset-data.js'
+import { createSearchProposalTool } from '../tools/search-proposal.js'
+import { createSearchPolicyTool } from '../tools/search-policy.js'
 import {
   type AiBotJobData,
   ESCALATION_TOOL_NAME,
@@ -112,19 +119,34 @@ export function createAiBotProcessor(
       config.systemPrompt
     )
 
+    const contactPhone =
+      typeof conversation.whatsappPhone === 'string'
+        ? conversation.whatsappPhone
+        : ''
+
     const tools = {
-      [ESCALATION_TOOL_NAME]: createEscalarParaHumanoTool(
+      [ESCALATION_TOOL_NAME]: createEscalateToHumanTool(
         conversationId,
         tenantId,
         pubsubClient
       ),
-      consultarProdutos: createConsultarProdutosTool(),
-      captarLead: createCaptarLeadTool(
+      listProducts: createListProductsTool(),
+      captureLead: createCaptureLeadTool(tenantId, contactPhone),
+      searchClient: createSearchClientTool(tenantId),
+      updateClientData: createUpdateClientDataTool(tenantId),
+      reportClaim: createReportClaimTool(
+        conversationId,
         tenantId,
-        typeof conversation.whatsappPhone === 'string'
-          ? conversation.whatsappPhone
-          : ''
+        pubsubClient
       ),
+      registerFinancialInquiry: createRegisterFinancialInquiryTool(
+        conversationId,
+        tenantId,
+        pubsubClient
+      ),
+      collectInsuredAssetData: createCollectInsuredAssetDataTool(tenantId),
+      searchProposal: createSearchProposalTool(tenantId),
+      searchPolicy: createSearchPolicyTool(tenantId),
     }
 
     let result: Awaited<ReturnType<typeof generateWithTools>>
@@ -136,7 +158,7 @@ export function createAiBotProcessor(
         provider: config.provider,
         maxTokens: config.maxTokens,
         temperature: config.temperature,
-        maxSteps: 3,
+        maxSteps: 10,
       })
     } catch (err: unknown) {
       logger.error(
@@ -147,9 +169,15 @@ export function createAiBotProcessor(
       return
     }
 
-    const wasEscalated = result.toolResults.some(
-      (tr) => tr.toolName === ESCALATION_TOOL_NAME
-    )
+    const wasEscalated = result.toolResults.some((tr) => {
+      if (tr.toolName === ESCALATION_TOOL_NAME) return true
+      if (tr.toolName === 'registerFinancialInquiry') return true
+      if (tr.toolName === 'reportClaim') {
+        const claimResult = tr.result as { claimCreated?: boolean } | undefined
+        return claimResult?.claimCreated === false
+      }
+      return false
+    })
 
     if (wasEscalated) {
       logger.info(

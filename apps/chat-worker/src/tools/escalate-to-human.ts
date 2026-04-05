@@ -4,7 +4,7 @@ import { Conversation, Message } from '@repo/db-chat'
 import { CHAT_PUBSUB_CHANNELS } from '@repo/shared'
 import type { PubsubClient } from '../types/pubsub-client.js'
 
-export function createEscalarParaHumanoTool(
+export function createEscalateToHumanTool(
   conversationId: string,
   tenantId: string,
   pubsubClient: PubsubClient
@@ -13,9 +13,9 @@ export function createEscalarParaHumanoTool(
     description:
       'Transfere o atendimento para um atendente humano. Use quando: cliente pede explicitamente, assunto exige decisão humana, você não consegue resolver, ou tema é sensível (sinistro, reclamação).',
     parameters: z.object({
-      motivo: z.string().describe('Motivo da transferencia para registro'),
+      reason: z.string().describe('Motivo da transferencia para registro'),
     }),
-    execute: async ({ motivo }) => {
+    execute: async ({ reason }) => {
       const conversation = await Conversation.findOne({
         _id: conversationId,
         tenantId,
@@ -25,8 +25,8 @@ export function createEscalarParaHumanoTool(
       if (!conversation || conversation.status !== 'BOT_ACTIVE') {
         return {
           transferred: false,
-          motivo,
-          reason: 'Conversa não está em atendimento por IA',
+          reason,
+          detail: 'Conversa não está em atendimento por IA',
         }
       }
 
@@ -39,7 +39,7 @@ export function createEscalarParaHumanoTool(
         conversationId,
         tenantId,
         senderType: 'SYSTEM',
-        text: `Transferido para um atendente. Motivo: ${motivo}`,
+        text: `Transferido para um atendente. Motivo: ${reason}`,
         type: 'TEXT',
         status: 'DELIVERED',
       })
@@ -49,7 +49,7 @@ export function createEscalarParaHumanoTool(
         JSON.stringify({ tenantId, conversationId, status: 'WAITING_HUMAN' })
       )
 
-      return { transferred: true, motivo }
+      return { transferred: true, reason }
     },
   })
 }
