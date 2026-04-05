@@ -71,3 +71,31 @@ export const updateClientBodySchema = z.object({
 export const updateClientResponse = successResponse(
   z.object({ success: z.boolean(), message: z.string() })
 )
+
+const INSURANCE_BRANCH_VALUES = [
+  'AUTO',
+  'RESIDENTIAL',
+  'LIFE',
+  'BUSINESS',
+  'TRAVEL',
+  'CONDOMINIUM',
+  'OTHER',
+] as const
+
+export const createInternalClaimBodySchema = z.object({
+  phoneOrDocument: z.string().min(1),
+  description: z.string().min(1),
+  incidentDate: z.string().optional(),
+  incidentLocation: z.string().optional(),
+  insuranceType: z.enum(INSURANCE_BRANCH_VALUES).optional(),
+})
+
+export const createInternalClaimResponse = successResponse(
+  z.object({
+    claimCreated: z.boolean(),
+    claimNumber: z.string().nullable(),
+    dataSaved: z.boolean(),
+    claimData: z.record(z.unknown()).nullable(),
+    message: z.string(),
+  })
+)

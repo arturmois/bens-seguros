@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 
 import { internalAuthMiddleware } from '../../../middlewares/internal-auth-middleware.js'
+import { createInternalClaimRoute } from './create-claim.js'
 import { createLeadRoute } from './create-lead.js'
 import { searchClientsRoute } from './search-clients.js'
 import { updateClientRoute } from './update-client.js'
@@ -11,4 +12,5 @@ export async function internalLeadRoutes(app: FastifyInstance) {
   createLeadRoute(app)
   searchClientsRoute(app)
   updateClientRoute(app)
+  createInternalClaimRoute(app)
 }
