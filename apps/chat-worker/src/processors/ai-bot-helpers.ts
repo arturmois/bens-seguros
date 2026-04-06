@@ -137,7 +137,7 @@ export async function escalateToHuman(
     { $set: { status: 'WAITING_HUMAN' } }
   ).exec()
 
-  await Message.create({
+  const systemMessage = await Message.create({
     conversationId,
     tenantId,
     senderType: 'SYSTEM',
@@ -145,6 +145,24 @@ export async function escalateToHuman(
     type: 'TEXT',
     status: 'DELIVERED',
   })
+
+  await pubsubClient.publish(
+    CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE,
+    JSON.stringify({
+      id: String(systemMessage._id),
+      conversationId,
+      tenantId,
+      senderType: 'SYSTEM',
+      senderName: null,
+      senderId: null,
+      text: 'Transferido para um atendente. Aguarde.',
+      type: 'TEXT',
+      status: 'DELIVERED',
+      externalId: null,
+      createdAt:
+        systemMessage.createdAt?.toISOString() ?? new Date().toISOString(),
+    })
+  )
 
   await pubsubClient.publish(
     CHAT_PUBSUB_CHANNELS.CONVERSATION_UPDATE,
