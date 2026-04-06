@@ -1,5 +1,6 @@
 import type { CoreMessage } from 'ai'
 import type { AIProvider } from '@repo/ai'
+import { env } from '@repo/env'
 import { Conversation, Message } from '@repo/db-chat'
 import { CHAT_PUBSUB_CHANNELS, CHAT_LIMITS } from '@repo/shared'
 import type { PubsubClient } from '../types/pubsub-client.js'
@@ -47,6 +48,19 @@ export function getAiAgentConfig(doc: Record<string, unknown>): AiAgentConfig {
     enabledTools: Array.isArray(doc['enabledTools'])
       ? doc['enabledTools'].filter((t): t is string => typeof t === 'string')
       : [],
+  }
+}
+
+export function isProviderConfigured(provider: AIProvider): boolean {
+  switch (provider) {
+    case 'claude':
+      return Boolean(env.ANTHROPIC_API_KEY)
+    case 'openai':
+      return Boolean(env.OPENAI_API_KEY)
+    default: {
+      const _exhaustive: never = provider
+      return _exhaustive
+    }
   }
 }
 
@@ -122,19 +136,40 @@ export async function escalateToHuman(
   tenantId: string,
   pubsubClient: PubsubClient
 ): Promise<void> {
-  await Conversation.updateOne(
-    { _id: conversationId, tenantId },
+  const result = await Conversation.updateOne(
+    { _id: conversationId, tenantId, status: 'BOT_ACTIVE' },
     { $set: { status: 'WAITING_HUMAN' } }
   ).exec()
 
-  await Message.create({
+  if (result.matchedCount === 0) return
+
+  const escalationText = 'Transferido para um atendente. Aguarde.'
+  const systemMessage = await Message.create({
     conversationId,
     tenantId,
     senderType: 'SYSTEM',
-    text: 'Transferido para um atendente. Aguarde.',
+    text: escalationText,
     type: 'TEXT',
     status: 'DELIVERED',
   })
+
+  await pubsubClient.publish(
+    CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE,
+    JSON.stringify({
+      id: String(systemMessage._id),
+      conversationId,
+      tenantId,
+      senderType: 'SYSTEM',
+      senderName: null,
+      senderId: null,
+      text: escalationText,
+      type: 'TEXT',
+      status: 'DELIVERED',
+      externalId: null,
+      createdAt:
+        systemMessage.createdAt?.toISOString() ?? new Date().toISOString(),
+    })
+  )
 
   await pubsubClient.publish(
     CHAT_PUBSUB_CHANNELS.CONVERSATION_UPDATE,

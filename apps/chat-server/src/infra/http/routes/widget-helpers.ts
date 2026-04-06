@@ -76,7 +76,10 @@ export function isValidOrigin(
 ): boolean {
   if (!requestOrigin) return false
   if (allowedOrigins.length === 0) return false
-  return allowedOrigins.some((origin) => requestOrigin === origin)
+  // '*' disables origin checking — use only for development or fully public widgets
+  return allowedOrigins.some(
+    (origin) => origin === '*' || requestOrigin === origin
+  )
 }
 
 export async function rateLimitHook(

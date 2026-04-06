@@ -79,11 +79,27 @@ export function createCaptureLeadTool(tenantId: string, contactPhone: string) {
           }
         }
 
-        const data: unknown = await response.json()
+        const json: unknown = await response.json()
+
+        let proposalId: string | null = null
+        if (
+          typeof json === 'object' &&
+          json !== null &&
+          'data' in json &&
+          typeof json.data === 'object' &&
+          json.data !== null &&
+          'proposalId' in json.data &&
+          typeof json.data.proposalId === 'string'
+        ) {
+          proposalId = json.data.proposalId
+        }
+
         return {
           success: true,
-          message: `Proposta registrada com sucesso para ${clientName} - ${insuranceType}`,
-          data,
+          proposalId,
+          message: proposalId
+            ? `Proposta ${proposalId} registrada com sucesso para ${clientName} - ${insuranceType}`
+            : `Proposta registrada com sucesso para ${clientName} - ${insuranceType}`,
         }
       } catch (err: unknown) {
         logger.error(
