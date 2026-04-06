@@ -69,7 +69,10 @@ export function useWidgetSocket(
       SOCKET_EVENTS.WIDGET_INCOMING_MESSAGE,
       (data: Record<string, unknown>) => {
         const message = parseIncomingMessage(data)
-        setMessages((prev) => [...prev, message])
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === message.id)) return prev
+          return [...prev, message]
+        })
 
         // Clear typing indicator when a message arrives
         setTyping({ isTyping: false, name: null })
