@@ -2,8 +2,8 @@ import { tool } from 'ai'
 import { z } from 'zod'
 import pino from 'pino'
 import { env } from '@repo/env'
-import { signRequest } from '@repo/shared'
-import { Conversation } from '@repo/db-chat'
+import { signRequest, CHAT_PUBSUB_CHANNELS } from '@repo/shared'
+import { Conversation, Message } from '@repo/db-chat'
 import type { PubsubClient } from '../types/pubsub-client.js'
 import { escalateToHuman } from '../processors/ai-bot-helpers.js'
 
@@ -130,6 +130,39 @@ export function createReportClaimTool(
             { _id: conversationId, tenantId },
             { $set: { 'metadata.claimData': json.data.claimData } }
           ).exec()
+
+          const explanationText =
+            'Não encontrei uma apólice ativa vinculada ao seu cadastro. ' +
+            'Seus dados do sinistro foram salvos e vou transferir você para ' +
+            'um corretor que poderá dar continuidade ao atendimento.'
+
+          const botMessage = await Message.create({
+            conversationId,
+            tenantId,
+            senderType: 'BOT',
+            senderName: 'Assistente Virtual',
+            text: explanationText,
+            type: 'TEXT',
+            status: 'PENDING',
+          })
+
+          await pubsubClient.publish(
+            CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE,
+            JSON.stringify({
+              id: String(botMessage._id),
+              conversationId,
+              tenantId,
+              senderType: 'BOT',
+              senderName: 'Assistente Virtual',
+              senderId: null,
+              text: explanationText,
+              type: 'TEXT',
+              status: 'PENDING',
+              externalId: null,
+              createdAt:
+                botMessage.createdAt?.toISOString() ?? new Date().toISOString(),
+            })
+          )
 
           await escalateToHuman(conversationId, tenantId, pubsubClient)
 
