@@ -8,11 +8,16 @@
     "./tenant": "./src/tenant-client.ts"
   },
   "scripts": {
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push && echo '⚠️  RLS policies may have been dropped. Re-apply with: psql $DATABASE_URL -f prisma/rls-policies.sql'",
-    "db:push:dev": "prisma db push && psql $DATABASE_URL -f prisma/rls-policies.sql",
-    "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "db:generate": "dotenv -e ../../.env -- prisma generate",
+    "db:push": "dotenv -e ../../.env -- prisma db push && echo '⚠️  RLS policies may have been dropped. Re-apply with: psql $DATABASE_URL -f prisma/rls-policies.sql'",
+    "db:push:dev": "dotenv -e ../../.env -- prisma db push && dotenv -e ../../.env -- psql $DATABASE_URL -f prisma/rls-policies.sql",
+    "db:migrate": "dotenv -e ../../.env -- prisma migrate dev",
+    "db:reset": "dotenv -e ../../.env -- prisma migrate reset",
+    "db:seed": "tsx --env-file=../../.env prisma/seed.ts",
+    "db:studio": "dotenv -e ../../.env -- prisma studio"
+  },
+  "prisma": {
+    "seed": "tsx --env-file=../../.env prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.0.0",
@@ -23,6 +28,7 @@
   "devDependencies": {
     "@config/typescript-config": "workspace:*",
     "prisma": "^7.5.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.0"
   }
 }

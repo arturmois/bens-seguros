@@ -19,9 +19,14 @@ docker compose up -d
 # Install dependencies
 pnpm install
 
-# Generate Prisma client + push schema (dev only)
-pnpm --filter @repo/db exec prisma generate
-pnpm --filter @repo/db exec prisma db push
+# Database commands (all from root, auto-load .env)
+pnpm db:generate      # Generate Prisma Client
+pnpm db:push          # Push schema to DB (dev only)
+pnpm db:push:dev      # Push schema + re-apply RLS policies
+pnpm db:migrate       # Create migration (production)
+pnpm db:seed          # Populate with test data (idempotent)
+pnpm db:reset         # Reset DB (drop + migrate + seed)
+pnpm db:studio        # Open Prisma Studio GUI
 
 # Run all apps (web :3000, server :3001, chat-server :3002)
 pnpm dev
@@ -47,7 +52,7 @@ pnpm --filter @repo/core exec vitest run src/modules/proposal/application/create
 # Watch mode
 pnpm --filter @repo/core exec vitest src/modules/proposal/
 
-# Prisma migrations (production)
+# Prisma migrations (production — prefer pnpm db:migrate above)
 pnpm --filter @repo/db exec prisma migrate dev --name <name>
 
 # Generate API client (hooks + types + Zod) from OpenAPI spec
@@ -65,6 +70,20 @@ pnpm --filter @app/widget build
 | `@app/web`         | 3000 | Next.js frontend (Turbopack dev)   |
 | `@app/server`      | 3001 | Fastify API (ERP backend)          |
 | `@app/chat-server` | 3002 | Fastify + Socket.IO (chat backend) |
+
+### Seed Data & Test Credentials
+
+Run `pnpm db:seed` to populate the database with test data (idempotent — skips if data exists).
+
+| Email               | Role       | Password    |
+| ------------------- | ---------- | ----------- |
+| `test@user.com`     | OWNER      | `Senha@123` |
+| `admin@user.com`    | ADMIN      | `Senha@123` |
+| `gerente@user.com`  | MANAGER    | `Senha@123` |
+| `vendedor@user.com` | COMMERCIAL | `Senha@123` |
+| `viewer@user.com`   | VIEWER     | `Senha@123` |
+
+Organization: **Corretora Exemplo** (slug: `corretora-exemplo`). Includes 8 insurers, 10 clients, proposals in all stages, policies, claims, commissions, and notifications.
 
 ## App & Package Map
 

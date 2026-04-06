@@ -14,6 +14,13 @@
     "test:watch": "turbo test:watch",
     "clean": "turbo clean",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "db:generate": "pnpm --filter @repo/db db:generate",
+    "db:push": "pnpm --filter @repo/db db:push",
+    "db:push:dev": "pnpm --filter @repo/db db:push:dev",
+    "db:migrate": "pnpm --filter @repo/db db:migrate",
+    "db:seed": "pnpm --filter @repo/db db:seed",
+    "db:reset": "pnpm --filter @repo/db db:reset",
+    "db:studio": "pnpm --filter @repo/db db:studio",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -36,6 +43,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
+    "dotenv-cli": "^11.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.1",
