@@ -147,9 +147,10 @@ export function createSendMessageProcessor(
     // WebChat: publish message content so /widget namespace delivers to visitor.
     // External brokers deliver via their own APIs, but WebChat has no external
     // channel — delivery happens via Redis pub/sub to Socket.IO /widget.
+    // Skip for BOT messages: ai-bot-processor already publishes those.
     if (channel.brokerType === 'WEB_CHAT') {
       const sentMessage = await Message.findById(messageId).lean().exec()
-      if (sentMessage) {
+      if (sentMessage && sentMessage.senderType !== 'BOT') {
         await pubsubClient.publish(
           CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE,
           JSON.stringify({
