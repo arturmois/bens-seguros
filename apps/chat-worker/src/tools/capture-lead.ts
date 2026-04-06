@@ -86,13 +86,12 @@ export function createCaptureLeadTool(tenantId: string, contactPhone: string) {
           typeof json === 'object' &&
           json !== null &&
           'data' in json &&
-          typeof (json as { data: unknown }).data === 'object' &&
-          (json as { data: unknown }).data !== null
+          typeof json.data === 'object' &&
+          json.data !== null &&
+          'proposalId' in json.data &&
+          typeof json.data.proposalId === 'string'
         ) {
-          const respData = (json as { data: Record<string, unknown> }).data
-          if (typeof respData['proposalId'] === 'string') {
-            proposalId = respData['proposalId']
-          }
+          proposalId = json.data.proposalId
         }
 
         return {
