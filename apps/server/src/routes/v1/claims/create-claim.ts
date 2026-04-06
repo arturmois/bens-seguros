@@ -35,36 +35,35 @@ export function createClaimRoute(app: FastifyInstance) {
           where: {
             organizationId: request.organizationId!,
             role: { in: ['ADMIN', 'MANAGER', 'OWNER'] },
+            userId: { not: request.user!.id },
           },
           include: { user: true },
         })
         const frontendUrl = env.FRONTEND_URL
-        const notifItems = managers
-          .filter((m) => m.userId !== request.user!.id)
-          .map((m) => ({
-            notification: {
-              organizationId: request.organizationId!,
-              userId: m.userId,
-              type: 'CLAIM_OPENED',
-              title: 'Novo sinistro aberto',
-              body: `Sinistro #${String(claim.claimNumber)} aberto`,
-              entityType: 'Claim',
-              entityId: claim.id,
-            },
-            email: m.user.email
-              ? {
-                  to: m.user.email,
-                  subject: `Novo sinistro #${String(claim.claimNumber)}`,
-                  html: claimOpenedEmail({
-                    userName: m.user.name,
-                    claimNumber: String(claim.claimNumber),
-                    clientName: 'N/A',
-                    priority: String(claim.priority ?? 'NORMAL'),
-                    frontendUrl,
-                  }),
-                }
-              : undefined,
-          }))
+        const notifItems = managers.map((m) => ({
+          notification: {
+            organizationId: request.organizationId!,
+            userId: m.userId,
+            type: 'CLAIM_OPENED',
+            title: 'Novo sinistro aberto',
+            body: `Sinistro #${String(claim.claimNumber)} aberto`,
+            entityType: 'Claim',
+            entityId: claim.id,
+          },
+          email: m.user.email
+            ? {
+                to: m.user.email,
+                subject: `Novo sinistro #${String(claim.claimNumber)}`,
+                html: claimOpenedEmail({
+                  userName: m.user.name,
+                  claimNumber: String(claim.claimNumber),
+                  clientName: 'N/A',
+                  priority: String(claim.priority ?? 'NORMAL'),
+                  frontendUrl,
+                }),
+              }
+            : undefined,
+        }))
         if (notifItems.length > 0) {
           enqueueNotifications(notifItems).catch((err: unknown) => {
             request.log.error({ err }, 'Failed to enqueue claim notifications')

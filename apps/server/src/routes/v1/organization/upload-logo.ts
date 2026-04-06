@@ -63,7 +63,7 @@ export function uploadLogoRoute(app: FastifyInstance) {
           error: {
             code: 'INVALID_FILE_TYPE',
             message:
-              'Tipo de arquivo invalido. Permitidos: JPEG, PNG, WebP, GIF',
+              'Tipo de arquivo inválido. Permitidos: JPEG, PNG, WebP, GIF',
           },
         })
       }
@@ -75,7 +75,7 @@ export function uploadLogoRoute(app: FastifyInstance) {
           success: false,
           error: {
             code: 'FILE_TOO_LARGE',
-            message: 'Arquivo excede o tamanho maximo de 2MB',
+            message: 'Arquivo excede o tamanho máximo de 2MB',
           },
         })
       }

@@ -9,6 +9,7 @@ import {
   emailVerificationEmail,
   passwordResetEmail,
 } from '@repo/core/notification'
+import { prisma } from '@repo/db'
 import { env } from '@repo/env'
 import { RATE_LIMITS } from '@repo/shared'
 import { PINO_REDACT_CONFIG } from '@repo/shared/pino-redact'
@@ -84,6 +85,11 @@ export async function buildApp() {
         workerSrc: ["'self'", 'blob:'],
       },
     },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
   })
 
   await app.register(rateLimit, {
@@ -145,7 +151,27 @@ export async function buildApp() {
     return payload
   })
 
-  app.get('/health', async () => ({ status: 'ok' }))
+  app.get('/health', async (_request, reply) => {
+    const errors: string[] = []
+
+    try {
+      await prisma.$queryRaw`SELECT 1`
+    } catch {
+      errors.push('PostgreSQL unreachable')
+    }
+
+    try {
+      await redis.ping()
+    } catch {
+      errors.push('Redis unreachable')
+    }
+
+    if (errors.length > 0) {
+      return reply.status(503).send({ status: 'degraded', errors })
+    }
+
+    return { status: 'ok' }
+  })
 
   // Serve local uploads in dev (production uses R2 presigned URLs)
   if (env.STORAGE_PROVIDER !== 'r2') {

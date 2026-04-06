@@ -1,5 +1,7 @@
-import { Channel, connectMongoDB, disconnectMongoDB } from '@repo/db-chat'
+import * as Sentry from '@sentry/node'
 import { env } from '@repo/env'
+import { stripPiiFromEvent } from '@repo/shared/sentry-pii'
+import { Channel, connectMongoDB, disconnectMongoDB } from '@repo/db-chat'
 import { CHAT_PUBSUB_CHANNELS, CHAT_QUEUES } from '@repo/shared'
 import {
   decryptToken,
@@ -12,6 +14,17 @@ import pino from 'pino'
 import 'reflect-metadata'
 import * as BaileysManager from './messaging/baileys-manager.js'
 import type { IncomingMessage } from './messaging/broker.js'
+
+if (env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: env.SENTRY_DSN,
+    environment: env.NODE_ENV,
+    tracesSampleRate: 0.2,
+    beforeSend(event) {
+      return stripPiiFromEvent(event)
+    },
+  })
+}
 import { createAiBotProcessor } from './processors/ai-bot-processor.js'
 import { createAutoCloseProcessor } from './processors/auto-close-processor.js'
 import { createConnectChannelProcessor } from './processors/connect-channel-processor.js'
@@ -436,6 +449,10 @@ async function bootstrap(): Promise<void> {
     await disconnectMongoDB()
     await pubsubRedis.quit()
 
+    if (env.SENTRY_DSN) {
+      await Sentry.close(2000)
+    }
+
     process.exit(0)
   }
 
@@ -445,5 +462,10 @@ async function bootstrap(): Promise<void> {
 
 bootstrap().catch((err: unknown) => {
   logger.fatal({ err }, 'Chat worker bootstrap failed')
-  process.exit(1)
+  if (env.SENTRY_DSN) {
+    Sentry.captureException(err)
+    void Sentry.close(2000).then(() => process.exit(1))
+  } else {
+    process.exit(1)
+  }
 })

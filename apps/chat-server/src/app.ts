@@ -5,6 +5,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { env } from '@repo/env'
+import mongoose from 'mongoose'
 import { createAdapter } from '@socket.io/redis-adapter'
 import * as Sentry from '@sentry/node'
 import type {
@@ -105,7 +106,13 @@ export async function buildChatApp(
       }
   )
 
-  await app.register(helmet)
+  await app.register(helmet, {
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+  })
 
   // Widget routes need permissive CORS (origin validated per-channel in route handler)
   app.addHook('onRequest', async (request, reply) => {
@@ -156,7 +163,25 @@ export async function buildChatApp(
   app.decorate('redisGeneral', options.redisGeneral)
 
   // Health check (no auth)
-  app.get('/health', async () => ({ status: 'ok' }))
+  app.get('/health', async (_request, reply) => {
+    const errors: string[] = []
+
+    if (mongoose.connection.readyState !== 1) {
+      errors.push('MongoDB unreachable')
+    }
+
+    try {
+      await options.redisPub.ping()
+    } catch {
+      errors.push('Redis unreachable')
+    }
+
+    if (errors.length > 0) {
+      return reply.status(503).send({ status: 'degraded', errors })
+    }
+
+    return { status: 'ok' }
+  })
 
   // Widget static assets — SPA served at /widget-app/, embed.js at /widget/embed.js
   const currentDir = path.dirname(fileURLToPath(import.meta.url))

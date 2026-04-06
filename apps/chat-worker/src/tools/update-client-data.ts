@@ -11,7 +11,7 @@ const FETCH_TIMEOUT_MS = 10_000
 export function createUpdateClientDataTool(tenantId: string) {
   return tool({
     description:
-      'Atualiza dados cadastrais do cliente (CPF, email, endereco, nascimento). Use apos identificar o cliente para completar ou corrigir informacoes.',
+      'Atualiza dados cadastrais do cliente (CPF, email, endereço, nascimento). Use após identificar o cliente para completar ou corrigir informações.',
     parameters: z.object({
       clientId: z.string().describe('ID do cliente a ser atualizado'),
       document: z.string().optional().describe('CPF ou CNPJ do cliente'),

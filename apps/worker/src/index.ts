@@ -1,3 +1,6 @@
+import * as Sentry from '@sentry/node'
+import { env } from '@repo/env'
+import { stripPiiFromEvent } from '@repo/shared/sentry-pii'
 import pino from 'pino'
 import 'reflect-metadata'
 import { setupAuditArchiveProcessor } from './processors/audit-archive-processor.js'
@@ -6,7 +9,17 @@ import { setupExpirePoliciesProcessor } from './processors/expire-policies-proce
 import { setupNotificationProcessor } from './processors/notification-processor.js'
 import { setupProactiveAlertsProcessor } from './processors/alerts/index.js'
 import { setupSendQuoteEmailProcessor } from './processors/send-quote-email-processor.js'
-import { env } from '@repo/env'
+
+if (env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: env.SENTRY_DSN,
+    environment: env.NODE_ENV,
+    tracesSampleRate: 0.2,
+    beforeSend(event) {
+      return stripPiiFromEvent(event)
+    },
+  })
+}
 
 const logger = pino({
   level: env.NODE_ENV === 'production' ? 'info' : 'debug',
@@ -67,8 +80,21 @@ const gracefulShutdown = async () => {
     proactiveAlerts.queue.close(),
     sendQuoteEmail.queue.close(),
   ])
+  if (env.SENTRY_DSN) {
+    await Sentry.close(2000)
+  }
   process.exit(0)
 }
 
 process.on('SIGTERM', gracefulShutdown)
 process.on('SIGINT', gracefulShutdown)
+
+process.on('uncaughtException', (err) => {
+  logger.fatal({ err }, 'Uncaught exception in worker')
+  if (env.SENTRY_DSN) {
+    Sentry.captureException(err)
+    void Sentry.close(2000).then(() => process.exit(1))
+  } else {
+    process.exit(1)
+  }
+})

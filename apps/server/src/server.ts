@@ -22,12 +22,30 @@ const start = async () => {
 
   await app.listen({ port, host })
   app.log.info(`Server running on http://${host}:${port}`)
+
+  const shutdown = async () => {
+    app.log.info('Shutting down server...')
+    await app.close()
+    if (env.SENTRY_DSN) {
+      await Sentry.close(2000)
+    }
+    app.log.info('Server shut down')
+    process.exit(0)
+  }
+
+  process.on('SIGTERM', () => void shutdown())
+  process.on('SIGINT', () => void shutdown())
 }
 
 start().catch((err) => {
   if (env.SENTRY_DSN) {
     Sentry.captureException(err)
+    void Sentry.close(2000).then(() => {
+      process.exitCode = 1
+      throw err
+    })
+  } else {
+    process.exitCode = 1
+    throw err
   }
-  process.exitCode = 1
-  throw err
 })
