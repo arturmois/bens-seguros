@@ -1,7 +1,3 @@
-
--- CreateSchema
-CREATE SCHEMA IF NOT EXISTS "public";
-
 -- CreateEnum
 CREATE TYPE "Role" AS ENUM ('OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER');
 
@@ -155,7 +151,7 @@ CREATE TABLE "Invitation" (
     "role" "Role" NOT NULL DEFAULT 'COMMERCIAL',
     "status" TEXT NOT NULL DEFAULT 'pending',
     "expiresAt" TIMESTAMP(3) NOT NULL,
-    "invitedBy" TEXT NOT NULL,
+    "inviterId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -202,6 +198,7 @@ CREATE TABLE "Proposal" (
     "commissionPercentageInCents" INTEGER NOT NULL DEFAULT 0,
     "lostReason" TEXT,
     "renewalPolicyId" TEXT,
+    "renewalPolicyNumber" TEXT,
     "sourcePolicyId" TEXT,
     "endorsementType" TEXT,
     "endorsementReason" TEXT,
@@ -722,4 +719,3 @@ ALTER TABLE "Commission" ADD CONSTRAINT "Commission_originalCommissionId_fkey" F
 
 -- AddForeignKey
 ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-

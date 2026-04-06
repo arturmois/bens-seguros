@@ -12,7 +12,7 @@ export type ListInvitations200DataItem = {
   role: string
   status: string
   expiresAt: string
-  invitedBy: string
+  inviterId: string
   createdAt: string
   updatedAt: string
 }

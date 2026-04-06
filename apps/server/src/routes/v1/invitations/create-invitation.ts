@@ -90,7 +90,7 @@ export function createInvitationRoute(app: FastifyInstance) {
             role,
             status: 'pending',
             expiresAt,
-            invitedBy: request.user!.id,
+            inviterId: request.user!.id,
           },
         })
 

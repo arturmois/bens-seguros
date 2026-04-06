@@ -28,7 +28,7 @@ const invitationSchema = z.object({
   role: z.string(),
   status: z.string(),
   expiresAt: z.coerce.date(),
-  invitedBy: z.string(),
+  inviterId: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 })
@@ -37,4 +37,38 @@ export const invitationDetailResponse = successResponse(invitationSchema)
 export const invitationListResponse = paginatedResponse(invitationSchema)
 export const invitationDeleteResponse = successResponse(
   z.object({ id: z.string() })
+)
+
+// --- Public invitation schemas ---
+
+export const publicInvitationResponse = successResponse(
+  z.object({
+    id: z.string(),
+    email: z.string(),
+    role: z.string(),
+    status: z.string(),
+    expiresAt: z.coerce.date(),
+    organizationName: z.string(),
+    inviterName: z.string(),
+    hasAccount: z.boolean(),
+  })
+)
+
+export const acceptInvitationBodySchema = z.discriminatedUnion('mode', [
+  z.object({
+    mode: z.literal('register'),
+    name: z.string().min(2),
+    password: z.string().min(8),
+  }),
+  z.object({
+    mode: z.literal('login'),
+    password: z.string().min(1),
+  }),
+])
+
+export const acceptInvitationResponse = successResponse(
+  z.object({
+    organizationId: z.string(),
+    role: z.string(),
+  })
 )

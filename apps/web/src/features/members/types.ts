@@ -14,6 +14,6 @@ export interface InvitationData {
   readonly role: string
   readonly status: string
   readonly expiresAt: string
-  readonly invitedBy: string
+  readonly inviterId: string
   readonly createdAt: string
 }

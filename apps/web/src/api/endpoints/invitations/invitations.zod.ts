@@ -31,7 +31,7 @@ export const ListInvitationsResponse = zod.object({
       role: zod.string(),
       status: zod.string(),
       expiresAt: zod.string().datetime({}),
-      invitedBy: zod.string(),
+      inviterId: zod.string(),
       createdAt: zod.string().datetime({}),
       updatedAt: zod.string().datetime({}),
     })

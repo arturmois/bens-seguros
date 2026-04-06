@@ -39,6 +39,7 @@ import { documentRoutes } from './routes/v1/documents/index.js'
 import { endorsementRoutes } from './routes/v1/endorsements/index.js'
 import { insurerRoutes } from './routes/v1/insurers/index.js'
 import { invitationRoutes } from './routes/v1/invitations/index.js'
+import { publicInvitationRoutes } from './routes/v1/invitations/public.js'
 import { memberRoutes } from './routes/v1/members/index.js'
 import { organizationRoutes } from './routes/v1/organization/index.js'
 import { notificationRoutes } from './routes/v1/notifications/index.js'
@@ -241,6 +242,11 @@ export async function buildApp() {
       : undefined
   )
   registerAuthRoutes(app, auth, redis)
+
+  // Public invitation routes (unauthenticated — accept/view invitations)
+  await app.register(async (publicApp) => {
+    publicInvitationRoutes(publicApp, auth)
+  })
 
   // API v1 routes (authenticated)
   const authMiddleware = createAuthMiddleware(auth)

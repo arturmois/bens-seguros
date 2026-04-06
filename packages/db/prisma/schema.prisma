@@ -147,7 +147,7 @@ model Invitation {
   role           Role     @default(COMMERCIAL)
   status         String   @default("pending")
   expiresAt      DateTime
-  invitedBy      String
+  inviterId      String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
