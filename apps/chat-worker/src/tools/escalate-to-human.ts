@@ -35,14 +35,33 @@ export function createEscalateToHumanTool(
         { $set: { status: 'WAITING_HUMAN' } }
       ).exec()
 
-      await Message.create({
+      const systemText = `Transferido para um atendente. Motivo: ${reason}`
+      const systemMessage = await Message.create({
         conversationId,
         tenantId,
         senderType: 'SYSTEM',
-        text: `Transferido para um atendente. Motivo: ${reason}`,
+        text: systemText,
         type: 'TEXT',
         status: 'DELIVERED',
       })
+
+      await pubsubClient.publish(
+        CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE,
+        JSON.stringify({
+          id: String(systemMessage._id),
+          conversationId,
+          tenantId,
+          senderType: 'SYSTEM',
+          senderName: null,
+          senderId: null,
+          text: systemText,
+          type: 'TEXT',
+          status: 'DELIVERED',
+          externalId: null,
+          createdAt:
+            systemMessage.createdAt?.toISOString() ?? new Date().toISOString(),
+        })
+      )
 
       await pubsubClient.publish(
         CHAT_PUBSUB_CHANNELS.CONVERSATION_UPDATE,
