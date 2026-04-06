@@ -57,6 +57,10 @@ export function isProviderConfigured(provider: AIProvider): boolean {
       return Boolean(env.ANTHROPIC_API_KEY)
     case 'openai':
       return Boolean(env.OPENAI_API_KEY)
+    default: {
+      const _exhaustive: never = provider
+      return _exhaustive
+    }
   }
 }
 
@@ -132,10 +136,12 @@ export async function escalateToHuman(
   tenantId: string,
   pubsubClient: PubsubClient
 ): Promise<void> {
-  await Conversation.updateOne(
-    { _id: conversationId, tenantId },
+  const result = await Conversation.updateOne(
+    { _id: conversationId, tenantId, status: 'BOT_ACTIVE' },
     { $set: { status: 'WAITING_HUMAN' } }
   ).exec()
+
+  if (result.matchedCount === 0) return
 
   const escalationText = 'Transferido para um atendente. Aguarde.'
   const systemMessage = await Message.create({
