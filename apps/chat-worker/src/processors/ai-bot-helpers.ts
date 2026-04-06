@@ -1,5 +1,6 @@
 import type { CoreMessage } from 'ai'
 import type { AIProvider } from '@repo/ai'
+import { env } from '@repo/env'
 import { Conversation, Message } from '@repo/db-chat'
 import { CHAT_PUBSUB_CHANNELS, CHAT_LIMITS } from '@repo/shared'
 import type { PubsubClient } from '../types/pubsub-client.js'
@@ -47,6 +48,15 @@ export function getAiAgentConfig(doc: Record<string, unknown>): AiAgentConfig {
     enabledTools: Array.isArray(doc['enabledTools'])
       ? doc['enabledTools'].filter((t): t is string => typeof t === 'string')
       : [],
+  }
+}
+
+export function isProviderConfigured(provider: AIProvider): boolean {
+  switch (provider) {
+    case 'claude':
+      return Boolean(env.ANTHROPIC_API_KEY)
+    case 'openai':
+      return Boolean(env.OPENAI_API_KEY)
   }
 }
 

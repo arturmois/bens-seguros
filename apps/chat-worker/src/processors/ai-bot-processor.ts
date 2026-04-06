@@ -22,6 +22,7 @@ import {
   buildSystemPrompt,
   escalateToHuman,
   getAiAgentConfig,
+  isProviderConfigured,
 } from './ai-bot-helpers.js'
 
 const logger = pino({ name: 'ai-bot-processor' })
@@ -76,6 +77,15 @@ export function createAiBotProcessor(
     }
 
     const config = getAiAgentConfig(aiAgent as Record<string, unknown>)
+
+    if (!isProviderConfigured(config.provider)) {
+      logger.error(
+        { conversationId, tenantId, provider: config.provider },
+        'AI provider API key not configured — all bot conversations will escalate. Check ANTHROPIC_API_KEY / OPENAI_API_KEY in .env'
+      )
+      await escalateToHuman(conversationId, tenantId, pubsubClient)
+      return
+    }
 
     const botMessageCount = await Message.countDocuments({
       conversationId,
