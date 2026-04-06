@@ -143,7 +143,7 @@ export function createReportClaimTool(
             senderName: 'Assistente Virtual',
             text: explanationText,
             type: 'TEXT',
-            status: 'PENDING',
+            status: 'DELIVERED',
           })
 
           await pubsubClient.publish(
@@ -157,7 +157,7 @@ export function createReportClaimTool(
               senderId: null,
               text: explanationText,
               type: 'TEXT',
-              status: 'PENDING',
+              status: 'DELIVERED',
               externalId: null,
               createdAt:
                 botMessage.createdAt?.toISOString() ?? new Date().toISOString(),

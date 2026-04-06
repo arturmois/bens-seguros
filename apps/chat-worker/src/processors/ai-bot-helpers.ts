@@ -137,11 +137,12 @@ export async function escalateToHuman(
     { $set: { status: 'WAITING_HUMAN' } }
   ).exec()
 
+  const escalationText = 'Transferido para um atendente. Aguarde.'
   const systemMessage = await Message.create({
     conversationId,
     tenantId,
     senderType: 'SYSTEM',
-    text: 'Transferido para um atendente. Aguarde.',
+    text: escalationText,
     type: 'TEXT',
     status: 'DELIVERED',
   })
@@ -155,7 +156,7 @@ export async function escalateToHuman(
       senderType: 'SYSTEM',
       senderName: null,
       senderId: null,
-      text: 'Transferido para um atendente. Aguarde.',
+      text: escalationText,
       type: 'TEXT',
       status: 'DELIVERED',
       externalId: null,
