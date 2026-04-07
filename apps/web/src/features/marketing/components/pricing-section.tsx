@@ -61,7 +61,7 @@ const PLANS: readonly PlanConfig[] = [
     popular: false,
     dark: true,
     ctaLabel: 'Falar com Vendas',
-    ctaHref: '#faq',
+    ctaHref: '#contato',
   },
 ] as const
 

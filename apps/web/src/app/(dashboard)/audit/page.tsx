@@ -1,4 +1,7 @@
+import type { Metadata } from 'next'
 import { AuditContent } from '@/features/audit/components/audit-content'
+
+export const metadata: Metadata = { title: 'Auditoria' }
 
 export default function AuditPage() {
   return (

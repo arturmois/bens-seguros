@@ -1,4 +1,7 @@
+import type { Metadata } from 'next'
 import { ClaimsContent } from './claims-content'
+
+export const metadata: Metadata = { title: 'Sinistros' }
 
 export default function ClaimsPage() {
   return (

@@ -1,4 +1,7 @@
+import type { Metadata } from 'next'
 import { CommissionsContent } from './commissions-content'
+
+export const metadata: Metadata = { title: 'Comissões' }
 
 export default function CommissionsPage() {
   return (

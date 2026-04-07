@@ -16,7 +16,7 @@ const NAV_LINKS = [
   { label: 'Recursos', href: '/#recursos' },
   { label: 'Preços', href: '/#precos' },
   { label: 'Depoimentos', href: '/#depoimentos' },
-  { label: 'Contato', href: '/#faq' },
+  { label: 'Contato', href: '/#contato' },
 ] as const
 
 export function MarketingNav(): React.ReactElement {
