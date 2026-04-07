@@ -19,7 +19,7 @@ const registerSchema = z
     name: z.string().min(2, 'Mínimo 2 caracteres'),
     email: z.string().email('Email inválido'),
     password: z.string().min(8, 'Mínimo 8 caracteres'),
-    confirmPassword: z.string().min(8, 'Mínimo 8 caracteres'),
+    confirmPassword: z.string().min(1, 'Confirme sua senha'),
     acceptedTerms: z.literal(true, {
       errorMap: () => ({
         message: 'Você deve aceitar os termos para continuar',
@@ -126,11 +126,12 @@ export function RegisterForm() {
             )}
           </Button>
         </div>
-        <p className="text-xs text-slate-500">Mínimo de 8 caracteres</p>
-        {form.formState.errors.password && (
+        {form.formState.errors.password ? (
           <p role="alert" className="text-destructive text-sm">
             {form.formState.errors.password.message}
           </p>
+        ) : (
+          <p className="text-xs text-slate-500">Mínimo de 8 caracteres</p>
         )}
       </div>
 
