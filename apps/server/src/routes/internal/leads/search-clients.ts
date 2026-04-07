@@ -3,8 +3,11 @@ import { hashDocument, stripNonDigits } from '@repo/shared'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
-import { errorResponse } from '../../_shared/response.schema.js'
-import { searchClientsQuerySchema, searchClientsResponse } from './_schemas.js'
+import { errorResponse } from '../../shared/response.schema.js'
+import {
+  searchClientsQuerySchema,
+  searchClientsResponse,
+} from './schemas/index.js'
 
 export function searchClientsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

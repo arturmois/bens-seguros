@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { idParamSchema, documentUrlResponse } from './_schemas.js'
+import { documentUrlResponse, idParamSchema } from './_schemas.js'
 
 export function getDocumentUrlRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

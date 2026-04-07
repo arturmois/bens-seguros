@@ -13,7 +13,7 @@ import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { ProposalQuotePdf } from '../../../pdf-templates/proposal-quote-pdf.js'
 import { enqueueSendQuoteEmail } from '../../../services/send-quote-enqueuer.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { idParam, sendQuoteResponse, errorResponse } from './_schemas.js'
+import { errorResponse, idParam, sendQuoteResponse } from './_schemas.js'
 
 const CENTS_PER_REAL = 100
 

@@ -8,7 +8,7 @@ import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditCreate } from '../../../services/audit-logger.js'
 import { enqueueNotifications } from '../../../services/notification-enqueuer.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { createClaimBodySchema, claimDetailResponse } from './_schemas.js'
+import { claimDetailResponse, createClaimBodySchema } from './_schemas.js'
 
 export function createClaimRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

@@ -1,9 +1,9 @@
+import { container, type CacheService, type StorageProvider } from '@repo/core'
+import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { container, type StorageProvider, type CacheService } from '@repo/core'
-import { prisma } from '@repo/db'
+import { errorResponse } from '../../shared/response.schema.js'
 import { organizationDetailResponse } from './_schemas.js'
-import { errorResponse } from '../../_shared/response.schema.js'
 
 const ORG_CACHE_TTL = 3600 // 1h
 

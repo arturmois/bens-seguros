@@ -6,9 +6,9 @@ import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditUpdate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
 import {
+  assistanceDetailResponse,
   idParamSchema,
   updateAssistanceStatusBodySchema,
-  assistanceDetailResponse,
 } from './_schemas.js'
 
 export function updateAssistanceStatusRoute(app: FastifyInstance) {

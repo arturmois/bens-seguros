@@ -1,3 +1,4 @@
+import type { Prisma } from '@repo/db'
 import { createTenantClient } from '@repo/db/tenant'
 import {
   encrypt,
@@ -5,16 +6,15 @@ import {
   hashDocument,
   stripNonDigits,
 } from '@repo/shared'
-import type { Prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
-import { errorResponse } from '../../_shared/response.schema.js'
+import { errorResponse } from '../../shared/response.schema.js'
 import {
   updateClientBodySchema,
   updateClientParamsSchema,
   updateClientResponse,
-} from './_schemas.js'
+} from './schemas/index.js'
 
 const CPF_LENGTH = 11
 const CNPJ_LENGTH = 14

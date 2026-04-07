@@ -1,17 +1,17 @@
 import { z } from 'zod'
 
-import { paginationQuery } from '../../_shared/pagination.schema.js'
-import { idParam } from '../../_shared/params.schema.js'
+import { paginationQuery } from '../../shared/pagination.schema.js'
+import { idParam } from '../../shared/params.schema.js'
 import {
-  optionalString,
-  optionalDate,
-  jsonObjectSchema,
-} from '../../_shared/transforms.js'
-import {
-  successResponse,
-  paginatedResponse,
   errorResponse,
-} from '../../_shared/response.schema.js'
+  paginatedResponse,
+  successResponse,
+} from '../../shared/response.schema.js'
+import {
+  jsonObjectSchema,
+  optionalDate,
+  optionalString,
+} from '../../shared/transforms.js'
 
 // --- Enums ---
 

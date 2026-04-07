@@ -1,6 +1,6 @@
+import { container, CountAlertsByEntityType } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { container, CountAlertsByEntityType } from '@repo/core'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { alertCountsResponse } from './_schemas.js'
 

@@ -4,7 +4,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { idParamSchema, assistanceDetailResponse } from './_schemas.js'
+import { assistanceDetailResponse, idParamSchema } from './_schemas.js'
 
 export function getAssistanceRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

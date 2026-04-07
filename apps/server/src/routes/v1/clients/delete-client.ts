@@ -1,10 +1,10 @@
 import { container, DeleteClient } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { auditDelete } from '../../../services/audit-logger.js'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { idParamSchema } from './_schemas.js'
+import { auditDelete } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
+import { idParamSchema } from './_schemas.js'
 
 export function deleteClientRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

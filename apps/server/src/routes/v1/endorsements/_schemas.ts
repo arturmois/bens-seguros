@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
-import { idParam } from '../../_shared/params.schema.js'
-import { successResponse } from '../../_shared/response.schema.js'
+import { idParam } from '../../shared/params.schema.js'
+import { successResponse } from '../../shared/response.schema.js'
 
 const jsonLiteralSchema = z.union([
   z.string(),

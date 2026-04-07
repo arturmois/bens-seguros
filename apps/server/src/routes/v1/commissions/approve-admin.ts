@@ -12,7 +12,7 @@ import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditApprove } from '../../../services/audit-logger.js'
 import { enqueueNotification } from '../../../services/notification-enqueuer.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { commissionIdParam, commissionDetailResponse } from './_schemas.js'
+import { commissionDetailResponse, commissionIdParam } from './_schemas.js'
 
 export async function approveAdminRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

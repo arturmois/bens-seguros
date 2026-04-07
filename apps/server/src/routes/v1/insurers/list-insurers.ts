@@ -1,8 +1,8 @@
-import { container, type CacheService, ListInsurers } from '@repo/core'
+import { container, ListInsurers, type CacheService } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { listInsurersQuerySchema, insurerListResponse } from './_schemas.js'
+import { insurerListResponse, listInsurersQuerySchema } from './_schemas.js'
 
 const INSURER_CACHE_TTL = 86400 // 24h
 

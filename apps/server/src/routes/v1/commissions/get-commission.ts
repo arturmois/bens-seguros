@@ -4,7 +4,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { commissionIdParam, commissionDetailResponse } from './_schemas.js'
+import { commissionDetailResponse, commissionIdParam } from './_schemas.js'
 
 export async function getCommissionRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

@@ -1,11 +1,8 @@
 import { z } from 'zod'
-import { paginationQuery } from '../../_shared/pagination.schema.js'
-import { idParam } from '../../_shared/params.schema.js'
-import { branchEnum } from '../../_shared/enums.schema.js'
-import {
-  successResponse,
-  errorResponse,
-} from '../../_shared/response.schema.js'
+import { branchEnum } from '../../shared/enums.schema.js'
+import { paginationQuery } from '../../shared/pagination.schema.js'
+import { idParam } from '../../shared/params.schema.js'
+import { errorResponse, successResponse } from '../../shared/response.schema.js'
 
 // ── Entity-specific enums ───────────────────────────────────────────
 

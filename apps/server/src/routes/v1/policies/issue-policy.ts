@@ -1,8 +1,8 @@
 import { renderToBuffer } from '@react-pdf/renderer'
 import {
   container,
-  IssuePolicy,
   GetPolicy,
+  IssuePolicy,
   type DocumentRepository,
   type StorageProvider,
 } from '@repo/core'
@@ -10,9 +10,9 @@ import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
+import { PolicySummaryPdf } from '../../../pdf-templates/policy-summary-pdf.js'
 import { auditCreate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { PolicySummaryPdf } from '../../../pdf-templates/policy-summary-pdf.js'
 import { issuePolicyBody, policyDetailResponse } from './_schemas.js'
 
 export function issuePolicyRoute(app: FastifyInstance) {

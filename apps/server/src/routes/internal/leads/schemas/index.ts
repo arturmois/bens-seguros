@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { successResponse } from '../../_shared/response.schema.js'
+import { successResponse } from '../../../shared/response.schema.js'
 
 export const createLeadBodySchema = z.object({
   clientName: z.string().min(1),

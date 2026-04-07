@@ -1,9 +1,9 @@
-import type { FastifyInstance } from 'fastify'
-import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { InsuranceBranch } from '@repo/db'
 import { hashDocument, stripNonDigits } from '@repo/shared'
+import type { FastifyInstance } from 'fastify'
+import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { searchQuerySchema, globalSearchResponse } from './_schemas.js'
+import { globalSearchResponse, searchQuerySchema } from './_schemas.js'
 
 function toInsuranceBranch(value: string): InsuranceBranch | null {
   const upper = value.toUpperCase()

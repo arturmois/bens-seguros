@@ -1,10 +1,10 @@
-import { container, CreateClient, ClientPresenter } from '@repo/core'
+import { ClientPresenter, container, CreateClient } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { auditCreate } from '../../../services/audit-logger.js'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { createClientBodySchema, clientDetailResponse } from './_schemas.js'
+import { auditCreate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
+import { clientDetailResponse, createClientBodySchema } from './_schemas.js'
 
 export function createClientRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

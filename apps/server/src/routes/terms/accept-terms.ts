@@ -2,8 +2,8 @@ import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION } from '@repo/core'
 import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { acceptTermsResponse, acceptTermsSchema } from './_schemas.js'
-import { errorResponse } from '../_shared/response.schema.js'
+import { errorResponse } from '../shared/response.schema.js'
+import { acceptTermsResponse, acceptTermsSchema } from './schemas/index.js'
 
 export function acceptTermsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

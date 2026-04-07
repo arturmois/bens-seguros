@@ -1,7 +1,7 @@
-import jwt from 'jsonwebtoken'
+import { env } from '@repo/env'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { env } from '@repo/env'
+import jwt from 'jsonwebtoken'
 
 export function createChatTokenRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

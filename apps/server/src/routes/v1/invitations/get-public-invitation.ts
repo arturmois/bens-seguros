@@ -1,9 +1,9 @@
+import { prisma } from '@repo/db'
+import { RATE_LIMITS } from '@repo/shared'
 import type { FastifyInstance, FastifyRequest } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { RATE_LIMITS } from '@repo/shared'
-import { prisma } from '@repo/db'
+import { errorResponse } from '../../shared/response.schema.js'
 import { idParamSchema, publicInvitationResponse } from './_schemas.js'
-import { errorResponse } from '../../_shared/response.schema.js'
 
 export function getPublicInvitationRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

@@ -5,10 +5,10 @@ import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditUpdate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
 import {
+  errorResponse,
   idParam,
   markLostBody,
   proposalDetailResponse,
-  errorResponse,
 } from './_schemas.js'
 
 export function markProposalLostRoute(app: FastifyInstance) {

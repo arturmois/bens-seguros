@@ -1,8 +1,8 @@
+import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION } from '@repo/core'
+import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { prisma } from '@repo/db'
-import { CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION } from '@repo/core'
-import { termsStatusResponse } from './_schemas.js'
+import { termsStatusResponse } from './schemas/index.js'
 
 export function getTermsStatusRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

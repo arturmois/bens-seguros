@@ -1,13 +1,13 @@
 import { z } from 'zod'
 
-import { dateRangeQuery } from '../../_shared/date-range.schema.js'
-import { paginationQuery } from '../../_shared/pagination.schema.js'
-import { idParam } from '../../_shared/params.schema.js'
+import { dateRangeQuery } from '../../shared/date-range.schema.js'
+import { paginationQuery } from '../../shared/pagination.schema.js'
+import { idParam } from '../../shared/params.schema.js'
 import {
   errorResponse,
   paginatedResponse,
   successResponse,
-} from '../../_shared/response.schema.js'
+} from '../../shared/response.schema.js'
 
 // ── Enums ──────────────────────────────────────────────────────────
 

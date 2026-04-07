@@ -1,10 +1,10 @@
+import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { prisma } from '@repo/db'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import {
-  listInvitationsQuerySchema,
   invitationListResponse,
+  listInvitationsQuerySchema,
 } from './_schemas.js'
 
 export function listInvitationsRoute(app: FastifyInstance) {

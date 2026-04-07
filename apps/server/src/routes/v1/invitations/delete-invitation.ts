@@ -1,11 +1,11 @@
+import { InvitationNotFoundError } from '@repo/core'
+import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { prisma } from '@repo/db'
-import { InvitationNotFoundError } from '@repo/core'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditDelete } from '../../../services/audit-logger.js'
-import { idParamSchema, invitationDeleteResponse } from './_schemas.js'
 import { handleDomainError } from '../handle-domain-error.js'
+import { idParamSchema, invitationDeleteResponse } from './_schemas.js'
 
 export function deleteInvitationRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { paginatedResponse } from '../../_shared/response.schema.js'
+import { paginatedResponse } from '../../shared/response.schema.js'
 
 export const listAuditLogsQuerySchema = z.object({
   entityType: z.string().optional(),

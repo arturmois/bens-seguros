@@ -1,11 +1,11 @@
 import { z } from 'zod'
 
-import { idParam } from '../../_shared/params.schema.js'
-import { roleEnum } from '../../_shared/enums.schema.js'
+import { roleEnum } from '../../shared/enums.schema.js'
+import { idParam } from '../../shared/params.schema.js'
 import {
-  successResponse,
   paginatedResponse,
-} from '../../_shared/response.schema.js'
+  successResponse,
+} from '../../shared/response.schema.js'
 
 export const changeMemberRoleBodySchema = z.object({
   role: roleEnum,

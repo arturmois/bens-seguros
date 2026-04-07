@@ -6,8 +6,8 @@ import { auditCreate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
 import {
   createProposalBody,
-  proposalDetailResponse,
   errorResponse,
+  proposalDetailResponse,
 } from './_schemas.js'
 
 export function createProposalRoute(app: FastifyInstance) {

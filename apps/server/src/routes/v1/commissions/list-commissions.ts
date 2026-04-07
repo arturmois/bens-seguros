@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { listCommissionsQuery, commissionListResponse } from './_schemas.js'
+import { commissionListResponse, listCommissionsQuery } from './_schemas.js'
 
 export async function listCommissionsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

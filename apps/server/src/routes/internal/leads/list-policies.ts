@@ -3,12 +3,12 @@ import { createTenantClient } from '@repo/db/tenant'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
-import { errorResponse } from '../../_shared/response.schema.js'
-import { resolveClientId } from './_helpers.js'
+import { errorResponse } from '../../shared/response.schema.js'
+import { resolveClientId } from './helpers/index.js'
 import {
   listInternalPoliciesQuerySchema,
   listInternalPoliciesResponse,
-} from './_schemas.js'
+} from './schemas/index.js'
 
 const MAX_POLICIES = 10
 

@@ -8,19 +8,19 @@ import {
 import { prisma } from '@repo/db'
 import { decrypt, getEncryptionKey, type EncryptedField } from '@repo/shared'
 import type { FastifyInstance } from 'fastify'
-import pino from 'pino'
-
-const logger = pino({ name: 'generate-policy-pdf' })
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
+import pino from 'pino'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { PolicySummaryPdf } from '../../../pdf-templates/policy-summary-pdf.js'
 import { handleDomainError } from '../handle-domain-error.js'
 import {
+  errorResponse,
   generatePdfQuery,
   idParam,
   policyPdfResponse,
-  errorResponse,
 } from './_schemas.js'
+
+const logger = pino({ name: 'generate-policy-pdf' })
 
 interface ClientFullData {
   name: string

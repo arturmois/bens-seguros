@@ -5,11 +5,11 @@ import { hashDocument, stripNonDigits } from '@repo/shared'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
-import { errorResponse } from '../../_shared/response.schema.js'
+import { errorResponse } from '../../shared/response.schema.js'
 import {
   createInternalClaimBodySchema,
   createInternalClaimResponse,
-} from './_schemas.js'
+} from './schemas/index.js'
 
 const DOCUMENT_CPF_LENGTH = 11
 const DOCUMENT_CNPJ_LENGTH = 14

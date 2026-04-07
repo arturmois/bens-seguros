@@ -13,9 +13,9 @@ import { auditReject } from '../../../services/audit-logger.js'
 import { enqueueNotification } from '../../../services/notification-enqueuer.js'
 import { handleDomainError } from '../handle-domain-error.js'
 import {
+  commissionDetailResponse,
   commissionIdParam,
   rejectCommissionBody,
-  commissionDetailResponse,
 } from './_schemas.js'
 
 export async function rejectCommissionRoute(app: FastifyInstance) {

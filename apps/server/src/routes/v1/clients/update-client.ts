@@ -1,14 +1,14 @@
-import { container, UpdateClient, ClientPresenter } from '@repo/core'
+import { ClientPresenter, container, UpdateClient } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { auditUpdate } from '../../../services/audit-logger.js'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
+import { auditUpdate } from '../../../services/audit-logger.js'
+import { handleDomainError } from '../handle-domain-error.js'
 import {
+  clientDetailResponse,
   idParamSchema,
   updateClientBodySchema,
-  clientDetailResponse,
 } from './_schemas.js'
-import { handleDomainError } from '../handle-domain-error.js'
 
 export function updateClientRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

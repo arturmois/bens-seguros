@@ -1,5 +1,5 @@
-import type { FastifyInstance } from 'fastify'
 import type { Auth } from '@repo/auth'
+import type { FastifyInstance } from 'fastify'
 import type IORedis from 'ioredis'
 import { createAuthRateLimitHook } from '../middlewares/auth-rate-limit.js'
 

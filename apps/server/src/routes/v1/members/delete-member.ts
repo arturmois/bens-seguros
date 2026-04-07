@@ -1,12 +1,12 @@
+import type { Role } from '@repo/auth/roles'
+import { container, DeactivateMember, type CacheService } from '@repo/core'
+import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { prisma } from '@repo/db'
-import { container, type CacheService, DeactivateMember } from '@repo/core'
-import type { Role } from '@repo/auth/roles'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditDelete } from '../../../services/audit-logger.js'
-import { idParamSchema, memberDeleteResponse } from './_schemas.js'
 import { handleDomainError } from '../handle-domain-error.js'
+import { idParamSchema, memberDeleteResponse } from './_schemas.js'
 
 function resolveCache(): CacheService | null {
   try {

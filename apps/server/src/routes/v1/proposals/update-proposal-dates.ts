@@ -4,10 +4,10 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { handleDomainError } from '../handle-domain-error.js'
 import {
-  idParam,
-  updateProposalDatesBody,
-  proposalDetailResponse,
   errorResponse,
+  idParam,
+  proposalDetailResponse,
+  updateProposalDatesBody,
 } from './_schemas.js'
 
 export function updateProposalDatesRoute(app: FastifyInstance) {

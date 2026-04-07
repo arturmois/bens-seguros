@@ -1,17 +1,17 @@
 import {
   container,
-  UpdateProposalDetails,
   isInsuredObjectDetails,
+  UpdateProposalDetails,
 } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
-import { errorResponse } from '../../_shared/response.schema.js'
+import { errorResponse } from '../../shared/response.schema.js'
 import {
   updateInternalProposalDetailsBodySchema,
   updateInternalProposalDetailsParamsSchema,
   updateInternalProposalDetailsResponse,
-} from './_schemas.js'
+} from './schemas/index.js'
 
 export function updateInternalProposalDetailsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

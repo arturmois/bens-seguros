@@ -1,11 +1,11 @@
+import { container, type CacheService, type StorageProvider } from '@repo/core'
+import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { container, type StorageProvider, type CacheService } from '@repo/core'
-import { prisma } from '@repo/db'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditUpdate } from '../../../services/audit-logger.js'
+import { errorResponse } from '../../shared/response.schema.js'
 import { organizationDetailResponse } from './_schemas.js'
-import { errorResponse } from '../../_shared/response.schema.js'
 
 const ALLOWED_IMAGE_TYPES = new Set([
   'image/jpeg',

@@ -1,6 +1,6 @@
+import { container, MarkAllNotificationsAsRead } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { container, MarkAllNotificationsAsRead } from '@repo/core'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { markAllAsReadResponse } from './_schemas.js'
 

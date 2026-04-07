@@ -2,8 +2,8 @@ import { container, CreateProposal } from '@repo/core'
 import { createTenantClient } from '@repo/db/tenant'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { createLeadBodySchema, createLeadResponse } from './_schemas.js'
-import { errorResponse } from '../../_shared/response.schema.js'
+import { errorResponse } from '../../shared/response.schema.js'
+import { createLeadBodySchema, createLeadResponse } from './schemas/index.js'
 
 const INSURANCE_TYPE_TO_BRANCH: Record<string, string> = {
   AUTO: 'AUTO',

@@ -3,7 +3,7 @@ import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { listAuditLogsQuerySchema, auditLogListResponse } from './_schemas.js'
+import { auditLogListResponse, listAuditLogsQuerySchema } from './_schemas.js'
 
 export function listAuditLogsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

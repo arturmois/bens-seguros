@@ -5,10 +5,10 @@ import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditUpdate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
 import {
-  idParam,
-  updateProposalDetailsBody,
-  proposalDetailResponse,
   errorResponse,
+  idParam,
+  proposalDetailResponse,
+  updateProposalDetailsBody,
 } from './_schemas.js'
 
 export function updateProposalDetailsRoute(app: FastifyInstance) {

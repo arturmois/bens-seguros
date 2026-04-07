@@ -7,7 +7,7 @@ import {
 import { RATE_LIMITS } from '@repo/shared'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { errorResponse } from '../../_shared/response.schema.js'
+import { errorResponse } from '../../shared/response.schema.js'
 import { handleDomainError } from '../handle-domain-error.js'
 import {
   acceptInvitationBodySchema,

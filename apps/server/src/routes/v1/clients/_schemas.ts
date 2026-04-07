@@ -1,18 +1,18 @@
 import { z } from 'zod'
 
-import { paginationQuery } from '../../_shared/pagination.schema.js'
-import { idParam } from '../../_shared/params.schema.js'
+import { maritalStatusEnum } from '../../shared/enums.schema.js'
+import { paginationQuery } from '../../shared/pagination.schema.js'
+import { idParam } from '../../shared/params.schema.js'
 import {
-  optionalString,
+  errorResponse,
+  paginatedResponse,
+  successResponse,
+} from '../../shared/response.schema.js'
+import {
   optionalDate,
   optionalEmail,
-} from '../../_shared/transforms.js'
-import {
-  successResponse,
-  paginatedResponse,
-  errorResponse,
-} from '../../_shared/response.schema.js'
-import { maritalStatusEnum } from '../../_shared/enums.schema.js'
+  optionalString,
+} from '../../shared/transforms.js'
 
 const CLIENT_TYPE_VALUES = ['LEAD', 'CLIENT', 'FORMER_CLIENT'] as const
 export const PERSON_TYPE_VALUES = ['INDIVIDUAL', 'COMPANY'] as const

@@ -11,7 +11,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { ProposalQuotePdf } from '../../../pdf-templates/proposal-quote-pdf.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { idParam, proposalPdfResponse, errorResponse } from './_schemas.js'
+import { errorResponse, idParam, proposalPdfResponse } from './_schemas.js'
 
 export function generateProposalPdfRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

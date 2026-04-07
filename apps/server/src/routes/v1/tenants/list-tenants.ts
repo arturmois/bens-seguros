@@ -1,8 +1,8 @@
+import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { prisma } from '@repo/db'
+import { errorResponse } from '../../shared/response.schema.js'
 import { tenantListResponse } from './_schemas.js'
-import { errorResponse } from '../../_shared/response.schema.js'
 
 interface OrganizationData {
   id: string

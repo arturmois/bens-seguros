@@ -1,8 +1,8 @@
+import { container, MarkNotificationAsRead } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { container, MarkNotificationAsRead } from '@repo/core'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
-import { notificationIdParamSchema, markAsReadResponse } from './_schemas.js'
+import { markAsReadResponse, notificationIdParamSchema } from './_schemas.js'
 
 export function markAsReadRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({

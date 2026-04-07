@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
-import { idParam } from '../../_shared/params.schema.js'
+import { idParam } from '../../shared/params.schema.js'
 import {
-  successResponse,
   paginatedResponse,
-} from '../../_shared/response.schema.js'
+  successResponse,
+} from '../../shared/response.schema.js'
 
 const ASSISTANCE_STATUS_VALUES = [
   'REQUESTED',

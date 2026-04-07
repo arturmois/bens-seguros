@@ -4,8 +4,8 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import {
-  listAssistancesQuerySchema,
   assistanceListResponse,
+  listAssistancesQuerySchema,
 } from './_schemas.js'
 
 export function listAssistancesRoute(app: FastifyInstance) {
