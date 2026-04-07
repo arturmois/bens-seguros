@@ -117,8 +117,9 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  members     Member[]
-  invitations Invitation[]
+  members                Member[]
+  invitations            Invitation[]
+  proposalChecklistItems ProposalChecklistItem[]
 }
 
 model Member {
@@ -351,20 +352,23 @@ model Proposal {
 }
 
 model ProposalChecklistItem {
-  id          String    @id @default(cuid())
-  proposalId  String
-  itemKey     String
-  label       String
-  isRequired  Boolean   @default(true)
-  isCompleted Boolean   @default(false)
-  completedAt DateTime?
-  completedBy String?
-  createdAt   DateTime  @default(now())
+  id             String    @id @default(cuid())
+  organizationId String
+  proposalId     String
+  itemKey        String
+  label          String
+  isRequired     Boolean   @default(true)
+  isCompleted    Boolean   @default(false)
+  completedAt    DateTime?
+  completedBy    String?
+  createdAt      DateTime  @default(now())
 
-  proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
+  proposal     Proposal     @relation(fields: [proposalId], references: [id], onDelete: Cascade)
 
   @@unique([proposalId, itemKey])
   @@index([proposalId])
+  @@index([organizationId, proposalId])
 }
 
 model Policy {

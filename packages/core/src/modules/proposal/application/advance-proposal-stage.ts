@@ -50,6 +50,7 @@ export class AdvanceProposalStage {
       if (newItems.length > 0) {
         await this.checklistRepo.createMany(
           proposalId,
+          organizationId,
           newItems.map((i) => ({
             itemKey: i.itemKey,
             label: i.label,

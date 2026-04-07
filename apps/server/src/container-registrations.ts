@@ -1,4 +1,5 @@
 import {
+  AcceptInvitation,
   AdvanceProposalStage,
   ApproveCommissionAdmin,
   ApproveCommissionCommercial,
@@ -20,10 +21,8 @@ import {
   DeleteClient,
   DeleteDocument,
   ExportClientsCsv,
-  ParseClientImport,
   ExportCommissionsCsv,
   ExportPoliciesCsv,
-  ParsePolicyImport,
   ExportProposalsCsv,
   GetAssistance,
   GetClaim,
@@ -50,8 +49,9 @@ import {
   MarkAllNotificationsAsRead,
   MarkNotificationAsRead,
   MarkProposalLost,
-  ReopenProposal,
   OnPolicyIssued,
+  ParseClientImport,
+  ParsePolicyImport,
   PayCommission,
   PrismaAssistanceRepository,
   PrismaChecklistRepository,
@@ -61,22 +61,24 @@ import {
   PrismaDocumentRepository,
   PrismaEndorsementRepository,
   PrismaInsurerRepository,
+  PrismaInvitationRepository,
   PrismaMemberRepository,
   PrismaNotificationRepository,
   PrismaOccurrenceRepository,
   PrismaPolicyRepository,
   PrismaProposalRepository,
   R2StorageProvider,
-  RejectCommission,
-  ReverseCommission,
   RedisCacheService,
+  RejectCommission,
+  ReopenProposal,
+  ReverseCommission,
   StaticChecklistConfig,
   UpdateAssistanceStatus,
   UpdateClaimStatus,
   UpdateClient,
+  UpdateInsurer,
   UpdateMemberRole,
   UpdateProposalDetails,
-  UpdateInsurer,
   UploadDocument,
 } from '@repo/core'
 import { prisma } from '@repo/db'
@@ -319,6 +321,13 @@ export function registerDependencies(redis: Redis | null = null) {
   })
   container.register(DeactivateMember, {
     useFactory: () => new DeactivateMember(memberRepo),
+  })
+
+  // Invitation use cases
+  const invitationRepo = new PrismaInvitationRepository(prisma)
+  container.register('InvitationRepository', { useValue: invitationRepo })
+  container.register(AcceptInvitation, {
+    useFactory: () => new AcceptInvitation(invitationRepo),
   })
 
   // Notification use cases

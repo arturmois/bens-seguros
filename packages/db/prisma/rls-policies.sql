@@ -14,10 +14,10 @@
 --   3. If app.current_tenant is not set, current_setting(..., true) returns NULL
 --      which matches 0 rows — safe default (deny all)
 --
--- Tables with RLS enabled (15):
+-- Tables with RLS enabled (16):
 --
 --   STRICT policy (no IS NULL escape — always queried through tenantPrisma):
---     Client, Proposal, Policy, Claim, Commission,
+--     Client, Proposal, ProposalChecklistItem, Policy, Claim, Commission,
 --     Endorsement, Assistance, Document, Notification, AuditLog,
 --     Occurrence, Insurer
 --
@@ -40,6 +40,7 @@
 -- Enable RLS
 ALTER TABLE "Client" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Proposal" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "ProposalChecklistItem" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Policy" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Claim" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Commission" ENABLE ROW LEVEL SECURITY;
@@ -56,6 +57,9 @@ CREATE POLICY tenant_isolation ON "Client"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
 CREATE POLICY tenant_isolation ON "Proposal"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+CREATE POLICY tenant_isolation ON "ProposalChecklistItem"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
 CREATE POLICY tenant_isolation ON "Policy"
@@ -91,6 +95,7 @@ CREATE POLICY tenant_isolation ON "Insurer"
 -- Force RLS for table owner too (defense-in-depth)
 ALTER TABLE "Client" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Proposal" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "ProposalChecklistItem" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Policy" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Claim" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Commission" FORCE ROW LEVEL SECURITY;
@@ -135,6 +140,7 @@ ALTER TABLE "AuditLogArchive" FORCE ROW LEVEL SECURITY;
 -- ============================================================================
 -- DROP POLICY IF EXISTS tenant_isolation ON "Client";
 -- DROP POLICY IF EXISTS tenant_isolation ON "Proposal";
+-- DROP POLICY IF EXISTS tenant_isolation ON "ProposalChecklistItem";
 -- DROP POLICY IF EXISTS tenant_isolation ON "Policy";
 -- DROP POLICY IF EXISTS tenant_isolation ON "Claim";
 -- DROP POLICY IF EXISTS tenant_isolation ON "Commission";
@@ -151,6 +157,7 @@ ALTER TABLE "AuditLogArchive" FORCE ROW LEVEL SECURITY;
 --
 -- ALTER TABLE "Client" DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE "Proposal" DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE "ProposalChecklistItem" DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE "Policy" DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE "Claim" DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE "Commission" DISABLE ROW LEVEL SECURITY;

@@ -66,6 +66,7 @@ export class CreateProposal {
     if (items.length > 0) {
       await this.checklistRepo.createMany(
         proposal.id,
+        proposal.organizationId,
         items.map((i) => ({
           itemKey: i.itemKey,
           label: i.label,

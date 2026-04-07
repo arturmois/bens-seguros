@@ -1,14 +1,19 @@
+import type { Auth } from '@repo/auth'
+import {
+  AcceptInvitation,
+  container,
+  type InvitationRepository,
+} from '@repo/core'
+import { RATE_LIMITS } from '@repo/shared'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import type { Auth } from '@repo/auth'
-import { RATE_LIMITS } from '@repo/shared'
-import { prisma } from '@repo/db'
+import { errorResponse } from '../../_shared/response.schema.js'
+import { handleDomainError } from '../handle-domain-error.js'
 import {
-  idParamSchema,
   acceptInvitationBodySchema,
   acceptInvitationResponse,
+  idParamSchema,
 } from './_schemas.js'
-import { errorResponse } from '../../_shared/response.schema.js'
 
 function errorReply(
   reply: FastifyReply,
@@ -65,44 +70,17 @@ export function acceptInvitationRoute(app: FastifyInstance, auth: Auth) {
       const { id } = request.params
       const body = request.body
 
-      // 1. Validate invitation
-      const invitation = await prisma.invitation.findUnique({
-        where: { id },
-      })
-
-      if (!invitation) {
+      // 1. Fetch invitation email for auth (validation happens in the use case)
+      const invitationRepo = container.resolve<InvitationRepository>(
+        'InvitationRepository'
+      )
+      const invitation = await invitationRepo.findById(id)
+      if (!invitation || invitation.status === 'canceled') {
         return errorReply(
           reply,
           404,
           'INVITATION_NOT_FOUND',
           'Convite não encontrado'
-        )
-      }
-
-      if (invitation.status === 'accepted') {
-        return errorReply(
-          reply,
-          400,
-          'INVITATION_ALREADY_ACCEPTED',
-          'Este convite já foi aceito'
-        )
-      }
-
-      if (invitation.status === 'canceled') {
-        return errorReply(
-          reply,
-          404,
-          'INVITATION_NOT_FOUND',
-          'Convite não encontrado'
-        )
-      }
-
-      if (invitation.expiresAt < new Date()) {
-        return errorReply(
-          reply,
-          400,
-          'INVITATION_EXPIRED',
-          'Este convite expirou'
         )
       }
 
@@ -125,12 +103,6 @@ export function acceptInvitationRoute(app: FastifyInstance, auth: Auth) {
           })
 
           userId = signUpResult.response.user.id
-
-          // Mark email as verified (accepting an invitation = implicit verification)
-          await prisma.user.update({
-            where: { id: userId },
-            data: { emailVerified: true },
-          })
 
           // With requireEmailVerification, signUp does NOT create a session.
           // Now that email is verified, sign in to establish the session.
@@ -186,48 +158,20 @@ export function acceptInvitationRoute(app: FastifyInstance, auth: Auth) {
         }
       }
 
-      // 4. Check if already a member
-      const existingMember = await prisma.member.findUnique({
-        where: {
-          organizationId_userId: {
-            organizationId: invitation.organizationId,
-            userId,
-          },
-        },
-      })
-
-      if (existingMember) {
-        await prisma.invitation.update({
-          where: { id },
-          data: { status: 'accepted' },
-        })
-        return errorReply(
-          reply,
-          409,
-          'ALREADY_MEMBER',
-          'Você já faz parte desta organização'
-        )
+      // 4. Accept the invitation (validates status/expiry, checks membership, creates member)
+      let result: { organizationId: string; role: string }
+      try {
+        result = await container
+          .resolve(AcceptInvitation)
+          .execute({ invitationId: id, userId })
+      } catch (err) {
+        return handleDomainError(err, reply)
       }
 
-      // 5. Create member + mark invitation accepted in a transaction
-      await prisma.$transaction([
-        prisma.member.create({
-          data: {
-            organizationId: invitation.organizationId,
-            userId,
-            role: invitation.role,
-          },
-        }),
-        prisma.invitation.update({
-          where: { id },
-          data: { status: 'accepted' },
-        }),
-      ])
-
-      // 6. Set active organization in Better Auth session
+      // 5. Set active organization in Better Auth session
       try {
         const setOrgResult = await auth.api.setActiveOrganization({
-          body: { organizationId: invitation.organizationId },
+          body: { organizationId: result.organizationId },
           headers: authHeaders,
           returnHeaders: true,
         })
@@ -244,8 +188,8 @@ export function acceptInvitationRoute(app: FastifyInstance, auth: Auth) {
       return reply.send({
         success: true,
         data: {
-          organizationId: invitation.organizationId,
-          role: invitation.role,
+          organizationId: result.organizationId,
+          role: result.role,
         },
       })
     },

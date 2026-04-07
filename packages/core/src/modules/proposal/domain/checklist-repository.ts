@@ -21,6 +21,7 @@ export interface ChecklistSummary {
 export interface ChecklistRepository {
   createMany(
     proposalId: string,
+    organizationId: string,
     items: Array<{ itemKey: string; label: string; isRequired: boolean }>
   ): Promise<void>
   findByProposal(proposalId: string): Promise<ChecklistItemData[]>

@@ -7,6 +7,7 @@ import type {
 
 interface ChecklistRow {
   id: string
+  organizationId: string
   proposalId: string
   itemKey: string
   label: string
@@ -52,11 +53,13 @@ export class PrismaChecklistRepository implements ChecklistRepository {
 
   async createMany(
     proposalId: string,
+    organizationId: string,
     items: Array<{ itemKey: string; label: string; isRequired: boolean }>
   ): Promise<void> {
     await this.prisma.proposalChecklistItem.createMany({
       data: items.map((item) => ({
         proposalId,
+        organizationId,
         itemKey: item.itemKey,
         label: item.label,
         isRequired: item.isRequired,

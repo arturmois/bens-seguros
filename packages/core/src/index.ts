@@ -11,24 +11,24 @@ export {
   MAX_EXPORT_ROWS,
 } from './shared/csv-utils.js'
 
-export type {
-  CsvRowError,
-  CsvValidationSummary,
-  CsvImportParseResult,
-  CsvImportJobData,
-  CsvImportProgress,
-} from './shared/csv-import-types.js'
 export {
   CsvImportError,
-  MAX_IMPORT_FILE_SIZE,
-  MAX_IMPORT_ROWS,
   IMPORT_BATCH_SIZE,
   MAX_IMPORT_ERRORS,
+  MAX_IMPORT_FILE_SIZE,
+  MAX_IMPORT_ROWS,
+} from './shared/csv-import-types.js'
+export type {
+  CsvImportJobData,
+  CsvImportParseResult,
+  CsvImportProgress,
+  CsvRowError,
+  CsvValidationSummary,
 } from './shared/csv-import-types.js'
 
 export {
-  CURRENT_TERMS_VERSION,
   CURRENT_PRIVACY_VERSION,
+  CURRENT_TERMS_VERSION,
 } from './shared/legal-constants.js'
 
 // Domain modules
@@ -47,6 +47,7 @@ export * from './modules/commission/index.js'
 export * from './modules/document/index.js'
 export * from './modules/endorsement/index.js'
 export * from './modules/insurer/index.js'
+export * from './modules/invitation/index.js'
 export * from './modules/member/index.js'
 export * from './modules/notification/index.js'
 export * from './modules/occurrence/index.js'

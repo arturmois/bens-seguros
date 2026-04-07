@@ -24,7 +24,7 @@ function assertCanManageRole(
   callerRole: MemberRole,
   targetRole: MemberRole
 ): void {
-  if (MEMBER_ROLE_HIERARCHY[callerRole] <= MEMBER_ROLE_HIERARCHY[targetRole]) {
+  if (MEMBER_ROLE_HIERARCHY[callerRole] < MEMBER_ROLE_HIERARCHY[targetRole]) {
     throw new RoleHierarchyError()
   }
 }

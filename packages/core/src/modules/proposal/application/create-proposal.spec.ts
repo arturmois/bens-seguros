@@ -96,10 +96,14 @@ describe('CreateProposal', () => {
     })
 
     expect(checklistConfig.getItems).toHaveBeenCalledWith('CAPTURE', 'AUTO')
-    expect(checklistRepo.createMany).toHaveBeenCalledWith(expect.any(String), [
-      { itemKey: 'CNH', label: 'CNH do segurado', isRequired: true },
-      { itemKey: 'CRLV', label: 'CRLV do veiculo', isRequired: true },
-    ])
+    expect(checklistRepo.createMany).toHaveBeenCalledWith(
+      expect.any(String),
+      'org-1',
+      [
+        { itemKey: 'CNH', label: 'CNH do segurado', isRequired: true },
+        { itemKey: 'CRLV', label: 'CRLV do veiculo', isRequired: true },
+      ]
+    )
   })
 
   it('skips checklist creation when config returns no items', async () => {
