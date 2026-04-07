@@ -107,6 +107,7 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
               <AvatarFallback>
                 {client.name
                   .split(' ')
+                  .filter(Boolean)
                   .map((n) => n[0])
                   .join('')
                   .slice(0, 2)

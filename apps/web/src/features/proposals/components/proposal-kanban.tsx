@@ -278,7 +278,7 @@ export function ProposalKanban({
         onClose={() => setSelectedProposal(null)}
         onAdvanceSuccess={(proposalId) => {
           const nextStage = selectedProposal
-            ? getNextStage(selectedProposal.stage, visibleStages)
+            ? getNextStage(selectedProposal.stage, STAGES)
             : null
           setSelectedProposal(null)
           void queryClient.invalidateQueries({
