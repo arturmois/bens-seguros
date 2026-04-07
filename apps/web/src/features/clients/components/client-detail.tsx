@@ -12,6 +12,7 @@ import {
   RefreshCw,
 } from 'lucide-react'
 
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -25,6 +26,9 @@ import { formatDocument } from '@/lib/masks'
 import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
 import { useClient, useDeleteClient } from '../hooks/use-clients'
 import { ClientForm } from './client-form'
+import { ClientHistoryTab } from './client-history-tab'
+import { ClientPoliciesTab } from './client-policies-tab'
+import { ClientProposalsTab } from './client-proposals-tab'
 import { DeleteClientDialog } from './delete-client-dialog'
 
 interface ClientDetailContentProps {
@@ -98,18 +102,30 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
 
       <div className="rounded-lg border p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold tracking-tight">
-                {client.name}
-              </h1>
-              <Badge variant={TYPE_BADGE_VARIANT[client.type]}>
-                {TYPE_LABELS[client.type]}
-              </Badge>
+          <div className="flex items-start gap-4">
+            <Avatar className="size-12 shrink-0 text-lg font-semibold">
+              <AvatarFallback>
+                {client.name
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')
+                  .slice(0, 2)
+                  .toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="space-y-1">
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-semibold tracking-tight">
+                  {client.name}
+                </h1>
+                <Badge variant={TYPE_BADGE_VARIANT[client.type]}>
+                  {TYPE_LABELS[client.type]}
+                </Badge>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                {formatDocument(client.document)}
+              </p>
             </div>
-            <p className="text-muted-foreground text-sm">
-              {formatDocument(client.document)}
-            </p>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -152,14 +168,29 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
         </div>
       </div>
 
-      <Tabs defaultValue="documents">
+      <Tabs defaultValue="proposals">
         <TabsList>
+          <TabsTab value="proposals">Propostas</TabsTab>
+          <TabsTab value="policies">Apólices</TabsTab>
           <TabsTab value="documents">Documentos</TabsTab>
+          <TabsTab value="history">Histórico</TabsTab>
         </TabsList>
+
+        <TabsContent value="proposals" className="mt-4">
+          <ClientProposalsTab clientId={clientId} />
+        </TabsContent>
+
+        <TabsContent value="policies" className="mt-4">
+          <ClientPoliciesTab clientId={clientId} />
+        </TabsContent>
 
         <TabsContent value="documents" className="mt-4 space-y-4">
           <DocumentUpload entityType="CLIENT" entityId={clientId} />
           <DocumentList entityType="CLIENT" entityId={clientId} />
+        </TabsContent>
+
+        <TabsContent value="history" className="mt-4">
+          <ClientHistoryTab clientId={clientId} />
         </TabsContent>
       </Tabs>
 
