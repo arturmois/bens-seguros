@@ -18,8 +18,8 @@ export function ClientImportButton() {
         onClick={() => setOpen(true)}
         aria-label="Importar clientes via CSV"
       >
-        <Upload className="mr-2 h-4 w-4" />
-        Importar
+        <Upload className="h-4 w-4 sm:mr-2" />
+        <span className="hidden sm:inline">Importar</span>
       </Button>
       <ImportDialog open={open} onOpenChange={setOpen} />
     </>

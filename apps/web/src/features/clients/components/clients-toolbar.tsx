@@ -77,8 +77,8 @@ export function ClientsToolbar({
         <ClientImportButton />
         <ClientExportButton filters={currentFilters} />
         <Button onClick={onNewClient}>
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Cliente
+          <Plus className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Novo Cliente</span>
         </Button>
       </div>
     </div>

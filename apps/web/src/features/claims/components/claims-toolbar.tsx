@@ -56,8 +56,8 @@ export function ClaimsToolbar({
         </div>
         <Button asChild>
           <Link href="/claims/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Novo Sinistro
+            <Plus className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Novo Sinistro</span>
           </Link>
         </Button>
       </div>

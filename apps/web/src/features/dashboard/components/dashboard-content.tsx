@@ -80,7 +80,7 @@ export function DashboardContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-end gap-2">
+      <div className="flex items-center justify-end gap-2 overflow-x-auto">
         <Button
           variant="outline"
           size="sm"
@@ -88,11 +88,11 @@ export function DashboardContent() {
           disabled={exportPdf.isPending || isLoading}
         >
           {exportPdf.isPending ? (
-            <Loader2 className="mr-2 size-4 animate-spin" />
+            <Loader2 className="size-4 animate-spin sm:mr-2" />
           ) : (
-            <Download className="mr-2 size-4" />
+            <Download className="size-4 sm:mr-2" />
           )}
-          Exportar PDF
+          <span className="hidden sm:inline">Exportar PDF</span>
         </Button>
         <DashboardPeriodFilter preset={preset} onPresetChange={setPreset} />
       </div>
