@@ -62,6 +62,9 @@ COPY --from=builder /app/packages/db/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/apps/server/dist ./server/dist
 COPY --from=builder /app/apps/worker/dist ./worker/dist
 
+RUN addgroup --system app && adduser --system --ingroup app app
+USER app
+
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD node -e "fetch('http://localhost:3001/health').then(r=>{if(!r.ok)throw r;process.exit(0)}).catch(()=>process.exit(1))"
 

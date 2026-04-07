@@ -11,10 +11,10 @@
     "./types": "./src/types.ts"
   },
   "dependencies": {
+    "@casl/ability": "^6.7.0",
     "@repo/db": "workspace:*",
     "@repo/env": "workspace:*",
     "better-auth": "^1.0.0",
-    "@casl/ability": "^6.7.0",
     "zod": "^3.24.0"
   },
   "scripts": {
@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@config/typescript-config": "workspace:*",
+    "@vitest/coverage-v8": "^3.0.0",
     "typescript": "^5.9.0",
     "vitest": "^3.0.0"
   }

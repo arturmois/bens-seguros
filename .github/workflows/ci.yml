@@ -18,9 +18,15 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Security audit
+        run: pnpm audit --audit-level high
+        continue-on-error: true
       - run: DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" pnpm --filter @repo/db db:generate
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm build
         if: github.event_name == 'pull_request'
       - run: pnpm test
+      - name: Coverage report
+        run: pnpm test -- --coverage
+        continue-on-error: true

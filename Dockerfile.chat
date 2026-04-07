@@ -39,6 +39,9 @@ COPY --from=builder /app/apps/chat-server/dist ./chat-server/dist
 COPY --from=builder /app/apps/chat-worker/dist ./chat-worker/dist
 COPY --from=builder /app/apps/widget/dist ./widget/dist
 
+RUN addgroup --system app && adduser --system --ingroup app app
+USER app
+
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD node -e "fetch('http://localhost:3002/health').then(r=>{if(!r.ok)throw r;process.exit(0)}).catch(()=>process.exit(1))"
 

@@ -1,13 +1,9 @@
 import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
 import fastifyStatic from '@fastify/static'
-import { existsSync, readFileSync } from 'node:fs'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { env } from '@repo/env'
-import mongoose from 'mongoose'
-import { createAdapter } from '@socket.io/redis-adapter'
 import * as Sentry from '@sentry/node'
+import { createAdapter } from '@socket.io/redis-adapter'
 import type {
   FastifyError,
   FastifyInstance,
@@ -20,11 +16,14 @@ import {
   validatorCompiler,
 } from 'fastify-type-provider-zod'
 import type IORedis from 'ioredis'
+import mongoose from 'mongoose'
+import { existsSync, readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { Server } from 'socket.io'
 import { ZodError } from 'zod'
 
 import { chatAuthMiddleware } from './infra/http/middleware/chat-auth-middleware.js'
-import { PINO_REDACT_CONFIG } from './infra/logger.js'
 import { aiAgentRoutes } from './infra/http/routes/ai-agent-routes.js'
 import { channelRoutes } from './infra/http/routes/channel-routes.js'
 import { conversationRoutes } from './infra/http/routes/conversation-routes.js'
@@ -35,6 +34,7 @@ import {
 import { webhookRoutes } from './infra/http/routes/webhook-routes.js'
 import { rateLimitHook } from './infra/http/routes/widget-helpers.js'
 import { widgetRoutes } from './infra/http/routes/widget-routes.js'
+import { PINO_REDACT_CONFIG } from './infra/logger.js'
 import type { PresenceTracker } from './infra/socket/presence-tracker.js'
 import { createSocketAuthMiddleware } from './infra/socket/socket-auth.js'
 import { setupSocketHandlers } from './infra/socket/socket-handler.js'
