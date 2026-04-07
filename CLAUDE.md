@@ -6,9 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Multi-tenant SaaS ERP for Brazilian insurance brokers. Monorepo with 6 apps + 7 packages + 3 config packages.
+Multi-tenant SaaS ERP for Brazilian insurance brokers. Monorepo with 7 apps + 7 packages + 3 config packages.
 
-**Spec:** `ESPECIFICACAO-FINAL.md` | **Plans:** `docs/plans/` | **UI:** `docs/UI-PATTERNS.md` | **Frontend:** `docs/FRONTEND-PATTERNS.md` | **Arch Decisions:** `docs/ARCHITECTURE-DECISIONS.md` | **Chat:** `docs/CHAT-SPEC.md` | **Multi-Channel:** `docs/MULTI-CHANNEL-SETUP.md` | **Security:** `docs/SECURITY-SPEC.md` | **Settings:** `docs/SETTINGS-DESIGN.md` | **Reference:** `_reference/`
+**Spec:** `docs/ESPECIFICACAO-FINAL.md` | **Plans:** `docs/plans/` | **UI:** `docs/UI-PATTERNS.md` | **Frontend:** `docs/FRONTEND-PATTERNS.md` | **Arch Decisions:** `docs/ARCHITECTURE-DECISIONS.md` | **Chat:** `docs/CHAT-SPEC.md` | **Multi-Channel:** `docs/MULTI-CHANNEL-SETUP.md` | **Security:** `docs/SECURITY-SPEC.md` | **Settings:** `docs/SETTINGS-DESIGN.md`
 
 ## Development Commands
 
@@ -97,6 +97,7 @@ Organization: **Corretora Exemplo** (slug: `corretora-exemplo`). Includes 8 insu
 | `apps/chat-worker` | BullMQ consumer         | Chat processors — AI responses, Baileys WhatsApp, Meta messaging |
 | `apps/worker`      | BullMQ consumer         | ERP processors — PDF generation, email sending, CSV imports      |
 | `apps/widget`      | Vite + React 19         | Embeddable web chat widget for customer-facing sites             |
+| `apps/design`      | Next.js (scaffold)      | Design system preview — inactive/empty                           |
 
 ### Packages
 
@@ -318,7 +319,7 @@ Organization: **Corretora Exemplo** (slug: `corretora-exemplo`). Includes 8 insu
 - **TDD for DDD Full modules:** write test -> fail -> implement -> pass -> refactor
 - **Unit tests:** all use cases, mocked repositories
 - **Integration tests:** repositories against real database (Docker test containers)
-- **E2E:** Playwright for 5 critical flows only
+- **E2E:** Playwright for 6 critical flows only
 - **Test names describe behavior:** `it('rejects commission from PAID status')`
 - **No test pollution:** each test is independent, no shared mutable state
 - **Arrange-Act-Assert pattern** in every test
