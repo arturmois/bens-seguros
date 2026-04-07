@@ -50,7 +50,7 @@ docker compose -f "$COMPOSE_FILE" pull $CONTAINERS
 # --- Run Prisma migrations BEFORE deploying new containers (server only) ---
 if [ "$SERVICE" = "server" ]; then
   echo "Running Prisma migrations on current container..."
-  docker compose -f "$COMPOSE_FILE" exec -T server npx prisma migrate deploy || {
+  docker compose -f "$COMPOSE_FILE" exec -T -u root server npx prisma migrate deploy || {
     echo "ERROR: Prisma migration failed! Aborting deploy."
     exit 1
   }
