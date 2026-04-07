@@ -47,10 +47,17 @@ echo "Pulling images with tag ${TAG}..."
 export TAG
 docker compose -f "$COMPOSE_FILE" pull $CONTAINERS
 
-# --- Run Prisma migrations BEFORE deploying new containers (server only) ---
+# --- Run Prisma migrations using the NEW image (server only) ---
+# Uses docker run (not exec) so the new image's --chown=app:app permissions apply.
 if [ "$SERVICE" = "server" ]; then
-  echo "Running Prisma migrations on current container..."
-  docker compose -f "$COMPOSE_FILE" exec -T server npx prisma migrate deploy || {
+  DOCKERHUB_USER=$(grep '^DOCKERHUB_USERNAME=' "${DEPLOY_DIR}/.env" | cut -d= -f2)
+  DB_URL=$(grep '^DATABASE_URL=' "${DEPLOY_DIR}/.env" | cut -d= -f2-)
+  IMAGE="${DOCKERHUB_USER}/bens-server:${TAG}"
+  NETWORK=$(docker inspect bens-seguros-postgres-1 --format='{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{end}}' 2>/dev/null || echo "bens-seguros_default")
+  echo "Running Prisma migrations with new image ${IMAGE}..."
+  docker run --rm --network="$NETWORK" \
+    -e DATABASE_URL="${DB_URL}" \
+    "$IMAGE" npx prisma migrate deploy || {
     echo "ERROR: Prisma migration failed! Aborting deploy."
     exit 1
   }
