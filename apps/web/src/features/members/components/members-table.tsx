@@ -119,21 +119,23 @@ export function MembersTable({
   }
 
   return (
-    <Table>
-      {TABLE_HEADERS}
-      <TableBody>
-        {members.map((member) => (
-          <MemberRow
-            key={member.id}
-            member={member}
-            canAct={canActOnMember(canManage, currentUserId, member)}
-            currentUserRole={currentUserRole}
-            removePending={removeMember.isPending}
-            onRemove={handleRemove}
-          />
-        ))}
-      </TableBody>
-    </Table>
+    <div className="rounded-md border">
+      <Table>
+        {TABLE_HEADERS}
+        <TableBody>
+          {members.map((member) => (
+            <MemberRow
+              key={member.id}
+              member={member}
+              canAct={canActOnMember(canManage, currentUserId, member)}
+              currentUserRole={currentUserRole}
+              removePending={removeMember.isPending}
+              onRemove={handleRemove}
+            />
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   )
 }
 
@@ -201,29 +203,31 @@ function MemberRow({
 
 function MembersTableSkeleton() {
   return (
-    <Table>
-      {TABLE_HEADERS}
-      <TableBody>
-        {Array.from({ length: 3 }, (_, index) => (
-          <TableRow key={index}>
-            <TableCell>
-              <Skeleton className="size-9 rounded-full" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-4 w-28" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-4 w-40" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-5 w-24" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="size-8" />
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <div className="rounded-md border">
+      <Table>
+        {TABLE_HEADERS}
+        <TableBody>
+          {Array.from({ length: 3 }, (_, index) => (
+            <TableRow key={index}>
+              <TableCell>
+                <Skeleton className="size-9 rounded-full" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-28" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-40" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-5 w-24" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="size-8" />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   )
 }

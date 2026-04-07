@@ -40,30 +40,32 @@ export function AiAgentsTable({
   onDelete,
 }: AiAgentsTableProps) {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Nome</TableHead>
-          <TableHead>Provider</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Canais</TableHead>
-          <TableHead className="w-12">
-            <span className="sr-only">Acoes</span>
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {agents.map((agent) => (
-          <AgentRow
-            key={agent.id}
-            agent={agent}
-            onEdit={onEdit}
-            onDuplicate={onDuplicate}
-            onDelete={onDelete}
-          />
-        ))}
-      </TableBody>
-    </Table>
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Nome</TableHead>
+            <TableHead>Provider</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Canais</TableHead>
+            <TableHead className="w-12">
+              <span className="sr-only">Ações</span>
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {agents.map((agent) => (
+            <AgentRow
+              key={agent.id}
+              agent={agent}
+              onEdit={onEdit}
+              onDuplicate={onDuplicate}
+              onDelete={onDelete}
+            />
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   )
 }
 
@@ -138,42 +140,44 @@ function AgentRow({ agent, onEdit, onDuplicate, onDelete }: AgentRowProps) {
 
 export function AiAgentsTableSkeleton() {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Nome</TableHead>
-          <TableHead>Provider</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Canais</TableHead>
-          <TableHead className="w-12">
-            <span className="sr-only">Acoes</span>
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {Array.from({ length: 3 }, (_, index) => (
-          <TableRow key={index}>
-            <TableCell>
-              <div className="flex flex-col gap-1">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-3 w-48" />
-              </div>
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-5 w-16" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-5 w-14" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-4 w-16" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="size-8" />
-            </TableCell>
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Nome</TableHead>
+            <TableHead>Provider</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Canais</TableHead>
+            <TableHead className="w-12">
+              <span className="sr-only">Ações</span>
+            </TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 3 }, (_, index) => (
+            <TableRow key={index}>
+              <TableCell>
+                <div className="flex flex-col gap-1">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-48" />
+                </div>
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-5 w-16" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-5 w-14" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-16" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="size-8" />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   )
 }

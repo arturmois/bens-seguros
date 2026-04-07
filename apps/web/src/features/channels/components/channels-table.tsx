@@ -44,31 +44,33 @@ export function ChannelsTable({
   onEmbed,
 }: ChannelsTableProps) {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Canal</TableHead>
-          <TableHead>Número</TableHead>
-          <TableHead>Conexão</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="w-12">
-            <span className="sr-only">Ações</span>
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {channels.map((channel) => (
-          <ChannelRow
-            key={channel.id}
-            channel={channel}
-            onEdit={onEdit}
-            onQrCode={onQrCode}
-            onDeactivate={onDeactivate}
-            onEmbed={onEmbed}
-          />
-        ))}
-      </TableBody>
-    </Table>
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Canal</TableHead>
+            <TableHead>Número</TableHead>
+            <TableHead>Conexão</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="w-12">
+              <span className="sr-only">Ações</span>
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {channels.map((channel) => (
+            <ChannelRow
+              key={channel.id}
+              channel={channel}
+              onEdit={onEdit}
+              onQrCode={onQrCode}
+              onDeactivate={onDeactivate}
+              onEmbed={onEmbed}
+            />
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   )
 }
 
@@ -143,39 +145,41 @@ function ChannelRow({
 
 export function ChannelsTableSkeleton() {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Canal</TableHead>
-          <TableHead>Número</TableHead>
-          <TableHead>Conexão</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="w-12">
-            <span className="sr-only">Ações</span>
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {Array.from({ length: 3 }, (_, index) => (
-          <TableRow key={index}>
-            <TableCell>
-              <Skeleton className="h-4 w-32" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-4 w-28" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-4 w-16" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-5 w-24" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="size-8" />
-            </TableCell>
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Canal</TableHead>
+            <TableHead>Número</TableHead>
+            <TableHead>Conexão</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="w-12">
+              <span className="sr-only">Ações</span>
+            </TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 3 }, (_, index) => (
+            <TableRow key={index}>
+              <TableCell>
+                <Skeleton className="h-4 w-32" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-28" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-16" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-5 w-24" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="size-8" />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   )
 }

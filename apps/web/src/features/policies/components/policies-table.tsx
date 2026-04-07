@@ -73,32 +73,36 @@ export function PoliciesTable() {
       />
 
       {isLoading ? (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nº Apólice</TableHead>
-              <TableHead className="hidden md:table-cell">Ramo</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="hidden text-right md:table-cell">
-                Valor
-              </TableHead>
-              <TableHead className="hidden md:table-cell">Vigência</TableHead>
-              <TableHead className="hidden lg:table-cell">Criado em</TableHead>
-              <TableHead className="w-10" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <TableRow key={`skeleton-${String(i)}`}>
-                {Array.from({ length: 7 }).map((_, j) => (
-                  <TableCell key={`skeleton-${String(i)}-${String(j)}`}>
-                    <Skeleton className="h-4 w-full" />
-                  </TableCell>
-                ))}
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nº Apólice</TableHead>
+                <TableHead className="hidden md:table-cell">Ramo</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="hidden text-right md:table-cell">
+                  Valor
+                </TableHead>
+                <TableHead className="hidden md:table-cell">Vigência</TableHead>
+                <TableHead className="hidden lg:table-cell">
+                  Criado em
+                </TableHead>
+                <TableHead className="w-10" />
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={`skeleton-${String(i)}`}>
+                  {Array.from({ length: 7 }).map((_, j) => (
+                    <TableCell key={`skeleton-${String(i)}-${String(j)}`}>
+                      <Skeleton className="h-4 w-full" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       ) : policies.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
           <Shield className="text-muted-foreground size-10" />
@@ -114,29 +118,31 @@ export function PoliciesTable() {
         </div>
       ) : (
         <>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nº Apólice</TableHead>
-                <TableHead>Ramo</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
-                <TableHead>Vigência</TableHead>
-                <TableHead>Criado em</TableHead>
-                <TableHead className="w-10" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {policies.map((policy: PolicyData) => (
-                <PolicyTableRow
-                  key={policy.id}
-                  policy={policy}
-                  onRowClick={(id) => router.push(`/policies/${id}`)}
-                  onCancelClick={setCancelTarget}
-                />
-              ))}
-            </TableBody>
-          </Table>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nº Apólice</TableHead>
+                  <TableHead>Ramo</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Valor</TableHead>
+                  <TableHead>Vigência</TableHead>
+                  <TableHead>Criado em</TableHead>
+                  <TableHead className="w-10" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {policies.map((policy: PolicyData) => (
+                  <PolicyTableRow
+                    key={policy.id}
+                    policy={policy}
+                    onRowClick={(id) => router.push(`/policies/${id}`)}
+                    onCancelClick={setCancelTarget}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </div>
 
           <div className="flex items-center justify-end gap-2">
             <Button

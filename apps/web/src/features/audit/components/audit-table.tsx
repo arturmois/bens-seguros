@@ -67,48 +67,50 @@ export function AuditTable({ filters, onLoadMore }: AuditTableProps) {
 
   return (
     <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Data</TableHead>
-            <TableHead>Ação</TableHead>
-            <TableHead>Entidade</TableHead>
-            <TableHead className="hidden sm:table-cell">ID</TableHead>
-            <TableHead className="w-10" />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {items.map((entry) => (
-            <TableRow key={entry.id}>
-              <TableCell className="text-muted-foreground text-xs">
-                {formatDate(entry.createdAt)}
-              </TableCell>
-              <TableCell>
-                <Badge
-                  variant={ACTION_VARIANT[entry.action] ?? 'default'}
-                  size="sm"
-                >
-                  {entry.action}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-sm">{entry.entityType}</TableCell>
-              <TableCell className="hidden truncate font-mono text-xs sm:table-cell">
-                {entry.entityId ?? '-'}
-              </TableCell>
-              <TableCell>
-                <Button
-                  variant="ghost"
-                  size="icon-xs"
-                  onClick={() => setSelectedEntry(entry)}
-                  aria-label="Ver detalhes"
-                >
-                  <Eye className="size-3.5" />
-                </Button>
-              </TableCell>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Data</TableHead>
+              <TableHead>Ação</TableHead>
+              <TableHead>Entidade</TableHead>
+              <TableHead className="hidden sm:table-cell">ID</TableHead>
+              <TableHead className="w-10" />
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {items.map((entry) => (
+              <TableRow key={entry.id}>
+                <TableCell className="text-muted-foreground text-xs">
+                  {formatDate(entry.createdAt)}
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant={ACTION_VARIANT[entry.action] ?? 'default'}
+                    size="sm"
+                  >
+                    {entry.action}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-sm">{entry.entityType}</TableCell>
+                <TableCell className="hidden truncate font-mono text-xs sm:table-cell">
+                  {entry.entityId ?? '-'}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={() => setSelectedEntry(entry)}
+                    aria-label="Ver detalhes"
+                  >
+                    <Eye className="size-3.5" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
       {nextCursor ? (
         <div className="mt-4 flex justify-center">
           <Button
