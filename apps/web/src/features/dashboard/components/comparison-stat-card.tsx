@@ -38,9 +38,9 @@ export function ComparisonStatCard({
     )
   }
 
+  const hasHistory = comparison && comparison.previous > 0
   const isPositive = comparison ? comparison.changePercent >= 0 : true
-  const showComparison =
-    comparison && (comparison.current > 0 || comparison.previous > 0)
+  const showComparison = comparison && hasHistory
 
   return (
     <Card>
@@ -49,8 +49,13 @@ export function ComparisonStatCard({
           {icon}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-muted-foreground text-sm">{title}</p>
-          <p className="text-2xl font-semibold tracking-tight">{value}</p>
+          <p className="text-muted-foreground truncate text-sm">{title}</p>
+          <p
+            className="truncate text-2xl font-semibold tracking-tight"
+            title={String(value)}
+          >
+            {value}
+          </p>
           {showComparison ? (
             <div className="flex items-center gap-1">
               {isPositive ? (
