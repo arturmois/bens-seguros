@@ -8,6 +8,7 @@ import {
   beforeEach,
 } from 'vitest'
 import { container } from '@repo/core'
+import type { Auth } from '@repo/auth'
 import type { FastifyInstance } from 'fastify'
 import {
   createTestApp,
@@ -35,7 +36,7 @@ const mockAcceptUseCase = {
 }
 
 function registerRoute(app: FastifyInstance) {
-  return acceptInvitationRoute(app, mockAuth as never)
+  return acceptInvitationRoute(app, mockAuth as unknown as Auth)
 }
 
 let app: Awaited<ReturnType<typeof createTestApp>>

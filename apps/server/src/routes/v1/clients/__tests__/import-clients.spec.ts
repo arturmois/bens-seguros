@@ -15,6 +15,7 @@ import {
   setTestContext,
   TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
+import { buildCsvMultipart } from '../../../../__tests__/helpers/multipart.js'
 import { importClientsRoutes } from '../import-clients.js'
 
 // Mock csv-import-enqueuer service (imported by import-clients handler)
@@ -49,23 +50,6 @@ beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
 })
-
-function buildCsvMultipart(
-  filename: string,
-  content: string,
-  boundary: string
-): Buffer {
-  const header =
-    `--${boundary}\r\n` +
-    `Content-Disposition: form-data; name="file"; filename="${filename}"\r\n` +
-    `Content-Type: text/csv\r\n\r\n`
-  const footer = `\r\n--${boundary}--\r\n`
-  return Buffer.concat([
-    Buffer.from(header),
-    Buffer.from(content),
-    Buffer.from(footer),
-  ])
-}
 
 const TEST_JOB_ID = '550e8400-e29b-41d4-a716-446655440000'
 

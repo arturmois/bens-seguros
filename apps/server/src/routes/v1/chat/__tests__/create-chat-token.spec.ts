@@ -79,7 +79,7 @@ describe('POST /api/v1/chat/token', () => {
   })
 
   it('returns 401 when organizationId is missing', async () => {
-    setTestContext({ organizationId: null as never })
+    setTestContext({ organizationId: null })
 
     const response = await injectAs(app, {
       method: 'POST',
@@ -93,7 +93,7 @@ describe('POST /api/v1/chat/token', () => {
   })
 
   it('returns 401 when role is missing', async () => {
-    setTestContext({ role: null as never })
+    setTestContext({ role: null })
 
     const response = await injectAs(app, {
       method: 'POST',

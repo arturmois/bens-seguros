@@ -12,8 +12,9 @@ import type { FastifyInstance } from 'fastify'
 import {
   createTestApp,
   setTestContext,
-  TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
+import { makeUpdatedOrganization } from '../../../../__tests__/helpers/factories.js'
+import { buildMultipartBody } from '../../../../__tests__/helpers/multipart.js'
 import { uploadLogoRoute } from '../upload-logo.js'
 
 vi.mock('@repo/db', async (importOriginal) => {
@@ -62,32 +63,6 @@ beforeEach(() => {
   setTestContext()
 })
 
-/**
- * Builds a minimal multipart/form-data body for a single file field.
- */
-function buildMultipartBody(
-  fieldName: string,
-  filename: string,
-  mimeType: string,
-  content: Buffer,
-  boundary: string
-): Buffer {
-  const header =
-    `--${boundary}\r\n` +
-    `Content-Disposition: form-data; name="${fieldName}"; filename="${filename}"\r\n` +
-    `Content-Type: ${mimeType}\r\n\r\n`
-  const footer = `\r\n--${boundary}--\r\n`
-  return Buffer.concat([Buffer.from(header), content, Buffer.from(footer)])
-}
-
-const makeUpdatedOrg = () => ({
-  id: TEST_ORG_ID,
-  name: 'Corretora Exemplo',
-  slug: 'corretora-exemplo',
-  logo: `organizations/${TEST_ORG_ID}/logo.png`,
-  createdAt: new Date('2024-01-01T00:00:00.000Z'),
-})
-
 describe('PUT /api/v1/organization/logo', () => {
   it('rejects non-multipart requests with 4xx status', async () => {
     // @fastify/multipart rejects non-multipart content-types with 406
@@ -105,12 +80,15 @@ describe('PUT /api/v1/organization/logo', () => {
 
   it('returns 200 with logo URL on successful PNG upload', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.organization.findUnique).mockResolvedValue({
-      id: TEST_ORG_ID,
-      logo: null,
-    } as never)
+    vi.mocked(prisma.organization.findUnique).mockResolvedValue(
+      makeUpdatedOrganization({ logo: null }) as unknown as Awaited<
+        ReturnType<typeof prisma.organization.findUnique>
+      >
+    )
     vi.mocked(prisma.organization.update).mockResolvedValue(
-      makeUpdatedOrg() as never
+      makeUpdatedOrganization() as unknown as Awaited<
+        ReturnType<typeof prisma.organization.update>
+      >
     )
 
     const boundary = '----TestBoundary1234567890'

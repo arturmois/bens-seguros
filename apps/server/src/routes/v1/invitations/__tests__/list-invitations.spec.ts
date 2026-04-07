@@ -11,8 +11,8 @@ import {
   createTestApp,
   injectAs,
   setTestContext,
-  TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
+import { makeInvitation } from '../../../../__tests__/helpers/factories.js'
 import { listInvitationsRoute } from '../list-invitations.js'
 
 vi.mock('@repo/db', async (importOriginal) => {
@@ -39,25 +39,12 @@ beforeEach(() => {
   setTestContext()
 })
 
-const makeInvitation = (overrides: Partial<Record<string, unknown>> = {}) => ({
-  id: 'invite-id-001',
-  organizationId: TEST_ORG_ID,
-  email: 'invited@user.com',
-  role: 'COMMERCIAL',
-  status: 'pending',
-  expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  inviterId: 'user-id-001',
-  createdAt: new Date('2024-01-01T00:00:00.000Z'),
-  updatedAt: new Date('2024-01-01T00:00:00.000Z'),
-  ...overrides,
-})
-
 describe('GET /api/v1/invitations', () => {
   it('returns 200 with pending invitation list', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.invitation.findMany).mockResolvedValue([
       makeInvitation(),
-    ] as never)
+    ] as unknown as Awaited<ReturnType<typeof prisma.invitation.findMany>>)
     vi.mocked(prisma.invitation.count).mockResolvedValue(1)
 
     const response = await injectAs(app, {
@@ -77,7 +64,9 @@ describe('GET /api/v1/invitations', () => {
 
   it('returns 200 with empty list when no pending invitations', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.invitation.findMany).mockResolvedValue([] as never)
+    vi.mocked(prisma.invitation.findMany).mockResolvedValue(
+      [] as unknown as Awaited<ReturnType<typeof prisma.invitation.findMany>>
+    )
     vi.mocked(prisma.invitation.count).mockResolvedValue(0)
 
     const response = await injectAs(app, {
@@ -98,7 +87,9 @@ describe('GET /api/v1/invitations', () => {
       makeInvitation({ id: 'invite-id-002' }),
     ]
     vi.mocked(prisma.invitation.findMany).mockResolvedValue(
-      invitations as never
+      invitations as unknown as Awaited<
+        ReturnType<typeof prisma.invitation.findMany>
+      >
     )
     vi.mocked(prisma.invitation.count).mockResolvedValue(2)
 

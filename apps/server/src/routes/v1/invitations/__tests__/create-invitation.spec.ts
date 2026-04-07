@@ -11,9 +11,12 @@ import {
   createTestApp,
   injectAs,
   setTestContext,
-  TEST_ORG_ID,
-  TEST_USER_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
+import {
+  makeCreatedInvitation,
+  makeMinimalMember,
+  makeInvitation,
+} from '../../../../__tests__/helpers/factories.js'
 import { createInvitationRoute } from '../create-invitation.js'
 
 vi.mock('@repo/db', async (importOriginal) => {
@@ -39,18 +42,6 @@ beforeEach(() => {
   setTestContext({ role: 'OWNER' })
 })
 
-const makeCreatedInvitation = () => ({
-  id: 'invite-id-001',
-  organizationId: TEST_ORG_ID,
-  email: 'newmember@user.com',
-  role: 'COMMERCIAL',
-  status: 'pending',
-  expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  inviterId: TEST_USER_ID,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-})
-
 const validBody = { email: 'newmember@user.com', role: 'COMMERCIAL' }
 
 describe('POST /api/v1/invitations', () => {
@@ -60,7 +51,9 @@ describe('POST /api/v1/invitations', () => {
     vi.mocked(prisma.member.findFirst).mockResolvedValue(null)
     vi.mocked(prisma.invitation.findFirst).mockResolvedValue(null)
     vi.mocked(prisma.invitation.create).mockResolvedValue(
-      makeCreatedInvitation() as never
+      makeCreatedInvitation() as unknown as Awaited<
+        ReturnType<typeof prisma.invitation.create>
+      >
     )
 
     const response = await injectAs(app, {
@@ -79,9 +72,11 @@ describe('POST /api/v1/invitations', () => {
 
   it('returns 409 when email is already an active member', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findFirst).mockResolvedValue({
-      id: 'member-id-001',
-    } as never)
+    vi.mocked(prisma.member.findFirst).mockResolvedValue(
+      makeMinimalMember({ id: 'member-id-001' }) as unknown as Awaited<
+        ReturnType<typeof prisma.member.findFirst>
+      >
+    )
 
     const response = await injectAs(app, {
       method: 'POST',
@@ -98,9 +93,11 @@ describe('POST /api/v1/invitations', () => {
   it('returns 409 when there is already a pending invitation for the email', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.member.findFirst).mockResolvedValue(null)
-    vi.mocked(prisma.invitation.findFirst).mockResolvedValue({
-      id: 'existing-invite-id',
-    } as never)
+    vi.mocked(prisma.invitation.findFirst).mockResolvedValue(
+      makeInvitation({ id: 'existing-invite-id' }) as unknown as Awaited<
+        ReturnType<typeof prisma.invitation.findFirst>
+      >
+    )
 
     const response = await injectAs(app, {
       method: 'POST',

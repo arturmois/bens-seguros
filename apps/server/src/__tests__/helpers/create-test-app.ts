@@ -16,10 +16,10 @@ export const TEST_USER = {
 }
 
 interface TestContext {
-  organizationId: string
-  user: typeof TEST_USER
+  organizationId: string | null
+  user: typeof TEST_USER | null
   session: { activeOrganizationId: string }
-  role: string
+  role: string | null
   tenantPrisma: unknown
 }
 

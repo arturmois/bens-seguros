@@ -20,10 +20,10 @@ Justificativa: O sistema e arquiteturalmente solido (DDD, DI,
 RBAC, RLS, Zod validation em toda boundary, zero any/
 console.log/eslint-disable). Todos os 62 findings foram
 corrigidos: P0 em #31, P1 em #32, P2 em #33, P3 em #35.
-Unico item deferido: P3 #8 (shared Zod schemas) — refactoring
-grande, sem risco funcional.
+Todos os 62 findings resolvidos. P3 #8 (shared Zod schemas)
+fechado — Orval gera types/schemas do OpenAPI spec para o frontend.
 
-Total de findings: 62 (P0: 4 ✅, P1: 9 ✅, P2: 27 ✅, P3: 20 ✅ + 1 deferido)
+Total de findings: 62 (P0: 4 ✅, P1: 9 ✅, P2: 27 ✅, P3: 21 ✅)
 ═══════════════════════════════════════════════════════════════
 ```
 
@@ -642,31 +642,31 @@ if (job?.data?.organizationId !== request.organizationId) return reply.status(40
 | 26  | E2E tests rasos (smoke only)                           | `e2e/tests/`                    |
 | 27  | tenant-client.ts query(args) fora do tx                | `tenant-client.ts:11`           |
 
-### P3 — MINOR (21 — 20 ✅ + 1 deferido)
+### P3 — MINOR (21 ✅)
 
-| #   | Finding                                                        | Status         |
-| --- | -------------------------------------------------------------- | -------------- |
-| 1   | Session 7 dias sem rotation em privilege escalation            | ✅ Corrigido   |
-| 2   | Cookie attributes implicitos (depende de Better Auth defaults) | ✅ Corrigido   |
-| 3   | Webhook verify token comparacao nao-constant-time              | ✅ Corrigido   |
-| 4   | Widget allowedOrigins vazio permite todas as origens           | ✅ Corrigido   |
-| 5   | Senha minima 8 chars (recomendado 12 para financial)           | ✅ Corrigido   |
-| 6   | HMAC reutiliza encryption key                                  | ✅ Corrigido   |
-| 7   | Baileys em RC (^7.0.0-rc.9)                                    | ✅ Corrigido   |
-| 8   | Frontend/backend Zod schemas nao compartilhados                | ⏳ Deferido    |
-| 9   | handle\*Error duplicado em 6 route files                       | ✅ Corrigido   |
-| 10  | Sem reopen LOST, sem backward transitions                      | ✅ Corrigido   |
-| 11  | Commission domain nao valida role do aprovador                 | ✅ Documentado |
-| 12  | Conversion rate usa createdAt                                  | ✅ Corrigido   |
-| 13  | Claim sem estimatedValueInCents                                | ✅ Corrigido   |
-| 14  | PDF type POLICY_PDF para cotacao                               | ✅ Corrigido   |
-| 15  | Dashboard shell "Carregando..." sem spinner                    | ✅ Corrigido   |
-| 16  | Empty states policies/commissions sem CTA                      | ✅ Corrigido   |
-| 17  | Proposal form valida so no submit                              | ✅ Corrigido   |
-| 18  | 6 findings acessibilidade no chat (aria-labels)                | ✅ Corrigido   |
-| 19  | db push em dev destroi RLS policies                            | ✅ Corrigido   |
-| 20  | lead-routes usa global prisma                                  | ✅ Corrigido   |
-| 21  | Raw SQL em stats-helpers sem RLS safety net                    | ✅ Corrigido   |
+| #   | Finding                                                        | Status               |
+| --- | -------------------------------------------------------------- | -------------------- |
+| 1   | Session 7 dias sem rotation em privilege escalation            | ✅ Corrigido         |
+| 2   | Cookie attributes implicitos (depende de Better Auth defaults) | ✅ Corrigido         |
+| 3   | Webhook verify token comparacao nao-constant-time              | ✅ Corrigido         |
+| 4   | Widget allowedOrigins vazio permite todas as origens           | ✅ Corrigido         |
+| 5   | Senha minima 8 chars (recomendado 12 para financial)           | ✅ Corrigido         |
+| 6   | HMAC reutiliza encryption key                                  | ✅ Corrigido         |
+| 7   | Baileys em RC (^7.0.0-rc.9)                                    | ✅ Corrigido         |
+| 8   | Frontend/backend Zod schemas nao compartilhados                | ✅ Resolvido (Orval) |
+| 9   | handle\*Error duplicado em 6 route files                       | ✅ Corrigido         |
+| 10  | Sem reopen LOST, sem backward transitions                      | ✅ Corrigido         |
+| 11  | Commission domain nao valida role do aprovador                 | ✅ Documentado       |
+| 12  | Conversion rate usa createdAt                                  | ✅ Corrigido         |
+| 13  | Claim sem estimatedValueInCents                                | ✅ Corrigido         |
+| 14  | PDF type POLICY_PDF para cotacao                               | ✅ Corrigido         |
+| 15  | Dashboard shell "Carregando..." sem spinner                    | ✅ Corrigido         |
+| 16  | Empty states policies/commissions sem CTA                      | ✅ Corrigido         |
+| 17  | Proposal form valida so no submit                              | ✅ Corrigido         |
+| 18  | 6 findings acessibilidade no chat (aria-labels)                | ✅ Corrigido         |
+| 19  | db push em dev destroi RLS policies                            | ✅ Corrigido         |
+| 20  | lead-routes usa global prisma                                  | ✅ Corrigido         |
+| 21  | Raw SQL em stats-helpers sem RLS safety net                    | ✅ Corrigido         |
 
 **Remediacao P3:** PR #35 (squash). Detalhes:
 
@@ -697,7 +697,7 @@ if (job?.data?.organizationId !== request.organizationId) return reply.status(40
 ## Nota Final
 
 Todos os 62 findings foram corrigidos em 4 PRs (#31, #32, #33, #35).
-Unico item deferido: P3 #8 (shared Zod schemas) — refactoring sem risco funcional.
+Todos os 21 items P3 resolvidos. P3 #8 fechado: Orval gera types e Zod schemas do OpenAPI spec.
 
 Bonus fix incluido no PR #35: `createTenantClient` migrado de interactive para batch
 transaction (padrao oficial Prisma RLS). Pool PostgreSQL aumentado de 10 para 20 conexoes.

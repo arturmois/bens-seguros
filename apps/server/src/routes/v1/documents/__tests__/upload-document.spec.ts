@@ -15,6 +15,7 @@ import {
   TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
 import { mockResolve } from '../../../../__tests__/helpers/mock-use-case.js'
+import { buildMultipartBody } from '../../../../__tests__/helpers/multipart.js'
 import { uploadDocumentRoute } from '../upload-document.js'
 
 const mockExecute = vi.fn()
@@ -35,21 +36,6 @@ beforeEach(() => {
   setTestContext()
   mockResolve(mockExecute)
 })
-
-function buildMultipartBody(
-  fieldName: string,
-  filename: string,
-  mimeType: string,
-  content: Buffer,
-  boundary: string
-): Buffer {
-  const header =
-    `--${boundary}\r\n` +
-    `Content-Disposition: form-data; name="${fieldName}"; filename="${filename}"\r\n` +
-    `Content-Type: ${mimeType}\r\n\r\n`
-  const footer = `\r\n--${boundary}--\r\n`
-  return Buffer.concat([Buffer.from(header), content, Buffer.from(footer)])
-}
 
 const makeDocument = () => ({
   id: 'doc-id-001',

@@ -16,6 +16,7 @@ import {
   mockResolve,
   mockResolveError,
 } from '../../../../__tests__/helpers/mock-use-case.js'
+import { makeMinimalMember } from '../../../../__tests__/helpers/factories.js'
 import { updateMemberRoleRoute } from '../update-member-role.js'
 
 vi.mock('@repo/db', async (importOriginal) => {
@@ -54,9 +55,11 @@ const makeUpdatedMember = () => ({
 describe('PUT /api/v1/members/:id/role', () => {
   it('returns 200 with updated member data on success', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findFirst).mockResolvedValue({
-      role: 'COMMERCIAL',
-    } as never)
+    vi.mocked(prisma.member.findFirst).mockResolvedValue(
+      makeMinimalMember({ role: 'COMMERCIAL' }) as unknown as Awaited<
+        ReturnType<typeof prisma.member.findFirst>
+      >
+    )
     mockExecute.mockResolvedValue(makeUpdatedMember())
 
     const response = await injectAs(app, {
@@ -89,9 +92,11 @@ describe('PUT /api/v1/members/:id/role', () => {
 
   it('returns 403 when caller lacks permission to assign role', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findFirst).mockResolvedValue({
-      role: 'ADMIN',
-    } as never)
+    vi.mocked(prisma.member.findFirst).mockResolvedValue(
+      makeMinimalMember({ role: 'ADMIN' }) as unknown as Awaited<
+        ReturnType<typeof prisma.member.findFirst>
+      >
+    )
     mockResolveError('ROLE_HIERARCHY_VIOLATION', 'Role hierarchy violation')
 
     const response = await injectAs(app, {

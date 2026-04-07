@@ -13,6 +13,7 @@ import {
   setTestContext,
   TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
+import { makeAuditLog } from '../../../../__tests__/helpers/factories.js'
 import { listAuditLogsRoute } from '../list-audit-logs.js'
 
 vi.mock('@repo/db', async (importOriginal) => {
@@ -39,28 +40,13 @@ beforeEach(() => {
   setTestContext()
 })
 
-const makeAuditLog = (overrides: Partial<Record<string, unknown>> = {}) => ({
-  id: 'audit-id-001',
-  organizationId: TEST_ORG_ID,
-  userId: 'user-id-001',
-  action: 'CREATE',
-  entityType: 'Client',
-  entityId: 'client-id-001',
-  before: null,
-  after: null,
-  ipAddress: '127.0.0.1',
-  userAgent: 'test-agent',
-  createdAt: new Date(),
-  ...overrides,
-})
-
 describe('GET /api/v1/audit-logs', () => {
   it('returns 200 with paginated audit log list', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.auditLog.findMany).mockResolvedValue([
       makeAuditLog(),
-    ] as never)
-    vi.mocked(prisma.auditLog.count).mockResolvedValue(1 as never)
+    ] as unknown as Awaited<ReturnType<typeof prisma.auditLog.findMany>>)
+    vi.mocked(prisma.auditLog.count).mockResolvedValue(1)
 
     const response = await injectAs(app, {
       method: 'GET',
@@ -81,8 +67,10 @@ describe('GET /api/v1/audit-logs', () => {
       makeAuditLog({ id: `audit-id-${String(i).padStart(3, '0')}` })
     )
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.auditLog.findMany).mockResolvedValue(logs as never)
-    vi.mocked(prisma.auditLog.count).mockResolvedValue(50 as never)
+    vi.mocked(prisma.auditLog.findMany).mockResolvedValue(
+      logs as unknown as Awaited<ReturnType<typeof prisma.auditLog.findMany>>
+    )
+    vi.mocked(prisma.auditLog.count).mockResolvedValue(50)
 
     const response = await injectAs(app, {
       method: 'GET',
@@ -98,8 +86,10 @@ describe('GET /api/v1/audit-logs', () => {
 
   it('filters by entityType when query param is provided', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.auditLog.findMany).mockResolvedValue([] as never)
-    vi.mocked(prisma.auditLog.count).mockResolvedValue(0 as never)
+    vi.mocked(prisma.auditLog.findMany).mockResolvedValue(
+      [] as unknown as Awaited<ReturnType<typeof prisma.auditLog.findMany>>
+    )
+    vi.mocked(prisma.auditLog.count).mockResolvedValue(0)
 
     const response = await injectAs(app, {
       method: 'GET',

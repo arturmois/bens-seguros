@@ -13,6 +13,7 @@ import {
   setTestContext,
   TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
+import { makeOrganization } from '../../../../__tests__/helpers/factories.js'
 import { getOrganizationRoute } from '../get-organization.js'
 
 vi.mock('@repo/db', async (importOriginal) => {
@@ -38,20 +39,13 @@ beforeEach(() => {
   setTestContext()
 })
 
-const makeOrg = (overrides: Partial<Record<string, unknown>> = {}) => ({
-  id: TEST_ORG_ID,
-  name: 'Corretora Exemplo',
-  slug: 'corretora-exemplo',
-  logo: null,
-  createdAt: new Date('2024-01-01T00:00:00.000Z'),
-  ...overrides,
-})
-
 describe('GET /api/v1/organization', () => {
   it('returns 200 with organization data', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.organization.findUnique).mockResolvedValue(
-      makeOrg() as never
+      makeOrganization() as unknown as Awaited<
+        ReturnType<typeof prisma.organization.findUnique>
+      >
     )
 
     const response = await injectAs(app, {
@@ -86,7 +80,9 @@ describe('GET /api/v1/organization', () => {
   it('queries prisma with current organization id', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.organization.findUnique).mockResolvedValue(
-      makeOrg() as never
+      makeOrganization() as unknown as Awaited<
+        ReturnType<typeof prisma.organization.findUnique>
+      >
     )
 
     await injectAs(app, { method: 'GET', url: '/api/v1/organization' })

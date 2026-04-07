@@ -10,8 +10,11 @@ import {
 import {
   createTestApp,
   injectAs,
-  TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
+import {
+  makePublicInvitation,
+  makeMinimalUser,
+} from '../../../../__tests__/helpers/factories.js'
 import { getPublicInvitationRoute } from '../get-public-invitation.js'
 
 vi.mock('@repo/db', async (importOriginal) => {
@@ -39,28 +42,20 @@ beforeEach(() => {
   vi.clearAllMocks()
 })
 
-const makeInvitation = (overrides: Partial<Record<string, unknown>> = {}) => ({
-  id: 'invite-id-001',
-  organizationId: TEST_ORG_ID,
-  email: 'invited@user.com',
-  role: 'COMMERCIAL',
-  status: 'pending',
-  expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  inviterId: 'inviter-user-id',
-  createdAt: new Date('2024-01-01T00:00:00.000Z'),
-  updatedAt: new Date('2024-01-01T00:00:00.000Z'),
-  organization: { name: 'Corretora Exemplo' },
-  ...overrides,
-})
-
 describe('GET /api/v1/invitations/:id/public', () => {
   it('returns 200 with public invitation data (no auth required)', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.invitation.findUnique).mockResolvedValue(
-      makeInvitation() as never
+      makePublicInvitation() as unknown as Awaited<
+        ReturnType<typeof prisma.invitation.findUnique>
+      >
     )
     vi.mocked(prisma.user.findUnique)
-      .mockResolvedValueOnce({ name: 'Inviter Name' } as never) // inviter
+      .mockResolvedValueOnce(
+        makeMinimalUser({ name: 'Inviter Name' }) as unknown as Awaited<
+          ReturnType<typeof prisma.user.findUnique>
+        >
+      ) // inviter
       .mockResolvedValueOnce(null) // existing user check
 
     const response = await injectAs(app, {
@@ -81,11 +76,21 @@ describe('GET /api/v1/invitations/:id/public', () => {
   it('returns 200 with hasAccount true when email already has an account', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.invitation.findUnique).mockResolvedValue(
-      makeInvitation() as never
+      makePublicInvitation() as unknown as Awaited<
+        ReturnType<typeof prisma.invitation.findUnique>
+      >
     )
     vi.mocked(prisma.user.findUnique)
-      .mockResolvedValueOnce({ name: 'Inviter Name' } as never) // inviter
-      .mockResolvedValueOnce({ id: 'existing-user-id' } as never) // existing user
+      .mockResolvedValueOnce(
+        makeMinimalUser({ name: 'Inviter Name' }) as unknown as Awaited<
+          ReturnType<typeof prisma.user.findUnique>
+        >
+      ) // inviter
+      .mockResolvedValueOnce(
+        makeMinimalUser({ id: 'existing-user-id' }) as unknown as Awaited<
+          ReturnType<typeof prisma.user.findUnique>
+        >
+      ) // existing user
 
     const response = await injectAs(app, {
       method: 'GET',
@@ -100,7 +105,9 @@ describe('GET /api/v1/invitations/:id/public', () => {
   it('returns fallback inviterName when inviter user is not found', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.invitation.findUnique).mockResolvedValue(
-      makeInvitation() as never
+      makePublicInvitation() as unknown as Awaited<
+        ReturnType<typeof prisma.invitation.findUnique>
+      >
     )
     vi.mocked(prisma.user.findUnique)
       .mockResolvedValueOnce(null) // inviter not found

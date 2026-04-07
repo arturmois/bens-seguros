@@ -11,8 +11,8 @@ import {
   createTestApp,
   injectAs,
   setTestContext,
-  TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
+import { makeOrganization } from '../../../../__tests__/helpers/factories.js'
 import { updateOrganizationRoute } from '../update-organization.js'
 
 vi.mock('@repo/db', async (importOriginal) => {
@@ -40,15 +40,6 @@ beforeEach(() => {
   setTestContext()
 })
 
-const makeOrg = (overrides: Partial<Record<string, unknown>> = {}) => ({
-  id: TEST_ORG_ID,
-  name: 'Corretora Atualizada',
-  slug: 'corretora-atualizada',
-  logo: null,
-  createdAt: new Date('2024-01-01T00:00:00.000Z'),
-  ...overrides,
-})
-
 const validBody = { name: 'Corretora Atualizada', slug: 'corretora-atualizada' }
 
 describe('PUT /api/v1/organization', () => {
@@ -56,9 +47,19 @@ describe('PUT /api/v1/organization', () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.organization.findFirst).mockResolvedValue(null)
     vi.mocked(prisma.organization.findUnique).mockResolvedValue(
-      makeOrg() as never
+      makeOrganization({
+        name: 'Corretora Atualizada',
+        slug: 'corretora-atualizada',
+      }) as unknown as Awaited<
+        ReturnType<typeof prisma.organization.findUnique>
+      >
     )
-    vi.mocked(prisma.organization.update).mockResolvedValue(makeOrg() as never)
+    vi.mocked(prisma.organization.update).mockResolvedValue(
+      makeOrganization({
+        name: 'Corretora Atualizada',
+        slug: 'corretora-atualizada',
+      }) as unknown as Awaited<ReturnType<typeof prisma.organization.update>>
+    )
 
     const response = await injectAs(app, {
       method: 'PUT',
@@ -75,9 +76,11 @@ describe('PUT /api/v1/organization', () => {
 
   it('returns 409 when slug is taken by another organization', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.organization.findFirst).mockResolvedValue({
-      id: 'other-org-id',
-    } as never)
+    vi.mocked(prisma.organization.findFirst).mockResolvedValue(
+      makeOrganization({ id: 'other-org-id' }) as unknown as Awaited<
+        ReturnType<typeof prisma.organization.findFirst>
+      >
+    )
 
     const response = await injectAs(app, {
       method: 'PUT',

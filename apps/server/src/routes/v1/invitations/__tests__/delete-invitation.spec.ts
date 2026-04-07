@@ -11,8 +11,8 @@ import {
   createTestApp,
   injectAs,
   setTestContext,
-  TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
+import { makeInvitation } from '../../../../__tests__/helpers/factories.js'
 import { deleteInvitationRoute } from '../delete-invitation.js'
 
 vi.mock('@repo/db', async (importOriginal) => {
@@ -39,28 +39,19 @@ beforeEach(() => {
   setTestContext()
 })
 
-const makeInvitation = () => ({
-  id: 'invite-id-001',
-  organizationId: TEST_ORG_ID,
-  email: 'invited@user.com',
-  role: 'COMMERCIAL',
-  status: 'pending',
-  expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  inviterId: 'user-id-001',
-  createdAt: new Date('2024-01-01T00:00:00.000Z'),
-  updatedAt: new Date('2024-01-01T00:00:00.000Z'),
-})
-
 describe('DELETE /api/v1/invitations/:id', () => {
   it('returns 200 with revoked invitation id on success', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.invitation.findFirst).mockResolvedValue(
-      makeInvitation() as never
+      makeInvitation() as unknown as Awaited<
+        ReturnType<typeof prisma.invitation.findFirst>
+      >
     )
-    vi.mocked(prisma.invitation.update).mockResolvedValue({
-      ...makeInvitation(),
-      status: 'canceled',
-    } as never)
+    vi.mocked(prisma.invitation.update).mockResolvedValue(
+      makeInvitation({ status: 'canceled' }) as unknown as Awaited<
+        ReturnType<typeof prisma.invitation.update>
+      >
+    )
 
     const response = await injectAs(app, {
       method: 'DELETE',
@@ -93,12 +84,15 @@ describe('DELETE /api/v1/invitations/:id', () => {
   it('cancels the invitation with correct status update', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.invitation.findFirst).mockResolvedValue(
-      makeInvitation() as never
+      makeInvitation() as unknown as Awaited<
+        ReturnType<typeof prisma.invitation.findFirst>
+      >
     )
-    vi.mocked(prisma.invitation.update).mockResolvedValue({
-      ...makeInvitation(),
-      status: 'canceled',
-    } as never)
+    vi.mocked(prisma.invitation.update).mockResolvedValue(
+      makeInvitation({ status: 'canceled' }) as unknown as Awaited<
+        ReturnType<typeof prisma.invitation.update>
+      >
+    )
 
     await injectAs(app, {
       method: 'DELETE',

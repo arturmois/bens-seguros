@@ -13,6 +13,7 @@ import {
   TEST_ORG_ID,
   TEST_USER_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
+import { makeMinimalUser } from '../../../../__tests__/helpers/factories.js'
 import {
   mockResolve,
   mockResolveError,
@@ -135,11 +136,13 @@ describe('POST /api/v1/commissions/:id/approve-admin', () => {
     const { prisma } = await import('@repo/db')
     const { enqueueNotification } =
       await import('../../../../services/notification-enqueuer.js')
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({
-      id: 'user-id-001',
-      name: 'João Silva',
-      email: 'joao@example.com',
-    } as never)
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(
+      makeMinimalUser({
+        id: 'user-id-001',
+        name: 'João Silva',
+        email: 'joao@example.com',
+      }) as unknown as Awaited<ReturnType<typeof prisma.user.findUnique>>
+    )
     mockExecute.mockResolvedValue(
       makeCommission({ salespersonId: 'user-id-001' })
     )

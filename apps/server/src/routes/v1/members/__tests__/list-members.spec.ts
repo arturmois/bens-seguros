@@ -11,9 +11,8 @@ import {
   createTestApp,
   injectAs,
   setTestContext,
-  TEST_ORG_ID,
-  TEST_USER_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
+import { makeMember } from '../../../../__tests__/helpers/factories.js'
 import { listMembersRoute } from '../list-members.js'
 
 vi.mock('@repo/db', async (importOriginal) => {
@@ -40,21 +39,12 @@ beforeEach(() => {
   setTestContext()
 })
 
-const makeMember = (overrides: Partial<Record<string, unknown>> = {}) => ({
-  id: 'member-id-001',
-  userId: TEST_USER_ID,
-  organizationId: TEST_ORG_ID,
-  role: 'OWNER',
-  active: true,
-  createdAt: new Date('2024-01-01T00:00:00.000Z'),
-  user: { name: 'Test User', email: 'test@user.com' },
-  ...overrides,
-})
-
 describe('GET /api/v1/members', () => {
   it('returns 200 with paginated member list', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findMany).mockResolvedValue([makeMember()] as never)
+    vi.mocked(prisma.member.findMany).mockResolvedValue([
+      makeMember(),
+    ] as unknown as Awaited<ReturnType<typeof prisma.member.findMany>>)
     vi.mocked(prisma.member.count).mockResolvedValue(1)
 
     const response = await injectAs(app, {
@@ -73,7 +63,9 @@ describe('GET /api/v1/members', () => {
 
   it('returns 200 with empty list when no active members', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findMany).mockResolvedValue([] as never)
+    vi.mocked(prisma.member.findMany).mockResolvedValue(
+      [] as unknown as Awaited<ReturnType<typeof prisma.member.findMany>>
+    )
     vi.mocked(prisma.member.count).mockResolvedValue(0)
 
     const response = await injectAs(app, {
@@ -94,7 +86,9 @@ describe('GET /api/v1/members', () => {
       makeMember({ id: 'member-id-002' }),
     ]
     // Return limit+1 items to trigger hasMore logic (default limit=50, we send 2 with limit=1)
-    vi.mocked(prisma.member.findMany).mockResolvedValue(members as never)
+    vi.mocked(prisma.member.findMany).mockResolvedValue(
+      members as unknown as Awaited<ReturnType<typeof prisma.member.findMany>>
+    )
     vi.mocked(prisma.member.count).mockResolvedValue(2)
 
     const response = await injectAs(app, {

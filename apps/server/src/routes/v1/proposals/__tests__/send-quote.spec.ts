@@ -14,6 +14,10 @@ import {
   TEST_ORG_ID,
   TEST_USER_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
+import {
+  makeOrganization,
+  makeMinimalClient,
+} from '../../../../__tests__/helpers/factories.js'
 import { sendQuoteRoute } from '../send-quote.js'
 
 vi.mock('@react-pdf/renderer', async (importOriginal) => {
@@ -124,15 +128,17 @@ beforeEach(() => {
   )
   mockDocumentRepo.upsertByStorageKey.mockResolvedValue(undefined)
 
-  vi.mocked(prisma.client.findFirst).mockResolvedValue({
-    email: 'cliente@example.com',
-    name: 'João Silva',
-  } as never)
-  vi.mocked(prisma.organization.findUnique).mockResolvedValue({
-    id: TEST_ORG_ID,
-    name: 'Corretora Exemplo',
-    logo: null,
-  } as never)
+  vi.mocked(prisma.client.findFirst).mockResolvedValue(
+    makeMinimalClient({
+      email: 'cliente@example.com',
+      name: 'João Silva',
+    }) as unknown as Awaited<ReturnType<typeof prisma.client.findFirst>>
+  )
+  vi.mocked(prisma.organization.findUnique).mockResolvedValue(
+    makeOrganization() as unknown as Awaited<
+      ReturnType<typeof prisma.organization.findUnique>
+    >
+  )
 
   let callCount = 0
   vi.mocked(container.resolve).mockImplementation((token: unknown) => {

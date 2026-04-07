@@ -46,7 +46,7 @@ const CURRENT_VERSION = '1.0'
 describe('POST /api/terms/accept', () => {
   it('returns 200 with accepted versions on valid request', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.$transaction).mockResolvedValue([{}, {}, {}] as never)
+    vi.mocked(prisma.$transaction).mockResolvedValue([{}, {}, {}] as unknown[])
 
     const response = await injectAs(app, {
       method: 'POST',
@@ -67,7 +67,7 @@ describe('POST /api/terms/accept', () => {
 
   it('calls prisma.$transaction to persist acceptance', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.$transaction).mockResolvedValue([{}, {}, {}] as never)
+    vi.mocked(prisma.$transaction).mockResolvedValue([{}, {}, {}] as unknown[])
 
     await injectAs(app, {
       method: 'POST',

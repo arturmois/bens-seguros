@@ -13,6 +13,7 @@ import {
   setTestContext,
   TEST_USER_ID,
 } from '../../../__tests__/helpers/create-test-app.js'
+import { makeUserTermsStatus } from '../../../__tests__/helpers/factories.js'
 import { getTermsStatusRoute } from '../get-terms-status.js'
 
 vi.mock('@repo/db', async (importOriginal) => {
@@ -43,10 +44,12 @@ const CURRENT_VERSION = '1.0'
 describe('GET /api/terms/status', () => {
   it('returns 200 with needsReAccept false when versions match', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.user.findUniqueOrThrow).mockResolvedValue({
-      termsVersion: CURRENT_VERSION,
-      privacyVersion: CURRENT_VERSION,
-    } as never)
+    vi.mocked(prisma.user.findUniqueOrThrow).mockResolvedValue(
+      makeUserTermsStatus({
+        termsVersion: CURRENT_VERSION,
+        privacyVersion: CURRENT_VERSION,
+      }) as unknown as Awaited<ReturnType<typeof prisma.user.findUniqueOrThrow>>
+    )
 
     const response = await injectAs(app, {
       method: 'GET',
@@ -64,10 +67,12 @@ describe('GET /api/terms/status', () => {
 
   it('returns 200 with needsReAccept true when user has not accepted terms', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.user.findUniqueOrThrow).mockResolvedValue({
-      termsVersion: null,
-      privacyVersion: null,
-    } as never)
+    vi.mocked(prisma.user.findUniqueOrThrow).mockResolvedValue(
+      makeUserTermsStatus({
+        termsVersion: null,
+        privacyVersion: null,
+      }) as unknown as Awaited<ReturnType<typeof prisma.user.findUniqueOrThrow>>
+    )
 
     const response = await injectAs(app, {
       method: 'GET',
@@ -83,10 +88,12 @@ describe('GET /api/terms/status', () => {
 
   it('returns 200 with needsReAccept true when user has an older terms version', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.user.findUniqueOrThrow).mockResolvedValue({
-      termsVersion: '0.9',
-      privacyVersion: CURRENT_VERSION,
-    } as never)
+    vi.mocked(prisma.user.findUniqueOrThrow).mockResolvedValue(
+      makeUserTermsStatus({
+        termsVersion: '0.9',
+        privacyVersion: CURRENT_VERSION,
+      }) as unknown as Awaited<ReturnType<typeof prisma.user.findUniqueOrThrow>>
+    )
 
     const response = await injectAs(app, {
       method: 'GET',
@@ -100,10 +107,12 @@ describe('GET /api/terms/status', () => {
 
   it('queries user by the authenticated user id', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.user.findUniqueOrThrow).mockResolvedValue({
-      termsVersion: CURRENT_VERSION,
-      privacyVersion: CURRENT_VERSION,
-    } as never)
+    vi.mocked(prisma.user.findUniqueOrThrow).mockResolvedValue(
+      makeUserTermsStatus({
+        termsVersion: CURRENT_VERSION,
+        privacyVersion: CURRENT_VERSION,
+      }) as unknown as Awaited<ReturnType<typeof prisma.user.findUniqueOrThrow>>
+    )
 
     await injectAs(app, {
       method: 'GET',

@@ -14,6 +14,7 @@ import {
   TEST_ORG_ID,
   TEST_USER_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
+import { makeTenantMember } from '../../../../__tests__/helpers/factories.js'
 import { listTenantsRoute } from '../list-tenants.js'
 
 vi.mock('@repo/db', async (importOriginal) => {
@@ -39,21 +40,12 @@ beforeEach(() => {
   setTestContext()
 })
 
-const makeMember = (overrides: Partial<Record<string, unknown>> = {}) => ({
-  role: 'OWNER',
-  organization: {
-    id: TEST_ORG_ID,
-    name: 'Corretora Exemplo',
-    slug: 'corretora-exemplo',
-    logo: null,
-  },
-  ...overrides,
-})
-
 describe('GET /api/v1/tenants', () => {
   it('returns 200 with tenant list for authenticated user', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findMany).mockResolvedValue([makeMember()] as never)
+    vi.mocked(prisma.member.findMany).mockResolvedValue([
+      makeTenantMember(),
+    ] as unknown as Awaited<ReturnType<typeof prisma.member.findMany>>)
 
     const response = await injectAs(app, {
       method: 'GET',
@@ -74,7 +66,9 @@ describe('GET /api/v1/tenants', () => {
 
   it('returns 200 with empty list when user has no memberships', async () => {
     const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findMany).mockResolvedValue([] as never)
+    vi.mocked(prisma.member.findMany).mockResolvedValue(
+      [] as unknown as Awaited<ReturnType<typeof prisma.member.findMany>>
+    )
 
     const response = await injectAs(app, {
       method: 'GET',
@@ -87,7 +81,7 @@ describe('GET /api/v1/tenants', () => {
   })
 
   it('returns 401 when user context is missing', async () => {
-    setTestContext({ user: null as never })
+    setTestContext({ user: null })
 
     const response = await injectAs(app, {
       method: 'GET',
