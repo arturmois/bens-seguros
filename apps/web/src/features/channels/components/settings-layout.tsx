@@ -66,7 +66,7 @@ export function SettingsLayout({
       <div className="flex flex-col gap-8 lg:flex-row">
         <nav
           aria-label="Seções de configuração"
-          className="flex flex-row gap-1 lg:w-56 lg:shrink-0 lg:flex-col"
+          className="flex flex-row gap-1 overflow-x-auto lg:w-56 lg:shrink-0 lg:flex-col lg:overflow-x-visible"
         >
           {SETTINGS_SECTIONS.map((section) => (
             <SettingsNavItem
@@ -93,7 +93,7 @@ function SettingsNavItem({ section, isActive }: SettingsNavItemProps) {
 
   if (section.disabled) {
     return (
-      <span className="text-muted-foreground/50 flex min-h-10 cursor-not-allowed items-center gap-3 rounded-md px-3 py-2 text-sm">
+      <span className="text-muted-foreground/50 flex min-h-10 cursor-not-allowed items-center gap-3 whitespace-nowrap rounded-md px-3 py-2 text-sm lg:whitespace-normal">
         <Icon className="size-4 shrink-0" />
         <span>{section.label}</span>
         <span className="text-muted-foreground/50 text-xs">(em breve)</span>
@@ -106,7 +106,7 @@ function SettingsNavItem({ section, isActive }: SettingsNavItemProps) {
       href={section.href}
       aria-current={isActive ? 'page' : undefined}
       className={cn(
-        'flex min-h-10 items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
+        'flex min-h-10 items-center gap-3 whitespace-nowrap rounded-md px-3 py-2 text-sm transition-colors lg:whitespace-normal',
         isActive && 'bg-primary/10 text-primary',
         !isActive && 'text-muted-foreground hover:bg-muted'
       )}

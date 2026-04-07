@@ -1,7 +1,9 @@
 'use client'
 
-import { LifeBuoy, MoreHorizontal } from 'lucide-react'
+import Link from 'next/link'
+import { LifeBuoy, MoreHorizontal, Plus } from 'lucide-react'
 
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   TableBody,
@@ -156,6 +158,12 @@ function EmptyRow() {
               Registre sua primeira assistência para começar.
             </p>
           </div>
+          <Button asChild className="mt-1">
+            <Link href="/assistances/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Nova Assistência
+            </Link>
+          </Button>
         </div>
       </TableCell>
     </TableRow>
