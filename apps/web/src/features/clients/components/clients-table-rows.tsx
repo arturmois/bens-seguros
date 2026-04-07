@@ -187,38 +187,7 @@ function ClientRow({
           </DropdownMenu>
         </TableCell>
       </TableRow>
-      {isExpanded && (
-        <TableRow className="bg-muted/30 md:hidden">
-          <TableCell colSpan={MOBILE_COLSPAN}>
-            <div className="space-y-2 py-2 text-sm">
-              <div>
-                <span className="text-muted-foreground text-xs">
-                  Documento:{' '}
-                </span>
-                <span>{client.document}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground text-xs">E-mail: </span>
-                <span>{client.email ?? '-'}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground text-xs">
-                  Telefone:{' '}
-                </span>
-                <span>{client.phone ?? '-'}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground text-xs">
-                  Criado em:{' '}
-                </span>
-                <span>
-                  {new Date(client.createdAt).toLocaleDateString('pt-BR')}
-                </span>
-              </div>
-            </div>
-          </TableCell>
-        </TableRow>
-      )}
+      {isExpanded && <ClientRowExpandedDetails client={client} />}
     </>
   )
 }
@@ -250,6 +219,44 @@ function EmptyRow() {
             <p className="text-muted-foreground mt-1 text-sm">
               Cadastre seu primeiro cliente para começar.
             </p>
+          </div>
+        </div>
+      </TableCell>
+    </TableRow>
+  )
+}
+
+function ClientRowExpandedDetails({
+  client,
+}: {
+  readonly client: {
+    document: string
+    email?: string | null
+    phone?: string | null
+    createdAt: string
+  }
+}) {
+  return (
+    <TableRow className="bg-muted/30 md:hidden">
+      <TableCell colSpan={MOBILE_COLSPAN}>
+        <div className="space-y-2 py-2 text-sm">
+          <div>
+            <span className="text-muted-foreground text-xs">Documento: </span>
+            <span>{client.document}</span>
+          </div>
+          <div>
+            <span className="text-muted-foreground text-xs">E-mail: </span>
+            <span>{client.email ?? '-'}</span>
+          </div>
+          <div>
+            <span className="text-muted-foreground text-xs">Telefone: </span>
+            <span>{client.phone ?? '-'}</span>
+          </div>
+          <div>
+            <span className="text-muted-foreground text-xs">Criado em: </span>
+            <span>
+              {new Date(client.createdAt).toLocaleDateString('pt-BR')}
+            </span>
           </div>
         </div>
       </TableCell>

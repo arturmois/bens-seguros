@@ -20,21 +20,13 @@ import { api, ApiError } from '@/lib/api-client'
 
 import type { KanbanFilters } from '../hooks/use-kanban-proposals'
 import type { BoardType, ProposalData, ProposalStage } from '../lib/constants'
-import { ENDORSEMENT_STAGES, STAGES } from '../lib/constants'
+import { ENDORSEMENT_STAGES, KANBAN_STAGES, STAGES } from '../lib/constants'
 import { IssuePolicySheet } from './issue-policy-sheet'
 import { KanbanCard } from './kanban-card'
 import { KanbanCardDetail } from './kanban-card-detail'
 import { KanbanColumn } from './kanban-column'
 import { KanbanToolbar } from './kanban-parts'
 import { LostReasonDialog } from './lost-reason-dialog'
-
-const KANBAN_STAGES: readonly ProposalStage[] = [
-  'CAPTURE',
-  'QUOTE',
-  'PROTOCOL',
-  'INSPECTION',
-  'PAYMENT',
-] as const
 
 const ADVANCE_TARGETS = new Set<ProposalStage>([
   'QUOTE',
