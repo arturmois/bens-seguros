@@ -1,8 +1,11 @@
+import type { Metadata } from 'next'
 import { AiAgentsPage } from '@/features/ai-agents/components/ai-agents-page'
 import { ChannelsPage } from '@/features/channels/components/channels-page'
 import { SettingsLayout } from '@/features/channels/components/settings-layout'
 import { MembersPage } from '@/features/members/components/members-page'
 import { OrganizationPage } from '@/features/organization/components/organization-page'
+
+export const metadata: Metadata = { title: 'Configurações' }
 
 interface SettingsPageProps {
   searchParams: Promise<{ section?: string }>

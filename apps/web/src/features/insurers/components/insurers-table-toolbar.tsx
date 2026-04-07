@@ -1,6 +1,6 @@
 'use client'
 
-import { Search } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -84,7 +84,10 @@ export function InsurersTableToolbar({
       </div>
 
       <div className="flex items-center gap-2">
-        <Button onClick={onCreate}>Nova seguradora</Button>
+        <Button onClick={onCreate}>
+          <Plus className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Nova seguradora</span>
+        </Button>
       </div>
     </div>
   )

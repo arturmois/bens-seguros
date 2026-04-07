@@ -125,8 +125,8 @@ export function ProposalsTableToolbar({
         }}
       />
       <Button onClick={() => router.push('/proposals/new')}>
-        <Plus className="mr-2 h-4 w-4" />
-        Nova Proposta
+        <Plus className="h-4 w-4 sm:mr-2" />
+        <span className="hidden sm:inline">Nova Proposta</span>
       </Button>
     </div>
   )

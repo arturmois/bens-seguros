@@ -1,4 +1,7 @@
+import type { Metadata } from 'next'
 import { PoliciesTable } from '@/features/policies/components/policies-table'
+
+export const metadata: Metadata = { title: 'Apólices' }
 
 export default function PoliciesPage() {
   return (

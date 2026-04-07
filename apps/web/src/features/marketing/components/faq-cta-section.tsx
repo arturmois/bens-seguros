@@ -96,7 +96,10 @@ function FaqAccordion(): React.ReactElement {
 
 function CtaFinal(): React.ReactElement {
   return (
-    <div className="border-accent-500/20 from-accent-500/8 to-primary-500/8 bg-linear-to-r mt-16 rounded-2xl border p-8 text-center sm:p-12">
+    <div
+      id="contato"
+      className="border-accent-500/20 from-accent-500/8 to-primary-500/8 bg-linear-to-r mt-16 rounded-2xl border p-8 text-center sm:p-12"
+    >
       <h3 className="text-2xl font-bold text-white sm:text-3xl">
         Pronto para transformar sua corretora?
       </h3>

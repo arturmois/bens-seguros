@@ -8,8 +8,11 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'Bens Seguros',
-  description: 'ERP para corretoras de seguros',
+  title: {
+    default: 'Bens Seguros',
+    template: '%s | Bens Seguros',
+  },
+  description: 'ERP para Corretoras de Seguros',
   icons: {
     icon: '/favicon.svg',
   },

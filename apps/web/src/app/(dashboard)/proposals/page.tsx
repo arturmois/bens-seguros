@@ -1,4 +1,7 @@
+import type { Metadata } from 'next'
 import { ProposalsContent } from './proposals-content'
+
+export const metadata: Metadata = { title: 'Propostas' }
 
 export default function ProposalsPage() {
   return (

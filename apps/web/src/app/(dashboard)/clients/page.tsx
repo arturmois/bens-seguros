@@ -1,4 +1,7 @@
+import type { Metadata } from 'next'
 import { ClientsContent } from '@/features/clients/components/clients-table'
+
+export const metadata: Metadata = { title: 'Clientes' }
 
 export default function ClientsPage() {
   return (

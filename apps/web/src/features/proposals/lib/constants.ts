@@ -152,6 +152,14 @@ export const STAGES: readonly ProposalStage[] = [
   'LOST',
 ] as const
 
+export const KANBAN_STAGES: readonly ProposalStage[] = [
+  'CAPTURE',
+  'QUOTE',
+  'PROTOCOL',
+  'INSPECTION',
+  'PAYMENT',
+] as const
+
 export const BRANCHES: readonly InsuranceBranch[] = [
   'AUTO',
   'RESIDENTIAL',

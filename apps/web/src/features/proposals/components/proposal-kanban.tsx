@@ -20,7 +20,7 @@ import { api, ApiError } from '@/lib/api-client'
 
 import type { KanbanFilters } from '../hooks/use-kanban-proposals'
 import type { BoardType, ProposalData, ProposalStage } from '../lib/constants'
-import { ENDORSEMENT_STAGES, STAGES } from '../lib/constants'
+import { ENDORSEMENT_STAGES, KANBAN_STAGES, STAGES } from '../lib/constants'
 import { IssuePolicySheet } from './issue-policy-sheet'
 import { KanbanCard } from './kanban-card'
 import { KanbanCardDetail } from './kanban-card-detail'
@@ -121,7 +121,7 @@ export function ProposalKanban({
   const queryClient = useQueryClient()
 
   const visibleStages =
-    boardType === 'ENDORSEMENT' ? ENDORSEMENT_STAGES : STAGES
+    boardType === 'ENDORSEMENT' ? ENDORSEMENT_STAGES : KANBAN_STAGES
 
   const filters: KanbanFilters = {
     boardType,
@@ -278,7 +278,7 @@ export function ProposalKanban({
         onClose={() => setSelectedProposal(null)}
         onAdvanceSuccess={(proposalId) => {
           const nextStage = selectedProposal
-            ? getNextStage(selectedProposal.stage, visibleStages)
+            ? getNextStage(selectedProposal.stage, STAGES)
             : null
           setSelectedProposal(null)
           void queryClient.invalidateQueries({

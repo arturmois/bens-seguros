@@ -48,8 +48,8 @@ export function AssistancesToolbar({
         </div>
         <Button asChild>
           <Link href="/assistances/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Nova Assistência
+            <Plus className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Nova Assistência</span>
           </Link>
         </Button>
       </div>

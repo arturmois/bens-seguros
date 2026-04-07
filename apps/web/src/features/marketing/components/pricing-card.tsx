@@ -104,7 +104,7 @@ function PriceDisplay({
       >
         R${price}
       </span>
-      <span className="text-sm text-slate-500">/mes</span>
+      <span className="text-sm text-slate-500">/mês</span>
     </p>
   )
 }

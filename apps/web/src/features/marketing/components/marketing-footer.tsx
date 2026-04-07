@@ -4,7 +4,7 @@ import Link from 'next/link'
 const FOOTER_LINKS = [
   { label: 'Termos', href: '/terms' },
   { label: 'Privacidade', href: '/privacy' },
-  { label: 'Contato', href: '/#faq' },
+  { label: 'Contato', href: '/#contato' },
 ] as const
 
 export function MarketingFooter(): React.ReactElement {
@@ -32,7 +32,7 @@ export function MarketingFooter(): React.ReactElement {
           </ul>
         </nav>
 
-        <p className="text-sm text-slate-500">{currentYear} Bens Seguros</p>
+        <p className="text-sm text-slate-500">© {currentYear} Bens Seguros</p>
       </div>
     </footer>
   )

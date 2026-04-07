@@ -25,11 +25,11 @@ export function CommissionExportButton({
       aria-label="Exportar comissões em CSV"
     >
       {exportCsv.isPending ? (
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
       ) : (
-        <Download className="mr-2 h-4 w-4" />
+        <Download className="h-4 w-4 sm:mr-2" />
       )}
-      Exportar CSV
+      <span className="hidden sm:inline">Exportar CSV</span>
     </Button>
   )
 }
