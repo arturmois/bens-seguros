@@ -76,7 +76,10 @@ export function KanbanCard({ proposal, onClick }: KanbanCardProps) {
             {formatCurrency(proposal.premiumValueInCents)}
           </span>
           {proposal.salespersonName && (
-            <span className="text-muted-foreground max-w-[80px] truncate text-xs">
+            <span
+              className="text-muted-foreground max-w-[100px] truncate text-xs"
+              title={proposal.salespersonName}
+            >
               {proposal.salespersonName}
             </span>
           )}

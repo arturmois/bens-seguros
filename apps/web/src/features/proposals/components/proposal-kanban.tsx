@@ -28,6 +28,14 @@ import { KanbanColumn } from './kanban-column'
 import { KanbanToolbar } from './kanban-parts'
 import { LostReasonDialog } from './lost-reason-dialog'
 
+const KANBAN_STAGES: readonly ProposalStage[] = [
+  'CAPTURE',
+  'QUOTE',
+  'PROTOCOL',
+  'INSPECTION',
+  'PAYMENT',
+] as const
+
 const ADVANCE_TARGETS = new Set<ProposalStage>([
   'QUOTE',
   'PROTOCOL',
@@ -121,7 +129,7 @@ export function ProposalKanban({
   const queryClient = useQueryClient()
 
   const visibleStages =
-    boardType === 'ENDORSEMENT' ? ENDORSEMENT_STAGES : STAGES
+    boardType === 'ENDORSEMENT' ? ENDORSEMENT_STAGES : KANBAN_STAGES
 
   const filters: KanbanFilters = {
     boardType,

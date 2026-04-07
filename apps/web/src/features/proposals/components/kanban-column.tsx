@@ -5,6 +5,7 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { formatCurrency } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 
 import {
@@ -46,6 +47,11 @@ export function KanbanColumn({
   const fetchedProposals = data?.pages.flatMap((page) => page.data) ?? []
   const proposals = optimisticProposals ?? fetchedProposals
 
+  const totalPremium = proposals.reduce(
+    (sum, p) => sum + (p.premiumValueInCents ?? 0),
+    0
+  )
+
   const itemIds = proposals.map((p) => p.id)
 
   return (
@@ -65,6 +71,11 @@ export function KanbanColumn({
           {proposals.length}
         </Badge>
       </div>
+      {proposals.length > 0 && (
+        <div className="text-muted-foreground border-b px-3 py-1.5 text-xs">
+          {formatCurrency(totalPremium)}
+        </div>
+      )}
 
       <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
         <div
