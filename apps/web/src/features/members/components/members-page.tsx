@@ -127,19 +127,16 @@ interface TabButtonProps {
 
 function TabButton({ active, onClick, label, count }: TabButtonProps) {
   return (
-    <button
+    <Button
+      variant={active ? 'default' : 'ghost'}
+      size="sm"
       onClick={onClick}
-      className={cn(
-        'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-        active
-          ? 'bg-primary text-primary-foreground'
-          : 'text-muted-foreground hover:bg-muted'
-      )}
+      className={cn('gap-1.5', !active && 'text-muted-foreground')}
     >
       {label}
       <Badge variant={active ? 'secondary' : 'outline'} size="sm">
         {count}
       </Badge>
-    </button>
+    </Button>
   )
 }

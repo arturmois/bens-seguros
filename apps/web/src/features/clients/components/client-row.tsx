@@ -1,6 +1,7 @@
 import { ChevronDown, MoreHorizontal } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { TableCell, TableRow } from '@/components/ui/table'
 import {
   DropdownMenu,
@@ -45,9 +46,9 @@ export function ClientRow({
         }}
       >
         <TableCell className="w-10 md:hidden">
-          <button
-            type="button"
-            className="hover:bg-muted flex h-8 w-8 items-center justify-center rounded-md"
+          <Button
+            variant="ghost"
+            size="icon-sm"
             onClick={(e) => {
               e.stopPropagation()
               onToggleExpand()
@@ -60,7 +61,7 @@ export function ClientRow({
                 isExpanded && 'rotate-180'
               )}
             />
-          </button>
+          </Button>
         </TableCell>
         <TableCell className="font-medium">{client.name}</TableCell>
         <TableCell className="hidden md:table-cell">

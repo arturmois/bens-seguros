@@ -53,9 +53,10 @@ export function ChatHeader({
             <ArrowLeft className="h-5 w-5" />
           </Button>
 
-          <button
+          <Button
+            variant="ghost"
             onClick={onOpenProfile}
-            className="flex items-center gap-2 transition-opacity hover:opacity-80 md:gap-3"
+            className="h-auto gap-2 px-2 py-1 transition-opacity hover:opacity-80 md:gap-3"
           >
             <div className="relative">
               <div
@@ -90,7 +91,7 @@ export function ChatHeader({
                 {conversation.whatsappPhone ?? ''}
               </p>
             </div>
-          </button>
+          </Button>
         </div>
 
         <div className="flex items-center gap-1">
