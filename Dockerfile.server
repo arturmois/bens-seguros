@@ -49,20 +49,21 @@ FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Production dependencies (includes @prisma/client with WASM engine)
-COPY --from=prod-deps /app/node_modules ./node_modules
-COPY --from=prod-deps /app/apps/server/node_modules ./apps/server/node_modules
+RUN addgroup --system app && adduser --system --ingroup app app
+
+# Production dependencies — chown to app so prisma migrate deploy works as non-root
+COPY --from=prod-deps --chown=app:app /app/node_modules ./node_modules
+COPY --from=prod-deps --chown=app:app /app/apps/server/node_modules ./apps/server/node_modules
 
 # Prisma generated client (Prisma 7 uses WASM, no native .prisma binaries)
-COPY --from=builder /app/packages/db/generated ./packages/db/generated
-COPY --from=builder /app/packages/db/prisma ./prisma
-COPY --from=builder /app/packages/db/prisma.config.ts ./prisma.config.ts
+COPY --from=builder --chown=app:app /app/packages/db/generated ./packages/db/generated
+COPY --from=builder --chown=app:app /app/packages/db/prisma ./prisma
+COPY --from=builder --chown=app:app /app/packages/db/prisma.config.ts ./prisma.config.ts
 
 # Bundled app code
-COPY --from=builder /app/apps/server/dist ./server/dist
-COPY --from=builder /app/apps/worker/dist ./worker/dist
+COPY --from=builder --chown=app:app /app/apps/server/dist ./server/dist
+COPY --from=builder --chown=app:app /app/apps/worker/dist ./worker/dist
 
-RUN addgroup --system app && adduser --system --ingroup app app
 USER app
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
