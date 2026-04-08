@@ -10,8 +10,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-import { AuditTable } from './audit-table'
 import type { AuditLogFilters } from '../lib/constants'
+import { AuditTable } from './audit-table'
 
 const ENTITY_TYPE_OPTIONS = [
   { value: 'ALL', label: 'Todas entidades' },
@@ -32,10 +32,34 @@ const ACTION_OPTIONS = [
 ] as const
 
 export function AuditContent() {
-  const [filters, setFilters] = useState<AuditLogFilters>({})
+  const [entityType, setEntityType] = useState<string | undefined>(undefined)
+  const [action, setAction] = useState<string | undefined>(undefined)
+  const [cursors, setCursors] = useState<string[]>([])
 
-  function handleLoadMore(cursor: string) {
-    setFilters((prev) => ({ ...prev, cursor }))
+  const currentCursor = cursors.at(-1)
+
+  const filters: AuditLogFilters = {
+    entityType,
+    action,
+    cursor: currentCursor,
+  }
+
+  function handleEntityTypeChange(v: string | null) {
+    setEntityType(v === 'ALL' ? undefined : (v ?? undefined))
+    setCursors([])
+  }
+
+  function handleActionChange(v: string | null) {
+    setAction(v === 'ALL' ? undefined : (v ?? undefined))
+    setCursors([])
+  }
+
+  function handleNextPage(nextCursor: string) {
+    setCursors((prev) => [...prev, nextCursor])
+  }
+
+  function handlePreviousPage() {
+    setCursors((prev) => prev.slice(0, -1))
   }
 
   return (
@@ -43,14 +67,8 @@ export function AuditContent() {
       <div className="flex flex-wrap items-center gap-2">
         <Select
           aria-label="Filtrar por entidade"
-          value={filters.entityType ?? 'ALL'}
-          onValueChange={(v: string | null) => {
-            setFilters((prev) => ({
-              ...prev,
-              entityType: v === 'ALL' ? undefined : (v ?? undefined),
-              cursor: undefined,
-            }))
-          }}
+          value={entityType ?? 'ALL'}
+          onValueChange={handleEntityTypeChange}
           items={[...ENTITY_TYPE_OPTIONS]}
         >
           <SelectTrigger size="sm" className="w-48">
@@ -71,14 +89,8 @@ export function AuditContent() {
         </Select>
         <Select
           aria-label="Filtrar por ação"
-          value={filters.action ?? 'ALL'}
-          onValueChange={(v: string | null) => {
-            setFilters((prev) => ({
-              ...prev,
-              action: v === 'ALL' ? undefined : (v ?? undefined),
-              cursor: undefined,
-            }))
-          }}
+          value={action ?? 'ALL'}
+          onValueChange={handleActionChange}
           items={[...ACTION_OPTIONS]}
         >
           <SelectTrigger size="sm" className="w-44">
@@ -98,7 +110,12 @@ export function AuditContent() {
           </SelectContent>
         </Select>
       </div>
-      <AuditTable filters={filters} onLoadMore={handleLoadMore} />
+      <AuditTable
+        filters={filters}
+        hasPreviousPage={cursors.length > 0}
+        onNextPage={handleNextPage}
+        onPreviousPage={handlePreviousPage}
+      />
     </div>
   )
 }

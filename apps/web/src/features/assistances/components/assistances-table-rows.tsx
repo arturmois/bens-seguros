@@ -1,9 +1,15 @@
 'use client'
 
-import Link from 'next/link'
 import { LifeBuoy, MoreHorizontal, Plus } from 'lucide-react'
+import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/menu'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   TableBody,
@@ -12,12 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/menu'
 
 import type { AssistanceData } from '../lib/constants'
 import { getAssistanceTypeLabel } from '../lib/constants'
@@ -107,12 +107,16 @@ function AssistanceRow({
       <TableCell>
         <DropdownMenu>
           <DropdownMenuTrigger
-            className="hover:bg-accent inline-flex h-10 w-10 items-center justify-center rounded-md"
-            aria-haspopup="menu"
+            render={
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Ações da assistência"
+              />
+            }
             onClick={(e) => e.stopPropagation()}
           >
             <MoreHorizontal className="h-4 w-4" />
-            <span className="sr-only">Ações da assistência</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
@@ -158,11 +162,9 @@ function EmptyRow() {
               Registre sua primeira assistência para começar.
             </p>
           </div>
-          <Button asChild className="mt-1">
-            <Link href="/assistances/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Nova Assistência
-            </Link>
+          <Button className="mt-1" render={<Link href="/assistances/new" />}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nova Assistência
           </Button>
         </div>
       </TableCell>

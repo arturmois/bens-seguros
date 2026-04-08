@@ -34,12 +34,12 @@ import {
 } from '../lib/constants'
 import { InsuredObjectSection } from './insured-object-section'
 import { IssuePolicyCard } from './issue-policy-card'
-import { SendQuoteDialog } from './send-quote-dialog'
-import { RenewalPolicyCard } from './renewal-policy-card'
 import { LostReasonDialog } from './lost-reason-dialog'
 import { ProposalChecklistPanel } from './proposal-checklist-panel'
 import { DetailSkeleton, InfoItem } from './proposal-detail-helpers'
 import { ProposalStageActions } from './proposal-stage-actions'
+import { RenewalPolicyCard } from './renewal-policy-card'
+import { SendQuoteDialog } from './send-quote-dialog'
 
 interface ProposalDetailProps {
   proposalId: string
@@ -211,11 +211,15 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
                 />
               </div>
               {proposal.sourcePolicyId && (
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/policies/${proposal.sourcePolicyId}`}>
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    Ver apólice
-                  </Link>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  render={
+                    <Link href={`/policies/${proposal.sourcePolicyId}`} />
+                  }
+                >
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  Ver apólice
                 </Button>
               )}
             </div>

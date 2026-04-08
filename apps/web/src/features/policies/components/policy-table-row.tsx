@@ -4,7 +4,12 @@ import { Ban, MoreHorizontal } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Menu, MenuPopup, MenuItem, MenuTrigger } from '@/components/ui/menu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/menu'
 import { TableCell, TableRow } from '@/components/ui/table'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 
@@ -58,26 +63,25 @@ export function PolicyTableRow({
       </TableCell>
       <TableCell onClick={(e) => e.stopPropagation()}>
         {policy.status === 'ACTIVE' && (
-          <Menu>
-            <MenuTrigger
+          <DropdownMenu>
+            <DropdownMenuTrigger
               render={
                 <Button
                   variant="ghost"
-                  size="icon"
-                  className="size-10"
+                  size="icon-sm"
                   aria-label={`Ações da apólice ${policy.policyNumber}`}
                 />
               }
             >
               <MoreHorizontal className="size-4" />
-            </MenuTrigger>
-            <MenuPopup align="end">
-              <MenuItem onClick={() => onCancelClick(policy)}>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onCancelClick(policy)}>
                 <Ban className="mr-2 size-4" />
                 Cancelar
-              </MenuItem>
-            </MenuPopup>
-          </Menu>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </TableCell>
     </TableRow>

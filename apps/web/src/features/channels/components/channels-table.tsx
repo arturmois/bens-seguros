@@ -2,6 +2,7 @@
 
 import { Code, MoreHorizontal, Pencil, Power, QrCode } from 'lucide-react'
 
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -107,8 +108,13 @@ function ChannelRow({
       <TableCell>
         <DropdownMenu>
           <DropdownMenuTrigger
-            className="hover:bg-accent inline-flex h-10 w-10 items-center justify-center rounded-md"
-            aria-label={`Ações do canal ${channel.name}`}
+            render={
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={`Ações do canal ${channel.name}`}
+              />
+            }
           >
             <MoreHorizontal className="size-4" />
           </DropdownMenuTrigger>

@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { ChevronLeft, ChevronRight, Shield } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, ChevronRight, Shield } from 'lucide-react'
+import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -27,15 +27,16 @@ export function PoliciesTable() {
   const router = useRouter()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<PolicyStatus | 'ALL'>('ALL')
-  const [cursor, setCursor] = useState<string | undefined>(undefined)
+  const [cursors, setCursors] = useState<string[]>([])
   const [cancelTarget, setCancelTarget] = useState<PolicyData | null>(null)
 
   const debouncedSearch = useDebounce(search, 300)
+  const currentCursor = cursors.at(-1)
 
   const { data, isLoading, isError, refetch } = usePolicies({
     search: debouncedSearch || undefined,
     status: statusFilter === 'ALL' ? undefined : statusFilter,
-    cursor,
+    cursor: currentCursor,
   })
 
   const policies = data?.data ?? []
@@ -43,12 +44,22 @@ export function PoliciesTable() {
 
   const handleSearchChange = (value: string) => {
     setSearch(value)
-    setCursor(undefined)
+    setCursors([])
   }
 
   const handleStatusFilterChange = (value: PolicyStatus | 'ALL') => {
     setStatusFilter(value)
-    setCursor(undefined)
+    setCursors([])
+  }
+
+  function handleNextPage() {
+    if (meta?.nextCursor) {
+      setCursors((prev) => [...prev, meta.nextCursor!])
+    }
+  }
+
+  function handlePreviousPage() {
+    setCursors((prev) => prev.slice(0, -1))
   }
 
   if (isError) {
@@ -112,8 +123,12 @@ export function PoliciesTable() {
               As apólices serão criadas a partir de propostas aprovadas.
             </p>
           </div>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/proposals">Ver propostas</Link>
+          <Button
+            variant="outline"
+            size="sm"
+            render={<Link href="/proposals" />}
+          >
+            Ver propostas
           </Button>
         </div>
       ) : (
@@ -144,26 +159,29 @@ export function PoliciesTable() {
             </Table>
           </div>
 
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!cursor}
-              onClick={() => setCursor(undefined)}
-            >
-              <ChevronLeft className="mr-1 size-4" /> Anterior
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!meta?.nextCursor}
-              onClick={() => {
-                if (meta?.nextCursor) setCursor(meta.nextCursor)
-              }}
-            >
-              Próximo <ChevronRight className="ml-1 size-4" />
-            </Button>
-          </div>
+          <nav
+            aria-label="Paginação de apólices"
+            className="flex items-center justify-end"
+          >
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={cursors.length === 0}
+                onClick={handlePreviousPage}
+              >
+                <ChevronLeft className="mr-1 size-4" /> Anterior
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!meta?.nextCursor}
+                onClick={handleNextPage}
+              >
+                Próximo <ChevronRight className="ml-1 size-4" />
+              </Button>
+            </div>
+          </nav>
         </>
       )}
 

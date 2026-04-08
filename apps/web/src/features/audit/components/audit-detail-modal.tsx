@@ -1,13 +1,14 @@
 'use client'
 
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog'
-import { Badge } from '@/components/ui/badge'
 import { formatDate } from '@/lib/formatters'
 
 import type { AuditLogEntry } from '../lib/constants'
@@ -86,7 +87,11 @@ export function AuditDetailModal({
           <JsonBlock label="Antes" data={entry.before ?? null} />
           <JsonBlock label="Depois" data={entry.after ?? null} />
         </div>
-        <DialogFooter showCloseButton />
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            Fechar
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

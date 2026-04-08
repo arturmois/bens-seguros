@@ -16,9 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 type DrawerPosition = 'right' | 'left' | 'top' | 'bottom'
 
 const DrawerContext: React.Context<{ position: DrawerPosition }> =
-  createContext<{
-    position: DrawerPosition
-  }>({
+  createContext<{ position: DrawerPosition }>({
     position: 'bottom',
   })
 
@@ -110,7 +108,7 @@ export function DrawerBackdrop({
 }
 
 export function DrawerViewport({
-  className: _className,
+  className,
   position,
   variant = 'default',
   ...props
@@ -129,7 +127,8 @@ export function DrawerViewport({
         position === 'right' && 'flex justify-end',
         variant === 'inset' && 'px-(--inset) sm:[--inset:--spacing(4)]',
         variant === 'inset' && position !== 'bottom' && 'pt-(--inset)',
-        variant === 'inset' && position !== 'top' && 'pb-(--inset)'
+        variant === 'inset' && position !== 'top' && 'pb-(--inset)',
+        className
       )}
       data-slot="drawer-viewport"
       {...props}

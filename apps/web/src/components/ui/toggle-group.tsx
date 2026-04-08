@@ -54,12 +54,11 @@ export function ToggleGroup({
   )
 }
 
-export function Toggle({
+export function ToggleGroupItem({
   className,
   children,
   variant,
   size,
-  onPressedChange,
   ...props
 }: TogglePrimitive.Props &
   VariantProps<typeof toggleVariants>): React.ReactElement {
@@ -67,21 +66,12 @@ export function Toggle({
 
   const resolvedVariant = context.variant || variant
   const resolvedSize = context.size || size
-  const resolvedClassName =
-    typeof className === 'function' ? undefined : className
-  const handlePressedChange = onPressedChange
-    ? (pressed: boolean) =>
-        onPressedChange(pressed, {
-          reason: 'none',
-        } as TogglePrimitive.ChangeEventDetails)
-    : undefined
 
   return (
     <ToggleComponent
-      className={resolvedClassName}
+      className={className}
       data-size={resolvedSize}
       data-variant={resolvedVariant}
-      onPressedChange={handlePressedChange}
       size={resolvedSize}
       variant={resolvedVariant}
       {...props}
@@ -110,4 +100,4 @@ export function ToggleGroupSeparator({
   )
 }
 
-export { ToggleGroupPrimitive, Toggle as ToggleGroupItem }
+export { ToggleGroupPrimitive }

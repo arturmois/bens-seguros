@@ -1,8 +1,8 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import { FileText } from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 
 interface ClientProposalsTabProps {
   readonly clientId: string
@@ -15,10 +15,12 @@ export function ClientProposalsTab({ clientId }: ClientProposalsTabProps) {
       <p className="text-muted-foreground text-sm">
         As propostas deste cliente aparecerão aqui.
       </p>
-      <Button variant="link" asChild className="mt-2">
-        <Link href={`/proposals?clientId=${clientId}`}>
-          Ver todas as propostas
-        </Link>
+      <Button
+        variant="link"
+        className="mt-2"
+        render={<Link href={`/proposals?clientId=${clientId}`} />}
+      >
+        Ver todas as propostas
       </Button>
     </div>
   )

@@ -1,6 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -9,21 +17,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/menu'
 import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogClose,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import {
   LogOut,
   MoreVertical,
   RefreshCw,
   UserCheck,
   UserPlus,
 } from 'lucide-react'
+import { useState } from 'react'
 
 import type { ConversationData } from '../types'
 import { useChatActions } from './chat-actions-context'
@@ -71,10 +71,15 @@ export function HeaderActions({
       <>
         <DropdownMenu>
           <DropdownMenuTrigger
-            aria-label="Ações da conversa"
-            className="text-muted-foreground hover:text-foreground hover:bg-accent inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors md:h-9 md:w-9"
+            render={
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Ações da conversa"
+              />
+            }
           >
-            <MoreVertical className="h-4 w-4 md:h-5 md:w-5" />
+            <MoreVertical className="size-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={onTransfer}>

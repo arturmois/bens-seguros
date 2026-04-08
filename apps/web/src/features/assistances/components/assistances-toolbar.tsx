@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
 import { Plus, Search } from 'lucide-react'
+import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -46,11 +46,9 @@ export function AssistancesToolbar({
             className="pl-9"
           />
         </div>
-        <Button asChild>
-          <Link href="/assistances/new">
-            <Plus className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Nova Assistência</span>
-          </Link>
+        <Button render={<Link href="/assistances/new" />}>
+          <Plus className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Nova Assistência</span>
         </Button>
       </div>
 

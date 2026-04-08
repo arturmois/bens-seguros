@@ -1,7 +1,7 @@
 'use client'
 
-import { useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useCallback, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -18,6 +18,7 @@ import type { BoardType, ProposalData, ProposalStage } from '../lib/constants'
 import { BOARD_TYPES } from '../lib/constants'
 import { LostReasonDialog } from './lost-reason-dialog'
 import { ProposalTableRow } from './proposal-table-row'
+import { ProposalsPagination } from './proposals-pagination'
 import {
   ProposalsEmptyState,
   ProposalsTableSkeleton,
@@ -37,12 +38,13 @@ export function ProposalsTable({
   const [search, setSearch] = useState('')
   const [stageFilter, setStageFilter] = useState<string>(ALL_VALUE)
   const [boardTypeFilter, setBoardTypeFilter] = useState<string>(ALL_VALUE)
-  const [cursor, setCursor] = useState<string | undefined>(undefined)
+  const [cursors, setCursors] = useState<string[]>([])
   const [lostDialogProposalId, setLostDialogProposalId] = useState<
     string | null
   >(null)
 
   const debouncedSearch = useDebounce(search, 300)
+  const currentCursor = cursors.at(-1)
 
   const boardType =
     boardTypeFilter !== ALL_VALUE
@@ -56,7 +58,7 @@ export function ProposalsTable({
     stage:
       stageFilter !== ALL_VALUE ? (stageFilter as ProposalStage) : undefined,
     boardType,
-    cursor,
+    cursor: currentCursor,
     limit: 20,
   }
 
@@ -72,17 +74,27 @@ export function ProposalsTable({
 
   const handleSearchChange = (value: string) => {
     setSearch(value)
-    setCursor(undefined)
+    setCursors([])
   }
 
   const handleStageFilterChange = (value: string) => {
     setStageFilter(value)
-    setCursor(undefined)
+    setCursors([])
   }
 
   const handleBoardTypeFilterChange = (value: string) => {
     setBoardTypeFilter(value)
-    setCursor(undefined)
+    setCursors([])
+  }
+
+  function handleNextPage() {
+    if (data?.meta.nextCursor) {
+      setCursors((prev) => [...prev, data.meta.nextCursor!])
+    }
+  }
+
+  function handlePreviousPage() {
+    setCursors((prev) => prev.slice(0, -1))
   }
 
   if (isError) {
@@ -148,16 +160,13 @@ export function ProposalsTable({
               </Table>
             </div>
           )}
-          {data?.meta.nextCursor && (
-            <div className="flex justify-center">
-              <Button
-                variant="outline"
-                onClick={() => setCursor(data.meta.nextCursor ?? undefined)}
-              >
-                Carregar mais
-              </Button>
-            </div>
-          )}
+
+          <ProposalsPagination
+            hasNextPage={Boolean(data?.meta.nextCursor)}
+            hasPreviousPage={cursors.length > 0}
+            onNext={handleNextPage}
+            onPrevious={handlePreviousPage}
+          />
         </>
       )}
 

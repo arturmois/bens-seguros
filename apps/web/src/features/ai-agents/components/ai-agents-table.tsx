@@ -3,6 +3,7 @@
 import { Copy, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -110,8 +111,13 @@ function AgentRow({ agent, onEdit, onDuplicate, onDelete }: AgentRowProps) {
       <TableCell>
         <DropdownMenu>
           <DropdownMenuTrigger
-            className="hover:bg-accent inline-flex h-10 w-10 items-center justify-center rounded-md"
-            aria-label={`Acoes do agente ${agent.name}`}
+            render={
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={`Ações do agente ${agent.name}`}
+              />
+            }
           >
             <MoreHorizontal className="size-4" />
           </DropdownMenuTrigger>

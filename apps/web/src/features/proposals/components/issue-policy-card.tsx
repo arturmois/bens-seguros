@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { FileCheck, ExternalLink } from 'lucide-react'
+import { ExternalLink, FileCheck } from 'lucide-react'
 import Link from 'next/link'
+import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 
@@ -31,11 +31,12 @@ export function IssuePolicyCard({
             Esta proposta já possui uma apólice vinculada.
           </p>
         </div>
-        <Button asChild variant="outline">
-          <Link href={`/policies/${policyId}`}>
-            <ExternalLink className="mr-2 h-4 w-4" />
-            Ver Apólice
-          </Link>
+        <Button
+          variant="outline"
+          render={<Link href={`/policies/${policyId}`} />}
+        >
+          <ExternalLink className="mr-2 h-4 w-4" />
+          Ver Apólice
         </Button>
       </div>
     )

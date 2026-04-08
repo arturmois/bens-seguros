@@ -3,6 +3,7 @@
 import { MoreHorizontal, Pencil, Power } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -72,8 +73,13 @@ export function InsurersTable({
               <TableCell onClick={(e) => e.stopPropagation()}>
                 <DropdownMenu>
                   <DropdownMenuTrigger
-                    className="hover:bg-accent inline-flex h-10 w-10 items-center justify-center rounded-md"
-                    aria-label={`Ações da seguradora ${insurer.name}`}
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={`Ações da seguradora ${insurer.name}`}
+                      />
+                    }
                   >
                     <MoreHorizontal className="size-4" />
                   </DropdownMenuTrigger>

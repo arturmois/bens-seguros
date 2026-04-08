@@ -1,14 +1,14 @@
 'use client'
 
-import Link from 'next/link'
 import { ExternalLink, RefreshCw } from 'lucide-react'
+import Link from 'next/link'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardPanel, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatCurrency } from '@/lib/formatters'
 import { usePolicy } from '@/features/policies/hooks/use-policies'
+import { formatCurrency } from '@/lib/formatters'
 
 interface RenewalPolicyCardProps {
   readonly policyId: string
@@ -54,11 +54,13 @@ export function RenewalPolicyCard({ policyId }: RenewalPolicyCardProps) {
             <RefreshCw className="size-4" />
             Apólice em Renovação
           </CardTitle>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={`/policies/${policyId}`}>
-              <ExternalLink className="mr-1 size-3" />
-              Ver apólice
-            </Link>
+          <Button
+            variant="ghost"
+            size="sm"
+            render={<Link href={`/policies/${policyId}`} />}
+          >
+            <ExternalLink className="mr-1 size-3" />
+            Ver apólice
           </Button>
         </div>
       </CardHeader>
