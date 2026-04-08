@@ -21,8 +21,16 @@ import type {
 } from '@tanstack/react-query'
 
 import type {
+  AcceptInvitation200,
+  AcceptInvitation400,
+  AcceptInvitation401,
+  AcceptInvitation404,
+  AcceptInvitation409,
+  AcceptInvitationBody,
   CreateInvitation201,
   CreateInvitationBody,
+  GetPublicInvitation200,
+  GetPublicInvitation404,
   ListInvitations200,
   ListInvitationsParams,
   RevokeInvitation200,
@@ -32,6 +40,370 @@ import { customFetch } from '../../../lib/api-mutator'
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
 
+/**
+ * @summary Get public invitation details (unauthenticated)
+ */
+export type getPublicInvitationResponse200 = {
+  data: GetPublicInvitation200
+  status: 200
+}
+
+export type getPublicInvitationResponse404 = {
+  data: GetPublicInvitation404
+  status: 404
+}
+
+export type getPublicInvitationResponseSuccess =
+  getPublicInvitationResponse200 & {
+    headers: Headers
+  }
+export type getPublicInvitationResponseError =
+  getPublicInvitationResponse404 & {
+    headers: Headers
+  }
+
+export type getPublicInvitationResponse =
+  | getPublicInvitationResponseSuccess
+  | getPublicInvitationResponseError
+
+export const getGetPublicInvitationUrl = (id: string) => {
+  return `/api/v1/invitations/${id}/public`
+}
+
+export const getPublicInvitation = async (
+  id: string,
+  options?: RequestInit
+): Promise<getPublicInvitationResponse> => {
+  return customFetch<getPublicInvitationResponse>(
+    getGetPublicInvitationUrl(id),
+    {
+      ...options,
+      method: 'GET',
+    }
+  )
+}
+
+export const getGetPublicInvitationQueryKey = (id: string) => {
+  return [`/api/v1/invitations/${id}/public`] as const
+}
+
+export const getGetPublicInvitationQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPublicInvitation>>,
+  TError = GetPublicInvitation404,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getPublicInvitation>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetPublicInvitationQueryKey(id)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getPublicInvitation>>
+  > = ({ signal }) => getPublicInvitation(id, { signal, ...requestOptions })
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    staleTime: 60000,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getPublicInvitation>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetPublicInvitationQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPublicInvitation>>
+>
+export type GetPublicInvitationQueryError = GetPublicInvitation404
+
+export function useGetPublicInvitation<
+  TData = Awaited<ReturnType<typeof getPublicInvitation>>,
+  TError = GetPublicInvitation404,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getPublicInvitation>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicInvitation>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicInvitation>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetPublicInvitation<
+  TData = Awaited<ReturnType<typeof getPublicInvitation>>,
+  TError = GetPublicInvitation404,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getPublicInvitation>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicInvitation>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicInvitation>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetPublicInvitation<
+  TData = Awaited<ReturnType<typeof getPublicInvitation>>,
+  TError = GetPublicInvitation404,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getPublicInvitation>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary Get public invitation details (unauthenticated)
+ */
+
+export function useGetPublicInvitation<
+  TData = Awaited<ReturnType<typeof getPublicInvitation>>,
+  TError = GetPublicInvitation404,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getPublicInvitation>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetPublicInvitationQueryOptions(id, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+/**
+ * @summary Get public invitation details (unauthenticated)
+ */
+export const prefetchGetPublicInvitationQuery = async <
+  TData = Awaited<ReturnType<typeof getPublicInvitation>>,
+  TError = GetPublicInvitation404,
+>(
+  queryClient: QueryClient,
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getPublicInvitation>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  }
+): Promise<QueryClient> => {
+  const queryOptions = getGetPublicInvitationQueryOptions(id, options)
+
+  await queryClient.prefetchQuery(queryOptions)
+
+  return queryClient
+}
+
+/**
+ * @summary Accept invitation (register or login)
+ */
+export type acceptInvitationResponse200 = {
+  data: AcceptInvitation200
+  status: 200
+}
+
+export type acceptInvitationResponse400 = {
+  data: AcceptInvitation400
+  status: 400
+}
+
+export type acceptInvitationResponse401 = {
+  data: AcceptInvitation401
+  status: 401
+}
+
+export type acceptInvitationResponse404 = {
+  data: AcceptInvitation404
+  status: 404
+}
+
+export type acceptInvitationResponse409 = {
+  data: AcceptInvitation409
+  status: 409
+}
+
+export type acceptInvitationResponseSuccess = acceptInvitationResponse200 & {
+  headers: Headers
+}
+export type acceptInvitationResponseError = (
+  | acceptInvitationResponse400
+  | acceptInvitationResponse401
+  | acceptInvitationResponse404
+  | acceptInvitationResponse409
+) & {
+  headers: Headers
+}
+
+export type acceptInvitationResponse =
+  | acceptInvitationResponseSuccess
+  | acceptInvitationResponseError
+
+export const getAcceptInvitationUrl = (id: string) => {
+  return `/api/v1/invitations/${id}/accept`
+}
+
+export const acceptInvitation = async (
+  id: string,
+  acceptInvitationBody: AcceptInvitationBody,
+  options?: RequestInit
+): Promise<acceptInvitationResponse> => {
+  return customFetch<acceptInvitationResponse>(getAcceptInvitationUrl(id), {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(acceptInvitationBody),
+  })
+}
+
+export const getAcceptInvitationMutationOptions = <
+  TError =
+    | AcceptInvitation400
+    | AcceptInvitation401
+    | AcceptInvitation404
+    | AcceptInvitation409,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof acceptInvitation>>,
+    TError,
+    { id: string; data: AcceptInvitationBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customFetch>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof acceptInvitation>>,
+  TError,
+  { id: string; data: AcceptInvitationBody },
+  TContext
+> => {
+  const mutationKey = ['acceptInvitation']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof acceptInvitation>>,
+    { id: string; data: AcceptInvitationBody }
+  > = (props) => {
+    const { id, data } = props ?? {}
+
+    return acceptInvitation(id, data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AcceptInvitationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof acceptInvitation>>
+>
+export type AcceptInvitationMutationBody = AcceptInvitationBody
+export type AcceptInvitationMutationError =
+  | AcceptInvitation400
+  | AcceptInvitation401
+  | AcceptInvitation404
+  | AcceptInvitation409
+
+/**
+ * @summary Accept invitation (register or login)
+ */
+export const useAcceptInvitation = <
+  TError =
+    | AcceptInvitation400
+    | AcceptInvitation401
+    | AcceptInvitation404
+    | AcceptInvitation409,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof acceptInvitation>>,
+      TError,
+      { id: string; data: AcceptInvitationBody },
+      TContext
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof acceptInvitation>>,
+  TError,
+  { id: string; data: AcceptInvitationBody },
+  TContext
+> => {
+  return useMutation(getAcceptInvitationMutationOptions(options), queryClient)
+}
 /**
  * @summary List pending invitations
  */

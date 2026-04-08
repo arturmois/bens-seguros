@@ -1,16 +1,16 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
-  Mail,
-  Phone,
-  Pencil,
-  Trash2,
   Calendar,
+  Mail,
+  Pencil,
+  Phone,
   RefreshCw,
+  Trash2,
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -19,13 +19,13 @@ import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs'
 
+import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import { DocumentList } from '@/features/documents/components/document-list'
 import { DocumentUpload } from '@/features/documents/components/document-upload'
 
 import { formatDocument } from '@/lib/masks'
-import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
 import { useClient, useDeleteClient } from '../hooks/use-clients'
-import { ClientForm } from './client-form'
+import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
 import { ClientHistoryTab } from './client-history-tab'
 import { ClientPoliciesTab } from './client-policies-tab'
 import { ClientProposalsTab } from './client-proposals-tab'
@@ -40,7 +40,6 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
   const { data: client, isLoading, isError } = useClient(clientId)
   const deleteClient = useDeleteClient()
 
-  const [formOpen, setFormOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
 
   function handleConfirmDelete() {
@@ -86,19 +85,13 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
 
   return (
     <div className="space-y-6">
-      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.push('/clients')}
-          className="gap-1"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Clientes
-        </Button>
-        <span className="text-muted-foreground">/</span>
-        <span className="text-muted-foreground">{client.name}</span>
-      </nav>
+      <PageBreadcrumb
+        items={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Clientes', href: '/clients' },
+          { label: client.name },
+        ]}
+      />
 
       <div className="rounded-lg border p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -132,7 +125,7 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setFormOpen(true)}
+              onClick={() => router.push(`/clients/${clientId}/edit`)}
             >
               <Pencil className="mr-2 h-4 w-4" />
               Editar
@@ -194,39 +187,6 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
           <ClientHistoryTab clientId={clientId} />
         </TabsContent>
       </Tabs>
-
-      <ClientForm
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        clientId={client.id}
-        defaultValues={{
-          name: client.name,
-          document: client.document,
-          personType: client.personType ?? 'INDIVIDUAL',
-          type: client.type,
-          email: client.email ?? '',
-          phone: client.phone ?? '',
-          birthDate: client.birthDate
-            ? (() => {
-                const d = new Date(client.birthDate)
-                const year = d.getUTCFullYear()
-                const month = String(d.getUTCMonth() + 1).padStart(2, '0')
-                const day = String(d.getUTCDate()).padStart(2, '0')
-                return `${year}-${month}-${day}`
-              })()
-            : '',
-          profession: client.profession ?? '',
-          maritalStatus: client.maritalStatus ?? undefined,
-          socialMedia: client.socialMedia
-            ? {
-                instagram: client.socialMedia.instagram ?? '',
-                facebook: client.socialMedia.facebook ?? '',
-                linkedin: client.socialMedia.linkedin ?? '',
-                tiktok: client.socialMedia.tiktok ?? '',
-              }
-            : undefined,
-        }}
-      />
 
       <DeleteClientDialog
         open={deleteOpen}

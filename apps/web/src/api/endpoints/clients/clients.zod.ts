@@ -52,6 +52,9 @@ export const CreateClientBody = zod.object({
 export const listClientsQueryLimitDefault = 20
 export const listClientsQueryLimitMax = 100
 
+export const listClientsQuerySortByDefault = `createdAt`
+export const listClientsQuerySortOrderDefault = `desc`
+
 export const ListClientsQueryParams = zod.object({
   cursor: zod.string().optional(),
   limit: zod
@@ -61,6 +64,12 @@ export const ListClientsQueryParams = zod.object({
     .default(listClientsQueryLimitDefault),
   type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']).optional(),
   search: zod.string().optional(),
+  sortBy: zod
+    .enum(['name', 'document', 'type', 'createdAt'])
+    .default(listClientsQuerySortByDefault),
+  sortOrder: zod
+    .enum(['asc', 'desc'])
+    .default(listClientsQuerySortOrderDefault),
 })
 
 export const ListClientsResponse = zod.object({
@@ -98,6 +107,9 @@ export const ListClientsResponse = zod.object({
 export const exportClientsQueryLimitDefault = 20
 export const exportClientsQueryLimitMax = 100
 
+export const exportClientsQuerySortByDefault = `createdAt`
+export const exportClientsQuerySortOrderDefault = `desc`
+
 export const ExportClientsQueryParams = zod.object({
   cursor: zod.string().optional(),
   limit: zod
@@ -107,6 +119,12 @@ export const ExportClientsQueryParams = zod.object({
     .default(exportClientsQueryLimitDefault),
   type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']).optional(),
   search: zod.string().optional(),
+  sortBy: zod
+    .enum(['name', 'document', 'type', 'createdAt'])
+    .default(exportClientsQuerySortByDefault),
+  sortOrder: zod
+    .enum(['asc', 'desc'])
+    .default(exportClientsQuerySortOrderDefault),
 })
 
 /**

@@ -4,27 +4,44 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import {
-  useListClients,
-  useGetClient,
   createClient,
-  updateClient,
   deleteClient,
-  getListClientsQueryKey,
   getGetClientQueryKey,
+  getListClientsQueryKey,
+  updateClient,
+  useGetClient,
+  useListClients,
 } from '@/api/endpoints/clients/clients'
 
 import type { z } from 'zod'
 
 import { CreateClientBody } from '@/api/endpoints/clients/clients.zod'
 
+import type {
+  ListClients200DataItem,
+  ListClients200Meta,
+  ListClientsSortBy,
+  ListClientsSortOrder,
+} from '@/api/model'
+
 import type { ClientFilters } from '../lib/constants'
 
 type ClientFormValues = z.infer<typeof CreateClientBody>
 
+interface ClientsQueryData {
+  readonly data: ListClients200DataItem[]
+  readonly meta: ListClients200Meta
+}
+
 export const CLIENTS_QUERY_KEY = getListClientsQueryKey
 
-export function useClients(filters: ClientFilters) {
-  return useListClients(filters, {
+export function useClients(
+  filters: ClientFilters & {
+    sortBy?: ListClientsSortBy
+    sortOrder?: ListClientsSortOrder
+  }
+) {
+  return useListClients<ClientsQueryData>(filters, {
     query: {
       select: (response) => ({
         data: response.data.data,

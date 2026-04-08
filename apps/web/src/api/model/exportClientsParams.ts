@@ -4,6 +4,8 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
+import type { ExportClientsSortBy } from './exportClientsSortBy'
+import type { ExportClientsSortOrder } from './exportClientsSortOrder'
 import type { ExportClientsType } from './exportClientsType'
 
 export type ExportClientsParams = {
@@ -15,4 +17,6 @@ export type ExportClientsParams = {
   limit?: number
   type?: ExportClientsType
   search?: string
+  sortBy?: ExportClientsSortBy
+  sortOrder?: ExportClientsSortOrder
 }

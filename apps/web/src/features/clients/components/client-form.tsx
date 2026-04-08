@@ -1,48 +1,36 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
-import { type z } from 'zod'
-import * as zod from 'zod'
+import { useEffect } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
+import type { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
 
 import { CreateClientBody } from '@/api/endpoints/clients/clients.zod'
-
-import { EMPTY_FORM_VALUES } from '../lib/constants'
 import { useCreateClient, useUpdateClient } from '../hooks/use-clients'
+import { EMPTY_FORM_VALUES } from '../lib/constants'
 import { ClientFormFields } from './client-form-fields'
 
-// Extend Orval-generated schema with personType until next Orval regen
-const ClientFormSchema = CreateClientBody.extend({
-  personType: zod.enum(['INDIVIDUAL', 'COMPANY']).default('INDIVIDUAL'),
-})
+const ClientFormSchema = CreateClientBody
 
 type ClientFormValues = z.infer<typeof ClientFormSchema>
 
 interface ClientFormProps {
-  readonly open: boolean
-  readonly onOpenChange: (open: boolean) => void
   readonly defaultValues?: ClientFormValues
   readonly clientId?: string
+  readonly onSuccess?: () => void
+  readonly onCancel?: () => void
 }
 
 export function ClientForm({
-  open,
-  onOpenChange,
   defaultValues,
   clientId,
+  onSuccess,
+  onCancel,
 }: ClientFormProps) {
-  const isEditMode = Boolean(clientId)
+  const isEditing = Boolean(clientId)
   const createClient = useCreateClient()
   const updateClient = useUpdateClient()
   const isPending = createClient.isPending || updateClient.isPending
@@ -53,77 +41,55 @@ export function ClientForm({
   })
 
   useEffect(() => {
-    if (!open) return
-    form.reset(defaultValues ?? EMPTY_FORM_VALUES)
-  }, [open, defaultValues, form])
+    if (defaultValues) {
+      form.reset(defaultValues)
+    }
+  }, [defaultValues, form])
 
-  function handleSubmit(values: ClientFormValues) {
-    const sm = values.socialMedia
-    const cleanedSocialMedia = sm
-      ? {
-          ...(sm.instagram ? { instagram: sm.instagram } : {}),
-          ...(sm.facebook ? { facebook: sm.facebook } : {}),
-          ...(sm.linkedin ? { linkedin: sm.linkedin } : {}),
-          ...(sm.tiktok ? { tiktok: sm.tiktok } : {}),
-        }
-      : undefined
+  function cleanSocialMedia(
+    social: ClientFormValues['socialMedia']
+  ): ClientFormValues['socialMedia'] {
+    if (!social) return undefined
+    const result: ClientFormValues['socialMedia'] = {}
+    if (social.instagram?.trim()) result.instagram = social.instagram.trim()
+    if (social.facebook?.trim()) result.facebook = social.facebook.trim()
+    if (social.linkedin?.trim()) result.linkedin = social.linkedin.trim()
+    if (social.tiktok?.trim()) result.tiktok = social.tiktok.trim()
+    return Object.keys(result).length > 0 ? result : undefined
+  }
 
-    const hasSocialMedia =
-      cleanedSocialMedia && Object.keys(cleanedSocialMedia).length > 0
-    const payload: ClientFormValues = {
+  function onSubmit(values: ClientFormValues) {
+    const payload = {
       ...values,
-      socialMedia: hasSocialMedia ? cleanedSocialMedia : undefined,
+      socialMedia: cleanSocialMedia(values.socialMedia),
     }
 
-    if (isEditMode && clientId) {
-      updateClient.mutate(
-        { id: clientId, values: payload },
-        { onSuccess: () => onOpenChange(false) }
-      )
-      return
+    if (isEditing && clientId) {
+      updateClient.mutate({ id: clientId, values: payload }, { onSuccess })
+    } else {
+      createClient.mutate(payload, { onSuccess })
     }
-    createClient.mutate(payload, {
-      onSuccess: () => onOpenChange(false),
-    })
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="overflow-y-auto sm:max-w-lg">
-        <SheetHeader>
-          <SheetTitle>
-            {isEditMode ? 'Editar Cliente' : 'Novo Cliente'}
-          </SheetTitle>
-          <SheetDescription>
-            {isEditMode
-              ? 'Atualize as informações do cliente.'
-              : 'Preencha os dados para cadastrar um novo cliente.'}
-          </SheetDescription>
-        </SheetHeader>
+    <FormProvider {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <ClientFormFields isReadOnly={isEditing} />
 
-        <FormProvider {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="mt-6 space-y-4 px-6"
-          >
-            <ClientFormFields isReadOnly={isEditMode} />
-
-            <div className="flex justify-end gap-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isEditMode ? 'Salvar' : 'Criar Cliente'}
-              </Button>
-            </div>
-          </form>
-        </FormProvider>
-      </SheetContent>
-    </Sheet>
+        <div className="flex gap-3 pt-2">
+          <Button type="submit" disabled={isPending}>
+            {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+            {isEditing ? 'Salvar Alterações' : 'Cadastrar Cliente'}
+          </Button>
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancelar
+            </Button>
+          )}
+        </div>
+      </form>
+    </FormProvider>
   )
 }
+
+export type { ClientFormValues }

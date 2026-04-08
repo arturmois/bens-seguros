@@ -61,6 +61,11 @@ export const updateClientBodySchema = createClientBodyBase
 export const listClientsQuerySchema = paginationQuery().extend({
   type: z.enum(CLIENT_TYPE_VALUES).optional(),
   search: z.string().optional(),
+  sortBy: z
+    .enum(['name', 'document', 'type', 'createdAt'])
+    .optional()
+    .default('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 })
 
 export { idParam as idParamSchema }

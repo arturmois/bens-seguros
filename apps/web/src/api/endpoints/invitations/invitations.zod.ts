@@ -7,6 +7,60 @@
 import * as zod from 'zod'
 
 /**
+ * @summary Get public invitation details (unauthenticated)
+ */
+
+export const GetPublicInvitationParams = zod.object({
+  id: zod.string().min(1),
+})
+
+export const GetPublicInvitationResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    email: zod.string(),
+    role: zod.string(),
+    status: zod.string(),
+    expiresAt: zod.string().datetime({}),
+    organizationName: zod.string(),
+    inviterName: zod.string(),
+    hasAccount: zod.boolean(),
+  }),
+})
+
+/**
+ * @summary Accept invitation (register or login)
+ */
+
+export const AcceptInvitationParams = zod.object({
+  id: zod.string().min(1),
+})
+
+export const acceptInvitationBodyOneNameMin = 2
+
+export const acceptInvitationBodyOnePasswordMin = 8
+
+export const AcceptInvitationBody = zod.union([
+  zod.object({
+    mode: zod.enum(['register']),
+    name: zod.string().min(acceptInvitationBodyOneNameMin),
+    password: zod.string().min(acceptInvitationBodyOnePasswordMin),
+  }),
+  zod.object({
+    mode: zod.enum(['login']),
+    password: zod.string().min(1),
+  }),
+])
+
+export const AcceptInvitationResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    organizationId: zod.string(),
+    role: zod.string(),
+  }),
+})
+
+/**
  * @summary List pending invitations
  */
 export const listInvitationsQueryLimitDefault = 20

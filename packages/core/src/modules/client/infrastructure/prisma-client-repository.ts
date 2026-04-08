@@ -97,7 +97,10 @@ export class PrismaClientRepository implements ClientRepository {
         where,
         take: page.limit + 1,
         ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
-        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        orderBy: [
+          { [page.sortBy ?? 'createdAt']: page.sortOrder ?? 'desc' },
+          { id: 'desc' },
+        ],
       }),
       this.prisma.client.count({ where }),
     ])

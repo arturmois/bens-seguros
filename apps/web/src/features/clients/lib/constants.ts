@@ -1,8 +1,9 @@
 import type {
-  ListClients200DataItemType,
-  ListClients200DataItem,
   GetClient200Data,
+  ListClients200DataItem,
+  ListClients200DataItemType,
 } from '@/api/model'
+import type { SortingState, VisibilityState } from '@tanstack/react-table'
 
 export type ClientType = ListClients200DataItemType
 
@@ -55,12 +56,28 @@ export const TYPE_LABELS: Record<ClientType, string> = {
 
 export const TYPE_BADGE_VARIANT: Record<
   ClientType,
-  'info' | 'success' | 'warning'
+  'default' | 'warning' | 'destructive'
 > = {
-  LEAD: 'info',
-  CLIENT: 'success',
-  FORMER_CLIENT: 'warning',
+  LEAD: 'warning',
+  CLIENT: 'default',
+  FORMER_CLIENT: 'destructive',
 }
+
+export const TYPE_FILTER_OPTIONS = [
+  { value: '', label: 'Todos' },
+  ...TYPE_OPTIONS,
+] as const
+
+export const DEFAULT_COLUMN_VISIBILITY: VisibilityState = {
+  document: true,
+  type: true,
+  createdAt: true,
+  phone: true,
+}
+
+export const DEFAULT_SORTING: SortingState = [{ id: 'createdAt', desc: true }]
+
+export const PAGE_SIZE_OPTIONS = [10, 20, 50] as const
 
 export const EMPTY_FORM_VALUES = {
   name: '',

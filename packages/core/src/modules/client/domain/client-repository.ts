@@ -38,6 +38,9 @@ export interface ClientAddress {
   zip?: string
 }
 
+export type ClientSortField = 'name' | 'document' | 'type' | 'createdAt'
+export type SortOrder = 'asc' | 'desc'
+
 export interface ClientFilters {
   organizationId: string
   type?: 'LEAD' | 'CLIENT' | 'FORMER_CLIENT'
@@ -47,6 +50,8 @@ export interface ClientFilters {
 export interface CursorPage {
   cursor?: string
   limit: number
+  sortBy?: ClientSortField
+  sortOrder?: SortOrder
 }
 
 export interface Page<TItem> {

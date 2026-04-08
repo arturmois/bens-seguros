@@ -1,7 +1,7 @@
 'use client'
 
-import { Controller, useFormContext } from 'react-hook-form'
 import { InputMask } from '@react-input/mask'
+import { Controller, useFormContext } from 'react-hook-form'
 
 import { DatePicker } from '@/components/ui/date-picker'
 import { Input } from '@/components/ui/input'
@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { formatDocument, stripDocument, PHONE_MASK } from '@/lib/masks'
+import { formatDocument, PHONE_MASK, stripDocument } from '@/lib/masks'
 
 import { MARITAL_OPTIONS, TYPE_OPTIONS } from '../lib/constants'
 import { FormField } from './form-field'
@@ -75,7 +75,7 @@ export function ClientFormFields({ isReadOnly }: ClientFormFieldsProps) {
   const isCompany = personType === 'COMPANY'
 
   return (
-    <>
+    <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
       <FormField label="Tipo de Pessoa">
         <Controller
           name="personType"
@@ -273,7 +273,9 @@ export function ClientFormFields({ isReadOnly }: ClientFormFieldsProps) {
         </>
       )}
 
-      <SocialMediaFields />
-    </>
+      <div className="col-span-full">
+        <SocialMediaFields />
+      </div>
+    </div>
   )
 }

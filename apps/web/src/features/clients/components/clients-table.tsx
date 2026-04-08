@@ -1,59 +1,102 @@
 'use client'
 
-import { useState } from 'react'
+import {
+  getCoreRowModel,
+  useReactTable,
+  type SortingState,
+  type VisibilityState,
+} from '@tanstack/react-table'
 import { useRouter } from 'next/navigation'
+import { useMemo, useState } from 'react'
 
+import type { ListClientsSortOrder } from '@/api/model'
 import { Button } from '@/components/ui/button'
-import { Table } from '@/components/ui/table'
 import { useDebounce } from '@/hooks/use-debounce'
-
-import type { ClientData, ClientType } from '../lib/constants'
-import { useClient, useClients, useDeleteClient } from '../hooks/use-clients'
-import { ClientForm } from './client-form'
+import { useClients, useDeleteClient } from '../hooks/use-clients'
+import type { ClientData } from '../lib/constants'
+import { DEFAULT_COLUMN_VISIBILITY, DEFAULT_SORTING } from '../lib/constants'
+import { isClientType, isSortBy } from '../lib/type-guards'
+import { ClientCards } from './client-cards'
+import { createClientColumns } from './clients-columns'
+import { ClientsDataTable } from './clients-data-table'
+import { ClientsFilterTabs } from './clients-filter-tabs'
 import { ClientsPagination } from './clients-pagination'
-import { ClientsTableBody, ClientsTableHeader } from './clients-table-rows'
 import { ClientsToolbar } from './clients-toolbar'
 import { DeleteClientDialog } from './delete-client-dialog'
 
 export function ClientsContent() {
   const router = useRouter()
+
   const [search, setSearch] = useState('')
-  const [typeFilter, setTypeFilter] = useState<string>('ALL')
-  const [cursors, setCursors] = useState<string[]>([])
-  const [formOpen, setFormOpen] = useState(false)
-  const [editingClientId, setEditingClientId] = useState<string | null>(null)
-  const [deletingClientId, setDeletingClientId] = useState<string | null>(null)
-
-  const { data: editingClientDetail } = useClient(editingClientId ?? '')
-
+  const [typeFilter, setTypeFilter] = useState('')
   const debouncedSearch = useDebounce(search, 300)
-  const currentCursor = cursors.at(-1)
+  const [pageSize, setPageSize] = useState(10)
+  const [cursors, setCursors] = useState<string[]>([])
+  const currentCursor = cursors[cursors.length - 1]
+  const currentPage = cursors.length + 1
+  const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    DEFAULT_COLUMN_VISIBILITY
+  )
+  const [deletingClientId, setDeletingClientId] = useState<string | null>(null)
+  const deleteClient = useDeleteClient()
+
+  const sortId = sorting[0]?.id
+  const sortBy = sortId && isSortBy(sortId) ? sortId : undefined
+  const sortOrder: ListClientsSortOrder | undefined = sorting[0]?.desc
+    ? 'desc'
+    : 'asc'
 
   const { data, isLoading, isError, refetch } = useClients({
     search: debouncedSearch || undefined,
-    type: typeFilter === 'ALL' ? undefined : (typeFilter as ClientType),
+    type: typeFilter && isClientType(typeFilter) ? typeFilter : undefined,
     cursor: currentCursor,
+    limit: pageSize,
+    sortBy,
+    sortOrder,
   })
 
-  const deleteClient = useDeleteClient()
+  const clients: ClientData[] = data?.data ?? []
+  const total = data?.meta?.total ?? 0
+  const nextCursor = data?.meta?.nextCursor ?? null
 
-  function handleRowClick(id: string) {
-    router.push(`/clients/${id}`)
-  }
+  const columnActions = useMemo(
+    () => ({
+      onView: (id: string) => router.push(`/clients/${id}`),
+      onEdit: (id: string) => router.push(`/clients/${id}/edit`),
+      onDelete: (id: string) => setDeletingClientId(id),
+    }),
+    [router]
+  )
 
-  function handleEdit(client: ClientData) {
-    setEditingClientId(client.id)
-  }
+  const columns = useMemo(
+    () => createClientColumns(columnActions),
+    [columnActions]
+  )
 
-  function handleFormClose(open: boolean) {
-    setFormOpen(open)
-    if (!open) setEditingClientId(null)
-  }
+  const table = useReactTable({
+    data: clients,
+    columns,
+    state: {
+      sorting,
+      columnVisibility,
+      pagination: { pageIndex: 0, pageSize },
+    },
+    onSortingChange: (updater) => {
+      setSorting(updater)
+      setCursors([])
+    },
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    manualSorting: true,
+    manualPagination: true,
+    manualFiltering: true,
+    rowCount: total,
+  })
 
   function handleNextPage() {
-    const next = data?.meta.nextCursor
-    if (next) {
-      setCursors((prev) => [...prev, next])
+    if (nextCursor) {
+      setCursors((prev) => [...prev, nextCursor])
     }
   }
 
@@ -61,19 +104,35 @@ export function ClientsContent() {
     setCursors((prev) => prev.slice(0, -1))
   }
 
+  function handlePageSizeChange(size: number) {
+    setPageSize(size)
+    setCursors([])
+  }
+
+  function handleTypeFilterChange(value: string) {
+    setTypeFilter(value)
+    setCursors([])
+  }
+
+  function handleSearchChange(value: string) {
+    setSearch(value)
+    setCursors([])
+  }
+
   function handleConfirmDelete() {
-    if (deletingClientId) {
-      deleteClient.mutate(deletingClientId, {
-        onSuccess: () => setDeletingClientId(null),
-      })
-    }
+    if (!deletingClientId) return
+    deleteClient.mutate(deletingClientId, {
+      onSuccess: () => setDeletingClientId(null),
+    })
   }
 
   if (isError) {
     return (
-      <div className="flex h-48 flex-col items-center justify-center gap-3 rounded-md border">
-        <p className="text-destructive text-sm">Erro ao carregar clientes.</p>
-        <Button variant="outline" size="sm" onClick={() => refetch()}>
+      <div className="flex h-64 flex-col items-center justify-center gap-3">
+        <p className="text-destructive text-sm">
+          Erro ao carregar os clientes.
+        </p>
+        <Button variant="link" onClick={() => refetch()}>
           Tentar novamente
         </Button>
       </div>
@@ -82,79 +141,58 @@ export function ClientsContent() {
 
   return (
     <div className="space-y-4">
-      <ClientsToolbar
-        search={search}
-        onSearchChange={setSearch}
-        typeFilter={typeFilter}
-        onTypeFilterChange={(val) => {
-          setTypeFilter(val)
-          setCursors([])
-        }}
-        onNewClient={() => {
-          setEditingClientId(null)
-          setFormOpen(true)
-        }}
-        currentFilters={{
-          search: debouncedSearch || undefined,
-          type: typeFilter === 'ALL' ? undefined : (typeFilter as ClientType),
-        }}
+      <ClientsFilterTabs
+        activeFilter={typeFilter}
+        onFilterChange={handleTypeFilterChange}
       />
 
-      <div className="rounded-md border">
-        <Table>
-          <ClientsTableHeader />
-          <ClientsTableBody
-            data={data?.data}
-            isLoading={isLoading}
-            onRowClick={handleRowClick}
-            onEdit={handleEdit}
-            onDelete={setDeletingClientId}
-          />
-        </Table>
-      </div>
+      <ClientsToolbar
+        search={search}
+        onSearchChange={handleSearchChange}
+        currentFilters={{
+          search: debouncedSearch || undefined,
+          type: typeFilter && isClientType(typeFilter) ? typeFilter : undefined,
+        }}
+        columnVisibility={columnVisibility}
+        onColumnVisibilityChange={(id, visible) =>
+          setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
+        }
+        hideableColumns={[
+          { id: 'document', label: 'Documento' },
+          { id: 'type', label: 'Tipo' },
+          { id: 'createdAt', label: 'Criado em' },
+          { id: 'phone', label: 'Telefone' },
+        ]}
+      />
+
+      <ClientsDataTable
+        table={table}
+        columnVisibility={columnVisibility}
+        isLoading={isLoading}
+        onRowClick={(id) => router.push(`/clients/${id}`)}
+      />
+
+      <ClientCards
+        data={clients}
+        isLoading={isLoading}
+        onView={(id) => router.push(`/clients/${id}`)}
+        onEdit={(id) => router.push(`/clients/${id}/edit`)}
+        onDelete={(id) => setDeletingClientId(id)}
+      />
 
       <ClientsPagination
-        total={data?.meta.total ?? 0}
-        hasNextPage={Boolean(data?.meta.nextCursor)}
+        total={total}
+        pageSize={pageSize}
+        onPageSizeChange={handlePageSizeChange}
+        currentPage={currentPage}
+        hasNextPage={nextCursor !== null}
         hasPreviousPage={cursors.length > 0}
         onNext={handleNextPage}
         onPrevious={handlePreviousPage}
       />
 
-      <ClientForm
-        open={
-          formOpen || (Boolean(editingClientId) && Boolean(editingClientDetail))
-        }
-        onOpenChange={handleFormClose}
-        clientId={editingClientId ?? undefined}
-        defaultValues={
-          editingClientDetail
-            ? {
-                name: editingClientDetail.name,
-                document: editingClientDetail.document,
-                personType: editingClientDetail.personType ?? 'INDIVIDUAL',
-                type: editingClientDetail.type,
-                email: editingClientDetail.email ?? '',
-                phone: editingClientDetail.phone ?? '',
-                birthDate: editingClientDetail.birthDate ?? '',
-                profession: editingClientDetail.profession ?? '',
-                maritalStatus: editingClientDetail.maritalStatus ?? undefined,
-                socialMedia: editingClientDetail.socialMedia
-                  ? {
-                      instagram:
-                        editingClientDetail.socialMedia.instagram ?? '',
-                      facebook: editingClientDetail.socialMedia.facebook ?? '',
-                      linkedin: editingClientDetail.socialMedia.linkedin ?? '',
-                      tiktok: editingClientDetail.socialMedia.tiktok ?? '',
-                    }
-                  : undefined,
-              }
-            : undefined
-        }
-      />
-
       <DeleteClientDialog
-        open={Boolean(deletingClientId)}
+        open={deletingClientId !== null}
         onOpenChange={(open) => {
           if (!open) setDeletingClientId(null)
         }}
