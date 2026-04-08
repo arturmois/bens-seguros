@@ -2,13 +2,13 @@ import { ChevronDown, MoreHorizontal } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { TableCell, TableRow } from '@/components/ui/table'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/menu'
+import { TableCell, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 
 import type { ClientData } from '../lib/constants'
@@ -84,12 +84,16 @@ export function ClientRow({
         <TableCell>
           <DropdownMenu>
             <DropdownMenuTrigger
-              className="hover:bg-accent inline-flex h-10 w-10 items-center justify-center rounded-md"
-              aria-haspopup="menu"
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={`Ações do cliente ${client.name}`}
+                />
+              }
               onClick={(e) => e.stopPropagation()}
             >
               <MoreHorizontal className="h-4 w-4" />
-              <span className="sr-only">Ações do cliente {client.name}</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem

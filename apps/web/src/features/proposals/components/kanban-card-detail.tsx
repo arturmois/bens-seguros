@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
 import { ExternalLink } from 'lucide-react'
+import Link from 'next/link'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,8 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { formatCurrency } from '@/lib/formatters'
 import { usePolicyByProposal } from '@/features/policies/hooks/use-policies'
+import { formatCurrency } from '@/lib/formatters'
 
 import { useChecklist } from '../hooks/use-checklist'
 import { useAdvanceProposal } from '../hooks/use-proposals'
@@ -59,11 +59,12 @@ export function KanbanCardDetail({
         />
 
         <DialogFooter>
-          <Button variant="outline" asChild>
-            <Link href={`/proposals/${proposal.id}`}>
-              <ExternalLink className="mr-2 h-4 w-4" />
-              Ver detalhes
-            </Link>
+          <Button
+            variant="outline"
+            render={<Link href={`/proposals/${proposal.id}`} />}
+          >
+            <ExternalLink className="mr-2 h-4 w-4" />
+            Ver detalhes
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -134,10 +135,12 @@ function KanbanCardDetailBody({
               <span>{proposal.endorsementReason ?? '—'}</span>
             </DetailItem>
             {proposal.sourcePolicyId && (
-              <Button variant="outline" size="sm" asChild>
-                <Link href={`/policies/${proposal.sourcePolicyId}`}>
-                  Ver apólice
-                </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                render={<Link href={`/policies/${proposal.sourcePolicyId}`} />}
+              >
+                Ver apólice
               </Button>
             )}
           </div>

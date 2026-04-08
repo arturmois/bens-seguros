@@ -1,8 +1,11 @@
 'use client'
 
+import { ChevronLeft, ChevronRight, Eye } from 'lucide-react'
 import { useState } from 'react'
-import { Eye } from 'lucide-react'
 
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -11,14 +14,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
 import { formatDate } from '@/lib/formatters'
 
 import { useAuditLogs } from '../hooks/use-audit-logs'
-import { AuditDetailModal } from './audit-detail-modal'
 import type { AuditLogEntry, AuditLogFilters } from '../lib/constants'
+import { AuditDetailModal } from './audit-detail-modal'
 
 const ACTION_VARIANT: Record<
   string,
@@ -33,27 +33,53 @@ const ACTION_VARIANT: Record<
 
 interface AuditTableProps {
   filters: AuditLogFilters
-  onLoadMore: (cursor: string) => void
+  hasPreviousPage: boolean
+  onNextPage: (cursor: string) => void
+  onPreviousPage: () => void
 }
 
 function AuditTableSkeleton() {
   return (
-    <div className="space-y-3">
-      {Array.from({ length: 8 }).map((_, i) => (
-        <Skeleton key={i} className="h-12 w-full" />
-      ))}
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Data</TableHead>
+            <TableHead>Ação</TableHead>
+            <TableHead>Entidade</TableHead>
+            <TableHead className="hidden sm:table-cell">ID</TableHead>
+            <TableHead className="w-10" />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <TableRow key={i}>
+              {Array.from({ length: 5 }).map((_, j) => (
+                <TableCell key={j}>
+                  <Skeleton className="h-4 w-full" />
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   )
 }
 
-export function AuditTable({ filters, onLoadMore }: AuditTableProps) {
+export function AuditTable({
+  filters,
+  hasPreviousPage,
+  onNextPage,
+  onPreviousPage,
+}: AuditTableProps) {
   const { data, isLoading } = useAuditLogs(filters)
   const [selectedEntry, setSelectedEntry] = useState<AuditLogEntry | null>(null)
 
   if (isLoading) return <AuditTableSkeleton />
 
   const items = data?.data ?? []
-  const nextCursor = data?.meta?.nextCursor ?? null
+  const meta = data?.meta
 
   if (items.length === 0) {
     return (
@@ -111,17 +137,37 @@ export function AuditTable({ filters, onLoadMore }: AuditTableProps) {
           </TableBody>
         </Table>
       </div>
-      {nextCursor ? (
-        <div className="mt-4 flex justify-center">
+
+      <nav
+        aria-label="Paginação de auditoria"
+        className="flex items-center justify-between"
+      >
+        <p className="text-muted-foreground text-sm">
+          {meta?.total ?? 0}{' '}
+          {(meta?.total ?? 0) === 1 ? 'registro' : 'registros'} no total
+        </p>
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onLoadMore(nextCursor)}
+            disabled={!hasPreviousPage}
+            onClick={onPreviousPage}
           >
-            Carregar mais
+            <ChevronLeft className="mr-1 size-4" /> Anterior
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!meta?.nextCursor}
+            onClick={() => {
+              if (meta?.nextCursor) onNextPage(meta.nextCursor)
+            }}
+          >
+            Próximo <ChevronRight className="ml-1 size-4" />
           </Button>
         </div>
-      ) : null}
+      </nav>
+
       <AuditDetailModal
         entry={selectedEntry}
         open={selectedEntry !== null}

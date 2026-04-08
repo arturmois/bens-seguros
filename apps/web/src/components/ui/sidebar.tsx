@@ -13,17 +13,13 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import {
   Sheet,
-  SheetContent,
   SheetDescription,
   SheetHeader,
+  SheetPopup,
   SheetTitle,
 } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
+import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip'
 
 const SIDEBAR_COOKIE_NAME: string = 'sidebar_state'
 const SIDEBAR_COOKIE_MAX_AGE: number = 60 * 60 * 24 * 7
@@ -209,7 +205,7 @@ export function Sidebar({
   if (isMobile) {
     return (
       <Sheet onOpenChange={setOpenMobile} open={openMobile} {...props}>
-        <SheetContent
+        <SheetPopup
           className="w-(--sidebar-width) bg-sidebar text-sidebar-foreground p-0 [&>button]:hidden"
           data-mobile="true"
           data-sidebar="sidebar"
@@ -226,7 +222,7 @@ export function Sidebar({
             <SheetDescription>Displays the mobile sidebar.</SheetDescription>
           </SheetHeader>
           <div className="flex h-full w-full flex-col">{children}</div>
-        </SheetContent>
+        </SheetPopup>
       </Sheet>
     )
   }
@@ -541,7 +537,7 @@ export function SidebarMenuButton({
   ...props
 }: useRender.ComponentProps<'button'> & {
   isActive?: boolean
-  tooltip?: string | React.ComponentProps<typeof TooltipContent>
+  tooltip?: string | React.ComponentProps<typeof TooltipPopup>
 } & VariantProps<typeof sidebarMenuButtonVariants>): React.ReactElement {
   const { isMobile, state } = useSidebar()
 
@@ -573,8 +569,10 @@ export function SidebarMenuButton({
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>{buttonElement}</TooltipTrigger>
-      <TooltipContent
+      <TooltipTrigger
+        render={buttonElement as React.ReactElement<Record<string, unknown>>}
+      />
+      <TooltipPopup
         align="center"
         hidden={state !== 'collapsed' || isMobile}
         side="right"
@@ -720,7 +718,7 @@ export function SidebarMenuSubButton({
 }): React.ReactElement {
   const defaultProps = {
     className: cn(
-      "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-lg px-2 text-sidebar-foreground outline-hidden ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg:not([class*='size-'])]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
+      "flex h-8 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-lg px-2 text-sidebar-foreground outline-hidden ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 sm:h-7 [&>span:last-child]:truncate [&>svg:not([class*='size-'])]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
       'data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground',
       size === 'sm' && 'text-xs',
       size === 'md' && 'text-sm',

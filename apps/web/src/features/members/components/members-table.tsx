@@ -183,8 +183,8 @@ function MemberRow({
         {canAct && (
           <Button
             variant="ghost"
-            size="icon"
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive size-9"
+            size="icon-sm"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
             onClick={() => onRemove(member)}
             disabled={removePending}
             aria-label={`Remover ${member.name}`}

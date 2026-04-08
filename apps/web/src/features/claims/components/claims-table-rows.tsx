@@ -2,6 +2,13 @@
 
 import { FileWarning, MoreHorizontal } from 'lucide-react'
 
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/menu'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   TableBody,
@@ -10,12 +17,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/menu'
 
 import type { ClaimData } from '../lib/constants'
 import { formatClaimNumber } from '../lib/constants'
@@ -110,12 +111,16 @@ function ClaimRow({
       <TableCell>
         <DropdownMenu>
           <DropdownMenuTrigger
-            className="hover:bg-accent inline-flex h-10 w-10 items-center justify-center rounded-md"
-            aria-haspopup="menu"
+            render={
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={`Ações do sinistro ${formattedNumber}`}
+              />
+            }
             onClick={(e) => e.stopPropagation()}
           >
             <MoreHorizontal className="h-4 w-4" />
-            <span className="sr-only">Ações do sinistro {formattedNumber}</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem

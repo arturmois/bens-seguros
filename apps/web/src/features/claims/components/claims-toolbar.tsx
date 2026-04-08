@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
 import { Plus, Search } from 'lucide-react'
+import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -54,11 +54,9 @@ export function ClaimsToolbar({
             className="pl-9"
           />
         </div>
-        <Button asChild>
-          <Link href="/claims/new">
-            <Plus className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Novo Sinistro</span>
-          </Link>
+        <Button render={<Link href="/claims/new" />}>
+          <Plus className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Novo Sinistro</span>
         </Button>
       </div>
 

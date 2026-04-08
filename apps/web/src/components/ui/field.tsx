@@ -24,7 +24,7 @@ export function FieldLabel({
   return (
     <FieldPrimitive.Label
       className={cn(
-        'text-base/4.5 text-foreground inline-flex items-center gap-2 font-medium sm:text-sm/4',
+        'text-base/4.5 text-foreground data-disabled:opacity-64 inline-flex items-center gap-2 font-medium sm:text-sm/4',
         className
       )}
       data-slot="field-label"

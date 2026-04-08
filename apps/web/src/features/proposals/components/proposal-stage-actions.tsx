@@ -32,21 +32,19 @@ export function ProposalStageActions({
       {canAdvance && (
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger asChild>
-              <span>
-                <Button
-                  onClick={onAdvance}
-                  disabled={advancePending || checklistBlocking}
-                  variant="default"
-                >
-                  {advancePending ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <ChevronRight className="mr-2 h-4 w-4" />
-                  )}
-                  Avançar Estágio
-                </Button>
-              </span>
+            <TooltipTrigger render={<span />}>
+              <Button
+                onClick={onAdvance}
+                disabled={advancePending || checklistBlocking}
+                variant="default"
+              >
+                {advancePending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <ChevronRight className="mr-2 h-4 w-4" />
+                )}
+                Avançar Estágio
+              </Button>
             </TooltipTrigger>
             {checklistBlocking && (
               <TooltipContent side="top">

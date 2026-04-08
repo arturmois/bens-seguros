@@ -1,8 +1,8 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import { Shield } from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 
 interface ClientPoliciesTabProps {
   readonly clientId: string
@@ -15,10 +15,12 @@ export function ClientPoliciesTab({ clientId }: ClientPoliciesTabProps) {
       <p className="text-muted-foreground text-sm">
         As apólices deste cliente aparecerão aqui.
       </p>
-      <Button variant="link" asChild className="mt-2">
-        <Link href={`/policies?clientId=${clientId}`}>
-          Ver todas as apólices
-        </Link>
+      <Button
+        variant="link"
+        className="mt-2"
+        render={<Link href={`/policies?clientId=${clientId}`} />}
+      >
+        Ver todas as apólices
       </Button>
     </div>
   )

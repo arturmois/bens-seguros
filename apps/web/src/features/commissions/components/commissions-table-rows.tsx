@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
 import { DollarSign } from 'lucide-react'
+import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -142,8 +142,12 @@ function EmptyRow() {
               As comissões serão criadas automaticamente ao emitir apólices.
             </p>
           </div>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/proposals">Ver propostas</Link>
+          <Button
+            variant="outline"
+            size="sm"
+            render={<Link href="/proposals" />}
+          >
+            Ver propostas
           </Button>
         </div>
       </TableCell>

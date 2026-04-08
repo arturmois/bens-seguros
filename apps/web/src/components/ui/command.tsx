@@ -157,12 +157,15 @@ export function CommandEmpty({
 }
 
 export function CommandPanel({
-  className: _className,
+  className,
   ...props
 }: React.ComponentProps<'div'>): React.ReactElement {
   return (
     <div
-      className="not-has-[+[data-slot=command-footer]]:-mb-px not-has-[+[data-slot=command-footer]]:rounded-b-2xl bg-popover shadow-xs/5 not-has-[+[data-slot=command-footer]]:[clip-path:inset(0_1px_1px_1px_round_0_0_calc(var(--radius-2xl)-1px)_calc(var(--radius-2xl)-1px))] **:data-[slot=scroll-area-scrollbar]:mt-2 relative -mx-px min-h-0 rounded-t-xl border border-b-0 bg-clip-padding [clip-path:inset(0_1px)] before:pointer-events-none before:absolute before:inset-0 before:rounded-t-[calc(var(--radius-xl)-1px)]"
+      className={cn(
+        'not-has-[+[data-slot=command-footer]]:-mb-px not-has-[+[data-slot=command-footer]]:rounded-b-2xl bg-popover shadow-xs/5 not-has-[+[data-slot=command-footer]]:[clip-path:inset(0_1px_1px_1px_round_0_0_calc(var(--radius-2xl)-1px)_calc(var(--radius-2xl)-1px))] **:data-[slot=scroll-area-scrollbar]:mt-2 relative -mx-px min-h-0 rounded-t-xl border border-b-0 bg-clip-padding [clip-path:inset(0_1px)] before:pointer-events-none before:absolute before:inset-0 before:rounded-t-[calc(var(--radius-xl)-1px)]',
+        className
+      )}
       {...props}
     />
   )

@@ -17,7 +17,6 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^3.9.0",
-    "@radix-ui/react-slot": "^1.1.0",
     "@react-input/mask": "^2.0.4",
     "@repo/auth": "workspace:*",
     "@repo/core": "workspace:^",

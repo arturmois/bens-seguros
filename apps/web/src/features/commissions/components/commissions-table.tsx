@@ -45,8 +45,9 @@ export function CommissionsTable() {
   }
 
   function handleNextPage() {
-    if (data?.meta.nextCursor) {
-      setCursors((prev) => [...prev, data.meta.nextCursor!])
+    const next = data?.meta.nextCursor
+    if (next) {
+      setCursors((prev) => [...prev, next])
     }
   }
 

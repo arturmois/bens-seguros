@@ -22,6 +22,7 @@ type AssistanceFormValues = z.infer<typeof CreateAssistanceBody>
 
 export function useAssistances(filters: AssistanceFilters) {
   const params = {
+    search: filters.search,
     status: filters.status,
     policyId: filters.policyId,
     clientId: filters.clientId,

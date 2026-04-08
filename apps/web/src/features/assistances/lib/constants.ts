@@ -15,6 +15,7 @@ export type AssistanceType =
   | 'OTHER'
 
 export interface AssistanceFilters {
+  readonly search?: string
   readonly status?: AssistanceStatus
   readonly policyId?: string
   readonly clientId?: string
