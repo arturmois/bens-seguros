@@ -53,8 +53,9 @@ export function PoliciesTable() {
   }
 
   function handleNextPage() {
-    if (meta?.nextCursor) {
-      setCursors((prev) => [...prev, meta.nextCursor!])
+    const next = meta?.nextCursor
+    if (next) {
+      setCursors((prev) => [...prev, next])
     }
   }
 
