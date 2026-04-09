@@ -2,7 +2,6 @@
 
 import { ChevronDown } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
-import type { z } from 'zod'
 
 import { Badge } from '@/components/ui/badge'
 import {
@@ -13,10 +12,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { useIsMobile } from '@/hooks/use-mobile'
 
-import { CreateClientBody } from '@/api/endpoints/clients/clients.zod'
+import type { ClientFormValues } from '../lib/types'
 import { FormField } from './form-field'
-
-type ClientFormValues = z.infer<typeof CreateClientBody>
 
 interface SocialMediaFieldsProps {
   readonly isReadOnly?: boolean

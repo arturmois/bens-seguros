@@ -7,27 +7,10 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { PHONE_MASK } from '@/lib/masks'
 
+import type { ClientFormValues } from '../lib/types'
 import { FormField } from './form-field'
 import { IdentificationFields } from './identification-fields'
 import { SocialMediaFields } from './social-media-fields'
-
-export interface ClientFormValues {
-  name: string
-  document: string
-  personType?: 'INDIVIDUAL' | 'COMPANY'
-  type?: 'LEAD' | 'CLIENT' | 'FORMER_CLIENT'
-  email?: string
-  phone?: string
-  birthDate?: string
-  profession?: string
-  maritalStatus?: 'SINGLE' | 'MARRIED' | 'DIVORCED' | 'WIDOWED' | 'OTHER'
-  socialMedia?: {
-    instagram?: string
-    facebook?: string
-    linkedin?: string
-    tiktok?: string
-  }
-}
 
 export function parseDateString(value: string | undefined): Date | undefined {
   if (!value) return undefined

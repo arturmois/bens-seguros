@@ -77,7 +77,12 @@ export function ClientsDataTable({
                 className="cursor-pointer"
                 onClick={(e) => {
                   const target = e.target as HTMLElement
-                  if (target.closest('button')) return
+                  if (
+                    target.closest(
+                      'button, [role="menu"], [role="menuitem"], [role="dialog"], a'
+                    )
+                  )
+                    return
                   onRowClick(row.original.id)
                 }}
               >

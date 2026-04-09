@@ -13,10 +13,6 @@ import {
   useListClients,
 } from '@/api/endpoints/clients/clients'
 
-import type { z } from 'zod'
-
-import { CreateClientBody } from '@/api/endpoints/clients/clients.zod'
-
 import type {
   ListClients200DataItem,
   ListClients200Meta,
@@ -25,8 +21,22 @@ import type {
 } from '@/api/model'
 
 import type { ClientFilters } from '../lib/constants'
+import type { ClientFormValues } from '../lib/types'
 
-type ClientFormValues = z.infer<typeof CreateClientBody>
+function extractErrorMessage(error: unknown, fallback: string): string {
+  if (
+    error &&
+    typeof error === 'object' &&
+    'response' in error &&
+    error.response &&
+    typeof error.response === 'object' &&
+    'data' in error.response
+  ) {
+    const data = error.response.data as { error?: { message?: string } }
+    if (data.error?.message) return data.error.message
+  }
+  return fallback
+}
 
 interface ClientsQueryData {
   readonly data: ListClients200DataItem[]
@@ -71,8 +81,9 @@ export function useCreateClient() {
       })
       toast.success('Cliente criado com sucesso')
     },
-    onError: () => {
-      toast.error('Erro ao criar cliente')
+    onError: (error) => {
+      const message = extractErrorMessage(error, 'Erro ao criar cliente')
+      toast.error(message)
     },
   })
 }
@@ -92,8 +103,9 @@ export function useUpdateClient() {
       })
       toast.success('Cliente atualizado com sucesso')
     },
-    onError: () => {
-      toast.error('Erro ao atualizar cliente')
+    onError: (error) => {
+      const message = extractErrorMessage(error, 'Erro ao atualizar cliente')
+      toast.error(message)
     },
   })
 }
@@ -109,8 +121,9 @@ export function useDeleteClient() {
       })
       toast.success('Cliente excluído com sucesso')
     },
-    onError: () => {
-      toast.error('Erro ao excluir cliente')
+    onError: (error) => {
+      const message = extractErrorMessage(error, 'Erro ao excluir cliente')
+      toast.error(message)
     },
   })
 }
