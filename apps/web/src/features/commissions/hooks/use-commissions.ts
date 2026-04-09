@@ -14,14 +14,31 @@ import {
   getListCommissionsQueryKey,
   getGetCommissionQueryKey,
 } from '@/api/endpoints/commissions/commissions'
+import type {
+  ListCommissions200DataItem,
+  ListCommissions200Meta,
+  ListCommissionsSortBy,
+  ListCommissionsSortOrder,
+} from '@/api/model'
 import { downloadCsvBlob } from '@/lib/csv-download'
+import { extractErrorMessage } from '@/lib/extract-error-message'
 
-import type { CommissionFilters } from '../lib/constants'
+import type { CommissionFilters } from '../lib/types'
+
+interface CommissionsQueryData {
+  readonly data: ListCommissions200DataItem[]
+  readonly meta: ListCommissions200Meta
+}
 
 const COMMISSIONS_LIST_KEY = getListCommissionsQueryKey()
 
-export function useCommissions(filters: CommissionFilters) {
-  return useListCommissions(filters, {
+export function useCommissions(
+  filters: CommissionFilters & {
+    sortBy?: ListCommissionsSortBy
+    sortOrder?: ListCommissionsSortOrder
+  }
+) {
+  return useListCommissions<CommissionsQueryData>(filters, {
     query: {
       select: (response) => ({
         data: response.data.data,
@@ -54,8 +71,8 @@ export function useApproveCommercial() {
       })
       toast.success('Aprovação comercial realizada com sucesso')
     },
-    onError: () => {
-      toast.error('Erro ao aprovar comissão')
+    onError: (error) => {
+      toast.error(extractErrorMessage(error, 'Erro ao aprovar comissão'))
     },
   })
 }
@@ -74,8 +91,8 @@ export function useApproveAdmin() {
       })
       toast.success('Aprovação administrativa realizada com sucesso')
     },
-    onError: () => {
-      toast.error('Erro ao aprovar comissão')
+    onError: (error) => {
+      toast.error(extractErrorMessage(error, 'Erro ao aprovar comissão'))
     },
   })
 }
@@ -95,8 +112,8 @@ export function useRejectCommission() {
       })
       toast.success('Comissão rejeitada')
     },
-    onError: () => {
-      toast.error('Erro ao rejeitar comissão')
+    onError: (error) => {
+      toast.error(extractErrorMessage(error, 'Erro ao rejeitar comissão'))
     },
   })
 }
@@ -115,8 +132,10 @@ export function usePayCommission() {
       })
       toast.success('Comissão marcada como paga')
     },
-    onError: () => {
-      toast.error('Erro ao marcar comissão como paga')
+    onError: (error) => {
+      toast.error(
+        extractErrorMessage(error, 'Erro ao marcar comissão como paga')
+      )
     },
   })
 }
@@ -135,8 +154,8 @@ export function useReverseCommission() {
       })
       toast.success('Comissão estornada com sucesso')
     },
-    onError: () => {
-      toast.error('Erro ao estornar comissão')
+    onError: (error) => {
+      toast.error(extractErrorMessage(error, 'Erro ao estornar comissão'))
     },
   })
 }
@@ -167,8 +186,8 @@ export function useExportCommissionsCsv() {
     onSuccess: () => {
       toast.success('Exportação concluída')
     },
-    onError: () => {
-      toast.error('Erro ao exportar comissões')
+    onError: (error) => {
+      toast.error(extractErrorMessage(error, 'Erro ao exportar comissões'))
     },
   })
 }

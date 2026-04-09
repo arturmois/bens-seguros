@@ -517,13 +517,185 @@ const updateClient = useMutation({
 
 ## 9. Decisoes Registradas
 
-| #    | Padrao           | Escolha                                                                      |
-| ---- | ---------------- | ---------------------------------------------------------------------------- |
-| FE-1 | Server vs Client | Server-first, `"use client"` apenas para interatividade, props minimas       |
-| FE-2 | Suspense         | Por zona de conteudo, nunca bloqueia layout, tabs independentes              |
-| FE-3 | Hydration        | Prevencao por camada (next-themes, locale fixo, skeleton para browser APIs)  |
-| FE-4 | Data Fetching    | Server busca inicial + React Query rehidrata, mutations via React Query      |
-| FE-5 | Dynamic Imports  | Seletivo: charts, PDF, kanban, modais. Normal: shadcn, tabelas, forms        |
-| FE-6 | Componentes      | 3 camadas (UI/Shared/Feature), max 200 linhas, export nomeado                |
-| FE-7 | Re-renders       | React Compiler + patterns estruturais (children, selectors, startTransition) |
-| FE-8 | Preload          | Hover prefetch, optimistic mutations, prefetch sidebar top 3-4 rotas         |
+| #    | Padrao           | Escolha                                                                                               |
+| ---- | ---------------- | ----------------------------------------------------------------------------------------------------- |
+| FE-1 | Server vs Client | Server-first, `"use client"` apenas para interatividade, props minimas                                |
+| FE-2 | Suspense         | Por zona de conteudo, nunca bloqueia layout, tabs independentes                                       |
+| FE-3 | Hydration        | Prevencao por camada (next-themes, locale fixo, skeleton para browser APIs)                           |
+| FE-4 | Data Fetching    | Server busca inicial + React Query rehidrata, mutations via React Query                               |
+| FE-5 | Dynamic Imports  | Seletivo: charts, PDF, kanban, modais. Normal: shadcn, tabelas, forms                                 |
+| FE-6 | Componentes      | 3 camadas (UI/Shared/Feature), max 200 linhas, export nomeado                                         |
+| FE-7 | Re-renders       | React Compiler + patterns estruturais (children, selectors, startTransition)                          |
+| FE-8 | Preload          | Hover prefetch, optimistic mutations, prefetch sidebar top 3-4 rotas                                  |
+| FE-9 | Shared Table     | 6 primitives (DataTable, CursorPagination, FilterTabs, TableToolbar, MobileCardList, TableErrorState) |
+
+---
+
+## 10. Shared Table Primitives
+
+Template reutilizavel para todas as listagens do ERP. Implementado em Clients e Commissions, planejado para os 11 modulos.
+
+### Componentes (`components/shared/`)
+
+| Componente         | Responsabilidade                                                     | Visibilidade     |
+| ------------------ | -------------------------------------------------------------------- | ---------------- |
+| `DataTable`        | Tabela desktop com headers, skeleton loading, empty state, row click | `hidden md:flex` |
+| `MobileCardList`   | Lista de cards para mobile com skeleton e empty state                | `md:hidden`      |
+| `TableToolbar`     | Busca, seletor de colunas (popover), acoes (export, import)          | Sempre visivel   |
+| `FilterTabs`       | Abas de filtro rapido (status, tipo) com estilo pill                 | Sempre visivel   |
+| `CursorPagination` | Paginacao cursor-based com seletor de page size                      | Sempre visivel   |
+| `TableErrorState`  | Estado de erro com botao "Tentar novamente"                          | Condicional      |
+
+### Anatomia de um modulo de listagem
+
+```
+features/<module>/
+  components/
+    <module>-table.tsx       # Orquestra tudo: state, hooks, primitives
+    <module>-columns.tsx     # ColumnDef[] para TanStack Table
+    <module>-card.tsx        # Card para MobileCardList
+    <module>-export-button.tsx
+  hooks/
+    use-<module>.ts          # React Query hooks (Orval) + mutations com toast
+  lib/
+    constants.ts             # STATUS_LABELS, FILTER_OPTIONS, DEFAULT_SORTING,
+                             # DEFAULT_COLUMN_VISIBILITY, HIDEABLE_COLUMNS
+    types.ts                 # Type aliases de @/api/model
+    type-guards.ts           # isSortBy(), isStatus() type guards
+```
+
+### Exemplo: wiring completo (`<module>-table.tsx`)
+
+```tsx
+export function CommissionsTable() {
+  const pagination = useCursorPagination()
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    DEFAULT_COLUMN_VISIBILITY
+  )
+
+  // Type-safe sort derivation
+  const sortBy =
+    sorting[0]?.id && isSortBy(sorting[0].id) ? sorting[0].id : undefined
+  const sortOrder = sorting[0]?.desc ? 'desc' : 'asc'
+
+  // Orval hook (React Query)
+  const { data, isLoading, isError, refetch } = useCommissions({
+    search,
+    status: statusParam,
+    cursor: pagination.currentCursor,
+    limit: pagination.pageSize,
+    sortBy,
+    sortOrder,
+  })
+
+  const table = useReactTable({
+    data: commissions,
+    columns,
+    state: { sorting, columnVisibility },
+    onSortingChange: (updater) => {
+      setSorting(updater)
+      pagination.reset()
+    },
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    manualSorting: true,
+    manualPagination: true,
+    manualFiltering: true,
+  })
+
+  if (isError) return <TableErrorState onRetry={refetch} />
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <FilterTabs
+        options={STATUS_FILTER_OPTIONS}
+        value={statusFilter}
+        onChange={handleStatusFilterChange}
+      />
+      <TableToolbar
+        search={search}
+        onSearchChange={handleSearchChange}
+        columnVisibility={columnVisibility}
+        onColumnVisibilityChange={handleColumnToggle}
+        hideableColumns={HIDEABLE_COLUMNS}
+      />
+      <DataTable
+        table={table}
+        isLoading={isLoading}
+        columnVisibility={columnVisibility} // REQUIRED for header sync
+        emptyIcon={<DollarSign className="text-muted-foreground/50 size-10" />}
+        emptyMessage="Nenhuma comissao encontrada."
+        emptyDescription="As comissoes serao criadas automaticamente ao emitir apolices."
+        onRowClick={(row) => router.push(`/commissions/${row.id}`)}
+      />
+      <MobileCardList
+        data={commissions}
+        keyExtractor={(c) => c.id}
+        isLoading={isLoading}
+        emptyIcon={<DollarSign className="text-muted-foreground/50 size-10" />}
+        emptyMessage="Nenhuma comissao encontrada."
+        renderCard={(commission) => <CommissionCard commission={commission} />}
+      />
+      <CursorPagination
+        total={total}
+        pageSize={pagination.pageSize}
+        currentPage={pagination.currentPage}
+        hasPreviousPage={pagination.hasPreviousPage}
+        hasNextPage={Boolean(nextCursor)}
+        onPrevious={pagination.goToPrevious}
+        onNext={() => nextCursor && pagination.goToNext(nextCursor)}
+        onPageSizeChange={pagination.setPageSize}
+      />
+    </div>
+  )
+}
+```
+
+### Regras criticas
+
+| Regra                                                    | Motivo                                                                                                                                       |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Sempre passar `columnVisibility` prop ao `DataTable`** | TanStack Table `getState()` pode retornar estado stale para headers. O prop direto garante sync header/cells                                 |
+| **`manualSorting: true` + `manualPagination: true`**     | Sorting e paginacao sao server-side, nunca client-side                                                                                       |
+| **`pagination.reset()` ao mudar sort/filtro/search**     | Evita cursor invalido ao mudar contexto de listagem                                                                                          |
+| **Columns com `enableHiding: false`**                    | Colunas que NAO devem ser ocultaveis (ex: nome, status, valor) precisam de `enableHiding: false` na coluna E nao estar em `HIDEABLE_COLUMNS` |
+| **`DEFAULT_COLUMN_VISIBILITY` com todos `true`**         | Todas as colunas ocultaveis comecam visiveis. Para ocultar por default, setar `false`                                                        |
+| **Type guards (`isSortBy`, `isStatus`)**                 | Validam strings antes de passar para a API. Derivados dos enums Orval                                                                        |
+| **Empty state com icon + description**                   | `emptyIcon` (lucide) + `emptyMessage` + `emptyDescription` explicando contexto                                                               |
+
+### Backend: server-side sorting
+
+Cada modulo precisa de um tipo de sort field no dominio e `buildOrderBy` tipado no repository:
+
+```ts
+// domain/commission-repository.ts
+export type CommissionSortField =
+  | 'salespersonName'
+  | 'status'
+  | 'commissionValueInCents'
+  | 'createdAt'
+
+// infrastructure/prisma-commission-repository.ts
+function buildOrderBy(
+  sortBy: CommissionSortField | undefined,
+  sortOrder: SortOrder | undefined
+): Prisma.CommissionOrderByWithRelationInput[] {
+  const order = sortOrder === 'asc' ? 'asc' : 'desc'
+  if (sortBy === 'salespersonName') {
+    return [{ salesperson: { name: order } }, { id: 'desc' }]
+  }
+  const field = sortBy ?? 'createdAt'
+  return [{ [field]: order }, { id: 'desc' }]
+}
+```
+
+A interface `CursorPage<TSortBy>` e generica — cada modulo define seu proprio tipo de sort field:
+
+```ts
+// CursorPage<ClientSortField> para clients
+// CursorPage<CommissionSortField> para commissions
+// CursorPage (default string) para modulos sem sorting
+```

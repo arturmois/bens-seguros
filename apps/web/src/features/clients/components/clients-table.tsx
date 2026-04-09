@@ -155,6 +155,7 @@ export function ClientsContent() {
         table={table}
         isLoading={isLoading}
         emptyMessage="Nenhum cliente encontrado."
+        columnVisibility={columnVisibility}
         onRowClick={(client) => router.push(`/clients/${client.id}`)}
       />
 

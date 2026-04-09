@@ -1,10 +1,10 @@
 import { cn } from '@/lib/utils'
 
-import type { CommissionStatus } from '../lib/constants'
 import {
   COMMISSION_STATUS_COLORS,
   COMMISSION_STATUS_LABELS,
 } from '../lib/constants'
+import type { CommissionStatus } from '../lib/types'
 
 interface CommissionStatusBadgeProps {
   readonly status: CommissionStatus

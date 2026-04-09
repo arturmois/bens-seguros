@@ -9,6 +9,8 @@ interface MobileCardListProps<T> {
   readonly isLoading?: boolean
   readonly skeletonCount?: number
   readonly emptyMessage?: string
+  readonly emptyDescription?: string
+  readonly emptyIcon?: React.ReactNode
 }
 
 export function MobileCardList<T>({
@@ -18,6 +20,8 @@ export function MobileCardList<T>({
   isLoading,
   skeletonCount = 3,
   emptyMessage = 'Nenhum registro encontrado.',
+  emptyDescription,
+  emptyIcon,
 }: MobileCardListProps<T>) {
   if (isLoading) {
     return (
@@ -48,8 +52,12 @@ export function MobileCardList<T>({
 
   if (data.length === 0) {
     return (
-      <div className="text-muted-foreground py-12 text-center text-sm md:hidden">
-        {emptyMessage}
+      <div className="text-muted-foreground flex flex-col items-center gap-2 py-12 text-center text-sm md:hidden">
+        {emptyIcon}
+        <p>{emptyMessage}</p>
+        {emptyDescription && (
+          <p className="text-muted-foreground/70 text-xs">{emptyDescription}</p>
+        )}
       </div>
     )
   }

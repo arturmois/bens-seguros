@@ -35,6 +35,16 @@ export const listCommissionsQuery = paginationQuery()
     salespersonId: z.string().optional(),
     policyId: z.string().optional(),
     search: z.string().optional(),
+    sortBy: z
+      .enum([
+        'salespersonName',
+        'status',
+        'commissionValueInCents',
+        'createdAt',
+      ])
+      .optional()
+      .default('createdAt'),
+    sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
   })
 
 // ── Body ───────────────────────────────────────────────────────────

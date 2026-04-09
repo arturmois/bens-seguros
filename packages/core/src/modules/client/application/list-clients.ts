@@ -1,8 +1,9 @@
-import { injectable, inject } from 'tsyringe'
+import { inject, injectable } from 'tsyringe'
 import type {
-  ClientRepository,
   ClientData,
   ClientFilters,
+  ClientRepository,
+  ClientSortField,
   CursorPage,
   Page,
 } from '../domain/client-repository.js'
@@ -15,7 +16,7 @@ export class ListClients {
 
   async execute(
     filters: ClientFilters,
-    page: CursorPage
+    page: CursorPage<ClientSortField>
   ): Promise<Page<ClientData>> {
     return this.clientRepo.findMany(filters, page)
   }

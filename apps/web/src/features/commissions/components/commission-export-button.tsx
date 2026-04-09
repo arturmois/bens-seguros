@@ -4,7 +4,7 @@ import { Download, Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 
-import type { CommissionFilters } from '../lib/constants'
+import type { CommissionFilters } from '../lib/types'
 import { useExportCommissionsCsv } from '../hooks/use-commissions'
 
 interface CommissionExportButtonProps {

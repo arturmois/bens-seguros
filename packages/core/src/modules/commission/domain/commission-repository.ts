@@ -1,6 +1,12 @@
 import type { CursorPage, Page } from '../../client/domain/client-repository.js'
-import type { Commission } from './commission.js'
 import type { CommissionStatus } from './commission-types.js'
+import type { Commission } from './commission.js'
+
+export type CommissionSortField =
+  | 'salespersonName'
+  | 'status'
+  | 'commissionValueInCents'
+  | 'createdAt'
 
 export interface CommissionData {
   id: string
@@ -48,7 +54,7 @@ export interface CommissionRepository {
   findById(id: string, organizationId: string): Promise<CommissionData | null>
   findMany(
     filters: CommissionFilters,
-    page: CursorPage
+    page: CursorPage<CommissionSortField>
   ): Promise<Page<CommissionData>>
   update(commission: Commission): Promise<CommissionData>
   reverseAtomic(

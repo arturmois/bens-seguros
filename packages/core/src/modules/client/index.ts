@@ -1,37 +1,39 @@
 // Domain
-export type {
-  ClientData,
-  ClientAddress,
-  ClientFilters,
-  ClientRepository,
-  CursorPage,
-  Page,
-  CreateClientInput,
-  UpdateClientInput,
-} from './domain/client-repository.js'
 export {
-  ClientNotFoundError,
   ClientAlreadyExistsError,
   ClientErrors,
+  ClientNotFoundError,
 } from './domain/client-errors.js'
+export type {
+  ClientAddress,
+  ClientData,
+  ClientFilters,
+  ClientRepository,
+  ClientSortField,
+  CreateClientInput,
+  CursorPage,
+  Page,
+  SortOrder,
+  UpdateClientInput,
+} from './domain/client-repository.js'
 
 // Application
-export { ExportClientsCsv } from './application/export-clients-csv.js'
-export { CreateClient } from './application/create-client.js'
-export { ListClients } from './application/list-clients.js'
-export { GetClient } from './application/get-client.js'
-export { UpdateClient } from './application/update-client.js'
-export { DeleteClient } from './application/delete-client.js'
 export { ClientPresenter } from './application/client-presenter.js'
 export type {
-  ClientListItem,
   ClientDetail,
+  ClientListItem,
   PresenterContext,
 } from './application/client-presenter.js'
+export { CreateClient } from './application/create-client.js'
+export { DeleteClient } from './application/delete-client.js'
+export { ExportClientsCsv } from './application/export-clients-csv.js'
+export { GetClient } from './application/get-client.js'
+export { ListClients } from './application/list-clients.js'
+export { UpdateClient } from './application/update-client.js'
 
-export { ParseClientImport } from './application/parse-client-import.js'
 export { clientImportRowSchema } from './application/client-import-schema.js'
 export type { ClientImportRow } from './application/client-import-schema.js'
+export { ParseClientImport } from './application/parse-client-import.js'
 
 // Infrastructure
 export { ClientMapper } from './infrastructure/client-mapper.js'

@@ -12,6 +12,9 @@ import * as zod from 'zod'
 export const exportCommissionsQueryLimitDefault = 20
 export const exportCommissionsQueryLimitMax = 100
 
+export const exportCommissionsQuerySortByDefault = `createdAt`
+export const exportCommissionsQuerySortOrderDefault = `desc`
+
 export const ExportCommissionsQueryParams = zod.object({
   cursor: zod.string().optional(),
   limit: zod
@@ -34,6 +37,12 @@ export const ExportCommissionsQueryParams = zod.object({
   salespersonId: zod.string().optional(),
   policyId: zod.string().optional(),
   search: zod.string().optional(),
+  sortBy: zod
+    .enum(['salespersonName', 'status', 'commissionValueInCents', 'createdAt'])
+    .default(exportCommissionsQuerySortByDefault),
+  sortOrder: zod
+    .enum(['asc', 'desc'])
+    .default(exportCommissionsQuerySortOrderDefault),
 })
 
 /**
@@ -41,6 +50,9 @@ export const ExportCommissionsQueryParams = zod.object({
  */
 export const listCommissionsQueryLimitDefault = 20
 export const listCommissionsQueryLimitMax = 100
+
+export const listCommissionsQuerySortByDefault = `createdAt`
+export const listCommissionsQuerySortOrderDefault = `desc`
 
 export const ListCommissionsQueryParams = zod.object({
   cursor: zod.string().optional(),
@@ -64,6 +76,12 @@ export const ListCommissionsQueryParams = zod.object({
   salespersonId: zod.string().optional(),
   policyId: zod.string().optional(),
   search: zod.string().optional(),
+  sortBy: zod
+    .enum(['salespersonName', 'status', 'commissionValueInCents', 'createdAt'])
+    .default(listCommissionsQuerySortByDefault),
+  sortOrder: zod
+    .enum(['asc', 'desc'])
+    .default(listCommissionsQuerySortOrderDefault),
 })
 
 export const ListCommissionsResponse = zod.object({

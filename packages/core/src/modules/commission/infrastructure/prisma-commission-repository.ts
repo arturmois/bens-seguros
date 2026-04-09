@@ -1,15 +1,34 @@
-import { injectable, inject } from 'tsyringe'
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
-import type { CursorPage, Page } from '../../client/domain/client-repository.js'
+import { inject, injectable } from 'tsyringe'
 import type {
-  CommissionRepository,
+  CursorPage,
+  Page,
+  SortOrder,
+} from '../../client/domain/client-repository.js'
+import type {
   CommissionData,
   CommissionFilters,
+  CommissionRepository,
+  CommissionSortField,
   ReverseAtomicResult,
 } from '../domain/commission-repository.js'
 import type { Commission } from '../domain/commission.js'
 import { CommissionMapper } from './commission-mapper.js'
+
+function buildOrderBy(
+  sortBy: CommissionSortField | undefined,
+  sortOrder: SortOrder | undefined
+): Prisma.CommissionOrderByWithRelationInput[] {
+  const order = sortOrder === 'asc' ? 'asc' : 'desc'
+
+  if (sortBy === 'salespersonName') {
+    return [{ salesperson: { name: order } }, { id: 'desc' }]
+  }
+
+  const field = sortBy ?? 'createdAt'
+  return [{ [field]: order }, { id: 'desc' }]
+}
 
 const COMMISSION_INCLUDE = {
   salesperson: { select: { name: true } },
@@ -62,7 +81,7 @@ export class PrismaCommissionRepository implements CommissionRepository {
 
   async findMany(
     filters: CommissionFilters,
-    page: CursorPage
+    page: CursorPage<CommissionSortField>
   ): Promise<Page<CommissionData>> {
     const where: Prisma.CommissionWhereInput = {
       organizationId: filters.organizationId,
@@ -99,7 +118,7 @@ export class PrismaCommissionRepository implements CommissionRepository {
         include: COMMISSION_INCLUDE,
         take: page.limit + 1,
         ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
-        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        orderBy: buildOrderBy(page.sortBy, page.sortOrder),
       }),
       this.prisma.commission.count({ where }),
     ])

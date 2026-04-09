@@ -4,6 +4,8 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
+import type { ListCommissionsSortBy } from './listCommissionsSortBy'
+import type { ListCommissionsSortOrder } from './listCommissionsSortOrder'
 import type { ListCommissionsStatus } from './listCommissionsStatus'
 
 export type ListCommissionsParams = {
@@ -19,4 +21,6 @@ export type ListCommissionsParams = {
   salespersonId?: string
   policyId?: string
   search?: string
+  sortBy?: ListCommissionsSortBy
+  sortOrder?: ListCommissionsSortOrder
 }

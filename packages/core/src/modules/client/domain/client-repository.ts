@@ -47,10 +47,10 @@ export interface ClientFilters {
   search?: string
 }
 
-export interface CursorPage {
+export interface CursorPage<TSortBy extends string = string> {
   cursor?: string
   limit: number
-  sortBy?: ClientSortField
+  sortBy?: TSortBy
   sortOrder?: SortOrder
 }
 
@@ -104,7 +104,10 @@ export interface ClientRepository {
     document: string,
     organizationId: string
   ): Promise<ClientData | null>
-  findMany(filters: ClientFilters, page: CursorPage): Promise<Page<ClientData>>
+  findMany(
+    filters: ClientFilters,
+    page: CursorPage<ClientSortField>
+  ): Promise<Page<ClientData>>
   update(
     id: string,
     organizationId: string,

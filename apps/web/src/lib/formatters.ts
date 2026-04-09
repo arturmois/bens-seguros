@@ -18,6 +18,10 @@ export function formatDate(dateStr: string): string {
   return dateFormatter.format(new Date(dateStr))
 }
 
+export function formatPercentage(basisPoints: number): string {
+  return `${(basisPoints / 100).toFixed(1)}%`
+}
+
 export function getInitials(name: string): string {
   return name
     .split(' ')

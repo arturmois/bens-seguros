@@ -1,14 +1,15 @@
-import { injectable, inject } from 'tsyringe'
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
 import { hashDocument } from '@repo/shared'
+import { inject, injectable } from 'tsyringe'
 import type {
-  ClientRepository,
   ClientData,
   ClientFilters,
+  ClientRepository,
+  ClientSortField,
+  CreateClientInput,
   CursorPage,
   Page,
-  CreateClientInput,
   UpdateClientInput,
 } from '../domain/client-repository.js'
 import { ClientMapper } from './client-mapper.js'
@@ -74,7 +75,7 @@ export class PrismaClientRepository implements ClientRepository {
 
   async findMany(
     filters: ClientFilters,
-    page: CursorPage
+    page: CursorPage<ClientSortField>
   ): Promise<Page<ClientData>> {
     const where: Prisma.ClientWhereInput = {
       organizationId: filters.organizationId,

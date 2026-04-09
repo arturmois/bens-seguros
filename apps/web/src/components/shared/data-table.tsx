@@ -2,6 +2,7 @@
 
 import { flexRender, type Table as TanStackTable } from '@tanstack/react-table'
 
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -10,13 +11,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Skeleton } from '@/components/ui/skeleton'
 
 interface DataTableProps<T> {
   readonly table: TanStackTable<T>
   readonly isLoading: boolean
   readonly emptyMessage?: string
+  readonly emptyDescription?: string
   readonly emptyIcon?: React.ReactNode
+  readonly columnVisibility?: Record<string, boolean>
   readonly onRowClick?: (row: T) => void
   readonly skeletonRows?: number
 }
@@ -25,7 +27,9 @@ export function DataTable<T>({
   table,
   isLoading,
   emptyMessage = 'Nenhum registro encontrado.',
+  emptyDescription,
   emptyIcon,
+  columnVisibility = {},
   onRowClick,
   skeletonRows = 5,
 }: DataTableProps<T>) {
@@ -37,16 +41,18 @@ export function DataTable<T>({
         <TableHeader className="bg-background sticky top-0 z-10">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
+              {headerGroup.headers.map((header) =>
+                columnVisibility[header.column.id] !== false ? (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ) : null
+              )}
             </TableRow>
           ))}
         </TableHeader>
@@ -59,6 +65,11 @@ export function DataTable<T>({
                 <div className="text-muted-foreground flex flex-col items-center gap-2">
                   {emptyIcon}
                   <p>{emptyMessage}</p>
+                  {emptyDescription && (
+                    <p className="text-muted-foreground/70 text-sm">
+                      {emptyDescription}
+                    </p>
+                  )}
                 </div>
               </TableCell>
             </TableRow>

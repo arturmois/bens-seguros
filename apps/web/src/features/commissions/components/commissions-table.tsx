@@ -1,98 +1,172 @@
 'use client'
 
-import { useState } from 'react'
+import type { VisibilityState } from '@tanstack/react-table'
+import {
+  getCoreRowModel,
+  useReactTable,
+  type SortingState,
+} from '@tanstack/react-table'
 import { useRouter } from 'next/navigation'
+import { useMemo, useState } from 'react'
 
-import { Button } from '@/components/ui/button'
-import { Table } from '@/components/ui/table'
+import { DollarSign } from 'lucide-react'
+
+import { CursorPagination } from '@/components/shared/cursor-pagination'
+import { DataTable } from '@/components/shared/data-table'
+import { FilterTabs } from '@/components/shared/filter-tabs'
+import { MobileCardList } from '@/components/shared/mobile-card-list'
+import { TableErrorState } from '@/components/shared/table-error-state'
+import { TableToolbar } from '@/components/shared/table-toolbar'
+import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
-import type { CommissionStatus } from '../lib/constants'
+import type { ListCommissionsSortOrder } from '@/api/model'
 import { useCommissions } from '../hooks/use-commissions'
-import { CommissionsPagination } from './commissions-pagination'
 import {
-  CommissionsTableBody,
-  CommissionsTableHeader,
-} from './commissions-table-rows'
-import { CommissionsToolbar } from './commissions-toolbar'
+  DEFAULT_COLUMN_VISIBILITY,
+  DEFAULT_SORTING,
+  HIDEABLE_COLUMNS,
+  STATUS_FILTER_OPTIONS,
+} from '../lib/constants'
+import { isCommissionStatus, isSortBy } from '../lib/type-guards'
+import type { CommissionData } from '../lib/types'
+import { CommissionCard } from './commission-card'
+import { CommissionExportButton } from './commission-export-button'
+import { createCommissionColumns } from './commissions-columns'
 
 export function CommissionsTable() {
   const router = useRouter()
+  const pagination = useCursorPagination()
+
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<CommissionStatus | 'ALL'>(
-    'ALL'
+  const [statusFilter, setStatusFilter] = useState('')
+  const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    DEFAULT_COLUMN_VISIBILITY
   )
-  const [cursors, setCursors] = useState<string[]>([])
 
   const debouncedSearch = useDebounce(search, 300)
-  const currentCursor = cursors.at(-1)
 
-  const filters = {
+  const sortId = sorting[0]?.id
+  const sortBy = sortId && isSortBy(sortId) ? sortId : undefined
+  const sortOrder: ListCommissionsSortOrder | undefined = sorting[0]?.desc
+    ? 'desc'
+    : 'asc'
+
+  const statusParam =
+    statusFilter && isCommissionStatus(statusFilter) ? statusFilter : undefined
+
+  const { data, isLoading, isError, refetch } = useCommissions({
     search: debouncedSearch || undefined,
-    status: statusFilter === 'ALL' ? undefined : statusFilter,
-    cursor: currentCursor,
+    status: statusParam,
+    cursor: pagination.currentCursor,
+    limit: pagination.pageSize,
+    sortBy,
+    sortOrder,
+  })
+
+  const commissions: CommissionData[] = data?.data ?? []
+  const total = data?.meta?.total ?? 0
+  const nextCursor = data?.meta?.nextCursor ?? null
+
+  const columns = useMemo(() => createCommissionColumns(), [])
+
+  const table = useReactTable({
+    data: commissions,
+    columns,
+    state: { sorting, columnVisibility },
+    onSortingChange: (updater) => {
+      setSorting(updater)
+      pagination.reset()
+    },
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    manualSorting: true,
+    manualPagination: true,
+    manualFiltering: true,
+    rowCount: total,
+  })
+
+  function handleSearchChange(value: string) {
+    setSearch(value)
+    pagination.reset()
   }
 
-  const { data, isLoading, isError, refetch } = useCommissions(filters)
-
-  function handleRowClick(id: string) {
-    router.push(`/commissions/${id}`)
-  }
-
-  function handleStatusFilterChange(value: CommissionStatus | 'ALL') {
+  function handleStatusFilterChange(value: string) {
     setStatusFilter(value)
-    setCursors([])
+    pagination.reset()
   }
 
-  function handleNextPage() {
-    const next = data?.meta.nextCursor
-    if (next) {
-      setCursors((prev) => [...prev, next])
-    }
-  }
-
-  function handlePreviousPage() {
-    setCursors((prev) => prev.slice(0, -1))
+  function handleColumnToggle(id: string, visible: boolean) {
+    setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
 
   if (isError) {
     return (
-      <div className="flex h-48 flex-col items-center justify-center gap-3 rounded-md border">
-        <p className="text-destructive text-sm">Erro ao carregar comissões.</p>
-        <Button variant="outline" size="sm" onClick={() => refetch()}>
-          Tentar novamente
-        </Button>
-      </div>
+      <TableErrorState
+        message="Erro ao carregar comissões."
+        onRetry={refetch}
+      />
     )
   }
 
   return (
-    <div className="space-y-4">
-      <CommissionsToolbar
-        search={search}
-        onSearchChange={setSearch}
-        statusFilter={statusFilter}
-        onStatusFilterChange={handleStatusFilterChange}
-        currentFilters={filters}
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <FilterTabs
+        options={STATUS_FILTER_OPTIONS}
+        value={statusFilter}
+        onChange={handleStatusFilterChange}
       />
 
-      <div className="rounded-md border">
-        <Table>
-          <CommissionsTableHeader />
-          <CommissionsTableBody
-            data={data?.data}
-            isLoading={isLoading}
-            onRowClick={handleRowClick}
-          />
-        </Table>
-      </div>
+      <TableToolbar
+        search={search}
+        onSearchChange={handleSearchChange}
+        searchPlaceholder="Buscar comissões..."
+        columnVisibility={columnVisibility}
+        onColumnVisibilityChange={handleColumnToggle}
+        hideableColumns={HIDEABLE_COLUMNS}
+      >
+        <CommissionExportButton
+          filters={{
+            search: debouncedSearch || undefined,
+            status: statusParam,
+          }}
+        />
+      </TableToolbar>
 
-      <CommissionsPagination
-        total={data?.meta.total ?? 0}
-        hasNextPage={Boolean(data?.meta.nextCursor)}
-        hasPreviousPage={cursors.length > 0}
-        onNext={handleNextPage}
-        onPrevious={handlePreviousPage}
+      <DataTable
+        table={table}
+        isLoading={isLoading}
+        emptyIcon={<DollarSign className="text-muted-foreground/50 size-10" />}
+        emptyMessage="Nenhuma comissão encontrada."
+        emptyDescription="As comissões serão criadas automaticamente ao emitir apólices."
+        columnVisibility={columnVisibility}
+        onRowClick={(commission) =>
+          router.push(`/commissions/${commission.id}`)
+        }
+      />
+
+      <MobileCardList
+        data={commissions}
+        keyExtractor={(c) => c.id}
+        isLoading={isLoading}
+        emptyIcon={<DollarSign className="text-muted-foreground/50 size-10" />}
+        emptyMessage="Nenhuma comissão encontrada."
+        emptyDescription="As comissões serão criadas automaticamente ao emitir apólices."
+        renderCard={(commission) => <CommissionCard commission={commission} />}
+      />
+
+      <CursorPagination
+        total={total}
+        pageSize={pagination.pageSize}
+        currentPage={pagination.currentPage}
+        onPageSizeChange={pagination.setPageSize}
+        hasPreviousPage={pagination.hasPreviousPage}
+        hasNextPage={Boolean(nextCursor)}
+        onPrevious={pagination.goToPrevious}
+        onNext={() => {
+          if (nextCursor) pagination.goToNext(nextCursor)
+        }}
       />
     </div>
   )

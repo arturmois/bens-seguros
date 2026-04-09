@@ -1,26 +1,6 @@
-import type {
-  ListCommissions200DataItemStatus,
-  ListCommissions200DataItem,
-} from '@/api/model'
+import type { SortingState, VisibilityState } from '@tanstack/react-table'
 
-export type CommissionStatus = ListCommissions200DataItemStatus
-export type CommissionData = ListCommissions200DataItem
-
-export interface CommissionFilters {
-  readonly status?: CommissionStatus
-  readonly salespersonId?: string
-  readonly policyId?: string
-  readonly search?: string
-  readonly dateFrom?: string
-  readonly dateTo?: string
-  readonly cursor?: string
-  readonly limit?: number
-}
-
-export interface CommissionListMeta {
-  readonly total: number
-  readonly nextCursor: string | null
-}
+import type { CommissionStatus } from './types'
 
 interface SelectOption<TValue extends string> {
   readonly value: TValue
@@ -61,3 +41,24 @@ export const TERMINAL_COMMISSION_STATUSES: readonly CommissionStatus[] = [
   'REJECTED',
   'REVERSED',
 ] as const
+
+export const STATUS_FILTER_OPTIONS = [
+  { value: '', label: 'Todos' },
+  ...COMMISSION_STATUS_OPTIONS,
+] as const
+
+export const DEFAULT_COLUMN_VISIBILITY: VisibilityState = {
+  policyNumber: true,
+  clientName: true,
+  premiumValueInCents: true,
+  createdAt: true,
+}
+
+export const HIDEABLE_COLUMNS = [
+  { id: 'policyNumber', label: 'Apólice' },
+  { id: 'clientName', label: 'Cliente' },
+  { id: 'premiumValueInCents', label: 'Prêmio' },
+  { id: 'createdAt', label: 'Criado em' },
+] as const
+
+export const DEFAULT_SORTING: SortingState = [{ id: 'createdAt', desc: true }]
