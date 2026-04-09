@@ -20,22 +20,9 @@ import type {
   ListClientsSortOrder,
 } from '@/api/model'
 
-import type { ClientFilters, ClientFormValues } from '../lib/types'
+import { extractErrorMessage } from '@/lib/extract-error-message'
 
-function extractErrorMessage(error: unknown, fallback: string): string {
-  if (
-    error &&
-    typeof error === 'object' &&
-    'response' in error &&
-    error.response &&
-    typeof error.response === 'object' &&
-    'data' in error.response
-  ) {
-    const data = error.response.data as { error?: { message?: string } }
-    if (data.error?.message) return data.error.message
-  }
-  return fallback
-}
+import type { ClientFilters, ClientFormValues } from '../lib/types'
 
 interface ClientsQueryData {
   readonly data: ListClients200DataItem[]

@@ -13,7 +13,7 @@ import {
 import { formatDocument, stripDocument } from '@/lib/masks'
 
 import type { ClientFormValues } from '../lib/types'
-import { FormField } from './form-field'
+import { FormField } from '@/components/shared/form-field'
 import { PersonalInfoFields } from './personal-info-fields'
 
 const PERSON_TYPE_OPTIONS = [

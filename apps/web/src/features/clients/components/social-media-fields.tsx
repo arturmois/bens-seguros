@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input'
 import { useIsMobile } from '@/hooks/use-mobile'
 
 import type { ClientFormValues } from '../lib/types'
-import { FormField } from './form-field'
+import { FormField } from '@/components/shared/form-field'
 
 interface SocialMediaFieldsProps {
   readonly isReadOnly?: boolean

@@ -14,8 +14,8 @@ import {
 
 import { MARITAL_OPTIONS, TYPE_OPTIONS } from '../lib/constants'
 import type { ClientFormValues } from '../lib/types'
-import { formatDateToISO, parseDateString } from './client-form-fields'
-import { FormField } from './form-field'
+import { formatDateToISO, parseDateString } from '@/lib/date-utils'
+import { FormField } from '@/components/shared/form-field'
 
 const MARITAL_SELECT_OPTIONS = [
   { value: '', label: 'Selecione' },

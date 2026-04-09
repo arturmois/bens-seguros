@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/card'
 import { ClientForm } from '@/features/clients/components/client-form'
 import { useClient } from '@/features/clients/hooks/use-clients'
+import { toInputDateString } from '@/lib/date-utils'
 
 interface EditClientPageProps {
   readonly params: Promise<{ id: string }>
@@ -86,13 +87,7 @@ export default function EditClientPage({ params }: EditClientPageProps) {
               email: client.email ?? '',
               phone: client.phone ?? '',
               birthDate: client.birthDate
-                ? (() => {
-                    const d = new Date(client.birthDate)
-                    const year = d.getUTCFullYear()
-                    const month = String(d.getUTCMonth() + 1).padStart(2, '0')
-                    const day = String(d.getUTCDate()).padStart(2, '0')
-                    return `${year}-${month}-${day}`
-                  })()
+                ? toInputDateString(client.birthDate)
                 : '',
               profession: client.profession ?? '',
               maritalStatus: client.maritalStatus ?? undefined,
