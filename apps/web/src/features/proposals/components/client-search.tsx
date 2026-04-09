@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { useDebounce } from '@/hooks/use-debounce'
 import { api } from '@/lib/api-client'
 
-import type { ClientData } from '@/features/clients/lib/constants'
+import type { ClientData } from '@/features/clients/lib/types'
 
 interface ClientSearchProps {
   readonly value: string

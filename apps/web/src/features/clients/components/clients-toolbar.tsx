@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverPopup, PopoverTrigger } from '@/components/ui/popover'
 
-import type { ClientFilters } from '../lib/constants'
+import type { ClientFilters } from '../lib/types'
 import { ClientExportButton } from './client-export-button'
 import { ClientImportButton } from './client-import-button'
 

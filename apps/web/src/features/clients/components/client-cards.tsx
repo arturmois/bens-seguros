@@ -12,10 +12,10 @@ import {
 } from '@/components/ui/menu'
 import { Skeleton } from '@/components/ui/skeleton'
 
+import { getInitials } from '@/lib/formatters'
 import { formatDocument } from '@/lib/masks'
-import type { ClientData } from '../lib/constants'
+import type { ClientData } from '../lib/types'
 import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
-import { getInitials } from '../lib/formatters'
 
 interface ClientCardsProps {
   readonly data: ClientData[] | undefined

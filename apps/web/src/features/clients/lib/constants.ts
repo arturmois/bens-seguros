@@ -1,33 +1,6 @@
-import type {
-  GetClient200Data,
-  ListClients200DataItem,
-  ListClients200DataItemType,
-} from '@/api/model'
 import type { SortingState, VisibilityState } from '@tanstack/react-table'
 
-export type ClientType = ListClients200DataItemType
-
-/** Non-nullable marital status (Orval generates nullable variant) */
-export type MaritalStatus =
-  | 'SINGLE'
-  | 'MARRIED'
-  | 'DIVORCED'
-  | 'WIDOWED'
-  | 'OTHER'
-export type ClientData = ListClients200DataItem
-export type ClientDetail = GetClient200Data
-
-export interface ClientFilters {
-  readonly search?: string
-  readonly type?: ClientType
-  readonly cursor?: string
-  readonly limit?: number
-}
-
-export interface ClientListMeta {
-  readonly total: number
-  readonly nextCursor: string | null
-}
+import type { ClientType, MaritalStatus } from './types'
 
 interface SelectOption<TValue extends string> {
   readonly value: TValue
@@ -74,6 +47,13 @@ export const DEFAULT_COLUMN_VISIBILITY: VisibilityState = {
   createdAt: true,
   phone: true,
 }
+
+export const HIDEABLE_COLUMNS = [
+  { id: 'document', label: 'Documento' },
+  { id: 'type', label: 'Tipo' },
+  { id: 'createdAt', label: 'Criado em' },
+  { id: 'phone', label: 'Telefone' },
+] as const
 
 export const DEFAULT_SORTING: SortingState = [{ id: 'createdAt', desc: true }]
 

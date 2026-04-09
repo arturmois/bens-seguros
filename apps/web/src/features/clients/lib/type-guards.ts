@@ -2,7 +2,7 @@ import {
   ListClientsSortBy as SortByEnum,
   type ListClientsSortBy,
 } from '@/api/model'
-import type { ClientType } from './constants'
+import type { ClientType } from './types'
 import { TYPE_OPTIONS } from './constants'
 
 const VALID_SORT_FIELDS = new Set<string>(Object.values(SortByEnum))

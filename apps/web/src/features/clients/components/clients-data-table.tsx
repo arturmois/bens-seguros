@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import type { ClientData } from '../lib/constants'
+import type { ClientData } from '../lib/types'
 
 interface ClientsDataTableProps {
   readonly table: TanStackTable<ClientData>

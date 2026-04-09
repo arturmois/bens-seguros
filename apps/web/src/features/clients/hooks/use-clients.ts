@@ -20,8 +20,7 @@ import type {
   ListClientsSortOrder,
 } from '@/api/model'
 
-import type { ClientFilters } from '../lib/constants'
-import type { ClientFormValues } from '../lib/types'
+import type { ClientFilters, ClientFormValues } from '../lib/types'
 
 function extractErrorMessage(error: unknown, fallback: string): string {
   if (

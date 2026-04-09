@@ -12,10 +12,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/menu'
 
+import { formatDate, getInitials } from '@/lib/formatters'
 import { formatDocument } from '@/lib/masks'
-import type { ClientData } from '../lib/constants'
+import type { ClientData } from '../lib/types'
 import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
-import { formatDate, getInitials } from '../lib/formatters'
 
 interface ColumnActions {
   readonly onView: (id: string) => void
