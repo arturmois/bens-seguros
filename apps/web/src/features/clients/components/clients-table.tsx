@@ -30,6 +30,8 @@ import {
 import type { ClientData } from '../lib/types'
 import { isClientType, isSortBy } from '../lib/type-guards'
 import { ClientCard } from './client-card'
+import { ClientExportButton } from './client-export-button'
+import { ClientImportButton } from './client-import-button'
 import { createClientColumns } from './clients-columns'
 
 export function ClientsContent() {
@@ -138,7 +140,16 @@ export function ClientsContent() {
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
-      />
+      >
+        <ClientImportButton />
+        <ClientExportButton
+          filters={{
+            search: debouncedSearch || undefined,
+            type:
+              typeFilter && isClientType(typeFilter) ? typeFilter : undefined,
+          }}
+        />
+      </TableToolbar>
 
       <DataTable
         table={table}
