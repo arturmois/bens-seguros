@@ -18,6 +18,8 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs'
 
+import { ConfirmDeleteDialog } from '@/components/shared/confirm-delete-dialog'
+import { DetailInfoItem } from '@/components/shared/detail-info-item'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import { DocumentList } from '@/features/documents/components/document-list'
 import { DocumentUpload } from '@/features/documents/components/document-upload'
@@ -26,12 +28,10 @@ import { getInitials } from '@/lib/formatters'
 import { formatDocument } from '@/lib/masks'
 import { useClient, useDeleteClient } from '../hooks/use-clients'
 import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
-import { ClientDetailInfo } from './client-detail-info'
 import { DetailSkeleton } from './client-detail-skeleton'
 import { ClientHistoryTab } from './client-history-tab'
 import { ClientPoliciesTab } from './client-policies-tab'
 import { ClientProposalsTab } from './client-proposals-tab'
-import { DeleteClientDialog } from './delete-client-dialog'
 
 interface ClientDetailContentProps {
   readonly clientId: string
@@ -134,17 +134,17 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
         <Separator className="my-6" />
 
         <div className="grid gap-4 sm:grid-cols-3">
-          <ClientDetailInfo
+          <DetailInfoItem
             icon={<Mail className="h-4 w-4" />}
             label="E-mail"
             value={client.email ?? '-'}
           />
-          <ClientDetailInfo
+          <DetailInfoItem
             icon={<Phone className="h-4 w-4" />}
             label="Telefone"
             value={client.phone ?? '-'}
           />
-          <ClientDetailInfo
+          <DetailInfoItem
             icon={<Calendar className="h-4 w-4" />}
             label="Criado em"
             value={new Date(client.createdAt).toLocaleDateString('pt-BR')}
@@ -178,7 +178,8 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
         </TabsContent>
       </Tabs>
 
-      <DeleteClientDialog
+      <ConfirmDeleteDialog
+        entityLabel="cliente"
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         onConfirm={handleConfirmDelete}
