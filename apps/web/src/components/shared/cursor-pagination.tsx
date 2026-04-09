@@ -1,0 +1,92 @@
+'use client'
+
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+
+const DEFAULT_PAGE_SIZE_OPTIONS = [10, 20, 50] as const
+
+interface CursorPaginationProps {
+  readonly total: number
+  readonly pageSize: number
+  readonly onPageSizeChange: (size: number) => void
+  readonly hasPreviousPage: boolean
+  readonly hasNextPage: boolean
+  readonly onPrevious: () => void
+  readonly onNext: () => void
+  readonly pageSizeOptions?: readonly number[]
+}
+
+export function CursorPagination({
+  total,
+  pageSize,
+  onPageSizeChange,
+  hasPreviousPage,
+  hasNextPage,
+  onPrevious,
+  onNext,
+  pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS,
+}: CursorPaginationProps) {
+  const pageSizeItems = pageSizeOptions.map((size) => ({
+    value: String(size),
+    label: String(size),
+  }))
+
+  return (
+    <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <span className="text-muted-foreground text-sm">
+        {total} {total === 1 ? 'resultado' : 'resultados'}
+      </span>
+
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground text-sm">Linhas</span>
+          <Select
+            value={String(pageSize)}
+            onValueChange={(value) => {
+              if (value !== null) onPageSizeChange(Number(value))
+            }}
+            items={pageSizeItems}
+          >
+            <SelectTrigger className="h-8 w-16" size="sm">
+              <SelectValue>
+                {(value: string | null) => value ?? String(pageSize)}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {pageSizeOptions.map((size) => (
+                <SelectItem key={size} value={String(size)}>
+                  {size}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onPrevious}
+            disabled={!hasPreviousPage}
+          >
+            Anterior
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onNext}
+            disabled={!hasNextPage}
+          >
+            Próximo
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
