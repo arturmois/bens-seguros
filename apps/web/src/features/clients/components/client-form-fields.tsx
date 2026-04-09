@@ -12,10 +12,7 @@ import { FormField } from '@/components/shared/form-field'
 import { IdentificationFields } from './identification-fields'
 import { SocialMediaFields } from './social-media-fields'
 
-export { parseDateString, formatDateToISO } from '@/lib/date-utils'
-
 interface ClientFormFieldsProps {
-  readonly form?: never
   readonly isReadOnly: boolean
 }
 

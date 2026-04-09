@@ -14,11 +14,3 @@ export function formatDateToISO(date: Date | undefined): string {
   const day = String(date.getUTCDate()).padStart(2, '0')
   return `${year}-${month}-${day}T00:00:00.000Z`
 }
-
-export function toInputDateString(isoDate: string): string {
-  const d = new Date(isoDate)
-  const year = d.getUTCFullYear()
-  const month = String(d.getUTCMonth() + 1).padStart(2, '0')
-  const day = String(d.getUTCDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
