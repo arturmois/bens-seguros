@@ -48,7 +48,7 @@ export function ClientsToolbar({
         <Search className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2" />
         <Input
           placeholder="Buscar clientes..."
-          className="h-8 w-full ps-9 md:w-[320px]"
+          className="h-8 w-full ps-6 md:w-[320px]"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           aria-label="Buscar clientes"
