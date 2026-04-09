@@ -14,6 +14,7 @@ const DEFAULT_PAGE_SIZE_OPTIONS = [10, 20, 50] as const
 interface CursorPaginationProps {
   readonly total: number
   readonly pageSize: number
+  readonly currentPage: number
   readonly onPageSizeChange: (size: number) => void
   readonly hasPreviousPage: boolean
   readonly hasNextPage: boolean
@@ -25,6 +26,7 @@ interface CursorPaginationProps {
 export function CursorPagination({
   total,
   pageSize,
+  currentPage,
   onPageSizeChange,
   hasPreviousPage,
   hasNextPage,
@@ -37,10 +39,13 @@ export function CursorPagination({
     label: String(size),
   }))
 
+  const from = total === 0 ? 0 : (currentPage - 1) * pageSize + 1
+  const to = Math.min(currentPage * pageSize, total)
+
   return (
     <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
       <span className="text-muted-foreground text-sm">
-        {total} {total === 1 ? 'resultado' : 'resultados'}
+        Mostrando {from}-{to} de {total} resultados
       </span>
 
       <div className="flex items-center gap-4">

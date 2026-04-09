@@ -164,6 +164,7 @@ export function ClientsContent() {
       <CursorPagination
         total={total}
         pageSize={pagination.pageSize}
+        currentPage={pagination.currentPage}
         onPageSizeChange={pagination.setPageSize}
         hasPreviousPage={pagination.hasPreviousPage}
         hasNextPage={Boolean(nextCursor)}

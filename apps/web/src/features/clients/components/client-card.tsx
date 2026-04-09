@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/menu'
 
 import { getInitials } from '@/lib/formatters'
-import { formatDocument } from '@/lib/masks'
 import type { ClientData } from '../lib/types'
 import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
 
@@ -85,7 +84,7 @@ export function ClientCard({ client, onEdit, onDelete }: ClientCardProps) {
       <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
         <div>
           <div className="text-muted-foreground text-xs">Documento</div>
-          <div>{formatDocument(client.document)}</div>
+          <div>{client.document}</div>
         </div>
         <div>
           <div className="text-muted-foreground text-xs">Tipo</div>

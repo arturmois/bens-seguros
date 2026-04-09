@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 interface UseCursorPaginationReturn {
   currentCursor: string | undefined
+  currentPage: number
   hasPreviousPage: boolean
   goToNext: (nextCursor: string) => void
   goToPrevious: () => void
@@ -20,6 +21,7 @@ export function useCursorPagination(
 
   return {
     currentCursor: cursors.at(-1),
+    currentPage: cursors.length + 1,
     hasPreviousPage: cursors.length > 0,
     goToNext: (nextCursor: string) =>
       setCursors((prev) => [...prev, nextCursor]),
