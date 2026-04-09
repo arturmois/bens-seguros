@@ -45,10 +45,10 @@ export function ClientsToolbar({
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="relative">
-        <Search className="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+        <Search className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2" />
         <Input
           placeholder="Buscar clientes..."
-          className="h-8 w-full ps-7 md:w-[320px]"
+          className="h-8 w-full ps-9 md:w-[320px]"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           aria-label="Buscar clientes"
