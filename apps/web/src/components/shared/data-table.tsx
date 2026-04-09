@@ -32,9 +32,9 @@ export function DataTable<T>({
   const colCount = table.getVisibleLeafColumns().length
 
   return (
-    <div className="hidden rounded-md border md:block">
+    <div className="hidden min-h-0 flex-1 overflow-auto rounded-md border md:flex md:flex-col">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-background sticky top-0 z-10">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
