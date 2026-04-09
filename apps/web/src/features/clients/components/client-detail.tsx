@@ -16,20 +16,22 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs'
 
+import { ConfirmDeleteDialog } from '@/components/shared/confirm-delete-dialog'
+import { DetailInfoItem } from '@/components/shared/detail-info-item'
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import { DocumentList } from '@/features/documents/components/document-list'
 import { DocumentUpload } from '@/features/documents/components/document-upload'
 
+import { getInitials } from '@/lib/formatters'
 import { formatDocument } from '@/lib/masks'
 import { useClient, useDeleteClient } from '../hooks/use-clients'
 import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
+import { DetailSkeleton } from './client-detail-skeleton'
 import { ClientHistoryTab } from './client-history-tab'
 import { ClientPoliciesTab } from './client-policies-tab'
 import { ClientProposalsTab } from './client-proposals-tab'
-import { DeleteClientDialog } from './delete-client-dialog'
 
 interface ClientDetailContentProps {
   readonly clientId: string
@@ -37,7 +39,7 @@ interface ClientDetailContentProps {
 
 export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
   const router = useRouter()
-  const { data: client, isLoading, isError } = useClient(clientId)
+  const { data: client, isLoading, isError, refetch } = useClient(clientId)
   const deleteClient = useDeleteClient()
 
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -70,11 +72,7 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
             <ArrowLeft className="mr-1 h-4 w-4" />
             Voltar
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => window.location.reload()}
-          >
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
             <RefreshCw className="mr-1 h-4 w-4" />
             Tentar novamente
           </Button>
@@ -97,15 +95,7 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-4">
             <Avatar className="size-12 shrink-0 text-lg font-semibold">
-              <AvatarFallback>
-                {client.name
-                  .split(' ')
-                  .filter(Boolean)
-                  .map((n) => n[0])
-                  .join('')
-                  .slice(0, 2)
-                  .toUpperCase()}
-              </AvatarFallback>
+              <AvatarFallback>{getInitials(client.name)}</AvatarFallback>
             </Avatar>
             <div className="space-y-1">
               <div className="flex items-center gap-3">
@@ -144,17 +134,17 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
         <Separator className="my-6" />
 
         <div className="grid gap-4 sm:grid-cols-3">
-          <InfoItem
+          <DetailInfoItem
             icon={<Mail className="h-4 w-4" />}
             label="E-mail"
             value={client.email ?? '-'}
           />
-          <InfoItem
+          <DetailInfoItem
             icon={<Phone className="h-4 w-4" />}
             label="Telefone"
             value={client.phone ?? '-'}
           />
-          <InfoItem
+          <DetailInfoItem
             icon={<Calendar className="h-4 w-4" />}
             label="Criado em"
             value={new Date(client.createdAt).toLocaleDateString('pt-BR')}
@@ -188,58 +178,13 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
         </TabsContent>
       </Tabs>
 
-      <DeleteClientDialog
+      <ConfirmDeleteDialog
+        entityLabel="cliente"
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         onConfirm={handleConfirmDelete}
         isPending={deleteClient.isPending}
       />
-    </div>
-  )
-}
-
-function InfoItem({
-  icon,
-  label,
-  value,
-}: {
-  readonly icon: React.ReactNode
-  readonly label: string
-  readonly value: string
-}) {
-  return (
-    <div className="flex items-start gap-3">
-      <div className="text-muted-foreground mt-0.5">{icon}</div>
-      <div>
-        <p className="text-muted-foreground text-xs">{label}</p>
-        <p className="text-sm font-medium">{value}</p>
-      </div>
-    </div>
-  )
-}
-
-function DetailSkeleton() {
-  return (
-    <div className="space-y-6">
-      <Skeleton className="h-8 w-20" />
-      <div className="rounded-lg border p-6">
-        <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-48" />
-            <Skeleton className="h-4 w-32" />
-          </div>
-          <div className="flex gap-2">
-            <Skeleton className="h-9 w-24" />
-            <Skeleton className="h-9 w-24" />
-          </div>
-        </div>
-        <Separator className="my-6" />
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-      </div>
     </div>
   )
 }

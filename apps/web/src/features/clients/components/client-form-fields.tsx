@@ -7,47 +7,12 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { PHONE_MASK } from '@/lib/masks'
 
-import { FormField } from './form-field'
+import type { ClientFormValues } from '../lib/types'
+import { FormField } from '@/components/shared/form-field'
 import { IdentificationFields } from './identification-fields'
 import { SocialMediaFields } from './social-media-fields'
 
-export interface ClientFormValues {
-  name: string
-  document: string
-  personType?: 'INDIVIDUAL' | 'COMPANY'
-  type?: 'LEAD' | 'CLIENT' | 'FORMER_CLIENT'
-  email?: string
-  phone?: string
-  birthDate?: string
-  profession?: string
-  maritalStatus?: 'SINGLE' | 'MARRIED' | 'DIVORCED' | 'WIDOWED' | 'OTHER'
-  socialMedia?: {
-    instagram?: string
-    facebook?: string
-    linkedin?: string
-    tiktok?: string
-  }
-}
-
-export function parseDateString(value: string | undefined): Date | undefined {
-  if (!value) return undefined
-  const date = value.includes('T')
-    ? new Date(value)
-    : new Date(`${value}T00:00:00Z`)
-  if (Number.isNaN(date.getTime())) return undefined
-  return date
-}
-
-export function formatDateToISO(date: Date | undefined): string {
-  if (!date) return ''
-  const year = date.getUTCFullYear()
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
-  const day = String(date.getUTCDate()).padStart(2, '0')
-  return `${year}-${month}-${day}T00:00:00.000Z`
-}
-
 interface ClientFormFieldsProps {
-  readonly form?: never
   readonly isReadOnly: boolean
 }
 

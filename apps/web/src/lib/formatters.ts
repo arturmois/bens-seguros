@@ -4,7 +4,9 @@ const currencyFormatter = new Intl.NumberFormat('pt-BR', {
 })
 
 const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
-  dateStyle: 'short',
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
   timeZone: 'UTC',
 })
 
@@ -14,4 +16,14 @@ export function formatCurrency(valueInCents: number): string {
 
 export function formatDate(dateStr: string): string {
   return dateFormatter.format(new Date(dateStr))
+}
+
+export function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
 }

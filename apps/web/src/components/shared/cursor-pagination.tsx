@@ -9,34 +9,36 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-import { PAGE_SIZE_OPTIONS } from '../lib/constants'
+const DEFAULT_PAGE_SIZE_OPTIONS = [10, 20, 50] as const
 
-const PAGE_SIZE_ITEMS = PAGE_SIZE_OPTIONS.map((size) => ({
-  value: String(size),
-  label: String(size),
-}))
-
-interface ClientsPaginationProps {
+interface CursorPaginationProps {
   readonly total: number
   readonly pageSize: number
-  readonly onPageSizeChange: (size: number) => void
   readonly currentPage: number
-  readonly hasNextPage: boolean
+  readonly onPageSizeChange: (size: number) => void
   readonly hasPreviousPage: boolean
-  readonly onNext: () => void
+  readonly hasNextPage: boolean
   readonly onPrevious: () => void
+  readonly onNext: () => void
+  readonly pageSizeOptions?: readonly number[]
 }
 
-export function ClientsPagination({
+export function CursorPagination({
   total,
   pageSize,
-  onPageSizeChange,
   currentPage,
-  hasNextPage,
+  onPageSizeChange,
   hasPreviousPage,
-  onNext,
+  hasNextPage,
   onPrevious,
-}: ClientsPaginationProps) {
+  onNext,
+  pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS,
+}: CursorPaginationProps) {
+  const pageSizeItems = pageSizeOptions.map((size) => ({
+    value: String(size),
+    label: String(size),
+  }))
+
   const from = total === 0 ? 0 : (currentPage - 1) * pageSize + 1
   const to = Math.min(currentPage * pageSize, total)
 
@@ -54,7 +56,7 @@ export function ClientsPagination({
             onValueChange={(value) => {
               if (value !== null) onPageSizeChange(Number(value))
             }}
-            items={PAGE_SIZE_ITEMS}
+            items={pageSizeItems}
           >
             <SelectTrigger className="h-8 w-16" size="sm">
               <SelectValue>
@@ -62,7 +64,7 @@ export function ClientsPagination({
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {PAGE_SIZE_OPTIONS.map((size) => (
+              {pageSizeOptions.map((size) => (
                 <SelectItem key={size} value={String(size)}>
                   {size}
                 </SelectItem>

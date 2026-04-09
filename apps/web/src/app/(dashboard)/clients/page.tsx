@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: 'Clientes' }
 
 export default function ClientsPage() {
   return (
-    <div className="space-y-6">
+    <div className="flex h-full flex-col gap-6">
       <div className="space-y-4">
         <PageBreadcrumb
           items={[

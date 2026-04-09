@@ -12,10 +12,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/menu'
 
-import { formatDocument } from '@/lib/masks'
-import type { ClientData } from '../lib/constants'
+import { formatDate, getInitials } from '@/lib/formatters'
+import type { ClientData } from '../lib/types'
 import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
-import { formatDate, getInitials } from '../lib/formatters'
 
 interface ColumnActions {
   readonly onView: (id: string) => void
@@ -70,9 +69,7 @@ export function createClientColumns(
         </button>
       ),
       cell: ({ row }) => (
-        <span className="text-muted-foreground">
-          {formatDocument(row.original.document)}
-        </span>
+        <span className="text-muted-foreground">{row.original.document}</span>
       ),
     },
     {

@@ -4,18 +4,16 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import type { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 
 import { CreateClientBody } from '@/api/endpoints/clients/clients.zod'
 import { useCreateClient, useUpdateClient } from '../hooks/use-clients'
 import { EMPTY_FORM_VALUES } from '../lib/constants'
+import type { ClientFormValues } from '../lib/types'
 import { ClientFormFields } from './client-form-fields'
 
 const ClientFormSchema = CreateClientBody
-
-type ClientFormValues = z.infer<typeof ClientFormSchema>
 
 interface ClientFormProps {
   readonly defaultValues?: ClientFormValues
@@ -92,4 +90,4 @@ export function ClientForm({
   )
 }
 
-export type { ClientFormValues }
+export type { ClientFormValues } from '../lib/types'

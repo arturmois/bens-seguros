@@ -12,27 +12,29 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
-interface DeleteClientDialogProps {
+interface ConfirmDeleteDialogProps {
+  readonly entityLabel: string
   readonly open: boolean
   readonly onOpenChange: (open: boolean) => void
   readonly onConfirm: () => void
   readonly isPending: boolean
 }
 
-export function DeleteClientDialog({
+export function ConfirmDeleteDialog({
+  entityLabel,
   open,
   onOpenChange,
   onConfirm,
   isPending,
-}: DeleteClientDialogProps) {
+}: ConfirmDeleteDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Excluir cliente</DialogTitle>
+          <DialogTitle>Excluir {entityLabel}</DialogTitle>
           <DialogDescription>
-            Tem certeza que deseja excluir este cliente? Esta ação não pode ser
-            desfeita.
+            Tem certeza que deseja excluir este {entityLabel}? Esta ação não
+            pode ser desfeita.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
