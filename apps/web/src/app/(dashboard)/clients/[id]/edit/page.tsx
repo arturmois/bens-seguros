@@ -6,6 +6,13 @@ import { use } from 'react'
 
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { ClientForm } from '@/features/clients/components/client-form'
 import { useClient } from '@/features/clients/hooks/use-clients'
 
@@ -61,45 +68,48 @@ export default function EditClientPage({ params }: EditClientPageProps) {
         </div>
       </div>
 
-      <div className="max-w-3xl rounded-lg border p-6">
-        <h2 className="font-semibold">Dados do Cliente</h2>
-        <p className="text-muted-foreground mb-6 text-sm">
-          Altere os campos necessários e salve.
-        </p>
-
-        <ClientForm
-          clientId={id}
-          defaultValues={{
-            name: client.name,
-            document: client.document,
-            personType: client.personType ?? 'INDIVIDUAL',
-            type: client.type,
-            email: client.email ?? '',
-            phone: client.phone ?? '',
-            birthDate: client.birthDate
-              ? (() => {
-                  const d = new Date(client.birthDate)
-                  const year = d.getUTCFullYear()
-                  const month = String(d.getUTCMonth() + 1).padStart(2, '0')
-                  const day = String(d.getUTCDate()).padStart(2, '0')
-                  return `${year}-${month}-${day}`
-                })()
-              : '',
-            profession: client.profession ?? '',
-            maritalStatus: client.maritalStatus ?? undefined,
-            socialMedia: client.socialMedia
-              ? {
-                  instagram: client.socialMedia.instagram ?? '',
-                  facebook: client.socialMedia.facebook ?? '',
-                  linkedin: client.socialMedia.linkedin ?? '',
-                  tiktok: client.socialMedia.tiktok ?? '',
-                }
-              : undefined,
-          }}
-          onSuccess={() => router.push(`/clients/${id}`)}
-          onCancel={() => router.push(`/clients/${id}`)}
-        />
-      </div>
+      <Card className="max-w-5xl">
+        <CardHeader>
+          <CardTitle>Dados do Cliente</CardTitle>
+          <CardDescription>
+            Altere os campos necessários e salve.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ClientForm
+            clientId={id}
+            defaultValues={{
+              name: client.name,
+              document: client.document,
+              personType: client.personType ?? 'INDIVIDUAL',
+              type: client.type,
+              email: client.email ?? '',
+              phone: client.phone ?? '',
+              birthDate: client.birthDate
+                ? (() => {
+                    const d = new Date(client.birthDate)
+                    const year = d.getUTCFullYear()
+                    const month = String(d.getUTCMonth() + 1).padStart(2, '0')
+                    const day = String(d.getUTCDate()).padStart(2, '0')
+                    return `${year}-${month}-${day}`
+                  })()
+                : '',
+              profession: client.profession ?? '',
+              maritalStatus: client.maritalStatus ?? undefined,
+              socialMedia: client.socialMedia
+                ? {
+                    instagram: client.socialMedia.instagram ?? '',
+                    facebook: client.socialMedia.facebook ?? '',
+                    linkedin: client.socialMedia.linkedin ?? '',
+                    tiktok: client.socialMedia.tiktok ?? '',
+                  }
+                : undefined,
+            }}
+            onSuccess={() => router.push(`/clients/${id}`)}
+            onCancel={() => router.push(`/clients/${id}`)}
+          />
+        </CardContent>
+      </Card>
     </div>
   )
 }
