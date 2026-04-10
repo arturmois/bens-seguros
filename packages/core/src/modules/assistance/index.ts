@@ -1,6 +1,7 @@
 // Domain
 export type {
   AssistanceStatus,
+  AssistanceSortField,
   AssistanceData,
   AssistanceFilters,
   AssistanceRepository,

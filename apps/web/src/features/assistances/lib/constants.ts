@@ -1,33 +1,6 @@
-import type {
-  ListAssistances200DataItemStatus,
-  ListAssistances200DataItem,
-} from '@/api/model'
+import type { SortingState, VisibilityState } from '@tanstack/react-table'
 
-export type AssistanceStatus = ListAssistances200DataItemStatus
-export type AssistanceData = ListAssistances200DataItem
-
-/** Assistance type is a plain string in the Orval schema */
-export type AssistanceType =
-  | 'TOW_TRUCK'
-  | 'MECHANIC'
-  | 'LOCKSMITH'
-  | 'GLASS'
-  | 'OTHER'
-
-export interface AssistanceFilters {
-  readonly search?: string
-  readonly status?: AssistanceStatus
-  readonly policyId?: string
-  readonly clientId?: string
-  readonly type?: string
-  readonly cursor?: string
-  readonly limit?: number
-}
-
-export interface AssistanceListMeta {
-  readonly total: number
-  readonly nextCursor: string | null
-}
+import type { AssistanceStatus, AssistanceType } from './types'
 
 interface SelectOption<TValue extends string> {
   readonly value: TValue
@@ -116,3 +89,24 @@ export const VALID_ASSISTANCE_TRANSITIONS: Record<
   IN_PROGRESS: ['COMPLETED'],
   COMPLETED: [],
 } as const
+
+export const STATUS_FILTER_OPTIONS = [
+  { value: '', label: 'Todos' },
+  ...ASSISTANCE_STATUS_OPTIONS,
+] as const
+
+export const DEFAULT_COLUMN_VISIBILITY: VisibilityState = {
+  policyNumber: true,
+  clientName: true,
+  address: true,
+  requestedAt: true,
+}
+
+export const HIDEABLE_COLUMNS = [
+  { id: 'policyNumber', label: 'Apólice' },
+  { id: 'clientName', label: 'Cliente' },
+  { id: 'address', label: 'Endereço' },
+  { id: 'requestedAt', label: 'Data Solicitação' },
+] as const
+
+export const DEFAULT_SORTING: SortingState = [{ id: 'createdAt', desc: true }]

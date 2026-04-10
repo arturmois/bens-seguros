@@ -22,10 +22,10 @@ export function listAssistancesRoute(app: FastifyInstance) {
     preHandler: [requireAbility('read', 'Assistance')],
     handler: async (request, reply) => {
       const useCase = container.resolve(ListAssistances)
-      const { limit, cursor, ...filters } = request.query
+      const { limit, cursor, sortBy, sortOrder, ...filters } = request.query
       const result = await useCase.execute(
         { organizationId: request.organizationId!, ...filters },
-        { limit, cursor }
+        { limit, cursor, sortBy, sortOrder }
       )
       return reply.send({
         success: true,

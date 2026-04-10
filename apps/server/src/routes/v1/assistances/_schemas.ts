@@ -44,8 +44,14 @@ export const listAssistancesQuerySchema = z.object({
   policyId: z.string().optional(),
   clientId: z.string().optional(),
   type: z.string().optional(),
+  search: z.string().optional(),
   cursor: z.string().optional(),
   limit: z.coerce.number().min(1).max(100).default(20),
+  sortBy: z
+    .enum(['type', 'status', 'requestedAt', 'createdAt'])
+    .optional()
+    .default('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 })
 
 export { idParam as idParamSchema }

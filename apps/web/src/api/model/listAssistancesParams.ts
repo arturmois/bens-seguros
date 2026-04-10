@@ -4,6 +4,8 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
+import type { ListAssistancesSortBy } from './listAssistancesSortBy'
+import type { ListAssistancesSortOrder } from './listAssistancesSortOrder'
 import type { ListAssistancesStatus } from './listAssistancesStatus'
 
 export type ListAssistancesParams = {
@@ -11,10 +13,13 @@ export type ListAssistancesParams = {
   policyId?: string
   clientId?: string
   type?: string
+  search?: string
   cursor?: string
   /**
    * @minimum 1
    * @maximum 100
    */
   limit?: number
+  sortBy?: ListAssistancesSortBy
+  sortOrder?: ListAssistancesSortOrder
 }

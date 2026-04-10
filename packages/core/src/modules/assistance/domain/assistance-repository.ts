@@ -37,6 +37,7 @@ export interface AssistanceFilters {
   policyId?: string
   clientId?: string
   type?: string
+  search?: string
 }
 
 export interface CreateAssistanceInput {
@@ -59,12 +60,18 @@ export interface UpdateAssistanceStatusInput {
   completedAt?: Date
 }
 
+export type AssistanceSortField =
+  | 'type'
+  | 'status'
+  | 'requestedAt'
+  | 'createdAt'
+
 export interface AssistanceRepository {
   create(data: CreateAssistanceInput): Promise<AssistanceData>
   findById(id: string, organizationId: string): Promise<AssistanceData | null>
   findMany(
     filters: AssistanceFilters,
-    page: CursorPage
+    page: CursorPage<AssistanceSortField>
   ): Promise<Page<AssistanceData>>
   updateStatus(
     id: string,

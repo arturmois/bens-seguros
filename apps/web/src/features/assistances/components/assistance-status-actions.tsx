@@ -14,7 +14,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 
-import type { AssistanceStatus } from '../lib/constants'
+import type { AssistanceStatus } from '../lib/types'
 import {
   ASSISTANCE_STATUS_BUTTON_STYLES,
   ASSISTANCE_STATUS_LABELS,

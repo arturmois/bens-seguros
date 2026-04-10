@@ -11,27 +11,35 @@ import {
   getListAssistancesQueryKey,
   getGetAssistanceQueryKey,
 } from '@/api/endpoints/assistances/assistances'
+import type {
+  ListAssistances200DataItem,
+  ListAssistances200Meta,
+  ListAssistancesSortBy,
+  ListAssistancesSortOrder,
+} from '@/api/model'
+import { extractErrorMessage } from '@/lib/extract-error-message'
 
 import type { z } from 'zod'
-
 import { CreateAssistanceBody } from '@/api/endpoints/assistances/assistances.zod'
 
-import type { AssistanceFilters, AssistanceStatus } from '../lib/constants'
+import type { AssistanceFilters, AssistanceStatus } from '../lib/types'
 
 type AssistanceFormValues = z.infer<typeof CreateAssistanceBody>
 
-export function useAssistances(filters: AssistanceFilters) {
-  const params = {
-    search: filters.search,
-    status: filters.status,
-    policyId: filters.policyId,
-    clientId: filters.clientId,
-    type: filters.type,
-    cursor: filters.cursor,
-    limit: filters.limit ?? 20,
-  }
+interface AssistancesQueryData {
+  readonly data: ListAssistances200DataItem[]
+  readonly meta: ListAssistances200Meta
+}
 
-  return useListAssistances(params, {
+const ASSISTANCES_LIST_KEY = getListAssistancesQueryKey()
+
+export function useAssistances(
+  filters: AssistanceFilters & {
+    sortBy?: ListAssistancesSortBy
+    sortOrder?: ListAssistancesSortOrder
+  }
+) {
+  return useListAssistances<AssistancesQueryData>(filters, {
     query: {
       select: (response) => ({
         data: response.data.data,
@@ -54,17 +62,13 @@ export function useCreateAssistance() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (values: AssistanceFormValues) => {
-      return createAssistance(values)
-    },
+    mutationFn: (values: AssistanceFormValues) => createAssistance(values),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: getListAssistancesQueryKey(),
-      })
+      void queryClient.invalidateQueries({ queryKey: ASSISTANCES_LIST_KEY })
       toast.success('Assistência registrada com sucesso')
     },
-    onError: () => {
-      toast.error('Erro ao registrar assistência')
+    onError: (error) => {
+      toast.error(extractErrorMessage(error, 'Erro ao registrar assistência'))
     },
   })
 }
@@ -73,26 +77,19 @@ export function useUpdateAssistanceStatus() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({
-      id,
-      status,
-    }: {
-      id: string
-      status: AssistanceStatus
-    }) => {
-      return updateAssistanceStatus(id, { status })
-    },
+    mutationFn: ({ id, status }: { id: string; status: AssistanceStatus }) =>
+      updateAssistanceStatus(id, { status }),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: getListAssistancesQueryKey(),
-      })
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({ queryKey: ASSISTANCES_LIST_KEY })
+      void queryClient.invalidateQueries({
         queryKey: getGetAssistanceQueryKey(variables.id),
       })
       toast.success('Status da assistência atualizado com sucesso')
     },
-    onError: () => {
-      toast.error('Erro ao atualizar status da assistência')
+    onError: (error) => {
+      toast.error(
+        extractErrorMessage(error, 'Erro ao atualizar status da assistência')
+      )
     },
   })
 }

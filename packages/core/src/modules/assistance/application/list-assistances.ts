@@ -4,6 +4,7 @@ import type {
   AssistanceRepository,
   AssistanceData,
   AssistanceFilters,
+  AssistanceSortField,
 } from '../domain/assistance-repository.js'
 
 @injectable()
@@ -15,7 +16,7 @@ export class ListAssistances {
 
   async execute(
     filters: AssistanceFilters,
-    page: CursorPage
+    page: CursorPage<AssistanceSortField>
   ): Promise<Page<AssistanceData>> {
     return this.assistanceRepo.findMany(filters, page)
   }

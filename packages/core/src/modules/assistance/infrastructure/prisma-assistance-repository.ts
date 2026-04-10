@@ -1,15 +1,29 @@
 import { injectable, inject } from 'tsyringe'
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
-import type { CursorPage, Page } from '../../client/domain/client-repository.js'
+import type {
+  CursorPage,
+  Page,
+  SortOrder,
+} from '../../client/domain/client-repository.js'
 import type {
   AssistanceRepository,
   AssistanceData,
   AssistanceFilters,
+  AssistanceSortField,
   CreateAssistanceInput,
   UpdateAssistanceStatusInput,
 } from '../domain/assistance-repository.js'
 import { AssistanceMapper } from './assistance-mapper.js'
+
+function buildOrderBy(
+  sortBy: AssistanceSortField | undefined,
+  sortOrder: SortOrder | undefined
+): Prisma.AssistanceOrderByWithRelationInput[] {
+  const order = sortOrder === 'asc' ? 'asc' : 'desc'
+  const field = sortBy ?? 'createdAt'
+  return [{ [field]: order }, { id: 'desc' }]
+}
 
 const ASSISTANCE_INCLUDE = {
   policy: { select: { policyNumber: true } },
@@ -55,7 +69,7 @@ export class PrismaAssistanceRepository implements AssistanceRepository {
 
   async findMany(
     filters: AssistanceFilters,
-    page: CursorPage
+    page: CursorPage<AssistanceSortField>
   ): Promise<Page<AssistanceData>> {
     const where: Prisma.AssistanceWhereInput = {
       organizationId: filters.organizationId,
@@ -63,6 +77,19 @@ export class PrismaAssistanceRepository implements AssistanceRepository {
       ...(filters.policyId && { policyId: filters.policyId }),
       ...(filters.clientId && { clientId: filters.clientId }),
       ...(filters.type && { type: filters.type }),
+      ...(filters.search && {
+        OR: [
+          { description: { contains: filters.search, mode: 'insensitive' } },
+          { providerName: { contains: filters.search, mode: 'insensitive' } },
+          { address: { contains: filters.search, mode: 'insensitive' } },
+          { type: { contains: filters.search, mode: 'insensitive' } },
+          {
+            client: {
+              name: { contains: filters.search, mode: 'insensitive' },
+            },
+          },
+        ],
+      }),
     }
 
     const [rows, total] = await Promise.all([
@@ -71,7 +98,7 @@ export class PrismaAssistanceRepository implements AssistanceRepository {
         include: ASSISTANCE_INCLUDE,
         take: page.limit + 1,
         ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
-        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        orderBy: buildOrderBy(page.sortBy, page.sortOrder),
       }),
       this.prisma.assistance.count({ where }),
     ])

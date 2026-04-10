@@ -32,6 +32,9 @@ export const CreateAssistanceBody = zod.object({
 export const listAssistancesQueryLimitDefault = 20
 export const listAssistancesQueryLimitMax = 100
 
+export const listAssistancesQuerySortByDefault = `createdAt`
+export const listAssistancesQuerySortOrderDefault = `desc`
+
 export const ListAssistancesQueryParams = zod.object({
   status: zod
     .enum([
@@ -46,12 +49,19 @@ export const ListAssistancesQueryParams = zod.object({
   policyId: zod.string().optional(),
   clientId: zod.string().optional(),
   type: zod.string().optional(),
+  search: zod.string().optional(),
   cursor: zod.string().optional(),
   limit: zod
     .number()
     .min(1)
     .max(listAssistancesQueryLimitMax)
     .default(listAssistancesQueryLimitDefault),
+  sortBy: zod
+    .enum(['type', 'status', 'requestedAt', 'createdAt'])
+    .default(listAssistancesQuerySortByDefault),
+  sortOrder: zod
+    .enum(['asc', 'desc'])
+    .default(listAssistancesQuerySortOrderDefault),
 })
 
 export const ListAssistancesResponse = zod.object({

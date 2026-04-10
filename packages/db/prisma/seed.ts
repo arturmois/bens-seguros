@@ -796,6 +796,141 @@ async function main() {
   console.log(`  ✓ Claims: ${claims.length}`)
 
   // =========================================================================
+  // 7b. Assistances (various statuses and types)
+  // =========================================================================
+
+  const assistanceStatuses = [
+    'REQUESTED',
+    'AWAITING_DOCUMENT',
+    'PENDING_INSPECTION',
+    'DISPATCHED',
+    'IN_PROGRESS',
+    'COMPLETED',
+  ] as const
+
+  const assistancesData = [
+    {
+      type: 'GUINCHO',
+      status: assistanceStatuses[0]!, // REQUESTED
+      description:
+        'Veículo não liga após tentativa de partida — solicita guincho para oficina credenciada',
+      address: 'Av. Paulista, 1578 - Bela Vista, São Paulo, SP',
+      latitude: -23.5629,
+      longitude: -46.6544,
+      providerName: null,
+      providerPhone: null,
+      scheduledAt: null,
+      completedAt: null,
+      claimIndex: null,
+    },
+    {
+      type: 'CHAVEIRO',
+      status: assistanceStatuses[1]!, // AWAITING_DOCUMENT
+      description:
+        'Cliente trancou chaves dentro do veículo no estacionamento do shopping',
+      address:
+        'Shopping Ibirapuera - Av. Ibirapuera, 3103 - Moema, São Paulo, SP',
+      latitude: -23.6095,
+      longitude: -46.6692,
+      providerName: 'Chaveiro Rápido 24h',
+      providerPhone: '(11) 98765-0001',
+      scheduledAt: new Date(Date.now() + 2 * 60 * 60 * 1000),
+      completedAt: null,
+      claimIndex: null,
+    },
+    {
+      type: 'VIDRACEIRO',
+      status: assistanceStatuses[2]!, // PENDING_INSPECTION
+      description:
+        'Vidro traseiro do veículo quebrado por tentativa de furto — aguardando vistoria',
+      address: 'Rua Augusta, 2200 - Jardim Paulista, São Paulo, SP',
+      latitude: -23.5567,
+      longitude: -46.6626,
+      providerName: 'Auto Vidros Express',
+      providerPhone: '(11) 97654-0002',
+      scheduledAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      completedAt: null,
+      claimIndex: 0, // link to first claim
+    },
+    {
+      type: 'GUINCHO',
+      status: assistanceStatuses[3]!, // DISPATCHED
+      description:
+        'Pneu furado em rodovia sem estepe — guincho despachado para local',
+      address: 'Rod. Anchieta, km 42 - São Bernardo do Campo, SP',
+      latitude: -23.7372,
+      longitude: -46.5631,
+      providerName: 'Guinchos Metrópole',
+      providerPhone: '(11) 99876-0003',
+      scheduledAt: new Date(Date.now() + 1 * 60 * 60 * 1000),
+      completedAt: null,
+      claimIndex: null,
+    },
+    {
+      type: 'ELETRICISTA',
+      status: assistanceStatuses[4]!, // IN_PROGRESS
+      description:
+        'Curto-circuito no painel elétrico da residência — eletricista em atendimento',
+      address: 'Rua Oscar Freire, 890 - Pinheiros, São Paulo, SP',
+      latitude: -23.5624,
+      longitude: -46.6724,
+      providerName: 'Elétrica Confiança',
+      providerPhone: '(11) 96543-0004',
+      scheduledAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+      completedAt: null,
+      claimIndex: null,
+    },
+    {
+      type: 'ENCANADOR',
+      status: assistanceStatuses[5]!, // COMPLETED
+      description:
+        'Vazamento de água no registro principal do apartamento — reparo concluído',
+      address: 'Rua Haddock Lobo, 595 - Cerqueira César, São Paulo, SP',
+      latitude: -23.5581,
+      longitude: -46.6672,
+      providerName: 'Hidráulica São Paulo',
+      providerPhone: '(11) 95432-0005',
+      scheduledAt: new Date(Date.now() - 48 * 60 * 60 * 1000),
+      completedAt: new Date(Date.now() - 46 * 60 * 60 * 1000),
+      claimIndex: 1, // link to second claim
+    },
+  ]
+
+  let assistancesCount = 0
+  for (let i = 0; i < assistancesData.length; i++) {
+    const a = assistancesData[i]!
+    const policy = activePolicies[i % activePolicies.length]!
+    const claimId =
+      a.claimIndex !== null ? (claims[a.claimIndex]?.id ?? null) : null
+
+    await prisma.assistance.create({
+      data: {
+        id: stableId('assistance'),
+        organizationId: org.id,
+        policyId: policy.id,
+        clientId: policy.clientId,
+        claimId,
+        type: a.type,
+        status: a.status,
+        description: a.description,
+        address: a.address,
+        latitude: a.latitude,
+        longitude: a.longitude,
+        providerName: a.providerName,
+        providerPhone: a.providerPhone,
+        requestedAt: new Date(
+          Date.now() - (assistancesData.length - i) * 24 * 60 * 60 * 1000
+        ),
+        scheduledAt: a.scheduledAt,
+        completedAt: a.completedAt,
+      },
+    })
+    assistancesCount++
+  }
+
+  console.log(`  ✓ Assistances: ${assistancesCount}`)
+
+  // =========================================================================
   // 8. Commissions (different statuses)
   // =========================================================================
 
