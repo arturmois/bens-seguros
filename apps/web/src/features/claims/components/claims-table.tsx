@@ -1,63 +1,119 @@
 'use client'
 
-import { useState } from 'react'
+import type { VisibilityState } from '@tanstack/react-table'
+import {
+  getCoreRowModel,
+  useReactTable,
+  type SortingState,
+} from '@tanstack/react-table'
+import { ShieldAlert } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useMemo, useState } from 'react'
 
+import type { ListClaimsSortOrder } from '@/api/model'
+import { ConfirmDeleteDialog } from '@/components/shared/confirm-delete-dialog'
 import { Button } from '@/components/ui/button'
-import { Table } from '@/components/ui/table'
+import { CursorPagination } from '@/components/shared/cursor-pagination'
+import { DataTable } from '@/components/shared/data-table'
+import { FilterTabs } from '@/components/shared/filter-tabs'
+import { MobileCardList } from '@/components/shared/mobile-card-list'
+import { TableErrorState } from '@/components/shared/table-error-state'
+import { TableToolbar } from '@/components/shared/table-toolbar'
+import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
-import type { ClaimPriority, ClaimStatus } from '../lib/constants'
 import { useClaims, useDeleteClaim } from '../hooks/use-claims'
-import { ClaimsPagination } from './claims-pagination'
-import { ClaimsTableBody, ClaimsTableHeader } from './claims-table-rows'
-import { ClaimsToolbar } from './claims-toolbar'
-import { DeleteClaimDialog } from './delete-claim-dialog'
+import {
+  DEFAULT_COLUMN_VISIBILITY,
+  DEFAULT_SORTING,
+  HIDEABLE_COLUMNS,
+  STATUS_FILTER_OPTIONS,
+} from '../lib/constants'
+import { isClaimStatus, isSortBy } from '../lib/type-guards'
+import type { ClaimData } from '../lib/types'
+import { ClaimCard } from './claim-card'
+import { createClaimColumns } from './claims-columns'
 
 export function ClaimsTable() {
   const router = useRouter()
+  const pagination = useCursorPagination()
+
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('ALL')
-  const [priorityFilter, setPriorityFilter] = useState('ALL')
-  const [cursors, setCursors] = useState<string[]>([])
+  const [statusFilter, setStatusFilter] = useState('')
+  const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    DEFAULT_COLUMN_VISIBILITY
+  )
   const [deletingClaimId, setDeletingClaimId] = useState<string | null>(null)
 
   const debouncedSearch = useDebounce(search, 300)
-  const currentCursor = cursors.at(-1)
+
+  const sortId = sorting[0]?.id
+  const sortBy = sortId && isSortBy(sortId) ? sortId : undefined
+  const sortOrder: ListClaimsSortOrder | undefined = sorting[0]?.desc
+    ? 'desc'
+    : 'asc'
+
+  const statusParam =
+    statusFilter && isClaimStatus(statusFilter) ? statusFilter : undefined
 
   const { data, isLoading, isError, refetch } = useClaims({
     search: debouncedSearch || undefined,
-    status: statusFilter === 'ALL' ? undefined : (statusFilter as ClaimStatus),
-    priority:
-      priorityFilter === 'ALL' ? undefined : (priorityFilter as ClaimPriority),
-    cursor: currentCursor,
+    status: statusParam,
+    cursor: pagination.currentCursor,
+    limit: pagination.pageSize,
+    sortBy,
+    sortOrder,
   })
 
   const deleteClaim = useDeleteClaim()
 
-  function handleRowClick(id: string) {
-    router.push(`/claims/${id}`)
+  const claims: ClaimData[] = data?.data ?? []
+  const total = data?.meta?.total ?? 0
+  const nextCursor = data?.meta?.nextCursor ?? null
+
+  const columnActions = useMemo(
+    () => ({
+      onView: (id: string) => router.push(`/claims/${id}`),
+      onDelete: (id: string) => setDeletingClaimId(id),
+    }),
+    [router]
+  )
+
+  const columns = useMemo(
+    () => createClaimColumns(columnActions),
+    [columnActions]
+  )
+
+  const table = useReactTable({
+    data: claims,
+    columns,
+    state: { sorting, columnVisibility },
+    onSortingChange: (updater) => {
+      setSorting(updater)
+      pagination.reset()
+    },
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    manualSorting: true,
+    manualPagination: true,
+    manualFiltering: true,
+    rowCount: total,
+  })
+
+  function handleSearchChange(value: string) {
+    setSearch(value)
+    pagination.reset()
   }
 
   function handleStatusFilterChange(value: string) {
     setStatusFilter(value)
-    setCursors([])
+    pagination.reset()
   }
 
-  function handlePriorityFilterChange(value: string) {
-    setPriorityFilter(value)
-    setCursors([])
-  }
-
-  function handleNextPage() {
-    const next = data?.meta.nextCursor
-    if (next) {
-      setCursors((prev) => [...prev, next])
-    }
-  }
-
-  function handlePreviousPage() {
-    setCursors((prev) => prev.slice(0, -1))
+  function handleColumnToggle(id: string, visible: boolean) {
+    setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
 
   function handleConfirmDelete() {
@@ -70,47 +126,69 @@ export function ClaimsTable() {
 
   if (isError) {
     return (
-      <div className="flex h-48 flex-col items-center justify-center gap-3 rounded-md border">
-        <p className="text-destructive text-sm">Erro ao carregar sinistros.</p>
-        <Button variant="outline" size="sm" onClick={() => refetch()}>
-          Tentar novamente
-        </Button>
-      </div>
+      <TableErrorState
+        message="Erro ao carregar sinistros."
+        onRetry={refetch}
+      />
     )
   }
 
   return (
-    <div className="space-y-4">
-      <ClaimsToolbar
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <FilterTabs
+        options={STATUS_FILTER_OPTIONS}
+        value={statusFilter}
+        onChange={handleStatusFilterChange}
+      />
+
+      <TableToolbar
         search={search}
-        onSearchChange={setSearch}
-        statusFilter={statusFilter}
-        onStatusFilterChange={handleStatusFilterChange}
-        priorityFilter={priorityFilter}
-        onPriorityFilterChange={handlePriorityFilterChange}
+        onSearchChange={handleSearchChange}
+        searchPlaceholder="Buscar sinistros..."
+        columnVisibility={columnVisibility}
+        onColumnVisibilityChange={handleColumnToggle}
+        hideableColumns={HIDEABLE_COLUMNS}
+      >
+        <Button size="sm" render={<Link href="/claims/new" />}>
+          Novo Sinistro
+        </Button>
+      </TableToolbar>
+
+      <DataTable
+        table={table}
+        isLoading={isLoading}
+        emptyIcon={<ShieldAlert className="text-muted-foreground/50 size-10" />}
+        emptyMessage="Nenhum sinistro encontrado."
+        emptyDescription="Registre um novo sinistro para começar."
+        columnVisibility={columnVisibility}
+        onRowClick={(claim) => router.push(`/claims/${claim.id}`)}
       />
 
-      <div className="rounded-md border">
-        <Table>
-          <ClaimsTableHeader />
-          <ClaimsTableBody
-            data={data?.data}
-            isLoading={isLoading}
-            onRowClick={handleRowClick}
-            onDelete={setDeletingClaimId}
-          />
-        </Table>
-      </div>
-
-      <ClaimsPagination
-        total={data?.meta.total ?? 0}
-        hasNextPage={Boolean(data?.meta.nextCursor)}
-        hasPreviousPage={cursors.length > 0}
-        onNext={handleNextPage}
-        onPrevious={handlePreviousPage}
+      <MobileCardList
+        data={claims}
+        keyExtractor={(c) => c.id}
+        isLoading={isLoading}
+        emptyIcon={<ShieldAlert className="text-muted-foreground/50 size-10" />}
+        emptyMessage="Nenhum sinistro encontrado."
+        emptyDescription="Registre um novo sinistro para começar."
+        renderCard={(claim) => <ClaimCard claim={claim} />}
       />
 
-      <DeleteClaimDialog
+      <CursorPagination
+        total={total}
+        pageSize={pagination.pageSize}
+        currentPage={pagination.currentPage}
+        onPageSizeChange={pagination.setPageSize}
+        hasPreviousPage={pagination.hasPreviousPage}
+        hasNextPage={Boolean(nextCursor)}
+        onPrevious={pagination.goToPrevious}
+        onNext={() => {
+          if (nextCursor) pagination.goToNext(nextCursor)
+        }}
+      />
+
+      <ConfirmDeleteDialog
+        entityLabel="sinistro"
         open={Boolean(deletingClaimId)}
         onOpenChange={(open) => {
           if (!open) setDeletingClaimId(null)

@@ -14,13 +14,13 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 
-import type { ClaimStatus } from '../lib/constants'
 import {
   CLAIM_STATUS_BUTTON_STYLES,
   CLAIM_STATUS_LABELS,
   VALID_CLAIM_TRANSITIONS,
 } from '../lib/constants'
 import { useUpdateClaimStatus } from '../hooks/use-claims'
+import type { ClaimStatus } from '../lib/types'
 
 interface ClaimStatusActionsProps {
   readonly claimId: string

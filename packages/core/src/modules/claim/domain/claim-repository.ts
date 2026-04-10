@@ -65,10 +65,15 @@ export interface UpdateClaimStatusInput {
   closedAt?: Date
 }
 
+export type ClaimSortField = 'claimNumber' | 'status' | 'priority' | 'createdAt'
+
 export interface ClaimRepository {
   create(data: CreateClaimInput): Promise<ClaimData>
   findById(id: string, organizationId: string): Promise<ClaimData | null>
-  findMany(filters: ClaimFilters, page: CursorPage): Promise<Page<ClaimData>>
+  findMany(
+    filters: ClaimFilters,
+    page: CursorPage<ClaimSortField>
+  ): Promise<Page<ClaimData>>
   updateStatus(
     id: string,
     organizationId: string,

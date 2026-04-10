@@ -117,6 +117,21 @@ describe('GET /api/v1/claims', () => {
     )
   })
 
+  it('passes sorting params to use case', async () => {
+    mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
+
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/claims',
+      query: { sortBy: 'priority', sortOrder: 'asc' },
+    })
+
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({ sortBy: 'priority', sortOrder: 'asc' })
+    )
+  })
+
   it('returns 400 when status has invalid value', async () => {
     const response = await injectAs(app, {
       method: 'GET',

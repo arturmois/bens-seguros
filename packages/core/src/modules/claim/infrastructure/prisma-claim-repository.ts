@@ -1,16 +1,30 @@
-import { injectable, inject } from 'tsyringe'
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
 import type { Redis } from 'ioredis'
-import type { CursorPage, Page } from '../../client/domain/client-repository.js'
+import { inject, injectable } from 'tsyringe'
 import type {
-  ClaimRepository,
+  CursorPage,
+  Page,
+  SortOrder,
+} from '../../client/domain/client-repository.js'
+import type {
   ClaimData,
   ClaimFilters,
+  ClaimRepository,
+  ClaimSortField,
   CreateClaimInput,
   UpdateClaimStatusInput,
 } from '../domain/claim-repository.js'
 import { ClaimMapper } from './claim-mapper.js'
+
+function buildOrderBy(
+  sortBy: ClaimSortField | undefined,
+  sortOrder: SortOrder | undefined
+): Prisma.ClaimOrderByWithRelationInput[] {
+  const order = sortOrder === 'asc' ? 'asc' : 'desc'
+  const field = sortBy ?? 'createdAt'
+  return [{ [field]: order }, { id: 'desc' }]
+}
 
 const CLAIM_INCLUDE = {
   policy: { select: { policyNumber: true } },
@@ -107,7 +121,7 @@ export class PrismaClaimRepository implements ClaimRepository {
 
   async findMany(
     filters: ClaimFilters,
-    page: CursorPage
+    page: CursorPage<ClaimSortField>
   ): Promise<Page<ClaimData>> {
     const where: Prisma.ClaimWhereInput = {
       organizationId: filters.organizationId,
@@ -132,7 +146,7 @@ export class PrismaClaimRepository implements ClaimRepository {
         include: CLAIM_INCLUDE,
         take: page.limit + 1,
         ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
-        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        orderBy: buildOrderBy(page.sortBy, page.sortOrder),
       }),
       this.prisma.claim.count({ where }),
     ])

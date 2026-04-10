@@ -1,25 +1,26 @@
 // Domain
+export {
+  ClaimErrors,
+  ClaimNotFoundError,
+  InvalidClaimStatusTransitionError,
+} from './domain/claim-errors.js'
 export type {
-  ClaimStatus,
-  ClaimPriority,
   ClaimData,
   ClaimFilters,
+  ClaimPriority,
   ClaimRepository,
+  ClaimSortField,
+  ClaimStatus,
   CreateClaimInput,
   UpdateClaimStatusInput,
 } from './domain/claim-repository.js'
-export {
-  ClaimNotFoundError,
-  InvalidClaimStatusTransitionError,
-  ClaimErrors,
-} from './domain/claim-errors.js'
 
 // Application
 export { CreateClaim } from './application/create-claim.js'
-export { UpdateClaimStatus } from './application/update-claim-status.js'
-export { ListClaims } from './application/list-claims.js'
-export { GetClaim } from './application/get-claim.js'
 export { DeleteClaim } from './application/delete-claim.js'
+export { GetClaim } from './application/get-claim.js'
+export { ListClaims } from './application/list-claims.js'
+export { UpdateClaimStatus } from './application/update-claim-status.js'
 
 // Infrastructure
 export { ClaimMapper } from './infrastructure/claim-mapper.js'

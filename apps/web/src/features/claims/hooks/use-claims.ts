@@ -19,16 +19,17 @@ import {
 import type { z } from 'zod'
 
 import { CreateClaimBody } from '@/api/endpoints/claims/claims.zod'
+import { extractErrorMessage } from '@/lib/extract-error-message'
 
-import type { ClaimFilters, ClaimStatus } from '../lib/constants'
 import type { CreateClaimOccurrenceBodyMetadata } from '@/api/model'
+import type { ClaimFilters, ClaimsQueryData, ClaimStatus } from '../lib/types'
 
 type ClaimFormValues = z.infer<typeof CreateClaimBody>
 
 export const CLAIMS_QUERY_KEY = getListClaimsQueryKey
 
 export function useClaims(filters: ClaimFilters) {
-  return useListClaims(filters, {
+  return useListClaims<ClaimsQueryData>(filters, {
     query: {
       select: (response) => ({
         data: response.data.data,
@@ -58,8 +59,8 @@ export function useCreateClaim() {
       })
       toast.success('Sinistro registrado com sucesso')
     },
-    onError: () => {
-      toast.error('Erro ao registrar sinistro')
+    onError: (error) => {
+      toast.error(extractErrorMessage(error, 'Erro ao registrar sinistro'))
     },
   })
 }
@@ -79,8 +80,10 @@ export function useUpdateClaimStatus() {
       })
       toast.success('Status do sinistro atualizado com sucesso')
     },
-    onError: () => {
-      toast.error('Erro ao atualizar status do sinistro')
+    onError: (error) => {
+      toast.error(
+        extractErrorMessage(error, 'Erro ao atualizar status do sinistro')
+      )
     },
   })
 }
@@ -96,8 +99,8 @@ export function useDeleteClaim() {
       })
       toast.success('Sinistro excluído com sucesso')
     },
-    onError: () => {
-      toast.error('Erro ao excluir sinistro')
+    onError: (error) => {
+      toast.error(extractErrorMessage(error, 'Erro ao excluir sinistro'))
     },
   })
 }
@@ -132,8 +135,8 @@ export function useCreateOccurrence() {
       })
       toast.success('Ocorrência registrada com sucesso')
     },
-    onError: () => {
-      toast.error('Erro ao registrar ocorrência')
+    onError: (error) => {
+      toast.error(extractErrorMessage(error, 'Erro ao registrar ocorrência'))
     },
   })
 }

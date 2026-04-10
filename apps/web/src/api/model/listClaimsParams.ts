@@ -5,6 +5,8 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { ListClaimsPriority } from './listClaimsPriority'
+import type { ListClaimsSortBy } from './listClaimsSortBy'
+import type { ListClaimsSortOrder } from './listClaimsSortOrder'
 import type { ListClaimsStatus } from './listClaimsStatus'
 
 export type ListClaimsParams = {
@@ -19,4 +21,6 @@ export type ListClaimsParams = {
   policyId?: string
   clientId?: string
   search?: string
+  sortBy?: ListClaimsSortBy
+  sortOrder?: ListClaimsSortOrder
 }

@@ -35,6 +35,9 @@ export const CreateClaimBody = zod.object({
 export const listClaimsQueryLimitDefault = 20
 export const listClaimsQueryLimitMax = 100
 
+export const listClaimsQuerySortByDefault = `createdAt`
+export const listClaimsQuerySortOrderDefault = `desc`
+
 export const ListClaimsQueryParams = zod.object({
   cursor: zod.string().optional(),
   limit: zod
@@ -58,6 +61,10 @@ export const ListClaimsQueryParams = zod.object({
   policyId: zod.string().optional(),
   clientId: zod.string().optional(),
   search: zod.string().optional(),
+  sortBy: zod
+    .enum(['claimNumber', 'status', 'priority', 'createdAt'])
+    .default(listClaimsQuerySortByDefault),
+  sortOrder: zod.enum(['asc', 'desc']).default(listClaimsQuerySortOrderDefault),
 })
 
 export const ListClaimsResponse = zod.object({

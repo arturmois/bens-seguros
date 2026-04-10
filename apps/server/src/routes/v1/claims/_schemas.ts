@@ -52,6 +52,11 @@ export const listClaimsQuerySchema = paginationQuery().extend({
   policyId: z.string().optional(),
   clientId: z.string().optional(),
   search: z.string().optional(),
+  sortBy: z
+    .enum(['claimNumber', 'status', 'priority', 'createdAt'])
+    .optional()
+    .default('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 })
 
 export const createOccurrenceBodySchema = z.object({

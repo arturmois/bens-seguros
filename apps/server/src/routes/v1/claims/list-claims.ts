@@ -19,10 +19,10 @@ export function listClaimsRoute(app: FastifyInstance) {
     preHandler: [requireAbility('read', 'Claim')],
     handler: async (request, reply) => {
       const useCase = container.resolve(ListClaims)
-      const { limit, cursor, ...filters } = request.query
+      const { limit, cursor, sortBy, sortOrder, ...filters } = request.query
       const result = await useCase.execute(
         { organizationId: request.organizationId!, ...filters },
-        { limit, cursor }
+        { limit, cursor, sortBy, sortOrder }
       )
       return reply.send({
         success: true,

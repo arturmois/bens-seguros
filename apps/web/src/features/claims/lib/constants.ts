@@ -1,32 +1,47 @@
-import type {
-  ListClaims200DataItemStatus,
-  ListClaims200DataItemPriority,
-  ListClaims200DataItem,
-} from '@/api/model'
+import type { SortingState, VisibilityState } from '@tanstack/react-table'
 
-export type ClaimStatus = ListClaims200DataItemStatus
-export type ClaimPriority = ListClaims200DataItemPriority
-export type ClaimData = ListClaims200DataItem
-
-export interface ClaimFilters {
-  readonly status?: ClaimStatus
-  readonly priority?: ClaimPriority
-  readonly policyId?: string
-  readonly clientId?: string
-  readonly search?: string
-  readonly cursor?: string
-  readonly limit?: number
-}
-
-export interface ClaimListMeta {
-  readonly total: number
-  readonly nextCursor: string | null
-}
+import type { ClaimPriority, ClaimStatus } from './types'
 
 interface SelectOption<TValue extends string> {
   readonly value: TValue
   readonly label: string
 }
+
+interface FilterTabOption {
+  readonly value: string
+  readonly label: string
+}
+
+interface HideableColumn {
+  readonly id: string
+  readonly label: string
+}
+
+export const DEFAULT_SORTING: SortingState = [{ id: 'createdAt', desc: true }]
+
+export const DEFAULT_COLUMN_VISIBILITY: VisibilityState = {
+  incidentLocation: false,
+}
+
+export const HIDEABLE_COLUMNS: readonly HideableColumn[] = [
+  { id: 'clientName', label: 'Cliente' },
+  { id: 'policyNumber', label: 'Apólice' },
+  { id: 'priority', label: 'Prioridade' },
+  { id: 'incidentLocation', label: 'Local' },
+  { id: 'createdAt', label: 'Criado em' },
+] as const
+
+export const STATUS_FILTER_OPTIONS: readonly FilterTabOption[] = [
+  { value: '', label: 'Todos' },
+  { value: 'REGISTERED', label: 'Registrado' },
+  { value: 'IN_ANALYSIS', label: 'Em Análise' },
+  { value: 'AWAITING_DOCUMENT', label: 'Aguard. Doc.' },
+  { value: 'PENDING_INSPECTION', label: 'Pend. Vistoria' },
+  { value: 'APPROVED', label: 'Aprovado' },
+  { value: 'REJECTED', label: 'Rejeitado' },
+  { value: 'PAID', label: 'Pago' },
+  { value: 'COMPLETED', label: 'Concluído' },
+] as const
 
 export const CLAIM_STATUS_LABELS: Record<ClaimStatus, string> = {
   REGISTERED: 'Registrado',
