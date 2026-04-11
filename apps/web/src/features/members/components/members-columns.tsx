@@ -32,7 +32,7 @@ export function createMemberColumns(
       header: '',
       cell: ({ row }) => (
         <div
-          className="bg-primary/10 text-primary flex size-9 items-center justify-center rounded-full text-sm font-medium"
+          className="bg-primary/10 text-primary flex size-8 items-center justify-center rounded-full text-sm font-medium"
           aria-hidden="true"
         >
           {getInitials(row.original.name ?? row.original.email)}

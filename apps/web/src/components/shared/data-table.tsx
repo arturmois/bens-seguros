@@ -11,6 +11,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+
+// Shared baseline row height. Forces every data table in the app to render
+// rows of the same minimum height regardless of cell content (icon button,
+// avatar, badge, plain text). Avoids the visual ritmo break the audit found
+// across modules where row heights ranged from 39px to 57px.
+const ROW_BASELINE = 'h-13'
 
 interface DataTableProps<T> {
   readonly table: TanStackTable<T>
@@ -77,7 +84,7 @@ export function DataTable<T>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                className={onRowClick ? 'cursor-pointer' : undefined}
+                className={cn(ROW_BASELINE, onRowClick && 'cursor-pointer')}
                 onClick={
                   onRowClick
                     ? (e) => {
@@ -117,7 +124,7 @@ function LoadingRows({
   return (
     <>
       {Array.from({ length: rowCount }).map((_, i) => (
-        <TableRow key={`skeleton-${String(i)}`}>
+        <TableRow key={`skeleton-${String(i)}`} className={ROW_BASELINE}>
           {Array.from({ length: colCount }).map((_, j) => (
             <TableCell key={`skeleton-${String(i)}-${String(j)}`}>
               <Skeleton className="h-5 w-full" />
