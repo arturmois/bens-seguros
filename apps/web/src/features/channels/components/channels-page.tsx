@@ -1,6 +1,6 @@
 'use client'
 
-import { AlertTriangle, Globe, MessageCircle } from 'lucide-react'
+import { Globe, MessageCircle } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -19,13 +19,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty'
 
 import { ChannelIcon } from '@/features/chat/components/channel-icon'
 import { useChannels } from '../hooks/use-channels'
@@ -33,7 +26,7 @@ import { useMetaOAuth } from '../hooks/use-meta-oauth'
 import type { ChannelData } from '../types'
 import { ChannelFormSheet } from './channel-form-sheet'
 import { ChannelQrDialog } from './channel-qr-dialog'
-import { ChannelsTable, ChannelsTableSkeleton } from './channels-table'
+import { ChannelsTable } from './channels-table'
 import { DeactivateChannelDialog } from './deactivate-channel-dialog'
 import { EmbedCodeDialog } from './embed-code-dialog'
 import { MetaAssetSelect } from './meta-asset-select'
@@ -43,7 +36,7 @@ import { WhatsAppMethodDialog } from './whatsapp-method-dialog'
 type ActiveOAuthChannel = 'MESSENGER' | 'INSTAGRAM' | null
 
 export function ChannelsPage() {
-  const { data: channels, isLoading, isError, refetch } = useChannels()
+  const { refetch } = useChannels()
 
   const [formOpen, setFormOpen] = useState(false)
   const [editingChannel, setEditingChannel] = useState<ChannelData | undefined>(
@@ -172,22 +165,21 @@ export function ChannelsPage() {
         />
       </section>
 
-      <section aria-labelledby="connected-channels-heading">
+      <section
+        aria-labelledby="connected-channels-heading"
+        className="flex min-h-0 flex-1 flex-col"
+      >
         <h3
           id="connected-channels-heading"
           className="text-muted-foreground mb-4 text-sm font-medium"
         >
           Canais conectados
         </h3>
-        <ChannelsContent
-          channels={channels}
-          isLoading={isLoading}
-          isError={isError}
-          onRetry={() => void refetch()}
+        <ChannelsTable
           onEdit={handleEdit}
           onQrCode={handleQrCode}
-          onDeactivate={handleDeactivate}
           onEmbed={handleEmbed}
+          onDeactivate={handleDeactivate}
         />
       </section>
 
@@ -350,76 +342,5 @@ function ChannelCards({
         </CardFooter>
       </Card>
     </div>
-  )
-}
-
-interface ChannelsContentProps {
-  readonly channels: readonly ChannelData[] | undefined
-  readonly isLoading: boolean
-  readonly isError: boolean
-  readonly onRetry: () => void
-  readonly onEdit: (channel: ChannelData) => void
-  readonly onQrCode: (channel: ChannelData) => void
-  readonly onDeactivate: (channel: ChannelData) => void
-  readonly onEmbed: (channel: ChannelData) => void
-}
-
-function ChannelsContent({
-  channels,
-  isLoading,
-  isError,
-  onRetry,
-  onEdit,
-  onQrCode,
-  onDeactivate,
-  onEmbed,
-}: ChannelsContentProps) {
-  if (isLoading) {
-    return <ChannelsTableSkeleton />
-  }
-
-  if (isError) {
-    return (
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <AlertTriangle />
-          </EmptyMedia>
-          <EmptyTitle>Erro ao carregar canais</EmptyTitle>
-          <EmptyDescription>
-            Não foi possível carregar os canais. Tente novamente.
-          </EmptyDescription>
-        </EmptyHeader>
-        <Button variant="outline" onClick={onRetry}>
-          Tentar novamente
-        </Button>
-      </Empty>
-    )
-  }
-
-  if (!channels || channels.length === 0) {
-    return (
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <MessageCircle />
-          </EmptyMedia>
-          <EmptyTitle>Nenhum canal conectado</EmptyTitle>
-          <EmptyDescription>
-            Conecte seu primeiro canal acima para começar a receber mensagens.
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-    )
-  }
-
-  return (
-    <ChannelsTable
-      channels={channels}
-      onEdit={onEdit}
-      onQrCode={onQrCode}
-      onDeactivate={onDeactivate}
-      onEmbed={onEmbed}
-    />
   )
 }
