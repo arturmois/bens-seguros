@@ -9,6 +9,7 @@ import {
   getListEndorsementsQueryKey,
 } from '@/api/endpoints/endorsements/endorsements'
 import type { CreateEndorsementBody } from '@/api/model'
+import { extractErrorMessage } from '@/lib/extract-error-message'
 
 import type { EndorsementFilters } from '../lib/constants'
 
@@ -42,8 +43,8 @@ export function useCreateEndorsement() {
       })
       toast.success('Endosso registrado com sucesso')
     },
-    onError: () => {
-      toast.error('Erro ao registrar endosso')
+    onError: (error) => {
+      toast.error(extractErrorMessage(error, 'Erro ao registrar endosso'))
     },
   })
 }
