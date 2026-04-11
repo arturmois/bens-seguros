@@ -1,175 +1,192 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useCallback, useState } from 'react'
-
-import { Button } from '@/components/ui/button'
+import type { SortingState, VisibilityState } from '@tanstack/react-table'
 import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  getCoreRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from '@tanstack/react-table'
+import { FileText } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useMemo, useState } from 'react'
+
+import { CursorPagination } from '@/components/shared/cursor-pagination'
+import { DataTable } from '@/components/shared/data-table'
+import { MobileCardList } from '@/components/shared/mobile-card-list'
+import { TableErrorState } from '@/components/shared/table-error-state'
+import { TableToolbar } from '@/components/shared/table-toolbar'
+import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
 import { useAdvanceProposal, useProposals } from '../hooks/use-proposals'
-import type { BoardType, ProposalData, ProposalStage } from '../lib/constants'
-import { BOARD_TYPES } from '../lib/constants'
-import { LostReasonDialog } from './lost-reason-dialog'
-import { ProposalTableRow } from './proposal-table-row'
-import { ProposalsPagination } from './proposals-pagination'
 import {
-  ProposalsEmptyState,
-  ProposalsTableSkeleton,
-} from './proposals-table-parts'
-import { ProposalsTableToolbar } from './proposals-table-toolbar'
-
-const ALL_VALUE = '__all__'
+  ALL_FILTER_VALUE,
+  BOARD_TYPES,
+  DEFAULT_COLUMN_VISIBILITY,
+  DEFAULT_SORTING,
+  HIDEABLE_COLUMNS,
+  type BoardType,
+  type ProposalData,
+} from '../lib/constants'
+import { resolveBoardTypeParam, resolveStageParam } from '../lib/filter-helpers'
+import { LostReasonDialog } from './lost-reason-dialog'
+import { ProposalCard } from './proposal-card'
+import { createProposalColumns } from './proposals-columns'
+import { ProposalsToolbarActions } from './proposals-toolbar-actions'
 
 interface ProposalsTableProps {
-  allowedBoardTypes?: readonly BoardType[]
+  readonly allowedBoardTypes?: readonly BoardType[]
 }
 
 export function ProposalsTable({
   allowedBoardTypes = BOARD_TYPES,
 }: ProposalsTableProps) {
   const router = useRouter()
+  const pagination = useCursorPagination()
+
   const [search, setSearch] = useState('')
-  const [stageFilter, setStageFilter] = useState<string>(ALL_VALUE)
-  const [boardTypeFilter, setBoardTypeFilter] = useState<string>(ALL_VALUE)
-  const [cursors, setCursors] = useState<string[]>([])
+  const [stageFilter, setStageFilter] = useState<string>(ALL_FILTER_VALUE)
+  const [boardTypeFilter, setBoardTypeFilter] = useState(ALL_FILTER_VALUE)
+  const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    DEFAULT_COLUMN_VISIBILITY
+  )
   const [lostDialogProposalId, setLostDialogProposalId] = useState<
     string | null
   >(null)
 
   const debouncedSearch = useDebounce(search, 300)
-  const currentCursor = cursors.at(-1)
+  const { mutate: advanceMutate, isPending: isAdvancing } = useAdvanceProposal()
 
-  const boardType =
-    boardTypeFilter !== ALL_VALUE
-      ? (boardTypeFilter as BoardType)
-      : allowedBoardTypes.length === 1
-        ? allowedBoardTypes[0]
-        : undefined
-
-  const filters = {
-    search: debouncedSearch || undefined,
-    stage:
-      stageFilter !== ALL_VALUE ? (stageFilter as ProposalStage) : undefined,
-    boardType,
-    cursor: currentCursor,
-    limit: 20,
-  }
-
-  const { data, isLoading, isError, refetch } = useProposals(filters)
-  const advanceMutation = useAdvanceProposal()
-
-  const handleRowClick = useCallback(
-    (id: string) => {
-      router.push(`/proposals/${id}`)
-    },
-    [router]
+  const stageParam = resolveStageParam(stageFilter)
+  const boardTypeParam = resolveBoardTypeParam(
+    boardTypeFilter,
+    allowedBoardTypes
   )
 
-  const handleSearchChange = (value: string) => {
-    setSearch(value)
-    setCursors([])
-  }
+  const { data, isLoading, isError, refetch } = useProposals({
+    search: debouncedSearch || undefined,
+    stage: stageParam,
+    boardType: boardTypeParam,
+    cursor: pagination.currentCursor,
+    limit: pagination.pageSize,
+  })
 
-  const handleStageFilterChange = (value: string) => {
-    setStageFilter(value)
-    setCursors([])
-  }
+  const proposals: ProposalData[] = useMemo(
+    () => [...(data?.data ?? [])],
+    [data?.data]
+  )
+  const nextCursor = data?.meta.nextCursor ?? null
+  const knownTotal =
+    (pagination.currentPage - 1) * pagination.pageSize + proposals.length
 
-  const handleBoardTypeFilterChange = (value: string) => {
-    setBoardTypeFilter(value)
-    setCursors([])
-  }
+  const columnActions = useMemo(
+    () => ({
+      isAdvancing,
+      onAdvance: (id: string) => advanceMutate(id),
+      onLost: (id: string) => setLostDialogProposalId(id),
+    }),
+    [isAdvancing, advanceMutate]
+  )
 
-  function handleNextPage() {
-    const next = data?.meta.nextCursor
-    if (next) {
-      setCursors((prev) => [...prev, next])
+  const columns = useMemo(
+    () => createProposalColumns(columnActions),
+    [columnActions]
+  )
+
+  const table = useReactTable({
+    data: proposals,
+    columns,
+    state: { sorting, columnVisibility },
+    onSortingChange: setSorting,
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    manualPagination: true,
+    manualFiltering: true,
+  })
+
+  function withReset<T>(setter: (value: T) => void) {
+    return (value: T) => {
+      setter(value)
+      pagination.reset()
     }
   }
 
-  function handlePreviousPage() {
-    setCursors((prev) => prev.slice(0, -1))
+  function handleColumnToggle(id: string, visible: boolean) {
+    setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
 
   if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-        <p className="text-destructive text-sm">Erro ao carregar propostas.</p>
-        <Button variant="outline" size="sm" onClick={() => refetch()}>
-          Tentar novamente
-        </Button>
-      </div>
+      <TableErrorState
+        message="Erro ao carregar propostas."
+        onRetry={refetch}
+      />
     )
   }
 
   return (
-    <div className="space-y-4">
-      <ProposalsTableToolbar
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <TableToolbar
         search={search}
-        stageFilter={stageFilter}
-        boardTypeFilter={boardTypeFilter}
-        debouncedSearch={debouncedSearch}
-        allowedBoardTypes={allowedBoardTypes}
-        onSearchChange={handleSearchChange}
-        onStageFilterChange={handleStageFilterChange}
-        onBoardTypeFilterChange={handleBoardTypeFilterChange}
+        onSearchChange={withReset(setSearch)}
+        searchPlaceholder="Buscar propostas..."
+        columnVisibility={columnVisibility}
+        onColumnVisibilityChange={handleColumnToggle}
+        hideableColumns={HIDEABLE_COLUMNS}
+      >
+        <ProposalsToolbarActions
+          stageFilter={stageFilter}
+          boardTypeFilter={boardTypeFilter}
+          allowedBoardTypes={allowedBoardTypes}
+          debouncedSearch={debouncedSearch}
+          stageParam={stageParam}
+          boardTypeParam={boardTypeParam}
+          onStageFilterChange={withReset(setStageFilter)}
+          onBoardTypeFilterChange={withReset(setBoardTypeFilter)}
+        />
+      </TableToolbar>
+
+      <DataTable
+        table={table}
+        isLoading={isLoading}
+        emptyIcon={<FileText className="text-muted-foreground/50 size-10" />}
+        emptyMessage="Nenhuma proposta encontrada"
+        emptyDescription="Ajuste a busca ou os filtros, ou crie uma nova proposta."
+        columnVisibility={columnVisibility}
+        onRowClick={(proposal) => router.push(`/proposals/${proposal.id}`)}
       />
 
-      {isLoading ? (
-        <ProposalsTableSkeleton />
-      ) : (
-        <>
-          {!data?.data.length ? (
-            <ProposalsEmptyState />
-          ) : (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Cliente</TableHead>
-                    <TableHead className="hidden md:table-cell">Ramo</TableHead>
-                    <TableHead>Estágio</TableHead>
-                    <TableHead className="hidden md:table-cell">Tipo</TableHead>
-                    <TableHead className="hidden text-right md:table-cell">
-                      Valor
-                    </TableHead>
-                    <TableHead className="hidden lg:table-cell">
-                      Criado em
-                    </TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.data.map((proposal: ProposalData) => (
-                    <ProposalTableRow
-                      key={proposal.id}
-                      proposal={proposal}
-                      isAdvancing={advanceMutation.isPending}
-                      onRowClick={handleRowClick}
-                      onAdvance={(id) => advanceMutation.mutate(id)}
-                      onLost={setLostDialogProposalId}
-                    />
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-
-          <ProposalsPagination
-            hasNextPage={Boolean(data?.meta.nextCursor)}
-            hasPreviousPage={cursors.length > 0}
-            onNext={handleNextPage}
-            onPrevious={handlePreviousPage}
+      <MobileCardList
+        data={proposals}
+        keyExtractor={(proposal) => proposal.id}
+        isLoading={isLoading}
+        emptyIcon={<FileText className="text-muted-foreground/50 size-10" />}
+        emptyMessage="Nenhuma proposta encontrada"
+        emptyDescription="Ajuste a busca ou os filtros, ou crie uma nova proposta."
+        renderCard={(proposal) => (
+          <ProposalCard
+            proposal={proposal}
+            isAdvancing={isAdvancing}
+            onAdvance={columnActions.onAdvance}
+            onLost={columnActions.onLost}
           />
-        </>
-      )}
+        )}
+      />
+
+      <CursorPagination
+        total={knownTotal}
+        pageSize={pagination.pageSize}
+        currentPage={pagination.currentPage}
+        onPageSizeChange={pagination.setPageSize}
+        hasPreviousPage={pagination.hasPreviousPage}
+        hasNextPage={Boolean(nextCursor)}
+        onPrevious={pagination.goToPrevious}
+        onNext={() => {
+          if (nextCursor) pagination.goToNext(nextCursor)
+        }}
+      />
 
       <LostReasonDialog
         proposalId={lostDialogProposalId}

@@ -1,3 +1,5 @@
+import type { SortingState, VisibilityState } from '@tanstack/react-table'
+
 import type {
   ListProposals200DataItemStage,
   ListProposals200DataItemBranch,
@@ -183,3 +185,25 @@ export const ENDORSEMENT_STAGES: readonly ProposalStage[] = [
   'POLICY_ISSUED',
   'LOST',
 ] as const
+
+// ---------------------------------------------------------------------------
+// Shared table primitives — column visibility + default sort
+// ---------------------------------------------------------------------------
+
+export const ALL_FILTER_VALUE = '__all__'
+
+export const DEFAULT_COLUMN_VISIBILITY: VisibilityState = {
+  branch: true,
+  boardType: true,
+  premiumValueInCents: true,
+  createdAt: true,
+}
+
+export const HIDEABLE_COLUMNS = [
+  { id: 'branch', label: 'Ramo' },
+  { id: 'boardType', label: 'Tipo' },
+  { id: 'premiumValueInCents', label: 'Valor' },
+  { id: 'createdAt', label: 'Criado em' },
+] as const
+
+export const DEFAULT_SORTING: SortingState = [{ id: 'createdAt', desc: true }]
