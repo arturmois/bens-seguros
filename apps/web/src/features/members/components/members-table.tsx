@@ -1,41 +1,38 @@
 'use client'
 
-import { AlertTriangle, Loader2, Trash2, Users } from 'lucide-react'
-
-import { Button } from '@/components/ui/button'
+import type { SortingState, VisibilityState } from '@tanstack/react-table'
 import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  getCoreRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from '@tanstack/react-table'
+import { Users } from 'lucide-react'
+import { useMemo, useState } from 'react'
 
-import { ROLE_LABELS } from '../lib/member-schemas'
-import type { MemberData } from '../types'
+import { ConfirmDeleteDialog } from '@/components/shared/confirm-delete-dialog'
+import { DataTable } from '@/components/shared/data-table'
+import { FilterTabs } from '@/components/shared/filter-tabs'
+import { MobileCardList } from '@/components/shared/mobile-card-list'
+import { TableErrorState } from '@/components/shared/table-error-state'
+import { TableToolbar } from '@/components/shared/table-toolbar'
+import { useDebounce } from '@/hooks/use-debounce'
+
 import { useMembers, useRemoveMember } from '../hooks/use-members'
-import { ChangeRoleSelect } from './change-role-select'
+import {
+  DEFAULT_COLUMN_VISIBILITY,
+  DEFAULT_SORTING,
+  HIDEABLE_COLUMNS,
+  ROLE_FILTER_OPTIONS,
+} from '../lib/constants'
+import { matchesRole, matchesSearch } from '../lib/filters'
+import type { MemberData } from '../types'
+import { MemberCard } from './member-card'
+import { createMemberColumns } from './members-columns'
 
 interface MembersTableProps {
   readonly canManage: boolean
   readonly currentUserId: string
   readonly currentUserRole: string
-}
-
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/)
-  const first = parts[0]?.[0] ?? ''
-  const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? '') : ''
-  return `${first}${last}`.toUpperCase()
 }
 
 function canActOnMember(
@@ -49,185 +46,135 @@ function canActOnMember(
   return true
 }
 
-const TABLE_HEADERS = (
-  <TableHeader>
-    <TableRow>
-      <TableHead className="w-12">
-        <span className="sr-only">Avatar</span>
-      </TableHead>
-      <TableHead>Nome</TableHead>
-      <TableHead>Email</TableHead>
-      <TableHead>Cargo</TableHead>
-      <TableHead className="w-12">
-        <span className="sr-only">Ações</span>
-      </TableHead>
-    </TableRow>
-  </TableHeader>
-)
-
 export function MembersTable({
   canManage,
   currentUserId,
   currentUserRole,
 }: MembersTableProps) {
-  const { data: members, isLoading, isError, refetch } = useMembers()
+  const { data, isLoading, isError, refetch } = useMembers()
   const removeMember = useRemoveMember()
 
-  if (isLoading) return <MembersTableSkeleton />
+  const [search, setSearch] = useState('')
+  const [roleFilter, setRoleFilter] = useState<string>('ALL')
+  const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    DEFAULT_COLUMN_VISIBILITY
+  )
+  const [memberToRemove, setMemberToRemove] = useState<MemberData | null>(null)
+
+  const debouncedSearch = useDebounce(search, 300)
+
+  const members = useMemo<MemberData[]>(() => {
+    const list = data ?? []
+    return list.filter(
+      (member) =>
+        matchesRole(member, roleFilter) &&
+        matchesSearch(member, debouncedSearch)
+    )
+  }, [data, roleFilter, debouncedSearch])
+
+  const columnActions = useMemo(
+    () => ({
+      canAct: (member: MemberData) =>
+        canActOnMember(canManage, currentUserId, member),
+      currentUserRole,
+      onRemove: (member: MemberData) => setMemberToRemove(member),
+    }),
+    [canManage, currentUserId, currentUserRole]
+  )
+
+  const columns = useMemo(
+    () => createMemberColumns(columnActions),
+    [columnActions]
+  )
+
+  const table = useReactTable({
+    data: members,
+    columns,
+    state: { sorting, columnVisibility },
+    onSortingChange: setSorting,
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  })
+
+  function handleColumnToggle(id: string, visible: boolean) {
+    setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
+  }
+
+  function handleConfirmRemove() {
+    if (!memberToRemove) return
+    removeMember.mutate(memberToRemove.id, {
+      onSuccess: () => setMemberToRemove(null),
+    })
+  }
+
+  const totalMembers = data?.length ?? 0
+  const emptyMessage =
+    totalMembers === 0 ? 'Convide sua equipe!' : 'Nenhum membro encontrado'
+  const emptyDescription =
+    totalMembers === 0
+      ? 'Adicione membros para colaborar na gestão da sua corretora.'
+      : 'Ajuste a busca ou os filtros para encontrar um membro existente.'
 
   if (isError) {
     return (
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <AlertTriangle />
-          </EmptyMedia>
-          <EmptyTitle>Erro ao carregar membros</EmptyTitle>
-          <EmptyDescription>
-            Não foi possível carregar os membros. Tente novamente.
-          </EmptyDescription>
-        </EmptyHeader>
-        <Button variant="outline" onClick={() => void refetch()}>
-          Tentar novamente
-        </Button>
-      </Empty>
+      <TableErrorState message="Erro ao carregar membros." onRetry={refetch} />
     )
-  }
-
-  if (!members || members.length === 0) {
-    return (
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <Users />
-          </EmptyMedia>
-          <EmptyTitle>Convide sua equipe!</EmptyTitle>
-          <EmptyDescription>
-            Adicione membros para colaborar na gestao da sua corretora.
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-    )
-  }
-
-  function handleRemove(member: MemberData) {
-    const confirmed = window.confirm(
-      `Deseja remover ${member.name} da organização?`
-    )
-    if (!confirmed) return
-    removeMember.mutate(member.id)
   }
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        {TABLE_HEADERS}
-        <TableBody>
-          {members.map((member) => (
-            <MemberRow
-              key={member.id}
-              member={member}
-              canAct={canActOnMember(canManage, currentUserId, member)}
-              currentUserRole={currentUserRole}
-              removePending={removeMember.isPending}
-              onRemove={handleRemove}
-            />
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  )
-}
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <FilterTabs
+        options={ROLE_FILTER_OPTIONS}
+        value={roleFilter}
+        onChange={setRoleFilter}
+      />
 
-interface MemberRowProps {
-  readonly member: MemberData
-  readonly canAct: boolean
-  readonly currentUserRole: string
-  readonly removePending: boolean
-  readonly onRemove: (member: MemberData) => void
-}
+      <TableToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar membros..."
+        columnVisibility={columnVisibility}
+        onColumnVisibilityChange={handleColumnToggle}
+        hideableColumns={HIDEABLE_COLUMNS}
+      />
 
-function MemberRow({
-  member,
-  canAct,
-  currentUserRole,
-  removePending,
-  onRemove,
-}: MemberRowProps) {
-  return (
-    <TableRow>
-      <TableCell>
-        <div
-          className="bg-primary/10 text-primary flex size-9 items-center justify-center rounded-full text-sm font-medium"
-          aria-hidden="true"
-        >
-          {getInitials(member.name ?? '')}
-        </div>
-      </TableCell>
-      <TableCell className="font-medium">{member.name}</TableCell>
-      <TableCell className="text-muted-foreground">{member.email}</TableCell>
-      <TableCell>
-        {canAct ? (
-          <ChangeRoleSelect
-            memberId={member.id}
-            currentRole={member.role}
-            callerRole={currentUserRole}
+      <DataTable
+        table={table}
+        isLoading={isLoading}
+        emptyIcon={<Users className="text-muted-foreground/50 size-10" />}
+        emptyMessage={emptyMessage}
+        emptyDescription={emptyDescription}
+        columnVisibility={columnVisibility}
+      />
+
+      <MobileCardList
+        data={members}
+        keyExtractor={(member) => member.id}
+        isLoading={isLoading}
+        emptyIcon={<Users className="text-muted-foreground/50 size-10" />}
+        emptyMessage={emptyMessage}
+        emptyDescription={emptyDescription}
+        renderCard={(member) => (
+          <MemberCard
+            member={member}
+            canAct={canActOnMember(canManage, currentUserId, member)}
+            currentUserRole={currentUserRole}
+            onRemove={(m) => setMemberToRemove(m)}
           />
-        ) : (
-          <span className="text-sm">
-            {ROLE_LABELS[member.role] ?? member.role}
-          </span>
         )}
-      </TableCell>
-      <TableCell>
-        {canAct && (
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-            onClick={() => onRemove(member)}
-            disabled={removePending}
-            aria-label={`Remover ${member.name}`}
-          >
-            {removePending ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Trash2 className="size-4" />
-            )}
-          </Button>
-        )}
-      </TableCell>
-    </TableRow>
-  )
-}
+      />
 
-function MembersTableSkeleton() {
-  return (
-    <div className="rounded-md border">
-      <Table>
-        {TABLE_HEADERS}
-        <TableBody>
-          {Array.from({ length: 3 }, (_, index) => (
-            <TableRow key={index}>
-              <TableCell>
-                <Skeleton className="size-9 rounded-full" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-4 w-28" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-4 w-40" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-5 w-24" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="size-8" />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <ConfirmDeleteDialog
+        entityLabel="membro"
+        open={memberToRemove !== null}
+        onOpenChange={(open) => {
+          if (!open) setMemberToRemove(null)
+        }}
+        onConfirm={handleConfirmRemove}
+        isPending={removeMember.isPending}
+      />
     </div>
   )
 }
