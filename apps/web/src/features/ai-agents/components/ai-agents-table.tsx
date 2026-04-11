@@ -1,189 +1,198 @@
 'use client'
 
-import { Copy, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import type { SortingState, VisibilityState } from '@tanstack/react-table'
+import {
+  getCoreRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from '@tanstack/react-table'
+import { Brain, Plus } from 'lucide-react'
+import { useMemo, useState } from 'react'
 
-import { Badge } from '@/components/ui/badge'
+import { DataTable } from '@/components/shared/data-table'
+import { FilterTabs } from '@/components/shared/filter-tabs'
+import { MobileCardList } from '@/components/shared/mobile-card-list'
+import { TableErrorState } from '@/components/shared/table-error-state'
+import { TableToolbar } from '@/components/shared/table-toolbar'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/menu'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { useDebounce } from '@/hooks/use-debounce'
 
+import { useAiAgents } from '../hooks/use-ai-agents'
+import {
+  DEFAULT_COLUMN_VISIBILITY,
+  DEFAULT_SORTING,
+  DUPLICATE_PREFIX,
+  HIDEABLE_COLUMNS,
+  MAX_AGENT_NAME_LENGTH,
+  STATUS_FILTER_OPTIONS,
+} from '../lib/constants'
+import {
+  isAiAgentStatusFilter,
+  matchesSearch,
+  matchesStatus,
+} from '../lib/filters'
+import type { AiAgentStatusFilter } from '../lib/types'
 import type { AiAgentData } from '../types'
+import { AiAgentCard } from './ai-agent-card'
+import { AiAgentFormSheet } from './ai-agent-form-sheet'
+import { createAiAgentColumns } from './ai-agents-columns'
+import { DeleteAgentDialog } from './delete-agent-dialog'
 
-const PROVIDER_LABELS: Record<string, string> = {
-  claude: 'Claude',
-  openai: 'OpenAI',
-}
-
-interface AiAgentsTableProps {
-  readonly agents: readonly AiAgentData[]
-  readonly onEdit: (agent: AiAgentData) => void
-  readonly onDuplicate: (agent: AiAgentData) => void
-  readonly onDelete: (agent: AiAgentData) => void
-}
-
-export function AiAgentsTable({
-  agents,
-  onEdit,
-  onDuplicate,
-  onDelete,
-}: AiAgentsTableProps) {
-  return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>Provider</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Canais</TableHead>
-            <TableHead className="w-12">
-              <span className="sr-only">Ações</span>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {agents.map((agent) => (
-            <AgentRow
-              key={agent.id}
-              agent={agent}
-              onEdit={onEdit}
-              onDuplicate={onDuplicate}
-              onDelete={onDelete}
-            />
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+export function AiAgentsTable() {
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<AiAgentStatusFilter>('ALL')
+  const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    DEFAULT_COLUMN_VISIBILITY
   )
-}
-
-interface AgentRowProps {
-  readonly agent: AiAgentData
-  readonly onEdit: (agent: AiAgentData) => void
-  readonly onDuplicate: (agent: AiAgentData) => void
-  readonly onDelete: (agent: AiAgentData) => void
-}
-
-function AgentRow({ agent, onEdit, onDuplicate, onDelete }: AgentRowProps) {
-  const channelCountText =
-    agent.linkedChannelCount === 0
-      ? 'Nenhum'
-      : agent.linkedChannelCount === 1
-        ? '1 canal'
-        : `${agent.linkedChannelCount} canais`
-
-  return (
-    <TableRow>
-      <TableCell>
-        <div className="flex flex-col">
-          <span className="font-medium">{agent.name}</span>
-          {agent.description !== null && agent.description !== undefined && (
-            <span className="text-muted-foreground text-sm">
-              {agent.description}
-            </span>
-          )}
-        </div>
-      </TableCell>
-      <TableCell>
-        <Badge variant="secondary">
-          {PROVIDER_LABELS[agent.provider] ?? agent.provider}
-        </Badge>
-      </TableCell>
-      <TableCell>
-        <Badge variant={agent.isActive ? 'default' : 'secondary'}>
-          {agent.isActive ? 'Ativo' : 'Inativo'}
-        </Badge>
-      </TableCell>
-      <TableCell>{channelCountText}</TableCell>
-      <TableCell>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label={`Ações do agente ${agent.name}`}
-              />
-            }
-          >
-            <MoreHorizontal className="size-4" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEdit(agent)}>
-              <Pencil />
-              Editar
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onDuplicate(agent)}>
-              <Copy />
-              Duplicar
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={() => onDelete(agent)}
-            >
-              <Trash2 />
-              Excluir
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </TableCell>
-    </TableRow>
+  const [editingAgent, setEditingAgent] = useState<AiAgentData | undefined>(
+    undefined
   )
-}
+  const [formOpen, setFormOpen] = useState(false)
+  const [deletingAgent, setDeletingAgent] = useState<AiAgentData | null>(null)
 
-export function AiAgentsTableSkeleton() {
+  const debouncedSearch = useDebounce(search, 300)
+  const { data, isLoading, isError, refetch } = useAiAgents()
+
+  const agents = useMemo<AiAgentData[]>(() => {
+    const list = data ?? []
+    return list.filter(
+      (agent) =>
+        matchesStatus(agent, statusFilter) &&
+        matchesSearch(agent, debouncedSearch)
+    )
+  }, [data, statusFilter, debouncedSearch])
+
+  // Setters are referentially stable; DUPLICATE_PREFIX/MAX_AGENT_NAME_LENGTH
+  // are module-level constants. Empty dep array is intentional.
+  const columnActions = useMemo(
+    () => ({
+      onEdit: (agent: AiAgentData) => {
+        setEditingAgent(agent)
+        setFormOpen(true)
+      },
+      onDuplicate: (agent: AiAgentData) => {
+        const duplicateName = `${DUPLICATE_PREFIX}${agent.name}`.slice(
+          0,
+          MAX_AGENT_NAME_LENGTH
+        )
+        setEditingAgent({
+          ...agent,
+          id: '',
+          name: duplicateName,
+          linkedChannelCount: 0,
+        })
+        setFormOpen(true)
+      },
+      onDelete: (agent: AiAgentData) => setDeletingAgent(agent),
+    }),
+    []
+  )
+
+  const columns = useMemo(
+    () => createAiAgentColumns(columnActions),
+    [columnActions]
+  )
+
+  const table = useReactTable({
+    data: agents,
+    columns,
+    state: { sorting, columnVisibility },
+    onSortingChange: setSorting,
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  })
+
+  function handleCreate() {
+    setEditingAgent(undefined)
+    setFormOpen(true)
+  }
+
+  function handleStatusFilterChange(value: string) {
+    if (isAiAgentStatusFilter(value)) setStatusFilter(value)
+  }
+
+  function handleColumnToggle(id: string, visible: boolean) {
+    setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
+  }
+
+  const totalAgents = data?.length ?? 0
+  const emptyMessage =
+    totalAgents === 0 ? 'Nenhum agente configurado' : 'Nenhum agente encontrado'
+  const emptyDescription =
+    totalAgents === 0
+      ? 'Crie seu primeiro agente de IA para automatizar atendimentos.'
+      : 'Ajuste a busca ou os filtros para encontrar um agente existente.'
+
+  if (isError) {
+    return (
+      <TableErrorState message="Erro ao carregar agentes." onRetry={refetch} />
+    )
+  }
+
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>Provider</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Canais</TableHead>
-            <TableHead className="w-12">
-              <span className="sr-only">Ações</span>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Array.from({ length: 3 }, (_, index) => (
-            <TableRow key={index}>
-              <TableCell>
-                <div className="flex flex-col gap-1">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-3 w-48" />
-                </div>
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-5 w-16" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-5 w-14" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-4 w-16" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="size-8" />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <FilterTabs
+        options={STATUS_FILTER_OPTIONS}
+        value={statusFilter}
+        onChange={handleStatusFilterChange}
+      />
+
+      <TableToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar agentes..."
+        columnVisibility={columnVisibility}
+        onColumnVisibilityChange={handleColumnToggle}
+        hideableColumns={HIDEABLE_COLUMNS}
+      >
+        <Button onClick={handleCreate}>
+          <Plus className="size-4 sm:mr-2" />
+          <span className="hidden sm:inline">Novo agente</span>
+        </Button>
+      </TableToolbar>
+
+      <DataTable
+        table={table}
+        isLoading={isLoading}
+        emptyIcon={<Brain className="text-muted-foreground/50 size-10" />}
+        emptyMessage={emptyMessage}
+        emptyDescription={emptyDescription}
+        columnVisibility={columnVisibility}
+        onRowClick={columnActions.onEdit}
+      />
+
+      <MobileCardList
+        data={agents}
+        keyExtractor={(agent) => agent.id}
+        isLoading={isLoading}
+        emptyIcon={<Brain className="text-muted-foreground/50 size-10" />}
+        emptyMessage={emptyMessage}
+        emptyDescription={emptyDescription}
+        renderCard={(agent) => (
+          <AiAgentCard
+            agent={agent}
+            onEdit={columnActions.onEdit}
+            onDuplicate={columnActions.onDuplicate}
+            onDelete={columnActions.onDelete}
+          />
+        )}
+      />
+
+      <AiAgentFormSheet
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        agent={editingAgent}
+      />
+
+      <DeleteAgentDialog
+        open={deletingAgent !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingAgent(null)
+        }}
+        agent={deletingAgent}
+      />
     </div>
   )
 }
