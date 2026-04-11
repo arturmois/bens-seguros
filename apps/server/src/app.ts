@@ -29,6 +29,7 @@ import { registerDependencies } from './container-registrations.js'
 import { requireAbility } from './middlewares/ability-middleware.js'
 import { createAuthMiddleware } from './middlewares/auth-middleware.js'
 import { tenantMiddleware } from './middlewares/tenant-middleware.js'
+import { applySecurityHeaders } from './plugins/security-headers.js'
 import { registerAuthRoutes } from './routes/auth-routes.js'
 import { assistanceRoutes } from './routes/v1/assistances/index.js'
 import { auditLogRoutes } from './routes/v1/audit-logs/index.js'
@@ -150,6 +151,8 @@ export async function buildApp() {
     }
     return payload
   })
+
+  applySecurityHeaders(app)
 
   app.get('/health', async (_request, reply) => {
     const errors: string[] = []
