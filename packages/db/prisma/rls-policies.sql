@@ -53,42 +53,60 @@ ALTER TABLE "Occurrence" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Insurer" ENABLE ROW LEVEL SECURITY;
 
 -- Tenant isolation policies
+-- Each CREATE POLICY is prefixed with DROP POLICY IF EXISTS so this script is
+-- fully idempotent. Required because policies may be created inline in Prisma
+-- migrations (e.g. 20260411201650_add_checklist_organization_id_rls), and
+-- `pnpm db:push:dev` re-runs this file every time.
+
+DROP POLICY IF EXISTS tenant_isolation ON "Client";
 CREATE POLICY tenant_isolation ON "Client"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
+DROP POLICY IF EXISTS tenant_isolation ON "Proposal";
 CREATE POLICY tenant_isolation ON "Proposal"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
+DROP POLICY IF EXISTS tenant_isolation ON "ProposalChecklistItem";
 CREATE POLICY tenant_isolation ON "ProposalChecklistItem"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
+DROP POLICY IF EXISTS tenant_isolation ON "Policy";
 CREATE POLICY tenant_isolation ON "Policy"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
+DROP POLICY IF EXISTS tenant_isolation ON "Claim";
 CREATE POLICY tenant_isolation ON "Claim"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
+DROP POLICY IF EXISTS tenant_isolation ON "Commission";
 CREATE POLICY tenant_isolation ON "Commission"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
+DROP POLICY IF EXISTS tenant_isolation ON "Endorsement";
 CREATE POLICY tenant_isolation ON "Endorsement"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
+DROP POLICY IF EXISTS tenant_isolation ON "Assistance";
 CREATE POLICY tenant_isolation ON "Assistance"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
+DROP POLICY IF EXISTS tenant_isolation ON "Document";
 CREATE POLICY tenant_isolation ON "Document"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
+DROP POLICY IF EXISTS tenant_isolation ON "Notification";
 CREATE POLICY tenant_isolation ON "Notification"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
+DROP POLICY IF EXISTS tenant_isolation ON "AuditLog";
 CREATE POLICY tenant_isolation ON "AuditLog"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
+DROP POLICY IF EXISTS tenant_isolation ON "Occurrence";
 CREATE POLICY tenant_isolation ON "Occurrence"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
+DROP POLICY IF EXISTS tenant_isolation ON "Insurer";
 CREATE POLICY tenant_isolation ON "Insurer"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
@@ -116,6 +134,7 @@ ALTER TABLE "Insurer" FORCE ROW LEVEL SECURITY;
 
 -- Member — Better Auth queries without tenant context
 ALTER TABLE "Member" ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS tenant_isolation ON "Member";
 CREATE POLICY tenant_isolation ON "Member"
   USING ("organizationId" = current_setting('app.current_tenant', true)
          OR current_setting('app.current_tenant', true) IS NULL);
@@ -123,6 +142,7 @@ ALTER TABLE "Member" FORCE ROW LEVEL SECURITY;
 
 -- Invitation — Better Auth queries without tenant context
 ALTER TABLE "Invitation" ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS tenant_isolation ON "Invitation";
 CREATE POLICY tenant_isolation ON "Invitation"
   USING ("organizationId" = current_setting('app.current_tenant', true)
          OR current_setting('app.current_tenant', true) IS NULL);
@@ -130,6 +150,7 @@ ALTER TABLE "Invitation" FORCE ROW LEVEL SECURITY;
 
 -- AuditLogArchive — audit archive worker uses global prisma (batch jobs)
 ALTER TABLE "AuditLogArchive" ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS tenant_isolation ON "AuditLogArchive";
 CREATE POLICY tenant_isolation ON "AuditLogArchive"
   USING ("organizationId" = current_setting('app.current_tenant', true)
          OR current_setting('app.current_tenant', true) IS NULL);
