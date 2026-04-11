@@ -1,178 +1,150 @@
 'use client'
 
-import { ChevronLeft, ChevronRight, Eye } from 'lucide-react'
-import { useState } from 'react'
+import type { VisibilityState } from '@tanstack/react-table'
+import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { ClipboardList } from 'lucide-react'
+import { useMemo, useState } from 'react'
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { formatDate } from '@/lib/formatters'
+import { CursorPagination } from '@/components/shared/cursor-pagination'
+import { DataTable } from '@/components/shared/data-table'
+import { FilterTabs } from '@/components/shared/filter-tabs'
+import { MobileCardList } from '@/components/shared/mobile-card-list'
+import { TableErrorState } from '@/components/shared/table-error-state'
+import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 
 import { useAuditLogs } from '../hooks/use-audit-logs'
-import type { AuditLogEntry, AuditLogFilters } from '../lib/constants'
+import {
+  ACTION_FILTER_OPTIONS,
+  DEFAULT_COLUMN_VISIBILITY,
+} from '../lib/constants'
+import type { AuditLogData } from '../lib/types'
+import { AuditCard } from './audit-card'
+import { createAuditColumns } from './audit-columns'
 import { AuditDetailModal } from './audit-detail-modal'
+import { AuditToolbar } from './audit-toolbar'
 
-const ACTION_VARIANT: Record<
-  string,
-  'default' | 'success' | 'error' | 'warning' | 'info'
-> = {
-  CREATE: 'success',
-  UPDATE: 'info',
-  DELETE: 'error',
-  APPROVE: 'success',
-  REJECT: 'warning',
-}
+export function AuditTable() {
+  const pagination = useCursorPagination(30)
 
-interface AuditTableProps {
-  filters: AuditLogFilters
-  hasPreviousPage: boolean
-  onNextPage: (cursor: string) => void
-  onPreviousPage: () => void
-}
-
-function AuditTableSkeleton() {
-  return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Data</TableHead>
-            <TableHead>Ação</TableHead>
-            <TableHead>Entidade</TableHead>
-            <TableHead className="hidden sm:table-cell">ID</TableHead>
-            <TableHead className="w-10" />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Array.from({ length: 8 }).map((_, i) => (
-            <TableRow key={i}>
-              {Array.from({ length: 5 }).map((_, j) => (
-                <TableCell key={j}>
-                  <Skeleton className="h-4 w-full" />
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+  const [actionFilter, setActionFilter] = useState('')
+  const [entityType, setEntityType] = useState<string | undefined>(undefined)
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    DEFAULT_COLUMN_VISIBILITY
   )
-}
+  const [selectedEntry, setSelectedEntry] = useState<AuditLogData | null>(null)
 
-export function AuditTable({
-  filters,
-  hasPreviousPage,
-  onNextPage,
-  onPreviousPage,
-}: AuditTableProps) {
-  const { data, isLoading } = useAuditLogs(filters)
-  const [selectedEntry, setSelectedEntry] = useState<AuditLogEntry | null>(null)
+  const { data, isLoading, isError, refetch } = useAuditLogs({
+    action: actionFilter || undefined,
+    entityType,
+    cursor: pagination.currentCursor,
+    limit: pagination.pageSize,
+  })
 
-  if (isLoading) return <AuditTableSkeleton />
+  const entries: AuditLogData[] = data?.data ?? []
+  const total = data?.meta?.total ?? 0
+  const nextCursor = data?.meta?.nextCursor ?? null
 
-  const items = data?.data ?? []
-  const meta = data?.meta
+  const columnActions = useMemo(
+    () => ({ onView: (entry: AuditLogData) => setSelectedEntry(entry) }),
+    []
+  )
 
-  if (items.length === 0) {
+  const columns = useMemo(
+    () => createAuditColumns(columnActions),
+    [columnActions]
+  )
+
+  const table = useReactTable({
+    data: entries,
+    columns,
+    state: { columnVisibility },
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    manualPagination: true,
+    manualFiltering: true,
+    rowCount: total,
+  })
+
+  function handleActionFilterChange(value: string) {
+    setActionFilter(value)
+    pagination.reset()
+  }
+
+  function handleEntityTypeChange(value: string | null) {
+    setEntityType(value === 'ALL' ? undefined : (value ?? undefined))
+    pagination.reset()
+  }
+
+  function handleColumnToggle(id: string, visible: boolean) {
+    setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
+  }
+
+  if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center py-16">
-        <p className="text-muted-foreground text-sm">
-          Nenhum registro de auditoria encontrado.
-        </p>
-      </div>
+      <TableErrorState
+        message="Erro ao carregar registros de auditoria."
+        onRetry={refetch}
+      />
     )
   }
 
   return (
-    <>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Data</TableHead>
-              <TableHead>Ação</TableHead>
-              <TableHead>Entidade</TableHead>
-              <TableHead className="hidden sm:table-cell">ID</TableHead>
-              <TableHead className="w-10" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.map((entry) => (
-              <TableRow key={entry.id}>
-                <TableCell className="text-muted-foreground text-xs">
-                  {formatDate(entry.createdAt)}
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant={ACTION_VARIANT[entry.action] ?? 'default'}
-                    size="sm"
-                  >
-                    {entry.action}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-sm">{entry.entityType}</TableCell>
-                <TableCell className="hidden truncate font-mono text-xs sm:table-cell">
-                  {entry.entityId ?? '-'}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    onClick={() => setSelectedEntry(entry)}
-                    aria-label="Ver detalhes"
-                  >
-                    <Eye className="size-3.5" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <FilterTabs
+        options={ACTION_FILTER_OPTIONS}
+        value={actionFilter}
+        onChange={handleActionFilterChange}
+      />
 
-      <nav
-        aria-label="Paginação de auditoria"
-        className="flex items-center justify-between"
-      >
-        <p className="text-muted-foreground text-sm">
-          {meta?.total ?? 0}{' '}
-          {(meta?.total ?? 0) === 1 ? 'registro' : 'registros'} no total
-        </p>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!hasPreviousPage}
-            onClick={onPreviousPage}
-          >
-            <ChevronLeft className="mr-1 size-4" /> Anterior
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!meta?.nextCursor}
-            onClick={() => {
-              if (meta?.nextCursor) onNextPage(meta.nextCursor)
-            }}
-          >
-            Próximo <ChevronRight className="ml-1 size-4" />
-          </Button>
-        </div>
-      </nav>
+      <AuditToolbar
+        entityType={entityType}
+        onEntityTypeChange={handleEntityTypeChange}
+        columnVisibility={columnVisibility}
+        onColumnToggle={handleColumnToggle}
+      />
+
+      <DataTable
+        table={table}
+        isLoading={isLoading}
+        emptyIcon={
+          <ClipboardList className="text-muted-foreground/50 size-10" />
+        }
+        emptyMessage="Nenhum registro de auditoria encontrado."
+        columnVisibility={columnVisibility}
+        onRowClick={(entry) => setSelectedEntry(entry)}
+      />
+
+      <MobileCardList
+        data={entries}
+        keyExtractor={(e) => e.id}
+        isLoading={isLoading}
+        emptyIcon={
+          <ClipboardList className="text-muted-foreground/50 size-10" />
+        }
+        emptyMessage="Nenhum registro de auditoria encontrado."
+        renderCard={(entry) => (
+          <AuditCard entry={entry} onView={setSelectedEntry} />
+        )}
+      />
+
+      <CursorPagination
+        total={total}
+        pageSize={pagination.pageSize}
+        currentPage={pagination.currentPage}
+        onPageSizeChange={pagination.setPageSize}
+        hasPreviousPage={pagination.hasPreviousPage}
+        hasNextPage={Boolean(nextCursor)}
+        onPrevious={pagination.goToPrevious}
+        onNext={() => {
+          if (nextCursor) pagination.goToNext(nextCursor)
+        }}
+      />
 
       <AuditDetailModal
         entry={selectedEntry}
         open={selectedEntry !== null}
         onClose={() => setSelectedEntry(null)}
       />
-    </>
+    </div>
   )
 }

@@ -11,23 +11,13 @@ import {
 } from '@/components/ui/dialog'
 import { formatDate } from '@/lib/formatters'
 
-import type { AuditLogEntry } from '../lib/constants'
+import { ACTION_LABELS, ACTION_VARIANT } from '../lib/constants'
+import type { AuditLogData } from '../lib/types'
 
 interface AuditDetailModalProps {
-  entry: AuditLogEntry | null
-  open: boolean
-  onClose: () => void
-}
-
-const ACTION_VARIANT: Record<
-  string,
-  'default' | 'success' | 'error' | 'warning' | 'info'
-> = {
-  CREATE: 'success',
-  UPDATE: 'info',
-  DELETE: 'error',
-  APPROVE: 'success',
-  REJECT: 'warning',
+  readonly entry: AuditLogData | null
+  readonly open: boolean
+  readonly onClose: () => void
 }
 
 function JsonBlock({ label, data }: { label: string; data: unknown }) {
@@ -58,7 +48,7 @@ export function AuditDetailModal({
         <div className="space-y-4 px-6">
           <div className="flex items-center gap-2">
             <Badge variant={ACTION_VARIANT[entry.action] ?? 'default'}>
-              {entry.action}
+              {ACTION_LABELS[entry.action] ?? entry.action}
             </Badge>
             <span className="text-muted-foreground text-sm">
               {entry.entityType}
