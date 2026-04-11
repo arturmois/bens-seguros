@@ -6,15 +6,17 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogPanel,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { FormField } from '@/components/ui/form-field'
 import { Input } from '@/components/ui/input'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
 
 import { useAiAgents } from '@/features/ai-agents/hooks/use-ai-agents'
 import { useCreateChannel, useUpdateChannel } from '../hooks/use-channels'
@@ -47,17 +49,17 @@ function toFormBrokerType(value: string): FormBrokerType {
   return 'BAILEYS'
 }
 
-interface ChannelFormSheetProps {
+interface ChannelFormDialogProps {
   readonly open: boolean
   readonly onOpenChange: (open: boolean) => void
   readonly channel?: ChannelData
 }
 
-export function ChannelFormSheet({
+export function ChannelFormDialog({
   open,
   onOpenChange,
   channel,
-}: ChannelFormSheetProps) {
+}: ChannelFormDialogProps) {
   const isEditMode = Boolean(channel)
   const createChannel = useCreateChannel()
   const updateChannel = useUpdateChannel()
@@ -146,71 +148,76 @@ export function ChannelFormSheet({
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="overflow-y-auto sm:max-w-lg">
-        <SheetHeader>
-          <SheetTitle>{isEditMode ? 'Editar Canal' : 'Novo Canal'}</SheetTitle>
-          <SheetDescription>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>
+            {isEditMode ? 'Editar canal' : 'Novo canal'}
+          </DialogTitle>
+          <DialogDescription>
             {isEditMode
               ? 'Atualize as informações do canal.'
               : 'Configure um novo canal de comunicação.'}
-          </SheetDescription>
-        </SheetHeader>
+          </DialogDescription>
+        </DialogHeader>
 
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="mt-6 space-y-4 px-6"
-        >
-          {!isEditMode && (
-            <ChannelTypeSelect
-              control={form.control}
-              error={form.formState.errors.channelType?.message}
-            />
-          )}
-
-          <FormField
-            label="Nome"
-            error={form.formState.errors.name?.message}
-            required
+        <DialogPanel>
+          <form
+            id="channel-form"
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
           >
-            <Input
-              placeholder={getNamePlaceholder(watchedChannelType)}
-              {...form.register('name')}
-            />
-          </FormField>
+            {!isEditMode && (
+              <ChannelTypeSelect
+                control={form.control}
+                error={form.formState.errors.channelType?.message}
+              />
+            )}
 
-          {watchedChannelType === 'WHATSAPP' && (
-            <WhatsAppFields
-              control={form.control}
-              register={form.register}
-              errors={form.formState.errors}
-              isEditMode={isEditMode}
-            />
-          )}
-
-          {watchedChannelType === 'WEB_CHAT' && (
-            <WebChatFields register={form.register} />
-          )}
-
-          {isEditMode && (
-            <ChannelAiAgentSelect control={form.control} agents={aiAgents} />
-          )}
-
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
+            <FormField
+              label="Nome"
+              error={form.formState.errors.name?.message}
+              required
             >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isEditMode ? 'Salvar' : 'Criar Canal'}
-            </Button>
-          </div>
-        </form>
-      </SheetContent>
-    </Sheet>
+              <Input
+                placeholder={getNamePlaceholder(watchedChannelType)}
+                {...form.register('name')}
+              />
+            </FormField>
+
+            {watchedChannelType === 'WHATSAPP' && (
+              <WhatsAppFields
+                control={form.control}
+                register={form.register}
+                errors={form.formState.errors}
+                isEditMode={isEditMode}
+              />
+            )}
+
+            {watchedChannelType === 'WEB_CHAT' && (
+              <WebChatFields register={form.register} />
+            )}
+
+            {isEditMode && (
+              <ChannelAiAgentSelect control={form.control} agents={aiAgents} />
+            )}
+          </form>
+        </DialogPanel>
+
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancelar
+          </Button>
+          <Button type="submit" form="channel-form" disabled={isPending}>
+            {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+            {isEditMode ? 'Salvar' : 'Criar canal'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

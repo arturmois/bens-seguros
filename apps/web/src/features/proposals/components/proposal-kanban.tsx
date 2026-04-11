@@ -3,10 +3,10 @@
 import { useState } from 'react'
 
 import {
+  closestCorners,
   DndContext,
   DragOverlay,
   PointerSensor,
-  closestCorners,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -21,7 +21,7 @@ import { api, ApiError } from '@/lib/api-client'
 import type { KanbanFilters } from '../hooks/use-kanban-proposals'
 import type { BoardType, ProposalData, ProposalStage } from '../lib/constants'
 import { ENDORSEMENT_STAGES, KANBAN_STAGES, STAGES } from '../lib/constants'
-import { IssuePolicySheet } from './issue-policy-sheet'
+import { IssuePolicyDialog } from './issue-policy-dialog'
 import { KanbanCard } from './kanban-card'
 import { KanbanCardDetail } from './kanban-card-detail'
 import { KanbanColumn } from './kanban-column'
@@ -296,7 +296,7 @@ export function ProposalKanban({
       />
 
       {issuePolicyProposalId && (
-        <IssuePolicySheet
+        <IssuePolicyDialog
           proposalId={issuePolicyProposalId}
           open
           onOpenChange={(open) => {

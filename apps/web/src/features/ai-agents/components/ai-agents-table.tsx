@@ -34,7 +34,7 @@ import {
 import type { AiAgentStatusFilter } from '../lib/types'
 import type { AiAgentData } from '../types'
 import { AiAgentCard } from './ai-agent-card'
-import { AiAgentFormSheet } from './ai-agent-form-sheet'
+import { AiAgentFormDialog } from './ai-agent-form-dialog'
 import { createAiAgentColumns } from './ai-agents-columns'
 import { DeleteAgentDialog } from './delete-agent-dialog'
 
@@ -180,7 +180,7 @@ export function AiAgentsTable() {
         )}
       />
 
-      <AiAgentFormSheet
+      <AiAgentFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
         agent={editingAgent}

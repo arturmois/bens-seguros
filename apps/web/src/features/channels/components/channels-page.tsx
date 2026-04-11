@@ -24,7 +24,7 @@ import { ChannelIcon } from '@/features/chat/components/channel-icon'
 import { useChannels } from '../hooks/use-channels'
 import { useMetaOAuth } from '../hooks/use-meta-oauth'
 import type { ChannelData } from '../types'
-import { ChannelFormSheet } from './channel-form-sheet'
+import { ChannelFormDialog } from './channel-form-dialog'
 import { ChannelQrDialog } from './channel-qr-dialog'
 import { ChannelsTable } from './channels-table'
 import { DeactivateChannelDialog } from './deactivate-channel-dialog'
@@ -183,7 +183,7 @@ export function ChannelsPage() {
         />
       </section>
 
-      <ChannelFormSheet
+      <ChannelFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
         channel={editingChannel}

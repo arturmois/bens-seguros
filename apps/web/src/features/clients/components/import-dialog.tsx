@@ -3,23 +3,24 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogPanel,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 import {
-  useUploadCsv,
   useConfirmImport,
   useImportStatus,
+  useUploadCsv,
 } from '../hooks/use-import-clients'
 import type { ImportPreviewResponse } from '../types/import-types'
-import { ImportStepUpload } from './import-step-upload'
 import { ImportStepPreview } from './import-step-preview'
 import { ImportStepProcessing } from './import-step-processing'
 import { ImportStepResults } from './import-step-results'
+import { ImportStepUpload } from './import-step-upload'
 
 type ImportStep = 'upload' | 'preview' | 'processing' | 'results'
 
@@ -108,41 +109,42 @@ export function ImportDialog({ open, onOpenChange }: ImportDialogProps) {
   const isClosable = step === 'upload' || step === 'results'
 
   return (
-    <Sheet open={open} onOpenChange={isClosable ? onOpenChange : undefined}>
-      <SheetContent
-        side="right"
-        className="sm:max-w-lg"
-        showCloseButton={isClosable}
-      >
-        <SheetHeader>
-          <SheetTitle>{STEP_TITLES[step]}</SheetTitle>
-          <SheetDescription>{STEP_DESCRIPTIONS[step]}</SheetDescription>
-        </SheetHeader>
+    <Dialog open={open} onOpenChange={isClosable ? onOpenChange : undefined}>
+      <DialogContent className="sm:max-w-lg" showCloseButton={isClosable}>
+        <DialogHeader>
+          <DialogTitle>{STEP_TITLES[step]}</DialogTitle>
+          <DialogDescription>{STEP_DESCRIPTIONS[step]}</DialogDescription>
+        </DialogHeader>
 
-        {step === 'upload' && (
-          <ImportStepUpload
-            onFileSelect={handleFileSelect}
-            isUploading={uploadCsv.isPending}
-          />
-        )}
+        <DialogPanel>
+          {step === 'upload' && (
+            <ImportStepUpload
+              onFileSelect={handleFileSelect}
+              isUploading={uploadCsv.isPending}
+            />
+          )}
 
-        {step === 'preview' && preview && (
-          <ImportStepPreview
-            preview={preview}
-            onConfirm={handleConfirm}
-            onCancel={handleCancel}
-            isConfirming={confirmImport.isPending}
-          />
-        )}
+          {step === 'preview' && preview && (
+            <ImportStepPreview
+              preview={preview}
+              onConfirm={handleConfirm}
+              onCancel={handleCancel}
+              isConfirming={confirmImport.isPending}
+            />
+          )}
 
-        {step === 'processing' && (
-          <ImportStepProcessing status={importStatus.data} />
-        )}
+          {step === 'processing' && (
+            <ImportStepProcessing status={importStatus.data} />
+          )}
 
-        {step === 'results' && importStatus.data && (
-          <ImportStepResults status={importStatus.data} onClose={handleClose} />
-        )}
-      </SheetContent>
-    </Sheet>
+          {step === 'results' && importStatus.data && (
+            <ImportStepResults
+              status={importStatus.data}
+              onClose={handleClose}
+            />
+          )}
+        </DialogPanel>
+      </DialogContent>
+    </Dialog>
   )
 }

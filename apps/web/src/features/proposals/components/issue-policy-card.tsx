@@ -6,7 +6,7 @@ import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 
-import { IssuePolicySheet } from './issue-policy-sheet'
+import { IssuePolicyDialog } from './issue-policy-dialog'
 
 interface IssuePolicyCardProps {
   readonly proposalId: string
@@ -58,7 +58,7 @@ export function IssuePolicyCard({
         <Button onClick={() => setSheetOpen(true)}>Emitir Apólice</Button>
       </div>
 
-      <IssuePolicySheet
+      <IssuePolicyDialog
         proposalId={proposalId}
         open={sheetOpen}
         onOpenChange={setSheetOpen}

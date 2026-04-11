@@ -25,7 +25,7 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
-import { EndorsementProposalSheet } from '@/features/proposals/components/endorsement-proposal-sheet'
+import { EndorsementProposalDialog } from '@/features/proposals/components/endorsement-proposal-dialog'
 
 import { useCancelPolicy, usePolicy } from '../hooks/use-policies'
 import { useGeneratePolicyPdf } from '../hooks/use-generate-policy-pdf'
@@ -191,7 +191,7 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
 
       <PolicyTabs policyId={policyId} />
 
-      <EndorsementProposalSheet
+      <EndorsementProposalDialog
         open={showEndorsementSheet}
         onOpenChange={setShowEndorsementSheet}
         policyId={policyId}

@@ -8,19 +8,21 @@ import type { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogPanel,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
 
 import { CreateClaimOccurrenceBody } from '@/api/endpoints/claims/claims.zod'
@@ -79,79 +81,86 @@ export function OccurrenceForm({
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="overflow-y-auto sm:max-w-lg">
-        <SheetHeader>
-          <SheetTitle>Nova Ocorrência</SheetTitle>
-          <SheetDescription>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Nova ocorrência</DialogTitle>
+          <DialogDescription>
             Registre uma nova ocorrência para este sinistro.
-          </SheetDescription>
-        </SheetHeader>
+          </DialogDescription>
+        </DialogHeader>
 
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="mt-6 space-y-4 px-6"
-        >
-          <FormField
-            label="Tipo"
-            error={form.formState.errors.type?.message}
-            required
+        <DialogPanel>
+          <form
+            id="occurrence-form"
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
           >
-            <Controller
-              name="type"
-              control={form.control}
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={(v) => {
-                    if (v !== null) field.onChange(v)
-                  }}
-                  items={OCCURRENCE_TYPE_OPTIONS}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {OCCURRENCE_TYPE_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </FormField>
-
-          <FormField
-            label="Descrição"
-            error={form.formState.errors.description?.message}
-            required
-          >
-            <Textarea
-              placeholder="Descreva a ocorrência..."
-              rows={4}
-              {...form.register('description')}
-            />
-          </FormField>
-
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
+            <FormField
+              label="Tipo"
+              error={form.formState.errors.type?.message}
+              required
             >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={createOccurrence.isPending}>
-              {createOccurrence.isPending && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Registrar
-            </Button>
-          </div>
-        </form>
-      </SheetContent>
-    </Sheet>
+              <Controller
+                name="type"
+                control={form.control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={(v) => {
+                      if (v !== null) field.onChange(v)
+                    }}
+                    items={OCCURRENCE_TYPE_OPTIONS}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {OCCURRENCE_TYPE_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </FormField>
+
+            <FormField
+              label="Descrição"
+              error={form.formState.errors.description?.message}
+              required
+            >
+              <Textarea
+                placeholder="Descreva a ocorrência..."
+                rows={4}
+                {...form.register('description')}
+              />
+            </FormField>
+          </form>
+        </DialogPanel>
+
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            form="occurrence-form"
+            disabled={createOccurrence.isPending}
+          >
+            {createOccurrence.isPending && (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            )}
+            Registrar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

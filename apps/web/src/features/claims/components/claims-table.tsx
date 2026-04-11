@@ -158,18 +158,20 @@ export function ClaimsTable() {
         search={search}
         onSearchChange={handleSearchChange}
         searchPlaceholder="Buscar sinistros..."
+        filters={
+          <ToolbarFilterSelect
+            value={statusFilter}
+            onValueChange={handleStatusFilterChange}
+            allLabel="Todos status"
+            allValue=""
+            options={STATUS_SELECT_OPTIONS.filter((opt) => opt.value !== '')}
+            widthClass="w-[170px]"
+          />
+        }
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
       >
-        <ToolbarFilterSelect
-          value={statusFilter}
-          onValueChange={handleStatusFilterChange}
-          allLabel="Todos status"
-          allValue=""
-          options={STATUS_SELECT_OPTIONS.filter((opt) => opt.value !== '')}
-          widthClass="w-[170px]"
-        />
         <Button size="sm" render={<Link href="/claims/new" />}>
           Novo Sinistro
         </Button>

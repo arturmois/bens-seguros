@@ -9,19 +9,21 @@ import * as zod from 'zod'
 import { Button } from '@/components/ui/button'
 import { DatePicker } from '@/components/ui/date-picker'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogPanel,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
 import { FormField } from '@/components/shared/form-field'
 
@@ -118,112 +120,119 @@ export function EndorsementForm({
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="overflow-y-auto sm:max-w-lg">
-        <SheetHeader>
-          <SheetTitle>Novo Endosso</SheetTitle>
-          <SheetDescription>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Novo endosso</DialogTitle>
+          <DialogDescription>
             Registre um novo endosso para esta apólice.
-          </SheetDescription>
-        </SheetHeader>
+          </DialogDescription>
+        </DialogHeader>
 
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="mt-6 space-y-4 px-6"
-        >
-          <FormField
-            label="Tipo"
-            error={form.formState.errors.type?.message}
-            required
+        <DialogPanel>
+          <form
+            id="endorsement-form"
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
           >
-            <Controller
-              name="type"
-              control={form.control}
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={(v) => {
-                    if (v !== null) field.onChange(v)
-                  }}
-                  items={ENDORSEMENT_TYPE_OPTIONS}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ENDORSEMENT_TYPE_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </FormField>
-
-          <FormField
-            label="Descrição"
-            error={form.formState.errors.description?.message}
-            required
-          >
-            <Textarea
-              placeholder="Descreva o endosso..."
-              rows={3}
-              {...form.register('description')}
-            />
-          </FormField>
-
-          <FormField
-            label="Data Efetiva"
-            error={form.formState.errors.effectiveDate?.message}
-            required
-          >
-            <Controller
-              name="effectiveDate"
-              control={form.control}
-              render={({ field }) => (
-                <DatePicker
-                  value={parseDateString(field.value)}
-                  onChange={(date) => field.onChange(formatDateToISO(date))}
-                />
-              )}
-            />
-          </FormField>
-
-          <FormField label="Dados Anteriores (JSON)">
-            <Textarea
-              placeholder='{"campo": "valor_anterior"}'
-              rows={3}
-              {...form.register('previousVersionSnapshot')}
-            />
-          </FormField>
-
-          <FormField label="Alterações (JSON)">
-            <Textarea
-              placeholder='{"campo": "novo_valor"}'
-              rows={3}
-              {...form.register('changes')}
-            />
-          </FormField>
-
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
+            <FormField
+              label="Tipo"
+              error={form.formState.errors.type?.message}
+              required
             >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={createEndorsement.isPending}>
-              {createEndorsement.isPending && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Registrar
-            </Button>
-          </div>
-        </form>
-      </SheetContent>
-    </Sheet>
+              <Controller
+                name="type"
+                control={form.control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={(v) => {
+                      if (v !== null) field.onChange(v)
+                    }}
+                    items={ENDORSEMENT_TYPE_OPTIONS}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ENDORSEMENT_TYPE_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </FormField>
+
+            <FormField
+              label="Descrição"
+              error={form.formState.errors.description?.message}
+              required
+            >
+              <Textarea
+                placeholder="Descreva o endosso..."
+                rows={3}
+                {...form.register('description')}
+              />
+            </FormField>
+
+            <FormField
+              label="Data Efetiva"
+              error={form.formState.errors.effectiveDate?.message}
+              required
+            >
+              <Controller
+                name="effectiveDate"
+                control={form.control}
+                render={({ field }) => (
+                  <DatePicker
+                    value={parseDateString(field.value)}
+                    onChange={(date) => field.onChange(formatDateToISO(date))}
+                  />
+                )}
+              />
+            </FormField>
+
+            <FormField label="Dados Anteriores (JSON)">
+              <Textarea
+                placeholder='{"campo": "valor_anterior"}'
+                rows={3}
+                {...form.register('previousVersionSnapshot')}
+              />
+            </FormField>
+
+            <FormField label="Alterações (JSON)">
+              <Textarea
+                placeholder='{"campo": "novo_valor"}'
+                rows={3}
+                {...form.register('changes')}
+              />
+            </FormField>
+          </form>
+        </DialogPanel>
+
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            form="endorsement-form"
+            disabled={createEndorsement.isPending}
+          >
+            {createEndorsement.isPending && (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            )}
+            Registrar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

@@ -12,6 +12,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { FormField } from '@/components/ui/form-field'
@@ -104,46 +105,51 @@ export function InsurerFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="space-y-4"
-          id="insurer-form"
-        >
-          <FormField
-            label="Nome da seguradora"
-            error={form.formState.errors.name?.message}
-            required
+        <DialogPanel>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+            id="insurer-form"
           >
-            <Input placeholder="Ex: Porto Seguro" {...form.register('name')} />
-          </FormField>
+            <FormField
+              label="Nome da seguradora"
+              error={form.formState.errors.name?.message}
+              required
+            >
+              <Input
+                placeholder="Ex: Porto Seguro"
+                {...form.register('name')}
+              />
+            </FormField>
 
-          <FormField
-            label="Código"
-            error={form.formState.errors.code?.message}
-            helperText="Opcional. Use quando a operação precisar de um código interno."
-          >
-            <Input placeholder="Ex: PSEG" {...form.register('code')} />
-          </FormField>
+            <FormField
+              label="Código"
+              error={form.formState.errors.code?.message}
+              helperText="Opcional. Use quando a operação precisar de um código interno."
+            >
+              <Input placeholder="Ex: PSEG" {...form.register('code')} />
+            </FormField>
 
-          {isEditMode && (
-            <Controller
-              name="active"
-              control={form.control}
-              render={({ field }) => (
-                <div className="border-border flex items-center justify-between rounded-lg border p-4">
-                  <Label htmlFor="insurer-active" className="cursor-pointer">
-                    Ativa
-                  </Label>
-                  <Switch
-                    id="insurer-active"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </div>
-              )}
-            />
-          )}
-        </form>
+            {isEditMode && (
+              <Controller
+                name="active"
+                control={form.control}
+                render={({ field }) => (
+                  <div className="border-border flex items-center justify-between rounded-lg border p-4">
+                    <Label htmlFor="insurer-active" className="cursor-pointer">
+                      Ativa
+                    </Label>
+                    <Switch
+                      id="insurer-active"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </div>
+                )}
+              />
+            )}
+          </form>
+        </DialogPanel>
 
         <DialogFooter>
           <Button
