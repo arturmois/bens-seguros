@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 
 import { useCancelPolicy } from '../hooks/use-policies'
-import type { PolicyData } from '../lib/constants'
+import type { PolicyData } from '../lib/types'
 
 interface CancelPolicyDialogProps {
   policy: PolicyData | null

@@ -26,10 +26,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { FormField } from '@/components/shared/form-field'
 
 import { useCreateProposal } from '@/features/proposals/hooks/use-proposals'
-import {
-  POLICY_BRANCH_LABELS,
-  type PolicyBranch,
-} from '@/features/policies/lib/constants'
+import { POLICY_BRANCH_LABELS } from '@/features/policies/lib/constants'
+import type { PolicyBranch } from '@/features/policies/lib/types'
 import { ENDORSEMENT_TYPE_OPTIONS } from '@/features/endorsements/lib/constants'
 
 const endorsementProposalSchema = zod.object({

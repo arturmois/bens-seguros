@@ -11,6 +11,7 @@ import {
   getListPoliciesQueryKey,
 } from '@/api/endpoints/policies/policies'
 import type { ListPoliciesParams } from '@/api/model'
+import { extractErrorMessage } from '@/lib/extract-error-message'
 
 export function usePolicies(filters: ListPoliciesParams = {}) {
   return useListPolicies(filters, {
@@ -52,10 +53,8 @@ export function useIssuePolicy() {
       })
       toast.success('Apólice emitida com sucesso!')
     },
-    onError: () => {
-      toast.error(
-        'Erro ao emitir apólice. Verifique os dados e tente novamente.'
-      )
+    onError: (error) => {
+      toast.error(extractErrorMessage(error, 'Erro ao emitir apólice'))
     },
   })
 }
@@ -85,8 +84,8 @@ export function useCancelPolicy() {
       })
       toast.success('Apólice cancelada com sucesso.')
     },
-    onError: () => {
-      toast.error('Erro ao cancelar apólice. Tente novamente.')
+    onError: (error) => {
+      toast.error(extractErrorMessage(error, 'Erro ao cancelar apólice'))
     },
   })
 }

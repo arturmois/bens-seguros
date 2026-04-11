@@ -1,195 +1,169 @@
 'use client'
 
-import { ChevronLeft, ChevronRight, Shield } from 'lucide-react'
-import Link from 'next/link'
+import type { VisibilityState } from '@tanstack/react-table'
+import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { Shield } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { CursorPagination } from '@/components/shared/cursor-pagination'
+import { DataTable } from '@/components/shared/data-table'
+import { FilterTabs } from '@/components/shared/filter-tabs'
+import { MobileCardList } from '@/components/shared/mobile-card-list'
+import { TableErrorState } from '@/components/shared/table-error-state'
+import { TableToolbar } from '@/components/shared/table-toolbar'
+import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
 import { usePolicies } from '../hooks/use-policies'
-import type { PolicyData, PolicyStatus } from '../lib/constants'
+import {
+  DEFAULT_COLUMN_VISIBILITY,
+  HIDEABLE_COLUMNS,
+  POLICY_STATUSES,
+  STATUS_FILTER_OPTIONS,
+} from '../lib/constants'
+import type { PolicyData, PolicyStatus } from '../lib/types'
 import { CancelPolicyDialog } from './cancel-policy-dialog'
-import { PoliciesTableToolbar } from './policies-table-toolbar'
-import { PolicyTableRow } from './policy-table-row'
+import { createPolicyColumns } from './policies-columns'
+import { PolicyCard } from './policy-card'
+import { PolicyExportButton } from './policy-export-button'
+
+function isStatus(value: string): value is PolicyStatus {
+  return (POLICY_STATUSES as readonly string[]).includes(value)
+}
 
 export function PoliciesTable() {
   const router = useRouter()
+  const pagination = useCursorPagination()
+
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<PolicyStatus | 'ALL'>('ALL')
-  const [cursors, setCursors] = useState<string[]>([])
+  const [statusFilter, setStatusFilter] = useState('')
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    DEFAULT_COLUMN_VISIBILITY
+  )
   const [cancelTarget, setCancelTarget] = useState<PolicyData | null>(null)
 
   const debouncedSearch = useDebounce(search, 300)
-  const currentCursor = cursors.at(-1)
+
+  const statusParam =
+    statusFilter && isStatus(statusFilter) ? statusFilter : undefined
 
   const { data, isLoading, isError, refetch } = usePolicies({
     search: debouncedSearch || undefined,
-    status: statusFilter === 'ALL' ? undefined : statusFilter,
-    cursor: currentCursor,
+    status: statusParam,
+    cursor: pagination.currentCursor,
+    limit: pagination.pageSize,
   })
 
-  const policies = data?.data ?? []
-  const meta = data?.meta
+  const policies: PolicyData[] = data?.data ?? []
+  const nextCursor = data?.meta?.nextCursor ?? null
+  const knownTotal =
+    (pagination.currentPage - 1) * pagination.pageSize + policies.length
 
-  const handleSearchChange = (value: string) => {
+  const columnActions = useMemo(
+    () => ({
+      onView: (id: string) => router.push(`/policies/${id}`),
+      onCancel: (policy: PolicyData) => setCancelTarget(policy),
+    }),
+    [router]
+  )
+
+  const columns = useMemo(
+    () => createPolicyColumns(columnActions),
+    [columnActions]
+  )
+
+  const table = useReactTable({
+    data: policies,
+    columns,
+    state: { columnVisibility },
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    manualPagination: true,
+    manualFiltering: true,
+  })
+
+  function handleSearchChange(value: string) {
     setSearch(value)
-    setCursors([])
+    pagination.reset()
   }
 
-  const handleStatusFilterChange = (value: PolicyStatus | 'ALL') => {
+  function handleStatusFilterChange(value: string) {
     setStatusFilter(value)
-    setCursors([])
+    pagination.reset()
   }
 
-  function handleNextPage() {
-    const next = meta?.nextCursor
-    if (next) {
-      setCursors((prev) => [...prev, next])
-    }
-  }
-
-  function handlePreviousPage() {
-    setCursors((prev) => prev.slice(0, -1))
+  function handleColumnToggle(id: string, visible: boolean) {
+    setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
 
   if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-        <p className="text-destructive text-sm">Erro ao carregar apólices.</p>
-        <Button variant="outline" size="sm" onClick={() => refetch()}>
-          Tentar novamente
-        </Button>
-      </div>
+      <TableErrorState message="Erro ao carregar apólices." onRetry={refetch} />
     )
   }
 
   return (
-    <>
-      <PoliciesTableToolbar
-        search={search}
-        statusFilter={statusFilter}
-        debouncedSearch={debouncedSearch}
-        onSearchChange={handleSearchChange}
-        onStatusFilterChange={handleStatusFilterChange}
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <FilterTabs
+        options={STATUS_FILTER_OPTIONS}
+        value={statusFilter}
+        onChange={handleStatusFilterChange}
       />
 
-      {isLoading ? (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nº Apólice</TableHead>
-                <TableHead className="hidden md:table-cell">Ramo</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="hidden text-right md:table-cell">
-                  Valor
-                </TableHead>
-                <TableHead className="hidden md:table-cell">Vigência</TableHead>
-                <TableHead className="hidden lg:table-cell">
-                  Criado em
-                </TableHead>
-                <TableHead className="w-10" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={`skeleton-${String(i)}`}>
-                  {Array.from({ length: 7 }).map((_, j) => (
-                    <TableCell key={`skeleton-${String(i)}-${String(j)}`}>
-                      <Skeleton className="h-4 w-full" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      ) : policies.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-          <Shield className="text-muted-foreground size-10" />
-          <div>
-            <p className="font-medium">Nenhuma apólice encontrada</p>
-            <p className="text-muted-foreground mt-1 text-sm">
-              As apólices serão criadas a partir de propostas aprovadas.
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            render={<Link href="/proposals" />}
-          >
-            Ver propostas
-          </Button>
-        </div>
-      ) : (
-        <>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nº Apólice</TableHead>
-                  <TableHead>Ramo</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Valor</TableHead>
-                  <TableHead>Vigência</TableHead>
-                  <TableHead>Criado em</TableHead>
-                  <TableHead className="w-10" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {policies.map((policy: PolicyData) => (
-                  <PolicyTableRow
-                    key={policy.id}
-                    policy={policy}
-                    onRowClick={(id) => router.push(`/policies/${id}`)}
-                    onCancelClick={setCancelTarget}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+      <TableToolbar
+        search={search}
+        onSearchChange={handleSearchChange}
+        searchPlaceholder="Buscar por número ou cliente..."
+        columnVisibility={columnVisibility}
+        onColumnVisibilityChange={handleColumnToggle}
+        hideableColumns={HIDEABLE_COLUMNS}
+      >
+        <PolicyExportButton
+          filters={{
+            search: debouncedSearch || undefined,
+            status: statusParam,
+          }}
+        />
+      </TableToolbar>
 
-          <nav
-            aria-label="Paginação de apólices"
-            className="flex items-center justify-end"
-          >
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={cursors.length === 0}
-                onClick={handlePreviousPage}
-              >
-                <ChevronLeft className="mr-1 size-4" /> Anterior
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={!meta?.nextCursor}
-                onClick={handleNextPage}
-              >
-                Próximo <ChevronRight className="ml-1 size-4" />
-              </Button>
-            </div>
-          </nav>
-        </>
-      )}
+      <DataTable
+        table={table}
+        isLoading={isLoading}
+        emptyIcon={<Shield className="text-muted-foreground/50 size-10" />}
+        emptyMessage="Nenhuma apólice encontrada."
+        emptyDescription="As apólices serão criadas a partir de propostas aprovadas."
+        columnVisibility={columnVisibility}
+        onRowClick={(policy) => router.push(`/policies/${policy.id}`)}
+      />
+
+      <MobileCardList
+        data={policies}
+        keyExtractor={(p) => p.id}
+        isLoading={isLoading}
+        emptyIcon={<Shield className="text-muted-foreground/50 size-10" />}
+        emptyMessage="Nenhuma apólice encontrada."
+        emptyDescription="As apólices serão criadas a partir de propostas aprovadas."
+        renderCard={(policy) => <PolicyCard policy={policy} />}
+      />
+
+      <CursorPagination
+        total={knownTotal}
+        pageSize={pagination.pageSize}
+        currentPage={pagination.currentPage}
+        onPageSizeChange={pagination.setPageSize}
+        hasPreviousPage={pagination.hasPreviousPage}
+        hasNextPage={Boolean(nextCursor)}
+        onPrevious={pagination.goToPrevious}
+        onNext={() => {
+          if (nextCursor) pagination.goToNext(nextCursor)
+        }}
+      />
 
       <CancelPolicyDialog
         policy={cancelTarget}
         onClose={() => setCancelTarget(null)}
       />
-    </>
+    </div>
   )
 }

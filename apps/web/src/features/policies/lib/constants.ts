@@ -1,22 +1,34 @@
-import type {
-  ListPolicies200DataItemStatus,
-  ListPolicies200DataItemBranch,
-  ListPolicies200DataItem,
-  GetPolicy200Data,
-} from '@/api/model'
+import type { VisibilityState } from '@tanstack/react-table'
 
-// ---------------------------------------------------------------------------
-// Type aliases
-// ---------------------------------------------------------------------------
+import type { PolicyBranch, PolicyStatus } from './types'
 
-export type PolicyStatus = ListPolicies200DataItemStatus
-export type PolicyBranch = ListPolicies200DataItemBranch
-export type PolicyData = ListPolicies200DataItem
-export type PolicyDetail = GetPolicy200Data
+interface FilterTabOption {
+  readonly value: string
+  readonly label: string
+}
 
-// ---------------------------------------------------------------------------
-// UI constants
-// ---------------------------------------------------------------------------
+interface HideableColumn {
+  readonly id: string
+  readonly label: string
+}
+
+export const DEFAULT_COLUMN_VISIBILITY: VisibilityState = {
+  createdAt: false,
+}
+
+export const HIDEABLE_COLUMNS: readonly HideableColumn[] = [
+  { id: 'branch', label: 'Ramo' },
+  { id: 'premiumValueInCents', label: 'Valor' },
+  { id: 'validity', label: 'Vigência' },
+  { id: 'createdAt', label: 'Criado em' },
+] as const
+
+export const STATUS_FILTER_OPTIONS: readonly FilterTabOption[] = [
+  { value: '', label: 'Todas' },
+  { value: 'ACTIVE', label: 'Ativa' },
+  { value: 'CANCELLED', label: 'Cancelada' },
+  { value: 'EXPIRED', label: 'Expirada' },
+] as const
 
 export const POLICY_STATUSES: readonly PolicyStatus[] = [
   'ACTIVE',
