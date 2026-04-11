@@ -21,6 +21,9 @@ export const CreateInsurerBody = zod.object({
 export const listInsurersQueryLimitDefault = 20
 export const listInsurersQueryLimitMax = 100
 
+export const listInsurersQuerySortByDefault = `name`
+export const listInsurersQuerySortOrderDefault = `asc`
+
 export const ListInsurersQueryParams = zod.object({
   active: zod.boolean().optional(),
   search: zod.string().optional(),
@@ -30,6 +33,12 @@ export const ListInsurersQueryParams = zod.object({
     .min(1)
     .max(listInsurersQueryLimitMax)
     .default(listInsurersQueryLimitDefault),
+  sortBy: zod
+    .enum(['name', 'code', 'active', 'updatedAt'])
+    .default(listInsurersQuerySortByDefault),
+  sortOrder: zod
+    .enum(['asc', 'desc'])
+    .default(listInsurersQuerySortOrderDefault),
 })
 
 export const ListInsurersResponse = zod.object({

@@ -1,11 +1,7 @@
 'use client'
 
 import type { SortingState, VisibilityState } from '@tanstack/react-table'
-import {
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
+import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { Building2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
@@ -18,6 +14,8 @@ import { TableToolbar } from '@/components/shared/table-toolbar'
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
+import type { ListInsurersSortBy, ListInsurersSortOrder } from '@/api/model'
+
 import { useInsurers, useUpdateInsurerMutation } from '../hooks/use-insurers'
 import {
   DEFAULT_COLUMN_VISIBILITY,
@@ -26,6 +24,7 @@ import {
   STATUS_FILTER_OPTIONS,
 } from '../lib/constants'
 import type { InsurerData, InsurerStatusFilter } from '../lib/types'
+import { isInsurerSortBy } from '../lib/type-guards'
 import { InsurerCard } from './insurer-card'
 import { InsurerFormDialog } from './insurer-form-dialog'
 import { createInsurerColumns } from './insurers-columns'
@@ -57,11 +56,19 @@ export function InsurersTable() {
   const debouncedSearch = useDebounce(search, 300)
   const { mutate: updateInsurerMutate } = useUpdateInsurerMutation()
 
+  const sortId = sorting[0]?.id
+  const sortBy: ListInsurersSortBy | undefined =
+    sortId !== undefined && isInsurerSortBy(sortId) ? sortId : undefined
+  const sortOrder: ListInsurersSortOrder | undefined =
+    sorting[0] !== undefined ? (sorting[0].desc ? 'desc' : 'asc') : undefined
+
   const { data, isLoading, isError, refetch } = useInsurers({
     active: resolveActiveFilter(statusFilter),
     search: debouncedSearch || undefined,
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,
+    sortBy,
+    sortOrder,
   })
 
   const insurers: InsurerData[] = useMemo(
@@ -101,10 +108,15 @@ export function InsurersTable() {
     data: insurers,
     columns,
     state: { sorting, columnVisibility },
-    onSortingChange: setSorting,
+    onSortingChange: (updater) => {
+      setSorting(updater)
+      pagination.reset()
+    },
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    manualSorting: true,
+    manualPagination: true,
+    manualFiltering: true,
   })
 
   function handleStatusFilterChange(value: string) {

@@ -4,6 +4,7 @@ import type {
   InsurerRepository,
   InsurerData,
   InsurerFilters,
+  InsurerSortField,
 } from '../domain/insurer-repository.js'
 
 @injectable()
@@ -14,7 +15,7 @@ export class ListInsurers {
 
   async execute(
     filters: InsurerFilters,
-    page: CursorPage
+    page: CursorPage<InsurerSortField>
   ): Promise<Page<InsurerData>> {
     return this.insurerRepo.findMany(filters, page)
   }

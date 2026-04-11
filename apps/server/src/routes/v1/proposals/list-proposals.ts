@@ -17,11 +17,11 @@ export function listProposalsRoute(app: FastifyInstance) {
     },
     preHandler: [requireAbility('read', 'Proposal')],
     handler: async (request, reply) => {
-      const { limit, cursor, ...filters } = request.query
+      const { limit, cursor, sortBy, sortOrder, ...filters } = request.query
       const useCase = container.resolve(ListProposals)
       const result = await useCase.execute(
         { organizationId: request.organizationId!, ...filters },
-        { limit, cursor }
+        { limit, cursor, sortBy, sortOrder }
       )
       return reply.send({
         success: true,

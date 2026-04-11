@@ -56,7 +56,7 @@ const proposalSortByEnum = z.enum([
   'clientName',
   'branch',
   'stage',
-  'type',
+  'boardType',
   'premiumValueInCents',
   'createdAt',
 ])
@@ -66,7 +66,7 @@ const proposalSortByEnum = z.enum([
 **Insurers:**
 
 ```ts
-const insurerSortByEnum = z.enum(['name', 'code', 'isActive', 'updatedAt'])
+const insurerSortByEnum = z.enum(['name', 'code', 'active', 'updatedAt'])
 // default: 'name', default order: 'asc'
 ```
 
@@ -78,7 +78,7 @@ const insurerSortByEnum = z.enum(['name', 'code', 'isActive', 'updatedAt'])
 | `clientName` | `{ client: { name: order } }` (join) |
 | `branch` | `{ branch: order }` |
 | `stage` | `{ stage: order }` (ordem do enum) |
-| `type` | `{ type: order }` (ordem do enum) |
+| `boardType` | `{ boardType: order }` (ordem do enum) |
 | `premiumValueInCents` | `{ premiumValueInCents: order }` |
 | `createdAt` | `{ createdAt: order }` |
 
@@ -87,7 +87,7 @@ const insurerSortByEnum = z.enum(['name', 'code', 'isActive', 'updatedAt'])
 | ------------ | ----------------------- |
 | `name` | `{ name: order }` |
 | `code` | `{ code: order }` |
-| `isActive` | `{ isActive: order }` |
+| `active` | `{ active: order }` |
 | `updatedAt` | `{ updatedAt: order }` |
 
 ### 3.4 Arquivos que mudam

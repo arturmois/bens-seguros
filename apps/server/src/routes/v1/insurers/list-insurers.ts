@@ -41,12 +41,14 @@ export function listInsurersRoute(app: FastifyInstance) {
     preHandler: [requireAbility('read', 'Insurer')],
     handler: async (request, reply) => {
       const organizationId = request.organizationId!
-      const { active, search, cursor, limit } = request.query
+      const { active, search, cursor, limit, sortBy, sortOrder } = request.query
       const canUseCache =
         active === undefined &&
         search === undefined &&
         cursor === undefined &&
-        limit === 20
+        limit === 20 &&
+        sortBy === 'name' &&
+        sortOrder === 'asc'
       const cacheKey = `cache:${organizationId}:insurers`
 
       const cacheService = canUseCache ? resolveCache() : null
@@ -64,7 +66,7 @@ export function listInsurersRoute(app: FastifyInstance) {
       const useCase = container.resolve(ListInsurers)
       const result = await useCase.execute(
         { organizationId, active, search },
-        { limit, cursor }
+        { limit, cursor, sortBy, sortOrder }
       )
 
       if (cacheService) {

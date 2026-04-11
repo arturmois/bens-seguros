@@ -42,10 +42,6 @@ export function createProposalColumns(
           {row.original.clientName ?? row.original.clientId}
         </span>
       ),
-      sortingFn: (a, b) =>
-        (a.original.clientName ?? a.original.clientId).localeCompare(
-          b.original.clientName ?? b.original.clientId
-        ),
       enableHiding: false,
     },
     {

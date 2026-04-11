@@ -1,5 +1,15 @@
 import type { Proposal, Stage, BoardType } from './proposal.js'
 
+export type ProposalSortField =
+  | 'clientName'
+  | 'branch'
+  | 'stage'
+  | 'boardType'
+  | 'premiumValueInCents'
+  | 'createdAt'
+
+export type SortOrder = 'asc' | 'desc'
+
 export interface ProposalFilters {
   organizationId: string
   stage?: Stage
@@ -16,6 +26,8 @@ export interface ProposalFilters {
 export interface ProposalCursorPage {
   cursor?: string
   limit: number
+  sortBy?: ProposalSortField
+  sortOrder?: SortOrder
 }
 
 export interface ProposalPage {

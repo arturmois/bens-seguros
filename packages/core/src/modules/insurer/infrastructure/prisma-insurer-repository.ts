@@ -6,6 +6,7 @@ import type {
   InsurerRepository,
   InsurerData,
   InsurerFilters,
+  InsurerSortField,
   CreateInsurerInput,
   UpdateInsurerInput,
 } from '../domain/insurer-repository.js'
@@ -51,7 +52,7 @@ export class PrismaInsurerRepository implements InsurerRepository {
 
   async findMany(
     filters: InsurerFilters,
-    page: CursorPage
+    page: CursorPage<InsurerSortField>
   ): Promise<Page<InsurerData>> {
     const where: Prisma.InsurerWhereInput = {
       organizationId: filters.organizationId,
@@ -64,11 +65,28 @@ export class PrismaInsurerRepository implements InsurerRepository {
       }),
     }
 
+    const sortBy = page.sortBy ?? 'name'
+    const sortOrder = page.sortOrder ?? 'asc'
+
+    const primaryOrderBy: Prisma.InsurerOrderByWithRelationInput = (() => {
+      switch (sortBy) {
+        case 'code':
+          return { code: sortOrder }
+        case 'active':
+          return { active: sortOrder }
+        case 'updatedAt':
+          return { updatedAt: sortOrder }
+        case 'name':
+        default:
+          return { name: sortOrder }
+      }
+    })()
+
     const rows = await this.prisma.insurer.findMany({
       where,
       take: page.limit + 1,
       ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
-      orderBy: { name: 'asc' },
+      orderBy: [primaryOrderBy, { id: sortOrder }],
     })
 
     const hasNext = rows.length > page.limit

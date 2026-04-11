@@ -55,6 +55,27 @@ export class PrismaProposalRepository implements ProposalRepository {
     filters: ProposalFilters,
     page: ProposalCursorPage
   ): Promise<ProposalPage> {
+    const sortBy = page.sortBy ?? 'createdAt'
+    const sortOrder = page.sortOrder ?? 'desc'
+
+    const primaryOrderBy: Prisma.ProposalOrderByWithRelationInput = (() => {
+      switch (sortBy) {
+        case 'clientName':
+          return { client: { name: sortOrder } }
+        case 'branch':
+          return { branch: sortOrder }
+        case 'stage':
+          return { stage: sortOrder }
+        case 'boardType':
+          return { boardType: sortOrder }
+        case 'premiumValueInCents':
+          return { premiumValueInCents: sortOrder }
+        case 'createdAt':
+        default:
+          return { createdAt: sortOrder }
+      }
+    })()
+
     const createdAt: Prisma.DateTimeFilter = {}
 
     if (filters.createdFrom) {
@@ -96,7 +117,7 @@ export class PrismaProposalRepository implements ProposalRepository {
       include: PROPOSAL_INCLUDE,
       take: page.limit + 1,
       ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      orderBy: [primaryOrderBy, { id: sortOrder }],
     })
 
     const hasNext = rows.length > page.limit

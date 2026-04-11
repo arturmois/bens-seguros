@@ -14,7 +14,12 @@ import {
   getGetProposalQueryKey,
   getGetProposalChecklistQueryKey,
 } from '@/api/endpoints/proposals/proposals'
-import type { CreateProposalBody, UpdateProposalDetailsBody } from '@/api/model'
+import type {
+  CreateProposalBody,
+  ListProposalsSortBy,
+  ListProposalsSortOrder,
+  UpdateProposalDetailsBody,
+} from '@/api/model'
 import { ApiError } from '@/lib/api-client'
 
 import type { ProposalStage, BoardType } from '../lib/constants'
@@ -26,6 +31,8 @@ interface ProposalFilters {
   clientId?: string
   cursor?: string
   limit?: number
+  sortBy?: ListProposalsSortBy
+  sortOrder?: ListProposalsSortOrder
 }
 
 export function useProposals(filters: ProposalFilters) {

@@ -58,8 +58,6 @@ export function createInsurerColumns(
           {row.original.code ?? '-'}
         </span>
       ),
-      sortingFn: (rowA, rowB) =>
-        (rowA.original.code ?? '').localeCompare(rowB.original.code ?? ''),
     },
     {
       accessorKey: 'active',

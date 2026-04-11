@@ -1,5 +1,7 @@
 import type { CursorPage, Page } from '../../client/domain/client-repository.js'
 
+export type InsurerSortField = 'name' | 'code' | 'active' | 'updatedAt'
+
 export interface InsurerData {
   id: string
   organizationId: string
@@ -37,7 +39,7 @@ export interface InsurerRepository {
   findByName(name: string, organizationId: string): Promise<InsurerData | null>
   findMany(
     filters: InsurerFilters,
-    page: CursorPage
+    page: CursorPage<InsurerSortField>
   ): Promise<Page<InsurerData>>
   update(data: UpdateInsurerInput): Promise<InsurerData>
 }

@@ -26,6 +26,15 @@ export const BOARD_TYPE_VALUES = [
 
 export const boardTypeEnum = z.enum(BOARD_TYPE_VALUES)
 
+export const proposalSortByEnum = z.enum([
+  'clientName',
+  'branch',
+  'stage',
+  'boardType',
+  'premiumValueInCents',
+  'createdAt',
+])
+
 // ── Param schemas ───────────────────────────────────────────────────
 
 export { idParam }
@@ -158,6 +167,8 @@ export const listProposalsQuery = paginationQuery().extend({
   createdTo: z.coerce.date().optional(),
   boardType: boardTypeEnum.optional(),
   search: z.string().optional(),
+  sortBy: proposalSortByEnum.optional().default('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 })
 
 // ── Response schemas (typed for OpenAPI) ────────────────────────────

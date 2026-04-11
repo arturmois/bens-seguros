@@ -5,6 +5,8 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { ExportProposalsBoardType } from './exportProposalsBoardType'
+import type { ExportProposalsSortBy } from './exportProposalsSortBy'
+import type { ExportProposalsSortOrder } from './exportProposalsSortOrder'
 import type { ExportProposalsStage } from './exportProposalsStage'
 
 export type ExportProposalsParams = {
@@ -23,4 +25,6 @@ export type ExportProposalsParams = {
   createdTo?: string
   boardType?: ExportProposalsBoardType
   search?: string
+  sortBy?: ExportProposalsSortBy
+  sortOrder?: ExportProposalsSortOrder
 }

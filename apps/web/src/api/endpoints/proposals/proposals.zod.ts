@@ -12,6 +12,9 @@ import * as zod from 'zod'
 export const exportProposalsQueryLimitDefault = 20
 export const exportProposalsQueryLimitMax = 100
 
+export const exportProposalsQuerySortByDefault = `createdAt`
+export const exportProposalsQuerySortOrderDefault = `desc`
+
 export const ExportProposalsQueryParams = zod.object({
   cursor: zod.string().optional(),
   limit: zod
@@ -38,6 +41,19 @@ export const ExportProposalsQueryParams = zod.object({
   createdTo: zod.string().datetime({}).optional(),
   boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']).optional(),
   search: zod.string().optional(),
+  sortBy: zod
+    .enum([
+      'clientName',
+      'branch',
+      'stage',
+      'boardType',
+      'premiumValueInCents',
+      'createdAt',
+    ])
+    .default(exportProposalsQuerySortByDefault),
+  sortOrder: zod
+    .enum(['asc', 'desc'])
+    .default(exportProposalsQuerySortOrderDefault),
 })
 
 /**
@@ -275,6 +291,9 @@ export const CreateProposalBody = zod.union([
 export const listProposalsQueryLimitDefault = 20
 export const listProposalsQueryLimitMax = 100
 
+export const listProposalsQuerySortByDefault = `createdAt`
+export const listProposalsQuerySortOrderDefault = `desc`
+
 export const ListProposalsQueryParams = zod.object({
   cursor: zod.string().optional(),
   limit: zod
@@ -301,6 +320,19 @@ export const ListProposalsQueryParams = zod.object({
   createdTo: zod.string().datetime({}).optional(),
   boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']).optional(),
   search: zod.string().optional(),
+  sortBy: zod
+    .enum([
+      'clientName',
+      'branch',
+      'stage',
+      'boardType',
+      'premiumValueInCents',
+      'createdAt',
+    ])
+    .default(listProposalsQuerySortByDefault),
+  sortOrder: zod
+    .enum(['asc', 'desc'])
+    .default(listProposalsQuerySortOrderDefault),
 })
 
 export const listProposalsResponseDataItemDetailsOneManufacturingYearMin = 1900

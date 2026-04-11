@@ -24,11 +24,15 @@ export const updateInsurerBodySchema = z.object({
   active: z.boolean(),
 })
 
+export const insurerSortByEnum = z.enum(['name', 'code', 'active', 'updatedAt'])
+
 export const listInsurersQuerySchema = z.object({
   active: queryBoolean.optional(),
   search: z.string().optional(),
   cursor: z.string().optional(),
   limit: z.coerce.number().min(1).max(100).default(20),
+  sortBy: insurerSortByEnum.optional().default('name'),
+  sortOrder: z.enum(['asc', 'desc']).optional().default('asc'),
 })
 
 // --- Response schemas ---

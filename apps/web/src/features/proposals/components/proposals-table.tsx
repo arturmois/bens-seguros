@@ -1,11 +1,7 @@
 'use client'
 
 import type { SortingState, VisibilityState } from '@tanstack/react-table'
-import {
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
+import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { FileText } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
@@ -19,6 +15,8 @@ import { TableToolbar } from '@/components/shared/table-toolbar'
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
+import type { ListProposalsSortBy, ListProposalsSortOrder } from '@/api/model'
+
 import { useAdvanceProposal, useProposals } from '../hooks/use-proposals'
 import {
   ALL_FILTER_VALUE,
@@ -31,6 +29,7 @@ import {
   type ProposalData,
 } from '../lib/constants'
 import { resolveBoardTypeParam, resolveStageParam } from '../lib/filter-helpers'
+import { isProposalSortBy } from '../lib/type-guards'
 import { LostReasonDialog } from './lost-reason-dialog'
 import { ProposalCard } from './proposal-card'
 import { createProposalColumns } from './proposals-columns'
@@ -69,12 +68,20 @@ export function ProposalsTable({
     allowedBoardTypes
   )
 
+  const sortId = sorting[0]?.id
+  const sortBy: ListProposalsSortBy | undefined =
+    sortId !== undefined && isProposalSortBy(sortId) ? sortId : undefined
+  const sortOrder: ListProposalsSortOrder | undefined =
+    sorting[0] !== undefined ? (sorting[0].desc ? 'desc' : 'asc') : undefined
+
   const { data, isLoading, isError, refetch } = useProposals({
     search: debouncedSearch || undefined,
     stage: stageParam,
     boardType: boardTypeParam,
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,
+    sortBy,
+    sortOrder,
   })
 
   const proposals: ProposalData[] = useMemo(
@@ -103,10 +110,13 @@ export function ProposalsTable({
     data: proposals,
     columns,
     state: { sorting, columnVisibility },
-    onSortingChange: setSorting,
+    onSortingChange: (updater) => {
+      setSorting(updater)
+      pagination.reset()
+    },
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    manualSorting: true,
     manualPagination: true,
     manualFiltering: true,
   })

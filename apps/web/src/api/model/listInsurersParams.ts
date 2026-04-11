@@ -4,6 +4,8 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
+import type { ListInsurersSortBy } from './listInsurersSortBy'
+import type { ListInsurersSortOrder } from './listInsurersSortOrder'
 
 export type ListInsurersParams = {
   active?: boolean
@@ -14,4 +16,6 @@ export type ListInsurersParams = {
    * @maximum 100
    */
   limit?: number
+  sortBy?: ListInsurersSortBy
+  sortOrder?: ListInsurersSortOrder
 }

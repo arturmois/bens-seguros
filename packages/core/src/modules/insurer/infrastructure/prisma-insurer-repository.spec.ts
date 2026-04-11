@@ -46,7 +46,7 @@ describe('PrismaInsurerRepository', () => {
         ],
       },
       take: 21,
-      orderBy: { name: 'asc' },
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
     })
   })
 })
