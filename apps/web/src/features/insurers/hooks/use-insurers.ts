@@ -3,30 +3,23 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-import { ApiError } from '@/lib/api-client'
 import {
   createInsurer,
   getListInsurersQueryKey,
   updateInsurer,
   useListInsurers,
 } from '@/api/endpoints/insurers/insurers'
+import { ApiError } from '@/lib/api-client'
+import { extractErrorMessage } from '@/lib/extract-error-message'
+
 import type {
-  CreateInsurerBody,
-  ListInsurers200DataItem,
-  ListInsurers200Meta,
-  ListInsurersParams,
-  UpdateInsurerBody,
-} from '@/api/model'
+  InsurerCreateBody,
+  InsurerListParams,
+  InsurersListData,
+  InsurerUpdateBody,
+} from '../lib/types'
 
-export type InsurerItem = ListInsurers200DataItem
-export type InsurerStatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE'
-
-export interface InsurersListData {
-  readonly data: readonly ListInsurers200DataItem[]
-  readonly meta: ListInsurers200Meta
-}
-
-export function useInsurers(filters: ListInsurersParams = {}) {
+export function useInsurers(filters: InsurerListParams = {}) {
   return useListInsurers<InsurersListData>(filters, {
     query: {
       queryKey: getListInsurersQueryKey(filters),
@@ -44,14 +37,14 @@ function handleInsurerError(error: unknown, fallback: string) {
     return
   }
 
-  toast.error(fallback)
+  toast.error(extractErrorMessage(error, fallback))
 }
 
 export function useCreateInsurerMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (body: CreateInsurerBody) => {
+    mutationFn: async (body: InsurerCreateBody) => {
       const response = await createInsurer(body)
       return response.data.data
     },
@@ -74,7 +67,7 @@ export function useUpdateInsurerMutation() {
       body,
     }: {
       id: string
-      body: UpdateInsurerBody
+      body: InsurerUpdateBody
     }) => {
       const response = await updateInsurer(id, body)
       return response.data.data
