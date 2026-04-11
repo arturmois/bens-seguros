@@ -6,9 +6,15 @@ import type { NextConfig } from 'next'
 // dev uses localhost). The env vars are read at build time — `next build`
 // on Vercel picks up the production values, `next dev` picks up .env.local.
 function buildConnectSrc(): string {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
-  const chatUrl =
+  // Trim is intentional: a stray whitespace in a Vercel env var (seen in
+  // prod, causing duplicated chat origin with trailing \t in the CSP header)
+  // must not corrupt the allowlist.
+  const apiUrl = (
+    process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+  ).trim()
+  const chatUrl = (
     process.env.NEXT_PUBLIC_CHAT_SERVER_URL ?? 'http://localhost:3002'
+  ).trim()
 
   const toWsOrigin = (httpOrigin: string) => httpOrigin.replace(/^http/, 'ws')
 
