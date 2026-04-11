@@ -1,10 +1,5 @@
 'use client'
 
-import { Plus } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-
-import { Button } from '@/components/ui/button'
-
 import { STAGES, STAGE_LABELS } from '../lib/constants'
 import type { BoardType, ProposalStage } from '../lib/constants'
 import { ProposalExportButton } from './proposal-export-button'
@@ -46,22 +41,13 @@ export function ProposalsToolbarActions({
   stageParam,
   boardTypeParam,
 }: ProposalsToolbarActionsProps) {
-  const router = useRouter()
-
   return (
-    <>
-      <ProposalExportButton
-        filters={{
-          search: debouncedSearch || undefined,
-          stage: stageParam,
-          boardType: boardTypeParam,
-        }}
-      />
-
-      <Button onClick={() => router.push('/proposals/new')}>
-        <Plus className="size-4 sm:mr-2" />
-        <span className="hidden sm:inline">Nova proposta</span>
-      </Button>
-    </>
+    <ProposalExportButton
+      filters={{
+        search: debouncedSearch || undefined,
+        stage: stageParam,
+        boardType: boardTypeParam,
+      }}
+    />
   )
 }

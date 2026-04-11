@@ -1,28 +1,23 @@
 import type { Metadata } from 'next'
 
-import { PageBreadcrumb } from '@/components/page-breadcrumb'
+import { ListPageHeader } from '@/components/shared/list-page-header'
+import { InsurerCreateButton } from '@/features/insurers/components/insurer-create-button'
 import { InsurersTable } from '@/features/insurers/components/insurers-table'
 
 export const metadata: Metadata = { title: 'Seguradoras' }
 
-export default function DashboardInsurersPage() {
+export default function InsurersPage() {
   return (
     <div className="flex h-full flex-col gap-6">
-      <div className="space-y-4">
-        <PageBreadcrumb
-          items={[
-            { label: 'Dashboard', href: '/dashboard' },
-            { label: 'Seguradoras' },
-          ]}
-        />
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Seguradoras</h1>
-          <p className="text-muted-foreground text-sm">
-            Gerencie as seguradoras disponíveis para propostas, apólices e
-            sinistros.
-          </p>
-        </div>
-      </div>
+      <ListPageHeader
+        breadcrumb={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Seguradoras' },
+        ]}
+        title="Seguradoras"
+        description="Gerencie as seguradoras disponíveis para propostas, apólices e sinistros."
+        action={<InsurerCreateButton />}
+      />
       <InsurersTable />
     </div>
   )

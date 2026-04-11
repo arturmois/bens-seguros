@@ -7,12 +7,10 @@ import {
   type SortingState,
 } from '@tanstack/react-table'
 import { Ambulance } from 'lucide-react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
 import type { ListAssistancesSortOrder } from '@/api/model'
-import { Button } from '@/components/ui/button'
 import { CursorPagination } from '@/components/shared/cursor-pagination'
 import { DataTable } from '@/components/shared/data-table'
 import { FilterTabs } from '@/components/shared/filter-tabs'
@@ -144,11 +142,7 @@ export function AssistancesTable() {
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
-      >
-        <Button size="sm" render={<Link href="/assistances/new" />}>
-          Nova Assistência
-        </Button>
-      </TableToolbar>
+      />
 
       <DataTable
         table={table}

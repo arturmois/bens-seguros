@@ -1,49 +1,22 @@
-'use client'
+import type { Metadata } from 'next'
 
-import dynamic from 'next/dynamic'
+import { ListPageHeader } from '@/components/shared/list-page-header'
+import { EndorsementsContent } from '@/features/endorsements/components/endorsements-content'
 
-import { Skeleton } from '@/components/ui/skeleton'
-
-function KanbanSkeleton() {
-  return (
-    <div className="flex gap-4 overflow-x-auto pb-4">
-      {Array.from({ length: 5 }, (_, i) => (
-        <div key={i} className="w-72 shrink-0 space-y-3">
-          <Skeleton className="h-8 w-full rounded-md" />
-          <Skeleton className="h-28 w-full rounded-md" />
-          <Skeleton className="h-28 w-full rounded-md" />
-        </div>
-      ))}
-    </div>
-  )
-}
-
-const ProposalKanban = dynamic(
-  () =>
-    import('@/features/proposals/components/proposal-kanban').then(
-      (m) => m.ProposalKanban
-    ),
-  {
-    loading: () => <KanbanSkeleton />,
-    ssr: false,
-  }
-)
+export const metadata: Metadata = { title: 'Endossos' }
 
 export default function EndorsementsPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Endossos</h1>
-        <p className="text-muted-foreground text-sm">
-          Pipeline operacional de endossos vinculados a apólices em vigor.
-        </p>
-      </div>
-
-      <ProposalKanban
-        initialBoardType="ENDORSEMENT"
-        allowedBoardTypes={['ENDORSEMENT']}
-        searchPlaceholder="Buscar por apólice ou segurado..."
+    <div className="flex h-full flex-col gap-6">
+      <ListPageHeader
+        breadcrumb={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Endossos' },
+        ]}
+        title="Endossos"
+        description="Pipeline operacional de endossos vinculados a apólices em vigor."
       />
+      <EndorsementsContent />
     </div>
   )
 }

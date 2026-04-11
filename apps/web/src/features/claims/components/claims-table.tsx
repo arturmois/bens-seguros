@@ -7,7 +7,6 @@ import {
   type SortingState,
 } from '@tanstack/react-table'
 import { ShieldAlert } from 'lucide-react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
@@ -20,7 +19,6 @@ import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
 import { TableToolbar } from '@/components/shared/table-toolbar'
 import { ToolbarFilterSelect } from '@/components/shared/toolbar-filter-select'
-import { Button } from '@/components/ui/button'
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
@@ -171,11 +169,7 @@ export function ClaimsTable() {
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
-      >
-        <Button size="sm" render={<Link href="/claims/new" />}>
-          Novo Sinistro
-        </Button>
-      </TableToolbar>
+      ></TableToolbar>
 
       <DataTable
         table={table}

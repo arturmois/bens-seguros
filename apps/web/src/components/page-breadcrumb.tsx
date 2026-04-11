@@ -1,6 +1,6 @@
 import {
   Breadcrumb,
-  BreadcrumbItem,
+  BreadcrumbItem as BreadcrumbItemPrimitive,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
@@ -9,13 +9,13 @@ import {
 import Link from 'next/link'
 import { Fragment } from 'react'
 
-interface BreadcrumbEntry {
+export interface BreadcrumbItem {
   readonly label: string
   readonly href?: string
 }
 
 interface PageBreadcrumbProps {
-  readonly items: readonly BreadcrumbEntry[]
+  readonly items: readonly BreadcrumbItem[]
 }
 
 export function PageBreadcrumb({ items }: PageBreadcrumbProps) {
@@ -25,7 +25,7 @@ export function PageBreadcrumb({ items }: PageBreadcrumbProps) {
         {items.map((item, i) => (
           <Fragment key={item.label}>
             {i > 0 && <BreadcrumbSeparator />}
-            <BreadcrumbItem>
+            <BreadcrumbItemPrimitive>
               {item.href ? (
                 <BreadcrumbLink render={<Link href={item.href} />}>
                   {item.label}
@@ -33,7 +33,7 @@ export function PageBreadcrumb({ items }: PageBreadcrumbProps) {
               ) : (
                 <BreadcrumbPage>{item.label}</BreadcrumbPage>
               )}
-            </BreadcrumbItem>
+            </BreadcrumbItemPrimitive>
           </Fragment>
         ))}
       </BreadcrumbList>

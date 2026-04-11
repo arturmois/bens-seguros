@@ -6,7 +6,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { Building2, Plus } from 'lucide-react'
+import { Building2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { CursorPagination } from '@/components/shared/cursor-pagination'
@@ -15,7 +15,6 @@ import { FilterTabs } from '@/components/shared/filter-tabs'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
 import { TableToolbar } from '@/components/shared/table-toolbar'
-import { Button } from '@/components/ui/button'
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
@@ -53,7 +52,7 @@ export function InsurersTable() {
   const [editingInsurer, setEditingInsurer] = useState<InsurerData | undefined>(
     undefined
   )
-  const [formOpen, setFormOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
 
   const debouncedSearch = useDebounce(search, 300)
   const { mutate: updateInsurerMutate } = useUpdateInsurerMutation()
@@ -77,7 +76,7 @@ export function InsurersTable() {
     () => ({
       onEdit: (insurer: InsurerData) => {
         setEditingInsurer(insurer)
-        setFormOpen(true)
+        setEditOpen(true)
       },
       onToggleActive: (insurer: InsurerData) => {
         updateInsurerMutate({
@@ -107,11 +106,6 @@ export function InsurersTable() {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   })
-
-  function handleCreate() {
-    setEditingInsurer(undefined)
-    setFormOpen(true)
-  }
 
   function handleStatusFilterChange(value: string) {
     if (isStatusFilter(value)) {
@@ -161,12 +155,7 @@ export function InsurersTable() {
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
-      >
-        <Button onClick={handleCreate}>
-          <Plus className="size-4 sm:mr-2" />
-          <span className="hidden sm:inline">Nova seguradora</span>
-        </Button>
-      </TableToolbar>
+      />
 
       <DataTable
         table={table}
@@ -208,8 +197,8 @@ export function InsurersTable() {
       />
 
       <InsurerFormDialog
-        open={formOpen}
-        onOpenChange={setFormOpen}
+        open={editOpen}
+        onOpenChange={setEditOpen}
         insurer={editingInsurer}
       />
     </div>

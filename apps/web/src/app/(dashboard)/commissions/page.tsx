@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-import { PageBreadcrumb } from '@/components/page-breadcrumb'
+import { ListPageHeader } from '@/components/shared/list-page-header'
 
 import { CommissionsContent } from './commissions-content'
 
@@ -9,20 +9,14 @@ export const metadata: Metadata = { title: 'Comissões' }
 export default function CommissionsPage() {
   return (
     <div className="flex h-full flex-col gap-6">
-      <div className="space-y-4">
-        <PageBreadcrumb
-          items={[
-            { label: 'Dashboard', href: '/dashboard' },
-            { label: 'Comissões' },
-          ]}
-        />
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Comissões</h1>
-          <p className="text-muted-foreground text-sm">
-            Gerenciamento de comissões e aprovações.
-          </p>
-        </div>
-      </div>
+      <ListPageHeader
+        breadcrumb={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Comissões' },
+        ]}
+        title="Comissões"
+        description="Gerenciamento de comissões e aprovações."
+      />
       <CommissionsContent />
     </div>
   )

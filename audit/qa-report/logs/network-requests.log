@@ -1,0 +1,16 @@
+[GET] http://localhost:3001/api/auth/get-session => [200] OK
+[GET] http://localhost:3001/api/v1/tenants => [200] OK
+[GET] http://localhost:3001/api/v1/notifications/alert-counts => [FAILED] net::ERR_ABORTED
+[GET] http://localhost:3001/api/v1/notifications/unread-count => [FAILED] net::ERR_ABORTED
+[GET] http://localhost:3001/api/v1/proposals?limit=10 => [FAILED] net::ERR_ABORTED
+[GET] http://localhost:3001/api/terms/status => [FAILED] net::ERR_ABORTED
+[GET] http://localhost:3001/api/v1/notifications/alert-counts => [200] OK
+[GET] http://localhost:3001/api/v1/notifications/unread-count => [200] OK
+[GET] http://localhost:3001/api/v1/proposals?limit=10 => [200] OK
+[GET] http://localhost:3001/api/terms/status => [200] OK
+[GET] http://localhost:3001/api/v1/notifications/alert-counts => [FAILED] net::ERR_ABORTED
+[GET] http://localhost:3001/api/v1/notifications/unread-count => [FAILED] net::ERR_ABORTED
+[GET] http://localhost:3001/api/v1/proposals?limit=10 => [FAILED] net::ERR_ABORTED
+[GET] http://localhost:3001/api/terms/status => [FAILED] net::ERR_ABORTED
+[GET] http://localhost:3001/api/v1/clients?limit=3 => [200] OK
+[GET] http://localhost:3001/api/auth/get-session => [200] OK
