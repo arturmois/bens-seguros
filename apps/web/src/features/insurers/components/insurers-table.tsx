@@ -9,12 +9,14 @@ import {
 import { Building2, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+import { CursorPagination } from '@/components/shared/cursor-pagination'
 import { DataTable } from '@/components/shared/data-table'
 import { FilterTabs } from '@/components/shared/filter-tabs'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
 import { TableToolbar } from '@/components/shared/table-toolbar'
 import { Button } from '@/components/ui/button'
+import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
 import { useInsurers, useUpdateInsurerMutation } from '../hooks/use-insurers'
@@ -26,7 +28,7 @@ import {
 } from '../lib/constants'
 import type { InsurerData, InsurerStatusFilter } from '../lib/types'
 import { InsurerCard } from './insurer-card'
-import { InsurerFormSheet } from './insurer-form-sheet'
+import { InsurerFormDialog } from './insurer-form-dialog'
 import { createInsurerColumns } from './insurers-columns'
 
 function isStatusFilter(value: string): value is InsurerStatusFilter {
@@ -39,6 +41,8 @@ function resolveActiveFilter(status: InsurerStatusFilter): boolean | undefined {
 }
 
 export function InsurersTable() {
+  const pagination = useCursorPagination()
+
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] =
     useState<InsurerStatusFilter>('ACTIVE')
@@ -57,12 +61,17 @@ export function InsurersTable() {
   const { data, isLoading, isError, refetch } = useInsurers({
     active: resolveActiveFilter(statusFilter),
     search: debouncedSearch || undefined,
+    cursor: pagination.currentCursor,
+    limit: pagination.pageSize,
   })
 
   const insurers: InsurerData[] = useMemo(
     () => [...(data?.data ?? [])],
     [data?.data]
   )
+  const nextCursor = data?.meta?.nextCursor ?? null
+  const knownTotal =
+    (pagination.currentPage - 1) * pagination.pageSize + insurers.length
 
   const columnActions = useMemo(
     () => ({
@@ -105,7 +114,15 @@ export function InsurersTable() {
   }
 
   function handleStatusFilterChange(value: string) {
-    if (isStatusFilter(value)) setStatusFilter(value)
+    if (isStatusFilter(value)) {
+      setStatusFilter(value)
+      pagination.reset()
+    }
+  }
+
+  function handleSearchChange(value: string) {
+    setSearch(value)
+    pagination.reset()
   }
 
   function handleColumnToggle(id: string, visible: boolean) {
@@ -139,7 +156,7 @@ export function InsurersTable() {
 
       <TableToolbar
         search={search}
-        onSearchChange={setSearch}
+        onSearchChange={handleSearchChange}
         searchPlaceholder="Buscar por nome ou código..."
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
@@ -177,7 +194,20 @@ export function InsurersTable() {
         )}
       />
 
-      <InsurerFormSheet
+      <CursorPagination
+        total={knownTotal}
+        pageSize={pagination.pageSize}
+        currentPage={pagination.currentPage}
+        onPageSizeChange={pagination.setPageSize}
+        hasPreviousPage={pagination.hasPreviousPage}
+        hasNextPage={Boolean(nextCursor)}
+        onPrevious={pagination.goToPrevious}
+        onNext={() => {
+          if (nextCursor) pagination.goToNext(nextCursor)
+        }}
+      />
+
+      <InsurerFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
         insurer={editingInsurer}

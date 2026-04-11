@@ -143,19 +143,20 @@ export function MembersTable({
         search={search}
         onSearchChange={setSearch}
         searchPlaceholder="Buscar membros..."
+        filters={
+          <ToolbarFilterSelect
+            value={roleFilter}
+            onValueChange={setRoleFilter}
+            allLabel="Todos cargos"
+            allValue="ALL"
+            options={ROLE_SELECT_OPTIONS.filter((opt) => opt.value !== 'ALL')}
+            widthClass="w-[170px]"
+          />
+        }
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
-      >
-        <ToolbarFilterSelect
-          value={roleFilter}
-          onValueChange={setRoleFilter}
-          allLabel="Todos cargos"
-          allValue="ALL"
-          options={ROLE_SELECT_OPTIONS.filter((opt) => opt.value !== 'ALL')}
-          widthClass="w-[170px]"
-        />
-      </TableToolbar>
+      />
 
       <DataTable
         table={table}

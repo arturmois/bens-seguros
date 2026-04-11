@@ -30,7 +30,7 @@ import { useListInsurers } from '@/api/endpoints/insurers/insurers'
 import type { ListInsurers200DataItem } from '@/api/model'
 import { FormField } from '@/components/shared/form-field'
 import { useIssuePolicy } from '@/features/policies/hooks/use-policies'
-import { InsurerFormSheet } from '@/features/insurers/components/insurer-form-sheet'
+import { InsurerFormDialog } from '@/features/insurers/components/insurer-form-dialog'
 
 const issuePolicyFormSchema = IssuePolicyBody.omit({
   proposalId: true,
@@ -271,7 +271,7 @@ export function IssuePolicySheet({
           </div>
         </form>
 
-        <InsurerFormSheet
+        <InsurerFormDialog
           open={insurerSheetOpen}
           onOpenChange={setInsurerSheetOpen}
           onSuccess={handleInsurerCreated}

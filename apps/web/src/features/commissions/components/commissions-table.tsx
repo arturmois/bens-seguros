@@ -138,18 +138,20 @@ export function CommissionsTable() {
         search={search}
         onSearchChange={handleSearchChange}
         searchPlaceholder="Buscar comissões..."
+        filters={
+          <ToolbarFilterSelect
+            value={statusFilter}
+            onValueChange={handleStatusFilterChange}
+            allLabel="Todos status"
+            allValue=""
+            options={STATUS_SELECT_OPTIONS.filter((opt) => opt.value !== '')}
+            widthClass="w-[180px]"
+          />
+        }
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
       >
-        <ToolbarFilterSelect
-          value={statusFilter}
-          onValueChange={handleStatusFilterChange}
-          allLabel="Todos status"
-          allValue=""
-          options={STATUS_SELECT_OPTIONS.filter((opt) => opt.value !== '')}
-          widthClass="w-[180px]"
-        />
         <CommissionExportButton
           filters={{
             search: debouncedSearch || undefined,

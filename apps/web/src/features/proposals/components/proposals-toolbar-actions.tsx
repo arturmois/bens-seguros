@@ -5,47 +5,51 @@ import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
 
-import {
-  STAGES,
-  STAGE_LABELS,
-  type BoardType,
-  type ProposalStage,
-} from '../lib/constants'
+import { STAGES, STAGE_LABELS } from '../lib/constants'
+import type { BoardType, ProposalStage } from '../lib/constants'
 import { ProposalExportButton } from './proposal-export-button'
 import { ProposalsFilterSelect } from './proposals-filter-select'
-
-interface ProposalsToolbarActionsProps {
-  readonly stageFilter: string
-  readonly debouncedSearch: string
-  readonly stageParam: ProposalStage | undefined
-  readonly boardTypeParam: BoardType | undefined
-  readonly onStageFilterChange: (value: string) => void
-}
 
 const STAGE_OPTIONS = STAGES.map((s) => ({
   value: s,
   label: STAGE_LABELS[s],
 }))
 
-export function ProposalsToolbarActions({
+interface ProposalsStageFilterProps {
+  readonly stageFilter: string
+  readonly onStageFilterChange: (value: string) => void
+}
+
+export function ProposalsStageFilter({
   stageFilter,
+  onStageFilterChange,
+}: ProposalsStageFilterProps) {
+  return (
+    <ProposalsFilterSelect
+      value={stageFilter}
+      onValueChange={onStageFilterChange}
+      allLabel="Todos estágios"
+      options={STAGE_OPTIONS}
+      width="w-[160px]"
+    />
+  )
+}
+
+interface ProposalsToolbarActionsProps {
+  readonly debouncedSearch: string
+  readonly stageParam: ProposalStage | undefined
+  readonly boardTypeParam: BoardType | undefined
+}
+
+export function ProposalsToolbarActions({
   debouncedSearch,
   stageParam,
   boardTypeParam,
-  onStageFilterChange,
 }: ProposalsToolbarActionsProps) {
   const router = useRouter()
 
   return (
     <>
-      <ProposalsFilterSelect
-        value={stageFilter}
-        onValueChange={onStageFilterChange}
-        allLabel="Todos estágios"
-        options={STAGE_OPTIONS}
-        width="w-[160px]"
-      />
-
       <ProposalExportButton
         filters={{
           search: debouncedSearch || undefined,

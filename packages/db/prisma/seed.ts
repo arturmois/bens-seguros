@@ -249,6 +249,23 @@ async function main() {
     'Mapfre',
     'Liberty Seguros',
     'HDI Seguros',
+    'Itaú Seguros',
+    'Zurich',
+    'Generali',
+    'Chubb',
+    'AXA',
+    'MetLife',
+    'Prudential',
+    'Icatu Seguros',
+    'Caixa Seguros',
+    'Banco do Brasil Seguros',
+    'Santander Seguros',
+    'Sompo Seguros',
+    'Too Seguros',
+    'Excelsior Seguros',
+    'Yelum',
+    'Kovr',
+    'Pottencial',
   ]
 
   const insurers: Array<{ id: string; name: string }> = []

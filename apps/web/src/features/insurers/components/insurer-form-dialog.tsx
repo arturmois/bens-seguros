@@ -6,16 +6,17 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { FormField } from '@/components/ui/form-field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
 import { Switch } from '@/components/ui/switch'
 import type { ListInsurers200DataItem } from '@/api/model'
 
@@ -29,19 +30,19 @@ import {
   useUpdateInsurerMutation,
 } from '../hooks/use-insurers'
 
-interface InsurerFormSheetProps {
+interface InsurerFormDialogProps {
   readonly open: boolean
   readonly onOpenChange: (open: boolean) => void
   readonly insurer?: ListInsurers200DataItem
   readonly onSuccess?: (insurer: ListInsurers200DataItem) => void
 }
 
-export function InsurerFormSheet({
+export function InsurerFormDialog({
   open,
   onOpenChange,
   insurer,
   onSuccess,
-}: InsurerFormSheetProps) {
+}: InsurerFormDialogProps) {
   const isEditMode = Boolean(insurer)
   const createMutation = useCreateInsurerMutation()
   const updateMutation = useUpdateInsurerMutation()
@@ -70,10 +71,7 @@ export function InsurerFormSheet({
   function handleSubmit(values: InsurerFormValues) {
     if (isEditMode && insurer) {
       updateMutation.mutate(
-        {
-          id: insurer.id,
-          body: values,
-        },
+        { id: insurer.id, body: values },
         {
           onSuccess: (updated) => {
             onSuccess?.(updated)
@@ -93,22 +91,23 @@ export function InsurerFormSheet({
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="overflow-y-auto sm:max-w-lg">
-        <SheetHeader>
-          <SheetTitle>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>
             {isEditMode ? 'Editar seguradora' : 'Nova seguradora'}
-          </SheetTitle>
-          <SheetDescription>
+          </DialogTitle>
+          <DialogDescription>
             {isEditMode
               ? 'Atualize os dados da seguradora.'
               : 'Cadastre uma seguradora para uso em propostas, apólices e sinistros.'}
-          </SheetDescription>
-        </SheetHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
-          className="mt-6 space-y-4 px-6"
+          className="space-y-4"
+          id="insurer-form"
         >
           <FormField
             label="Nome da seguradora"
@@ -144,22 +143,22 @@ export function InsurerFormSheet({
               )}
             />
           )}
-
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isEditMode ? 'Salvar' : 'Criar seguradora'}
-            </Button>
-          </div>
         </form>
-      </SheetContent>
-    </Sheet>
+
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancelar
+          </Button>
+          <Button type="submit" form="insurer-form" disabled={isPending}>
+            {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+            {isEditMode ? 'Salvar' : 'Criar seguradora'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

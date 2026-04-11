@@ -34,7 +34,10 @@ import { resolveBoardTypeParam, resolveStageParam } from '../lib/filter-helpers'
 import { LostReasonDialog } from './lost-reason-dialog'
 import { ProposalCard } from './proposal-card'
 import { createProposalColumns } from './proposals-columns'
-import { ProposalsToolbarActions } from './proposals-toolbar-actions'
+import {
+  ProposalsStageFilter,
+  ProposalsToolbarActions,
+} from './proposals-toolbar-actions'
 
 interface ProposalsTableProps {
   readonly allowedBoardTypes?: readonly BoardType[]
@@ -149,16 +152,20 @@ export function ProposalsTable({
         search={search}
         onSearchChange={withReset(setSearch)}
         searchPlaceholder="Buscar propostas..."
+        filters={
+          <ProposalsStageFilter
+            stageFilter={stageFilter}
+            onStageFilterChange={withReset(setStageFilter)}
+          />
+        }
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
       >
         <ProposalsToolbarActions
-          stageFilter={stageFilter}
           debouncedSearch={debouncedSearch}
           stageParam={stageParam}
           boardTypeParam={boardTypeParam}
-          onStageFilterChange={withReset(setStageFilter)}
         />
       </TableToolbar>
 

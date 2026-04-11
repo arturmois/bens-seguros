@@ -131,18 +131,20 @@ export function AssistancesTable() {
         search={search}
         onSearchChange={handleSearchChange}
         searchPlaceholder="Buscar assistências..."
+        filters={
+          <ToolbarFilterSelect
+            value={statusFilter}
+            onValueChange={handleStatusFilterChange}
+            allLabel="Todos status"
+            allValue=""
+            options={STATUS_SELECT_OPTIONS.filter((opt) => opt.value !== '')}
+            widthClass="w-[180px]"
+          />
+        }
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
       >
-        <ToolbarFilterSelect
-          value={statusFilter}
-          onValueChange={handleStatusFilterChange}
-          allLabel="Todos status"
-          allValue=""
-          options={STATUS_SELECT_OPTIONS.filter((opt) => opt.value !== '')}
-          widthClass="w-[180px]"
-        />
         <Button size="sm" render={<Link href="/assistances/new" />}>
           Nova Assistência
         </Button>

@@ -40,7 +40,7 @@ export function ProposalsContent() {
   const [viewMode, setViewMode] = useState<ViewMode>('table')
 
   return (
-    <div className="space-y-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       <div className="flex items-center justify-end">
         <div className="flex gap-1 rounded-md border p-0.5">
           <Button
