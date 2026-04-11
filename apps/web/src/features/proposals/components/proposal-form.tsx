@@ -126,7 +126,12 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
                     items={BRANCH_OPTIONS}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione o ramo" />
+                      <SelectValue placeholder="Selecione o ramo">
+                        {(value: string) =>
+                          BRANCH_OPTIONS.find((opt) => opt.value === value)
+                            ?.label ?? null
+                        }
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {BRANCH_OPTIONS.map((opt) => (
@@ -160,7 +165,12 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
                     items={BOARD_TYPE_OPTIONS}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione o tipo" />
+                      <SelectValue placeholder="Selecione o tipo">
+                        {(value: string) =>
+                          BOARD_TYPE_OPTIONS.find((opt) => opt.value === value)
+                            ?.label ?? null
+                        }
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {BOARD_TYPE_OPTIONS.map((opt) => (

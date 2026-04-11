@@ -152,7 +152,13 @@ export function EndorsementForm({
                     items={ENDORSEMENT_TYPE_OPTIONS}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione o tipo" />
+                      <SelectValue placeholder="Selecione o tipo">
+                        {(value: string) =>
+                          ENDORSEMENT_TYPE_OPTIONS.find(
+                            (opt) => opt.value === value
+                          )?.label ?? null
+                        }
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {ENDORSEMENT_TYPE_OPTIONS.map((opt) => (

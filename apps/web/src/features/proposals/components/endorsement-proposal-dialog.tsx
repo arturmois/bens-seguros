@@ -148,7 +148,13 @@ export function EndorsementProposalDialog({
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione o tipo de endosso" />
+                      <SelectValue placeholder="Selecione o tipo de endosso">
+                        {(value: string) =>
+                          ENDORSEMENT_TYPE_OPTIONS.find(
+                            (opt) => opt.value === value
+                          )?.label ?? null
+                        }
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {ENDORSEMENT_TYPE_OPTIONS.map((option) => (

@@ -141,7 +141,12 @@ export function AssistanceForm() {
                 items={ASSISTANCE_TYPE_OPTIONS}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione o tipo" />
+                  <SelectValue placeholder="Selecione o tipo">
+                    {(value: string) =>
+                      ASSISTANCE_TYPE_OPTIONS.find((opt) => opt.value === value)
+                        ?.label ?? null
+                    }
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {ASSISTANCE_TYPE_OPTIONS.map((opt) => (

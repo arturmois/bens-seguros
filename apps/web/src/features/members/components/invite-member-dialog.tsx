@@ -120,7 +120,9 @@ export function InviteMemberDialog({
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione um cargo" />
+                      <SelectValue placeholder="Selecione um cargo">
+                        {(value: string) => ROLE_LABELS[value] ?? value}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {availableRoles.map((role) => (

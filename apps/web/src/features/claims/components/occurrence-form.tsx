@@ -113,7 +113,13 @@ export function OccurrenceForm({
                     items={OCCURRENCE_TYPE_OPTIONS}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione o tipo" />
+                      <SelectValue placeholder="Selecione o tipo">
+                        {(value: string) =>
+                          OCCURRENCE_TYPE_OPTIONS.find(
+                            (opt) => opt.value === value
+                          )?.label ?? null
+                        }
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {OCCURRENCE_TYPE_OPTIONS.map((opt) => (

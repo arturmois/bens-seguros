@@ -166,7 +166,12 @@ export function ClaimForm() {
                 items={PRIORITY_SELECT_OPTIONS}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione" />
+                  <SelectValue placeholder="Selecione">
+                    {(value: string) =>
+                      PRIORITY_SELECT_OPTIONS.find((opt) => opt.value === value)
+                        ?.label ?? null
+                    }
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {PRIORITY_SELECT_OPTIONS.map((opt) => (
