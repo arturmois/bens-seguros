@@ -148,6 +148,71 @@ Tabs horizontais dentro da pagina (nao wizard linear):
 
 ---
 
+## Filtros de listagem — FilterTabs vs Select
+
+Convenção para decidir entre `<FilterTabs>` (shared primitive) e `<Select>` (shadcn) na `TableToolbar` de um módulo de listagem.
+
+### Regra geral
+
+`FilterTabs` renderiza **apenas a dimensão primária** do módulo, com **no máximo 4 opções**. Todos os demais filtros (incluindo status secundário, período, prioridade) ficam em `<Select>` dentro da toolbar.
+
+### Quando usar `FilterTabs`
+
+- **≤ 4 opções** (mais que 4 quebra o header em mobile 375px)
+- **Dimensão primária** — a que o usuário filtra com mais frequência
+- **"Todos" é o default comum** (usuário abre a página e clica em cada tab)
+- **Valores categóricos**, não faixas contínuas
+
+### Quando usar `<Select>`
+
+- **> 4 opções**
+- **Dimensão secundária** (o módulo já tem `FilterTabs` para a primária)
+- **Filtro raramente usado**
+- **Valores muito numerosos (> 20)** → prefira `<Autocomplete>` ou `<Combobox>`
+
+### Matriz canônica por módulo (2026-04)
+
+| Módulo      | FilterTabs (primário)               | Select (secundário) |
+| ----------- | ----------------------------------- | ------------------- |
+| clients     | tipo (Lead/Cliente/Ex-Cliente)      | —                   |
+| proposals   | tipo (Novo/Renovação)               | estágio             |
+| policies    | status (Ativa/Cancelada/Expirada)   | —                   |
+| commissions | período (Todas/30 dias/90 dias)     | status              |
+| claims      | prioridade (Normal/Alta/Urgente)    | status              |
+| assistances | tipo (Guincho/Mecânica/Chaveiro)    | status              |
+| insurers    | status (Ativas/Inativas)            | —                   |
+| audit       | período (Todas/30 dias/7 dias/Hoje) | entidade, ação      |
+
+### Layout esperado
+
+```
+┌──────────────────────────────────────────────────────┐
+│ <ListPageHeader>                                     │
+│  Breadcrumb › Page                                   │
+│  h1 + description                    [Primary CTA]   │
+├──────────────────────────────────────────────────────┤
+│ <TableToolbar>                                       │
+│  [FilterTabs] [🔎 search] [Select] [Columns] [Export]│
+├──────────────────────────────────────────────────────┤
+│ <DataTable />                                        │
+├──────────────────────────────────────────────────────┤
+│ <CursorPagination />                                 │
+└──────────────────────────────────────────────────────┘
+```
+
+### Ao adicionar um novo módulo
+
+1. Identifique a **dimensão primária** (a mais filtrada pelo usuário).
+2. Se tiver ≤ 4 opções categóricas → `FilterTabs`.
+3. Se tiver qualquer outra dimensão secundária → `<Select>` na toolbar.
+4. Adicione uma linha à matriz acima.
+
+### Exceções documentadas
+
+Nenhuma no momento. Se um novo módulo precisar quebrar a convenção, documente a exceção aqui com motivação.
+
+---
+
 ## 5. Kanban (Propostas)
 
 ### Layout
