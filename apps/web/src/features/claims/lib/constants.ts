@@ -31,8 +31,15 @@ export const HIDEABLE_COLUMNS: readonly HideableColumn[] = [
   { id: 'createdAt', label: 'Criado em' },
 ] as const
 
-export const STATUS_FILTER_OPTIONS: readonly FilterTabOption[] = [
-  { value: '', label: 'Todos' },
+export const PRIORITY_FILTER_OPTIONS: readonly FilterTabOption[] = [
+  { value: '', label: 'Todas' },
+  { value: 'NORMAL', label: 'Normal' },
+  { value: 'HIGH', label: 'Alta' },
+  { value: 'URGENT', label: 'Urgente' },
+] as const
+
+export const STATUS_SELECT_OPTIONS: readonly FilterTabOption[] = [
+  { value: '', label: 'Todos status' },
   { value: 'REGISTERED', label: 'Registrado' },
   { value: 'IN_ANALYSIS', label: 'Em Análise' },
   { value: 'AWAITING_DOCUMENT', label: 'Aguard. Doc.' },

@@ -15,16 +15,20 @@ import { FilterTabs } from '@/components/shared/filter-tabs'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
 import { TableToolbar } from '@/components/shared/table-toolbar'
+import { ToolbarFilterSelect } from '@/components/shared/toolbar-filter-select'
 import { useDebounce } from '@/hooks/use-debounce'
 
 import { useMembers, useRemoveMember } from '../hooks/use-members'
 import {
+  ACTIVE_FILTER_OPTIONS,
   DEFAULT_COLUMN_VISIBILITY,
   DEFAULT_SORTING,
   HIDEABLE_COLUMNS,
-  ROLE_FILTER_OPTIONS,
+  isActiveFilter,
+  ROLE_SELECT_OPTIONS,
+  type ActiveFilter,
 } from '../lib/constants'
-import { matchesRole, matchesSearch } from '../lib/filters'
+import { matchesActive, matchesRole, matchesSearch } from '../lib/filters'
 import type { MemberData } from '../types'
 import { MemberCard } from './member-card'
 import { createMemberColumns } from './members-columns'
@@ -56,6 +60,7 @@ export function MembersTable({
 
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState<string>('ALL')
+  const [activeFilter, setActiveFilter] = useState<ActiveFilter>('ALL')
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
@@ -68,10 +73,11 @@ export function MembersTable({
     const list = data ?? []
     return list.filter(
       (member) =>
+        matchesActive(member, activeFilter) &&
         matchesRole(member, roleFilter) &&
         matchesSearch(member, debouncedSearch)
     )
-  }, [data, roleFilter, debouncedSearch])
+  }, [data, activeFilter, roleFilter, debouncedSearch])
 
   const columnActions = useMemo(
     () => ({
@@ -126,9 +132,11 @@ export function MembersTable({
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <FilterTabs
-        options={ROLE_FILTER_OPTIONS}
-        value={roleFilter}
-        onChange={setRoleFilter}
+        options={ACTIVE_FILTER_OPTIONS}
+        value={activeFilter}
+        onChange={(value) => {
+          if (isActiveFilter(value)) setActiveFilter(value)
+        }}
       />
 
       <TableToolbar
@@ -138,7 +146,16 @@ export function MembersTable({
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
-      />
+      >
+        <ToolbarFilterSelect
+          value={roleFilter}
+          onValueChange={setRoleFilter}
+          allLabel="Todos cargos"
+          allValue="ALL"
+          options={ROLE_SELECT_OPTIONS.filter((opt) => opt.value !== 'ALL')}
+          widthClass="w-[170px]"
+        />
+      </TableToolbar>
 
       <DataTable
         table={table}

@@ -42,10 +42,17 @@ export const TERMINAL_COMMISSION_STATUSES: readonly CommissionStatus[] = [
   'REVERSED',
 ] as const
 
-export const STATUS_FILTER_OPTIONS = [
-  { value: '', label: 'Todos' },
+export const STATUS_SELECT_OPTIONS = [
+  { value: '', label: 'Todos status' },
   ...COMMISSION_STATUS_OPTIONS,
 ] as const
+
+export {
+  PERIOD_FILTER_OPTIONS,
+  isPeriodFilter,
+  resolvePeriodRange,
+  type PeriodFilter,
+} from '@/components/shared/period-filter'
 
 export const DEFAULT_COLUMN_VISIBILITY: VisibilityState = {
   policyNumber: true,

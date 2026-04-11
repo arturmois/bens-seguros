@@ -13,13 +13,14 @@ import { useMemo, useState } from 'react'
 
 import type { ListClaimsSortOrder } from '@/api/model'
 import { ConfirmDeleteDialog } from '@/components/shared/confirm-delete-dialog'
-import { Button } from '@/components/ui/button'
 import { CursorPagination } from '@/components/shared/cursor-pagination'
 import { DataTable } from '@/components/shared/data-table'
 import { FilterTabs } from '@/components/shared/filter-tabs'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
 import { TableToolbar } from '@/components/shared/table-toolbar'
+import { ToolbarFilterSelect } from '@/components/shared/toolbar-filter-select'
+import { Button } from '@/components/ui/button'
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
@@ -28,9 +29,10 @@ import {
   DEFAULT_COLUMN_VISIBILITY,
   DEFAULT_SORTING,
   HIDEABLE_COLUMNS,
-  STATUS_FILTER_OPTIONS,
+  PRIORITY_FILTER_OPTIONS,
+  STATUS_SELECT_OPTIONS,
 } from '../lib/constants'
-import { isClaimStatus, isSortBy } from '../lib/type-guards'
+import { isClaimPriority, isClaimStatus, isSortBy } from '../lib/type-guards'
 import type { ClaimData } from '../lib/types'
 import { ClaimCard } from './claim-card'
 import { createClaimColumns } from './claims-columns'
@@ -41,6 +43,7 @@ export function ClaimsTable() {
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [priorityFilter, setPriorityFilter] = useState('')
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
@@ -57,10 +60,15 @@ export function ClaimsTable() {
 
   const statusParam =
     statusFilter && isClaimStatus(statusFilter) ? statusFilter : undefined
+  const priorityParam =
+    priorityFilter && isClaimPriority(priorityFilter)
+      ? priorityFilter
+      : undefined
 
   const { data, isLoading, isError, refetch } = useClaims({
     search: debouncedSearch || undefined,
     status: statusParam,
+    priority: priorityParam,
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,
     sortBy,
@@ -112,6 +120,11 @@ export function ClaimsTable() {
     pagination.reset()
   }
 
+  function handlePriorityFilterChange(value: string) {
+    setPriorityFilter(value)
+    pagination.reset()
+  }
+
   function handleColumnToggle(id: string, visible: boolean) {
     setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
@@ -136,9 +149,9 @@ export function ClaimsTable() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <FilterTabs
-        options={STATUS_FILTER_OPTIONS}
-        value={statusFilter}
-        onChange={handleStatusFilterChange}
+        options={PRIORITY_FILTER_OPTIONS}
+        value={priorityFilter}
+        onChange={handlePriorityFilterChange}
       />
 
       <TableToolbar
@@ -149,6 +162,14 @@ export function ClaimsTable() {
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
       >
+        <ToolbarFilterSelect
+          value={statusFilter}
+          onValueChange={handleStatusFilterChange}
+          allLabel="Todos status"
+          allValue=""
+          options={STATUS_SELECT_OPTIONS.filter((opt) => opt.value !== '')}
+          widthClass="w-[170px]"
+        />
         <Button size="sm" render={<Link href="/claims/new" />}>
           Novo Sinistro
         </Button>

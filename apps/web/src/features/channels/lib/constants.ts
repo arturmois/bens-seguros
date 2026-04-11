@@ -19,8 +19,8 @@ export const STATUS_FILTER_OPTIONS: readonly SelectOption<ChannelStatusFilter>[]
   [
     { value: 'ALL', label: 'Todos' },
     { value: 'CONNECTED', label: 'Conectados' },
-    { value: 'DISCONNECTED', label: 'Desconectados' },
-    { value: 'QR_PENDING', label: 'Aguardando QR' },
+    { value: 'DISCONNECTED', label: 'Offline' },
+    { value: 'QR_PENDING', label: 'QR' },
   ] as const
 
 export const DEFAULT_COLUMN_VISIBILITY: VisibilityState = {

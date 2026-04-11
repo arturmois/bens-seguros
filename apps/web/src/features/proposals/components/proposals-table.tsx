@@ -12,6 +12,7 @@ import { useMemo, useState } from 'react'
 
 import { CursorPagination } from '@/components/shared/cursor-pagination'
 import { DataTable } from '@/components/shared/data-table'
+import { FilterTabs } from '@/components/shared/filter-tabs'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
 import { TableToolbar } from '@/components/shared/table-toolbar'
@@ -22,6 +23,7 @@ import { useAdvanceProposal, useProposals } from '../hooks/use-proposals'
 import {
   ALL_FILTER_VALUE,
   BOARD_TYPES,
+  BOARD_TYPE_FILTER_OPTIONS,
   DEFAULT_COLUMN_VISIBILITY,
   DEFAULT_SORTING,
   HIDEABLE_COLUMNS,
@@ -126,8 +128,23 @@ export function ProposalsTable({
     )
   }
 
+  const boardTypeTabs = BOARD_TYPE_FILTER_OPTIONS.filter(
+    (option) =>
+      option.value === ALL_FILTER_VALUE ||
+      (allowedBoardTypes as readonly string[]).includes(option.value)
+  )
+  const showBoardTypeTabs = allowedBoardTypes.length > 1
+
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
+      {showBoardTypeTabs && (
+        <FilterTabs
+          options={boardTypeTabs}
+          value={boardTypeFilter}
+          onChange={withReset(setBoardTypeFilter)}
+        />
+      )}
+
       <TableToolbar
         search={search}
         onSearchChange={withReset(setSearch)}
@@ -138,13 +155,10 @@ export function ProposalsTable({
       >
         <ProposalsToolbarActions
           stageFilter={stageFilter}
-          boardTypeFilter={boardTypeFilter}
-          allowedBoardTypes={allowedBoardTypes}
           debouncedSearch={debouncedSearch}
           stageParam={stageParam}
           boardTypeParam={boardTypeParam}
           onStageFilterChange={withReset(setStageFilter)}
-          onBoardTypeFilterChange={withReset(setBoardTypeFilter)}
         />
       </TableToolbar>
 

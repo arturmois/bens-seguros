@@ -5,13 +5,25 @@ interface SelectOption<TValue extends string> {
   readonly label: string
 }
 
-export const ROLE_FILTER_OPTIONS: readonly SelectOption<string>[] = [
+export const ACTIVE_FILTER_OPTIONS = [
   { value: 'ALL', label: 'Todos' },
-  { value: 'OWNER', label: 'Proprietários' },
-  { value: 'ADMIN', label: 'Admins' },
-  { value: 'MANAGER', label: 'Gerentes' },
+  { value: 'ACTIVE', label: 'Ativos' },
+  { value: 'INACTIVE', label: 'Inativos' },
+] as const
+
+export type ActiveFilter = (typeof ACTIVE_FILTER_OPTIONS)[number]['value']
+
+export function isActiveFilter(value: string): value is ActiveFilter {
+  return value === 'ALL' || value === 'ACTIVE' || value === 'INACTIVE'
+}
+
+export const ROLE_SELECT_OPTIONS: readonly SelectOption<string>[] = [
+  { value: 'ALL', label: 'Todos cargos' },
+  { value: 'OWNER', label: 'Proprietário' },
+  { value: 'ADMIN', label: 'Administrador' },
+  { value: 'MANAGER', label: 'Gerente' },
   { value: 'COMMERCIAL', label: 'Comercial' },
-  { value: 'VIEWER', label: 'Visualizadores' },
+  { value: 'VIEWER', label: 'Visualizador' },
 ] as const
 
 export const DEFAULT_COLUMN_VISIBILITY: VisibilityState = {

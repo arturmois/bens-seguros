@@ -19,6 +19,7 @@ import { FilterTabs } from '@/components/shared/filter-tabs'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
 import { TableToolbar } from '@/components/shared/table-toolbar'
+import { ToolbarFilterSelect } from '@/components/shared/toolbar-filter-select'
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
@@ -27,7 +28,8 @@ import {
   DEFAULT_COLUMN_VISIBILITY,
   DEFAULT_SORTING,
   HIDEABLE_COLUMNS,
-  STATUS_FILTER_OPTIONS,
+  STATUS_SELECT_OPTIONS,
+  TYPE_FILTER_OPTIONS,
 } from '../lib/constants'
 import { isAssistanceStatus, isSortBy } from '../lib/type-guards'
 import type { AssistanceData } from '../lib/types'
@@ -40,6 +42,7 @@ export function AssistancesTable() {
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [typeFilter, setTypeFilter] = useState('')
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
@@ -59,6 +62,7 @@ export function AssistancesTable() {
   const { data, isLoading, isError, refetch } = useAssistances({
     search: debouncedSearch || undefined,
     status: statusParam,
+    type: typeFilter || undefined,
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,
     sortBy,
@@ -97,6 +101,11 @@ export function AssistancesTable() {
     pagination.reset()
   }
 
+  function handleTypeFilterChange(value: string) {
+    setTypeFilter(value)
+    pagination.reset()
+  }
+
   function handleColumnToggle(id: string, visible: boolean) {
     setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
@@ -113,9 +122,9 @@ export function AssistancesTable() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <FilterTabs
-        options={STATUS_FILTER_OPTIONS}
-        value={statusFilter}
-        onChange={handleStatusFilterChange}
+        options={TYPE_FILTER_OPTIONS}
+        value={typeFilter}
+        onChange={handleTypeFilterChange}
       />
 
       <TableToolbar
@@ -126,6 +135,14 @@ export function AssistancesTable() {
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
       >
+        <ToolbarFilterSelect
+          value={statusFilter}
+          onValueChange={handleStatusFilterChange}
+          allLabel="Todos status"
+          allValue=""
+          options={STATUS_SELECT_OPTIONS.filter((opt) => opt.value !== '')}
+          widthClass="w-[180px]"
+        />
         <Button size="sm" render={<Link href="/assistances/new" />}>
           Nova Assistência
         </Button>

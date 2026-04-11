@@ -19,8 +19,8 @@ export const HIDEABLE_COLUMNS: readonly HideableColumn[] = [
   { id: 'entityId', label: 'ID' },
 ] as const
 
-export const ACTION_FILTER_OPTIONS: readonly FilterTabOption[] = [
-  { value: '', label: 'Todas' },
+export const ACTION_SELECT_OPTIONS: readonly FilterTabOption[] = [
+  { value: '', label: 'Todas ações' },
   { value: 'CREATE', label: 'Criar' },
   { value: 'UPDATE', label: 'Atualizar' },
   { value: 'DELETE', label: 'Excluir' },

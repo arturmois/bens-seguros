@@ -192,6 +192,13 @@ export const ENDORSEMENT_STAGES: readonly ProposalStage[] = [
 
 export const ALL_FILTER_VALUE = '__all__'
 
+export const BOARD_TYPE_FILTER_OPTIONS = [
+  { value: ALL_FILTER_VALUE, label: 'Todos' },
+  { value: 'NEW_INSURANCE', label: 'Novo Seguro' },
+  { value: 'RENEWAL', label: 'Renovação' },
+  { value: 'ENDORSEMENT', label: 'Endosso' },
+] as const
+
 export const DEFAULT_COLUMN_VISIBILITY: VisibilityState = {
   branch: true,
   boardType: true,

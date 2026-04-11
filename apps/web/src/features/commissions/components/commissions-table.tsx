@@ -17,6 +17,7 @@ import { FilterTabs } from '@/components/shared/filter-tabs'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
 import { TableToolbar } from '@/components/shared/table-toolbar'
+import { ToolbarFilterSelect } from '@/components/shared/toolbar-filter-select'
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
@@ -26,7 +27,11 @@ import {
   DEFAULT_COLUMN_VISIBILITY,
   DEFAULT_SORTING,
   HIDEABLE_COLUMNS,
-  STATUS_FILTER_OPTIONS,
+  PERIOD_FILTER_OPTIONS,
+  STATUS_SELECT_OPTIONS,
+  isPeriodFilter,
+  resolvePeriodRange,
+  type PeriodFilter,
 } from '../lib/constants'
 import { isCommissionStatus, isSortBy } from '../lib/type-guards'
 import type { CommissionData } from '../lib/types'
@@ -40,6 +45,7 @@ export function CommissionsTable() {
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>('ALL')
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
@@ -55,10 +61,13 @@ export function CommissionsTable() {
 
   const statusParam =
     statusFilter && isCommissionStatus(statusFilter) ? statusFilter : undefined
+  const { dateFrom, dateTo } = resolvePeriodRange(periodFilter)
 
   const { data, isLoading, isError, refetch } = useCommissions({
     search: debouncedSearch || undefined,
     status: statusParam,
+    dateFrom,
+    dateTo,
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,
     sortBy,
@@ -97,6 +106,13 @@ export function CommissionsTable() {
     pagination.reset()
   }
 
+  function handlePeriodFilterChange(value: string) {
+    if (isPeriodFilter(value)) {
+      setPeriodFilter(value)
+      pagination.reset()
+    }
+  }
+
   function handleColumnToggle(id: string, visible: boolean) {
     setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
@@ -113,9 +129,9 @@ export function CommissionsTable() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <FilterTabs
-        options={STATUS_FILTER_OPTIONS}
-        value={statusFilter}
-        onChange={handleStatusFilterChange}
+        options={PERIOD_FILTER_OPTIONS}
+        value={periodFilter}
+        onChange={handlePeriodFilterChange}
       />
 
       <TableToolbar
@@ -126,10 +142,20 @@ export function CommissionsTable() {
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
       >
+        <ToolbarFilterSelect
+          value={statusFilter}
+          onValueChange={handleStatusFilterChange}
+          allLabel="Todos status"
+          allValue=""
+          options={STATUS_SELECT_OPTIONS.filter((opt) => opt.value !== '')}
+          widthClass="w-[180px]"
+        />
         <CommissionExportButton
           filters={{
             search: debouncedSearch || undefined,
             status: statusParam,
+            dateFrom,
+            dateTo,
           }}
         />
       </TableToolbar>

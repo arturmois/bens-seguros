@@ -9,14 +9,17 @@ import { CursorPagination } from '@/components/shared/cursor-pagination'
 import { DataTable } from '@/components/shared/data-table'
 import { FilterTabs } from '@/components/shared/filter-tabs'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
+import {
+  isPeriodFilter,
+  PERIOD_FILTER_OPTIONS,
+  resolvePeriodRange,
+  type PeriodFilter,
+} from '@/components/shared/period-filter'
 import { TableErrorState } from '@/components/shared/table-error-state'
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 
 import { useAuditLogs } from '../hooks/use-audit-logs'
-import {
-  ACTION_FILTER_OPTIONS,
-  DEFAULT_COLUMN_VISIBILITY,
-} from '../lib/constants'
+import { DEFAULT_COLUMN_VISIBILITY } from '../lib/constants'
 import type { AuditLogData } from '../lib/types'
 import { AuditCard } from './audit-card'
 import { createAuditColumns } from './audit-columns'
@@ -28,14 +31,19 @@ export function AuditTable() {
 
   const [actionFilter, setActionFilter] = useState('')
   const [entityType, setEntityType] = useState<string | undefined>(undefined)
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>('ALL')
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
   const [selectedEntry, setSelectedEntry] = useState<AuditLogData | null>(null)
 
+  const { dateFrom, dateTo } = resolvePeriodRange(periodFilter)
+
   const { data, isLoading, isError, refetch } = useAuditLogs({
     action: actionFilter || undefined,
     entityType,
+    dateFrom,
+    dateTo,
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,
   })
@@ -70,9 +78,16 @@ export function AuditTable() {
     pagination.reset()
   }
 
-  function handleEntityTypeChange(value: string | null) {
-    setEntityType(value === 'ALL' ? undefined : (value ?? undefined))
+  function handleEntityTypeChange(value: string) {
+    setEntityType(value === 'ALL' ? undefined : value)
     pagination.reset()
+  }
+
+  function handlePeriodFilterChange(value: string) {
+    if (isPeriodFilter(value)) {
+      setPeriodFilter(value)
+      pagination.reset()
+    }
   }
 
   function handleColumnToggle(id: string, visible: boolean) {
@@ -91,14 +106,16 @@ export function AuditTable() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <FilterTabs
-        options={ACTION_FILTER_OPTIONS}
-        value={actionFilter}
-        onChange={handleActionFilterChange}
+        options={PERIOD_FILTER_OPTIONS}
+        value={periodFilter}
+        onChange={handlePeriodFilterChange}
       />
 
       <AuditToolbar
         entityType={entityType}
         onEntityTypeChange={handleEntityTypeChange}
+        actionFilter={actionFilter}
+        onActionFilterChange={handleActionFilterChange}
         columnVisibility={columnVisibility}
         onColumnToggle={handleColumnToggle}
       />
