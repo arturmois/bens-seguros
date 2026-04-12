@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-interface UseCursorPaginationReturn {
+export interface UseCursorPaginationReturn {
   currentCursor: string | undefined
   currentPage: number
   hasPreviousPage: boolean

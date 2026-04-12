@@ -28,9 +28,9 @@ import { Textarea } from '@/components/ui/textarea'
 import { FormField } from '@/components/shared/form-field'
 
 import { useCreateProposal } from '@/features/proposals/hooks/use-proposals'
-import { POLICY_BRANCH_LABELS } from '@/features/policies/lib/constants'
 import type { PolicyBranch } from '@/features/policies/lib/types'
 import { ENDORSEMENT_TYPE_OPTIONS } from '@/features/endorsements/lib/constants'
+import { EndorsementPolicySummary } from './endorsement-policy-summary'
 
 const endorsementProposalSchema = zod.object({
   boardType: zod.literal('ENDORSEMENT'),
@@ -107,30 +107,11 @@ export function EndorsementProposalDialog({
         </DialogHeader>
 
         <DialogPanel>
-          <div className="bg-muted/20 border-border space-y-3 rounded-lg border px-4 py-3">
-            <div>
-              <p className="text-muted-foreground text-xs uppercase tracking-wide">
-                Apólice de origem
-              </p>
-              <p className="font-medium">{policyNumber}</p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <p className="text-muted-foreground text-xs uppercase tracking-wide">
-                  Cliente
-                </p>
-                <p className="font-medium">
-                  {clientName ?? 'Cliente não informado'}
-                </p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs uppercase tracking-wide">
-                  Ramo
-                </p>
-                <p className="font-medium">{POLICY_BRANCH_LABELS[branch]}</p>
-              </div>
-            </div>
-          </div>
+          <EndorsementPolicySummary
+            policyNumber={policyNumber}
+            clientName={clientName}
+            branch={branch}
+          />
 
           <form
             id="endorsement-proposal-form"

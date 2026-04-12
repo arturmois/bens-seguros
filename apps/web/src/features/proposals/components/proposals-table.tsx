@@ -1,10 +1,7 @@
 'use client'
 
-import type { SortingState, VisibilityState } from '@tanstack/react-table'
-import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { FileText } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useMemo, useState } from 'react'
 
 import { CursorPagination } from '@/components/shared/cursor-pagination'
 import { DataTable } from '@/components/shared/data-table'
@@ -12,27 +9,17 @@ import { FilterTabs } from '@/components/shared/filter-tabs'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
 import { TableToolbar } from '@/components/shared/table-toolbar'
-import { useCursorPagination } from '@/hooks/use-cursor-pagination'
-import { useDebounce } from '@/hooks/use-debounce'
 
-import type { ListProposalsSortBy, ListProposalsSortOrder } from '@/api/model'
-
-import { useAdvanceProposal, useProposals } from '../hooks/use-proposals'
 import {
-  ALL_FILTER_VALUE,
   BOARD_TYPES,
   BOARD_TYPE_FILTER_OPTIONS,
-  DEFAULT_COLUMN_VISIBILITY,
-  DEFAULT_SORTING,
+  ALL_FILTER_VALUE,
   HIDEABLE_COLUMNS,
   type BoardType,
-  type ProposalData,
 } from '../lib/constants'
-import { resolveBoardTypeParam, resolveStageParam } from '../lib/filter-helpers'
-import { isProposalSortBy } from '../lib/type-guards'
+import { useProposalsTable } from '../hooks/use-proposals-table'
 import { LostReasonDialog } from './lost-reason-dialog'
 import { ProposalCard } from './proposal-card'
-import { createProposalColumns } from './proposals-columns'
 import {
   ProposalsStageFilter,
   ProposalsToolbarActions,
@@ -46,91 +33,30 @@ export function ProposalsTable({
   allowedBoardTypes = BOARD_TYPES,
 }: ProposalsTableProps) {
   const router = useRouter()
-  const pagination = useCursorPagination()
-
-  const [search, setSearch] = useState('')
-  const [stageFilter, setStageFilter] = useState<string>(ALL_FILTER_VALUE)
-  const [boardTypeFilter, setBoardTypeFilter] = useState(ALL_FILTER_VALUE)
-  const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    DEFAULT_COLUMN_VISIBILITY
-  )
-  const [lostDialogProposalId, setLostDialogProposalId] = useState<
-    string | null
-  >(null)
-
-  const debouncedSearch = useDebounce(search, 300)
-  const { mutate: advanceMutate, isPending: isAdvancing } = useAdvanceProposal()
-
-  const stageParam = resolveStageParam(stageFilter)
-  const boardTypeParam = resolveBoardTypeParam(
+  const {
+    table,
+    proposals,
+    isLoading,
+    isError,
+    refetch,
+    pagination,
+    nextCursor,
+    knownTotal,
+    search,
+    setSearch,
+    stageFilter,
+    setStageFilter,
     boardTypeFilter,
-    allowedBoardTypes
-  )
-
-  const sortId = sorting[0]?.id
-  const sortBy: ListProposalsSortBy | undefined =
-    sortId !== undefined && isProposalSortBy(sortId) ? sortId : undefined
-  const sortOrder: ListProposalsSortOrder | undefined =
-    sorting[0] !== undefined ? (sorting[0].desc ? 'desc' : 'asc') : undefined
-
-  const { data, isLoading, isError, refetch } = useProposals({
-    search: debouncedSearch || undefined,
-    stage: stageParam,
-    boardType: boardTypeParam,
-    cursor: pagination.currentCursor,
-    limit: pagination.pageSize,
-    sortBy,
-    sortOrder,
-  })
-
-  const proposals: ProposalData[] = useMemo(
-    () => [...(data?.data ?? [])],
-    [data?.data]
-  )
-  const nextCursor = data?.meta.nextCursor ?? null
-  const knownTotal =
-    (pagination.currentPage - 1) * pagination.pageSize + proposals.length
-
-  const columnActions = useMemo(
-    () => ({
-      isAdvancing,
-      onAdvance: (id: string) => advanceMutate(id),
-      onLost: (id: string) => setLostDialogProposalId(id),
-    }),
-    [isAdvancing, advanceMutate]
-  )
-
-  const columns = useMemo(
-    () => createProposalColumns(columnActions),
-    [columnActions]
-  )
-
-  const table = useReactTable({
-    data: proposals,
-    columns,
-    state: { sorting, columnVisibility },
-    onSortingChange: (updater) => {
-      setSorting(updater)
-      pagination.reset()
-    },
-    onColumnVisibilityChange: setColumnVisibility,
-    getCoreRowModel: getCoreRowModel(),
-    manualSorting: true,
-    manualPagination: true,
-    manualFiltering: true,
-  })
-
-  function withReset<T>(setter: (value: T) => void) {
-    return (value: T) => {
-      setter(value)
-      pagination.reset()
-    }
-  }
-
-  function handleColumnToggle(id: string, visible: boolean) {
-    setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
-  }
+    setBoardTypeFilter,
+    columnVisibility,
+    handleColumnToggle,
+    columnActions,
+    debouncedSearch,
+    stageParam,
+    boardTypeParam,
+    lostDialogProposalId,
+    setLostDialogProposalId,
+  } = useProposalsTable(allowedBoardTypes)
 
   if (isError) {
     return (
@@ -154,18 +80,18 @@ export function ProposalsTable({
         <FilterTabs
           options={boardTypeTabs}
           value={boardTypeFilter}
-          onChange={withReset(setBoardTypeFilter)}
+          onChange={setBoardTypeFilter}
         />
       )}
 
       <TableToolbar
         search={search}
-        onSearchChange={withReset(setSearch)}
+        onSearchChange={setSearch}
         searchPlaceholder="Buscar propostas..."
         filters={
           <ProposalsStageFilter
             stageFilter={stageFilter}
-            onStageFilterChange={withReset(setStageFilter)}
+            onStageFilterChange={setStageFilter}
           />
         }
         columnVisibility={columnVisibility}
@@ -199,7 +125,7 @@ export function ProposalsTable({
         renderCard={(proposal) => (
           <ProposalCard
             proposal={proposal}
-            isAdvancing={isAdvancing}
+            isAdvancing={columnActions.isAdvancing}
             onAdvance={columnActions.onAdvance}
             onLost={columnActions.onLost}
           />

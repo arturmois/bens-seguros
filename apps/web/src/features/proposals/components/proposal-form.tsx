@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { Loader2 } from 'lucide-react'
 import type { z } from 'zod'
 
@@ -15,14 +15,6 @@ import {
   DialogPanel,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 
 import { CreateProposalBody } from '@/api/endpoints/proposals/proposals.zod'
 import { useCreateProposal } from '../hooks/use-proposals'
@@ -32,8 +24,7 @@ import {
   BRANCH_LABELS,
   BRANCHES,
 } from '../lib/constants'
-import { ClientSearch } from './client-search'
-import { RenewalPolicyInput } from './renewal-policy-input'
+import { ProposalFormFields } from './proposal-form-fields'
 
 type ProposalFormValues = z.infer<typeof CreateProposalBody>
 
@@ -92,123 +83,12 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4"
           >
-            <Controller
+            <ProposalFormFields
               control={form.control}
-              name="clientId"
-              render={({ field, fieldState }) => (
-                <div className="space-y-2">
-                  <Label>
-                    Cliente
-                    <span className="text-destructive ml-1">*</span>
-                  </Label>
-                  <ClientSearch value={field.value} onChange={field.onChange} />
-                  {fieldState.error?.message ? (
-                    <p className="text-destructive text-sm">
-                      {fieldState.error.message}
-                    </p>
-                  ) : null}
-                </div>
-              )}
+              boardType={boardType}
+              branchOptions={BRANCH_OPTIONS}
+              boardTypeOptions={BOARD_TYPE_OPTIONS}
             />
-
-            <Controller
-              control={form.control}
-              name="branch"
-              render={({ field, fieldState }) => (
-                <div className="space-y-2">
-                  <Label>
-                    Ramo
-                    <span className="text-destructive ml-1">*</span>
-                  </Label>
-                  <Select
-                    value={field.value ?? ''}
-                    onValueChange={field.onChange}
-                    items={BRANCH_OPTIONS}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o ramo">
-                        {(value: string) =>
-                          BRANCH_OPTIONS.find((opt) => opt.value === value)
-                            ?.label ?? null
-                        }
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {BRANCH_OPTIONS.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {fieldState.error?.message ? (
-                    <p className="text-destructive text-sm">
-                      {fieldState.error.message}
-                    </p>
-                  ) : null}
-                </div>
-              )}
-            />
-
-            <Controller
-              control={form.control}
-              name="boardType"
-              render={({ field, fieldState }) => (
-                <div className="space-y-2">
-                  <Label>
-                    Tipo
-                    <span className="text-destructive ml-1">*</span>
-                  </Label>
-                  <Select
-                    value={field.value ?? ''}
-                    onValueChange={field.onChange}
-                    items={BOARD_TYPE_OPTIONS}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o tipo">
-                        {(value: string) =>
-                          BOARD_TYPE_OPTIONS.find((opt) => opt.value === value)
-                            ?.label ?? null
-                        }
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {BOARD_TYPE_OPTIONS.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {fieldState.error?.message ? (
-                    <p className="text-destructive text-sm">
-                      {fieldState.error.message}
-                    </p>
-                  ) : null}
-                </div>
-              )}
-            />
-
-            {boardType === 'RENEWAL' && (
-              <Controller
-                control={form.control}
-                name="renewalPolicyNumber"
-                render={({ field, fieldState }) => (
-                  <div className="space-y-2">
-                    <Label>Nº da apólice anterior</Label>
-                    <RenewalPolicyInput
-                      value={field.value ?? ''}
-                      onChange={field.onChange}
-                    />
-                    {fieldState.error?.message ? (
-                      <p className="text-destructive text-sm">
-                        {fieldState.error.message}
-                      </p>
-                    ) : null}
-                  </div>
-                )}
-              />
-            )}
           </form>
         </DialogPanel>
 
