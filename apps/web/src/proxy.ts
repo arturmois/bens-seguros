@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+import { buildCspHeader } from '@/lib/csp'
+
 const PUBLIC_PATHS = [
   '/api/auth',
   '/terms',
@@ -23,6 +25,19 @@ function getSessionToken(request: NextRequest): string | undefined {
   )
 }
 
+function nextWithCsp(request: NextRequest): NextResponse {
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+  const cspHeader = buildCspHeader(nonce)
+
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-nonce', nonce)
+  requestHeaders.set('Content-Security-Policy', cspHeader)
+
+  const response = NextResponse.next({ request: { headers: requestHeaders } })
+  response.headers.set('Content-Security-Policy', cspHeader)
+  return response
+}
+
 export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const sessionToken = getSessionToken(request)
@@ -32,7 +47,7 @@ export default function proxy(request: NextRequest) {
     if (sessionToken) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
-    return NextResponse.next()
+    return nextWithCsp(request)
   }
 
   // 2. Auth pages — redirect to dashboard if already logged in
@@ -40,12 +55,12 @@ export default function proxy(request: NextRequest) {
     if (sessionToken) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
-    return NextResponse.next()
+    return nextWithCsp(request)
   }
 
   // 3. Other public routes — no check
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
-    return NextResponse.next()
+    return nextWithCsp(request)
   }
 
   // 4. No session — redirect to login
@@ -55,7 +70,7 @@ export default function proxy(request: NextRequest) {
 
   // 5. Auth-only routes (need session, not org) — pass through
   if (AUTH_ONLY_PATHS.some((p) => pathname.startsWith(p))) {
-    return NextResponse.next()
+    return nextWithCsp(request)
   }
 
   // 6. No active org cookie — redirect to select-org
@@ -65,9 +80,17 @@ export default function proxy(request: NextRequest) {
   }
 
   // 7. All checks passed
-  return NextResponse.next()
+  return nextWithCsp(request)
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: [
+    {
+      source: '/((?!_next/static|_next/image|favicon.ico).*)',
+      missing: [
+        { type: 'header', key: 'next-router-prefetch' },
+        { type: 'header', key: 'purpose', value: 'prefetch' },
+      ],
+    },
+  ],
 }
