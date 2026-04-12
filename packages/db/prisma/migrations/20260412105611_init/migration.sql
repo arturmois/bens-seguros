@@ -220,6 +220,7 @@ CREATE TABLE "Proposal" (
 -- CreateTable
 CREATE TABLE "ProposalChecklistItem" (
     "id" TEXT NOT NULL,
+    "organizationId" TEXT NOT NULL,
     "proposalId" TEXT NOT NULL,
     "itemKey" TEXT NOT NULL,
     "label" TEXT NOT NULL,
@@ -529,6 +530,9 @@ CREATE INDEX "Proposal_organizationId_createdAt_idx" ON "Proposal"("organization
 CREATE INDEX "ProposalChecklistItem_proposalId_idx" ON "ProposalChecklistItem"("proposalId");
 
 -- CreateIndex
+CREATE INDEX "ProposalChecklistItem_organizationId_proposalId_idx" ON "ProposalChecklistItem"("organizationId", "proposalId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "ProposalChecklistItem_proposalId_itemKey_key" ON "ProposalChecklistItem"("proposalId", "itemKey");
 
 -- CreateIndex
@@ -667,6 +671,9 @@ ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_sourcePolicyId_fkey" FOREIGN KEY
 ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_insurerId_fkey" FOREIGN KEY ("insurerId") REFERENCES "Insurer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "ProposalChecklistItem" ADD CONSTRAINT "ProposalChecklistItem_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "ProposalChecklistItem" ADD CONSTRAINT "ProposalChecklistItem_proposalId_fkey" FOREIGN KEY ("proposalId") REFERENCES "Proposal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -719,3 +726,115 @@ ALTER TABLE "Commission" ADD CONSTRAINT "Commission_originalCommissionId_fkey" F
 
 -- AddForeignKey
 ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- ============================================================================
+-- Row Level Security (RLS) — Tenant Isolation
+-- ============================================================================
+-- Defense-in-depth: even if application middleware fails to filter by
+-- organizationId, the database itself enforces tenant isolation.
+-- Each request sets: SET LOCAL app.current_tenant = '<organizationId>'
+-- If app.current_tenant is not set, current_setting(..., true) returns NULL
+-- which matches 0 rows — safe default (deny all).
+
+-- STRICT policies (always queried through tenantPrisma)
+ALTER TABLE "Client" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Proposal" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "ProposalChecklistItem" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Policy" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Claim" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Commission" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Endorsement" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Assistance" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Document" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Notification" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "AuditLog" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Occurrence" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Insurer" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS tenant_isolation ON "Client";
+CREATE POLICY tenant_isolation ON "Client"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+DROP POLICY IF EXISTS tenant_isolation ON "Proposal";
+CREATE POLICY tenant_isolation ON "Proposal"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+DROP POLICY IF EXISTS tenant_isolation ON "ProposalChecklistItem";
+CREATE POLICY tenant_isolation ON "ProposalChecklistItem"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+DROP POLICY IF EXISTS tenant_isolation ON "Policy";
+CREATE POLICY tenant_isolation ON "Policy"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+DROP POLICY IF EXISTS tenant_isolation ON "Claim";
+CREATE POLICY tenant_isolation ON "Claim"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+DROP POLICY IF EXISTS tenant_isolation ON "Commission";
+CREATE POLICY tenant_isolation ON "Commission"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+DROP POLICY IF EXISTS tenant_isolation ON "Endorsement";
+CREATE POLICY tenant_isolation ON "Endorsement"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+DROP POLICY IF EXISTS tenant_isolation ON "Assistance";
+CREATE POLICY tenant_isolation ON "Assistance"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+DROP POLICY IF EXISTS tenant_isolation ON "Document";
+CREATE POLICY tenant_isolation ON "Document"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+DROP POLICY IF EXISTS tenant_isolation ON "Notification";
+CREATE POLICY tenant_isolation ON "Notification"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+DROP POLICY IF EXISTS tenant_isolation ON "AuditLog";
+CREATE POLICY tenant_isolation ON "AuditLog"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+DROP POLICY IF EXISTS tenant_isolation ON "Occurrence";
+CREATE POLICY tenant_isolation ON "Occurrence"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+DROP POLICY IF EXISTS tenant_isolation ON "Insurer";
+CREATE POLICY tenant_isolation ON "Insurer"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+ALTER TABLE "Client" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Proposal" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "ProposalChecklistItem" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Policy" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Claim" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Commission" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Endorsement" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Assistance" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Document" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Notification" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "AuditLog" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Occurrence" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Insurer" FORCE ROW LEVEL SECURITY;
+
+-- PERMISSIVE policies (Better Auth + workers query without tenant context)
+ALTER TABLE "Member" ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS tenant_isolation ON "Member";
+CREATE POLICY tenant_isolation ON "Member"
+  USING ("organizationId" = current_setting('app.current_tenant', true)
+         OR current_setting('app.current_tenant', true) IS NULL);
+ALTER TABLE "Member" FORCE ROW LEVEL SECURITY;
+
+ALTER TABLE "Invitation" ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS tenant_isolation ON "Invitation";
+CREATE POLICY tenant_isolation ON "Invitation"
+  USING ("organizationId" = current_setting('app.current_tenant', true)
+         OR current_setting('app.current_tenant', true) IS NULL);
+ALTER TABLE "Invitation" FORCE ROW LEVEL SECURITY;
+
+ALTER TABLE "AuditLogArchive" ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS tenant_isolation ON "AuditLogArchive";
+CREATE POLICY tenant_isolation ON "AuditLogArchive"
+  USING ("organizationId" = current_setting('app.current_tenant', true)
+         OR current_setting('app.current_tenant', true) IS NULL);
+ALTER TABLE "AuditLogArchive" FORCE ROW LEVEL SECURITY;
