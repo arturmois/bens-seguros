@@ -40,6 +40,7 @@ COPY --from=builder /app/apps/chat-worker/dist ./chat-worker/dist
 COPY --from=builder /app/apps/widget/dist ./widget/dist
 
 RUN addgroup --system app && adduser --system --ingroup app app
+RUN mkdir -p /app/baileys-sessions && chown app:app /app/baileys-sessions
 USER app
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
