@@ -1,8 +1,8 @@
 import { prisma } from '@repo/db'
 import { env } from '@repo/env'
-import { betterAuth } from 'better-auth'
+import { betterAuth, type BetterAuthOptions } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
-import { organization } from 'better-auth/plugins'
+import { customSession, organization } from 'better-auth/plugins'
 import { createAccessControl, role } from 'better-auth/plugins/access'
 
 const ORGANIZATION_STATEMENTS = {
@@ -59,7 +59,7 @@ export function createAuth(
 ) {
   const isProduction = env.NODE_ENV === 'production'
 
-  return betterAuth({
+  const options = {
     database: prismaAdapter(prisma, { provider: 'postgresql' }),
     secret,
     baseURL,
@@ -69,7 +69,13 @@ export function createAuth(
       minPasswordLength: 8,
       requireEmailVerification: !!emailSenders,
       sendResetPassword: emailSenders
-        ? async ({ user, token }) => {
+        ? async ({
+            user,
+            token,
+          }: {
+            user: { email: string; name: string }
+            token: string
+          }) => {
             const url = `${emailSenders.frontendUrl}/reset-password?token=${token}`
             emailSenders.sendResetPasswordEmail(user.email, user.name, url)
           }
@@ -81,7 +87,13 @@ export function createAuth(
           sendOnSignIn: true,
           autoSignInAfterVerification: true,
           expiresIn: 86400, // 24h
-          sendVerificationEmail: async ({ user, token }) => {
+          sendVerificationEmail: async ({
+            user,
+            token,
+          }: {
+            user: { email: string; name: string }
+            token: string
+          }) => {
             const callbackURL = encodeURIComponent(
               `${emailSenders.frontendUrl}/onboarding`
             )
@@ -118,6 +130,26 @@ export function createAuth(
         },
         creatorRole: 'OWNER',
       }),
+    ],
+  } satisfies BetterAuthOptions
+
+  return betterAuth({
+    ...options,
+    plugins: [
+      ...(options.plugins ?? []),
+      customSession(async ({ user, session }) => {
+        return {
+          user,
+          session: {
+            id: session.id,
+            userId: session.userId,
+            expiresAt: session.expiresAt,
+            createdAt: session.createdAt,
+            updatedAt: session.updatedAt,
+            activeOrganizationId: session.activeOrganizationId,
+          },
+        }
+      }, options),
     ],
   })
 }

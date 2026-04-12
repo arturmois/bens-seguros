@@ -36,17 +36,30 @@ function isChatErrorResponse(body: unknown): body is ChatApiErrorBody {
 }
 
 let cachedToken: string | null = null
+let pendingRequest: Promise<string> | null = null
 
 export async function getChatToken(): Promise<string> {
   if (cachedToken) return cachedToken
+  if (pendingRequest) return pendingRequest
 
-  const response = await api.post<{ token: string }>('/api/v1/chat/token', {})
-  cachedToken = response.data.token
-  return cachedToken
+  pendingRequest = api
+    .post<{ token: string }>('/api/v1/chat/token', {})
+    .then((response) => {
+      cachedToken = response.data.token
+      pendingRequest = null
+      return cachedToken
+    })
+    .catch((error: unknown) => {
+      pendingRequest = null
+      throw error
+    })
+
+  return pendingRequest
 }
 
 export function clearChatToken(): void {
   cachedToken = null
+  pendingRequest = null
 }
 
 export async function chatFetch<TData>(

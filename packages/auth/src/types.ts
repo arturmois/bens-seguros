@@ -11,10 +11,11 @@ export interface AuthUser {
 
 export interface AuthSession {
   id: string
-  token: string
   userId: string
   activeOrganizationId?: string | null
   expiresAt: Date
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface AuthMember {
