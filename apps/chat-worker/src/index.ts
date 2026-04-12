@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/node'
 import { env } from '@repo/env'
 import { stripPiiFromEvent } from '@repo/shared/sentry-pii'
+import { PINO_REDACT_CONFIG } from '@repo/shared/pino-redact'
 import { Channel, connectMongoDB, disconnectMongoDB } from '@repo/db-chat'
 import { CHAT_PUBSUB_CHANNELS, CHAT_QUEUES } from '@repo/shared'
 import {
@@ -37,6 +38,7 @@ import { QrStateManager } from './whatsapp/qr-state-manager.js'
 const logger = pino({
   level: env.NODE_ENV === 'production' ? 'info' : 'debug',
   name: 'chat-worker',
+  redact: PINO_REDACT_CONFIG,
 })
 
 const REDIS_URL = env.REDIS_URL

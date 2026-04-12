@@ -5,6 +5,7 @@ const PERMISSION_MATRIX: Record<string, Role[]> = {
   'clients:create': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL'],
   'clients:update': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL'],
   'clients:delete': ['OWNER', 'ADMIN', 'MANAGER'],
+  'clients:lgpd-delete': ['OWNER', 'ADMIN'],
   'proposals:read': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'],
   'proposals:create': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL'],
   'proposals:update': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL'],

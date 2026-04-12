@@ -157,4 +157,33 @@ export class PrismaClientRepository implements ClientRepository {
       data: { deletedAt: new Date() },
     })
   }
+
+  async lgpdAnonymize(id: string, organizationId: string): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.client.update({
+        where: { id, organizationId },
+        data: {
+          name: 'Cliente removido',
+          document: '***.***.***-**',
+          documentEncrypted: '',
+          documentHash: '',
+          email: null,
+          phone: null,
+          birthDate: null,
+          profession: null,
+          maritalStatus: null,
+          address: Prisma.JsonNull,
+          socialMedia: Prisma.JsonNull,
+          tags: [],
+          consentLgpd: false,
+          deletedAt: new Date(),
+        },
+      }),
+      // Anonymize audit log snapshots that may contain PII
+      this.prisma.auditLog.updateMany({
+        where: { entityType: 'Client', entityId: id, organizationId },
+        data: { before: Prisma.DbNull, after: Prisma.DbNull },
+      }),
+    ])
+  }
 }

@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/node'
 import { env } from '@repo/env'
 import { stripPiiFromEvent } from '@repo/shared/sentry-pii'
+import { PINO_REDACT_CONFIG } from '@repo/shared/pino-redact'
 import pino from 'pino'
 import 'reflect-metadata'
 import { setupAuditArchiveProcessor } from './processors/audit-archive-processor.js'
@@ -23,6 +24,8 @@ if (env.SENTRY_DSN) {
 
 const logger = pino({
   level: env.NODE_ENV === 'production' ? 'info' : 'debug',
+  name: 'worker',
+  redact: PINO_REDACT_CONFIG,
 })
 
 function parseRedisUrl(url: string): {

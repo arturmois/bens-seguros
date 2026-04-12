@@ -8,6 +8,7 @@ import {
   getActiveOrgCookie,
   clearActiveOrgCookie,
 } from '@/lib/org-cookie'
+import { clearChatToken } from '@/features/chat/lib/chat-api'
 
 async function fetchSession() {
   const response = await authClient.getSession()
@@ -113,8 +114,8 @@ export function useAuth() {
   const logout = useMutation({
     mutationFn: () => authClient.signOut(),
     onSuccess: () => {
-      // Keep bens-active-org cookie — it survives logout so next login
-      // can restore the last org without showing /select-org
+      clearChatToken()
+      clearActiveOrgCookie()
       queryClient.clear()
       router.push('/login')
     },

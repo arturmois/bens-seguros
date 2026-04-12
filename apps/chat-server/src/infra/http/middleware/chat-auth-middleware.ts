@@ -6,7 +6,7 @@ import { z } from 'zod'
 const jwtPayloadSchema = z.object({
   userId: z.string(),
   organizationId: z.string(),
-  role: z.string(),
+  role: z.enum(['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER']),
   name: z.string(),
 })
 
@@ -27,7 +27,9 @@ export async function chatAuthMiddleware(
   const token = authHeader.slice(7)
 
   try {
-    const decoded: unknown = jwt.verify(token, env.SOCKET_JWT_SECRET)
+    const decoded: unknown = jwt.verify(token, env.SOCKET_JWT_SECRET, {
+      algorithms: ['HS256'],
+    })
     const parsed = jwtPayloadSchema.safeParse(decoded)
 
     if (!parsed.success) {

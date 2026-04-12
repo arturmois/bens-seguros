@@ -67,7 +67,7 @@ export function createAuth(
     emailAndPassword: {
       enabled: true,
       minPasswordLength: 8,
-      requireEmailVerification: !!emailSenders,
+      requireEmailVerification: isProduction || !!emailSenders,
       sendResetPassword: emailSenders
         ? async ({
             user,

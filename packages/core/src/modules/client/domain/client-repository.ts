@@ -114,4 +114,5 @@ export interface ClientRepository {
     data: UpdateClientInput
   ): Promise<ClientData>
   softDelete(id: string, organizationId: string): Promise<void>
+  lgpdAnonymize(id: string, organizationId: string): Promise<void>
 }

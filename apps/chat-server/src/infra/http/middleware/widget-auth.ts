@@ -33,7 +33,9 @@ export async function widgetAuthMiddleware(
   const token = authHeader.slice(7)
 
   try {
-    const decoded: unknown = jwt.verify(token, env.SOCKET_JWT_SECRET)
+    const decoded: unknown = jwt.verify(token, env.SOCKET_JWT_SECRET, {
+      algorithms: ['HS256'],
+    })
     const parsed = visitorTokenSchema.safeParse(decoded)
 
     if (!parsed.success) {

@@ -18,31 +18,38 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs'
 
+import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import { ConfirmDeleteDialog } from '@/components/shared/confirm-delete-dialog'
 import { DetailInfoItem } from '@/components/shared/detail-info-item'
-import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import { DocumentList } from '@/features/documents/components/document-list'
 import { DocumentUpload } from '@/features/documents/components/document-upload'
 
+import { useOrgs } from '@/features/org/hooks/use-orgs'
 import { getInitials } from '@/lib/formatters'
 import { formatDocument } from '@/lib/masks'
+import { hasPermission } from '@/lib/permissions'
 import { useClient, useDeleteClient } from '../hooks/use-clients'
 import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
 import { DetailSkeleton } from './client-detail-skeleton'
 import { ClientHistoryTab } from './client-history-tab'
 import { ClientPoliciesTab } from './client-policies-tab'
 import { ClientProposalsTab } from './client-proposals-tab'
-
+import { LgpdDeleteDialogTrigger } from './lgpd-delete-dialog'
 interface ClientDetailContentProps {
   readonly clientId: string
 }
 
 export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
   const router = useRouter()
+  const { activeOrg } = useOrgs()
   const { data: client, isLoading, isError, refetch } = useClient(clientId)
   const deleteClient = useDeleteClient()
 
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const canLgpdDelete = hasPermission(
+    activeOrg?.role ?? 'VIEWER',
+    'clients:lgpd-delete'
+  )
 
   function handleConfirmDelete() {
     deleteClient.mutate(clientId, {
@@ -128,6 +135,12 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
               <Trash2 className="mr-2 h-4 w-4" />
               Excluir
             </Button>
+            {canLgpdDelete && (
+              <LgpdDeleteDialogTrigger
+                clientId={clientId}
+                clientName={client.name}
+              />
+            )}
           </div>
         </div>
 

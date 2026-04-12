@@ -16,7 +16,7 @@ export function listAuditLogsRoute(app: FastifyInstance) {
       querystring: listAuditLogsQuerySchema,
       response: { 200: auditLogListResponse },
     },
-    preHandler: [requireAbility('manage', 'all')],
+    preHandler: [requireAbility('read', 'AuditLog')],
     handler: async (request, reply) => {
       const { entityType, action, userId, dateFrom, dateTo, cursor, limit } =
         request.query

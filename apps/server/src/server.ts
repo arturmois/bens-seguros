@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/node'
+import { prisma } from '@repo/db'
 import { env } from '@repo/env'
 import { stripPiiFromEvent } from '@repo/shared/sentry-pii'
 import { buildApp } from './app.js'
@@ -19,6 +20,20 @@ const start = async () => {
 
   const port = env.PORT ?? 3001
   const host = env.HOST
+
+  // Verify RLS is enabled and forced on tenant-scoped tables (AA-001)
+  const [rlsCheck] = await prisma.$queryRaw<[{ count: bigint }]>`
+    SELECT count(*) FROM pg_class
+    WHERE relname = 'Client'
+      AND relrowsecurity = true
+      AND relforcerowsecurity = true
+  `
+  if (rlsCheck.count === 0n) {
+    app.log.error(
+      'RLS health check FAILED: Client table does not have RLS enabled+forced'
+    )
+    process.exit(1)
+  }
 
   await app.listen({ port, host })
   app.log.info(`Server running on http://${host}:${port}`)

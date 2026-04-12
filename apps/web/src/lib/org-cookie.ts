@@ -2,11 +2,13 @@ const COOKIE_NAME = 'bens-active-org'
 const MAX_AGE = 60 * 60 * 24 * 30 // 30 days
 
 export function setActiveOrgCookie(organizationId: string) {
-  document.cookie = `${COOKIE_NAME}=${organizationId};path=/;max-age=${MAX_AGE};samesite=lax`
+  const secure = globalThis.location?.protocol === 'https:' ? ';secure' : ''
+  document.cookie = `${COOKIE_NAME}=${organizationId};path=/;max-age=${MAX_AGE};samesite=lax${secure}`
 }
 
 export function clearActiveOrgCookie() {
-  document.cookie = `${COOKIE_NAME}=;path=/;max-age=0`
+  const secure = globalThis.location?.protocol === 'https:' ? ';secure' : ''
+  document.cookie = `${COOKIE_NAME}=;path=/;max-age=0;samesite=lax${secure}`
 }
 
 export function getActiveOrgCookie(): string | undefined {

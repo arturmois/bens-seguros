@@ -39,6 +39,16 @@ const AUTH_RATE_LIMIT_PATHS: readonly AuthRateLimitPath[] = [
     config: RATE_LIMITS.AUTH.REGISTRATION,
     keyExtractor: (request) => `auth:register:${request.ip}`,
   },
+  {
+    suffix: '/send-verification-email',
+    config: RATE_LIMITS.AUTH.VERIFY_EMAIL,
+    keyExtractor: (request) => {
+      const body = isRecord(request.body) ? request.body : undefined
+      const email =
+        typeof body?.['email'] === 'string' ? body['email'] : 'unknown'
+      return `auth:verify:${email.toLowerCase()}`
+    },
+  },
 ]
 
 async function checkRateLimit(

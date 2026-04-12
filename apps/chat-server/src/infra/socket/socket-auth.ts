@@ -7,7 +7,7 @@ import type { AppLogger } from '../logger.js'
 const socketJwtPayloadSchema = z.object({
   userId: z.string(),
   organizationId: z.string(),
-  role: z.string(),
+  role: z.enum(['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER']),
   name: z.string(),
 })
 
@@ -29,7 +29,9 @@ export function createSocketAuthMiddleware(logger: AppLogger) {
     }
 
     try {
-      const decoded: unknown = jwt.verify(token, env.SOCKET_JWT_SECRET)
+      const decoded: unknown = jwt.verify(token, env.SOCKET_JWT_SECRET, {
+        algorithms: ['HS256'],
+      })
       const parsed = socketJwtPayloadSchema.safeParse(decoded)
 
       if (!parsed.success) {
