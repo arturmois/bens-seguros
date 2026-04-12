@@ -78,12 +78,11 @@ export async function buildApp() {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", 'cdn.jsdelivr.net'],
-        styleSrc: ["'self'", "'unsafe-inline'", 'cdn.jsdelivr.net'],
-        imgSrc: ["'self'", 'data:', 'cdn.jsdelivr.net'],
-        fontSrc: ["'self'", 'cdn.jsdelivr.net', 'fonts.scalar.com'],
-        connectSrc: ["'self'", 'proxy.scalar.com'],
-        workerSrc: ["'self'", 'blob:'],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:'],
+        fontSrc: ["'self'"],
+        connectSrc: ["'self'"],
       },
     },
     hsts: {
@@ -134,6 +133,24 @@ export async function buildApp() {
 
   await app.register(import('@scalar/fastify-api-reference'), {
     routePrefix: '/api/docs',
+  })
+
+  // Relax CSP only for Scalar API docs (needs inline scripts/styles + CDN assets)
+  const SCALAR_CSP = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' cdn.jsdelivr.net",
+    "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net",
+    "img-src 'self' data: cdn.jsdelivr.net",
+    "font-src 'self' cdn.jsdelivr.net fonts.scalar.com",
+    "connect-src 'self' proxy.scalar.com",
+    "worker-src 'self' blob:",
+  ].join('; ')
+
+  app.addHook('onSend', async (request, reply, payload) => {
+    if (request.url.startsWith('/api/docs')) {
+      void reply.header('content-security-policy', SCALAR_CSP)
+    }
+    return payload
   })
 
   await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } })
