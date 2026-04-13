@@ -958,3 +958,41 @@ DOCKER:
 - `external` inclui todas deps npm (ficam em node_modules)
 - Prisma generate roda no Dockerfile (nao commitado)
 - Docker multi-stage: deps → build → prod-deps → runner (imagem minima)
+
+---
+
+## DB-RLS — Two Database Users Pattern (2026-04-13)
+
+### Contexto
+
+PostgreSQL RLS (Row Level Security) com `FORCE ROW LEVEL SECURITY` exige que `app.current_tenant` esteja setado via `SET config` antes de cada query. O DI container registra repositorios como singletons com o `prisma` global, que NAO seta tenant. Resultado: queries via DI retornam vazio quando RLS esta ativo.
+
+### Decisao
+
+Dois Prisma clients com dois DB users:
+
+| Client        | Env Var              | DB User                 | RLS      | Uso                                         |
+| ------------- | -------------------- | ----------------------- | -------- | ------------------------------------------- |
+| `prisma`      | `DATABASE_URL`       | `app_user`              | Enforced | Base para `tenantPrisma` (defense-in-depth) |
+| `prismaAdmin` | `DATABASE_ADMIN_URL` | `bens_prod` (superuser) | Bypassed | DI container repos, workers, internal API   |
+
+```
+packages/db/src/index.ts:
+  export const prisma = ...       // app_user, RLS enforced
+  export const prismaAdmin = ...  // bens_prod, bypasses RLS (fallback: prisma)
+```
+
+### Regras
+
+- `container-registrations.ts`: repos que acessam tabelas com RLS DEVEM usar `prismaAdmin`
+- Workers/jobs cross-tenant: DEVEM usar `prismaAdmin` (nao tem tenant context)
+- `tenantPrisma` (`createTenantClient`): continua como defense-in-depth para endpoints sensiveis
+- App-level `WHERE organizationId` e a isolacao PRIMARIA — `prismaAdmin` confia nesse filtro
+- Novas tabelas com RLS: lembrar que DI repos NAO funcionam com `prisma` global
+- `DATABASE_ADMIN_URL` deve estar em `.env` local e prod. Sem ele, `prismaAdmin` cai pra `prisma`
+
+### Anti-patterns
+
+- NAO usar `prisma` global em DI repos quando a tabela tem `FORCE ROW LEVEL SECURITY`
+- NAO criar policy RLS com match estrito sem fallback se o sistema usa prisma global sem tenant
+- NAO expor `prismaAdmin` em endpoints publicos sem validacao de organizationId no app-level
