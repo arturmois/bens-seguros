@@ -595,6 +595,7 @@ model Notification {
   user User @relation(fields: [userId], references: [id])
 
   @@index([organizationId, userId, read])
+  @@index([organizationId, userId, createdAt(sort: Desc)])
   @@index([organizationId, createdAt(sort: Desc)])
   @@index([organizationId, entityType, entityId, type, createdAt])
 }
@@ -617,6 +618,7 @@ model AuditLog {
   @@index([organizationId, entityType, createdAt(sort: Desc)])
   @@index([organizationId, action])
   @@index([organizationId, userId])
+  @@index([organizationId, userId, createdAt(sort: Desc)])
 }
 
 model AuditLogArchive {

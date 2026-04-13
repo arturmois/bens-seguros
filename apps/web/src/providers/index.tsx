@@ -15,7 +15,7 @@ export function Providers({ children, nonce }: ProvidersProps) {
     () =>
       new QueryClient({
         defaultOptions: {
-          queries: { staleTime: 60 * 1000 },
+          queries: { staleTime: 5 * 60 * 1000 },
         },
       })
   )
