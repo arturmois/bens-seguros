@@ -15,6 +15,7 @@ import { TableToolbar } from '@/components/shared/table-toolbar'
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
+import { useOrgs } from '@/features/org/hooks/use-orgs'
 import { usePolicies } from '../hooks/use-policies'
 import {
   DEFAULT_COLUMN_VISIBILITY,
@@ -35,6 +36,8 @@ function isStatus(value: string): value is PolicyStatus {
 export function PoliciesTable() {
   const router = useRouter()
   const pagination = useCursorPagination()
+  const { activeOrg } = useOrgs()
+  const role = activeOrg?.role ?? 'VIEWER'
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -69,8 +72,8 @@ export function PoliciesTable() {
   )
 
   const columns = useMemo(
-    () => createPolicyColumns(columnActions),
-    [columnActions]
+    () => createPolicyColumns(columnActions, role),
+    [columnActions, role]
   )
 
   const table = useReactTable({

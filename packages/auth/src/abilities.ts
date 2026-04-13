@@ -12,6 +12,7 @@ export type Action =
   | 'update'
   | 'delete'
   | 'approve'
+  | 'lgpd-delete'
 export type Subject =
   | 'all'
   | 'User'
@@ -60,6 +61,8 @@ export function defineAbilitiesFor(role: Role): AppAbility {
       can('manage', 'User')
       can('manage', 'Notification')
       can('read', 'AuditLog')
+      can('read', 'Organization')
+      can('lgpd-delete', 'Client')
       can(['read', 'update', 'delete'], 'Member')
       can(['create', 'read', 'delete'], 'Invitation')
       break

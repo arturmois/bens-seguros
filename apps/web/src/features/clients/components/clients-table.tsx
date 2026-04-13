@@ -20,6 +20,7 @@ import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
 import type { ListClientsSortOrder } from '@/api/model'
+import { useOrgs } from '@/features/org/hooks/use-orgs'
 import { useClients, useDeleteClient } from '../hooks/use-clients'
 import {
   DEFAULT_COLUMN_VISIBILITY,
@@ -37,6 +38,8 @@ import { createClientColumns } from './clients-columns'
 export function ClientsContent() {
   const router = useRouter()
   const pagination = useCursorPagination()
+  const { activeOrg } = useOrgs()
+  const role = activeOrg?.role ?? 'VIEWER'
 
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
@@ -78,8 +81,8 @@ export function ClientsContent() {
   )
 
   const columns = useMemo(
-    () => createClientColumns(columnActions),
-    [columnActions]
+    () => createClientColumns(columnActions, role),
+    [columnActions, role]
   )
 
   const table = useReactTable({

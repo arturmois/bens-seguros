@@ -11,6 +11,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/menu'
+import { hasPermission } from '@/lib/permissions'
+import type { Role } from '@repo/auth/roles'
 import { formatDate } from '@/lib/formatters'
 
 import type { InsurerData } from '../lib/types'
@@ -21,7 +23,8 @@ interface ColumnActions {
 }
 
 export function createInsurerColumns(
-  actions: ColumnActions
+  actions: ColumnActions,
+  role: Role
 ): ColumnDef<InsurerData>[] {
   return [
     {
@@ -105,14 +108,20 @@ export function createInsurerColumns(
               <MoreHorizontal className="size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => actions.onEdit(insurer)}>
-                <Pencil className="mr-2 size-4" />
-                Editar
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => actions.onToggleActive(insurer)}>
-                <Power className="mr-2 size-4" />
-                {insurer.active ? 'Inativar' : 'Ativar'}
-              </DropdownMenuItem>
+              {hasPermission(role, 'insurers:manage') && (
+                <DropdownMenuItem onClick={() => actions.onEdit(insurer)}>
+                  <Pencil className="mr-2 size-4" />
+                  Editar
+                </DropdownMenuItem>
+              )}
+              {hasPermission(role, 'insurers:manage') && (
+                <DropdownMenuItem
+                  onClick={() => actions.onToggleActive(insurer)}
+                >
+                  <Power className="mr-2 size-4" />
+                  {insurer.active ? 'Inativar' : 'Ativar'}
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )

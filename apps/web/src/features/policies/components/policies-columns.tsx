@@ -11,6 +11,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/menu'
+import { hasPermission } from '@/lib/permissions'
+import type { Role } from '@repo/auth/roles'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 
 import {
@@ -26,7 +28,8 @@ interface ColumnActions {
 }
 
 export function createPolicyColumns(
-  actions: ColumnActions
+  actions: ColumnActions,
+  role: Role
 ): ColumnDef<PolicyData>[] {
   return [
     {
@@ -111,15 +114,16 @@ export function createPolicyColumns(
                 <Eye className="mr-2 size-4" />
                 Ver
               </DropdownMenuItem>
-              {policy.status === 'ACTIVE' && (
-                <DropdownMenuItem
-                  className="text-destructive"
-                  onClick={() => actions.onCancel(policy)}
-                >
-                  <Ban className="mr-2 size-4" />
-                  Cancelar
-                </DropdownMenuItem>
-              )}
+              {policy.status === 'ACTIVE' &&
+                hasPermission(role, 'policies:update') && (
+                  <DropdownMenuItem
+                    className="text-destructive"
+                    onClick={() => actions.onCancel(policy)}
+                  >
+                    <Ban className="mr-2 size-4" />
+                    Cancelar
+                  </DropdownMenuItem>
+                )}
             </DropdownMenuContent>
           </DropdownMenu>
         )

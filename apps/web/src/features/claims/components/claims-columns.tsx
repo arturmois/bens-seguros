@@ -11,6 +11,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/menu'
 
+import { hasPermission } from '@/lib/permissions'
+import type { Role } from '@repo/auth/roles'
 import { formatDate } from '@/lib/formatters'
 
 import { formatClaimNumber } from '../lib/constants'
@@ -24,7 +26,8 @@ interface ColumnActions {
 }
 
 export function createClaimColumns(
-  actions: ColumnActions
+  actions: ColumnActions,
+  role: Role
 ): ColumnDef<ClaimData>[] {
   return [
     {
@@ -147,13 +150,15 @@ export function createClaimColumns(
                 <Eye className="mr-2 size-4" />
                 Ver
               </DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-destructive"
-                onClick={() => actions.onDelete(claim.id)}
-              >
-                <Trash2 className="mr-2 size-4" />
-                Excluir
-              </DropdownMenuItem>
+              {hasPermission(role, 'claims:delete') && (
+                <DropdownMenuItem
+                  className="text-destructive"
+                  onClick={() => actions.onDelete(claim.id)}
+                >
+                  <Trash2 className="mr-2 size-4" />
+                  Excluir
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )

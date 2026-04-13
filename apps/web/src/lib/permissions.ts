@@ -1,42 +1,44 @@
+import { defineAbilitiesFor } from '@repo/auth/abilities'
+import type { Action, Subject } from '@repo/auth/abilities'
 import type { Role } from '@repo/auth/roles'
 
-const PERMISSION_MATRIX: Record<string, Role[]> = {
-  'clients:read': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'],
-  'clients:create': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL'],
-  'clients:update': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL'],
-  'clients:delete': ['OWNER', 'ADMIN', 'MANAGER'],
-  'clients:lgpd-delete': ['OWNER', 'ADMIN'],
-  'proposals:read': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'],
-  'proposals:create': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL'],
-  'proposals:update': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL'],
-  'proposals:delete': ['OWNER', 'ADMIN', 'MANAGER'],
-  'policies:read': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'],
-  'policies:create': ['OWNER', 'ADMIN', 'MANAGER'],
-  'insurers:read': ['OWNER', 'ADMIN', 'MANAGER'],
-  'insurers:manage': ['OWNER', 'ADMIN', 'MANAGER'],
-  'commissions:read': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'],
-  'commissions:approve': ['OWNER', 'ADMIN', 'MANAGER'],
-  'claims:read': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'],
-  'claims:create': ['OWNER', 'ADMIN', 'MANAGER'],
-  'claims:update': ['OWNER', 'ADMIN', 'MANAGER'],
-  'claims:delete': ['OWNER', 'ADMIN', 'MANAGER'],
-  'endorsements:read': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'],
-  'endorsements:create': ['OWNER', 'ADMIN', 'MANAGER'],
-  'assistances:read': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'],
-  'assistances:create': ['OWNER', 'ADMIN', 'MANAGER'],
-  'assistances:update': ['OWNER', 'ADMIN', 'MANAGER'],
-  'documents:read': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER'],
-  'documents:create': ['OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL'],
-  'documents:delete': ['OWNER', 'ADMIN', 'MANAGER'],
-  'users:read': ['OWNER', 'ADMIN'],
-  'users:manage': ['OWNER', 'ADMIN'],
-  'settings:read': ['OWNER', 'ADMIN'],
-  'settings:manage': ['OWNER'],
-  'audit:read': ['OWNER', 'ADMIN', 'MANAGER'],
+const SUBJECT_MAP: Record<string, Subject> = {
+  clients: 'Client',
+  proposals: 'Proposal',
+  policies: 'Policy',
+  insurers: 'Insurer',
+  commissions: 'Commission',
+  claims: 'Claim',
+  endorsements: 'Endorsement',
+  assistances: 'Assistance',
+  documents: 'Document',
+  users: 'Member',
+  settings: 'Organization',
+  audit: 'AuditLog',
+}
+
+const ACTION_MAP: Record<string, Action> = {
+  read: 'read',
+  create: 'create',
+  update: 'update',
+  delete: 'delete',
+  manage: 'manage',
+  approve: 'approve',
+  'lgpd-delete': 'lgpd-delete',
 }
 
 export function hasPermission(role: Role, permission: string): boolean {
-  return PERMISSION_MATRIX[permission]?.includes(role) ?? false
+  const parts = permission.split(':')
+  const resource = parts[0]
+  const action = parts[1]
+  if (!resource || !action) return false
+
+  const subject = SUBJECT_MAP[resource]
+  const caslAction = ACTION_MAP[action]
+  if (!subject || !caslAction) return false
+
+  const ability = defineAbilitiesFor(role)
+  return ability.can(caslAction, subject)
 }
 
 export function hasAnyPermission(role: Role, permissions: string[]): boolean {

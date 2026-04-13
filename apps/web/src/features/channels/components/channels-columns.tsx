@@ -18,6 +18,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/menu'
 
+import { hasPermission } from '@/lib/permissions'
+import type { Role } from '@repo/auth/roles'
 import { ChannelIcon } from '@/features/chat/components/channel-icon'
 import { BROKER_TYPE_LABELS } from '../lib/constants'
 import type { ChannelData } from '../types'
@@ -31,7 +33,8 @@ interface ColumnActions {
 }
 
 export function createChannelColumns(
-  actions: ColumnActions
+  actions: ColumnActions,
+  role: Role
 ): ColumnDef<ChannelData>[] {
   return [
     {
@@ -99,10 +102,12 @@ export function createChannelColumns(
               <MoreHorizontal className="size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => actions.onEdit(channel)}>
-                <Pencil className="mr-2 size-4" />
-                Editar
-              </DropdownMenuItem>
+              {hasPermission(role, 'settings:manage') && (
+                <DropdownMenuItem onClick={() => actions.onEdit(channel)}>
+                  <Pencil className="mr-2 size-4" />
+                  Editar
+                </DropdownMenuItem>
+              )}
               {channel.brokerType === 'BAILEYS' && (
                 <DropdownMenuItem onClick={() => actions.onQrCode(channel)}>
                   <QrCode className="mr-2 size-4" />
@@ -115,13 +120,15 @@ export function createChannelColumns(
                   Código Embed
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() => actions.onDeactivate(channel)}
-              >
-                <Power className="mr-2 size-4" />
-                Desativar
-              </DropdownMenuItem>
+              {hasPermission(role, 'settings:manage') && (
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => actions.onDeactivate(channel)}
+                >
+                  <Power className="mr-2 size-4" />
+                  Desativar
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )

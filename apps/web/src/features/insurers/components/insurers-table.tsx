@@ -16,6 +16,7 @@ import { useDebounce } from '@/hooks/use-debounce'
 
 import type { ListInsurersSortBy, ListInsurersSortOrder } from '@/api/model'
 
+import { useOrgs } from '@/features/org/hooks/use-orgs'
 import { useInsurers, useUpdateInsurerMutation } from '../hooks/use-insurers'
 import {
   DEFAULT_COLUMN_VISIBILITY,
@@ -40,6 +41,8 @@ function resolveActiveFilter(status: InsurerStatusFilter): boolean | undefined {
 
 export function InsurersTable() {
   const pagination = useCursorPagination()
+  const { activeOrg } = useOrgs()
+  const role = activeOrg?.role ?? 'VIEWER'
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] =
@@ -100,8 +103,8 @@ export function InsurersTable() {
   )
 
   const columns = useMemo(
-    () => createInsurerColumns(columnActions),
-    [columnActions]
+    () => createInsurerColumns(columnActions, role),
+    [columnActions, role]
   )
 
   const table = useReactTable({

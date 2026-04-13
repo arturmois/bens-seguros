@@ -16,6 +16,7 @@ import { TableErrorState } from '@/components/shared/table-error-state'
 import { TableToolbar } from '@/components/shared/table-toolbar'
 import { useDebounce } from '@/hooks/use-debounce'
 
+import { useOrgs } from '@/features/org/hooks/use-orgs'
 import { useChannels } from '../hooks/use-channels'
 import {
   DEFAULT_COLUMN_VISIBILITY,
@@ -46,6 +47,8 @@ export function ChannelsTable({
   onEmbed,
   onDeactivate,
 }: ChannelsTableProps) {
+  const { activeOrg } = useOrgs()
+  const role = activeOrg?.role ?? 'VIEWER'
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<ChannelStatusFilter>('ALL')
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
@@ -71,8 +74,8 @@ export function ChannelsTable({
   )
 
   const columns = useMemo(
-    () => createChannelColumns(columnActions),
-    [columnActions]
+    () => createChannelColumns(columnActions, role),
+    [columnActions, role]
   )
 
   const table = useReactTable({

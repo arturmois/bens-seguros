@@ -22,6 +22,7 @@ import { ToolbarFilterSelect } from '@/components/shared/toolbar-filter-select'
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
+import { useOrgs } from '@/features/org/hooks/use-orgs'
 import { useClaims, useDeleteClaim } from '../hooks/use-claims'
 import {
   DEFAULT_COLUMN_VISIBILITY,
@@ -38,6 +39,8 @@ import { createClaimColumns } from './claims-columns'
 export function ClaimsTable() {
   const router = useRouter()
   const pagination = useCursorPagination()
+  const { activeOrg } = useOrgs()
+  const role = activeOrg?.role ?? 'VIEWER'
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -88,8 +91,8 @@ export function ClaimsTable() {
   )
 
   const columns = useMemo(
-    () => createClaimColumns(columnActions),
-    [columnActions]
+    () => createClaimColumns(columnActions, role),
+    [columnActions, role]
   )
 
   const table = useReactTable({

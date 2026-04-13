@@ -17,6 +17,7 @@ import { TableToolbar } from '@/components/shared/table-toolbar'
 import { Button } from '@/components/ui/button'
 import { useDebounce } from '@/hooks/use-debounce'
 
+import { useOrgs } from '@/features/org/hooks/use-orgs'
 import { useAiAgents } from '../hooks/use-ai-agents'
 import {
   DEFAULT_COLUMN_VISIBILITY,
@@ -39,6 +40,8 @@ import { createAiAgentColumns } from './ai-agents-columns'
 import { DeleteAgentDialog } from './delete-agent-dialog'
 
 export function AiAgentsTable() {
+  const { activeOrg } = useOrgs()
+  const role = activeOrg?.role ?? 'VIEWER'
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<AiAgentStatusFilter>('ALL')
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
@@ -90,8 +93,8 @@ export function AiAgentsTable() {
   )
 
   const columns = useMemo(
-    () => createAiAgentColumns(columnActions),
-    [columnActions]
+    () => createAiAgentColumns(columnActions, role),
+    [columnActions, role]
   )
 
   const table = useReactTable({

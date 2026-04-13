@@ -12,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/menu'
 
+import { hasPermission } from '@/lib/permissions'
+import type { Role } from '@repo/auth/roles'
 import type { AiAgentData } from '../types'
 import { PROVIDER_LABELS } from '../lib/constants'
 
@@ -28,7 +30,8 @@ function formatChannelCount(count: number): string {
 }
 
 export function createAiAgentColumns(
-  actions: ColumnActions
+  actions: ColumnActions,
+  role: Role
 ): ColumnDef<AiAgentData>[] {
   return [
     {
@@ -114,21 +117,27 @@ export function createAiAgentColumns(
               <MoreHorizontal className="size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => actions.onEdit(agent)}>
-                <Pencil className="mr-2 size-4" />
-                Editar
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => actions.onDuplicate(agent)}>
-                <Copy className="mr-2 size-4" />
-                Duplicar
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() => actions.onDelete(agent)}
-              >
-                <Trash2 className="mr-2 size-4" />
-                Excluir
-              </DropdownMenuItem>
+              {hasPermission(role, 'settings:manage') && (
+                <DropdownMenuItem onClick={() => actions.onEdit(agent)}>
+                  <Pencil className="mr-2 size-4" />
+                  Editar
+                </DropdownMenuItem>
+              )}
+              {hasPermission(role, 'settings:manage') && (
+                <DropdownMenuItem onClick={() => actions.onDuplicate(agent)}>
+                  <Copy className="mr-2 size-4" />
+                  Duplicar
+                </DropdownMenuItem>
+              )}
+              {hasPermission(role, 'settings:manage') && (
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => actions.onDelete(agent)}
+                >
+                  <Trash2 className="mr-2 size-4" />
+                  Excluir
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )

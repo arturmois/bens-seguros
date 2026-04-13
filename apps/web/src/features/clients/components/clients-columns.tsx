@@ -12,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/menu'
 
+import { hasPermission } from '@/lib/permissions'
+import type { Role } from '@repo/auth/roles'
 import { formatDate, getInitials } from '@/lib/formatters'
 import type { ClientData } from '../lib/types'
 import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
@@ -23,7 +25,8 @@ interface ColumnActions {
 }
 
 export function createClientColumns(
-  actions: ColumnActions
+  actions: ColumnActions,
+  role: Role
 ): ColumnDef<ClientData>[] {
   return [
     {
@@ -139,17 +142,21 @@ export function createClientColumns(
                 <Eye className="mr-2 size-4" />
                 Ver
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => actions.onEdit(client.id)}>
-                <Pencil className="mr-2 size-4" />
-                Editar
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-destructive"
-                onClick={() => actions.onDelete(client.id)}
-              >
-                <Trash2 className="mr-2 size-4" />
-                Excluir
-              </DropdownMenuItem>
+              {hasPermission(role, 'clients:update') && (
+                <DropdownMenuItem onClick={() => actions.onEdit(client.id)}>
+                  <Pencil className="mr-2 size-4" />
+                  Editar
+                </DropdownMenuItem>
+              )}
+              {hasPermission(role, 'clients:delete') && (
+                <DropdownMenuItem
+                  className="text-destructive"
+                  onClick={() => actions.onDelete(client.id)}
+                >
+                  <Trash2 className="mr-2 size-4" />
+                  Excluir
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )
