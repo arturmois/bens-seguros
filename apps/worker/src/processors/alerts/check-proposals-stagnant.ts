@@ -1,5 +1,5 @@
 import type { NotificationJobData } from '@repo/core/notification'
-import { prisma } from '@repo/db'
+import { prismaAdmin } from '@repo/db'
 import type { Queue } from 'bullmq'
 import type { Logger } from 'pino'
 import { DEFAULT_JOB_OPTIONS } from './constants.js'
@@ -16,14 +16,14 @@ export async function checkProposalsStagnant(
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - STAGNANT_DAYS)
 
-  const managers = await prisma.member.findMany({
+  const managers = await prismaAdmin.member.findMany({
     where: {
       organizationId,
       role: { in: ['MANAGER', 'ADMIN', 'OWNER'] },
     },
   })
 
-  const proposals = await prisma.proposal.findMany({
+  const proposals = await prismaAdmin.proposal.findMany({
     where: {
       organizationId,
       stage: { notIn: [...TERMINAL_STAGES] },

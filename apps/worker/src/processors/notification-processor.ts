@@ -4,7 +4,7 @@ import {
   type EmailProvider,
   type NotificationJobData,
 } from '@repo/core/notification'
-import { prisma } from '@repo/db'
+import { prismaAdmin } from '@repo/db'
 import { env } from '@repo/env'
 import type { ConnectionOptions, Job } from 'bullmq'
 import { Queue, Worker } from 'bullmq'
@@ -16,7 +16,7 @@ const QUEUE_NAME = 'erp-notifications'
 
 export function setupNotificationProcessor(connection: ConnectionOptions) {
   const queue = new Queue<NotificationJobData>(QUEUE_NAME, { connection })
-  const repo = new PrismaNotificationRepository(prisma)
+  const repo = new PrismaNotificationRepository(prismaAdmin)
 
   let emailProvider: EmailProvider | null = null
   if (env.RESEND_API_KEY) {
@@ -38,7 +38,7 @@ export function setupNotificationProcessor(connection: ConnectionOptions) {
       if (email && emailProvider) {
         try {
           await emailProvider.send(email)
-          await prisma.notification.update({
+          await prismaAdmin.notification.update({
             where: { id: created.id },
             data: { emailSent: true },
           })

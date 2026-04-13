@@ -1,4 +1,4 @@
-import { prisma, Prisma } from '@repo/db'
+import { prismaAdmin, Prisma } from '@repo/db'
 import type { ConnectionOptions } from 'bullmq'
 import { Queue, Worker } from 'bullmq'
 import pino from 'pino'
@@ -27,7 +27,7 @@ export function setupAuditArchiveProcessor(connection: ConnectionOptions) {
       let hasMore = true
 
       while (hasMore) {
-        const logs = await prisma.auditLog.findMany({
+        const logs = await prismaAdmin.auditLog.findMany({
           where: { createdAt: { lt: cutoffDate } },
           take: BATCH_SIZE,
         })
@@ -54,9 +54,9 @@ export function setupAuditArchiveProcessor(connection: ConnectionOptions) {
           })
         )
 
-        await prisma.$transaction([
-          prisma.auditLogArchive.createMany({ data: archiveData }),
-          prisma.auditLog.deleteMany({
+        await prismaAdmin.$transaction([
+          prismaAdmin.auditLogArchive.createMany({ data: archiveData }),
+          prismaAdmin.auditLog.deleteMany({
             where: { id: { in: logs.map((l) => l.id) } },
           }),
         ])

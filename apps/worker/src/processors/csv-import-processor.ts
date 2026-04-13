@@ -1,6 +1,6 @@
 import type { ConnectionOptions, Job } from 'bullmq'
 import { Queue, Worker } from 'bullmq'
-import { prisma } from '@repo/db'
+import { prismaAdmin } from '@repo/db'
 import pino from 'pino'
 import type { CsvImportJobData, CsvImportProgress } from '@repo/core'
 import { IMPORT_BATCH_SIZE, MAX_IMPORT_ERRORS } from '@repo/core'
@@ -119,7 +119,7 @@ async function processClientBatch(
   })
 
   try {
-    const result = await prisma.client.createMany({
+    const result = await prismaAdmin.client.createMany({
       data: mappedData,
       skipDuplicates: true,
     })
@@ -131,7 +131,7 @@ async function processClientBatch(
       const data = mappedData[i]
       if (!data) continue
       try {
-        await prisma.client.create({ data })
+        await prismaAdmin.client.create({ data })
         progress.created += 1
       } catch (innerErr: unknown) {
         progress.failed += 1
@@ -163,7 +163,7 @@ async function processPolicyBatch(
     try {
       // Look up client by documentHash (document column stores masked value)
       const clientHash = hashDocument(row.cpfCnpjCliente)
-      const client = await prisma.client.findFirst({
+      const client = await prismaAdmin.client.findFirst({
         where: {
           organizationId,
           documentHash: clientHash,
@@ -184,7 +184,7 @@ async function processPolicyBatch(
       }
 
       // Check for duplicate policyNumber
-      const existing = await prisma.policy.findFirst({
+      const existing = await prismaAdmin.policy.findFirst({
         where: {
           organizationId,
           policyNumber: row.numeroApolice,
@@ -200,7 +200,7 @@ async function processPolicyBatch(
       const premiumInCents = Math.round(row.premioReais * 100)
 
       // Create a stub proposal for the policy (required by schema)
-      const proposal = await prisma.proposal.create({
+      const proposal = await prismaAdmin.proposal.create({
         data: {
           organizationId,
           clientId: client.id,
@@ -213,7 +213,7 @@ async function processPolicyBatch(
         },
       })
 
-      await prisma.policy.create({
+      await prismaAdmin.policy.create({
         data: {
           organizationId,
           proposalId: proposal.id,

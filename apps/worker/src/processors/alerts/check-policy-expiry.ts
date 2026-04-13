@@ -1,5 +1,5 @@
 import type { NotificationJobData } from '@repo/core/notification'
-import { prisma } from '@repo/db'
+import { prismaAdmin } from '@repo/db'
 import type { Queue } from 'bullmq'
 import type { Logger } from 'pino'
 import { DEFAULT_JOB_OPTIONS } from './constants.js'
@@ -18,7 +18,7 @@ export async function checkPoliciesExpiring(
 ): Promise<void> {
   const now = new Date()
 
-  const managers = await prisma.member.findMany({
+  const managers = await prismaAdmin.member.findMany({
     where: {
       organizationId,
       role: { in: ['MANAGER', 'ADMIN', 'OWNER'] },
@@ -34,7 +34,7 @@ export async function checkPoliciesExpiring(
     const endOfDay = new Date(targetDate)
     endOfDay.setHours(23, 59, 59, 999)
 
-    const policies = await prisma.policy.findMany({
+    const policies = await prismaAdmin.policy.findMany({
       where: {
         organizationId,
         status: 'ACTIVE',

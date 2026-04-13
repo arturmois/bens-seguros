@@ -1,5 +1,5 @@
 import type { NotificationJobData } from '@repo/core/notification'
-import { prisma } from '@repo/db'
+import { prismaAdmin } from '@repo/db'
 import type { Queue } from 'bullmq'
 import type { Logger } from 'pino'
 import { DEFAULT_JOB_OPTIONS } from './constants.js'
@@ -21,14 +21,14 @@ export async function checkClaimsStalled(
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - STALLED_DAYS)
 
-  const managers = await prisma.member.findMany({
+  const managers = await prismaAdmin.member.findMany({
     where: {
       organizationId,
       role: { in: ['MANAGER', 'ADMIN', 'OWNER'] },
     },
   })
 
-  const claims = await prisma.claim.findMany({
+  const claims = await prismaAdmin.claim.findMany({
     where: {
       organizationId,
       status: { in: [...STALLED_STATUSES] },

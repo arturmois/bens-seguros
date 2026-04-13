@@ -1,4 +1,4 @@
-import { prisma } from '@repo/db'
+import { prismaAdmin } from '@repo/db'
 
 interface HasExistingAlertParams {
   readonly organizationId: string
@@ -30,7 +30,7 @@ export async function hasExistingAlert(
     endOfDay.getTime() - (brtOffset + now.getTimezoneOffset()) * 60_000
   )
 
-  const existing = await prisma.notification.findFirst({
+  const existing = await prismaAdmin.notification.findFirst({
     where: {
       organizationId: params.organizationId,
       entityType: params.entityType,

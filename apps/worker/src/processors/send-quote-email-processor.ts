@@ -5,7 +5,7 @@ import {
   type EmailProvider,
   type StorageProvider,
 } from '@repo/core'
-import { prisma } from '@repo/db'
+import { prismaAdmin } from '@repo/db'
 import { env } from '@repo/env'
 import { quoteSentEmailHtml } from '@repo/core/notification'
 import type { ConnectionOptions, Job } from 'bullmq'
@@ -89,7 +89,7 @@ async function processJob(
     attachments: [{ filename: 'cotacao.pdf', content: pdfBuffer }],
   })
 
-  await prisma.proposal.update({
+  await prismaAdmin.proposal.update({
     where: { id: proposalId, organizationId },
     data: { sentToClientAt: new Date() },
   })

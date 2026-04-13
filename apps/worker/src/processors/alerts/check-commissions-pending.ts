@@ -1,5 +1,5 @@
 import type { NotificationJobData } from '@repo/core/notification'
-import { prisma } from '@repo/db'
+import { prismaAdmin } from '@repo/db'
 import type { Queue } from 'bullmq'
 import type { Logger } from 'pino'
 import { DEFAULT_JOB_OPTIONS } from './constants.js'
@@ -15,14 +15,14 @@ export async function checkCommissionsPending(
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - PENDING_DAYS)
 
-  const admins = await prisma.member.findMany({
+  const admins = await prismaAdmin.member.findMany({
     where: {
       organizationId,
       role: { in: ['ADMIN', 'OWNER'] },
     },
   })
 
-  const commissions = await prisma.commission.findMany({
+  const commissions = await prismaAdmin.commission.findMany({
     where: {
       organizationId,
       status: 'PENDING_COMMERCIAL',

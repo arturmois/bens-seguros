@@ -1,4 +1,4 @@
-import { prisma } from '@repo/db'
+import { prismaAdmin } from '@repo/db'
 import type { ConnectionOptions } from 'bullmq'
 import { Queue, Worker } from 'bullmq'
 import pino from 'pino'
@@ -18,7 +18,7 @@ export function setupExpirePoliciesProcessor(connection: ConnectionOptions) {
   const worker = new Worker(
     QUEUE_NAME,
     async () => {
-      const result = await prisma.policy.updateMany({
+      const result = await prismaAdmin.policy.updateMany({
         where: {
           status: 'ACTIVE',
           endDate: { lt: new Date() },

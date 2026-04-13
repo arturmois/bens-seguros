@@ -1,5 +1,5 @@
 import type { NotificationJobData } from '@repo/core/notification'
-import { prisma } from '@repo/db'
+import { prismaAdmin } from '@repo/db'
 import type { ConnectionOptions } from 'bullmq'
 import { Queue, Worker } from 'bullmq'
 import pino from 'pino'
@@ -29,7 +29,7 @@ export function setupProactiveAlertsProcessor(
     async () => {
       logger.info('Starting proactive alerts check')
 
-      const organizations = await prisma.organization.findMany({
+      const organizations = await prismaAdmin.organization.findMany({
         select: { id: true },
       })
 
