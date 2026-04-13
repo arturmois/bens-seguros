@@ -12,6 +12,7 @@ export const env = createEnv({
       .enum(['development', 'production', 'test'])
       .default('development'),
     DATABASE_URL: z.string().url(),
+    DATABASE_ADMIN_URL: z.string().url().optional(),
     MONGODB_URL: z.string().url(),
     REDIS_URL: z.string().url().default('redis://localhost:6379'),
     AUTH_SECRET: z.string().min(32),
