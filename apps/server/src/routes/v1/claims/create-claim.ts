@@ -1,5 +1,5 @@
 import { CreateClaim, claimOpenedEmail, container } from '@repo/core'
-import { prisma } from '@repo/db'
+import { prismaAdmin as prisma } from '@repo/db'
 import { env } from '@repo/env'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'

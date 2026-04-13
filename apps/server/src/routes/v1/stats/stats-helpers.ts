@@ -1,5 +1,5 @@
 import type { ClaimPriority, CommissionStatus, ProposalStage } from '@repo/db'
-import { prisma } from '@repo/db'
+import { prismaAdmin as prisma } from '@repo/db'
 
 import type { DashboardPreset } from './_schemas.js'
 import { presetToDays } from './_schemas.js'

@@ -157,6 +157,23 @@ CREATE POLICY tenant_isolation ON "AuditLogArchive"
 ALTER TABLE "AuditLogArchive" FORCE ROW LEVEL SECURITY;
 
 -- ============================================================================
+-- GRANTS for app_user (non-superuser runtime role)
+-- ============================================================================
+-- After `prisma db push` or `prisma migrate deploy`, tables are owned by the
+-- admin user (bens_prod). The app_user role needs explicit GRANT to access them.
+-- These statements are idempotent (safe to re-run).
+
+GRANT USAGE ON SCHEMA public TO app_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO app_user;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO app_user;
+
+-- Ensure future tables created by the admin user also grant access to app_user
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO app_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  GRANT USAGE, SELECT ON SEQUENCES TO app_user;
+
+-- ============================================================================
 -- To DROP all policies (rollback):
 -- ============================================================================
 -- DROP POLICY IF EXISTS tenant_isolation ON "Client";

@@ -10,7 +10,7 @@
   "scripts": {
     "db:generate": "dotenv -e ../../.env -- prisma generate",
     "db:push": "dotenv -e ../../.env -- prisma db push && echo '⚠️  RLS policies may have been dropped. Re-apply with: psql $DATABASE_URL -f prisma/rls-policies.sql'",
-    "db:push:dev": "dotenv -e ../../.env -- prisma db push && dotenv -e ../../.env -- psql $DATABASE_URL -f prisma/rls-policies.sql",
+    "db:push:dev": "dotenv -e ../../.env -- prisma db push && dotenv -e ../../.env -- sh -c 'psql ${DATABASE_ADMIN_URL:-$DATABASE_URL} -f prisma/rls-policies.sql'",
     "db:migrate": "dotenv -e ../../.env -- prisma migrate dev",
     "db:reset": "dotenv -e ../../.env -- prisma migrate reset",
     "db:seed": "tsx --env-file=../../.env prisma/seed.ts",

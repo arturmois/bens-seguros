@@ -81,7 +81,7 @@ import {
   UpdateProposalDetails,
   UploadDocument,
 } from '@repo/core'
-import { prisma } from '@repo/db'
+import { prismaAdmin } from '@repo/db'
 import { env } from '@repo/env'
 import type { Redis } from 'ioredis'
 
@@ -91,25 +91,25 @@ export function registerDependencies(redis: Redis | null = null) {
     container.register('CacheService', { useValue: cacheService })
   }
 
-  const clientRepo = new PrismaClientRepository(prisma)
-  const proposalRepo = new PrismaProposalRepository(prisma)
-  const checklistRepo = new PrismaChecklistRepository(prisma)
+  const clientRepo = new PrismaClientRepository(prismaAdmin)
+  const proposalRepo = new PrismaProposalRepository(prismaAdmin)
+  const checklistRepo = new PrismaChecklistRepository(prismaAdmin)
   const checklistConfig = new StaticChecklistConfig()
-  const policyRepo = new PrismaPolicyRepository(prisma)
-  const claimRepo = new PrismaClaimRepository(prisma, redis)
-  const occurrenceRepo = new PrismaOccurrenceRepository(prisma)
-  const endorsementRepo = new PrismaEndorsementRepository(prisma)
-  const assistanceRepo = new PrismaAssistanceRepository(prisma)
-  const documentRepo = new PrismaDocumentRepository(prisma)
-  const insurerRepo = new PrismaInsurerRepository(prisma)
-  const commissionRepo = new PrismaCommissionRepository(prisma)
+  const policyRepo = new PrismaPolicyRepository(prismaAdmin)
+  const claimRepo = new PrismaClaimRepository(prismaAdmin, redis)
+  const occurrenceRepo = new PrismaOccurrenceRepository(prismaAdmin)
+  const endorsementRepo = new PrismaEndorsementRepository(prismaAdmin)
+  const assistanceRepo = new PrismaAssistanceRepository(prismaAdmin)
+  const documentRepo = new PrismaDocumentRepository(prismaAdmin)
+  const insurerRepo = new PrismaInsurerRepository(prismaAdmin)
+  const commissionRepo = new PrismaCommissionRepository(prismaAdmin)
 
   const storageProvider =
     env.STORAGE_PROVIDER === 'r2'
       ? new R2StorageProvider()
       : new LocalStorageProvider()
 
-  container.register('PrismaClient', { useValue: prisma })
+  container.register('PrismaClient', { useValue: prismaAdmin })
   container.register('ClientRepository', { useValue: clientRepo })
   container.register('ProposalRepository', { useValue: proposalRepo })
   container.register('ChecklistRepository', { useValue: checklistRepo })
@@ -314,7 +314,7 @@ export function registerDependencies(redis: Redis | null = null) {
   })
 
   // Member use cases
-  const memberRepo = new PrismaMemberRepository(prisma)
+  const memberRepo = new PrismaMemberRepository(prismaAdmin)
   container.register('MemberRepository', { useValue: memberRepo })
   container.register(UpdateMemberRole, {
     useFactory: () => new UpdateMemberRole(memberRepo),
@@ -324,14 +324,14 @@ export function registerDependencies(redis: Redis | null = null) {
   })
 
   // Invitation use cases
-  const invitationRepo = new PrismaInvitationRepository(prisma)
+  const invitationRepo = new PrismaInvitationRepository(prismaAdmin)
   container.register('InvitationRepository', { useValue: invitationRepo })
   container.register(AcceptInvitation, {
     useFactory: () => new AcceptInvitation(invitationRepo),
   })
 
   // Notification use cases
-  const notificationRepo = new PrismaNotificationRepository(prisma)
+  const notificationRepo = new PrismaNotificationRepository(prismaAdmin)
   container.register('NotificationRepository', { useValue: notificationRepo })
   container.register(ListNotifications, {
     useFactory: () => new ListNotifications(notificationRepo),

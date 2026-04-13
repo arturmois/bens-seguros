@@ -5,7 +5,7 @@ import {
   type DocumentRepository,
   type StorageProvider,
 } from '@repo/core'
-import { prisma } from '@repo/db'
+import { prismaAdmin as prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
