@@ -23,8 +23,8 @@ vi.mock('@react-pdf/renderer', async (importOriginal) => {
   }
 })
 
-vi.mock('@repo/db', () => ({
-  prisma: {
+vi.mock('@repo/db', () => {
+  const mock = {
     organization: {
       findUnique: vi.fn().mockResolvedValue({
         id: 'org-test-00000000-0000-0000-0000-000000000001',
@@ -32,8 +32,9 @@ vi.mock('@repo/db', () => ({
         logo: null,
       }),
     },
-  },
-}))
+  }
+  return { prisma: mock, prismaAdmin: mock }
+})
 
 vi.mock('../../../pdf-templates/proposal-quote-pdf.js', () => ({
   ProposalQuotePdf: vi.fn().mockReturnValue(null),

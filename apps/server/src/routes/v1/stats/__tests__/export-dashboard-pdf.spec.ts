@@ -23,8 +23,8 @@ vi.mock('@react-pdf/renderer', async (importOriginal) => {
   }
 })
 
-vi.mock('@repo/db', () => ({
-  prisma: {
+vi.mock('@repo/db', () => {
+  const mock = {
     organization: {
       findUnique: vi.fn().mockResolvedValue({
         id: 'org-test-00000000-0000-0000-0000-000000000001',
@@ -37,8 +37,9 @@ vi.mock('@repo/db', () => ({
         updatedAt: new Date('2025-01-01'),
       }),
     },
-  },
-}))
+  }
+  return { prisma: mock, prismaAdmin: mock }
+})
 
 vi.mock('../stats-helpers.js', () => ({
   buildDashboardData: vi.fn(),

@@ -27,11 +27,12 @@ vi.mock('@react-pdf/renderer', async (importOriginal) => {
     renderToBuffer: vi.fn().mockResolvedValue(Buffer.from('pdf')),
   }
 })
-vi.mock('@repo/db', () => ({
-  prisma: {
+vi.mock('@repo/db', () => {
+  const mock = {
     organization: { findUnique: vi.fn().mockResolvedValue(null) },
-  },
-}))
+  }
+  return { prisma: mock, prismaAdmin: mock }
+})
 vi.mock('../../../pdf-templates/policy-summary-pdf.js', () => ({
   PolicySummaryPdf: vi.fn().mockReturnValue(null),
 }))

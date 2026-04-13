@@ -24,8 +24,8 @@ vi.mock('@react-pdf/renderer', async (importOriginal) => {
   }
 })
 
-vi.mock('@repo/db', () => ({
-  prisma: {
+vi.mock('@repo/db', () => {
+  const mock = {
     organization: {
       findUnique: vi.fn().mockResolvedValue({
         id: 'org-test-00000000-0000-0000-0000-000000000001',
@@ -36,8 +36,9 @@ vi.mock('@repo/db', () => ({
     client: {
       findFirst: vi.fn().mockResolvedValue(null),
     },
-  },
-}))
+  }
+  return { prisma: mock, prismaAdmin: mock }
+})
 
 vi.mock('@repo/shared', () => ({
   decrypt: vi.fn().mockReturnValue('12345678901'),

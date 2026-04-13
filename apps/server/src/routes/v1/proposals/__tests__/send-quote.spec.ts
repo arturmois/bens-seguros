@@ -28,8 +28,8 @@ vi.mock('@react-pdf/renderer', async (importOriginal) => {
   }
 })
 
-vi.mock('@repo/db', () => ({
-  prisma: {
+vi.mock('@repo/db', () => {
+  const mock = {
     client: {
       findFirst: vi.fn().mockResolvedValue({
         email: 'cliente@example.com',
@@ -49,8 +49,9 @@ vi.mock('@repo/db', () => ({
         email: 'vendedor@example.com',
       }),
     },
-  },
-}))
+  }
+  return { prisma: mock, prismaAdmin: mock }
+})
 
 vi.mock('../../../pdf-templates/proposal-quote-pdf.js', () => ({
   ProposalQuotePdf: vi.fn().mockReturnValue(null),

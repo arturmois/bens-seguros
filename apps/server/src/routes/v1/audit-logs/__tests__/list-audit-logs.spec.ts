@@ -18,14 +18,16 @@ import { listAuditLogsRoute } from '../list-audit-logs.js'
 
 vi.mock('@repo/db', async (importOriginal) => {
   const mod = await importOriginal<typeof import('@repo/db')>()
+  const mockPrisma = {
+    auditLog: {
+      findMany: vi.fn(),
+      count: vi.fn(),
+    },
+  }
   return {
     ...mod,
-    prisma: {
-      auditLog: {
-        findMany: vi.fn(),
-        count: vi.fn(),
-      },
-    },
+    prisma: mockPrisma,
+    prismaAdmin: mockPrisma,
   }
 })
 

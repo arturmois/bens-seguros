@@ -18,11 +18,13 @@ import { createClaimRoute } from '../create-claim.js'
 
 vi.mock('@repo/db', async (importOriginal) => {
   const mod = await importOriginal<typeof import('@repo/db')>()
+  const mockPrisma = {
+    member: { findMany: vi.fn().mockResolvedValue([]) },
+  }
   return {
     ...mod,
-    prisma: {
-      member: { findMany: vi.fn().mockResolvedValue([]) },
-    },
+    prisma: mockPrisma,
+    prismaAdmin: mockPrisma,
   }
 })
 

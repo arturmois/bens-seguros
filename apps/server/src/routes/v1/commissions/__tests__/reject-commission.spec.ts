@@ -23,11 +23,13 @@ import { rejectCommissionRoute } from '../reject-commission.js'
 
 vi.mock('@repo/db', async (importOriginal) => {
   const mod = await importOriginal<typeof import('@repo/db')>()
+  const mockPrisma = {
+    user: { findUnique: vi.fn().mockResolvedValue(null) },
+  }
   return {
     ...mod,
-    prisma: {
-      user: { findUnique: vi.fn().mockResolvedValue(null) },
-    },
+    prisma: mockPrisma,
+    prismaAdmin: mockPrisma,
   }
 })
 
