@@ -20,6 +20,7 @@ if (env.SENTRY_DSN) {
   Sentry.init({
     dsn: env.SENTRY_DSN,
     environment: env.NODE_ENV,
+    serverName: 'bens-chat-worker',
     tracesSampleRate: 0.2,
     beforeSend(event) {
       return stripPiiFromEvent(event)
@@ -156,6 +157,12 @@ function buildChannelEvents(
 function attachWorkerErrorLogger(worker: Worker, queue: string): void {
   worker.on('failed', (job, err) => {
     logger.error({ jobId: job?.id, queue, err }, 'Job failed')
+    if (env.SENTRY_DSN) {
+      Sentry.captureException(err, {
+        tags: { queue, jobName: job?.name },
+        extra: { jobId: job?.id, attemptsMade: job?.attemptsMade },
+      })
+    }
   })
 }
 

@@ -3,6 +3,7 @@ import helmet from '@fastify/helmet'
 import multipart from '@fastify/multipart'
 import rateLimit from '@fastify/rate-limit'
 import swagger from '@fastify/swagger'
+import crypto from 'node:crypto'
 import { createAuth } from '@repo/auth'
 import {
   ResendEmailProvider,
@@ -63,10 +64,16 @@ export async function buildApp() {
     },
     bodyLimit: 10 * 1024 * 1024, // S6: 10MB
     trustProxy: true,
+    genReqId: () => crypto.randomUUID(),
+    requestIdHeader: 'x-request-id',
   })
 
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
+
+  app.addHook('onSend', async (request, reply) => {
+    reply.header('x-request-id', request.id)
+  })
 
   await app.register(cors, {
     origin: env.FRONTEND_URL,

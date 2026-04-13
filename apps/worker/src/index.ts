@@ -15,6 +15,7 @@ if (env.SENTRY_DSN) {
   Sentry.init({
     dsn: env.SENTRY_DSN,
     environment: env.NODE_ENV,
+    serverName: 'bens-worker',
     tracesSampleRate: 0.2,
     beforeSend(event) {
       return stripPiiFromEvent(event)
@@ -60,6 +61,27 @@ const proactiveAlerts = setupProactiveAlertsProcessor(
   notifications.queue
 )
 const sendQuoteEmail = setupSendQuoteEmailProcessor(connection)
+
+// Centralized Sentry error handler for BullMQ job failures
+const allWorkers = [
+  auditArchive.worker,
+  csvImport.worker,
+  expirePolicies.worker,
+  notifications.worker,
+  proactiveAlerts.worker,
+  sendQuoteEmail.worker,
+]
+
+for (const w of allWorkers) {
+  w.on('failed', (job, err) => {
+    if (env.SENTRY_DSN) {
+      Sentry.captureException(err, {
+        tags: { queue: w.name, jobName: job?.name },
+        extra: { jobId: job?.id, attemptsMade: job?.attemptsMade },
+      })
+    }
+  })
+}
 
 logger.info(
   'ERP Worker started. Active processors: audit-archive, csv-import, expire-policies, notifications, proactive-alerts, send-quote-email'

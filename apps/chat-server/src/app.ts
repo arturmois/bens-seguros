@@ -4,6 +4,7 @@ import fastifyStatic from '@fastify/static'
 import { env } from '@repo/env'
 import * as Sentry from '@sentry/node'
 import { createAdapter } from '@socket.io/redis-adapter'
+import crypto from 'node:crypto'
 import type {
   FastifyError,
   FastifyInstance,
@@ -70,10 +71,16 @@ export async function buildChatApp(
       redact: PINO_REDACT_CONFIG,
     },
     trustProxy: true,
+    genReqId: () => crypto.randomUUID(),
+    requestIdHeader: 'x-request-id',
   })
 
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
+
+  app.addHook('onSend', async (request, reply) => {
+    reply.header('x-request-id', request.id)
+  })
 
   const allowedOrigins = new Set([env.FRONTEND_URL])
 
