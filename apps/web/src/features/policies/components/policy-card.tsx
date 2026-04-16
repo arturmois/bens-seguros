@@ -39,6 +39,10 @@ export function PolicyCard({ policy }: PolicyCardProps) {
         </Badge>
       </div>
 
+      <p className="text-muted-foreground text-sm">
+        {policy.clientName || '—'}
+      </p>
+
       <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
         <div>
           <div className="text-muted-foreground text-xs">Ramo</div>
