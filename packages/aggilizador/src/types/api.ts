@@ -105,27 +105,32 @@ export interface ApiContactResponse {
 }
 
 export interface ApiAutoSubmitPayload {
-  CalculationType: number
   Id: string | null
+  OnlineId: null
   BrokerId: number
+  DeviceId: null
   InsuranceBroker: string
   CalculationAuto: {
     Segurado: ApiInsured
+    CondutorPrincipal: ApiDriver
     Veiculo: ApiVehicle
     Questionario: ApiQuestionnaire
+    Caminhao: null
+    Cobertura: null
     Seguro: ApiInsurance
-    Condutor: ApiDriver
   }
-  CalculationHealth: null
+  CalculationResidence: null
   CalculationLife: null
-  CalculationResidential: null
+  CalculationTravel: null
   CalculationBusiness: null
   CalculationCondominium: null
   CalculationRural: null
-  CalculationTravel: null
+  CalculationHealth: null
   CalculationPet: null
   CalculationBike: null
   CalculationPhone: null
+  Type: number
+  Renovation: boolean
 }
 
 export interface ApiEnumOption {
