@@ -84,14 +84,16 @@ Validação semântica via `date-fns/parse` com `dd/MM/yyyy` + `isValid`. Limite
 
 ```ts
 interface DatePickerProps {
-  value: string | null // ISO 8601 ou null
-  onChange: (iso: string | null) => void
-  disabled?: boolean
-  placeholder?: string // default: "DD/MM/AAAA"
-  id?: string
-  'aria-invalid'?: boolean
+  readonly value?: Date
+  readonly onChange: (date: Date | undefined) => void
+  readonly placeholder?: string // default: "DD/MM/AAAA"
+  readonly disabled?: boolean
+  readonly className?: string
+  readonly id?: string
 }
 ```
+
+> **Nota:** `value` é `Date | undefined`; consumers continuam convertendo ISO↔Date no boundary via `parseDateString`/`formatDateToISO` locais.
 
 **Layout**:
 
@@ -152,19 +154,16 @@ Forms (`personal-info-fields.tsx`, `issue-policy-dialog`, `claim-form.tsx`, `end
 - `normalizeToMask`: `01011990` → `01/01/1990`; `01-01-1990` → `01/01/1990`; `"01/01/1990 "` → `"01/01/1990"`; `"01011990abc"` → `"01/01/1990"`; preserva truncagem a 10 chars.
 - `formatDateToBR`: 15 de março de 2026 → `15/03/2026`; 1º de janeiro de 1990 → `01/01/1990` (zero-padding).
 
-### 7.2 `components/ui/date-picker.spec.tsx`
+### 7.2 QA Playwright (componente coberto por integração, não unit test)
 
-- Renderiza com `value={null}` → input vazio.
-- Renderiza com `value="1990-01-01T00:00:00.000Z"` → input mostra `01/01/1990`.
-- Digita `01/01/1990` + blur → `onChange` chamado com ISO correto.
-- Cola `01011990` → input preenche `01/01/1990`, `onChange` dispara com ISO.
-- Cola `01-01-1990` → aceita e normaliza.
-- Cola `1990-01-01` (ISO) → **não aceita**, `onChange(null)`, erro visual aparece.
-- Cola `"texto 01/01/1990 extra"` → **não aceita** (não procuramos data dentro de texto).
-- Digita `32/13/2020` + blur → erro visual, `onChange(null)`.
-- Apaga tudo + blur → `onChange(null)`, sem erro visual.
-- Clica no botão do calendário → popover abre.
-- Seleciona dia no Calendar → input preenche, popover fecha, `onChange` chamado.
+Testes manuais via QA Playwright em `apps/web` (sem vitest configurado nesse app):
+
+- Paste `01011990` → `01/01/1990`, `onChange` dispara com Date.
+- Paste `15-03-1990` → `15/03/1990`, normaliza hífens.
+- Paste `32/13/2020` → borda vermelha + "Data inválida", `onChange(undefined)`.
+- Calendário → seleciona dia → input preenche, popover fecha, `onChange` chamado.
+- Mobile 375px → layout OK, `inputMode="numeric"`.
+- Dark mode → tokens shadcn herdados, contraste OK.
 - Prop `value` muda externamente → input sincroniza.
 - `aria-invalid` é true quando `localError` é true.
 
