@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isLeapYear, isValidDate } from './date-utils.js'
+import { isLeapYear, isValidDate, applyCenturyPivot } from './date-utils.js'
 
 describe('isLeapYear', () => {
   it('returns true for year divisible by 4 but not 100', () => {
@@ -52,5 +52,19 @@ describe('isValidDate', () => {
     expect(isValidDate(1, 1, 1899)).toBe(false)
     const farFuture = new Date().getFullYear() + 11
     expect(isValidDate(1, 1, farFuture)).toBe(false)
+  })
+})
+
+describe('applyCenturyPivot', () => {
+  it('maps years >= 30 to 19xx', () => {
+    expect(applyCenturyPivot(30)).toBe(1930)
+    expect(applyCenturyPivot(99)).toBe(1999)
+    expect(applyCenturyPivot(75)).toBe(1975)
+  })
+
+  it('maps years < 30 to 20xx', () => {
+    expect(applyCenturyPivot(0)).toBe(2000)
+    expect(applyCenturyPivot(29)).toBe(2029)
+    expect(applyCenturyPivot(15)).toBe(2015)
   })
 })

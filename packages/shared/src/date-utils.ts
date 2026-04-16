@@ -26,3 +26,10 @@ export function isValidDate(day: number, month: number, year: number): boolean {
   ]
   return day <= daysInMonth[month - 1]
 }
+
+const CENTURY_PIVOT = 30
+
+export function applyCenturyPivot(twoDigitYear: number): number {
+  if (twoDigitYear >= CENTURY_PIVOT) return 1900 + twoDigitYear
+  return 2000 + twoDigitYear
+}
