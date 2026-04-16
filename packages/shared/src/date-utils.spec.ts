@@ -4,6 +4,7 @@ import {
   isValidDate,
   applyCenturyPivot,
   parseFlexibleDate,
+  normalizeToMask,
 } from './date-utils.js'
 
 describe('isLeapYear', () => {
@@ -141,5 +142,48 @@ describe('parseFlexibleDate', () => {
   it('accepts Feb 29 on leap year', () => {
     const d = parseFlexibleDate('29/02/2024')
     expect(d).toEqual(new Date(Date.UTC(2024, 1, 29)))
+  })
+})
+
+describe('normalizeToMask', () => {
+  it('inserts slashes into 8-digit input', () => {
+    expect(normalizeToMask('01011990')).toBe('01/01/1990')
+  })
+
+  it('inserts slashes into 6-digit input', () => {
+    expect(normalizeToMask('010130')).toBe('01/01/30')
+  })
+
+  it('replaces hyphens with slashes', () => {
+    expect(normalizeToMask('01-01-1990')).toBe('01/01/1990')
+  })
+
+  it('preserves already-formatted input', () => {
+    expect(normalizeToMask('01/01/1990')).toBe('01/01/1990')
+  })
+
+  it('strips non-date characters', () => {
+    expect(normalizeToMask('abc01011990xyz')).toBe('01/01/1990')
+  })
+
+  it('strips whitespace', () => {
+    expect(normalizeToMask('  01/01/1990  ')).toBe('01/01/1990')
+  })
+
+  it('handles datetime suffix by truncating to date only', () => {
+    expect(normalizeToMask('01/01/1990 10:30')).toBe('01/01/1990')
+  })
+
+  it('returns empty string for empty input', () => {
+    expect(normalizeToMask('')).toBe('')
+  })
+
+  it('returns partial digits when length is not 6 or 8', () => {
+    expect(normalizeToMask('0101')).toBe('0101')
+    expect(normalizeToMask('010')).toBe('010')
+  })
+
+  it('truncates to 10 chars max (DD/MM/AAAA)', () => {
+    expect(normalizeToMask('01/01/19901234')).toBe('01/01/1990')
   })
 })

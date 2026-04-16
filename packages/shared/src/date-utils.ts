@@ -78,3 +78,22 @@ function parseDigits(
   if (!isValidDate(day, month, year)) return null
   return new Date(Date.UTC(year, month - 1, day))
 }
+
+const VALID_MASK_CHARS = /[^\d/-]/g
+
+export function normalizeToMask(input: string): string {
+  if (!input) return ''
+  const cleaned = input.replace(VALID_MASK_CHARS, '').replace(/-/g, '/')
+
+  if (DIGITS_ONLY.test(cleaned)) {
+    if (cleaned.length === 8) {
+      return `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`
+    }
+    if (cleaned.length === 6) {
+      return `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 6)}`
+    }
+    return cleaned
+  }
+
+  return cleaned.slice(0, 10)
+}
