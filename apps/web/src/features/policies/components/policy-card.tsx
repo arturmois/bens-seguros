@@ -40,7 +40,7 @@ export function PolicyCard({ policy }: PolicyCardProps) {
       </div>
 
       <p className="text-muted-foreground text-sm">
-        {policy.clientName || '—'}
+        {policy.clientName ?? '—'}
       </p>
 
       <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">

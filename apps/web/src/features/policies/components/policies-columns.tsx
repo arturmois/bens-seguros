@@ -14,7 +14,6 @@ import {
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { hasPermission } from '@/lib/permissions'
@@ -54,16 +53,14 @@ export function createPolicyColumns(
         const name = row.original.clientName
         if (!name) return <span className="text-muted-foreground">—</span>
         return (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <span className="block max-w-[200px] truncate">{name}</span>
-                }
-              />
-              <TooltipContent side="top">{name}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <span className="block max-w-[200px] truncate">{name}</span>
+              }
+            />
+            <TooltipContent side="top">{name}</TooltipContent>
+          </Tooltip>
         )
       },
       enableSorting: false,
