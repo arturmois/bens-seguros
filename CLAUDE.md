@@ -273,6 +273,7 @@ Organization: **Corretora Exemplo** (slug: `corretora-exemplo`). Includes 8 insu
 - **AI SDK keys:** passed explicitly via `createAnthropic({ apiKey: env.ANTHROPIC_API_KEY })` — never let SDKs read `process.env` implicitly
 - **tsup bundling:** when adding `@repo/env` as a dependency to a workspace package, ensure that package is in `noExternal` in all tsup configs (`apps/server`, `apps/worker`, `apps/chat-server`, `apps/chat-worker`)
 - **Test environment:** vitest configs must include `env` block with required vars (`DATABASE_URL`, `MONGODB_URL`, `AUTH_SECRET`, `SOCKET_JWT_SECRET`, `ENCRYPTION_KEY`) since `@repo/env` validates at import time
+- **`DATABASE_ADMIN_URL`:** optional in dev, required in prod. Enables the `prismaAdmin` client (superuser) that bypasses RLS — needed for DI container repos and worker jobs without per-request tenant context. Without it in prod, DI repo queries fail silently (RLS blocks them). See Database section for the dual-client pattern.
 
 ### Backend (Fastify + Core)
 
@@ -313,6 +314,10 @@ Organization: **Corretora Exemplo** (slug: `corretora-exemplo`). Includes 8 insu
 - **All timestamps:** `createdAt` (default now), `updatedAt` (auto)
 - **Indexes:** always on `(organizationId, <filter_field>)` combinations
 - **Migrations:** Prisma migrate for production, db push for dev only
+- **`prisma` vs `prismaAdmin` (from `@repo/db`):** two clients are exported.
+  - `prisma` — role `app_user`, RLS enforced via `app.current_tenant`. Used **only** through `createTenantClient()` in request-scoped code with `organizationId` from the request (defense in depth).
+  - `prismaAdmin` — superuser via `DATABASE_ADMIN_URL`, bypasses RLS. **Required in `@injectable()` repos (DI container) and worker jobs** — they have no per-request context, so RLS would block all queries. Tenant isolation for these repos depends on the manual `organizationId` filter (already mandatory per this section's rules).
+  - Injecting `prisma` directly into a DI repo breaks silently in prod (zero rows returned).
 
 ### Testing
 
@@ -343,28 +348,28 @@ Cada etapa (task) dos planos em `docs/plans/` segue este fluxo obrigatorio:
 
 **OBRIGATORIO:** O agente DEVE carregar as skills e ler os documentos relevantes ANTES de implementar. Skills contem regras, patterns e anti-patterns que evitam retrabalho.
 
-| Contexto da Tarefa                      | Skills para Carregar                                                        | Documentos para Ler                                        |
-| --------------------------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| **Frontend (componentes, pages, UI)**   | `ui-ux-pro-max`, `shadcn`, `frontend-design`, `vercel-react-best-practices` | `docs/UI-PATTERNS.md`, `docs/FRONTEND-PATTERNS.md`         |
-| **Backend (routes, use cases, API)**    | `better-auth-best-practices` (se auth)                                      | `docs/ARCHITECTURE-DECISIONS.md`, `ESPECIFICACAO-FINAL.md` |
-| **Database (schema, migrations, seed)** | `prisma-database-setup`                                                     | `docs/ARCHITECTURE-DECISIONS.md` (GAP-2, GAP-5)            |
-| **Monorepo (turbo, packages, build)**   | `turborepo`                                                                 | `docs/ARCHITECTURE-DECISIONS.md` (GAP-7)                   |
-| **Testes**                              | `superpowers:test-driven-development`                                       | `CLAUDE.md` secao Testing                                  |
-| **Design System (cores, tokens, tema)** | `ui-ux-pro-max`, `shadcn`                                                   | `docs/UI-PATTERNS.md` secao 1                              |
-| **Formularios**                         | `ui-ux-pro-max`, `shadcn`                                                   | `docs/UI-PATTERNS.md` secao 3                              |
-| **Tabelas e DataTable**                 | `ui-ux-pro-max`                                                             | `docs/UI-PATTERNS.md` secao 2                              |
-| **Charts e Dashboard**                  | `ui-ux-pro-max`                                                             | `docs/UI-PATTERNS.md` secao 1                              |
-| **Auth e RBAC**                         | `better-auth-best-practices`                                                | `docs/ARCHITECTURE-DECISIONS.md` (AUTH-1 a AUTH-8)         |
-| **Docker e Deploy**                     | `turborepo`                                                                 | `docs/ARCHITECTURE-DECISIONS.md` (GAP-7)                   |
-| **Code Review**                         | `superpowers:code-reviewer`, `simplify`                                     | `CLAUDE.md` (todas as regras)                              |
-| **Debug**                               | `superpowers:systematic-debugging`                                          | —                                                          |
-| **Planning**                            | `superpowers:writing-plans`                                                 | `docs/plans/`                                              |
+| Contexto da Tarefa                      | Skills para Carregar                                                                       | Documentos para Ler                                        |
+| --------------------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| **Frontend (componentes, pages, UI)**   | `frontend-design`, `vercel:shadcn`, `vercel-react-best-practices`, `web-design-guidelines` | `docs/UI-PATTERNS.md`, `docs/FRONTEND-PATTERNS.md`         |
+| **Backend (routes, use cases, API)**    | `fastify-best-practices`, `auth-security-audit` (se auth), `orval` (se API client)         | `docs/ARCHITECTURE-DECISIONS.md`, `ESPECIFICACAO-FINAL.md` |
+| **Database (schema, migrations, seed)** | —                                                                                          | `docs/ARCHITECTURE-DECISIONS.md` (GAP-2, GAP-5)            |
+| **Monorepo (turbo, packages, build)**   | —                                                                                          | `docs/ARCHITECTURE-DECISIONS.md` (GAP-7)                   |
+| **Testes**                              | `superpowers:test-driven-development`                                                      | `CLAUDE.md` secao Testing                                  |
+| **Design System (cores, tokens, tema)** | `frontend-design`, `vercel:shadcn`                                                         | `docs/UI-PATTERNS.md` secao 1                              |
+| **Formularios**                         | `frontend-design`, `vercel:shadcn`                                                         | `docs/UI-PATTERNS.md` secao 3                              |
+| **Tabelas e DataTable**                 | `web-design-guidelines`                                                                    | `docs/UI-PATTERNS.md` secao 2                              |
+| **Charts e Dashboard**                  | `web-design-guidelines`                                                                    | `docs/UI-PATTERNS.md` secao 1                              |
+| **Auth e RBAC**                         | `auth-security-audit`                                                                      | `docs/ARCHITECTURE-DECISIONS.md` (AUTH-1 a AUTH-8)         |
+| **Docker e Deploy**                     | `docker-expert`, `multi-stage-dockerfile`, `docker-compose-orchestration`                  | `docs/ARCHITECTURE-DECISIONS.md` (GAP-7)                   |
+| **Code Review**                         | `superpowers:requesting-code-review`, `simplify`                                           | `CLAUDE.md` (todas as regras)                              |
+| **Debug**                               | `superpowers:systematic-debugging`                                                         | —                                                          |
+| **Planning**                            | `superpowers:writing-plans`                                                                | `docs/plans/`                                              |
 
-**Regra:** Se a tarefa envolve frontend visual, a skill `ui-ux-pro-max` e **obrigatoria**. Ela contem 99 UX guidelines, anti-patterns, e checklists que o agente DEVE seguir. Ignorar skills resulta em codigo que nao segue os padroes definidos.
+**Regra:** Se a tarefa envolve frontend visual, as skills `frontend-design` e `web-design-guidelines` sao **obrigatorias**. Elas contem guidelines de design, audits de UI/UX, anti-patterns e checklists que o agente DEVE seguir. Ignorar skills resulta em codigo que nao segue os padroes definidos.
 
-**Regra:** Se a tarefa envolve shadcn/ui, a skill `shadcn` e **obrigatoria**. Ela contem exemplos, composicoes e customizacoes do @coss/style preset.
+**Regra:** Se a tarefa envolve shadcn/ui, a skill `vercel:shadcn` e **obrigatoria**. Ela contem exemplos, composicoes e customizacoes do preset @coss/style.
 
-**Regra:** Ao implementar componentes React/Next.js, SEMPRE carregar `vercel-react-best-practices`. Ela contem 62 regras de performance priorizadas (waterfalls, bundle size, re-renders, hydration).
+**Regra:** Ao implementar componentes React/Next.js, SEMPRE carregar `vercel-react-best-practices`. Ela contem regras de performance priorizadas (waterfalls, bundle size, re-renders, hydration).
 
 ### Fase 2: Implementacao
 
