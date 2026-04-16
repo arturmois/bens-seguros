@@ -38,7 +38,6 @@ export function DatePicker({
   )
   const [localError, setLocalError] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
-  const inputRef = React.useRef<HTMLInputElement>(null)
 
   React.useEffect(() => {
     setTextValue(value ? formatDateToBR(value) : '')
@@ -48,10 +47,9 @@ export function DatePicker({
   React.useEffect(() => {
     if (!open) return
     function handleClickOutside(event: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
+      const target = event.target
+      if (!(target instanceof Node)) return
+      if (containerRef.current && !containerRef.current.contains(target)) {
         requestAnimationFrame(() => setOpen(false))
       }
     }
@@ -128,7 +126,6 @@ export function DatePicker({
         id={id}
         aria-invalid={localError || undefined}
         aria-describedby={localError ? `${id ?? 'date'}-error` : undefined}
-        ref={inputRef}
       />
       <button
         type="button"
