@@ -112,7 +112,6 @@ export function IssuePolicyDialog({
                   <DatePicker
                     value={parseDateString(field.value)}
                     onChange={(date) => field.onChange(formatDateToISO(date))}
-                    placeholder="Selecione a data de início"
                   />
                 )}
               />
@@ -130,7 +129,6 @@ export function IssuePolicyDialog({
                   <DatePicker
                     value={parseDateString(field.value)}
                     onChange={(date) => field.onChange(formatDateToISO(date))}
-                    placeholder="Selecione a data de fim"
                   />
                 )}
               />
