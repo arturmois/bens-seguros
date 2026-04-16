@@ -1,11 +1,12 @@
 'use client'
 
 import type { FieldValues } from 'react-hook-form'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { CurrencyInput } from '@/components/ui/currency-input'
+import { PercentageInput } from '@/components/ui/percentage-input'
 
 import type { InsuranceBranch, InsuredObjectDetails } from '../lib/constants'
 import {
@@ -88,8 +89,8 @@ export function BranchFields({
     const details: InsuredObjectDetails = buildDetails(branch, rest)
     onSubmit({
       details,
-      premiumValueInCents: Number(premiumValueInCents) || 0,
-      commissionBasisPoints: Number(commissionBasisPoints) || 0,
+      premiumValueInCents: premiumValueInCents ?? 0,
+      commissionBasisPoints: commissionBasisPoints ?? 0,
     })
   }
 
@@ -107,28 +108,28 @@ export function BranchFields({
 
       <div className="border-border border-t pt-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <FieldWrapper
-            label="Valor do Prêmio"
-            required
-            hint="Em centavos (ex: 150000 = R$ 1.500,00)"
-          >
-            <Input
-              type="number"
-              placeholder="150000"
-              {...form.register('premiumValueInCents', { valueAsNumber: true })}
+          <FieldWrapper label="Valor do Prêmio" required>
+            <Controller
+              name="premiumValueInCents"
+              control={form.control}
+              render={({ field }) => (
+                <CurrencyInput
+                  value={field.value ?? 0}
+                  onChange={field.onChange}
+                />
+              )}
             />
           </FieldWrapper>
-          <FieldWrapper
-            label="Comissão (%)"
-            required
-            hint="Em pontos base (ex: 1500 = 15%)"
-          >
-            <Input
-              type="number"
-              placeholder="1500"
-              {...form.register('commissionBasisPoints', {
-                valueAsNumber: true,
-              })}
+          <FieldWrapper label="Comissão" required>
+            <Controller
+              name="commissionBasisPoints"
+              control={form.control}
+              render={({ field }) => (
+                <PercentageInput
+                  value={field.value ?? 0}
+                  onChange={field.onChange}
+                />
+              )}
             />
           </FieldWrapper>
         </div>
