@@ -35,6 +35,7 @@ import { AssistanceCard } from './assistance-card'
 import { createAssistanceColumns } from './assistances-columns'
 
 export function AssistancesTable() {
+  'use no memo'
   const router = useRouter()
   const pagination = useCursorPagination()
 

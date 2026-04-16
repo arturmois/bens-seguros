@@ -47,6 +47,7 @@ export function ChannelsTable({
   onEmbed,
   onDeactivate,
 }: ChannelsTableProps) {
+  'use no memo'
   const { activeOrg } = useOrgs()
   const role = activeOrg?.role ?? 'VIEWER'
   const [search, setSearch] = useState('')

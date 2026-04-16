@@ -24,8 +24,8 @@ import {
   HIDEABLE_COLUMNS,
   STATUS_FILTER_OPTIONS,
 } from '../lib/constants'
-import type { InsurerData, InsurerStatusFilter } from '../lib/types'
 import { isInsurerSortBy } from '../lib/type-guards'
+import type { InsurerData, InsurerStatusFilter } from '../lib/types'
 import { InsurerCard } from './insurer-card'
 import { InsurerFormDialog } from './insurer-form-dialog'
 import { createInsurerColumns } from './insurers-columns'
@@ -40,6 +40,7 @@ function resolveActiveFilter(status: InsurerStatusFilter): boolean | undefined {
 }
 
 export function InsurersTable() {
+  'use no memo'
   const pagination = useCursorPagination()
   const { activeOrg } = useOrgs()
   const role = activeOrg?.role ?? 'VIEWER'

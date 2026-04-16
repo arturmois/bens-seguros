@@ -23,6 +23,7 @@ export function MobileCardList<T>({
   emptyDescription,
   emptyIcon,
 }: MobileCardListProps<T>) {
+  'use no memo'
   if (isLoading) {
     return (
       <div className="space-y-3 md:hidden">

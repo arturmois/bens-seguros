@@ -10,14 +10,14 @@ import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
 import { TableToolbar } from '@/components/shared/table-toolbar'
 
+import { useProposalsTable } from '../hooks/use-proposals-table'
 import {
+  ALL_FILTER_VALUE,
   BOARD_TYPES,
   BOARD_TYPE_FILTER_OPTIONS,
-  ALL_FILTER_VALUE,
   HIDEABLE_COLUMNS,
   type BoardType,
 } from '../lib/constants'
-import { useProposalsTable } from '../hooks/use-proposals-table'
 import { LostReasonDialog } from './lost-reason-dialog'
 import { ProposalCard } from './proposal-card'
 import {
@@ -32,6 +32,7 @@ interface ProposalsTableProps {
 export function ProposalsTable({
   allowedBoardTypes = BOARD_TYPES,
 }: ProposalsTableProps) {
+  'use no memo'
   const router = useRouter()
   const {
     table,

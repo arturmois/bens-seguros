@@ -37,6 +37,7 @@ import { ClaimCard } from './claim-card'
 import { createClaimColumns } from './claims-columns'
 
 export function ClaimsTable() {
+  'use no memo'
   const router = useRouter()
   const pagination = useCursorPagination()
   const { activeOrg } = useOrgs()

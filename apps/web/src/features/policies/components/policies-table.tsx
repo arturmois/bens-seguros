@@ -34,6 +34,7 @@ function isStatus(value: string): value is PolicyStatus {
 }
 
 export function PoliciesTable() {
+  'use no memo'
   const router = useRouter()
   const pagination = useCursorPagination()
   const { activeOrg } = useOrgs()

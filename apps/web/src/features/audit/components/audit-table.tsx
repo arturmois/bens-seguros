@@ -27,6 +27,7 @@ import { AuditDetailModal } from './audit-detail-modal'
 import { AuditToolbar } from './audit-toolbar'
 
 export function AuditTable() {
+  'use no memo'
   const pagination = useCursorPagination(30)
 
   const [actionFilter, setActionFilter] = useState('')

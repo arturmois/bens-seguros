@@ -40,6 +40,7 @@ import { CommissionExportButton } from './commission-export-button'
 import { createCommissionColumns } from './commissions-columns'
 
 export function CommissionsTable() {
+  'use no memo'
   const router = useRouter()
   const pagination = useCursorPagination()
 

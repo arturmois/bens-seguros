@@ -4,15 +4,15 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import {
-  useListProposals,
-  useGetProposal,
-  createProposal,
   advanceProposal,
+  createProposal,
+  getGetProposalChecklistQueryKey,
+  getGetProposalQueryKey,
+  getListProposalsQueryKey,
   markProposalLost,
   updateProposalDetails,
-  getListProposalsQueryKey,
-  getGetProposalQueryKey,
-  getGetProposalChecklistQueryKey,
+  useGetProposal,
+  useListProposals,
 } from '@/api/endpoints/proposals/proposals'
 import type {
   CreateProposalBody,
@@ -22,7 +22,7 @@ import type {
 } from '@/api/model'
 import { ApiError } from '@/lib/api-client'
 
-import type { ProposalStage, BoardType } from '../lib/constants'
+import type { BoardType, ProposalStage } from '../lib/constants'
 
 interface ProposalFilters {
   stage?: ProposalStage

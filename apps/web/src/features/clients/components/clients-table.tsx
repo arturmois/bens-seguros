@@ -28,14 +28,15 @@ import {
   HIDEABLE_COLUMNS,
   TYPE_FILTER_OPTIONS,
 } from '../lib/constants'
-import type { ClientData } from '../lib/types'
 import { isClientType, isSortBy } from '../lib/type-guards'
+import type { ClientData } from '../lib/types'
 import { ClientCard } from './client-card'
 import { ClientExportButton } from './client-export-button'
 import { ClientImportButton } from './client-import-button'
 import { createClientColumns } from './clients-columns'
 
 export function ClientsContent() {
+  'use no memo'
   const router = useRouter()
   const pagination = useCursorPagination()
   const { activeOrg } = useOrgs()

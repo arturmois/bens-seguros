@@ -40,6 +40,7 @@ import { createAiAgentColumns } from './ai-agents-columns'
 import { DeleteAgentDialog } from './delete-agent-dialog'
 
 export function AiAgentsTable() {
+  'use no memo'
   const { activeOrg } = useOrgs()
   const role = activeOrg?.role ?? 'VIEWER'
   const [search, setSearch] = useState('')

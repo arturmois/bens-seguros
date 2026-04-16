@@ -40,6 +40,7 @@ export function DataTable<T>({
   onRowClick,
   skeletonRows = 5,
 }: DataTableProps<T>) {
+  'use no memo'
   const colCount = table.getVisibleLeafColumns().length
 
   return (

@@ -55,6 +55,7 @@ export function MembersTable({
   currentUserId,
   currentUserRole,
 }: MembersTableProps) {
+  'use no memo'
   const { data, isLoading, isError, refetch } = useMembers()
   const removeMember = useRemoveMember()
 
