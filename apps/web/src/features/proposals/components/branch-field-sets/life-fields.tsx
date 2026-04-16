@@ -7,6 +7,7 @@ import {
   type FieldValues,
 } from 'react-hook-form'
 
+import { CurrencyInput } from '@/components/ui/currency-input'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
@@ -91,11 +92,13 @@ export function LifeFields({ register, control }: FieldHelperProps) {
           {...register('occupation')}
         />
       </FieldWrapper>
-      <FieldWrapper label="Renda Mensal (centavos)">
-        <Input
-          type="number"
-          placeholder="Ex: 500000 = R$ 5.000"
-          {...register('monthlyIncomeCents', { valueAsNumber: true })}
+      <FieldWrapper label="Renda Mensal">
+        <Controller
+          name="monthlyIncomeCents"
+          control={control}
+          render={({ field }) => (
+            <CurrencyInput value={field.value ?? 0} onChange={field.onChange} />
+          )}
         />
       </FieldWrapper>
       <FieldWrapper label="Fumante">
