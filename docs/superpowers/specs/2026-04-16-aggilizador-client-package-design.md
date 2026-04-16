@@ -60,14 +60,19 @@ The intermediate step-by-step endpoints (`/Auto/Insured`, `/Auto/Vehicle`, etc.)
 packages/aggilizador/
 ├── src/
 │   ├── index.ts                    # Public exports
-│   ├── client.ts                   # AggilizadorClient class
+│   ├── client.ts                   # AggilizadorClient class (accepts config)
 │   ├── http.ts                     # HTTP helper (fetch wrapper with error handling)
 │   ├── errors.ts                   # AggilizadorApiError, AggilizadorValidationError
 │   ├── types/
 │   │   ├── common.ts               # Shared types (InsuredPerson, ContactInfo, etc.)
 │   │   ├── auto.ts                 # Auto-specific types (Vehicle, Questionnaire, Coverage)
-│   │   ├── enums.ts                # Typed enum maps from /Auto/Data
+│   │   ├── enums.ts                # Typed enum unions (Gender, FuelType, etc.)
 │   │   └── api.ts                  # Raw API request/response shapes
+│   ├── mappings/
+│   │   ├── enum-registry.ts        # Dynamic enum loader from /Auto/Data + in-memory cache
+│   │   └── auto-enum-defaults.ts   # Hardcoded fallback mappings (single file, easy to update)
+│   ├── builders/
+│   │   └── auto-payload-builder.ts # Transforms our types → API JSON payloads
 │   ├── branches/
 │   │   └── auto.ts                 # AutoQuoteService
 │   └── fipe/
@@ -86,7 +91,11 @@ packages/aggilizador/
 ```ts
 import { AggilizadorClient } from '@repo/aggilizador'
 
-const client = new AggilizadorClient()
+// URLs configurable — defaults to production Aggilizador
+const client = new AggilizadorClient({
+  baseUrl: 'https://api.aggilizador.com.br', // optional, this is the default
+  fipeBaseUrl: 'https://fipe.agger.com.br', // optional, this is the default
+})
 
 // Auto insurance quote
 const result = await client.auto.submitQuote({
@@ -367,14 +376,51 @@ interface AutoEnums {
 
 ```
 1. Validate input with Zod schemas
-2. Map typed enums to API string keys (e.g., Gender.FEMALE → '2')
-3. Format phone: { areaCode: '11', number: '999998888' } → { Ddd: '(11)', Numero: '99999-8888' }
-4. Format dates: '1985-03-15' → '1985-03-15T03:00:00.000Z' (UTC-3 offset)
-5. POST /Auto/Contact → receive { Id }
-6. Build consolidated payload with all sections
-7. POST /Auto with Id → receive confirmation
-8. Return { id }
+2. Resolve enum mappings (see Enum Resolution Strategy below)
+3. Delegate to AutoPayloadBuilder to transform our types → API JSON:
+   - Map typed enums to API string keys (e.g., Gender.FEMALE → '2')
+   - Format phone: { areaCode: '11', number: '999998888' } → { Ddd: '(11)', Numero: '99999-8888' }
+   - Format dates: '1985-03-15' → '1985-03-15T03:00:00.000Z' (UTC-3 offset)
+4. POST /Auto/Contact → receive { Id }
+5. AutoPayloadBuilder.buildSubmitPayload() with all sections + Id
+6. POST /Auto with consolidated payload → receive confirmation
+7. Return { id }
 ```
+
+### Enum Resolution Strategy
+
+Enums are resolved with a **dynamic-first, fallback-to-hardcoded** approach:
+
+```
+1. On first enum access, fetch GET /Auto/Data (48 enum lists)
+2. Cache response in memory (per-client instance, no TTL — lives for process lifetime)
+3. Build runtime enum map: match our English keys (e.g., 'FEMALE') to API keys
+   by Portuguese label lookup (e.g., 'Feminino' → Key '2')
+4. If fetch fails (network error, API down): fall back to hardcoded defaults
+   in auto-enum-defaults.ts
+5. Expose cache.invalidate() for manual refresh if API changes mid-process
+```
+
+This means:
+
+- If Lojacorr adds/removes enum options → automatically picked up on next process start
+- If Lojacorr changes enum Key values → automatically resolved via label matching
+- If Lojacorr changes labels AND keys → update auto-enum-defaults.ts (single file)
+- If API is unreachable → hardcoded fallback keeps the client functional
+
+### Payload Builders
+
+The `AutoPayloadBuilder` class isolates all API shape knowledge:
+
+```ts
+// builders/auto-payload-builder.ts
+class AutoPayloadBuilder {
+  buildContactPayload(input: AutoQuoteInput): ApiContactPayload
+  buildSubmitPayload(input: AutoQuoteInput, id: string): ApiAutoSubmitPayload
+}
+```
+
+If the API changes its JSON structure (adds/removes/renames fields), only the builder file needs updating. The public `AutoQuoteInput` types remain stable for consumers.
 
 ### Error handling
 
@@ -391,17 +437,21 @@ interface AutoEnums {
 
 2. **Native fetch** — Uses Node 22 native `fetch` (undici). No external HTTP library dependency.
 
-3. **Zod validation** — Validates all inputs before sending to API. Fails fast with clear error messages rather than getting cryptic API errors.
+3. **Configurable URLs** — `baseUrl` and `fipeBaseUrl` are constructor parameters with sensible defaults. If Lojacorr changes domains or the package needs to point to a staging environment, no code changes are needed.
 
-4. **Enum mapping layer** — Developer-friendly English string unions (`'FEMALE'`, `'FLEX'`) mapped internally to the API's numeric string keys (`'2'`, `'1'`). Raw API keys never leak to consumers.
+4. **Zod validation** — Validates all inputs before sending to API. Fails fast with clear error messages rather than getting cryptic API errors.
 
-5. **No `@repo/env` dependency** — `brokerId` and `insuranceBroker` are passed per-call, not env vars. The package has zero coupling to the monorepo's config layer. The consumer decides where credentials come from.
+5. **Dynamic enums with hardcoded fallback** — Enum mappings are fetched from `GET /Auto/Data` at runtime and cached in memory. If the API is unreachable, hardcoded defaults in a single file (`auto-enum-defaults.ts`) are used. This means API-side changes to enum keys/values are picked up automatically without redeployment.
 
-6. **No retry/queue logic** — The package is a thin client. Retry policies, queueing, and scheduling are the responsibility of the consumer (e.g., `apps/worker`).
+6. **Isolated payload builders** — All knowledge of the API's JSON structure lives in `builders/auto-payload-builder.ts`. If the API adds, removes, or renames fields, only the builder needs updating. Consumer-facing types (`AutoQuoteInput`) remain stable.
 
-7. **Extensible for other branches** — The `client.auto.*` namespace pattern allows adding `client.residential.*`, `client.life.*` later. Each branch is a separate service class with its own types.
+7. **No `@repo/env` dependency** — `brokerId` and `insuranceBroker` are passed per-call, not env vars. The package has zero coupling to the monorepo's config layer. The consumer decides where credentials come from.
 
-8. **FIPE client included** — Vehicle model search via `fipe.agger.com.br` is bundled since it's required to get valid `fipeCode` + `model` + `manufacturer` values.
+8. **No retry/queue logic** — The package is a thin client. Retry policies, queueing, and scheduling are the responsibility of the consumer (e.g., `apps/worker`).
+
+9. **Extensible for other branches** — The `client.auto.*` namespace pattern allows adding `client.residential.*`, `client.life.*` later. Each branch gets its own service class, payload builder, and enum defaults file.
+
+10. **FIPE client included** — Vehicle model search via `fipe.agger.com.br` is bundled since it's required to get valid `fipeCode` + `model` + `manufacturer` values.
 
 ---
 
@@ -451,7 +501,29 @@ Key enums used in `AutoQuoteInput`:
 - Frontend forms or UI
 - Residential, Life, Condominium branches (future extension)
 - Retry/circuit breaker policies
-- Response caching for `/Auto/Data` enums
+
+---
+
+## Maintainability
+
+### What happens when the Lojacorr API changes?
+
+| Change scenario                                                      | Impact                                            | Fix required                                                 |
+| -------------------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------ |
+| Enum key/value changes (e.g., Feminino key changes from '2' to '20') | Auto-resolved via dynamic fetch from `/Auto/Data` | None — picked up on next process start                       |
+| New enum options added (e.g., new fuel type)                         | Auto-resolved via dynamic fetch                   | Add new union member to TypeScript type if consumer needs it |
+| API JSON payload structure changes (fields added/removed/renamed)    | Breaks payload builder                            | Update `auto-payload-builder.ts` only                        |
+| API base URL changes                                                 | Breaks all requests                               | Consumer passes new URL to constructor                       |
+| New endpoint added                                                   | No impact (unused)                                | Add to builder/service if needed                             |
+| Endpoint removed or path changed                                     | Breaks affected request                           | Update `http.ts` or service                                  |
+| Authentication added                                                 | Breaks all requests                               | Add auth config to constructor + http helper                 |
+| FIPE API changes                                                     | Breaks model search                               | Update `fipe-client.ts`                                      |
+
+### Key maintenance files (change here, not everywhere)
+
+- **`mappings/auto-enum-defaults.ts`** — All hardcoded enum fallbacks in one file
+- **`builders/auto-payload-builder.ts`** — All API JSON shape knowledge in one file
+- **`client.ts` constructor** — All configurable URLs/settings in one place
 
 ---
 
