@@ -15,15 +15,15 @@ describe('FipeClient', () => {
   it('searches models by name and year', async () => {
     const mockModels = [
       {
-        Modelo: 'HB20 1.0',
-        Marca: 'HYUNDAI',
-        Codigo: '015220-0',
-        TipoVeiculo: 0,
+        modelo: 'HB20 1.0',
+        marca: 'HYUNDAI',
+        codigo: '015220-0',
+        tipoVeiculo: 0,
       },
     ]
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(
-        new Response(JSON.stringify('mock-token'), { status: 200 })
+        new Response(JSON.stringify({ token: 'mock-token' }), { status: 200 })
       )
       .mockResolvedValueOnce(
         new Response(JSON.stringify(mockModels), { status: 200 })
@@ -43,7 +43,7 @@ describe('FipeClient', () => {
   it('returns empty array when search has no results', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(
-        new Response(JSON.stringify('mock-token'), { status: 200 })
+        new Response(JSON.stringify({ token: 'mock-token' }), { status: 200 })
       )
       .mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 }))
 
@@ -58,7 +58,7 @@ describe('FipeClient', () => {
     const fetchSpy = vi
       .spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(
-        new Response(JSON.stringify('token1'), { status: 200 })
+        new Response(JSON.stringify({ token: 'token1' }), { status: 200 })
       )
       .mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 }))

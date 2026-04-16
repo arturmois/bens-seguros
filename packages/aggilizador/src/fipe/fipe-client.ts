@@ -1,10 +1,10 @@
 import type { FipeModel, FipeSearchInput } from '../types/auto.js'
 
 interface ApiFipeModel {
-  Modelo: string
-  Marca: string
-  Codigo: string
-  TipoVeiculo: number
+  modelo: string
+  marca: string
+  codigo: string
+  tipoVeiculo: number
 }
 
 export class FipeClient {
@@ -30,10 +30,10 @@ export class FipeClient {
     // fetch().json() returns unknown — cast is standard for untyped HTTP responses
     const models = (await response.json()) as ApiFipeModel[]
     return models.map((m) => ({
-      model: m.Modelo,
-      manufacturer: m.Marca,
-      fipeCode: m.Codigo,
-      vehicleType: m.TipoVeiculo,
+      model: m.modelo,
+      manufacturer: m.marca,
+      fipeCode: m.codigo,
+      vehicleType: m.tipoVeiculo,
     }))
   }
 
@@ -42,7 +42,7 @@ export class FipeClient {
 
     const today = new Date().toLocaleDateString('pt-BR')
     const credentials = Buffer.from(
-      `2|bc3fd5a-59ab-4ab5-97a1-7b1709eb9475|${today}`
+      `2|1bc3fd5a-59ab-4ab5-97a1-7b1709eb9475|${today}`
     ).toString('base64')
 
     const response = await fetch(`${this.baseUrl}/api/auth`, {
@@ -52,8 +52,13 @@ export class FipeClient {
     })
 
     if (response.ok) {
-      const token = (await response.json()) as unknown
-      this.authToken = typeof token === 'string' ? token : null
+      const body = (await response.json()) as unknown
+      if (typeof body === 'object' && body !== null && 'token' in body) {
+        const { token } = body as { token: string }
+        this.authToken = token
+      } else if (typeof body === 'string') {
+        this.authToken = body
+      }
     }
   }
 }
