@@ -1,17 +1,17 @@
 'use client'
 
-import * as React from 'react'
-import { CalendarIcon } from 'lucide-react'
-import { InputMask } from '@react-input/mask'
-import { ptBR } from 'date-fns/locale'
-import {
-  parseFlexibleDate,
-  normalizeToMask,
-  formatDateToBR,
-} from '@repo/shared/date-utils'
 import { Calendar } from '@/components/ui/calendar'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
+import { InputMask } from '@react-input/mask'
+import {
+  formatDateToBR,
+  normalizeToMask,
+  parseFlexibleDate,
+} from '@repo/shared/date-utils'
+import { ptBR } from 'date-fns/locale'
+import { CalendarIcon } from 'lucide-react'
+import * as React from 'react'
 
 interface DatePickerProps {
   readonly value?: Date
@@ -38,8 +38,13 @@ export function DatePicker({
   )
   const [localError, setLocalError] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
+  const skipSyncRef = React.useRef(false)
 
   React.useEffect(() => {
+    if (skipSyncRef.current) {
+      skipSyncRef.current = false
+      return
+    }
     setTextValue(value ? formatDateToBR(value) : '')
     setLocalError(false)
   }, [value])
@@ -72,7 +77,10 @@ export function DatePicker({
     const parsed = parseFlexibleDate(trimmed)
     if (!parsed) {
       setLocalError(true)
-      if (value !== undefined) onChange(undefined)
+      if (value !== undefined) {
+        skipSyncRef.current = true
+        onChange(undefined)
+      }
       return
     }
     setLocalError(false)
@@ -94,7 +102,10 @@ export function DatePicker({
       return
     }
     setLocalError(true)
-    if (value !== undefined) onChange(undefined)
+    if (value !== undefined) {
+      skipSyncRef.current = true
+      onChange(undefined)
+    }
   }
 
   function handleFocus(event: React.FocusEvent<HTMLInputElement>) {
