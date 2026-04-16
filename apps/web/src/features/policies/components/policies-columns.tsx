@@ -11,6 +11,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/menu'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { hasPermission } from '@/lib/permissions'
 import type { Role } from '@repo/auth/roles'
 import { formatCurrency, formatDate } from '@/lib/formatters'
@@ -38,6 +44,28 @@ export function createPolicyColumns(
       cell: ({ row }) => (
         <span className="font-medium">{row.original.policyNumber}</span>
       ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: 'clientName',
+      header: 'Segurado',
+      cell: ({ row }) => {
+        const name = row.original.clientName
+        if (!name) return <span className="text-muted-foreground">—</span>
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <span className="block max-w-[200px] truncate">{name}</span>
+                }
+              />
+              <TooltipContent side="top">{name}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )
+      },
       enableSorting: false,
       enableHiding: false,
     },
