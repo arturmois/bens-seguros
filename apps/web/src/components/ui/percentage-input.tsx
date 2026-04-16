@@ -5,6 +5,7 @@ import { useCallback, useRef, useState } from 'react'
 import { Input } from '@/components/ui/input'
 import {
   basisToDisplay,
+  cleanPastedPercent,
   formatPercentInput,
   parsePercentToBasis,
 } from '@/lib/currency'
@@ -51,6 +52,21 @@ export function PercentageInput({
     [onChange, max, maxPercent]
   )
 
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent<HTMLInputElement>) => {
+      e.preventDefault()
+      const pasted = e.clipboardData.getData('text')
+      const cleaned = cleanPastedPercent(pasted)
+      const formatted = formatPercentInput(cleaned, maxPercent)
+      setDisplay(formatted)
+
+      const basis = parsePercentToBasis(formatted, max)
+      lastExternalValue.current = basis
+      onChange(basis)
+    },
+    [onChange, max, maxPercent]
+  )
+
   const handleBlur = useCallback(() => {
     if (!display) return
     const basis = parsePercentToBasis(display, max)
@@ -66,10 +82,12 @@ export function PercentageInput({
       <Input
         type="text"
         inputMode="decimal"
+        aria-label="Porcentagem"
         id={id}
         name={name}
         value={display}
         onChange={handleInput}
+        onPaste={handlePaste}
         onBlur={handleBlur}
         placeholder={placeholder}
         disabled={disabled}

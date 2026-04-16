@@ -82,6 +82,7 @@ export function CurrencyInput({
       <Input
         type="text"
         inputMode="decimal"
+        aria-label="Valor em reais"
         id={id}
         name={name}
         value={display}
