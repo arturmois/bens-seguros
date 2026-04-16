@@ -1,104 +1,7 @@
 import type { ApiAutoDataResponse, ApiEnumOption } from '../types/api.js'
 import type { EnumOption } from '../types/enums.js'
 import { ALL_ENUM_DEFAULTS } from './auto-enum-defaults.js'
-
-/**
- * Maps our English keys to Portuguese labels for each API field.
- * Used to match dynamic API responses back to our domain keys.
- */
-const LABEL_TO_KEY: Record<string, Record<string, string>> = {
-  Sexo: {
-    MALE: 'Masculino',
-    FEMALE: 'Feminino',
-  },
-  EstadoCivil: {
-    MARRIED: 'Casado ou União Estável',
-    DIVORCED: 'Divorciado',
-    SEPARATED: 'Separado',
-    SINGLE: 'Solteiro',
-    WIDOWED: 'Viúvo',
-  },
-  Combustivel: {
-    FLEX: 'Flex',
-    GASOLINE: 'Gasolina',
-    ALCOHOL: 'Álcool',
-    DIESEL: 'Diesel',
-    HYBRID: 'Híbrido',
-    TETRAFUEL: 'Tetrafuel',
-    ELECTRIC: 'Elétrico',
-  },
-  TipoResidencia: {
-    HOUSE: 'Casa',
-    APARTMENT: 'Apartamento',
-    CONDOMINIUM: 'Condomínio',
-    OTHER: 'Outros',
-  },
-  GaragemResidencia: {
-    ELECTRONIC_GATE: 'Com portão eletrônico',
-    MANUAL_GATE: 'Com portão manual',
-    NO_GARAGE: 'Não possui garagem',
-  },
-  GaragemTrabalho: {
-    NOT_APPLICABLE: 'Não utiliza para este fim',
-    NO: 'Não',
-    YES: 'Sim',
-    NOT_WORKING: 'Não trabalha',
-  },
-  GaragemEstudo: {
-    NOT_APPLICABLE: 'Não utiliza para este fim',
-    NO: 'Não',
-    YES: 'Sim',
-    NOT_STUDENT: 'Não estuda',
-  },
-  UsoVeiculo: {
-    PERSONAL: 'Particular',
-    PROFESSIONAL: 'Profissional',
-    TAXI: 'Taxi',
-    APP_DRIVER: 'Motorista de App',
-  },
-  TipoSeguro: {
-    NEW: 'Novo',
-    RENEWAL: 'Renovação',
-  },
-  RelacaoSeguradoCondutor: {
-    SELF: 'Próprio',
-    SPOUSE: 'Cônjuge',
-    EMPLOYEE: 'Empregado(a)',
-    SIBLING: 'Irmão(ã)',
-    CHILD: 'Filho(a)',
-    MOTHER: 'Mãe',
-    FATHER: 'Pai',
-    OTHER: 'Outros',
-  },
-  Rastreador: {
-    NONE: 'Não Possui',
-    AUTOTRAC: 'AutoTrac',
-    CAR_SYSTEM: 'Car System',
-    CELTEC: 'Celtec',
-    CIELO: 'Cielo',
-    GRABER: 'Graber',
-    ITURAN: 'Ituran',
-    TRACKER: 'Tracker',
-    OMNILINK: 'Omnilink',
-    POSITRON: 'Positron',
-    SASCAR: 'Sascar',
-    DAF_V: 'DAF-V',
-    CEABS: 'CEABS',
-    ONSTAR: 'OnStar',
-    LO_JACK: 'Lo Jack',
-    FACTORY_ORIGINAL: 'Original de Fábrica',
-    SEGSAT: 'SEGSAT',
-    SAT_COMPANY: 'SAT COMPANY',
-  },
-  Antifurto: {
-    NONE: 'Não Possui',
-    ALARM: 'Alarme',
-    IGNITION_BLOCKER: 'Bloqueador de Ignição',
-    CARNEIRO_LOCK: 'Trava Carneiro',
-    MULT_LOCK: 'Trava Mul-T-Lock',
-    OTHER: 'Outros',
-  },
-}
+import { LABEL_TO_KEY } from './label-mappings.js'
 
 /**
  * Builds a reverse lookup: Portuguese label (lowercased) -> API Key string,
@@ -151,7 +54,10 @@ export class EnumRegistry {
       }
     }
 
-    // Fallback to hardcoded defaults
+    // Fallback to hardcoded defaults.
+    // TypeScript cannot narrow `keyof typeof` from a runtime string,
+    // so the `as` casts here are necessary and safe — all values in
+    // ALL_ENUM_DEFAULTS are Record<string, string>.
     const defaults =
       ALL_ENUM_DEFAULTS[apiField as keyof typeof ALL_ENUM_DEFAULTS]
     if (defaults) {
@@ -181,7 +87,8 @@ export class EnumRegistry {
       }
     }
 
-    // Fallback: build from hardcoded defaults + LABEL_TO_KEY
+    // Fallback: build from hardcoded defaults + LABEL_TO_KEY.
+    // Same `as` reasoning as in resolve() above.
     const defaults =
       ALL_ENUM_DEFAULTS[apiField as keyof typeof ALL_ENUM_DEFAULTS]
     const labelMap = LABEL_TO_KEY[apiField]

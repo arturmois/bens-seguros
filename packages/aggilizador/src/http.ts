@@ -24,6 +24,7 @@ export async function request<TResult>(
   })
 
   if (response.status === 204) {
+    // 204 responses have no body — callers must handle undefined
     return undefined as TResult
   }
 

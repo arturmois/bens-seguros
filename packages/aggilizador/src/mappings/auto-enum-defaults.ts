@@ -135,4 +135,10 @@ export const ALL_ENUM_DEFAULTS = {
   RelacaoSeguradoCondutor: DRIVER_RELATIONSHIP_MAP,
   Rastreador: TRACKER_MAP,
   Antifurto: ANTITHEFT_MAP,
+  ZeroKm: BOOLEAN_MAP,
+  KitGas: BOOLEAN_MAP,
+  Blindado: BOOLEAN_MAP,
+  Alienado: BOOLEAN_MAP,
+  Pcd: BOOLEAN_MAP,
+  Sinistros: BOOLEAN_MAP,
 } as const

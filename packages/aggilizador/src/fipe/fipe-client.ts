@@ -27,6 +27,7 @@ export class FipeClient {
 
     if (!response.ok) return []
 
+    // fetch().json() returns unknown — cast is standard for untyped HTTP responses
     const models = (await response.json()) as ApiFipeModel[]
     return models.map((m) => ({
       model: m.Modelo,
