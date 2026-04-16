@@ -9,7 +9,8 @@
     "./socket-events": "./src/socket-events.ts",
     "./sentry-pii": "./src/sentry-pii.ts",
     "./pino-redact": "./src/pino-redact.ts",
-    "./meta-crypto": "./src/meta-crypto.ts"
+    "./meta-crypto": "./src/meta-crypto.ts",
+    "./date-utils": "./src/date-utils.ts"
   },
   "scripts": {
     "test": "vitest run --passWithNoTests",

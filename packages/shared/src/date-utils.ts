@@ -24,7 +24,9 @@ export function isValidDate(day: number, month: number, year: number): boolean {
     30,
     31,
   ]
-  return day <= daysInMonth[month - 1]
+  const limit = daysInMonth[month - 1]
+  if (limit === undefined) return false
+  return day <= limit
 }
 
 const CENTURY_PIVOT = 30
@@ -62,7 +64,10 @@ export function parseFlexibleDate(input: string): Date | null {
 
   const separated = trimmed.match(SEPARATED)
   if (!separated) return null
-  const [, day, month, yearPart] = separated
+  const day = separated[1]
+  const month = separated[2]
+  const yearPart = separated[3]
+  if (!day || !month || !yearPart) return null
   if (yearPart.length === 2) return null
   return parseDigits(day, month, yearPart)
 }
