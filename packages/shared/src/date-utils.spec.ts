@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { isLeapYear, isValidDate, applyCenturyPivot } from './date-utils.js'
+import {
+  isLeapYear,
+  isValidDate,
+  applyCenturyPivot,
+  parseFlexibleDate,
+} from './date-utils.js'
 
 describe('isLeapYear', () => {
   it('returns true for year divisible by 4 but not 100', () => {
@@ -66,5 +71,75 @@ describe('applyCenturyPivot', () => {
     expect(applyCenturyPivot(0)).toBe(2000)
     expect(applyCenturyPivot(29)).toBe(2029)
     expect(applyCenturyPivot(15)).toBe(2015)
+  })
+})
+
+describe('parseFlexibleDate', () => {
+  it('parses DD/MM/AAAA', () => {
+    const d = parseFlexibleDate('01/01/1990')
+    expect(d).toEqual(new Date(Date.UTC(1990, 0, 1)))
+  })
+
+  it('parses DD-MM-AAAA', () => {
+    const d = parseFlexibleDate('15-03-2024')
+    expect(d).toEqual(new Date(Date.UTC(2024, 2, 15)))
+  })
+
+  it('parses DDMMAAAA (sem separador)', () => {
+    const d = parseFlexibleDate('01011990')
+    expect(d).toEqual(new Date(Date.UTC(1990, 0, 1)))
+  })
+
+  it('parses DDMMAA (sem separador, pivot 30 → 1930)', () => {
+    const d = parseFlexibleDate('010130')
+    expect(d).toEqual(new Date(Date.UTC(1930, 0, 1)))
+  })
+
+  it('parses DDMMAA (sem separador, pivot 29 → 2029)', () => {
+    const d = parseFlexibleDate('010129')
+    expect(d).toEqual(new Date(Date.UTC(2029, 0, 1)))
+  })
+
+  it('trims leading/trailing whitespace', () => {
+    expect(parseFlexibleDate('  01/01/1990  ')).toEqual(
+      new Date(Date.UTC(1990, 0, 1))
+    )
+  })
+
+  it('returns null for empty input', () => {
+    expect(parseFlexibleDate('')).toBeNull()
+    expect(parseFlexibleDate('   ')).toBeNull()
+  })
+
+  it('returns null for invalid dates', () => {
+    expect(parseFlexibleDate('32/13/2020')).toBeNull()
+    expect(parseFlexibleDate('29/02/2023')).toBeNull()
+    expect(parseFlexibleDate('31/04/2024')).toBeNull()
+  })
+
+  it('returns null for non-numeric input', () => {
+    expect(parseFlexibleDate('abc')).toBeNull()
+    expect(parseFlexibleDate('aa/bb/cccc')).toBeNull()
+  })
+
+  it('returns null for ambiguous short input with separator (DD/MM/AA)', () => {
+    expect(parseFlexibleDate('01/01/19')).toBeNull()
+  })
+
+  it('returns null for ISO format (AAAA-MM-DD) — out of scope', () => {
+    expect(parseFlexibleDate('1990-01-01')).toBeNull()
+  })
+
+  it('returns null for input with text around date', () => {
+    expect(parseFlexibleDate('Nascido em 01/01/1990')).toBeNull()
+  })
+
+  it('returns null for year outside acceptable range', () => {
+    expect(parseFlexibleDate('01/01/1800')).toBeNull()
+  })
+
+  it('accepts Feb 29 on leap year', () => {
+    const d = parseFlexibleDate('29/02/2024')
+    expect(d).toEqual(new Date(Date.UTC(2024, 1, 29)))
   })
 })

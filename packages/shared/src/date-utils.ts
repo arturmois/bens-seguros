@@ -33,3 +33,48 @@ export function applyCenturyPivot(twoDigitYear: number): number {
   if (twoDigitYear >= CENTURY_PIVOT) return 1900 + twoDigitYear
   return 2000 + twoDigitYear
 }
+
+const DIGITS_ONLY = /^\d+$/
+const SEPARATED = /^(\d{1,2})[/-](\d{1,2})[/-](\d{2}|\d{4})$/
+
+export function parseFlexibleDate(input: string): Date | null {
+  if (!input) return null
+  const trimmed = input.trim()
+  if (!trimmed) return null
+
+  const digitsMatch = trimmed.match(DIGITS_ONLY)
+  if (digitsMatch) {
+    if (trimmed.length === 8) {
+      return parseDigits(
+        trimmed.slice(0, 2),
+        trimmed.slice(2, 4),
+        trimmed.slice(4, 8)
+      )
+    }
+    if (trimmed.length === 6) {
+      const day = trimmed.slice(0, 2)
+      const month = trimmed.slice(2, 4)
+      const year = applyCenturyPivot(Number(trimmed.slice(4, 6)))
+      return parseDigits(day, month, String(year))
+    }
+    return null
+  }
+
+  const separated = trimmed.match(SEPARATED)
+  if (!separated) return null
+  const [, day, month, yearPart] = separated
+  if (yearPart.length === 2) return null
+  return parseDigits(day, month, yearPart)
+}
+
+function parseDigits(
+  dayStr: string,
+  monthStr: string,
+  yearStr: string
+): Date | null {
+  const day = Number(dayStr)
+  const month = Number(monthStr)
+  const year = Number(yearStr)
+  if (!isValidDate(day, month, year)) return null
+  return new Date(Date.UTC(year, month - 1, day))
+}
