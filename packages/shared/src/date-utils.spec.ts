@@ -5,6 +5,7 @@ import {
   applyCenturyPivot,
   parseFlexibleDate,
   normalizeToMask,
+  formatDateToBR,
 } from './date-utils.js'
 
 describe('isLeapYear', () => {
@@ -185,5 +186,22 @@ describe('normalizeToMask', () => {
 
   it('truncates to 10 chars max (DD/MM/AAAA)', () => {
     expect(normalizeToMask('01/01/19901234')).toBe('01/01/1990')
+  })
+})
+
+describe('formatDateToBR', () => {
+  it('formats Date to DD/MM/AAAA with zero padding', () => {
+    const date = new Date(Date.UTC(1990, 0, 1))
+    expect(formatDateToBR(date)).toBe('01/01/1990')
+  })
+
+  it('formats multi-digit day/month', () => {
+    const date = new Date(Date.UTC(2026, 2, 15))
+    expect(formatDateToBR(date)).toBe('15/03/2026')
+  })
+
+  it('uses UTC to avoid timezone drift', () => {
+    const date = new Date(Date.UTC(2024, 11, 31))
+    expect(formatDateToBR(date)).toBe('31/12/2024')
   })
 })
