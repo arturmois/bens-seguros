@@ -36,7 +36,16 @@ export type UpdateProposalDetailsBodyDetails =
       propertyUsage: string
       /** @minLength 1 */
       cep: string
-      address?: string
+      street?: string
+      number?: string
+      complement?: string
+      neighborhood?: string
+      city?: string
+      /**
+       * @minLength 2
+       * @maxLength 2
+       */
+      state?: string
       construction?: string
       areaM2?: number
     }
@@ -48,7 +57,16 @@ export type UpdateProposalDetailsBodyDetails =
       unitCount: number
       /** @minLength 1 */
       cep: string
-      address?: string
+      street?: string
+      number?: string
+      complement?: string
+      neighborhood?: string
+      city?: string
+      /**
+       * @minLength 2
+       * @maxLength 2
+       */
+      state?: string
       constructionYear?: number
       floorCount?: number
       blockCount?: number
@@ -68,7 +86,16 @@ export type UpdateProposalDetailsBodyDetails =
       /** @minLength 1 */
       businessActivity: string
       cep?: string
-      address?: string
+      street?: string
+      number?: string
+      complement?: string
+      neighborhood?: string
+      city?: string
+      /**
+       * @minLength 2
+       * @maxLength 2
+       */
+      state?: string
       areaM2?: number
     }
   | {

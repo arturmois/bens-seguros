@@ -1,7 +1,7 @@
 export { container, inject, injectable, singleton } from './container.js'
 
 // Shared utilities
-export { RedisCacheService } from './shared/cache-service.js'
+export { NoopCacheService, RedisCacheService } from './shared/cache-service.js'
 export type { CacheService } from './shared/cache-service.js'
 
 export {
@@ -41,6 +41,7 @@ export {
   logReject,
   logUpdate,
 } from './modules/audit/log-audit.js'
+export * from './modules/cep/index.js'
 export * from './modules/claim/index.js'
 export * from './modules/client/index.js'
 export * from './modules/commission/index.js'

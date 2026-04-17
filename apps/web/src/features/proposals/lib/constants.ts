@@ -46,7 +46,12 @@ export interface ResidentialDetails {
   propertyType: string
   propertyUsage: string
   cep: string
-  address?: string
+  street?: string
+  number?: string
+  complement?: string
+  neighborhood?: string
+  city?: string
+  state?: string
   construction?: string
   areaM2?: number
 }
@@ -56,7 +61,12 @@ export interface CondominiumDetails {
   condominiumName: string
   unitCount: number
   cep: string
-  address?: string
+  street?: string
+  number?: string
+  complement?: string
+  neighborhood?: string
+  city?: string
+  state?: string
   constructionYear?: number
   floorCount?: number
   blockCount?: number
@@ -74,7 +84,12 @@ export interface BusinessDetails {
   cnpj: string
   businessActivity: string
   cep?: string
-  address?: string
+  street?: string
+  number?: string
+  complement?: string
+  neighborhood?: string
+  city?: string
+  state?: string
   areaM2?: number
 }
 

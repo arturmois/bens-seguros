@@ -102,6 +102,7 @@ export function BranchFields({
         <BranchComponent
           register={form.register}
           control={form.control}
+          setValue={form.setValue}
           autoFill={autoFill}
         />
       </div>

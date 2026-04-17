@@ -19,6 +19,7 @@ import IORedis from 'ioredis'
 import type { FastifyError, FastifyRequest } from 'fastify'
 import Fastify from 'fastify'
 import {
+  hasZodFastifySchemaValidationErrors,
   jsonSchemaTransform,
   serializerCompiler,
   validatorCompiler,
@@ -34,6 +35,7 @@ import { applySecurityHeaders } from './plugins/security-headers.js'
 import { registerAuthRoutes } from './routes/auth-routes.js'
 import { assistanceRoutes } from './routes/v1/assistances/index.js'
 import { auditLogRoutes } from './routes/v1/audit-logs/index.js'
+import { cepRoutes } from './routes/v1/cep/index.js'
 import { chatTokenRoute } from './routes/v1/chat/index.js'
 import { claimRoutes } from './routes/v1/claims/index.js'
 import { clientRoutes } from './routes/v1/clients/index.js'
@@ -294,6 +296,50 @@ export async function buildApp() {
         }
       : undefined
   )
+  // Error handler — must be registered BEFORE route plugins so it propagates
+  // into their encapsulated scopes. Fastify 5 does not apply error handlers
+  // retroactively to already-registered plugins.
+  app.setErrorHandler((error: FastifyError, request, reply) => {
+    if (hasZodFastifySchemaValidationErrors(error)) {
+      const first = error.validation[0]
+      const path = first?.instancePath ?? 'input'
+      return reply.status(400).send({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: `Validação falhou no campo '${path}': ${first?.message ?? 'valor inválido'}`,
+        },
+      })
+    }
+    if (error instanceof ZodError) {
+      const firstIssue = error.issues[0]
+      const field = firstIssue?.path.join('.') ?? 'input'
+      return reply.status(400).send({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: `Validação falhou no campo '${field}': ${firstIssue?.message ?? 'valor inválido'}`,
+        },
+      })
+    }
+
+    if (env.SENTRY_DSN) {
+      Sentry.captureException(error, {
+        extra: { url: request.url, method: request.method },
+      })
+    }
+    request.log.error(error)
+    const statusCode = error.statusCode ?? 500
+    return reply.status(statusCode).send({
+      success: false,
+      error: {
+        code: error.code ?? 'INTERNAL_ERROR',
+        message:
+          statusCode === 500 ? 'Erro interno do servidor' : error.message,
+      },
+    })
+  })
+
   registerAuthRoutes(app, auth, redis)
 
   // Public invitation routes (unauthenticated — accept/view invitations)
@@ -323,6 +369,7 @@ export async function buildApp() {
     await authenticatedApp.register(auditLogRoutes)
     await authenticatedApp.register(notificationRoutes)
     await authenticatedApp.register(searchRoutes)
+    await authenticatedApp.register(cepRoutes)
     await authenticatedApp.register(termsRoutes)
   })
 
@@ -355,37 +402,6 @@ export async function buildApp() {
     adminApp.addHook('preHandler', tenantMiddleware)
     adminApp.addHook('preHandler', requireAbility('manage', 'all'))
     setupBullBoard(adminApp)
-  })
-
-  // Sentry error handler
-  app.setErrorHandler((error: FastifyError, request, reply) => {
-    if (error instanceof ZodError) {
-      const firstIssue = error.issues[0]
-      const field = firstIssue?.path.join('.') ?? 'input'
-      return reply.status(400).send({
-        success: false,
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: `Validação falhou no campo '${field}': ${firstIssue?.message ?? 'valor inválido'}`,
-        },
-      })
-    }
-
-    if (env.SENTRY_DSN) {
-      Sentry.captureException(error, {
-        extra: { url: request.url, method: request.method },
-      })
-    }
-    request.log.error(error)
-    const statusCode = error.statusCode ?? 500
-    return reply.status(statusCode).send({
-      success: false,
-      error: {
-        code: error.code ?? 'INTERNAL_ERROR',
-        message:
-          statusCode === 500 ? 'Erro interno do servidor' : error.message,
-      },
-    })
   })
 
   return app

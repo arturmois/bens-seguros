@@ -1,8 +1,10 @@
 import Fastify, { type FastifyInstance } from 'fastify'
 import {
+  hasZodFastifySchemaValidationErrors,
   serializerCompiler,
   validatorCompiler,
 } from 'fastify-type-provider-zod'
+import { ZodError } from 'zod'
 
 export const TEST_ORG_ID = 'org-test-00000000-0000-0000-0000-000000000001'
 export const TEST_USER_ID = 'user-test-00000000-0000-0000-0000-000000000001'
@@ -57,6 +59,43 @@ export async function createTestApp(
       organizationId: _testContext.organizationId,
       role: _testContext.role,
       tenantPrisma: _testContext.tenantPrisma,
+    })
+  })
+
+  // Mirror production error handler so validation errors match the
+  // { success: false, error: { code, message } } envelope declared in route
+  // response schemas.
+  app.setErrorHandler((error, _request, reply) => {
+    if (hasZodFastifySchemaValidationErrors(error)) {
+      const first = error.validation[0]
+      const path = first?.instancePath ?? 'input'
+      return reply.status(400).send({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: `Validação falhou no campo '${path}': ${first?.message ?? 'valor inválido'}`,
+        },
+      })
+    }
+    if (error instanceof ZodError) {
+      const first = error.issues[0]
+      const field = first?.path.join('.') ?? 'input'
+      return reply.status(400).send({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: `Validação falhou no campo '${field}': ${first?.message ?? 'valor inválido'}`,
+        },
+      })
+    }
+    const statusCode = error.statusCode ?? 500
+    return reply.status(statusCode).send({
+      success: false,
+      error: {
+        code: error.code ?? 'INTERNAL_ERROR',
+        message:
+          statusCode === 500 ? 'Erro interno do servidor' : error.message,
+      },
     })
   })
 

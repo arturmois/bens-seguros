@@ -181,6 +181,14 @@ export const ImportStatusClientsResponse = zod.object({
 })
 
 /**
+ * @summary LGPD data anonymization — irreversible
+ */
+
+export const LgpdDeleteClientParams = zod.object({
+  id: zod.string().min(1),
+})
+
+/**
  * @summary Get a client by ID
  */
 

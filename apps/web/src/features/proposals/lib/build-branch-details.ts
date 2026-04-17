@@ -29,7 +29,14 @@ export function buildDetails(
         propertyType: String(fields.propertyType ?? ''),
         propertyUsage: String(fields.propertyUsage ?? ''),
         cep: String(fields.cep ?? ''),
-        address: fields.address ? String(fields.address) : undefined,
+        street: fields.street ? String(fields.street) : undefined,
+        number: fields.number ? String(fields.number) : undefined,
+        complement: fields.complement ? String(fields.complement) : undefined,
+        neighborhood: fields.neighborhood
+          ? String(fields.neighborhood)
+          : undefined,
+        city: fields.city ? String(fields.city) : undefined,
+        state: fields.state ? String(fields.state) : undefined,
         construction: fields.construction
           ? String(fields.construction)
           : undefined,
@@ -41,7 +48,14 @@ export function buildDetails(
         condominiumName: String(fields.condominiumName ?? ''),
         unitCount: Number(fields.unitCount) || 0,
         cep: String(fields.cep ?? ''),
-        address: fields.address ? String(fields.address) : undefined,
+        street: fields.street ? String(fields.street) : undefined,
+        number: fields.number ? String(fields.number) : undefined,
+        complement: fields.complement ? String(fields.complement) : undefined,
+        neighborhood: fields.neighborhood
+          ? String(fields.neighborhood)
+          : undefined,
+        city: fields.city ? String(fields.city) : undefined,
+        state: fields.state ? String(fields.state) : undefined,
         constructionYear: fields.constructionYear
           ? Number(fields.constructionYear)
           : undefined,
@@ -75,7 +89,14 @@ export function buildDetails(
         cnpj: String(fields.cnpj ?? ''),
         businessActivity: String(fields.businessActivity ?? ''),
         cep: fields.cep ? String(fields.cep) : undefined,
-        address: fields.address ? String(fields.address) : undefined,
+        street: fields.street ? String(fields.street) : undefined,
+        number: fields.number ? String(fields.number) : undefined,
+        complement: fields.complement ? String(fields.complement) : undefined,
+        neighborhood: fields.neighborhood
+          ? String(fields.neighborhood)
+          : undefined,
+        city: fields.city ? String(fields.city) : undefined,
+        state: fields.state ? String(fields.state) : undefined,
         areaM2: fields.areaM2 ? Number(fields.areaM2) : undefined,
       }
     case 'LIFE':
