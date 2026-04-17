@@ -8,6 +8,7 @@ import type { ListClaimsPriority } from './listClaimsPriority'
 import type { ListClaimsSortBy } from './listClaimsSortBy'
 import type { ListClaimsSortOrder } from './listClaimsSortOrder'
 import type { ListClaimsStatus } from './listClaimsStatus'
+import type { ListClaimsStatusGroup } from './listClaimsStatusGroup'
 
 export type ListClaimsParams = {
   cursor?: string
@@ -17,6 +18,7 @@ export type ListClaimsParams = {
    */
   limit?: number
   status?: ListClaimsStatus
+  statusGroup?: ListClaimsStatusGroup
   priority?: ListClaimsPriority
   policyId?: string
   clientId?: string

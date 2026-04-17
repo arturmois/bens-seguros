@@ -349,6 +349,7 @@ model Proposal {
   @@index([organizationId, sourcePolicyId])
   @@index([organizationId, boardType, createdAt(sort: Desc)])
   @@index([organizationId, createdAt(sort: Desc)])
+  @@index([organizationId, stage, updatedAt(sort: Desc)])
 }
 
 model ProposalChecklistItem {

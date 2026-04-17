@@ -7,10 +7,10 @@ import {
   type SortingState,
 } from '@tanstack/react-table'
 import { ShieldAlert } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
-import type { ListClaimsSortOrder } from '@/api/model'
+import type { ListClaimsSortOrder, ListClaimsStatusGroup } from '@/api/model'
 import { ConfirmDeleteDialog } from '@/components/shared/confirm-delete-dialog'
 import { CursorPagination } from '@/components/shared/cursor-pagination'
 import { DataTable } from '@/components/shared/data-table'
@@ -36,12 +36,21 @@ import type { ClaimData } from '../lib/types'
 import { ClaimCard } from './claim-card'
 import { createClaimColumns } from './claims-columns'
 
+const STATUS_GROUP_VALUES: readonly string[] = ['open', 'closed'] as const
+
+function isStatusGroup(value: string): value is ListClaimsStatusGroup {
+  return STATUS_GROUP_VALUES.includes(value)
+}
+
 export function ClaimsTable() {
   'use no memo'
   const router = useRouter()
+  const searchParams = useSearchParams()
   const pagination = useCursorPagination()
   const { activeOrg } = useOrgs()
   const role = activeOrg?.role ?? 'VIEWER'
+
+  const urlStatusGroup = searchParams.get('statusGroup')
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -66,10 +75,13 @@ export function ClaimsTable() {
     priorityFilter && isClaimPriority(priorityFilter)
       ? priorityFilter
       : undefined
+  const statusGroupParam =
+    urlStatusGroup && isStatusGroup(urlStatusGroup) ? urlStatusGroup : undefined
 
   const { data, isLoading, isError, refetch } = useClaims({
     search: debouncedSearch || undefined,
     status: statusParam,
+    statusGroup: statusGroupParam,
     priority: priorityParam,
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,

@@ -3,6 +3,7 @@ import type {
   ListClaims200DataItemPriority,
   ListClaims200DataItemStatus,
   ListClaims200Meta,
+  ListClaimsStatusGroup,
   ListClaimsSortBy,
   ListClaimsSortOrder,
 } from '@/api/model'
@@ -13,6 +14,7 @@ export type ClaimPriority = ListClaims200DataItemPriority
 
 export interface ClaimFilters {
   readonly status?: ClaimStatus
+  readonly statusGroup?: ListClaimsStatusGroup
   readonly priority?: ClaimPriority
   readonly policyId?: string
   readonly clientId?: string

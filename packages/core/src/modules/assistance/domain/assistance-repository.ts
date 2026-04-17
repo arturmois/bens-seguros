@@ -34,6 +34,7 @@ export interface AssistanceData {
 export interface AssistanceFilters {
   organizationId: string
   status?: AssistanceStatus
+  statusGroup?: 'open' | 'closed'
   policyId?: string
   clientId?: string
   type?: string

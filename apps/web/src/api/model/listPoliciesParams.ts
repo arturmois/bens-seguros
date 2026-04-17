@@ -4,6 +4,7 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
+import type { ListPoliciesBoardType } from './listPoliciesBoardType'
 import type { ListPoliciesBranch } from './listPoliciesBranch'
 import type { ListPoliciesStatus } from './listPoliciesStatus'
 
@@ -18,5 +19,10 @@ export type ListPoliciesParams = {
   clientId?: string
   proposalId?: string
   branch?: ListPoliciesBranch
+  boardType?: ListPoliciesBoardType
+  createdFrom?: string
+  createdTo?: string
+  endDateFrom?: string
+  endDateTo?: string
   search?: string
 }

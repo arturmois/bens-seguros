@@ -85,6 +85,14 @@ export class PrismaPolicyRepository implements PolicyRepository {
     filters: PolicyFilters,
     page: PolicyCursorPage
   ): Promise<PolicyPage> {
+    const createdAt: Prisma.DateTimeFilter = {}
+    if (filters.createdFrom) createdAt.gte = filters.createdFrom
+    if (filters.createdTo) createdAt.lte = filters.createdTo
+
+    const endDate: Prisma.DateTimeFilter = {}
+    if (filters.endDateFrom) endDate.gte = filters.endDateFrom
+    if (filters.endDateTo) endDate.lte = filters.endDateTo
+
     const where: Prisma.PolicyWhereInput = {
       organizationId: filters.organizationId,
       deletedAt: null,
@@ -93,6 +101,9 @@ export class PrismaPolicyRepository implements PolicyRepository {
       ...(filters.proposalId && { proposalId: filters.proposalId }),
       ...(filters.salespersonId && { salespersonId: filters.salespersonId }),
       ...(filters.branch && { branch: filters.branch }),
+      ...(filters.boardType && { proposal: { boardType: filters.boardType } }),
+      ...(Object.keys(createdAt).length > 0 && { createdAt }),
+      ...(Object.keys(endDate).length > 0 && { endDate }),
       ...(filters.search && {
         OR: [
           {

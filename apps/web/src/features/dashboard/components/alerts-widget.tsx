@@ -64,7 +64,9 @@ export function AlertsWidget() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Alertas Ativos</CardTitle>
+          <CardTitle className="text-sm">
+            Itens que precisam de atenção
+          </CardTitle>
         </CardHeader>
         <CardPanel className="space-y-3">
           <Skeleton className="h-8 w-full" />
@@ -79,7 +81,9 @@ export function AlertsWidget() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Alertas Ativos</CardTitle>
+          <CardTitle className="text-sm">
+            Itens que precisam de atenção
+          </CardTitle>
         </CardHeader>
         <CardPanel className="flex flex-col items-center gap-2 py-6">
           <AlertTriangle className="text-destructive size-6" />
@@ -106,7 +110,9 @@ export function AlertsWidget() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Alertas Ativos</CardTitle>
+          <CardTitle className="text-sm">
+            Itens que precisam de atenção
+          </CardTitle>
         </CardHeader>
         <CardPanel className="flex items-center gap-3 py-6">
           <CheckCircle2 className="size-6 text-emerald-500" />
@@ -125,7 +131,7 @@ export function AlertsWidget() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Alertas Ativos</CardTitle>
+        <CardTitle className="text-sm">Itens que precisam de atenção</CardTitle>
       </CardHeader>
       <CardPanel className="space-y-3">
         {activeRows.map((row) => {

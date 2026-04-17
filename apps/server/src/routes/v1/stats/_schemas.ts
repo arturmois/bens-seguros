@@ -66,6 +66,19 @@ const rankingEntrySchema = z.object({
   averageTicketCents: z.number(),
 })
 
+const warningsSchema = z.object({
+  total: z.number(),
+  claimsOpen: z.number(),
+  assistancesOpen: z.number(),
+})
+
+const proposalsPendingBucketsSchema = z.object({
+  total: z.number(),
+  inDay: z.number(),
+  warning: z.number(),
+  critical: z.number(),
+})
+
 const dashboardDataSchema = z.object({
   proposalsByStage: z.array(proposalByStageSchema).readonly(),
   activePolicies: z.number(),
@@ -85,6 +98,11 @@ const dashboardDataSchema = z.object({
   averageTicket: metricComparisonSchema,
   commissionsReceivable: z.number(),
   ranking: z.array(rankingEntrySchema).readonly(),
+  // --- SCRUM-25 additions ---
+  newInsurance: metricComparisonSchema,
+  renewal7dPremiumCents: z.number(),
+  warnings: warningsSchema,
+  proposalsPending: proposalsPendingBucketsSchema,
 })
 
 export const dashboardStatsResponse = successResponse(dashboardDataSchema)

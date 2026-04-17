@@ -48,4 +48,28 @@ describe('ListProposals', () => {
 
     expect(repo.findMany).toHaveBeenCalledWith(filters, page)
   })
+
+  it('filters by multiple stages and updatedAt range', async () => {
+    const updatedAtFrom = new Date('2026-04-10')
+    const updatedAtTo = new Date('2026-04-17')
+
+    await useCase.execute(
+      {
+        organizationId: 'org-1',
+        stages: ['QUOTE', 'PROTOCOL'],
+        updatedAtFrom,
+        updatedAtTo,
+      },
+      { limit: 20 }
+    )
+
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stages: ['QUOTE', 'PROTOCOL'],
+        updatedAtFrom,
+        updatedAtTo,
+      }),
+      expect.anything()
+    )
+  })
 })

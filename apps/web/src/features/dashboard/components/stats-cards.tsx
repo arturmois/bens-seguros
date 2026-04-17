@@ -1,75 +1,39 @@
 'use client'
 
-import {
-  FileText,
-  Shield,
-  AlertTriangle,
-  DollarSign,
-  RefreshCw,
-} from 'lucide-react'
-
-import { formatCurrency } from '@/lib/formatters'
-
-import type { DashboardStats } from '../lib/constants'
-import { ComparisonStatCard } from './comparison-stat-card'
+import type { DashboardPreset, DashboardStats } from '../lib/constants'
+import { ActivePoliciesCard } from './cards/active-policies-card'
+import { NewInsuranceCard } from './cards/new-insurance-card'
+import { PendingCommissionsCard } from './cards/pending-commissions-card'
+import { ProposalsPendingCard } from './cards/proposals-pending-card'
+import { Renewal7dCard } from './cards/renewal-7d-card'
+import { WarningsCard } from './cards/warnings-card'
 
 interface StatsCardsProps {
   readonly data: DashboardStats | undefined
   readonly isLoading: boolean
+  readonly preset: DashboardPreset
 }
 
-export function StatsCards({ data, isLoading }: StatsCardsProps) {
-  const activeProposals = data
-    ? data.proposalsByStage.reduce((sum, s) => sum + s._count, 0)
-    : 0
-  const openClaims = data
-    ? data.claimsByPriority.reduce((sum, c) => sum + c._count, 0)
-    : 0
-  const pendingCommissions = data
-    ? data.commissionsThisMonth
-        .filter(
-          (c) =>
-            c.status === 'PENDING_COMMERCIAL' || c.status === 'PENDING_ADMIN'
-        )
-        .reduce((sum, c) => sum + (c._sum.commissionValueInCents ?? 0), 0)
-    : 0
-
+export function StatsCards({ data, isLoading, preset }: StatsCardsProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-      <ComparisonStatCard
-        title="Propostas ativas"
-        value={activeProposals}
-        icon={<FileText className="size-5" />}
-        comparison={data?.comparison.proposals}
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <NewInsuranceCard
+        data={data?.newInsurance}
+        isLoading={isLoading}
+        preset={preset}
+      />
+      <Renewal7dCard
+        count={data?.renewalsNext7Days}
+        premiumCents={data?.renewal7dPremiumCents}
         isLoading={isLoading}
       />
-      <ComparisonStatCard
-        title="Apólices ativas"
-        value={data?.activePolicies ?? 0}
-        icon={<Shield className="size-5" />}
-        comparison={data?.comparison.policies}
+      <ProposalsPendingCard
+        data={data?.proposalsPending}
         isLoading={isLoading}
       />
-      <ComparisonStatCard
-        title="Sinistros abertos"
-        value={openClaims}
-        icon={<AlertTriangle className="size-5" />}
-        comparison={data?.comparison.claims}
-        isLoading={isLoading}
-      />
-      <ComparisonStatCard
-        title="Comissões pendentes"
-        value={formatCurrency(pendingCommissions)}
-        icon={<DollarSign className="size-5" />}
-        comparison={data?.comparison.commissionsPending}
-        isLoading={isLoading}
-      />
-      <ComparisonStatCard
-        title="Renovações em 7 dias"
-        value={data?.renewalsNext7Days ?? 0}
-        icon={<RefreshCw className="size-5" />}
-        isLoading={isLoading}
-      />
+      <WarningsCard data={data?.warnings} isLoading={isLoading} />
+      <ActivePoliciesCard data={data} isLoading={isLoading} />
+      <PendingCommissionsCard data={data} isLoading={isLoading} />
     </div>
   )
 }

@@ -55,6 +55,10 @@ const makeDashboardData = () => ({
       averageTicketCents: 40000,
     },
   ],
+  newInsurance: { current: 0, previous: 0, changePercent: 0 },
+  renewal7dPremiumCents: 0,
+  warnings: { total: 0, claimsOpen: 0, assistancesOpen: 0 },
+  proposalsPending: { total: 0, inDay: 0, warning: 0, critical: 0 },
 })
 
 const mockCache = {

@@ -13,6 +13,7 @@ export type SortOrder = 'asc' | 'desc'
 export interface ProposalFilters {
   organizationId: string
   stage?: Stage
+  stages?: readonly Stage[]
   clientId?: string
   salespersonId?: string
   boardType?: BoardType
@@ -20,6 +21,8 @@ export interface ProposalFilters {
   sourcePolicyId?: string
   createdFrom?: Date
   createdTo?: Date
+  updatedAtFrom?: Date
+  updatedAtTo?: Date
   search?: string
 }
 

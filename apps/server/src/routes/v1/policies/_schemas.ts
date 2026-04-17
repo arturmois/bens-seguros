@@ -30,6 +30,11 @@ export const listPoliciesQuery = paginationQuery().extend({
   clientId: z.string().optional(),
   proposalId: z.string().optional(),
   branch: branchEnum.optional(),
+  boardType: z.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']).optional(),
+  createdFrom: z.coerce.date().optional(),
+  createdTo: z.coerce.date().optional(),
+  endDateFrom: z.coerce.date().optional(),
+  endDateTo: z.coerce.date().optional(),
   search: z.string().optional(),
 })
 

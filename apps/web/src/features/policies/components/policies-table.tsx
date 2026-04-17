@@ -3,7 +3,7 @@
 import type { VisibilityState } from '@tanstack/react-table'
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { Shield } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
 import { CursorPagination } from '@/components/shared/cursor-pagination'
@@ -24,24 +24,46 @@ import {
   STATUS_FILTER_OPTIONS,
 } from '../lib/constants'
 import type { PolicyData, PolicyStatus } from '../lib/types'
+import type { ListPoliciesBoardType } from '@/api/model'
 import { CancelPolicyDialog } from './cancel-policy-dialog'
 import { createPolicyColumns } from './policies-columns'
 import { PolicyCard } from './policy-card'
 import { PolicyExportButton } from './policy-export-button'
 
+const BOARD_TYPE_VALUES: readonly string[] = [
+  'NEW_INSURANCE',
+  'RENEWAL',
+  'ENDORSEMENT',
+] as const
+
 function isStatus(value: string): value is PolicyStatus {
   return (POLICY_STATUSES as readonly string[]).includes(value)
+}
+
+function isBoardType(value: string): value is ListPoliciesBoardType {
+  return BOARD_TYPE_VALUES.includes(value)
 }
 
 export function PoliciesTable() {
   'use no memo'
   const router = useRouter()
+  const searchParams = useSearchParams()
   const pagination = useCursorPagination()
   const { activeOrg } = useOrgs()
   const role = activeOrg?.role ?? 'VIEWER'
 
+  const urlStatus = searchParams.get('status')
+  const urlBoardType = searchParams.get('boardType')
+  const urlCreatedFrom = searchParams.get('createdFrom')
+  const urlCreatedTo = searchParams.get('createdTo')
+  const urlEndDateFrom = searchParams.get('endDateFrom')
+  const urlEndDateTo = searchParams.get('endDateTo')
+  const urlFilter = searchParams.get('filter')
+
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState(
+    urlStatus && isStatus(urlStatus) ? urlStatus : ''
+  )
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
@@ -52,9 +74,32 @@ export function PoliciesTable() {
   const statusParam =
     statusFilter && isStatus(statusFilter) ? statusFilter : undefined
 
+  const boardTypeParam =
+    urlBoardType && isBoardType(urlBoardType) ? urlBoardType : undefined
+
+  const expiring7dRange = useMemo(() => {
+    if (urlFilter !== 'expiring-7d') return null
+    const now = new Date()
+    const to = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+    return {
+      from: now.toISOString(),
+      to: to.toISOString(),
+    }
+  }, [urlFilter])
+
+  const endDateFrom = expiring7dRange?.from ?? urlEndDateFrom ?? undefined
+  const endDateTo = expiring7dRange?.to ?? urlEndDateTo ?? undefined
+  const createdFrom = urlCreatedFrom ?? undefined
+  const createdTo = urlCreatedTo ?? undefined
+
   const { data, isLoading, isError, refetch } = usePolicies({
     search: debouncedSearch || undefined,
     status: statusParam,
+    boardType: boardTypeParam,
+    createdFrom,
+    createdTo,
+    endDateFrom,
+    endDateTo,
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,
   })

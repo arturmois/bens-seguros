@@ -7,10 +7,13 @@ import {
   type SortingState,
 } from '@tanstack/react-table'
 import { Ambulance } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
-import type { ListAssistancesSortOrder } from '@/api/model'
+import type {
+  ListAssistancesSortOrder,
+  ListAssistancesStatusGroup,
+} from '@/api/model'
 import { CursorPagination } from '@/components/shared/cursor-pagination'
 import { DataTable } from '@/components/shared/data-table'
 import { FilterTabs } from '@/components/shared/filter-tabs'
@@ -34,10 +37,19 @@ import type { AssistanceData } from '../lib/types'
 import { AssistanceCard } from './assistance-card'
 import { createAssistanceColumns } from './assistances-columns'
 
+const STATUS_GROUP_VALUES: readonly string[] = ['open', 'closed'] as const
+
+function isStatusGroup(value: string): value is ListAssistancesStatusGroup {
+  return STATUS_GROUP_VALUES.includes(value)
+}
+
 export function AssistancesTable() {
   'use no memo'
   const router = useRouter()
+  const searchParams = useSearchParams()
   const pagination = useCursorPagination()
+
+  const urlStatusGroup = searchParams.get('statusGroup')
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -57,10 +69,13 @@ export function AssistancesTable() {
 
   const statusParam =
     statusFilter && isAssistanceStatus(statusFilter) ? statusFilter : undefined
+  const statusGroupParam =
+    urlStatusGroup && isStatusGroup(urlStatusGroup) ? urlStatusGroup : undefined
 
   const { data, isLoading, isError, refetch } = useAssistances({
     search: debouncedSearch || undefined,
     status: statusParam,
+    statusGroup: statusGroupParam,
     type: typeFilter || undefined,
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,

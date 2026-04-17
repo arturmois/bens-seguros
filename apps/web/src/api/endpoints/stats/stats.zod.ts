@@ -98,6 +98,23 @@ export const GetDashboardStatsResponse = zod.object({
         averageTicketCents: zod.number(),
       })
     ),
+    newInsurance: zod.object({
+      current: zod.number(),
+      previous: zod.number(),
+      changePercent: zod.number(),
+    }),
+    renewal7dPremiumCents: zod.number(),
+    warnings: zod.object({
+      total: zod.number(),
+      claimsOpen: zod.number(),
+      assistancesOpen: zod.number(),
+    }),
+    proposalsPending: zod.object({
+      total: zod.number(),
+      inDay: zod.number(),
+      warning: zod.number(),
+      critical: zod.number(),
+    }),
   }),
 })
 

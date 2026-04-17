@@ -7,9 +7,11 @@
 import type { ListAssistancesSortBy } from './listAssistancesSortBy'
 import type { ListAssistancesSortOrder } from './listAssistancesSortOrder'
 import type { ListAssistancesStatus } from './listAssistancesStatus'
+import type { ListAssistancesStatusGroup } from './listAssistancesStatusGroup'
 
 export type ListAssistancesParams = {
   status?: ListAssistancesStatus
+  statusGroup?: ListAssistancesStatusGroup
   policyId?: string
   clientId?: string
   type?: string

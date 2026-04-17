@@ -48,6 +48,7 @@ export const updateClaimStatusBodySchema = z.object({
 
 export const listClaimsQuerySchema = paginationQuery().extend({
   status: z.enum(CLAIM_STATUS_VALUES).optional(),
+  statusGroup: z.enum(['open', 'closed']).optional(),
   priority: z.enum(CLAIM_PRIORITY_VALUES).optional(),
   policyId: z.string().optional(),
   clientId: z.string().optional(),

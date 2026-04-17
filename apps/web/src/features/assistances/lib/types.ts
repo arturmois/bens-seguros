@@ -1,6 +1,7 @@
 import type {
   ListAssistances200DataItem,
   ListAssistances200DataItemStatus,
+  ListAssistancesStatusGroup,
 } from '@/api/model'
 
 export type AssistanceStatus = ListAssistances200DataItemStatus
@@ -15,6 +16,7 @@ export type AssistanceType =
 
 export interface AssistanceFilters {
   readonly status?: AssistanceStatus
+  readonly statusGroup?: ListAssistancesStatusGroup
   readonly policyId?: string
   readonly clientId?: string
   readonly type?: string

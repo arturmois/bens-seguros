@@ -40,6 +40,7 @@ export interface ClaimData {
 export interface ClaimFilters {
   organizationId: string
   status?: ClaimStatus
+  statusGroup?: 'open' | 'closed'
   priority?: ClaimPriority
   policyId?: string
   clientId?: string

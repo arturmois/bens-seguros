@@ -88,6 +88,11 @@ export interface DashboardData {
   readonly averageTicket: MetricComparison
   readonly commissionsReceivable: number
   readonly ranking: readonly RankingEntry[]
+  // --- SCRUM-25 ---
+  readonly newInsurance: MetricComparison
+  readonly renewal7dPremiumCents: number
+  readonly warnings: WarningsStats
+  readonly proposalsPending: ProposalsPendingBuckets
 }
 
 function buildDateRanges(preset: DashboardPreset): DateRange {
@@ -295,6 +300,130 @@ async function fetchComparisonData(
   ])
 }
 
+export async function fetchNewInsuranceStats(
+  orgId: string,
+  ranges: DateRange,
+  db: DbClient
+): Promise<MetricComparison> {
+  const [current, previous] = await Promise.all([
+    db.policy.count({
+      where: {
+        organizationId: orgId,
+        deletedAt: null,
+        createdAt: { gte: ranges.currentFrom, lte: ranges.now },
+        proposal: { boardType: 'NEW_INSURANCE' },
+      },
+    }),
+    db.policy.count({
+      where: {
+        organizationId: orgId,
+        deletedAt: null,
+        createdAt: { gte: ranges.previousFrom, lt: ranges.previousTo },
+        proposal: { boardType: 'NEW_INSURANCE' },
+      },
+    }),
+  ])
+
+  return {
+    current,
+    previous,
+    changePercent: calculateChangePercent(current, previous),
+  }
+}
+
+export async function fetchRenewal7dPremium(
+  orgId: string,
+  ranges: DateRange,
+  db: DbClient
+): Promise<number> {
+  const { now, sevenDaysFromNow } = ranges
+  const result = await db.policy.aggregate({
+    where: {
+      organizationId: orgId,
+      status: 'ACTIVE',
+      deletedAt: null,
+      endDate: { lte: sevenDaysFromNow, gte: now },
+    },
+    _sum: { premiumValueInCents: true },
+  })
+  return result._sum.premiumValueInCents ?? 0
+}
+
+export interface WarningsStats {
+  readonly total: number
+  readonly claimsOpen: number
+  readonly assistancesOpen: number
+}
+
+export async function fetchWarnings(
+  orgId: string,
+  db: DbClient
+): Promise<WarningsStats> {
+  const [claimsOpen, assistancesOpen] = await Promise.all([
+    db.claim.count({
+      where: {
+        organizationId: orgId,
+        deletedAt: null,
+        status: { notIn: ['COMPLETED', 'REJECTED'] },
+      },
+    }),
+    db.assistance.count({
+      where: {
+        organizationId: orgId,
+        status: { not: 'COMPLETED' },
+      },
+    }),
+  ])
+  return { total: claimsOpen + assistancesOpen, claimsOpen, assistancesOpen }
+}
+
+export interface ProposalsPendingBuckets {
+  readonly total: number
+  readonly inDay: number
+  readonly warning: number
+  readonly critical: number
+}
+
+const PENDING_STAGES: readonly ProposalStage[] = [
+  'CAPTURE',
+  'QUOTE',
+  'PROTOCOL',
+  'INSPECTION',
+  'PAYMENT',
+]
+
+export async function fetchProposalsPendingByBucket(
+  orgId: string,
+  db: DbClient,
+  now: Date = new Date()
+): Promise<ProposalsPendingBuckets> {
+  const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000)
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+  const baseWhere = {
+    organizationId: orgId,
+    deletedAt: null,
+    stage: { in: [...PENDING_STAGES] },
+  }
+
+  const [inDay, warning, critical] = await Promise.all([
+    db.proposal.count({
+      where: { ...baseWhere, updatedAt: { gte: threeDaysAgo } },
+    }),
+    db.proposal.count({
+      where: {
+        ...baseWhere,
+        updatedAt: { gte: sevenDaysAgo, lt: threeDaysAgo },
+      },
+    }),
+    db.proposal.count({
+      where: { ...baseWhere, updatedAt: { lt: sevenDaysAgo } },
+    }),
+  ])
+
+  return { total: inDay + warning + critical, inDay, warning, critical }
+}
+
 type ComparisonData = Awaited<ReturnType<typeof fetchComparisonData>>
 
 function buildComparisonMetrics(data: ComparisonData) {
@@ -425,10 +554,22 @@ export async function buildDashboardData(
 ): Promise<DashboardData> {
   const ranges = buildDateRanges(preset)
 
-  const [chartResults, comparisonData, ranking] = await Promise.all([
+  const [
+    chartResults,
+    comparisonData,
+    ranking,
+    newInsurance,
+    renewal7dPremiumCents,
+    warnings,
+    proposalsPending,
+  ] = await Promise.all([
     fetchChartData(orgId, ranges, db),
     fetchComparisonData(orgId, ranges, db),
     fetchRanking(orgId, ranges.currentFrom, db),
+    fetchNewInsuranceStats(orgId, ranges, db),
+    fetchRenewal7dPremium(orgId, ranges, db),
+    fetchWarnings(orgId, db),
+    fetchProposalsPendingByBucket(orgId, db, ranges.now),
   ])
 
   const [
@@ -452,6 +593,10 @@ export async function buildDashboardData(
     conversionRate,
     monthlyTrends,
     ranking,
+    newInsurance,
+    renewal7dPremiumCents,
+    warnings,
+    proposalsPending,
     ...buildComparisonMetrics(comparisonData),
   }
 }

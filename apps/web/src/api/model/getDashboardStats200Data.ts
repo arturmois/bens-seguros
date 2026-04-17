@@ -10,9 +10,12 @@ import type { GetDashboardStats200DataCommissionsThisMonthItem } from './getDash
 import type { GetDashboardStats200DataComparison } from './getDashboardStats200DataComparison'
 import type { GetDashboardStats200DataConversionRate } from './getDashboardStats200DataConversionRate'
 import type { GetDashboardStats200DataMonthlyTrendsItem } from './getDashboardStats200DataMonthlyTrendsItem'
+import type { GetDashboardStats200DataNewInsurance } from './getDashboardStats200DataNewInsurance'
 import type { GetDashboardStats200DataProposalsByStageItem } from './getDashboardStats200DataProposalsByStageItem'
+import type { GetDashboardStats200DataProposalsPending } from './getDashboardStats200DataProposalsPending'
 import type { GetDashboardStats200DataRankingItem } from './getDashboardStats200DataRankingItem'
 import type { GetDashboardStats200DataTotalPremium } from './getDashboardStats200DataTotalPremium'
+import type { GetDashboardStats200DataWarnings } from './getDashboardStats200DataWarnings'
 
 export type GetDashboardStats200Data = {
   proposalsByStage: GetDashboardStats200DataProposalsByStageItem[]
@@ -28,4 +31,8 @@ export type GetDashboardStats200Data = {
   averageTicket: GetDashboardStats200DataAverageTicket
   commissionsReceivable: number
   ranking: GetDashboardStats200DataRankingItem[]
+  newInsurance: GetDashboardStats200DataNewInsurance
+  renewal7dPremiumCents: number
+  warnings: GetDashboardStats200DataWarnings
+  proposalsPending: GetDashboardStats200DataProposalsPending
 }

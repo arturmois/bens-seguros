@@ -1,4 +1,5 @@
 import { Plus } from 'lucide-react'
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
@@ -26,7 +27,9 @@ export default function ProposalsPage() {
           </Button>
         }
       />
-      <ProposalsContent />
+      <Suspense>
+        <ProposalsContent />
+      </Suspense>
     </div>
   )
 }

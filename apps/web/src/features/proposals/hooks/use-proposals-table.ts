@@ -1,16 +1,22 @@
 import type { SortingState, VisibilityState } from '@tanstack/react-table'
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
-import type { ListProposalsSortBy, ListProposalsSortOrder } from '@/api/model'
+import type {
+  ListProposalsParams,
+  ListProposalsSortBy,
+  ListProposalsSortOrder,
+} from '@/api/model'
 
 import { useAdvanceProposal, useProposals } from './use-proposals'
 import {
   ALL_FILTER_VALUE,
   DEFAULT_COLUMN_VISIBILITY,
   DEFAULT_SORTING,
+  STAGES,
   type BoardType,
   type ProposalData,
 } from '../lib/constants'
@@ -19,7 +25,21 @@ import { isProposalSortBy } from '../lib/type-guards'
 import { createProposalColumns } from '../components/proposals-columns'
 
 export function useProposalsTable(allowedBoardTypes: readonly BoardType[]) {
+  const searchParams = useSearchParams()
   const pagination = useCursorPagination()
+
+  const urlStages = searchParams.get('stages')
+  const urlUpdatedAtFrom = searchParams.get('updatedAtFrom')
+  const urlUpdatedAtTo = searchParams.get('updatedAtTo')
+
+  const validStages = urlStages
+    ? urlStages
+        .split(',')
+        .filter((s) => (STAGES as readonly string[]).includes(s))
+    : []
+
+  const updatedAtFromParam = urlUpdatedAtFrom ?? undefined
+  const updatedAtToParam = urlUpdatedAtTo ?? undefined
 
   const [search, setSearch] = useState('')
   const [stageFilter, setStageFilter] = useState<string>(ALL_FILTER_VALUE)
@@ -55,6 +75,15 @@ export function useProposalsTable(allowedBoardTypes: readonly BoardType[]) {
     limit: pagination.pageSize,
     sortBy,
     sortOrder,
+    updatedAtFrom: updatedAtFromParam,
+    updatedAtTo: updatedAtToParam,
+    // Orval generates an impossible intersection type `string & ProposalStage[]` for
+    // CSV params (backend uses z.string().transform(split).pipe(array)). The cast
+    // bridges our validated `string[]` to that generated type; runtime behavior is
+    // correct (array serializes to comma-separated string the backend expects).
+    ...(validStages.length > 0 && {
+      stages: validStages as ListProposalsParams['stages'],
+    }),
   })
 
   const proposals: ProposalData[] = useMemo(

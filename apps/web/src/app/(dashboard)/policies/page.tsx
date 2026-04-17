@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 
 import { ListPageHeader } from '@/components/shared/list-page-header'
@@ -16,7 +17,9 @@ export default function PoliciesPage() {
         title="Apólices"
         description="Apólices de seguro emitidas."
       />
-      <PoliciesTable />
+      <Suspense>
+        <PoliciesTable />
+      </Suspense>
     </div>
   )
 }

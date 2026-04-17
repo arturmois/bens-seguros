@@ -25,6 +25,11 @@ export const ExportPoliciesQueryParams = zod.object({
   branch: zod
     .enum(['AUTO', 'RESIDENTIAL', 'CONDOMINIUM', 'BUSINESS', 'LIFE', 'OTHER'])
     .optional(),
+  boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']).optional(),
+  createdFrom: zod.string().datetime({}).optional(),
+  createdTo: zod.string().datetime({}).optional(),
+  endDateFrom: zod.string().datetime({}).optional(),
+  endDateTo: zod.string().datetime({}).optional(),
   search: zod.string().optional(),
 })
 
@@ -179,6 +184,11 @@ export const ListPoliciesQueryParams = zod.object({
   branch: zod
     .enum(['AUTO', 'RESIDENTIAL', 'CONDOMINIUM', 'BUSINESS', 'LIFE', 'OTHER'])
     .optional(),
+  boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']).optional(),
+  createdFrom: zod.string().datetime({}).optional(),
+  createdTo: zod.string().datetime({}).optional(),
+  endDateFrom: zod.string().datetime({}).optional(),
+  endDateTo: zod.string().datetime({}).optional(),
   search: zod.string().optional(),
 })
 

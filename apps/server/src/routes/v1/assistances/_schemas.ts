@@ -41,6 +41,7 @@ export const updateAssistanceStatusBodySchema = z.object({
 
 export const listAssistancesQuerySchema = z.object({
   status: z.enum(ASSISTANCE_STATUS_VALUES).optional(),
+  statusGroup: z.enum(['open', 'closed']).optional(),
   policyId: z.string().optional(),
   clientId: z.string().optional(),
   type: z.string().optional(),

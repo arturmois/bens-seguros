@@ -71,9 +71,18 @@ export class PrismaAssistanceRepository implements AssistanceRepository {
     filters: AssistanceFilters,
     page: CursorPage<AssistanceSortField>
   ): Promise<Page<AssistanceData>> {
+    const statusWhere: Prisma.AssistanceWhereInput =
+      filters.statusGroup === 'open'
+        ? { status: { not: 'COMPLETED' } }
+        : filters.statusGroup === 'closed'
+          ? { status: 'COMPLETED' }
+          : filters.status
+            ? { status: filters.status }
+            : {}
+
     const where: Prisma.AssistanceWhereInput = {
       organizationId: filters.organizationId,
-      ...(filters.status && { status: filters.status }),
+      ...statusWhere,
       ...(filters.policyId && { policyId: filters.policyId }),
       ...(filters.clientId && { clientId: filters.clientId }),
       ...(filters.type && { type: filters.type }),

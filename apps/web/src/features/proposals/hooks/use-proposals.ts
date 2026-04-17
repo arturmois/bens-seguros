@@ -16,23 +16,16 @@ import {
 } from '@/api/endpoints/proposals/proposals'
 import type {
   CreateProposalBody,
-  ListProposalsSortBy,
-  ListProposalsSortOrder,
+  ListProposalsParams,
   UpdateProposalDetailsBody,
 } from '@/api/model'
 import { ApiError } from '@/lib/api-client'
 
 import type { BoardType, ProposalStage } from '../lib/constants'
 
-interface ProposalFilters {
+type ProposalFilters = Omit<ListProposalsParams, 'stage' | 'boardType'> & {
   stage?: ProposalStage
   boardType?: BoardType
-  search?: string
-  clientId?: string
-  cursor?: string
-  limit?: number
-  sortBy?: ListProposalsSortBy
-  sortOrder?: ListProposalsSortOrder
 }
 
 export function useProposals(filters: ProposalFilters) {

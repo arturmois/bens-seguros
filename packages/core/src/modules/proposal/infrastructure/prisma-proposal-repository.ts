@@ -86,16 +86,34 @@ export class PrismaProposalRepository implements ProposalRepository {
       createdAt.lte = filters.createdTo
     }
 
+    const updatedAt: Prisma.DateTimeFilter = {}
+
+    if (filters.updatedAtFrom) {
+      updatedAt.gte = filters.updatedAtFrom
+    }
+
+    if (filters.updatedAtTo) {
+      updatedAt.lte = filters.updatedAtTo
+    }
+
+    const stageFilter: Prisma.EnumProposalStageFilter | undefined =
+      filters.stages && filters.stages.length > 0
+        ? { in: [...filters.stages] }
+        : filters.stage
+          ? { equals: filters.stage }
+          : undefined
+
     const where: Prisma.ProposalWhereInput = {
       organizationId: filters.organizationId,
       deletedAt: null,
-      ...(filters.stage && { stage: filters.stage }),
+      ...(stageFilter && { stage: stageFilter }),
       ...(filters.clientId && { clientId: filters.clientId }),
       ...(filters.salespersonId && { salespersonId: filters.salespersonId }),
       ...(filters.boardType && { boardType: filters.boardType }),
       ...(filters.insurerId && { insurerId: filters.insurerId }),
       ...(filters.sourcePolicyId && { sourcePolicyId: filters.sourcePolicyId }),
       ...(Object.keys(createdAt).length > 0 && { createdAt }),
+      ...(Object.keys(updatedAt).length > 0 && { updatedAt }),
       ...(filters.search && {
         OR: [
           {

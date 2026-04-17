@@ -51,6 +51,11 @@ export interface PolicyFilters {
     | 'LIFE'
     | 'OTHER'
   search?: string
+  boardType?: 'NEW_INSURANCE' | 'RENEWAL' | 'ENDORSEMENT'
+  createdFrom?: Date
+  createdTo?: Date
+  endDateFrom?: Date
+  endDateTo?: Date
 }
 
 export interface PolicyCursorPage {

@@ -96,7 +96,7 @@ export function DashboardContent() {
         </Button>
         <DashboardPeriodFilter preset={preset} onPresetChange={setPreset} />
       </div>
-      <StatsCards data={data} isLoading={isLoading} />
+      <StatsCards data={data} isLoading={isLoading} preset={preset} />
       <FinancialMetrics data={data} isLoading={isLoading} />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <ProposalsByStage data={data?.proposalsByStage} isLoading={isLoading} />
