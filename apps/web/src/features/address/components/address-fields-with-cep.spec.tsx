@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
-import { fireEvent, render, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { type FieldValues, FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { CepLookupError } from '../hooks/use-cep-lookup'
 import { AddressFieldsWithCep } from './address-fields-with-cep'
@@ -74,6 +74,12 @@ function getInputByName(name: string): HTMLInputElement {
 }
 
 describe('<AddressFieldsWithCep />', () => {
+  // Unmount rendered components between tests so InputMask's internal timers
+  // don't fire after jsdom teardown (was causing "window is not defined" in CI).
+  afterEach(() => {
+    cleanup()
+  })
+
   beforeEach(() => {
     lookupMock.mockReset()
     vi.mocked(toast.error).mockReset()
