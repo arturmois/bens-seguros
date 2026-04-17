@@ -39,3 +39,17 @@ export class RedisCacheService implements CacheService {
     }
   }
 }
+
+export class NoopCacheService implements CacheService {
+  async get<TResult>(_key: string): Promise<TResult | null> {
+    return null
+  }
+
+  async set(_key: string, _value: unknown, _ttlSeconds: number): Promise<void> {
+    // Intentional no-op — used when Redis is unavailable.
+  }
+
+  async delete(_key: string): Promise<void> {
+    // Intentional no-op.
+  }
+}

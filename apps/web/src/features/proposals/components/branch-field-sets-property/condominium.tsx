@@ -1,10 +1,9 @@
 'use client'
 
-import { Controller, useWatch } from 'react-hook-form'
-import { InputMask } from '@react-input/mask'
+import { useWatch } from 'react-hook-form'
 
+import { AddressFieldsWithCep } from '@/features/address/components/address-fields-with-cep'
 import { Input } from '@/components/ui/input'
-import { CEP_MASK } from '@/lib/masks'
 
 import type { FieldHelperProps } from '../branch-field-sets'
 import { FieldWrapper } from '../branch-field-sets'
@@ -17,6 +16,7 @@ interface CondominiumFieldsProps extends FieldHelperProps {
 export function CondominiumFields({
   register,
   control,
+  setValue,
   autoFill,
 }: CondominiumFieldsProps) {
   const isCompanyClient = autoFill?.clientPersonType === 'COMPANY'
@@ -43,25 +43,12 @@ export function CondominiumFields({
           {...register('unitCount', { valueAsNumber: true })}
         />
       </FieldWrapper>
-      <FieldWrapper label="CEP" required>
-        <Controller
-          name="cep"
-          control={control}
-          render={({ field }) => (
-            <InputMask
-              component={Input}
-              mask={CEP_MASK.mask}
-              replacement={CEP_MASK.replacement}
-              placeholder="00000-000"
-              {...field}
-              value={String(field.value ?? '')}
-            />
-          )}
-        />
-      </FieldWrapper>
-      <FieldWrapper label="Endereço">
-        <Input placeholder="Rua, número, bairro" {...register('address')} />
-      </FieldWrapper>
+      <AddressFieldsWithCep
+        control={control}
+        register={register}
+        setValue={setValue}
+        required={{ cep: true }}
+      />
       <FieldWrapper label="Ano de Construção">
         <Input
           type="number"

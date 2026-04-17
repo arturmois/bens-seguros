@@ -1194,6 +1194,99 @@ export const prefetchImportStatusClientsQuery = async <
 }
 
 /**
+ * @summary LGPD data anonymization — irreversible
+ */
+export type lgpdDeleteClientResponse200 = {
+  data: void
+  status: 200
+}
+
+export type lgpdDeleteClientResponseSuccess = lgpdDeleteClientResponse200 & {
+  headers: Headers
+}
+export type lgpdDeleteClientResponse = lgpdDeleteClientResponseSuccess
+
+export const getLgpdDeleteClientUrl = (id: string) => {
+  return `/api/v1/clients/${id}/lgpd-delete`
+}
+
+export const lgpdDeleteClient = async (
+  id: string,
+  options?: RequestInit
+): Promise<lgpdDeleteClientResponse> => {
+  return customFetch<lgpdDeleteClientResponse>(getLgpdDeleteClientUrl(id), {
+    ...options,
+    method: 'POST',
+  })
+}
+
+export const getLgpdDeleteClientMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof lgpdDeleteClient>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof customFetch>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof lgpdDeleteClient>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['lgpdDeleteClient']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof lgpdDeleteClient>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {}
+
+    return lgpdDeleteClient(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type LgpdDeleteClientMutationResult = NonNullable<
+  Awaited<ReturnType<typeof lgpdDeleteClient>>
+>
+
+export type LgpdDeleteClientMutationError = unknown
+
+/**
+ * @summary LGPD data anonymization — irreversible
+ */
+export const useLgpdDeleteClient = <TError = unknown, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof lgpdDeleteClient>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof lgpdDeleteClient>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getLgpdDeleteClientMutationOptions(options), queryClient)
+}
+/**
  * @summary Get a client by ID
  */
 export type getClientResponse200 = {

@@ -101,6 +101,15 @@ export const updateProposalDatesResponseDataDetailsOneManufacturingYearMax = 210
 export const updateProposalDatesResponseDataDetailsOneModelYearMin = 1900
 export const updateProposalDatesResponseDataDetailsOneModelYearMax = 2100
 
+export const updateProposalDatesResponseDataDetailsTwoStateMin = 2
+export const updateProposalDatesResponseDataDetailsTwoStateMax = 2
+
+export const updateProposalDatesResponseDataDetailsThreeStateMin = 2
+export const updateProposalDatesResponseDataDetailsThreeStateMax = 2
+
+export const updateProposalDatesResponseDataDetailsFourStateMin = 2
+export const updateProposalDatesResponseDataDetailsFourStateMax = 2
+
 export const updateProposalDatesResponseDataDetailsFiveMonthlyIncomeCentsMin = 0
 
 export const updateProposalDatesResponseDataDetailsFiveHeightInCentimetersMin = 100
@@ -161,7 +170,16 @@ export const UpdateProposalDatesResponse = zod.object({
           propertyType: zod.string().min(1),
           propertyUsage: zod.string().min(1),
           cep: zod.string().min(1),
-          address: zod.string().optional(),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(updateProposalDatesResponseDataDetailsTwoStateMin)
+            .max(updateProposalDatesResponseDataDetailsTwoStateMax)
+            .optional(),
           construction: zod.string().optional(),
           areaM2: zod.number().optional(),
         }),
@@ -170,7 +188,16 @@ export const UpdateProposalDatesResponse = zod.object({
           condominiumName: zod.string().min(1),
           unitCount: zod.number().min(1),
           cep: zod.string().min(1),
-          address: zod.string().optional(),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(updateProposalDatesResponseDataDetailsThreeStateMin)
+            .max(updateProposalDatesResponseDataDetailsThreeStateMax)
+            .optional(),
           constructionYear: zod.number().optional(),
           floorCount: zod.number().optional(),
           blockCount: zod.number().optional(),
@@ -187,7 +214,16 @@ export const UpdateProposalDatesResponse = zod.object({
           cnpj: zod.string().min(1),
           businessActivity: zod.string().min(1),
           cep: zod.string().optional(),
-          address: zod.string().optional(),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(updateProposalDatesResponseDataDetailsFourStateMin)
+            .max(updateProposalDatesResponseDataDetailsFourStateMax)
+            .optional(),
           areaM2: zod.number().optional(),
         }),
         zod.object({
@@ -341,6 +377,15 @@ export const listProposalsResponseDataItemDetailsOneManufacturingYearMax = 2100
 export const listProposalsResponseDataItemDetailsOneModelYearMin = 1900
 export const listProposalsResponseDataItemDetailsOneModelYearMax = 2100
 
+export const listProposalsResponseDataItemDetailsTwoStateMin = 2
+export const listProposalsResponseDataItemDetailsTwoStateMax = 2
+
+export const listProposalsResponseDataItemDetailsThreeStateMin = 2
+export const listProposalsResponseDataItemDetailsThreeStateMax = 2
+
+export const listProposalsResponseDataItemDetailsFourStateMin = 2
+export const listProposalsResponseDataItemDetailsFourStateMax = 2
+
 export const listProposalsResponseDataItemDetailsFiveMonthlyIncomeCentsMin = 0
 
 export const listProposalsResponseDataItemDetailsFiveHeightInCentimetersMin = 100
@@ -402,7 +447,16 @@ export const ListProposalsResponse = zod.object({
             propertyType: zod.string().min(1),
             propertyUsage: zod.string().min(1),
             cep: zod.string().min(1),
-            address: zod.string().optional(),
+            street: zod.string().optional(),
+            number: zod.string().optional(),
+            complement: zod.string().optional(),
+            neighborhood: zod.string().optional(),
+            city: zod.string().optional(),
+            state: zod
+              .string()
+              .min(listProposalsResponseDataItemDetailsTwoStateMin)
+              .max(listProposalsResponseDataItemDetailsTwoStateMax)
+              .optional(),
             construction: zod.string().optional(),
             areaM2: zod.number().optional(),
           }),
@@ -411,7 +465,16 @@ export const ListProposalsResponse = zod.object({
             condominiumName: zod.string().min(1),
             unitCount: zod.number().min(1),
             cep: zod.string().min(1),
-            address: zod.string().optional(),
+            street: zod.string().optional(),
+            number: zod.string().optional(),
+            complement: zod.string().optional(),
+            neighborhood: zod.string().optional(),
+            city: zod.string().optional(),
+            state: zod
+              .string()
+              .min(listProposalsResponseDataItemDetailsThreeStateMin)
+              .max(listProposalsResponseDataItemDetailsThreeStateMax)
+              .optional(),
             constructionYear: zod.number().optional(),
             floorCount: zod.number().optional(),
             blockCount: zod.number().optional(),
@@ -428,7 +491,16 @@ export const ListProposalsResponse = zod.object({
             cnpj: zod.string().min(1),
             businessActivity: zod.string().min(1),
             cep: zod.string().optional(),
-            address: zod.string().optional(),
+            street: zod.string().optional(),
+            number: zod.string().optional(),
+            complement: zod.string().optional(),
+            neighborhood: zod.string().optional(),
+            city: zod.string().optional(),
+            state: zod
+              .string()
+              .min(listProposalsResponseDataItemDetailsFourStateMin)
+              .max(listProposalsResponseDataItemDetailsFourStateMax)
+              .optional(),
             areaM2: zod.number().optional(),
           }),
           zod.object({
@@ -516,6 +588,15 @@ export const getProposalResponseDataDetailsOneManufacturingYearMax = 2100
 export const getProposalResponseDataDetailsOneModelYearMin = 1900
 export const getProposalResponseDataDetailsOneModelYearMax = 2100
 
+export const getProposalResponseDataDetailsTwoStateMin = 2
+export const getProposalResponseDataDetailsTwoStateMax = 2
+
+export const getProposalResponseDataDetailsThreeStateMin = 2
+export const getProposalResponseDataDetailsThreeStateMax = 2
+
+export const getProposalResponseDataDetailsFourStateMin = 2
+export const getProposalResponseDataDetailsFourStateMax = 2
+
 export const getProposalResponseDataDetailsFiveMonthlyIncomeCentsMin = 0
 
 export const getProposalResponseDataDetailsFiveHeightInCentimetersMin = 100
@@ -576,7 +657,16 @@ export const GetProposalResponse = zod.object({
           propertyType: zod.string().min(1),
           propertyUsage: zod.string().min(1),
           cep: zod.string().min(1),
-          address: zod.string().optional(),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(getProposalResponseDataDetailsTwoStateMin)
+            .max(getProposalResponseDataDetailsTwoStateMax)
+            .optional(),
           construction: zod.string().optional(),
           areaM2: zod.number().optional(),
         }),
@@ -585,7 +675,16 @@ export const GetProposalResponse = zod.object({
           condominiumName: zod.string().min(1),
           unitCount: zod.number().min(1),
           cep: zod.string().min(1),
-          address: zod.string().optional(),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(getProposalResponseDataDetailsThreeStateMin)
+            .max(getProposalResponseDataDetailsThreeStateMax)
+            .optional(),
           constructionYear: zod.number().optional(),
           floorCount: zod.number().optional(),
           blockCount: zod.number().optional(),
@@ -602,7 +701,16 @@ export const GetProposalResponse = zod.object({
           cnpj: zod.string().min(1),
           businessActivity: zod.string().min(1),
           cep: zod.string().optional(),
-          address: zod.string().optional(),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(getProposalResponseDataDetailsFourStateMin)
+            .max(getProposalResponseDataDetailsFourStateMax)
+            .optional(),
           areaM2: zod.number().optional(),
         }),
         zod.object({
@@ -680,6 +788,15 @@ export const advanceProposalResponseDataDetailsOneManufacturingYearMax = 2100
 export const advanceProposalResponseDataDetailsOneModelYearMin = 1900
 export const advanceProposalResponseDataDetailsOneModelYearMax = 2100
 
+export const advanceProposalResponseDataDetailsTwoStateMin = 2
+export const advanceProposalResponseDataDetailsTwoStateMax = 2
+
+export const advanceProposalResponseDataDetailsThreeStateMin = 2
+export const advanceProposalResponseDataDetailsThreeStateMax = 2
+
+export const advanceProposalResponseDataDetailsFourStateMin = 2
+export const advanceProposalResponseDataDetailsFourStateMax = 2
+
 export const advanceProposalResponseDataDetailsFiveMonthlyIncomeCentsMin = 0
 
 export const advanceProposalResponseDataDetailsFiveHeightInCentimetersMin = 100
@@ -740,7 +857,16 @@ export const AdvanceProposalResponse = zod.object({
           propertyType: zod.string().min(1),
           propertyUsage: zod.string().min(1),
           cep: zod.string().min(1),
-          address: zod.string().optional(),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(advanceProposalResponseDataDetailsTwoStateMin)
+            .max(advanceProposalResponseDataDetailsTwoStateMax)
+            .optional(),
           construction: zod.string().optional(),
           areaM2: zod.number().optional(),
         }),
@@ -749,7 +875,16 @@ export const AdvanceProposalResponse = zod.object({
           condominiumName: zod.string().min(1),
           unitCount: zod.number().min(1),
           cep: zod.string().min(1),
-          address: zod.string().optional(),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(advanceProposalResponseDataDetailsThreeStateMin)
+            .max(advanceProposalResponseDataDetailsThreeStateMax)
+            .optional(),
           constructionYear: zod.number().optional(),
           floorCount: zod.number().optional(),
           blockCount: zod.number().optional(),
@@ -766,7 +901,16 @@ export const AdvanceProposalResponse = zod.object({
           cnpj: zod.string().min(1),
           businessActivity: zod.string().min(1),
           cep: zod.string().optional(),
-          address: zod.string().optional(),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(advanceProposalResponseDataDetailsFourStateMin)
+            .max(advanceProposalResponseDataDetailsFourStateMax)
+            .optional(),
           areaM2: zod.number().optional(),
         }),
         zod.object({
@@ -848,6 +992,15 @@ export const markProposalLostResponseDataDetailsOneManufacturingYearMax = 2100
 export const markProposalLostResponseDataDetailsOneModelYearMin = 1900
 export const markProposalLostResponseDataDetailsOneModelYearMax = 2100
 
+export const markProposalLostResponseDataDetailsTwoStateMin = 2
+export const markProposalLostResponseDataDetailsTwoStateMax = 2
+
+export const markProposalLostResponseDataDetailsThreeStateMin = 2
+export const markProposalLostResponseDataDetailsThreeStateMax = 2
+
+export const markProposalLostResponseDataDetailsFourStateMin = 2
+export const markProposalLostResponseDataDetailsFourStateMax = 2
+
 export const markProposalLostResponseDataDetailsFiveMonthlyIncomeCentsMin = 0
 
 export const markProposalLostResponseDataDetailsFiveHeightInCentimetersMin = 100
@@ -908,7 +1061,16 @@ export const MarkProposalLostResponse = zod.object({
           propertyType: zod.string().min(1),
           propertyUsage: zod.string().min(1),
           cep: zod.string().min(1),
-          address: zod.string().optional(),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(markProposalLostResponseDataDetailsTwoStateMin)
+            .max(markProposalLostResponseDataDetailsTwoStateMax)
+            .optional(),
           construction: zod.string().optional(),
           areaM2: zod.number().optional(),
         }),
@@ -917,7 +1079,16 @@ export const MarkProposalLostResponse = zod.object({
           condominiumName: zod.string().min(1),
           unitCount: zod.number().min(1),
           cep: zod.string().min(1),
-          address: zod.string().optional(),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(markProposalLostResponseDataDetailsThreeStateMin)
+            .max(markProposalLostResponseDataDetailsThreeStateMax)
+            .optional(),
           constructionYear: zod.number().optional(),
           floorCount: zod.number().optional(),
           blockCount: zod.number().optional(),
@@ -934,7 +1105,16 @@ export const MarkProposalLostResponse = zod.object({
           cnpj: zod.string().min(1),
           businessActivity: zod.string().min(1),
           cep: zod.string().optional(),
-          address: zod.string().optional(),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(markProposalLostResponseDataDetailsFourStateMin)
+            .max(markProposalLostResponseDataDetailsFourStateMax)
+            .optional(),
           areaM2: zod.number().optional(),
         }),
         zod.object({
@@ -1025,6 +1205,15 @@ export const updateProposalDetailsBodyDetailsOneManufacturingYearMax = 2100
 export const updateProposalDetailsBodyDetailsOneModelYearMin = 1900
 export const updateProposalDetailsBodyDetailsOneModelYearMax = 2100
 
+export const updateProposalDetailsBodyDetailsTwoStateMin = 2
+export const updateProposalDetailsBodyDetailsTwoStateMax = 2
+
+export const updateProposalDetailsBodyDetailsThreeStateMin = 2
+export const updateProposalDetailsBodyDetailsThreeStateMax = 2
+
+export const updateProposalDetailsBodyDetailsFourStateMin = 2
+export const updateProposalDetailsBodyDetailsFourStateMax = 2
+
 export const updateProposalDetailsBodyDetailsFiveMonthlyIncomeCentsMin = 0
 
 export const updateProposalDetailsBodyDetailsFiveHeightInCentimetersMin = 100
@@ -1063,7 +1252,16 @@ export const UpdateProposalDetailsBody = zod.object({
       propertyType: zod.string().min(1),
       propertyUsage: zod.string().min(1),
       cep: zod.string().min(1),
-      address: zod.string().optional(),
+      street: zod.string().optional(),
+      number: zod.string().optional(),
+      complement: zod.string().optional(),
+      neighborhood: zod.string().optional(),
+      city: zod.string().optional(),
+      state: zod
+        .string()
+        .min(updateProposalDetailsBodyDetailsTwoStateMin)
+        .max(updateProposalDetailsBodyDetailsTwoStateMax)
+        .optional(),
       construction: zod.string().optional(),
       areaM2: zod.number().optional(),
     }),
@@ -1072,7 +1270,16 @@ export const UpdateProposalDetailsBody = zod.object({
       condominiumName: zod.string().min(1),
       unitCount: zod.number().min(1),
       cep: zod.string().min(1),
-      address: zod.string().optional(),
+      street: zod.string().optional(),
+      number: zod.string().optional(),
+      complement: zod.string().optional(),
+      neighborhood: zod.string().optional(),
+      city: zod.string().optional(),
+      state: zod
+        .string()
+        .min(updateProposalDetailsBodyDetailsThreeStateMin)
+        .max(updateProposalDetailsBodyDetailsThreeStateMax)
+        .optional(),
       constructionYear: zod.number().optional(),
       floorCount: zod.number().optional(),
       blockCount: zod.number().optional(),
@@ -1089,7 +1296,16 @@ export const UpdateProposalDetailsBody = zod.object({
       cnpj: zod.string().min(1),
       businessActivity: zod.string().min(1),
       cep: zod.string().optional(),
-      address: zod.string().optional(),
+      street: zod.string().optional(),
+      number: zod.string().optional(),
+      complement: zod.string().optional(),
+      neighborhood: zod.string().optional(),
+      city: zod.string().optional(),
+      state: zod
+        .string()
+        .min(updateProposalDetailsBodyDetailsFourStateMin)
+        .max(updateProposalDetailsBodyDetailsFourStateMax)
+        .optional(),
       areaM2: zod.number().optional(),
     }),
     zod.object({
@@ -1133,6 +1349,15 @@ export const updateProposalDetailsResponseDataDetailsOneManufacturingYearMax = 2
 
 export const updateProposalDetailsResponseDataDetailsOneModelYearMin = 1900
 export const updateProposalDetailsResponseDataDetailsOneModelYearMax = 2100
+
+export const updateProposalDetailsResponseDataDetailsTwoStateMin = 2
+export const updateProposalDetailsResponseDataDetailsTwoStateMax = 2
+
+export const updateProposalDetailsResponseDataDetailsThreeStateMin = 2
+export const updateProposalDetailsResponseDataDetailsThreeStateMax = 2
+
+export const updateProposalDetailsResponseDataDetailsFourStateMin = 2
+export const updateProposalDetailsResponseDataDetailsFourStateMax = 2
 
 export const updateProposalDetailsResponseDataDetailsFiveMonthlyIncomeCentsMin = 0
 
@@ -1198,7 +1423,16 @@ export const UpdateProposalDetailsResponse = zod.object({
           propertyType: zod.string().min(1),
           propertyUsage: zod.string().min(1),
           cep: zod.string().min(1),
-          address: zod.string().optional(),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(updateProposalDetailsResponseDataDetailsTwoStateMin)
+            .max(updateProposalDetailsResponseDataDetailsTwoStateMax)
+            .optional(),
           construction: zod.string().optional(),
           areaM2: zod.number().optional(),
         }),
@@ -1207,7 +1441,16 @@ export const UpdateProposalDetailsResponse = zod.object({
           condominiumName: zod.string().min(1),
           unitCount: zod.number().min(1),
           cep: zod.string().min(1),
-          address: zod.string().optional(),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(updateProposalDetailsResponseDataDetailsThreeStateMin)
+            .max(updateProposalDetailsResponseDataDetailsThreeStateMax)
+            .optional(),
           constructionYear: zod.number().optional(),
           floorCount: zod.number().optional(),
           blockCount: zod.number().optional(),
@@ -1224,7 +1467,16 @@ export const UpdateProposalDetailsResponse = zod.object({
           cnpj: zod.string().min(1),
           businessActivity: zod.string().min(1),
           cep: zod.string().optional(),
-          address: zod.string().optional(),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(updateProposalDetailsResponseDataDetailsFourStateMin)
+            .max(updateProposalDetailsResponseDataDetailsFourStateMax)
+            .optional(),
           areaM2: zod.number().optional(),
         }),
         zod.object({

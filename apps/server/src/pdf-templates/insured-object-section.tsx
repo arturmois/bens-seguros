@@ -28,6 +28,27 @@ function FieldRow({ label, value }: FieldRowProps) {
   )
 }
 
+interface StructuredAddress {
+  readonly street?: string
+  readonly number?: string
+  readonly complement?: string
+  readonly neighborhood?: string
+  readonly city?: string
+  readonly state?: string
+}
+
+function formatAddress(details: StructuredAddress): string | undefined {
+  const line1 = [details.street, details.number].filter(Boolean).join(', ')
+  const withComplement = details.complement
+    ? `${line1}${line1 ? ' - ' : ''}${details.complement}`
+    : line1
+  const line2 = [details.neighborhood, details.city, details.state]
+    .filter(Boolean)
+    .join(' — ')
+  const combined = [withComplement, line2].filter(Boolean).join(' · ')
+  return combined.length > 0 ? combined : undefined
+}
+
 function AutoSection({ details }: { readonly details: AutoDetails }) {
   return (
     <>
@@ -67,7 +88,7 @@ function ResidentialSection({
         <FieldRow label="Área (m²)" value={details.areaM2} />
       </View>
       <View style={styles.row}>
-        <FieldRow label="Endereço" value={details.address} />
+        <FieldRow label="Endereço" value={formatAddress(details)} />
         <FieldRow label="Construção" value={details.construction} />
       </View>
     </>
@@ -90,7 +111,7 @@ function CondominiumSection({
         <FieldRow label="Andares" value={details.floorCount} />
       </View>
       <View style={styles.row}>
-        <FieldRow label="Endereço" value={details.address} />
+        <FieldRow label="Endereço" value={formatAddress(details)} />
         <FieldRow label="Ano Construção" value={details.constructionYear} />
       </View>
     </>
@@ -110,7 +131,7 @@ function BusinessSection({ details }: { readonly details: BusinessDetails }) {
       </View>
       <View style={styles.row}>
         <FieldRow label="CEP" value={details.cep} />
-        <FieldRow label="Endereço" value={details.address} />
+        <FieldRow label="Endereço" value={formatAddress(details)} />
       </View>
     </>
   )

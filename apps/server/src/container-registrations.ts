@@ -46,6 +46,7 @@ import {
   ListPolicies,
   ListProposals,
   LocalStorageProvider,
+  LookupCep,
   MarkAllNotificationsAsRead,
   MarkNotificationAsRead,
   MarkProposalLost,
@@ -68,6 +69,7 @@ import {
   PrismaPolicyRepository,
   PrismaProposalRepository,
   R2StorageProvider,
+  NoopCacheService,
   RedisCacheService,
   RejectCommission,
   ReopenProposal,
@@ -80,6 +82,7 @@ import {
   UpdateMemberRole,
   UpdateProposalDetails,
   UploadDocument,
+  ViaCepProvider,
 } from '@repo/core'
 import { prismaAdmin } from '@repo/db'
 import { env } from '@repo/env'
@@ -90,6 +93,21 @@ export function registerDependencies(redis: Redis | null = null) {
     const cacheService = new RedisCacheService(redis)
     container.register('CacheService', { useValue: cacheService })
   }
+
+  // CepCacheService is always registered so LookupCep can resolve it even
+  // when Redis is unavailable (tests, degraded boot). NoopCacheService makes
+  // every lookup a cache miss, which is safe — ViaCEP is called every time.
+  const cepCache = redis ? new RedisCacheService(redis) : new NoopCacheService()
+  container.register('CepCacheService', { useValue: cepCache })
+
+  container.register('CepLookupProvider', { useClass: ViaCepProvider })
+  container.register(LookupCep, {
+    useFactory: (c) =>
+      new LookupCep(
+        c.resolve('CepLookupProvider'),
+        c.resolve('CepCacheService')
+      ),
+  })
 
   const clientRepo = new PrismaClientRepository(prismaAdmin)
   const proposalRepo = new PrismaProposalRepository(prismaAdmin)

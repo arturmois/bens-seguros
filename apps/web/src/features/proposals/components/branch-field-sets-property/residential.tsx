@@ -1,8 +1,8 @@
 'use client'
 
 import { Controller } from 'react-hook-form'
-import { InputMask } from '@react-input/mask'
 
+import { AddressFieldsWithCep } from '@/features/address/components/address-fields-with-cep'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { CEP_MASK } from '@/lib/masks'
 
 import {
   CONSTRUCTION_OPTIONS,
@@ -21,7 +20,11 @@ import {
 import type { FieldHelperProps } from '../branch-field-sets'
 import { FieldWrapper } from '../branch-field-sets'
 
-export function ResidentialFields({ register, control }: FieldHelperProps) {
+export function ResidentialFields({
+  register,
+  control,
+  setValue,
+}: FieldHelperProps) {
   return (
     <>
       <FieldWrapper label="Tipo de Imóvel" required>
@@ -86,25 +89,12 @@ export function ResidentialFields({ register, control }: FieldHelperProps) {
           )}
         />
       </FieldWrapper>
-      <FieldWrapper label="CEP" required>
-        <Controller
-          name="cep"
-          control={control}
-          render={({ field }) => (
-            <InputMask
-              component={Input}
-              mask={CEP_MASK.mask}
-              replacement={CEP_MASK.replacement}
-              placeholder="00000-000"
-              {...field}
-              value={String(field.value ?? '')}
-            />
-          )}
-        />
-      </FieldWrapper>
-      <FieldWrapper label="Endereço">
-        <Input placeholder="Rua, número, bairro" {...register('address')} />
-      </FieldWrapper>
+      <AddressFieldsWithCep
+        control={control}
+        register={register}
+        setValue={setValue}
+        required={{ cep: true }}
+      />
       <FieldWrapper label="Construção">
         <Controller
           name="construction"
