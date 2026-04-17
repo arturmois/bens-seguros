@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import type { ComponentPropsWithoutRef, ElementType } from 'react'
 import { type FieldValues, FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -25,6 +26,25 @@ vi.mock('../hooks/use-cep-lookup', () => ({
 
 vi.mock('sonner', () => ({
   toast: { error: vi.fn() },
+}))
+
+// @react-input/mask schedules native setTimeout calls that can fire after
+// jsdom is torn down — "window is not defined" crashes the run in CI. We
+// don't test mask behavior here, so mock it as a passthrough input.
+type InputMaskProps = ComponentPropsWithoutRef<'input'> & {
+  component?: ElementType
+  mask?: string
+  replacement?: Record<string, RegExp>
+}
+
+vi.mock('@react-input/mask', () => ({
+  InputMask: ({
+    component: Component,
+    mask: _mask,
+    replacement: _replacement,
+    ...rest
+  }: InputMaskProps) =>
+    Component ? <Component {...rest} /> : <input {...rest} />,
 }))
 
 interface FormShape {
