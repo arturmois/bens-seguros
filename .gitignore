@@ -27,3 +27,6 @@ skills-lock.json
 .worktrees/
 .serena/
 .notebook/
+docs/plans/
+docs/superpowers/plans/
+docs/superpowers/specs/
