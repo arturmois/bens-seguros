@@ -126,7 +126,7 @@ export function createPolicyColumns(
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-8"
+                  className="size-7"
                   aria-label="Ações"
                 />
               }

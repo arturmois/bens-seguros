@@ -14,10 +14,13 @@ import {
 import { cn } from '@/lib/utils'
 
 // Shared baseline row height. Forces every data table in the app to render
-// rows of the same minimum height regardless of cell content (icon button,
-// avatar, badge, plain text). Avoids the visual ritmo break the audit found
-// across modules where row heights ranged from 39px to 57px.
-const ROW_BASELINE = 'h-13'
+// rows at 40px. Note that h- on <tr> behaves as a *minimum* — to actually
+// hit 40px, three things must align together:
+//   1. h-10 (row min-height) here
+//   2. p-1.5 on TableCell in components/ui/table.tsx
+//   3. size-7 on the action-menu Button in feature *-columns.tsx
+// Math: 28px (button) + 12px (vertical padding) = 40px.
+const ROW_BASELINE = 'h-10'
 
 interface DataTableProps<T> {
   readonly table: TanStackTable<T>

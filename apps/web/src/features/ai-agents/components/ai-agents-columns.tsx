@@ -108,7 +108,7 @@ export function createAiAgentColumns(
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-8"
+                  className="size-7"
                   aria-label={`Ações do agente ${agent.name}`}
                 />
               }

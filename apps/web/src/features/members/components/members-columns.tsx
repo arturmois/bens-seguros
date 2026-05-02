@@ -128,7 +128,7 @@ export function createMemberColumns(
           <Button
             variant="ghost"
             size="icon"
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive size-8"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive size-7"
             onClick={(e) => {
               e.stopPropagation()
               actions.onRemove(member)

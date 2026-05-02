@@ -93,7 +93,7 @@ export function TableHead({
   return (
     <th
       className={cn(
-        'text-muted-foreground h-10 whitespace-nowrap px-2.5 text-left align-middle font-medium leading-none has-[[role=checkbox]]:w-px has-[[role=checkbox]]:pe-0',
+        'text-muted-foreground h-10 whitespace-nowrap px-1.5 text-left align-middle font-medium leading-none has-[[role=checkbox]]:w-px has-[[role=checkbox]]:pe-0',
         className
       )}
       data-slot="table-head"
@@ -109,7 +109,7 @@ export function TableCell({
   return (
     <td
       className={cn(
-        'in-data-[slot=frame]:first:p-[calc(--spacing(2.5)-1px)] in-data-[slot=frame]:last:p-[calc(--spacing(2.5)-1px)] whitespace-nowrap p-2.5 align-middle leading-none has-[[role=checkbox]]:pe-0',
+        'in-data-[slot=frame]:first:p-[calc(--spacing(1.5)-1px)] in-data-[slot=frame]:last:p-[calc(--spacing(1.5)-1px)] whitespace-nowrap p-1.5 align-middle leading-none has-[[role=checkbox]]:pe-0',
         className
       )}
       data-slot="table-cell"
