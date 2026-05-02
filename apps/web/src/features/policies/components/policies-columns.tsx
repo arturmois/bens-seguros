@@ -123,12 +123,7 @@ export function createPolicyColumns(
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7"
-                  aria-label="Ações"
-                />
+                <Button variant="ghost" size="icon-sm" aria-label="Ações" />
               }
               onClick={(e) => e.stopPropagation()}
             >
