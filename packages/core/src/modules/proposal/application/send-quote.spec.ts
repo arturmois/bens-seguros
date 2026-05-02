@@ -12,7 +12,7 @@ function createTestProposal(stage: Proposal['stage'] = 'QUOTE'): Proposal {
   return Proposal.restore({
     id: 'proposal-1',
     organizationId: 'org-1',
-    clientId: 'client-1',
+    contactId: 'client-1',
     salespersonId: 'user-1',
     stage,
     boardType: 'NEW_INSURANCE',

@@ -4,6 +4,7 @@ import type { ProposalRepository } from '../domain/proposal-repository.js'
 import type { ChecklistRepository } from '../domain/checklist-repository.js'
 import type { ChecklistConfigProvider } from '../domain/checklist-config.js'
 import type { PolicyRepository } from '../../policy/domain/policy-repository.js'
+import type { ContactRepository } from '../../contact/domain/contact-repository.js'
 import { ProposalErrors } from '../domain/proposal-errors.js'
 
 interface CreateProposalDTOBase {
@@ -13,7 +14,7 @@ interface CreateProposalDTOBase {
 
 type CreateProposalDTO =
   | (CreateProposalDTOBase & {
-      clientId: string
+      contactId: string
       branch:
         | 'AUTO'
         | 'RESIDENTIAL'
@@ -45,7 +46,9 @@ export class CreateProposal {
     @inject('ChecklistConfigProvider')
     private readonly checklistConfig: ChecklistConfigProvider,
     @inject('PolicyRepository')
-    private readonly policyRepo: PolicyRepository
+    private readonly policyRepo: PolicyRepository,
+    @inject('ContactRepository')
+    private readonly contactRepo: ContactRepository
   ) {}
 
   async execute(dto: CreateProposalDTO): Promise<Proposal> {
@@ -120,9 +123,14 @@ export class CreateProposal {
       throw ProposalErrors.sourcePolicyNotEligible(dto.sourcePolicyId)
     }
 
+    const contactId = await this.resolveEndorsementContactId(
+      policy.clientId,
+      dto.organizationId
+    )
+
     return Proposal.create({
       organizationId: dto.organizationId,
-      clientId: policy.clientId,
+      contactId,
       salespersonId: dto.salespersonId,
       branch: policy.branch,
       boardType: 'ENDORSEMENT',
@@ -140,5 +148,20 @@ export class CreateProposal {
         insurerName: policy.insurerName ?? null,
       },
     })
+  }
+
+  private async resolveEndorsementContactId(
+    clientId: string,
+    organizationId: string
+  ): Promise<string> {
+    const contacts = await this.contactRepo.findMany(
+      { organizationId, clientId },
+      { limit: 1, sortBy: 'createdAt', sortOrder: 'asc' }
+    )
+    const oldest = contacts.items.at(0)
+    if (!oldest) {
+      throw ProposalErrors.endorsementContactNotFound(clientId)
+    }
+    return oldest.id
   }
 }

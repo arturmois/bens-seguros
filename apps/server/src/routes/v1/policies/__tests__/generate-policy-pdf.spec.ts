@@ -36,6 +36,9 @@ vi.mock('@repo/db', () => {
     client: {
       findFirst: vi.fn().mockResolvedValue(null),
     },
+    contact: {
+      findFirst: vi.fn().mockResolvedValue(null),
+    },
   }
   return { prisma: mock, prismaAdmin: mock }
 })

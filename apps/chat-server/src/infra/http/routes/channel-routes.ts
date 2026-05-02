@@ -3,17 +3,19 @@ import { container } from 'tsyringe'
 import { z } from 'zod'
 
 import { Channel, AiAgent, type ChannelDocument } from '@repo/db-chat'
-import { CHAT_QUEUES } from '@repo/shared'
+import { BROKER_TYPES, CHANNEL_TYPES, CHAT_QUEUES } from '@repo/shared'
 import { ChannelNotFoundError } from '../../../domain/errors.js'
 import type { QueueProducer } from '../../queue/queue-producer.js'
 import { channelWebhookRoutes } from './channel-webhook-routes.js'
+
+const DEFAULT_WEB_CHAT_WELCOME_MESSAGE = 'Olá! Como podemos ajudá-lo?'
 
 const channelIdSchema = z.object({ id: z.string().min(1) })
 
 const createChannelBodySchema = z.object({
   name: z.string().min(1).max(255),
-  type: z.enum(['WHATSAPP', 'WEB_CHAT', 'MESSENGER', 'INSTAGRAM']),
-  brokerType: z.enum(['BAILEYS', 'META', 'WEB_CHAT', 'MESSENGER', 'INSTAGRAM']),
+  type: z.enum(CHANNEL_TYPES),
+  brokerType: z.enum(BROKER_TYPES),
   phoneNumber: z.string().optional(),
   config: z.record(z.unknown()).optional(),
 })
@@ -48,6 +50,19 @@ function mapChannel(doc: ChannelDocument): Record<string, unknown> {
   return { id: String(_id), ...rest }
 }
 
+function withWebChatDefaults(
+  config: Record<string, unknown> | undefined
+): Record<string, unknown> {
+  const base = config ?? {}
+  const raw = base.welcomeMessage
+  const trimmed = typeof raw === 'string' ? raw.trim() : ''
+  return {
+    ...base,
+    welcomeMessage:
+      trimmed.length > 0 ? trimmed : DEFAULT_WEB_CHAT_WELCOME_MESSAGE,
+  }
+}
+
 export async function channelRoutes(app: FastifyInstance): Promise<void> {
   await app.register(channelWebhookRoutes)
 
@@ -78,6 +93,7 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
 
       const isWebChat = body.type === 'WEB_CHAT'
       const brokerType = isWebChat ? 'WEB_CHAT' : body.brokerType
+      const config = isWebChat ? withWebChatDefaults(body.config) : body.config
 
       const channel = await Channel.create({
         tenantId,
@@ -86,7 +102,7 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
         brokerType,
         phoneNumber: body.phoneNumber ?? null,
         ...(isWebChat ? { status: 'CONNECTED' } : {}),
-        ...(body.config ? { config: body.config } : {}),
+        ...(config ? { config } : {}),
       })
 
       return reply.status(201).send({

@@ -3,7 +3,7 @@ import type { ClaimData } from '../domain/claim-repository.js'
 
 interface ClaimRelations {
   policy?: { policyNumber: string } | null
-  client?: { name: string } | null
+  client?: { legalName: string } | null
   insurer?: { name: string } | null
   assignedTo?: { name: string } | null
 }
@@ -32,7 +32,7 @@ export class ClaimMapper {
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
       policyNumber: row.policy?.policyNumber,
-      clientName: row.client?.name,
+      clientName: row.client?.legalName,
       insurerName: row.insurer?.name,
       assignedToName: row.assignedTo?.name,
     }

@@ -47,7 +47,7 @@ export const checklistItemIdParam = z.object({
 // ── Body schemas ────────────────────────────────────────────────────
 
 const createNewInsuranceOrRenewalProposalBody = z.object({
-  clientId: z.string().min(1),
+  contactId: z.string().min(1),
   branch: branchEnum,
   boardType: z.enum(['NEW_INSURANCE', 'RENEWAL']),
   renewalPolicyId: z.string().optional(),
@@ -180,6 +180,8 @@ export const listProposalsQuery = paginationQuery().extend({
     .transform((v) => v.split(',').filter(Boolean))
     .pipe(z.array(proposalStageEnum))
     .optional(),
+  contactId: z.string().optional(),
+  // clientId filters via contact.clientId (semantic kept for UX backward compat).
   clientId: z.string().optional(),
   salespersonId: z.string().optional(),
   insurerId: z.string().optional(),
@@ -229,7 +231,7 @@ const sourcePolicySnapshotSchema = z.object({
 const proposalDataSchema = z.object({
   id: z.string(),
   organizationId: z.string(),
-  clientId: z.string(),
+  contactId: z.string(),
   salespersonId: z.string(),
   stage: proposalStageEnum,
   boardType: boardTypeEnum,
@@ -253,6 +255,7 @@ const proposalDataSchema = z.object({
   sentToClientAt: z.coerce.date().nullable(),
   clientResponseAt: z.coerce.date().nullable(),
   quoteValidUntil: z.coerce.date().nullable(),
+  // Denormalized display fields (sourced from contact and its linked client).
   clientName: z.string().optional(),
   clientDocument: z.string().optional(),
   clientPersonType: z.string().optional(),

@@ -1,11 +1,6 @@
 export * from './api-types'
-export {
-  BROKER_TYPES,
-  CHANNEL_META,
-  CHANNEL_TYPES,
-  CONTACT_SOURCES,
-} from './channel-types'
-export type { BrokerType, ChannelType, ContactSource } from './channel-types'
+export { BROKER_TYPES, CHANNEL_META, CHANNEL_TYPES } from './channel-types'
+export type { BrokerType, ChannelType } from './channel-types'
 export {
   CHAT_LIMITS,
   CHAT_PUBSUB_CHANNELS,

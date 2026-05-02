@@ -26,7 +26,7 @@ const makeProposal = (overrides: Partial<Record<string, unknown>> = {}) => {
   const base = {
     id: 'p-001',
     organizationId: TEST_ORG_ID,
-    clientId: 'c-001',
+    contactId: 'contact-001',
     salespersonId: 'user-001',
     stage: 'QUOTE',
     boardType: 'NEW_INSURANCE',

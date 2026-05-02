@@ -1,3 +1,6 @@
+import type { ChannelType } from '@repo/shared'
+
+export type { ChannelType }
 export type ConversationStatus =
   | 'BOT_ACTIVE'
   | 'WAITING_HUMAN'
@@ -18,7 +21,6 @@ export type ChannelStatus =
   | 'QR_PENDING'
   | 'TOKEN_EXPIRED'
   | 'NEEDS_REAUTH'
-export type ChannelType = 'WHATSAPP' | 'WEB_CHAT' | 'MESSENGER' | 'INSTAGRAM'
 
 export interface ConversationData {
   readonly id: string

@@ -5,7 +5,7 @@ import type {
 } from '../domain/policy-repository.js'
 
 interface PolicyRelations {
-  client?: { name: string; document: string } | null
+  client?: { legalName: string; document: string } | null
   salesperson?: { name: string } | null
   insurer?: { name: string } | null
   proposal?: { id: string; details: unknown; boardType: string } | null
@@ -58,7 +58,7 @@ export class PolicyMapper {
       cancelReason: row.cancelReason,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
-      clientName: row.client?.name,
+      clientName: row.client?.legalName,
       clientDocument: row.client?.document,
       salespersonName: row.salesperson?.name,
       insurerName: row.insurer?.name,

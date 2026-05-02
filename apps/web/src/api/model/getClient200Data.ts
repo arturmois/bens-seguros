@@ -7,31 +7,26 @@
 import type { GetClient200DataAddress } from './getClient200DataAddress'
 import type { GetClient200DataMaritalStatus } from './getClient200DataMaritalStatus'
 import type { GetClient200DataPersonType } from './getClient200DataPersonType'
-import type { GetClient200DataSocialMedia } from './getClient200DataSocialMedia'
-import type { GetClient200DataType } from './getClient200DataType'
 
 export type GetClient200Data = {
   id: string
-  name: string
-  type: GetClient200DataType
-  personType: GetClient200DataPersonType
-  tags: string[]
+  organizationId: string
+  legalName: string
   document: string
+  personType: GetClient200DataPersonType
   /** @nullable */
-  email?: string | null
+  profession: string | null
   /** @nullable */
-  phone?: string | null
+  maritalStatus: GetClient200DataMaritalStatus
+  /** @nullable */
+  address: GetClient200DataAddress
+  /** @nullable */
+  fiscalBirthDate: string | null
   createdAt: string
-  /** @nullable */
-  socialMedia?: GetClient200DataSocialMedia
-  consentLgpd: boolean
   updatedAt: string
   /** @nullable */
-  birthDate?: string | null
-  /** @nullable */
-  profession?: string | null
-  /** @nullable */
-  maritalStatus?: GetClient200DataMaritalStatus
-  /** @nullable */
-  address?: GetClient200DataAddress
+  deletedAt: string | null
+  activePolicyCount: number
+  totalPolicyCount: number
+  contactCount: number
 }

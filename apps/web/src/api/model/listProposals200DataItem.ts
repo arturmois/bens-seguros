@@ -13,7 +13,7 @@ import type { ListProposals200DataItemStage } from './listProposals200DataItemSt
 export type ListProposals200DataItem = {
   id: string
   organizationId: string
-  clientId: string
+  contactId: string
   salespersonId: string
   stage: ListProposals200DataItemStage
   boardType: ListProposals200DataItemBoardType

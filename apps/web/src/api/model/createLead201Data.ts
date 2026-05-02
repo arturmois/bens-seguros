@@ -7,6 +7,6 @@
 
 export type CreateLead201Data = {
   proposalId: string
-  clientId: string
+  contactId: string
   message: string
 }

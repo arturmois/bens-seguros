@@ -8,6 +8,7 @@
     "./connection": "./src/connection.ts"
   },
   "dependencies": {
+    "@repo/shared": "workspace:*",
     "mongoose": "^8.10.0"
   },
   "devDependencies": {

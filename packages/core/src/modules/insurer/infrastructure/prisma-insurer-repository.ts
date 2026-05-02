@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe'
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
-import type { CursorPage, Page } from '../../client/domain/client-repository.js'
+import type { CursorPage, Page } from '../../../shared/pagination.js'
 import type {
   InsurerRepository,
   InsurerData,

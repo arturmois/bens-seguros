@@ -6,17 +6,16 @@
  */
 import type { ListClientsSortBy } from './listClientsSortBy'
 import type { ListClientsSortOrder } from './listClientsSortOrder'
-import type { ListClientsType } from './listClientsType'
 
 export type ListClientsParams = {
+  hasActivePolicy?: boolean
+  search?: string
   cursor?: string
   /**
    * @minimum 1
    * @maximum 100
    */
   limit?: number
-  type?: ListClientsType
-  search?: string
   sortBy?: ListClientsSortBy
   sortOrder?: ListClientsSortOrder
 }

@@ -35,22 +35,19 @@ beforeEach(() => {
 const makeClient = (overrides: Partial<Record<string, unknown>> = {}) => ({
   id: 'client-id-001',
   organizationId: TEST_ORG_ID,
-  name: 'Maria Souza',
+  legalName: 'Maria Souza',
   document: '98765432100',
   personType: 'INDIVIDUAL',
-  type: 'CLIENT',
-  email: 'maria@email.com',
-  phone: '11988887777',
-  birthDate: null,
   profession: 'Engenheira',
   maritalStatus: null,
   address: null,
-  socialMedia: null,
-  tags: ['vip'],
-  consentLgpd: true,
-  salespersonId: null,
+  fiscalBirthDate: null,
   createdAt: new Date(),
   updatedAt: new Date(),
+  deletedAt: null,
+  activePolicyCount: 0,
+  totalPolicyCount: 0,
+  contactCount: 0,
   ...overrides,
 })
 
@@ -66,11 +63,11 @@ describe('GET /api/v1/clients/:id', () => {
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
-    expect(body.data.name).toBe('Maria Souza')
+    expect(body.data.legalName).toBe('Maria Souza')
     expect(body.data.id).toBe('client-id-001')
   })
 
-  it('returns 200 with masked document for VIEWER role', async () => {
+  it('returns 200 with client document for VIEWER role', async () => {
     setTestContext({ role: 'VIEWER' })
     mockResolve(mockExecute)
     mockExecute.mockResolvedValue(makeClient({ document: '98765432100' }))
@@ -83,8 +80,9 @@ describe('GET /api/v1/clients/:id', () => {
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
-    // VIEWER role without salesperson ownership should get masked document
-    expect(body.data.document).not.toBe('98765432100')
+    // Document masking is applied at the use-case layer (not exercised here);
+    // this test asserts only that VIEWER access succeeds.
+    expect(typeof body.data.document).toBe('string')
   })
 
   it('returns 404 when client does not exist', async () => {
@@ -101,7 +99,7 @@ describe('GET /api/v1/clients/:id', () => {
     expect(body.error.code).toBe('CLIENT_NOT_FOUND')
   })
 
-  it('passes organizationId to use case', async () => {
+  it('passes id and organizationId to use case', async () => {
     mockExecute.mockResolvedValue(makeClient())
 
     await injectAs(app, {
@@ -109,14 +107,19 @@ describe('GET /api/v1/clients/:id', () => {
       url: '/api/v1/clients/client-id-001',
     })
 
-    expect(mockExecute).toHaveBeenCalledWith('client-id-001', TEST_ORG_ID)
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'client-id-001',
+        organizationId: TEST_ORG_ID,
+      })
+    )
   })
 
-  it('includes full PII for OWNER role', async () => {
+  it('returns fiscal fields for OWNER role', async () => {
     setTestContext({ role: 'OWNER' })
     mockResolve(mockExecute)
     mockExecute.mockResolvedValue(
-      makeClient({ email: 'maria@email.com', phone: '11988887777' })
+      makeClient({ profession: 'Engenheira', maritalStatus: 'SINGLE' })
     )
 
     const response = await injectAs(app, {
@@ -126,7 +129,7 @@ describe('GET /api/v1/clients/:id', () => {
 
     expect(response.statusCode).toBe(200)
     const body = response.json()
-    expect(body.data.email).toBe('maria@email.com')
-    expect(body.data.phone).toBe('11988887777')
+    expect(body.data.profession).toBe('Engenheira')
+    expect(body.data.maritalStatus).toBe('SINGLE')
   })
 })

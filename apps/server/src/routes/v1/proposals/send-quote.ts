@@ -52,8 +52,8 @@ export function sendQuoteRoute(app: FastifyInstance) {
         return handleDomainError(error, reply)
       }
 
-      const client = await prisma.client.findFirst({
-        where: { id: proposal.clientId, organizationId },
+      const contact = await prisma.contact.findFirst({
+        where: { id: proposal.contactId, organizationId },
         select: { email: true, name: true },
       })
 
@@ -62,7 +62,7 @@ export function sendQuoteRoute(app: FastifyInstance) {
         await sendQuoteUseCase.validate(
           id,
           organizationId,
-          client?.email ?? null
+          contact?.email ?? null
         )
       } catch (error) {
         return handleDomainError(error, reply)
@@ -123,8 +123,8 @@ export function sendQuoteRoute(app: FastifyInstance) {
         proposalId: id,
         organizationId,
         storageKey,
-        recipientEmail: client!.email!,
-        recipientName: client!.name,
+        recipientEmail: contact!.email!,
+        recipientName: contact!.name,
         salespersonName: salesperson?.name ?? org.name,
         salespersonEmail: salesperson?.email ?? null,
         organizationName: org.name,

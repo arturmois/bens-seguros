@@ -10,16 +10,12 @@ const BATCH_SIZE = 500
 
 const CLIENT_CSV_COLUMNS = [
   'ID',
-  'Nome',
+  'Razão Social',
   'CPF/CNPJ',
-  'Tipo',
-  'Email',
-  'Telefone',
-  'Data Nascimento',
+  'Tipo Pessoa',
   'Profissão',
   'Estado Civil',
-  'Tags',
-  'Consentimento LGPD',
+  'Data Nascimento Fiscal',
   'Criado em',
 ]
 
@@ -45,16 +41,14 @@ export class ExportClientsCsv {
       for (const c of result.items) {
         yield formatCsvRow([
           c.id,
-          c.name,
+          c.legalName,
           maskDocument(c.document),
-          c.type,
-          c.email ?? '',
-          c.phone ?? '',
-          c.birthDate ? (c.birthDate.toISOString().split('T')[0] ?? '') : '',
+          c.personType,
           c.profession ?? '',
           c.maritalStatus ?? '',
-          c.tags.join(';'),
-          c.consentLgpd ? 'Sim' : 'Não',
+          c.fiscalBirthDate
+            ? (c.fiscalBirthDate.toISOString().split('T')[0] ?? '')
+            : '',
           c.createdAt.toISOString(),
         ]) + '\n'
       }

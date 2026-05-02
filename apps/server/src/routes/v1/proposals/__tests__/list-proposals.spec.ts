@@ -23,7 +23,7 @@ const makeProposal = (id: string) => {
   const base = {
     id,
     organizationId: TEST_ORG_ID,
-    clientId: 'c-001',
+    contactId: 'contact-001',
     salespersonId: 'user-001',
     stage: 'CAPTURE',
     boardType: 'NEW_INSURANCE',

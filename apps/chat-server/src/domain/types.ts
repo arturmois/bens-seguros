@@ -1,3 +1,7 @@
+import type { BrokerType, ChannelType } from '@repo/shared'
+
+export type { BrokerType, ChannelType }
+
 export type ConversationStatus =
   | 'BOT_ACTIVE'
   | 'WAITING_HUMAN'
@@ -15,15 +19,6 @@ export type MessageType =
   | 'OTHER'
 
 export type MessageStatus = 'PENDING' | 'SENT' | 'DELIVERED' | 'READ' | 'FAILED'
-
-export type ChannelType = 'WHATSAPP' | 'WEB_CHAT' | 'MESSENGER' | 'INSTAGRAM'
-
-export type BrokerType =
-  | 'BAILEYS'
-  | 'META'
-  | 'WEB_CHAT'
-  | 'MESSENGER'
-  | 'INSTAGRAM'
 
 export type ChannelStatus = 'CONNECTED' | 'DISCONNECTED' | 'QR_PENDING'
 

@@ -109,7 +109,7 @@ export function isSourcePolicySnapshot(
 export interface ProposalProps {
   readonly id: string
   readonly organizationId: string
-  readonly clientId: string
+  readonly contactId: string
   readonly salespersonId: string
   stage: Stage
   boardType: BoardType
@@ -142,7 +142,7 @@ export interface ProposalProps {
 
 interface CreateProposalInput {
   organizationId: string
-  clientId: string
+  contactId: string
   salespersonId: string
   branch: Branch
   boardType: BoardType
@@ -167,7 +167,7 @@ export class Proposal {
     return new Proposal({
       id: randomUUID(),
       organizationId: input.organizationId,
-      clientId: input.clientId,
+      contactId: input.contactId,
       salespersonId: input.salespersonId,
       stage: getInitialStage(input.boardType),
       boardType: input.boardType,
@@ -287,8 +287,8 @@ export class Proposal {
   get organizationId(): string {
     return this.props.organizationId
   }
-  get clientId(): string {
-    return this.props.clientId
+  get contactId(): string {
+    return this.props.contactId
   }
   get salespersonId(): string {
     return this.props.salespersonId

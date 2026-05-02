@@ -285,199 +285,259 @@ async function main() {
   console.log(`  ✓ Insurers: ${insurers.length}`)
 
   // =========================================================================
-  // 4. Clients (PF + PJ, different types)
+  // 4. Clients (PF + PJ — fiscal data only)
   // =========================================================================
 
-  const clientsData = [
-    // Individuals
+  interface ClientSeed {
+    key: string
+    legalName: string
+    cpf: string
+    personType: 'INDIVIDUAL' | 'COMPANY'
+    profession?: string
+    maritalStatus?: 'SINGLE' | 'MARRIED' | 'DIVORCED' | 'WIDOWED' | 'OTHER'
+    fiscalBirthDate?: Date
+    address?: Record<string, string>
+  }
+
+  const clientsData: ClientSeed[] = [
+    // PF
     {
-      name: 'Maria da Silva Santos',
+      key: 'client-1',
+      legalName: 'Maria da Silva Santos',
       cpf: '52998224725',
-      type: 'CLIENT' as const,
-      personType: 'INDIVIDUAL' as const,
-      email: 'maria.silva@email.com',
-      phone: '(11) 98765-4321',
-      birthDate: new Date('1985-03-15'),
+      personType: 'INDIVIDUAL',
       profession: 'Engenheira Civil',
-      maritalStatus: 'MARRIED' as const,
-      tags: ['premium', 'auto'],
+      maritalStatus: 'MARRIED',
+      fiscalBirthDate: new Date('1985-03-15'),
+      address: {
+        street: 'Rua das Flores, 123',
+        city: 'São Paulo',
+        state: 'SP',
+        zipCode: '01310-100',
+      },
     },
     {
-      name: 'João Pedro Oliveira',
-      cpf: '71443618060',
-      type: 'CLIENT' as const,
-      personType: 'INDIVIDUAL' as const,
-      email: 'joao.oliveira@email.com',
-      phone: '(11) 97654-3210',
-      birthDate: new Date('1990-07-22'),
-      profession: 'Advogado',
-      maritalStatus: 'SINGLE' as const,
-      tags: ['residencial'],
+      key: 'client-2',
+      legalName: 'João Carlos Oliveira',
+      cpf: '11144477735',
+      personType: 'INDIVIDUAL',
+      profession: 'Médico',
+      fiscalBirthDate: new Date('1978-09-22'),
     },
     {
-      name: 'Ana Carolina Ferreira',
-      cpf: '36243218000',
-      type: 'CLIENT' as const,
-      personType: 'INDIVIDUAL' as const,
-      email: 'ana.ferreira@email.com',
-      phone: '(21) 99876-5432',
-      birthDate: new Date('1978-11-08'),
-      profession: 'Médica',
-      maritalStatus: 'DIVORCED' as const,
-      tags: ['vida', 'premium'],
+      key: 'client-3',
+      legalName: 'Pedro Henrique Costa',
+      cpf: '98765432100',
+      personType: 'INDIVIDUAL',
+      fiscalBirthDate: new Date('1990-12-01'),
     },
+    // PJ
     {
-      name: 'Pedro Henrique Costa',
-      cpf: '82934017068',
-      type: 'LEAD' as const,
-      personType: 'INDIVIDUAL' as const,
-      email: 'pedro.costa@email.com',
-      phone: '(31) 98765-1234',
-      birthDate: new Date('1995-01-30'),
-      profession: 'Designer',
-      maritalStatus: 'SINGLE' as const,
-      tags: ['lead-quente'],
-    },
-    {
-      name: 'Fernanda Lima Souza',
-      cpf: '94587203004',
-      type: 'LEAD' as const,
-      personType: 'INDIVIDUAL' as const,
-      email: 'fernanda.lima@email.com',
-      phone: '(41) 99654-7890',
-      birthDate: new Date('1988-06-12'),
-      profession: 'Contadora',
-      maritalStatus: 'MARRIED' as const,
-      tags: [],
-    },
-    {
-      name: 'Ricardo Almeida',
-      cpf: '45678912300',
-      type: 'FORMER_CLIENT' as const,
-      personType: 'INDIVIDUAL' as const,
-      email: 'ricardo.almeida@email.com',
-      phone: '(51) 98321-6540',
-      birthDate: new Date('1970-09-05'),
-      profession: 'Empresário',
-      maritalStatus: 'WIDOWED' as const,
-      tags: ['cancelou'],
-    },
-    // Companies
-    {
-      name: 'Tech Solutions Ltda',
+      key: 'client-4',
+      legalName: 'Tech Solutions Ltda',
       cpf: '12345678000195',
-      type: 'CLIENT' as const,
-      personType: 'COMPANY' as const,
-      email: 'contato@techsolutions.com.br',
-      phone: '(11) 3456-7890',
-      birthDate: null,
-      profession: null,
-      maritalStatus: null,
-      tags: ['empresarial', 'premium'],
+      personType: 'COMPANY',
+      address: {
+        street: 'Av. Paulista, 1000',
+        city: 'São Paulo',
+        state: 'SP',
+        zipCode: '01310-100',
+      },
     },
     {
-      name: 'Restaurante Sabor & Cia',
-      cpf: '98765432000198',
-      type: 'CLIENT' as const,
-      personType: 'COMPANY' as const,
-      email: 'contato@saborecia.com.br',
-      phone: '(11) 2345-6789',
-      birthDate: null,
-      profession: null,
-      maritalStatus: null,
-      tags: ['empresarial'],
-    },
-    {
-      name: 'Condomínio Residencial Aurora',
-      cpf: '11222333000144',
-      type: 'CLIENT' as const,
-      personType: 'COMPANY' as const,
-      email: 'sindico@condaurora.com.br',
-      phone: '(11) 3333-4444',
-      birthDate: null,
-      profession: null,
-      maritalStatus: null,
-      tags: ['condomínio'],
-    },
-    {
-      name: 'Startup Inovação S.A.',
-      cpf: '55667788000199',
-      type: 'LEAD' as const,
-      personType: 'COMPANY' as const,
-      email: 'cfo@startupinovacao.com',
-      phone: '(11) 4567-8901',
-      birthDate: null,
-      profession: null,
-      maritalStatus: null,
-      tags: ['lead-quente', 'empresarial'],
+      key: 'client-5',
+      legalName: 'Construtora ABC LTDA',
+      cpf: '98765432000180',
+      personType: 'COMPANY',
     },
   ]
 
-  const clients: Array<{ id: string; name: string; type: string }> = []
+  const clientIdByKey = new Map<string, string>()
   for (const c of clientsData) {
-    const client = await prisma.client.create({
+    const id = stableId('client')
+    clientIdByKey.set(c.key, id)
+
+    await prisma.client.create({
       data: {
-        id: stableId('client'),
+        id,
         organizationId: org.id,
-        name: c.name,
+        legalName: c.legalName,
         document: maskDocument(c.cpf),
         documentEncrypted: JSON.stringify(encrypt(c.cpf)),
         documentHash: hashDocument(c.cpf),
-        type: c.type,
         personType: c.personType,
-        email: c.email,
-        phone: c.phone,
-        birthDate: c.birthDate,
         profession: c.profession,
         maritalStatus: c.maritalStatus,
-        tags: c.tags,
-        consentLgpd: c.type === 'CLIENT',
-        salespersonId: c.type === 'CLIENT' ? commercialId : null,
-        address:
-          c.personType === 'INDIVIDUAL'
-            ? {
-                street: 'Rua Exemplo',
-                number: String(Math.floor(Math.random() * 999) + 1),
-                complement: '',
-                neighborhood: 'Centro',
-                city: 'São Paulo',
-                state: 'SP',
-                zipCode: '01001-000',
-              }
-            : {
-                street: 'Av. Paulista',
-                number: String(Math.floor(Math.random() * 2000) + 1),
-                complement: `Sala ${Math.floor(Math.random() * 50) + 1}`,
-                neighborhood: 'Bela Vista',
-                city: 'São Paulo',
-                state: 'SP',
-                zipCode: '01310-100',
-              },
+        fiscalBirthDate: c.fiscalBirthDate,
+        address: c.address,
       },
     })
-    clients.push({ id: client.id, name: client.name, type: c.type })
   }
 
   console.log(
-    `  ✓ Clients: ${clients.length} (${clientsData.filter((c) => c.type === 'CLIENT').length} clients, ${clientsData.filter((c) => c.type === 'LEAD').length} leads, ${clientsData.filter((c) => c.type === 'FORMER_CLIENT').length} former)`
+    `  ✓ Clients: ${clientsData.length} (${clientsData.filter((c) => c.personType === 'INDIVIDUAL').length} PF, ${clientsData.filter((c) => c.personType === 'COMPANY').length} PJ)`
   )
 
   // =========================================================================
-  // 5. Proposals (various stages and board types)
+  // 4b. Contacts (5 leads frios + 9 vinculados a Clients)
   // =========================================================================
 
-  const activeClients = clients.filter((c) => c.type === 'CLIENT')
-  const leadClients = clients.filter((c) => c.type === 'LEAD')
+  interface ContactSeed {
+    key: string
+    name: string
+    phone?: string
+    email?: string
+    source:
+      | 'MANUAL'
+      | 'CHAT_WHATSAPP'
+      | 'CHAT_WIDGET'
+      | 'FORM_WEB'
+      | 'IMPORT'
+      | 'REFERRAL'
+    clientKey: string | null
+  }
 
-  const proposalStages = [
-    'CAPTURE',
-    'QUOTE',
-    'PROTOCOL',
-    'INSPECTION',
-    'PAYMENT',
-    'POLICY_ISSUED',
-    'LOST',
-  ] as const
+  const contactsData: ContactSeed[] = [
+    // Leads frios (sem clientId) — 5
+    {
+      key: 'lead-1',
+      name: 'Ana Beatriz',
+      phone: '+5511988887777',
+      email: 'ana@example.com',
+      source: 'CHAT_WHATSAPP',
+      clientKey: null,
+    },
+    {
+      key: 'lead-2',
+      name: 'Carlos Eduardo',
+      phone: '+5511977776666',
+      source: 'FORM_WEB',
+      clientKey: null,
+    },
+    {
+      key: 'lead-3',
+      name: 'Fernanda Lima',
+      email: 'fernanda@example.com',
+      source: 'REFERRAL',
+      clientKey: null,
+    },
+    {
+      key: 'lead-4',
+      name: 'Ricardo Souza',
+      phone: '+5511966665555',
+      source: 'MANUAL',
+      clientKey: null,
+    },
+    {
+      key: 'lead-5',
+      name: 'Patrícia Mendes',
+      phone: '+5511955554444',
+      email: 'patricia@example.com',
+      source: 'CHAT_WIDGET',
+      clientKey: null,
+    },
+    // PF linkados — 1 por Client PF (clients 1 e 2)
+    {
+      key: 'c1',
+      name: 'Maria Silva',
+      phone: '+5511944443333',
+      email: 'maria.silva@email.com',
+      source: 'MANUAL',
+      clientKey: 'client-1',
+    },
+    {
+      key: 'c2',
+      name: 'João Oliveira',
+      phone: '+5511933332222',
+      source: 'MANUAL',
+      clientKey: 'client-2',
+    },
+    // Pedro Henrique (client-3) unificado em 2 contatos (WhatsApp + Form)
+    {
+      key: 'c3a',
+      name: 'Pedro (WhatsApp)',
+      phone: '+5511922221111',
+      source: 'CHAT_WHATSAPP',
+      clientKey: 'client-3',
+    },
+    {
+      key: 'c3b',
+      name: 'Pedro (Form)',
+      email: 'pedro.h@example.com',
+      source: 'FORM_WEB',
+      clientKey: 'client-3',
+    },
+    // PJ Tech Solutions (client-4) — 2 representantes
+    {
+      key: 'c4-gerente',
+      name: 'Diego (Gerente Tech Solutions)',
+      phone: '+5511911110000',
+      email: 'diego@techsolutions.com.br',
+      source: 'MANUAL',
+      clientKey: 'client-4',
+    },
+    {
+      key: 'c4-fin',
+      name: 'Beatriz (Financeiro Tech Solutions)',
+      phone: '+5511900009999',
+      email: 'beatriz@techsolutions.com.br',
+      source: 'MANUAL',
+      clientKey: 'client-4',
+    },
+    // PJ Construtora ABC (client-5) — 3 representantes
+    {
+      key: 'c5-diretor',
+      name: 'Roberto (Diretor ABC)',
+      phone: '+5511899998888',
+      source: 'MANUAL',
+      clientKey: 'client-5',
+    },
+    {
+      key: 'c5-gerente',
+      name: 'Lúcia (Gerente Comercial ABC)',
+      email: 'lucia@abc.com.br',
+      source: 'MANUAL',
+      clientKey: 'client-5',
+    },
+    {
+      key: 'c5-fin',
+      name: 'Marcos (Financeiro ABC)',
+      phone: '+5511888887777',
+      source: 'MANUAL',
+      clientKey: 'client-5',
+    },
+  ]
+
+  const contactIdByKey = new Map<string, string>()
+  for (const c of contactsData) {
+    const id = stableId('contact')
+    contactIdByKey.set(c.key, id)
+
+    await prisma.contact.create({
+      data: {
+        id,
+        organizationId: org.id,
+        name: c.name,
+        phone: c.phone,
+        email: c.email,
+        source: c.source,
+        salespersonId: commercialId,
+        clientId: c.clientKey ? clientIdByKey.get(c.clientKey) : null,
+        tags: [],
+        consentLgpd: c.clientKey !== null,
+      },
+    })
+  }
+
+  const contactsWithClient = contactsData.filter((c) => c.clientKey !== null)
+  const contactsWithoutClient = contactsData.filter((c) => c.clientKey === null)
+  console.log(
+    `  ✓ Contacts: ${contactsData.length} (${contactsWithoutClient.length} leads frios, ${contactsWithClient.length} vinculados a Clients)`
+  )
+
+  // =========================================================================
+  // 5. Proposals (various stages and board types — now via Contact)
+  // =========================================================================
 
   const branches = [
     'AUTO',
@@ -488,9 +548,86 @@ async function main() {
     'OTHER',
   ] as const
 
+  type ProposalStageLiteral =
+    | 'CAPTURE'
+    | 'QUOTE'
+    | 'PROTOCOL'
+    | 'INSPECTION'
+    | 'PAYMENT'
+    | 'POLICY_ISSUED'
+    | 'LOST'
+
+  interface ProposalSeed {
+    contactKey: string
+    stage: ProposalStageLiteral
+    branchIndex: number
+    premiumInCents: number
+  }
+
+  // Distribuicao:
+  //  - 2 leads frios (CAPTURE/QUOTE) — Contact sem Client
+  //  - 3 em PROTOCOL/INSPECTION/PAYMENT — Contact com Client
+  //  - 3 em POLICY_ISSUED — Contact com Client (essas viram Policy)
+  //  - 1 LOST — Contact com Client
+  const proposalsSeed: ProposalSeed[] = [
+    // Leads frios — Contact sem Client (exercitando o novo fluxo)
+    {
+      contactKey: 'lead-1',
+      stage: 'CAPTURE',
+      branchIndex: 0,
+      premiumInCents: 180000,
+    },
+    {
+      contactKey: 'lead-3',
+      stage: 'QUOTE',
+      branchIndex: 1,
+      premiumInCents: 240000,
+    },
+    // Em andamento — Contact com Client
+    {
+      contactKey: 'c1',
+      stage: 'PROTOCOL',
+      branchIndex: 0,
+      premiumInCents: 320000,
+    },
+    {
+      contactKey: 'c2',
+      stage: 'INSPECTION',
+      branchIndex: 4,
+      premiumInCents: 280000,
+    },
+    {
+      contactKey: 'c3a',
+      stage: 'PAYMENT',
+      branchIndex: 1,
+      premiumInCents: 360000,
+    },
+    // POLICY_ISSUED — viram Policy
+    {
+      contactKey: 'c4-gerente',
+      stage: 'POLICY_ISSUED',
+      branchIndex: 3,
+      premiumInCents: 480000,
+    },
+    {
+      contactKey: 'c5-diretor',
+      stage: 'POLICY_ISSUED',
+      branchIndex: 2,
+      premiumInCents: 520000,
+    },
+    {
+      contactKey: 'c1',
+      stage: 'POLICY_ISSUED',
+      branchIndex: 0,
+      premiumInCents: 410000,
+    },
+    // LOST — Contact com Client
+    { contactKey: 'c2', stage: 'LOST', branchIndex: 0, premiumInCents: 200000 },
+  ]
+
   interface ProposalRecord {
     id: string
-    clientId: string
+    contactId: string
     stage: string
     branch: string
     premiumValueInCents: number
@@ -498,24 +635,26 @@ async function main() {
 
   const proposals: ProposalRecord[] = []
 
-  // Create proposals for active clients — spread across stages
-  for (let i = 0; i < activeClients.length; i++) {
-    const client = activeClients[i]!
-    const stage = proposalStages[i % proposalStages.length]!
-    const branch = branches[i % branches.length]!
+  for (let i = 0; i < proposalsSeed.length; i++) {
+    const seed = proposalsSeed[i]!
+    const contactId = contactIdByKey.get(seed.contactKey)
+    if (!contactId) {
+      throw new Error(`Contact key not found: ${seed.contactKey}`)
+    }
+    const branch = branches[seed.branchIndex % branches.length]!
     const insurer = insurers[i % insurers.length]!
-    const premium = (Math.floor(Math.random() * 50) + 10) * 10000 // R$100-R$5000
+    const stage = seed.stage
 
     const proposal = await prisma.proposal.create({
       data: {
         id: stableId('proposal'),
         organizationId: org.id,
-        clientId: client.id,
+        contactId,
         salespersonId: commercialId,
         stage,
         boardType: 'NEW_INSURANCE',
         branch,
-        premiumValueInCents: premium,
+        premiumValueInCents: seed.premiumInCents,
         commissionPercentageInCents: 1500, // 15%
         insurerId: insurer.id,
         coverageStartDate:
@@ -533,52 +672,25 @@ async function main() {
         lostReason:
           stage === 'LOST' ? 'Cliente optou por outra seguradora' : null,
         details: {
-          notes: `Proposta de ${branch.toLowerCase()} para ${client.name}`,
+          notes: `Proposta de ${branch.toLowerCase()}`,
         },
       },
     })
     proposals.push({
       id: proposal.id,
-      clientId: client.id,
+      contactId,
       stage,
       branch,
-      premiumValueInCents: premium,
+      premiumValueInCents: seed.premiumInCents,
     })
   }
 
-  // Extra proposals for leads (all CAPTURE)
-  for (const client of leadClients) {
-    const branch = branches[Math.floor(Math.random() * branches.length)]!
-    const premium = (Math.floor(Math.random() * 30) + 5) * 10000
+  // Renewal proposals (QUOTE) — usar contatos com Client (so faz sentido renovar de quem ja eh cliente)
+  const renewalContactKeys = ['c4-gerente', 'c5-diretor'] as const
+  for (const contactKey of renewalContactKeys) {
+    const contactId = contactIdByKey.get(contactKey)
+    if (!contactId) continue
 
-    const proposal = await prisma.proposal.create({
-      data: {
-        id: stableId('proposal'),
-        organizationId: org.id,
-        clientId: client.id,
-        salespersonId: commercialId,
-        stage: 'CAPTURE',
-        boardType: 'NEW_INSURANCE',
-        branch,
-        premiumValueInCents: premium,
-        commissionPercentageInCents: 1200,
-        details: {
-          notes: `Lead - primeiro contato com ${client.name}`,
-        },
-      },
-    })
-    proposals.push({
-      id: proposal.id,
-      clientId: client.id,
-      stage: 'CAPTURE',
-      branch,
-      premiumValueInCents: premium,
-    })
-  }
-
-  // A few renewal proposals
-  const renewalClients = activeClients.slice(0, 2)
-  for (const client of renewalClients) {
     const branch = branches[Math.floor(Math.random() * branches.length)]!
     const premium = (Math.floor(Math.random() * 40) + 15) * 10000
 
@@ -586,7 +698,7 @@ async function main() {
       data: {
         id: stableId('proposal'),
         organizationId: org.id,
-        clientId: client.id,
+        contactId,
         salespersonId: commercialId,
         stage: 'QUOTE',
         boardType: 'RENEWAL',
@@ -595,12 +707,12 @@ async function main() {
         commissionPercentageInCents: 1500,
         renewalPolicyNumber: `POL-${String(Math.floor(Math.random() * 9000) + 1000)}`,
         insurerId: insurers[0]!.id,
-        details: { notes: `Renovação para ${client.name}` },
+        details: { notes: `Renovação` },
       },
     })
     proposals.push({
       id: proposal.id,
-      clientId: client.id,
+      contactId,
       stage: 'QUOTE',
       branch,
       premiumValueInCents: premium,
@@ -623,9 +735,23 @@ async function main() {
   const policies: PolicyRecord[] = []
   const issuedProposals = proposals.filter((p) => p.stage === 'POLICY_ISSUED')
 
-  // Policies from issued proposals
+  // Helper: derive clientId from proposal via Contact
+  async function resolveProposalClientId(
+    proposalId: string
+  ): Promise<string | null> {
+    const result = await prisma.proposal.findUnique({
+      where: { id: proposalId },
+      include: { contact: true },
+    })
+    return result?.contact?.clientId ?? null
+  }
+
+  // Policies from issued proposals (skip if Contact has no Client linked)
   for (let i = 0; i < issuedProposals.length; i++) {
     const prop = issuedProposals[i]!
+    const clientId = await resolveProposalClientId(prop.id)
+    if (!clientId) continue // Contact ainda nao foi promovido a Client
+
     const insurer = insurers[i % insurers.length]!
     const policyNumber = `POL-${String(2024000 + i + 1)}`
 
@@ -634,7 +760,7 @@ async function main() {
         id: stableId('policy'),
         organizationId: org.id,
         proposalId: prop.id,
-        clientId: prop.clientId,
+        clientId,
         salespersonId: commercialId,
         insurerId: insurer.id,
         policyNumber,
@@ -652,31 +778,37 @@ async function main() {
     })
     policies.push({
       id: policy.id,
-      clientId: prop.clientId,
+      clientId,
       premiumValueInCents: prop.premiumValueInCents,
       insurerId: insurer.id,
     })
   }
 
-  // Extra policies for clients that don't have one yet (standalone)
+  // Extra policies for clients that don't have one yet (1 by 1)
+  // Para cada Client sem Policy, criamos: Proposal POLICY_ISSUED via Contact -> Policy
   const clientsWithPolicies = new Set(policies.map((p) => p.clientId))
-  const clientsWithoutPolicies = activeClients.filter(
-    (c) => !clientsWithPolicies.has(c.id)
-  )
+  const extraSeeds: Array<{ clientKey: string; contactKey: string }> = [
+    { clientKey: 'client-2', contactKey: 'c2' },
+    { clientKey: 'client-3', contactKey: 'c3b' },
+  ]
 
-  for (let i = 0; i < clientsWithoutPolicies.length; i++) {
-    const client = clientsWithoutPolicies[i]!
-    const insurer = insurers[(i + 2) % insurers.length]!
-    const branch = branches[(i + 1) % branches.length]!
+  let extraIndex = 0
+  for (const seed of extraSeeds) {
+    const clientId = clientIdByKey.get(seed.clientKey)
+    const contactId = contactIdByKey.get(seed.contactKey)
+    if (!clientId || !contactId) continue
+    if (clientsWithPolicies.has(clientId)) continue
+
+    const insurer = insurers[(extraIndex + 2) % insurers.length]!
+    const branch = branches[(extraIndex + 1) % branches.length]!
     const premium = (Math.floor(Math.random() * 40) + 10) * 10000
-    const policyNumber = `POL-${String(2024100 + i + 1)}`
+    const policyNumber = `POL-${String(2024100 + extraIndex + 1)}`
 
-    // Need a POLICY_ISSUED proposal for the 1:1 relation
     const extraProposal = await prisma.proposal.create({
       data: {
         id: stableId('proposal'),
         organizationId: org.id,
-        clientId: client.id,
+        contactId,
         salespersonId: commercialId,
         stage: 'POLICY_ISSUED',
         boardType: 'NEW_INSURANCE',
@@ -694,16 +826,16 @@ async function main() {
         id: stableId('policy'),
         organizationId: org.id,
         proposalId: extraProposal.id,
-        clientId: client.id,
+        clientId,
         salespersonId: commercialId,
         insurerId: insurer.id,
         policyNumber,
-        status: i === 0 ? 'EXPIRED' : 'ACTIVE',
+        status: extraIndex === 0 ? 'EXPIRED' : 'ACTIVE',
         branch,
         premiumValueInCents: premium,
         startDate: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000),
         endDate:
-          i === 0
+          extraIndex === 0
             ? new Date(Date.now() - 10 * 24 * 60 * 60 * 1000)
             : new Date(Date.now() + 185 * 24 * 60 * 60 * 1000),
         coverageDetails: {
@@ -715,14 +847,17 @@ async function main() {
     })
     policies.push({
       id: policy.id,
-      clientId: client.id,
+      clientId,
       premiumValueInCents: premium,
       insurerId: insurer.id,
     })
+    clientsWithPolicies.add(clientId)
+    extraIndex++
   }
 
+  const expiredCount = policies.length > 0 && extraSeeds.length > 0 ? 1 : 0
   console.log(
-    `  ✓ Policies: ${policies.length} (${policies.length - (clientsWithoutPolicies.length > 0 && clientsWithoutPolicies[0] ? 1 : 0)} active, 1 expired)`
+    `  ✓ Policies: ${policies.length} (${policies.length - expiredCount} active, ${expiredCount} expired)`
   )
 
   // =========================================================================
@@ -973,6 +1108,7 @@ async function main() {
         id: stableId('commission'),
         organizationId: org.id,
         policyId: policy.id,
+        clientId: policy.clientId,
         salespersonId: commercialId,
         status,
         commissionValueInCents: commissionValue,

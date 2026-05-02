@@ -1,9 +1,14 @@
-import { injectable, inject } from 'tsyringe'
+import { inject, injectable } from 'tsyringe'
+import { ClientErrors } from '../domain/client-errors.js'
 import type {
   ClientRepository,
-  ClientData,
+  ClientWithMetrics,
 } from '../domain/client-repository.js'
-import { ClientErrors } from '../domain/client-errors.js'
+
+export interface GetClientInput {
+  id: string
+  organizationId: string
+}
 
 @injectable()
 export class GetClient {
@@ -11,11 +16,14 @@ export class GetClient {
     @inject('ClientRepository') private readonly clientRepo: ClientRepository
   ) {}
 
-  async execute(id: string, organizationId: string): Promise<ClientData> {
-    const client = await this.clientRepo.findById(id, organizationId)
-    if (!client) {
-      throw ClientErrors.notFound(id)
+  async execute(input: GetClientInput): Promise<ClientWithMetrics> {
+    const found = await this.clientRepo.findByIdWithMetrics(
+      input.id,
+      input.organizationId
+    )
+    if (!found) {
+      throw ClientErrors.notFound(input.id)
     }
-    return client
+    return found
   }
 }

@@ -1,3 +1,4 @@
+import { ContactSource } from '@repo/db'
 import { z } from 'zod'
 
 import { successResponse } from '../../../shared/response.schema.js'
@@ -7,7 +8,7 @@ export const createLeadBodySchema = z.object({
   clientPhone: z.string().min(1),
   insuranceType: z.string(),
   notes: z.string().optional(),
-  source: z.string().optional(),
+  source: z.nativeEnum(ContactSource).optional(),
 })
 
 // --- Response schemas ---
@@ -15,7 +16,7 @@ export const createLeadBodySchema = z.object({
 export const createLeadResponse = successResponse(
   z.object({
     proposalId: z.string(),
-    clientId: z.string(),
+    contactId: z.string(),
     message: z.string(),
   })
 )

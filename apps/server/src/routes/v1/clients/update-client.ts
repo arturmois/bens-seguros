@@ -1,11 +1,11 @@
-import { ClientPresenter, container, UpdateClient } from '@repo/core'
+import { container, UpdateClient } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditUpdate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
 import {
-  clientDetailResponse,
+  clientUpdateResponse,
   idParamSchema,
   updateClientBodySchema,
 } from './_schemas.js'
@@ -16,34 +16,28 @@ export function updateClientRoute(app: FastifyInstance) {
     url: '/api/v1/clients/:id',
     schema: {
       tags: ['Clients'],
-      summary: 'Update a client',
+      summary: 'Update a client (fiscal data only)',
       operationId: 'updateClient',
       params: idParamSchema,
       body: updateClientBodySchema,
-      response: { 200: clientDetailResponse },
+      response: { 200: clientUpdateResponse },
     },
     preHandler: [requireAbility('update', 'Client')],
     handler: async (request, reply) => {
       const useCase = container.resolve(UpdateClient)
       try {
-        const updated = await useCase.execute(
-          request.params.id,
-          request.organizationId!,
-          request.body
-        )
+        const updated = await useCase.execute({
+          id: request.params.id,
+          organizationId: request.organizationId!,
+          ...request.body,
+        })
         auditUpdate({
           request,
           entityType: 'Client',
           entityId: request.params.id,
           after: updated,
         })
-        return reply.send({
-          success: true,
-          data: ClientPresenter.toDetail(updated, {
-            role: request.role!,
-            userId: request.user!.id,
-          }),
-        })
+        return reply.send({ success: true, data: updated })
       } catch (error) {
         return handleDomainError(error, reply)
       }

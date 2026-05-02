@@ -6,17 +6,16 @@
  */
 import type { ExportClientsSortBy } from './exportClientsSortBy'
 import type { ExportClientsSortOrder } from './exportClientsSortOrder'
-import type { ExportClientsType } from './exportClientsType'
 
 export type ExportClientsParams = {
+  hasActivePolicy?: boolean
+  search?: string
   cursor?: string
   /**
    * @minimum 1
    * @maximum 100
    */
   limit?: number
-  type?: ExportClientsType
-  search?: string
   sortBy?: ExportClientsSortBy
   sortOrder?: ExportClientsSortOrder
 }

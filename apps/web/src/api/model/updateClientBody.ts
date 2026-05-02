@@ -6,20 +6,18 @@
  */
 import type { UpdateClientBodyAddress } from './updateClientBodyAddress'
 import type { UpdateClientBodyMaritalStatus } from './updateClientBodyMaritalStatus'
-import type { UpdateClientBodySocialMedia } from './updateClientBodySocialMedia'
-import type { UpdateClientBodyType } from './updateClientBodyType'
+import type { UpdateClientBodyPersonType } from './updateClientBodyPersonType'
 
 export type UpdateClientBody = {
-  /** @minLength 2 */
-  name?: string
-  type?: UpdateClientBodyType
-  email?: '' | string
-  phone?: '' | string
-  birthDate?: '' | string
-  profession?: '' | string
+  /** @minLength 1 */
+  legalName?: string
+  personType?: UpdateClientBodyPersonType
+  /** @nullable */
+  profession?: string | null
+  /** @nullable */
   maritalStatus?: UpdateClientBodyMaritalStatus
+  /** @nullable */
   address?: UpdateClientBodyAddress
-  tags?: string[]
-  consentLgpd?: boolean
-  socialMedia?: UpdateClientBodySocialMedia
+  /** @nullable */
+  fiscalBirthDate?: string | null
 }

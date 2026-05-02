@@ -8,7 +8,7 @@ function createTestProposal(): Proposal {
   return Proposal.restore({
     id: 'proposal-1',
     organizationId: 'org-1',
-    clientId: 'client-1',
+    contactId: 'client-1',
     salespersonId: 'user-1',
     stage: 'QUOTE',
     boardType: 'NEW_INSURANCE',
@@ -146,7 +146,7 @@ describe('UpdateProposalDates', () => {
     const proposal = Proposal.restore({
       id: 'proposal-1',
       organizationId: 'org-1',
-      clientId: 'client-1',
+      contactId: 'client-1',
       salespersonId: 'user-1',
       stage: 'QUOTE',
       boardType: 'NEW_INSURANCE',

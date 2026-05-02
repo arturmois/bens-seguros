@@ -2,6 +2,7 @@ import { injectable, inject } from 'tsyringe'
 import { randomUUID } from 'node:crypto'
 
 import type { OnPolicyIssued } from '../../commission/application/on-policy-issued.js'
+import type { ContactRepository } from '../../contact/domain/contact-repository.js'
 import type {
   CoverageDetails,
   PolicyData,
@@ -27,6 +28,8 @@ export class IssuePolicy {
     @inject('PolicyRepository') private readonly policyRepo: PolicyRepository,
     @inject('ProposalRepository')
     private readonly proposalRepo: ProposalRepository,
+    @inject('ContactRepository')
+    private readonly contactRepo: ContactRepository,
     @inject('OnPolicyIssued') private readonly onPolicyIssued: OnPolicyIssued
   ) {}
 
@@ -48,11 +51,19 @@ export class IssuePolicy {
       throw PolicyErrors.missingInsurer(dto.proposalId)
     }
 
+    const contact = await this.contactRepo.findById(
+      proposal.contactId,
+      dto.organizationId
+    )
+    if (!contact?.clientId) {
+      throw ProposalErrors.contactNotPromoted()
+    }
+
     const policy = await this.policyRepo.create({
       id: randomUUID(),
       organizationId: dto.organizationId,
       proposalId: dto.proposalId,
-      clientId: proposal.clientId,
+      clientId: contact.clientId,
       salespersonId: proposal.salespersonId,
       insurerId,
       policyNumber: dto.policyNumber,

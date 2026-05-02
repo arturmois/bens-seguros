@@ -19,6 +19,16 @@ import {
 const CPF_LENGTH = 11
 const CNPJ_LENGTH = 14
 
+/**
+ * Updates a Client's fiscal data from chat-worker.
+ *
+ * After the contact-client separation refactor, Client only holds fiscal data
+ * (document, legalName, address, profession, maritalStatus, fiscalBirthDate).
+ * Contact data (name, email, phone) is updated via Contact APIs, not here.
+ *
+ * For lead promotion (where document was missing), prefer the dedicated
+ * /api/internal/contacts/:id/promote endpoint.
+ */
 export function updateClientRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'PUT',
@@ -26,7 +36,7 @@ export function updateClientRoute(app: FastifyInstance) {
     schema: {
       operationId: 'updateClientInternal',
       tags: ['Internal'],
-      summary: 'Update client data from chat conversation',
+      summary: 'Update client fiscal data from chat conversation',
       params: updateClientParamsSchema,
       body: updateClientBodySchema,
       response: {
@@ -73,23 +83,16 @@ export function updateClientRoute(app: FastifyInstance) {
         const encrypted = encrypt(digits, key)
         updateData.documentEncrypted = JSON.stringify(encrypted)
         updateData.documentHash = hashDocument(digits)
-        updateData.document = ''
-
-        if (existing.type === 'LEAD') {
-          updateData.type = 'CLIENT'
-        }
-      }
-
-      if (body.email !== undefined) {
-        updateData.email = body.email
+        updateData.document = digits
       }
 
       if (body.address !== undefined) {
         updateData.address = body.address
       }
 
+      // birthDate (legacy field name) maps to Client.fiscalBirthDate
       if (body.birthDate !== undefined) {
-        updateData.birthDate = new Date(body.birthDate)
+        updateData.fiscalBirthDate = new Date(body.birthDate)
       }
 
       if (body.profession !== undefined) {
@@ -99,6 +102,8 @@ export function updateClientRoute(app: FastifyInstance) {
       if (body.maritalStatus !== undefined) {
         updateData.maritalStatus = body.maritalStatus
       }
+
+      // body.email is intentionally ignored — email lives on Contact, not Client.
 
       await tenantPrisma.client.update({
         where: { id },

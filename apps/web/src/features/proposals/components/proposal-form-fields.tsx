@@ -12,7 +12,8 @@ import {
 } from '@/components/ui/select'
 
 import { CreateProposalBody } from '@/api/endpoints/proposals/proposals.zod'
-import { ClientSearch } from './client-search'
+import { ContactSearch } from '@/features/contacts/components/contact-search'
+
 import { RenewalPolicyInput } from './renewal-policy-input'
 
 type ProposalFormValues = z.infer<typeof CreateProposalBody>
@@ -27,6 +28,7 @@ interface ProposalFormFieldsProps {
   readonly boardType: string | undefined
   readonly branchOptions: readonly SelectOption[]
   readonly boardTypeOptions: readonly SelectOption[]
+  readonly onCreateContact?: () => void
 }
 
 export function ProposalFormFields({
@@ -34,19 +36,24 @@ export function ProposalFormFields({
   boardType,
   branchOptions,
   boardTypeOptions,
+  onCreateContact,
 }: ProposalFormFieldsProps) {
   return (
     <>
       <Controller
         control={control}
-        name="clientId"
+        name="contactId"
         render={({ field, fieldState }) => (
           <div className="space-y-2">
             <Label>
-              Cliente
+              Contato
               <span className="text-destructive ml-1">*</span>
             </Label>
-            <ClientSearch value={field.value} onChange={field.onChange} />
+            <ContactSearch
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              onCreateClick={onCreateContact}
+            />
             {fieldState.error?.message ? (
               <p className="text-destructive text-sm">
                 {fieldState.error.message}

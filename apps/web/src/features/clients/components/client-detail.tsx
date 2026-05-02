@@ -1,14 +1,6 @@
 'use client'
 
-import {
-  ArrowLeft,
-  Calendar,
-  Mail,
-  Pencil,
-  Phone,
-  RefreshCw,
-  Trash2,
-} from 'lucide-react'
+import { ArrowLeft, Calendar, RefreshCw, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -29,14 +21,45 @@ import { getInitials } from '@/lib/formatters'
 import { formatDocument } from '@/lib/masks'
 import { hasPermission } from '@/lib/permissions'
 import { useClient, useDeleteClient } from '../hooks/use-clients'
-import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
+import { PERSON_TYPE_BADGE_VARIANT, PERSON_TYPE_LABELS } from '../lib/constants'
 import { DetailSkeleton } from './client-detail-skeleton'
 import { ClientHistoryTab } from './client-history-tab'
 import { ClientPoliciesTab } from './client-policies-tab'
 import { ClientProposalsTab } from './client-proposals-tab'
 import { LgpdDeleteDialogTrigger } from './lgpd-delete-dialog'
+
 interface ClientDetailContentProps {
   readonly clientId: string
+}
+
+function formatAddress(
+  address:
+    | {
+        street?: string | null
+        number?: string | null
+        complement?: string | null
+        neighborhood?: string | null
+        city?: string | null
+        state?: string | null
+        cep?: string | null
+      }
+    | null
+    | undefined
+): string {
+  if (!address) return '-'
+  const parts: string[] = []
+  if (address.street) {
+    parts.push(
+      address.number ? `${address.street}, ${address.number}` : address.street
+    )
+  }
+  if (address.complement) parts.push(address.complement)
+  if (address.neighborhood) parts.push(address.neighborhood)
+  if (address.city && address.state)
+    parts.push(`${address.city}/${address.state}`)
+  else if (address.city) parts.push(address.city)
+  if (address.cep) parts.push(`CEP ${address.cep}`)
+  return parts.length > 0 ? parts.join(' — ') : '-'
 }
 
 export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
@@ -94,7 +117,7 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
         items={[
           { label: 'Dashboard', href: '/dashboard' },
           { label: 'Clientes', href: '/clients' },
-          { label: client.name },
+          { label: client.legalName },
         ]}
       />
 
@@ -102,15 +125,15 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-4">
             <Avatar className="size-12 shrink-0 text-lg font-semibold">
-              <AvatarFallback>{getInitials(client.name)}</AvatarFallback>
+              <AvatarFallback>{getInitials(client.legalName)}</AvatarFallback>
             </Avatar>
             <div className="space-y-1">
               <div className="flex items-center gap-3">
                 <h1 className="text-2xl font-semibold tracking-tight">
-                  {client.name}
+                  {client.legalName}
                 </h1>
-                <Badge variant={TYPE_BADGE_VARIANT[client.type]}>
-                  {TYPE_LABELS[client.type]}
+                <Badge variant={PERSON_TYPE_BADGE_VARIANT[client.personType]}>
+                  {PERSON_TYPE_LABELS[client.personType]}
                 </Badge>
               </div>
               <p className="text-muted-foreground text-sm">
@@ -119,14 +142,6 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push(`/clients/${clientId}/edit`)}
-            >
-              <Pencil className="mr-2 h-4 w-4" />
-              Editar
-            </Button>
             <Button
               variant="destructive"
               size="sm"
@@ -138,7 +153,7 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
             {canLgpdDelete && (
               <LgpdDeleteDialogTrigger
                 clientId={clientId}
-                clientName={client.name}
+                clientName={client.legalName}
               />
             )}
           </div>
@@ -147,20 +162,27 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
         <Separator className="my-6" />
 
         <div className="grid gap-4 sm:grid-cols-3">
+          <DetailInfoItem label="Profissão" value={client.profession ?? '-'} />
           <DetailInfoItem
-            icon={<Mail className="h-4 w-4" />}
-            label="E-mail"
-            value={client.email ?? '-'}
-          />
-          <DetailInfoItem
-            icon={<Phone className="h-4 w-4" />}
-            label="Telefone"
-            value={client.phone ?? '-'}
+            label="Estado civil"
+            value={client.maritalStatus ?? '-'}
           />
           <DetailInfoItem
             icon={<Calendar className="h-4 w-4" />}
-            label="Criado em"
+            label="Cadastrado em"
             value={new Date(client.createdAt).toLocaleDateString('pt-BR')}
+          />
+          <DetailInfoItem
+            label="Endereço"
+            value={formatAddress(client.address)}
+          />
+          <DetailInfoItem
+            label="Apólices ativas"
+            value={String(client.activePolicyCount)}
+          />
+          <DetailInfoItem
+            label="Contatos vinculados"
+            value={String(client.contactCount)}
           />
         </div>
       </div>

@@ -13,7 +13,7 @@ import type { AdvanceProposal200DataStage } from './advanceProposal200DataStage'
 export type AdvanceProposal200Data = {
   id: string
   organizationId: string
-  clientId: string
+  contactId: string
   salespersonId: string
   stage: AdvanceProposal200DataStage
   boardType: AdvanceProposal200DataBoardType

@@ -1,38 +1,22 @@
 import type { Client as PrismaClientRecord } from '@repo/db'
 import {
-  encrypt,
   decrypt,
+  encrypt,
+  getEncryptionKey,
   hashDocument,
   maskDocument,
-  getEncryptionKey,
 } from '@repo/shared'
 import type { EncryptedField } from '@repo/shared'
+import pino from 'pino'
 import type {
   ClientData,
-  ClientAddress,
-  ClientSocialMedia,
+  ClientWithMetrics,
 } from '../domain/client-repository.js'
-import pino from 'pino'
 
 const logger = pino({ name: 'client-mapper' })
 
 function isJsonObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
-}
-
-function isAddressObject(value: unknown): value is ClientAddress {
-  return isJsonObject(value)
-}
-
-function isSocialMediaObject(value: unknown): value is ClientSocialMedia {
-  return (
-    isJsonObject(value) &&
-    ('instagram' in value ||
-      'facebook' in value ||
-      'linkedin' in value ||
-      'tiktok' in value ||
-      Object.keys(value).length === 0)
-  )
 }
 
 function isEncryptedField(value: unknown): value is EncryptedField {
@@ -42,30 +26,27 @@ function isEncryptedField(value: unknown): value is EncryptedField {
   return 'ciphertext' in value && 'iv' in value && 'tag' in value
 }
 
-interface PersistenceData {
+interface DocumentPersistence {
   readonly document: string
   readonly documentEncrypted: string
   readonly documentHash: string
 }
 
 export class ClientMapper {
-  static toPersistence(rawDocument: string): PersistenceData {
+  static documentToPersistence(rawDocument: string): DocumentPersistence {
+    const cleaned = rawDocument.replace(/\D/g, '')
     const key = getEncryptionKey()
-    const encrypted = encrypt(rawDocument, key)
-    const hash = hashDocument(rawDocument)
-    const masked = maskDocument(rawDocument)
-
+    const encrypted = encrypt(cleaned, key)
     return {
-      document: masked,
+      document: maskDocument(cleaned),
       documentEncrypted: JSON.stringify(encrypted),
-      documentHash: hash,
+      documentHash: hashDocument(cleaned),
     }
   }
 
   static toDomain(row: PrismaClientRecord): ClientData {
     let document = row.document
 
-    // Decrypt from documentEncrypted if available
     if (row.documentEncrypted && row.documentEncrypted.length > 0) {
       try {
         const parsed: unknown = JSON.parse(row.documentEncrypted)
@@ -74,7 +55,6 @@ export class ClientMapper {
           document = decrypt(parsed, key)
         }
       } catch (error) {
-        // Decryption failed — fall back to masked document, don't crash
         logger.error(
           { clientId: row.id, error },
           'Failed to decrypt client document, returning masked value'
@@ -85,24 +65,31 @@ export class ClientMapper {
     return {
       id: row.id,
       organizationId: row.organizationId,
-      name: row.name,
+      legalName: row.legalName,
       document,
+      documentHash: row.documentHash,
       personType: row.personType,
-      type: row.type,
-      email: row.email,
-      phone: row.phone,
-      birthDate: row.birthDate,
       profession: row.profession,
       maritalStatus: row.maritalStatus,
-      address: isAddressObject(row.address) ? row.address : null,
-      socialMedia: isSocialMediaObject(row.socialMedia)
-        ? row.socialMedia
-        : null,
-      tags: row.tags,
-      consentLgpd: row.consentLgpd,
-      salespersonId: row.salespersonId ?? null,
+      address: isJsonObject(row.address) ? row.address : null,
+      fiscalBirthDate: row.fiscalBirthDate,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
+      deletedAt: row.deletedAt,
+    }
+  }
+
+  static toWithMetrics(
+    row: PrismaClientRecord,
+    activePolicyCount: number,
+    totalPolicyCount: number,
+    contactCount: number
+  ): ClientWithMetrics {
+    return {
+      ...ClientMapper.toDomain(row),
+      activePolicyCount,
+      totalPolicyCount,
+      contactCount,
     }
   }
 }

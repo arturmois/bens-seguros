@@ -10,8 +10,8 @@ import {
   CountUnreadNotifications,
   CreateAssistance,
   CreateClaim,
-  CreateClient,
   CreateCommission,
+  CreateContact,
   CreateEndorsement,
   CreateInsurer,
   CreateOccurrence,
@@ -28,6 +28,7 @@ import {
   GetClaim,
   GetClient,
   GetCommission,
+  GetContact,
   GetDocumentUrl,
   GetEndorsement,
   GetPolicy,
@@ -38,6 +39,7 @@ import {
   ListClaims,
   ListClients,
   ListCommissions,
+  ListContacts,
   ListDocuments,
   ListEndorsements,
   ListInsurers,
@@ -59,6 +61,7 @@ import {
   PrismaClaimRepository,
   PrismaClientRepository,
   PrismaCommissionRepository,
+  PrismaContactRepository,
   PrismaDocumentRepository,
   PrismaEndorsementRepository,
   PrismaInsurerRepository,
@@ -68,16 +71,19 @@ import {
   PrismaOccurrenceRepository,
   PrismaPolicyRepository,
   PrismaProposalRepository,
+  PromoteContact,
   R2StorageProvider,
   NoopCacheService,
   RedisCacheService,
   RejectCommission,
   ReopenProposal,
   ReverseCommission,
+  SoftDeleteContact,
   StaticChecklistConfig,
   UpdateAssistanceStatus,
   UpdateClaimStatus,
   UpdateClient,
+  UpdateContact,
   UpdateInsurer,
   UpdateMemberRole,
   UpdateProposalDetails,
@@ -110,6 +116,7 @@ export function registerDependencies(redis: Redis | null = null) {
   })
 
   const clientRepo = new PrismaClientRepository(prismaAdmin)
+  const contactRepo = new PrismaContactRepository(prismaAdmin)
   const proposalRepo = new PrismaProposalRepository(prismaAdmin)
   const checklistRepo = new PrismaChecklistRepository(prismaAdmin)
   const checklistConfig = new StaticChecklistConfig()
@@ -129,6 +136,7 @@ export function registerDependencies(redis: Redis | null = null) {
 
   container.register('PrismaClient', { useValue: prismaAdmin })
   container.register('ClientRepository', { useValue: clientRepo })
+  container.register('ContactRepository', { useValue: contactRepo })
   container.register('ProposalRepository', { useValue: proposalRepo })
   container.register('ChecklistRepository', { useValue: checklistRepo })
   container.register('ChecklistConfigProvider', { useValue: checklistConfig })
@@ -143,9 +151,6 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register('StorageProvider', { useValue: storageProvider })
 
   // Client use cases
-  container.register(CreateClient, {
-    useFactory: () => new CreateClient(clientRepo),
-  })
   container.register(ListClients, {
     useFactory: () => new ListClients(clientRepo),
   })
@@ -163,6 +168,26 @@ export function registerDependencies(redis: Redis | null = null) {
     useFactory: () => new ParseClientImport(clientRepo),
   })
 
+  // Contact use cases
+  container.register(CreateContact, {
+    useFactory: () => new CreateContact(contactRepo),
+  })
+  container.register(PromoteContact, {
+    useFactory: () => new PromoteContact(contactRepo, clientRepo),
+  })
+  container.register(GetContact, {
+    useFactory: () => new GetContact(contactRepo),
+  })
+  container.register(ListContacts, {
+    useFactory: () => new ListContacts(contactRepo),
+  })
+  container.register(UpdateContact, {
+    useFactory: () => new UpdateContact(contactRepo),
+  })
+  container.register(SoftDeleteContact, {
+    useFactory: () => new SoftDeleteContact(contactRepo),
+  })
+
   // Proposal use cases
   container.register(CreateProposal, {
     useFactory: () =>
@@ -170,12 +195,18 @@ export function registerDependencies(redis: Redis | null = null) {
         proposalRepo,
         checklistRepo,
         checklistConfig,
-        policyRepo
+        policyRepo,
+        contactRepo
       ),
   })
   container.register(AdvanceProposalStage, {
     useFactory: () =>
-      new AdvanceProposalStage(proposalRepo, checklistRepo, checklistConfig),
+      new AdvanceProposalStage(
+        proposalRepo,
+        checklistRepo,
+        checklistConfig,
+        contactRepo
+      ),
   })
   container.register(MarkProposalLost, {
     useFactory: () => new MarkProposalLost(proposalRepo),
@@ -212,6 +243,7 @@ export function registerDependencies(redis: Redis | null = null) {
       new IssuePolicy(
         policyRepo,
         proposalRepo,
+        contactRepo,
         container.resolve(OnPolicyIssued)
       ),
   })

@@ -21,8 +21,6 @@ import type {
 } from '@tanstack/react-query'
 
 import type {
-  CreateClient201,
-  CreateClientBody,
   ExportClientsParams,
   GetClient200,
   ImportConfirmClients200,
@@ -42,294 +40,6 @@ import type {
 import { customFetch } from '../../../lib/api-mutator'
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
-
-/**
- * @summary Create a new client
- */
-export type createClientResponse201 = {
-  data: CreateClient201
-  status: 201
-}
-
-export type createClientResponseSuccess = createClientResponse201 & {
-  headers: Headers
-}
-export type createClientResponse = createClientResponseSuccess
-
-export const getCreateClientUrl = () => {
-  return `/api/v1/clients`
-}
-
-export const createClient = async (
-  createClientBody: CreateClientBody,
-  options?: RequestInit
-): Promise<createClientResponse> => {
-  return customFetch<createClientResponse>(getCreateClientUrl(), {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(createClientBody),
-  })
-}
-
-export const getCreateClientMutationOptions = <
-  TError = unknown,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof createClient>>,
-    TError,
-    { data: CreateClientBody },
-    TContext
-  >
-  request?: SecondParameter<typeof customFetch>
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof createClient>>,
-  TError,
-  { data: CreateClientBody },
-  TContext
-> => {
-  const mutationKey = ['createClient']
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation &&
-      'mutationKey' in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined }
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof createClient>>,
-    { data: CreateClientBody }
-  > = (props) => {
-    const { data } = props ?? {}
-
-    return createClient(data, requestOptions)
-  }
-
-  return { mutationFn, ...mutationOptions }
-}
-
-export type CreateClientMutationResult = NonNullable<
-  Awaited<ReturnType<typeof createClient>>
->
-export type CreateClientMutationBody = CreateClientBody
-export type CreateClientMutationError = unknown
-
-/**
- * @summary Create a new client
- */
-export const useCreateClient = <TError = unknown, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof createClient>>,
-      TError,
-      { data: CreateClientBody },
-      TContext
-    >
-    request?: SecondParameter<typeof customFetch>
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof createClient>>,
-  TError,
-  { data: CreateClientBody },
-  TContext
-> => {
-  return useMutation(getCreateClientMutationOptions(options), queryClient)
-}
-/**
- * @summary List clients with cursor pagination
- */
-export type listClientsResponse200 = {
-  data: ListClients200
-  status: 200
-}
-
-export type listClientsResponseSuccess = listClientsResponse200 & {
-  headers: Headers
-}
-export type listClientsResponse = listClientsResponseSuccess
-
-export const getListClientsUrl = (params?: ListClientsParams) => {
-  const normalizedParams = new URLSearchParams()
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  })
-
-  const stringifiedParams = normalizedParams.toString()
-
-  return stringifiedParams.length > 0
-    ? `/api/v1/clients?${stringifiedParams}`
-    : `/api/v1/clients`
-}
-
-export const listClients = async (
-  params?: ListClientsParams,
-  options?: RequestInit
-): Promise<listClientsResponse> => {
-  return customFetch<listClientsResponse>(getListClientsUrl(params), {
-    ...options,
-    method: 'GET',
-  })
-}
-
-export const getListClientsQueryKey = (params?: ListClientsParams) => {
-  return [`/api/v1/clients`, ...(params ? [params] : [])] as const
-}
-
-export const getListClientsQueryOptions = <
-  TData = Awaited<ReturnType<typeof listClients>>,
-  TError = unknown,
->(
-  params?: ListClientsParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof listClients>>, TError, TData>
-    >
-    request?: SecondParameter<typeof customFetch>
-  }
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {}
-
-  const queryKey = queryOptions?.queryKey ?? getListClientsQueryKey(params)
-
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof listClients>>> = ({
-    signal,
-  }) => listClients(params, { signal, ...requestOptions })
-
-  return {
-    queryKey,
-    queryFn,
-    staleTime: 60000,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof listClients>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ListClientsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof listClients>>
->
-export type ListClientsQueryError = unknown
-
-export function useListClients<
-  TData = Awaited<ReturnType<typeof listClients>>,
-  TError = unknown,
->(
-  params: undefined | ListClientsParams,
-  options: {
-    query: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof listClients>>, TError, TData>
-    > &
-      Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof listClients>>,
-          TError,
-          Awaited<ReturnType<typeof listClients>>
-        >,
-        'initialData'
-      >
-    request?: SecondParameter<typeof customFetch>
-  },
-  queryClient?: QueryClient
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-export function useListClients<
-  TData = Awaited<ReturnType<typeof listClients>>,
-  TError = unknown,
->(
-  params?: ListClientsParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof listClients>>, TError, TData>
-    > &
-      Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof listClients>>,
-          TError,
-          Awaited<ReturnType<typeof listClients>>
-        >,
-        'initialData'
-      >
-    request?: SecondParameter<typeof customFetch>
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-export function useListClients<
-  TData = Awaited<ReturnType<typeof listClients>>,
-  TError = unknown,
->(
-  params?: ListClientsParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof listClients>>, TError, TData>
-    >
-    request?: SecondParameter<typeof customFetch>
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-}
-/**
- * @summary List clients with cursor pagination
- */
-
-export function useListClients<
-  TData = Awaited<ReturnType<typeof listClients>>,
-  TError = unknown,
->(
-  params?: ListClientsParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof listClients>>, TError, TData>
-    >
-    request?: SecondParameter<typeof customFetch>
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>
-} {
-  const queryOptions = getListClientsQueryOptions(params, options)
-
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> }
-
-  return { ...query, queryKey: queryOptions.queryKey }
-}
-
-/**
- * @summary List clients with cursor pagination
- */
-export const prefetchListClientsQuery = async <
-  TData = Awaited<ReturnType<typeof listClients>>,
-  TError = unknown,
->(
-  queryClient: QueryClient,
-  params?: ListClientsParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof listClients>>, TError, TData>
-    >
-    request?: SecondParameter<typeof customFetch>
-  }
-): Promise<QueryClient> => {
-  const queryOptions = getListClientsQueryOptions(params, options)
-
-  await queryClient.prefetchQuery(queryOptions)
-
-  return queryClient
-}
 
 /**
  * @summary Export clients as CSV
@@ -1194,6 +904,199 @@ export const prefetchImportStatusClientsQuery = async <
 }
 
 /**
+ * @summary List clients with cursor pagination
+ */
+export type listClientsResponse200 = {
+  data: ListClients200
+  status: 200
+}
+
+export type listClientsResponseSuccess = listClientsResponse200 & {
+  headers: Headers
+}
+export type listClientsResponse = listClientsResponseSuccess
+
+export const getListClientsUrl = (params?: ListClientsParams) => {
+  const normalizedParams = new URLSearchParams()
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  })
+
+  const stringifiedParams = normalizedParams.toString()
+
+  return stringifiedParams.length > 0
+    ? `/api/v1/clients?${stringifiedParams}`
+    : `/api/v1/clients`
+}
+
+export const listClients = async (
+  params?: ListClientsParams,
+  options?: RequestInit
+): Promise<listClientsResponse> => {
+  return customFetch<listClientsResponse>(getListClientsUrl(params), {
+    ...options,
+    method: 'GET',
+  })
+}
+
+export const getListClientsQueryKey = (params?: ListClientsParams) => {
+  return [`/api/v1/clients`, ...(params ? [params] : [])] as const
+}
+
+export const getListClientsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listClients>>,
+  TError = unknown,
+>(
+  params?: ListClientsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listClients>>, TError, TData>
+    >
+    request?: SecondParameter<typeof customFetch>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getListClientsQueryKey(params)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listClients>>> = ({
+    signal,
+  }) => listClients(params, { signal, ...requestOptions })
+
+  return {
+    queryKey,
+    queryFn,
+    staleTime: 60000,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof listClients>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListClientsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listClients>>
+>
+export type ListClientsQueryError = unknown
+
+export function useListClients<
+  TData = Awaited<ReturnType<typeof listClients>>,
+  TError = unknown,
+>(
+  params: undefined | ListClientsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listClients>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listClients>>,
+          TError,
+          Awaited<ReturnType<typeof listClients>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useListClients<
+  TData = Awaited<ReturnType<typeof listClients>>,
+  TError = unknown,
+>(
+  params?: ListClientsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listClients>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listClients>>,
+          TError,
+          Awaited<ReturnType<typeof listClients>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useListClients<
+  TData = Awaited<ReturnType<typeof listClients>>,
+  TError = unknown,
+>(
+  params?: ListClientsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listClients>>, TError, TData>
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary List clients with cursor pagination
+ */
+
+export function useListClients<
+  TData = Awaited<ReturnType<typeof listClients>>,
+  TError = unknown,
+>(
+  params?: ListClientsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listClients>>, TError, TData>
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getListClientsQueryOptions(params, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+/**
+ * @summary List clients with cursor pagination
+ */
+export const prefetchListClientsQuery = async <
+  TData = Awaited<ReturnType<typeof listClients>>,
+  TError = unknown,
+>(
+  queryClient: QueryClient,
+  params?: ListClientsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof listClients>>, TError, TData>
+    >
+    request?: SecondParameter<typeof customFetch>
+  }
+): Promise<QueryClient> => {
+  const queryOptions = getListClientsQueryOptions(params, options)
+
+  await queryClient.prefetchQuery(queryOptions)
+
+  return queryClient
+}
+
+/**
  * @summary LGPD data anonymization — irreversible
  */
 export type lgpdDeleteClientResponse200 = {
@@ -1287,7 +1190,7 @@ export const useLgpdDeleteClient = <TError = unknown, TContext = unknown>(
   return useMutation(getLgpdDeleteClientMutationOptions(options), queryClient)
 }
 /**
- * @summary Get a client by ID
+ * @summary Get a client by ID with metrics
  */
 export type getClientResponse200 = {
   data: GetClient200
@@ -1415,7 +1318,7 @@ export function useGetClient<
   queryKey: DataTag<QueryKey, TData, TError>
 }
 /**
- * @summary Get a client by ID
+ * @summary Get a client by ID with metrics
  */
 
 export function useGetClient<
@@ -1444,7 +1347,7 @@ export function useGetClient<
 }
 
 /**
- * @summary Get a client by ID
+ * @summary Get a client by ID with metrics
  */
 export const prefetchGetClientQuery = async <
   TData = Awaited<ReturnType<typeof getClient>>,
@@ -1467,7 +1370,7 @@ export const prefetchGetClientQuery = async <
 }
 
 /**
- * @summary Update a client
+ * @summary Update a client (fiscal data only)
  */
 export type updateClientResponse200 = {
   data: UpdateClient200
@@ -1541,7 +1444,7 @@ export type UpdateClientMutationBody = UpdateClientBody
 export type UpdateClientMutationError = unknown
 
 /**
- * @summary Update a client
+ * @summary Update a client (fiscal data only)
  */
 export const useUpdateClient = <TError = unknown, TContext = unknown>(
   options?: {

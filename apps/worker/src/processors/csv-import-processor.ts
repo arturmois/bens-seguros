@@ -14,7 +14,6 @@ import {
 const logger = pino({ name: 'csv-import-processor' })
 const QUEUE_NAME = 'csv-import'
 
-const CLIENT_TYPES = new Set(['LEAD', 'CLIENT', 'FORMER_CLIENT'])
 const MARITAL_STATUSES = new Set([
   'SINGLE',
   'MARRIED',
@@ -33,7 +32,6 @@ const POLICY_BRANCHES = new Set([
 const POLICY_STATUSES = new Set(['ACTIVE', 'CANCELLED', 'EXPIRED'])
 
 function extractClientRow(raw: Record<string, unknown>) {
-  const tipo = String(raw['Tipo'] ?? 'CLIENT')
   const estadoCivil = raw['Estado Civil'] ? String(raw['Estado Civil']) : null
   const tags = raw['Tags'] ? String(raw['Tags']).split(';').filter(Boolean) : []
   const birthDateRaw = raw['Data Nascimento']
@@ -42,9 +40,6 @@ function extractClientRow(raw: Record<string, unknown>) {
   return {
     nome: String(raw['Nome'] ?? ''),
     cpfCnpj: String(raw['CPF/CNPJ'] ?? ''),
-    tipo: CLIENT_TYPES.has(tipo)
-      ? (tipo as 'LEAD' | 'CLIENT' | 'FORMER_CLIENT')
-      : ('CLIENT' as const),
     email: raw['Email'] ? String(raw['Email']) : null,
     telefone: raw['Telefone'] ? String(raw['Telefone']) : null,
     birthDate: birthDate && !isNaN(birthDate.getTime()) ? birthDate : null,
@@ -91,58 +86,85 @@ function extractPolicyRow(raw: Record<string, unknown>) {
 async function processClientBatch(
   batch: ReadonlyArray<Record<string, unknown>>,
   organizationId: string,
+  userId: string,
   progress: CsvImportProgress,
   batchStartIndex: number
 ): Promise<void> {
   const encryptionKey = getEncryptionKey()
-  const mappedData = batch.map((raw) => {
+
+  for (let i = 0; i < batch.length; i++) {
+    const raw = batch[i]
+    if (!raw) continue
     const row = extractClientRow(raw)
     const rawDocument = row.cpfCnpj
-    const masked = maskDocument(rawDocument)
     const hash = hashDocument(rawDocument)
+    const masked = maskDocument(rawDocument)
     const encrypted = encrypt(rawDocument, encryptionKey)
 
-    return {
-      organizationId,
-      name: row.nome,
-      document: masked,
-      documentEncrypted: JSON.stringify(encrypted),
-      documentHash: hash,
-      type: row.tipo,
-      email: row.email,
-      phone: row.telefone,
-      birthDate: row.birthDate,
-      profession: row.profissao,
-      maritalStatus: row.estadoCivil,
-      tags: row.tags,
-    }
-  })
+    try {
+      const existing = await prismaAdmin.client.findFirst({
+        where: { organizationId, documentHash: hash, deletedAt: null },
+        select: { id: true },
+      })
 
-  try {
-    const result = await prismaAdmin.client.createMany({
-      data: mappedData,
-      skipDuplicates: true,
-    })
-    progress.created += result.count
-    progress.skipped += mappedData.length - result.count
-  } catch {
-    // If batch fails, try individual inserts to identify problematic rows
-    for (let i = 0; i < mappedData.length; i++) {
-      const data = mappedData[i]
-      if (!data) continue
-      try {
-        await prismaAdmin.client.create({ data })
+      const client =
+        existing ??
+        (await prismaAdmin.client.create({
+          data: {
+            organizationId,
+            legalName: row.nome,
+            document: masked,
+            documentEncrypted: JSON.stringify(encrypted),
+            documentHash: hash,
+            personType:
+              rawDocument.replace(/\D/g, '').length > 11
+                ? 'COMPANY'
+                : 'INDIVIDUAL',
+            profession: row.profissao,
+            maritalStatus: row.estadoCivil,
+            fiscalBirthDate: row.birthDate,
+          },
+          select: { id: true },
+        }))
+
+      const contactExists =
+        existing &&
+        (await prismaAdmin.contact.findFirst({
+          where: { organizationId, clientId: client.id, deletedAt: null },
+          select: { id: true },
+        }))
+
+      if (!contactExists) {
+        await prismaAdmin.contact.create({
+          data: {
+            organizationId,
+            name: row.nome,
+            phone: row.telefone,
+            email: row.email,
+            source: 'IMPORT',
+            salespersonId: userId,
+            clientId: client.id,
+            tags: row.tags,
+            consentLgpd: true,
+            birthDate: row.birthDate,
+          },
+        })
+      }
+
+      if (existing) {
+        progress.skipped += 1
+      } else {
         progress.created += 1
-      } catch (innerErr: unknown) {
-        progress.failed += 1
-        if (progress.errors.length < MAX_IMPORT_ERRORS) {
-          const errorMessage =
-            innerErr instanceof Error ? innerErr.message : 'Erro desconhecido'
-          progress.errors.push({
-            row: batchStartIndex + i + 2,
-            message: errorMessage,
-          })
-        }
+      }
+    } catch (err: unknown) {
+      progress.failed += 1
+      if (progress.errors.length < MAX_IMPORT_ERRORS) {
+        const errorMessage =
+          err instanceof Error ? err.message : 'Erro desconhecido'
+        progress.errors.push({
+          row: batchStartIndex + i + 2,
+          message: errorMessage,
+        })
       }
     }
   }
@@ -199,11 +221,27 @@ async function processPolicyBatch(
 
       const premiumInCents = Math.round(row.premioReais * 100)
 
-      // Create a stub proposal for the policy (required by schema)
+      const contact = await prismaAdmin.contact.findFirst({
+        where: { organizationId, clientId: client.id, deletedAt: null },
+        orderBy: { createdAt: 'asc' },
+        select: { id: true },
+      })
+
+      if (!contact) {
+        progress.failed += 1
+        if (progress.errors.length < MAX_IMPORT_ERRORS) {
+          progress.errors.push({
+            row: batchStartIndex + i + 2,
+            message: `Cliente com CPF/CNPJ ${row.cpfCnpjCliente} não tem Contact vinculado`,
+          })
+        }
+        continue
+      }
+
       const proposal = await prismaAdmin.proposal.create({
         data: {
           organizationId,
-          clientId: client.id,
+          contactId: contact.id,
           salespersonId: userId,
           stage: 'POLICY_ISSUED',
           boardType: 'NEW_INSURANCE',
@@ -263,7 +301,7 @@ export function setupCsvImportProcessor(connection: ConnectionOptions) {
         const batch = rows.slice(i, i + IMPORT_BATCH_SIZE)
 
         if (entityType === 'client') {
-          await processClientBatch(batch, organizationId, progress, i)
+          await processClientBatch(batch, organizationId, userId, progress, i)
         } else {
           await processPolicyBatch(batch, organizationId, userId, progress, i)
         }

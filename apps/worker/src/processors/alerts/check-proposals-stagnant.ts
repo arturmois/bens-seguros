@@ -31,7 +31,7 @@ export async function checkProposalsStagnant(
       updatedAt: { lt: cutoff },
     },
     include: {
-      client: true,
+      contact: { include: { client: true } },
     },
   })
 
@@ -50,7 +50,8 @@ export async function checkProposalsStagnant(
     const daysSinceUpdate = Math.floor(
       (Date.now() - proposal.updatedAt.getTime()) / (1000 * 60 * 60 * 24)
     )
-    const clientName = proposal.client?.name ?? 'N/A'
+    const clientName =
+      proposal.contact?.client?.legalName ?? proposal.contact?.name ?? 'N/A'
     const body = `Proposta de ${clientName} parada no estagio ${proposal.stage} ha ${daysSinceUpdate} dias`
 
     // Notify salesperson

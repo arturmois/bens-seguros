@@ -5,7 +5,10 @@ import type { ProposalProps } from '../domain/proposal.js'
 import { isInsuredObjectDetails } from '../domain/insured-object-details.js'
 
 interface ProposalRelations {
-  client?: { name: string; document: string; personType?: string } | null
+  contact?: {
+    name: string
+    client?: { document: string; personType?: string } | null
+  } | null
   salesperson?: { name: string } | null
   insurer?: { name: string } | null
 }
@@ -21,7 +24,7 @@ export class ProposalMapper {
     return Proposal.restore({
       id: row.id,
       organizationId: row.organizationId,
-      clientId: row.clientId,
+      contactId: row.contactId,
       salespersonId: row.salespersonId,
       stage: row.stage,
       boardType: row.boardType,
@@ -45,9 +48,9 @@ export class ProposalMapper {
       sentToClientAt: row.sentToClientAt ?? null,
       clientResponseAt: row.clientResponseAt ?? null,
       quoteValidUntil: row.quoteValidUntil ?? null,
-      clientName: row.client?.name,
-      clientDocument: row.client?.document,
-      clientPersonType: row.client?.personType,
+      clientName: row.contact?.name,
+      clientDocument: row.contact?.client?.document,
+      clientPersonType: row.contact?.client?.personType,
       salespersonName: row.salesperson?.name,
       insurerName: row.insurer?.name,
     })
@@ -64,7 +67,7 @@ export class ProposalMapper {
     return {
       id: json.id,
       organizationId: json.organizationId,
-      clientId: json.clientId,
+      contactId: json.contactId,
       salespersonId: json.salespersonId,
       stage: json.stage,
       boardType: json.boardType,

@@ -8,7 +8,7 @@ function createTestProposal(): Proposal {
   const props: ProposalProps = {
     id: 'prop-test-1',
     organizationId: 'org-1',
-    clientId: 'client-1',
+    contactId: 'client-1',
     salespersonId: 'user-1',
     stage: 'QUOTE',
     boardType: 'NEW_INSURANCE',
@@ -199,7 +199,7 @@ describe('Proposal date properties and methods', () => {
     it('has all date fields null by default after create', () => {
       const created = Proposal.create({
         organizationId: 'org-1',
-        clientId: 'client-1',
+        contactId: 'client-1',
         salespersonId: 'user-1',
         branch: 'AUTO',
         boardType: 'NEW_INSURANCE',
@@ -216,7 +216,7 @@ describe('Proposal date properties and methods', () => {
       const validUntil = new Date('2026-07-31T00:00:00.000Z')
       const created = Proposal.create({
         organizationId: 'org-1',
-        clientId: 'client-1',
+        contactId: 'client-1',
         salespersonId: 'user-1',
         branch: 'AUTO',
         boardType: 'NEW_INSURANCE',

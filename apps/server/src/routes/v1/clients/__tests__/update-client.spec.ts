@@ -35,48 +35,42 @@ beforeEach(() => {
 const makeClient = (overrides: Partial<Record<string, unknown>> = {}) => ({
   id: 'client-id-001',
   organizationId: TEST_ORG_ID,
-  name: 'João Atualizado',
+  legalName: 'João Atualizado',
   document: '12345678901',
   personType: 'INDIVIDUAL',
-  type: 'CLIENT',
-  email: 'joao@email.com',
-  phone: '11999999999',
-  birthDate: null,
   profession: 'Médico',
   maritalStatus: null,
   address: null,
-  socialMedia: null,
-  tags: [],
-  consentLgpd: false,
-  salespersonId: null,
+  fiscalBirthDate: null,
   createdAt: new Date(),
   updatedAt: new Date(),
+  deletedAt: null,
   ...overrides,
 })
 
 describe('PUT /api/v1/clients/:id', () => {
   it('returns 200 with updated client data', async () => {
-    mockExecute.mockResolvedValue(makeClient({ name: 'João Atualizado' }))
+    mockExecute.mockResolvedValue(makeClient({ legalName: 'João Atualizado' }))
 
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/clients/client-id-001',
-      payload: { name: 'João Atualizado' },
+      payload: { legalName: 'João Atualizado' },
     })
 
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
-    expect(body.data.name).toBe('João Atualizado')
+    expect(body.data.legalName).toBe('João Atualizado')
   })
 
-  it('accepts partial body with only email update', async () => {
-    mockExecute.mockResolvedValue(makeClient({ email: 'novo@email.com' }))
+  it('accepts partial body with only profession update', async () => {
+    mockExecute.mockResolvedValue(makeClient({ profession: 'Engenheiro' }))
 
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/clients/client-id-001',
-      payload: { email: 'novo@email.com' },
+      payload: { profession: 'Engenheiro' },
     })
 
     expect(response.statusCode).toBe(200)
@@ -90,13 +84,15 @@ describe('PUT /api/v1/clients/:id', () => {
     await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/clients/client-id-001',
-      payload: { name: 'Novo Nome' },
+      payload: { legalName: 'Novo Nome' },
     })
 
     expect(mockExecute).toHaveBeenCalledWith(
-      'client-id-001',
-      TEST_ORG_ID,
-      expect.objectContaining({ name: 'Novo Nome' })
+      expect.objectContaining({
+        id: 'client-id-001',
+        organizationId: TEST_ORG_ID,
+        legalName: 'Novo Nome',
+      })
     )
   })
 
@@ -106,7 +102,7 @@ describe('PUT /api/v1/clients/:id', () => {
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/clients/nonexistent-id',
-      payload: { name: 'Novo Nome' },
+      payload: { legalName: 'Novo Nome' },
     })
 
     expect(response.statusCode).toBe(404)
@@ -115,13 +111,13 @@ describe('PUT /api/v1/clients/:id', () => {
     expect(body.error.code).toBe('CLIENT_NOT_FOUND')
   })
 
-  it('accepts tags update', async () => {
-    mockExecute.mockResolvedValue(makeClient({ tags: ['vip', 'indicação'] }))
+  it('accepts maritalStatus update', async () => {
+    mockExecute.mockResolvedValue(makeClient({ maritalStatus: 'MARRIED' }))
 
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/clients/client-id-001',
-      payload: { tags: ['vip', 'indicação'] },
+      payload: { maritalStatus: 'MARRIED' },
     })
 
     expect(response.statusCode).toBe(200)

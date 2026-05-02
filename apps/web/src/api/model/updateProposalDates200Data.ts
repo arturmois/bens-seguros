@@ -13,7 +13,7 @@ import type { UpdateProposalDates200DataStage } from './updateProposalDates200Da
 export type UpdateProposalDates200Data = {
   id: string
   organizationId: string
-  clientId: string
+  contactId: string
   salespersonId: string
   stage: UpdateProposalDates200DataStage
   boardType: UpdateProposalDates200DataBoardType

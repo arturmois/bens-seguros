@@ -43,7 +43,7 @@ export class ExportProposalsCsv {
       for (const p of result.items) {
         yield formatCsvRow([
           p.id,
-          p.clientName ?? p.clientId,
+          p.clientName ?? p.contactId,
           p.clientDocument ?? '',
           p.salespersonName ?? p.salespersonId,
           p.stage,

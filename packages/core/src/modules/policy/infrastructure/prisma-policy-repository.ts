@@ -13,7 +13,7 @@ import { PolicyErrors } from '../domain/policy-errors.js'
 import { PolicyMapper } from './policy-mapper.js'
 
 const POLICY_INCLUDE = {
-  client: { select: { name: true, document: true } },
+  client: { select: { legalName: true, document: true } },
   salesperson: { select: { name: true } },
   insurer: { select: { name: true } },
   proposal: { select: { id: true, details: true, boardType: true } },
@@ -114,7 +114,7 @@ export class PrismaPolicyRepository implements PolicyRepository {
           },
           {
             client: {
-              name: {
+              legalName: {
                 contains: filters.search,
                 mode: 'insensitive',
               },

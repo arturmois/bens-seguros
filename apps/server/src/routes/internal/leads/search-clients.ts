@@ -9,6 +9,13 @@ import {
   searchClientsResponse,
 } from './schemas/index.js'
 
+interface ResolvedClient {
+  id: string
+  legalName: string
+  email: string | null
+  phone: string | null
+}
+
 export function searchClientsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'GET',
@@ -36,11 +43,14 @@ export function searchClientsRoute(app: FastifyInstance) {
 
       const tenantPrisma = createTenantClient(organizationId)
 
-      const where = buildWhereClause(organizationId, phone, document)
+      const resolved = await resolveClient(
+        tenantPrisma,
+        organizationId,
+        phone,
+        document
+      )
 
-      const client = await tenantPrisma.client.findFirst({ where })
-
-      if (!client) {
+      if (!resolved) {
         return reply.status(200).send({
           success: true,
           data: { found: false, client: null },
@@ -51,7 +61,7 @@ export function searchClientsRoute(app: FastifyInstance) {
         tenantPrisma.policy.count({
           where: {
             organizationId,
-            clientId: client.id,
+            clientId: resolved.id,
             status: 'ACTIVE',
             deletedAt: null,
           },
@@ -59,7 +69,7 @@ export function searchClientsRoute(app: FastifyInstance) {
         tenantPrisma.proposal.count({
           where: {
             organizationId,
-            clientId: client.id,
+            contact: { clientId: resolved.id },
             stage: { notIn: ['POLICY_ISSUED', 'LOST'] },
             deletedAt: null,
           },
@@ -71,11 +81,15 @@ export function searchClientsRoute(app: FastifyInstance) {
         data: {
           found: true,
           client: {
-            id: client.id,
-            name: client.name,
-            type: client.type,
-            email: client.email ?? null,
-            phone: client.phone ?? null,
+            id: resolved.id,
+            name: resolved.legalName,
+            // Client.type was removed in the contact-client separation refactor.
+            // Stage is now derived from active policies (CLIENT) or absence of them
+            // (LEAD). Surface a simple synthetic value to keep API back-compat.
+            type:
+              activePoliciesCount > 0 ? ('CLIENT' as const) : ('LEAD' as const),
+            email: resolved.email,
+            phone: resolved.phone,
             hasActivePolicy: activePoliciesCount > 0,
             activePoliciesCount,
             openProposalsCount,
@@ -86,17 +100,48 @@ export function searchClientsRoute(app: FastifyInstance) {
   })
 }
 
-function buildWhereClause(
+async function resolveClient(
+  tenantPrisma: ReturnType<typeof createTenantClient>,
   organizationId: string,
   phone: string | undefined,
   document: string | undefined
-) {
-  const base = { organizationId, deletedAt: null }
-
+): Promise<ResolvedClient | null> {
   if (document) {
     const digits = stripNonDigits(document)
-    return { ...base, documentHash: hashDocument(digits) }
+    const client = await tenantPrisma.client.findFirst({
+      where: {
+        organizationId,
+        documentHash: hashDocument(digits),
+        deletedAt: null,
+      },
+    })
+    if (!client) return null
+    const contact = await tenantPrisma.contact.findFirst({
+      where: { organizationId, clientId: client.id, deletedAt: null },
+      orderBy: { createdAt: 'asc' },
+      select: { email: true, phone: true },
+    })
+    return {
+      id: client.id,
+      legalName: client.legalName,
+      email: contact?.email ?? null,
+      phone: contact?.phone ?? null,
+    }
   }
 
-  return { ...base, phone }
+  if (phone) {
+    const contact = await tenantPrisma.contact.findFirst({
+      where: { organizationId, phone, deletedAt: null },
+      include: { client: true },
+    })
+    if (!contact?.client) return null
+    return {
+      id: contact.client.id,
+      legalName: contact.client.legalName,
+      email: contact.email,
+      phone: contact.phone,
+    }
+  }
+
+  return null
 }

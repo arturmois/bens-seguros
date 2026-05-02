@@ -16,7 +16,7 @@ import {
 import { listInternalPoliciesRoute } from '../list-policies.js'
 
 const mockTenantPrisma = {
-  client: {
+  contact: {
     findFirst: vi.fn(),
   },
   policy: {
@@ -51,7 +51,9 @@ afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
-  mockTenantPrisma.client.findFirst.mockResolvedValue({ id: 'client-001' })
+  mockTenantPrisma.contact.findFirst.mockResolvedValue({
+    clientId: 'client-001',
+  })
   mockTenantPrisma.policy.findMany.mockResolvedValue([makePolicy()])
 })
 
@@ -82,11 +84,11 @@ describe('GET /api/internal/policies', () => {
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
-    expect(mockTenantPrisma.client.findFirst).toHaveBeenCalled()
+    expect(mockTenantPrisma.contact.findFirst).toHaveBeenCalled()
   })
 
   it('returns empty list when client is not found', async () => {
-    mockTenantPrisma.client.findFirst.mockResolvedValue(null)
+    mockTenantPrisma.contact.findFirst.mockResolvedValue(null)
 
     const response = await injectAs(app, {
       method: 'GET',

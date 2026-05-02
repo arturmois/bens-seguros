@@ -46,9 +46,8 @@ describe('GET /api/v1/search', () => {
     mockClientFindMany.mockResolvedValue([
       {
         id: 'client-001',
-        name: 'João Silva',
+        legalName: 'João Silva',
         document: '123.456.789-00',
-        type: 'PERSON',
       },
     ])
     mockPolicyFindMany.mockResolvedValue([
@@ -56,7 +55,7 @@ describe('GET /api/v1/search', () => {
         id: 'policy-001',
         policyNumber: 'POL-001',
         branch: 'AUTO',
-        client: { name: 'João Silva' },
+        client: { legalName: 'João Silva' },
       },
     ])
 

@@ -84,6 +84,22 @@ export class CannotSendQuoteForLostProposalError extends Error {
   }
 }
 
+export class ContactNotPromotedError extends Error {
+  readonly code = 'CONTACT_NOT_PROMOTED' as const
+  constructor() {
+    super('Informe o documento do contato antes de emitir apólice')
+    this.name = 'ContactNotPromotedError'
+  }
+}
+
+export class EndorsementContactNotFoundError extends Error {
+  readonly code = 'ENDORSEMENT_CONTACT_NOT_FOUND' as const
+  constructor(clientId: string) {
+    super(`Cliente da apólice (${clientId}) não tem contato vinculado`)
+    this.name = 'EndorsementContactNotFoundError'
+  }
+}
+
 export const ProposalErrors = {
   notFound: (id: string) => new ProposalNotFoundError(id),
   invalidTransition: (from: string, action: string) =>
@@ -100,4 +116,7 @@ export const ProposalErrors = {
   clientHasNoEmail: () => new ClientHasNoEmailError(),
   cannotSendQuoteForLostProposal: () =>
     new CannotSendQuoteForLostProposalError(),
+  contactNotPromoted: () => new ContactNotPromotedError(),
+  endorsementContactNotFound: (clientId: string) =>
+    new EndorsementContactNotFoundError(clientId),
 }

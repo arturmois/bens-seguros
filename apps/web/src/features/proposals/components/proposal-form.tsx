@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import type { z } from 'zod'
 
@@ -17,6 +18,8 @@ import {
 } from '@/components/ui/dialog'
 
 import { CreateProposalBody } from '@/api/endpoints/proposals/proposals.zod'
+import { QuickCreateContact } from '@/features/contacts/components/quick-create-contact'
+
 import { useCreateProposal } from '../hooks/use-proposals'
 import {
   BOARD_TYPE_LABELS,
@@ -47,12 +50,13 @@ interface ProposalFormProps {
 
 export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
   const createMutation = useCreateProposal()
+  const [quickCreateOpen, setQuickCreateOpen] = useState(false)
 
   const form = useForm<ProposalFormValues>({
     resolver: zodResolver(CreateProposalBody),
     mode: 'onBlur',
     defaultValues: {
-      clientId: '',
+      contactId: '',
     },
   })
 
@@ -65,6 +69,10 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
         onOpenChange(false)
       },
     })
+  }
+
+  const handleContactCreated = (contactId: string) => {
+    form.setValue('contactId', contactId, { shouldValidate: true })
   }
 
   return (
@@ -88,6 +96,7 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
               boardType={boardType}
               branchOptions={BRANCH_OPTIONS}
               boardTypeOptions={BOARD_TYPE_OPTIONS}
+              onCreateContact={() => setQuickCreateOpen(true)}
             />
           </form>
         </DialogPanel>
@@ -112,6 +121,12 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      <QuickCreateContact
+        open={quickCreateOpen}
+        onOpenChange={setQuickCreateOpen}
+        onCreated={handleContactCreated}
+      />
     </Dialog>
   )
 }

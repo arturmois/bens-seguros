@@ -1,4 +1,4 @@
-import { ClientPresenter, container, ListClients } from '@repo/core'
+import { container, ListClients } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
@@ -18,15 +18,21 @@ export function listClientsRoute(app: FastifyInstance) {
     preHandler: [requireAbility('read', 'Client')],
     handler: async (request, reply) => {
       const useCase = container.resolve(ListClients)
-      const { limit, cursor, sortBy, sortOrder, ...filters } = request.query
-      const result = await useCase.execute(
-        { organizationId: request.organizationId!, ...filters },
-        { limit, cursor, sortBy, sortOrder }
-      )
+      const { limit, cursor, sortBy, sortOrder, hasActivePolicy, search } =
+        request.query
+      const result = await useCase.execute({
+        organizationId: request.organizationId!,
+        hasActivePolicy,
+        search,
+        cursor,
+        limit,
+        sortBy,
+        sortOrder,
+      })
       return reply.send({
         success: true,
-        data: result.items.map((c) => ClientPresenter.toList(c)),
-        meta: { total: result.total, nextCursor: result.nextCursor },
+        data: result.items,
+        meta: { nextCursor: result.nextCursor },
       })
     },
   })

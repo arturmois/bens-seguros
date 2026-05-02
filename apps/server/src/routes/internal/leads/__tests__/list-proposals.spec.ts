@@ -16,9 +16,8 @@ import {
 import { listInternalProposalsRoute } from '../list-proposals.js'
 
 const mockTenantPrisma = {
-  client: {
+  contact: {
     findFirst: vi.fn(),
-    findMany: vi.fn(),
   },
   proposal: {
     findMany: vi.fn(),
@@ -34,12 +33,13 @@ let app: Awaited<ReturnType<typeof createTestApp>>
 const makeProposal = (overrides: Partial<Record<string, unknown>> = {}) => ({
   id: 'proposal-001',
   organizationId: TEST_ORG_ID,
-  clientId: 'client-001',
+  contactId: 'contact-001',
   branch: 'AUTO',
   stage: 'CAPTURE',
   premiumValueInCents: 150000,
   coverageStartDate: null,
   createdAt: new Date('2025-01-01'),
+  contact: { name: 'João Silva' },
   ...overrides,
 })
 
@@ -50,10 +50,9 @@ afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
-  mockTenantPrisma.client.findFirst.mockResolvedValue({ id: 'client-001' })
-  mockTenantPrisma.client.findMany.mockResolvedValue([
-    { id: 'client-001', name: 'João Silva' },
-  ])
+  mockTenantPrisma.contact.findFirst.mockResolvedValue({
+    clientId: 'client-001',
+  })
   mockTenantPrisma.proposal.findMany.mockResolvedValue([makeProposal()])
 })
 
@@ -83,7 +82,7 @@ describe('GET /api/internal/proposals', () => {
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
-    expect(mockTenantPrisma.client.findFirst).toHaveBeenCalledWith(
+    expect(mockTenantPrisma.contact.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ phone: '11999999999' }),
       })
@@ -91,7 +90,7 @@ describe('GET /api/internal/proposals', () => {
   })
 
   it('returns empty list when client is not found by phone', async () => {
-    mockTenantPrisma.client.findFirst.mockResolvedValue(null)
+    mockTenantPrisma.contact.findFirst.mockResolvedValue(null)
 
     const response = await injectAs(app, {
       method: 'GET',

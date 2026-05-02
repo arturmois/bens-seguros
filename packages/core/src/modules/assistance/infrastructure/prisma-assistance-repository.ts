@@ -1,11 +1,7 @@
 import { injectable, inject } from 'tsyringe'
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
-import type {
-  CursorPage,
-  Page,
-  SortOrder,
-} from '../../client/domain/client-repository.js'
+import type { CursorPage, Page, SortOrder } from '../../../shared/pagination.js'
 import type {
   AssistanceRepository,
   AssistanceData,
@@ -27,7 +23,7 @@ function buildOrderBy(
 
 const ASSISTANCE_INCLUDE = {
   policy: { select: { policyNumber: true } },
-  client: { select: { name: true } },
+  client: { select: { legalName: true } },
 } satisfies Prisma.AssistanceInclude
 
 @injectable()
@@ -94,7 +90,7 @@ export class PrismaAssistanceRepository implements AssistanceRepository {
           { type: { contains: filters.search, mode: 'insensitive' } },
           {
             client: {
-              name: { contains: filters.search, mode: 'insensitive' },
+              legalName: { contains: filters.search, mode: 'insensitive' },
             },
           },
         ],

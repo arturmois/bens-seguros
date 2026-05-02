@@ -1,4 +1,4 @@
-import { ClientPresenter, container, GetClient } from '@repo/core'
+import { container, GetClient } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
@@ -11,7 +11,7 @@ export function getClientRoute(app: FastifyInstance) {
     url: '/api/v1/clients/:id',
     schema: {
       tags: ['Clients'],
-      summary: 'Get a client by ID',
+      summary: 'Get a client by ID with metrics',
       operationId: 'getClient',
       params: idParamSchema,
       response: { 200: clientDetailResponse },
@@ -20,17 +20,11 @@ export function getClientRoute(app: FastifyInstance) {
     handler: async (request, reply) => {
       const useCase = container.resolve(GetClient)
       try {
-        const client = await useCase.execute(
-          request.params.id,
-          request.organizationId!
-        )
-        return reply.send({
-          success: true,
-          data: ClientPresenter.toDetail(client, {
-            role: request.role!,
-            userId: request.user!.id,
-          }),
+        const client = await useCase.execute({
+          id: request.params.id,
+          organizationId: request.organizationId!,
         })
+        return reply.send({ success: true, data: client })
       } catch (error) {
         return handleDomainError(error, reply)
       }

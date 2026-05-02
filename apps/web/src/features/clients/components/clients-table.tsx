@@ -21,19 +21,26 @@ import { useDebounce } from '@/hooks/use-debounce'
 
 import type { ListClientsSortOrder } from '@/api/model'
 import { useOrgs } from '@/features/org/hooks/use-orgs'
+
 import { useClients, useDeleteClient } from '../hooks/use-clients'
 import {
+  ACTIVE_POLICY_FILTER_OPTIONS,
   DEFAULT_COLUMN_VISIBILITY,
   DEFAULT_SORTING,
   HIDEABLE_COLUMNS,
-  TYPE_FILTER_OPTIONS,
 } from '../lib/constants'
-import { isClientType, isSortBy } from '../lib/type-guards'
+import { isSortBy } from '../lib/type-guards'
 import type { ClientData } from '../lib/types'
 import { ClientCard } from './client-card'
 import { ClientExportButton } from './client-export-button'
 import { ClientImportButton } from './client-import-button'
 import { createClientColumns } from './clients-columns'
+
+function parseHasActivePolicy(value: string): boolean | undefined {
+  if (value === 'true') return true
+  if (value === 'false') return false
+  return undefined
+}
 
 export function ClientsContent() {
   'use no memo'
@@ -43,7 +50,7 @@ export function ClientsContent() {
   const role = activeOrg?.role ?? 'VIEWER'
 
   const [search, setSearch] = useState('')
-  const [typeFilter, setTypeFilter] = useState('')
+  const [activePolicyFilter, setActivePolicyFilter] = useState('')
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
@@ -61,7 +68,7 @@ export function ClientsContent() {
 
   const { data, isLoading, isError, refetch } = useClients({
     search: debouncedSearch || undefined,
-    type: typeFilter && isClientType(typeFilter) ? typeFilter : undefined,
+    hasActivePolicy: parseHasActivePolicy(activePolicyFilter),
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,
     sortBy,
@@ -75,7 +82,6 @@ export function ClientsContent() {
   const columnActions = useMemo(
     () => ({
       onView: (id: string) => router.push(`/clients/${id}`),
-      onEdit: (id: string) => router.push(`/clients/${id}/edit`),
       onDelete: (id: string) => setDeletingClientId(id),
     }),
     [router]
@@ -107,8 +113,8 @@ export function ClientsContent() {
     pagination.reset()
   }
 
-  function handleTypeFilterChange(value: string) {
-    setTypeFilter(value)
+  function handleActivePolicyFilterChange(value: string) {
+    setActivePolicyFilter(value)
     pagination.reset()
   }
 
@@ -132,9 +138,9 @@ export function ClientsContent() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <FilterTabs
-        options={TYPE_FILTER_OPTIONS}
-        value={typeFilter}
-        onChange={handleTypeFilterChange}
+        options={ACTIVE_POLICY_FILTER_OPTIONS}
+        value={activePolicyFilter}
+        onChange={handleActivePolicyFilterChange}
       />
 
       <TableToolbar
@@ -149,8 +155,7 @@ export function ClientsContent() {
         <ClientExportButton
           filters={{
             search: debouncedSearch || undefined,
-            type:
-              typeFilter && isClientType(typeFilter) ? typeFilter : undefined,
+            hasActivePolicy: parseHasActivePolicy(activePolicyFilter),
           }}
         />
       </TableToolbar>
@@ -171,7 +176,6 @@ export function ClientsContent() {
         renderCard={(client) => (
           <ClientCard
             client={client}
-            onEdit={(id) => router.push(`/clients/${id}/edit`)}
             onDelete={(id) => setDeletingClientId(id)}
           />
         )}

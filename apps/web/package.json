@@ -10,6 +10,8 @@
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "generate:api": "orval"
   },
   "dependencies": {
@@ -50,6 +52,7 @@
   "devDependencies": {
     "@config/eslint-config": "workspace:*",
     "@config/typescript-config": "workspace:*",
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4.0.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",

@@ -1,7 +1,7 @@
 'use client'
 
 import type { ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, Eye, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { ArrowUpDown, Eye, MoreHorizontal, Trash2 } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -14,13 +14,13 @@ import {
 
 import { hasPermission } from '@/lib/permissions'
 import type { Role } from '@repo/auth/roles'
-import { formatDate, getInitials } from '@/lib/formatters'
+import { formatDate } from '@/lib/formatters'
+import { formatDocument } from '@/lib/masks'
+import { PERSON_TYPE_BADGE_VARIANT, PERSON_TYPE_LABELS } from '../lib/constants'
 import type { ClientData } from '../lib/types'
-import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
 
 interface ColumnActions {
   readonly onView: (id: string) => void
-  readonly onEdit: (id: string) => void
   readonly onDelete: (id: string) => void
 }
 
@@ -30,68 +30,57 @@ export function createClientColumns(
 ): ColumnDef<ClientData>[] {
   return [
     {
-      accessorKey: 'name',
+      accessorKey: 'legalName',
       header: ({ column }) => (
         <button
           type="button"
           className="hover:text-foreground -ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Nome
+          Nome legal
           <ArrowUpDown className="size-3.5 opacity-40" />
         </button>
       ),
-      cell: ({ row }) => {
-        const client = row.original
-        return (
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
-              {getInitials(client.name)}
-            </div>
-            <div>
-              <div className="font-medium">{client.name}</div>
-              <div className="text-muted-foreground text-xs">
-                {client.email ?? '-'}
-              </div>
-            </div>
-          </div>
-        )
-      },
+      cell: ({ row }) => (
+        <div className="font-medium">{row.original.legalName}</div>
+      ),
       enableHiding: false,
     },
     {
       accessorKey: 'document',
-      header: ({ column }) => (
-        <button
-          type="button"
-          className="hover:text-foreground -ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Documento
-          <ArrowUpDown className="size-3.5 opacity-40" />
-        </button>
-      ),
+      header: 'Documento',
       cell: ({ row }) => (
-        <span className="text-muted-foreground">{row.original.document}</span>
+        <span className="text-muted-foreground">
+          {formatDocument(row.original.document)}
+        </span>
       ),
+      enableSorting: false,
     },
     {
-      accessorKey: 'type',
-      header: ({ column }) => (
-        <button
-          type="button"
-          className="hover:text-foreground -ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Tipo
-          <ArrowUpDown className="size-3.5 opacity-40" />
-        </button>
-      ),
+      accessorKey: 'personType',
+      header: 'Tipo',
       cell: ({ row }) => (
-        <Badge variant={TYPE_BADGE_VARIANT[row.original.type]}>
-          {TYPE_LABELS[row.original.type]}
+        <Badge variant={PERSON_TYPE_BADGE_VARIANT[row.original.personType]}>
+          {PERSON_TYPE_LABELS[row.original.personType]}
         </Badge>
       ),
+      enableSorting: false,
+    },
+    {
+      accessorKey: 'activePolicyCount',
+      header: 'Apólices ativas',
+      cell: ({ row }) => (
+        <span className="tabular-nums">{row.original.activePolicyCount}</span>
+      ),
+      enableSorting: false,
+    },
+    {
+      accessorKey: 'contactCount',
+      header: 'Contatos',
+      cell: ({ row }) => (
+        <span className="tabular-nums">{row.original.contactCount}</span>
+      ),
+      enableSorting: false,
     },
     {
       accessorKey: 'createdAt',
@@ -106,16 +95,6 @@ export function createClientColumns(
         </button>
       ),
       cell: ({ row }) => formatDate(row.original.createdAt),
-    },
-    {
-      accessorKey: 'phone',
-      header: 'Telefone',
-      cell: ({ row }) => (
-        <span className="text-muted-foreground">
-          {row.original.phone ?? '-'}
-        </span>
-      ),
-      enableSorting: false,
     },
     {
       id: 'actions',
@@ -142,12 +121,6 @@ export function createClientColumns(
                 <Eye className="mr-2 size-4" />
                 Ver
               </DropdownMenuItem>
-              {hasPermission(role, 'clients:update') && (
-                <DropdownMenuItem onClick={() => actions.onEdit(client.id)}>
-                  <Pencil className="mr-2 size-4" />
-                  Editar
-                </DropdownMenuItem>
-              )}
               {hasPermission(role, 'clients:delete') && (
                 <DropdownMenuItem
                   className="text-destructive"

@@ -11,7 +11,12 @@ import type {
 import { ProposalMapper } from './proposal-mapper.js'
 
 const PROPOSAL_INCLUDE = {
-  client: { select: { name: true, document: true, personType: true } },
+  contact: {
+    select: {
+      name: true,
+      client: { select: { document: true, personType: true, legalName: true } },
+    },
+  },
   salesperson: { select: { name: true } },
   insurer: { select: { name: true } },
   sourcePolicy: { select: { policyNumber: true } },
@@ -61,7 +66,7 @@ export class PrismaProposalRepository implements ProposalRepository {
     const primaryOrderBy: Prisma.ProposalOrderByWithRelationInput = (() => {
       switch (sortBy) {
         case 'clientName':
-          return { client: { name: sortOrder } }
+          return { contact: { name: sortOrder } }
         case 'branch':
           return { branch: sortOrder }
         case 'stage':
@@ -107,7 +112,8 @@ export class PrismaProposalRepository implements ProposalRepository {
       organizationId: filters.organizationId,
       deletedAt: null,
       ...(stageFilter && { stage: stageFilter }),
-      ...(filters.clientId && { clientId: filters.clientId }),
+      ...(filters.contactId && { contactId: filters.contactId }),
+      ...(filters.clientId && { contact: { clientId: filters.clientId } }),
       ...(filters.salespersonId && { salespersonId: filters.salespersonId }),
       ...(filters.boardType && { boardType: filters.boardType }),
       ...(filters.insurerId && { insurerId: filters.insurerId }),
@@ -117,8 +123,15 @@ export class PrismaProposalRepository implements ProposalRepository {
       ...(filters.search && {
         OR: [
           {
-            client: {
+            contact: {
               name: { contains: filters.search, mode: 'insensitive' },
+            },
+          },
+          {
+            contact: {
+              client: {
+                legalName: { contains: filters.search, mode: 'insensitive' },
+              },
             },
           },
           {

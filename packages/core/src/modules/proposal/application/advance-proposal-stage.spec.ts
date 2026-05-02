@@ -7,9 +7,14 @@ import type {
   ChecklistSummary,
 } from '../domain/checklist-repository.js'
 import type { ChecklistConfigProvider } from '../domain/checklist-config.js'
+import type {
+  ContactData,
+  ContactRepository,
+} from '../../contact/domain/contact-repository.js'
 import {
   ProposalDetailsRequiredError,
   ChecklistIncompleteError,
+  ContactNotPromotedError,
 } from '../domain/proposal-errors.js'
 
 function createMockRepo(proposal: Proposal | null): ProposalRepository {
@@ -43,11 +48,73 @@ function createMockChecklistConfig(): ChecklistConfigProvider {
   }
 }
 
+function makeContact(overrides: Partial<ContactData> = {}): ContactData {
+  const now = new Date()
+  return {
+    id: 'contact-1',
+    organizationId: 'org-1',
+    name: 'Maria Souza',
+    phone: '11999999999',
+    email: 'maria@example.com',
+    source: 'MANUAL',
+    salespersonId: 'user-2',
+    clientId: 'client-1',
+    tags: [],
+    socialMedia: null,
+    notes: null,
+    consentLgpd: true,
+    birthDate: null,
+    createdAt: now,
+    updatedAt: now,
+    deletedAt: null,
+    ...overrides,
+  }
+}
+
+function createMockContactRepo(
+  contact: ContactData | null = null
+): ContactRepository {
+  return {
+    save: vi.fn(),
+    findById: vi.fn().mockResolvedValue(contact),
+    findByIdWithStage: vi.fn(),
+    findMany: vi.fn(),
+    update: vi.fn(),
+    softDelete: vi.fn(),
+  }
+}
+
+function makeProposalAtPayment(): Proposal {
+  const proposal = Proposal.create({
+    organizationId: 'org-1',
+    contactId: 'contact-1',
+    salespersonId: 'u-1',
+    branch: 'AUTO',
+    boardType: 'NEW_INSURANCE',
+  })
+  proposal.advance() // CAPTURE -> QUOTE
+  proposal.updateDetails(
+    {
+      branch: 'AUTO',
+      brand: 'Toyota',
+      model: 'Corolla',
+      manufacturingYear: 2020,
+      modelYear: 2021,
+    },
+    150000,
+    1500
+  )
+  proposal.advance() // QUOTE -> PROTOCOL
+  proposal.advance() // PROTOCOL -> INSPECTION
+  proposal.advance() // INSPECTION -> PAYMENT
+  return proposal
+}
+
 describe('AdvanceProposalStage', () => {
   it('advances proposal to next stage', async () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
-      clientId: 'c-1',
+      contactId: 'c-1',
       salespersonId: 'u-1',
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
@@ -55,10 +122,12 @@ describe('AdvanceProposalStage', () => {
     const repo = createMockRepo(proposal)
     const checklistRepo = createMockChecklistRepo(true)
     const checklistConfig = createMockChecklistConfig()
+    const contactRepo = createMockContactRepo()
     const useCase = new AdvanceProposalStage(
       repo,
       checklistRepo,
-      checklistConfig
+      checklistConfig,
+      contactRepo
     )
 
     const result = await useCase.execute(proposal.id, 'org-1')
@@ -71,10 +140,12 @@ describe('AdvanceProposalStage', () => {
     const repo = createMockRepo(null)
     const checklistRepo = createMockChecklistRepo()
     const checklistConfig = createMockChecklistConfig()
+    const contactRepo = createMockContactRepo()
     const useCase = new AdvanceProposalStage(
       repo,
       checklistRepo,
-      checklistConfig
+      checklistConfig,
+      contactRepo
     )
 
     await expect(useCase.execute('xxx', 'org-1')).rejects.toThrow(
@@ -85,7 +156,7 @@ describe('AdvanceProposalStage', () => {
   it('rejects advance from QUOTE without details', async () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
-      clientId: 'c-1',
+      contactId: 'c-1',
       salespersonId: 'u-1',
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
@@ -94,10 +165,12 @@ describe('AdvanceProposalStage', () => {
     const repo = createMockRepo(proposal)
     const checklistRepo = createMockChecklistRepo(true)
     const checklistConfig = createMockChecklistConfig()
+    const contactRepo = createMockContactRepo()
     const useCase = new AdvanceProposalStage(
       repo,
       checklistRepo,
-      checklistConfig
+      checklistConfig,
+      contactRepo
     )
 
     await expect(useCase.execute(proposal.id, 'org-1')).rejects.toThrow(
@@ -108,7 +181,7 @@ describe('AdvanceProposalStage', () => {
   it('rejects advance when checklist has incomplete required items', async () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
-      clientId: 'c-1',
+      contactId: 'c-1',
       salespersonId: 'u-1',
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
@@ -129,10 +202,12 @@ describe('AdvanceProposalStage', () => {
     const repo = createMockRepo(proposal)
     const checklistRepo = createMockChecklistRepo(false)
     const checklistConfig = createMockChecklistConfig()
+    const contactRepo = createMockContactRepo()
     const useCase = new AdvanceProposalStage(
       repo,
       checklistRepo,
-      checklistConfig
+      checklistConfig,
+      contactRepo
     )
 
     await expect(useCase.execute(proposal.id, 'org-1')).rejects.toThrow(
@@ -140,52 +215,75 @@ describe('AdvanceProposalStage', () => {
     )
   })
 
-  it('advances proposal from PAYMENT to POLICY_ISSUED', async () => {
-    const proposal = Proposal.create({
-      organizationId: 'org-1',
-      clientId: 'c-1',
-      salespersonId: 'u-1',
-      branch: 'AUTO',
-      boardType: 'NEW_INSURANCE',
-    })
-    // Advance through stages to PAYMENT
-    proposal.advance() // CAPTURE -> QUOTE
-    proposal.updateDetails(
-      {
-        branch: 'AUTO',
-        brand: 'Toyota',
-        model: 'Corolla',
-        manufacturingYear: 2020,
-        modelYear: 2021,
-      },
-      150000,
-      1500
-    )
-    proposal.advance() // QUOTE -> PROTOCOL
-    proposal.advance() // PROTOCOL -> INSPECTION
-    proposal.advance() // INSPECTION -> PAYMENT
+  it('advances proposal from PAYMENT to POLICY_ISSUED when contact is promoted', async () => {
+    const proposal = makeProposalAtPayment()
 
     const repo = createMockRepo(proposal)
     const checklistRepo = createMockChecklistRepo(true)
     const checklistConfig = createMockChecklistConfig()
+    const contactRepo = createMockContactRepo(
+      makeContact({ clientId: 'client-1' })
+    )
     const useCase = new AdvanceProposalStage(
       repo,
       checklistRepo,
-      checklistConfig
+      checklistConfig,
+      contactRepo
     )
 
     const result = await useCase.execute(proposal.id, 'org-1')
 
     expect(result.stage).toBe('POLICY_ISSUED')
     expect(repo.save).toHaveBeenCalledWith(proposal)
+    expect(contactRepo.findById).toHaveBeenCalledWith('contact-1', 'org-1')
     // Should NOT create checklist items for POLICY_ISSUED stage
     expect(checklistConfig.getItems).not.toHaveBeenCalled()
+  })
+
+  it('rejects advance from PAYMENT to POLICY_ISSUED when contact is not promoted', async () => {
+    const proposal = makeProposalAtPayment()
+
+    const repo = createMockRepo(proposal)
+    const checklistRepo = createMockChecklistRepo(true)
+    const checklistConfig = createMockChecklistConfig()
+    const contactRepo = createMockContactRepo(makeContact({ clientId: null }))
+    const useCase = new AdvanceProposalStage(
+      repo,
+      checklistRepo,
+      checklistConfig,
+      contactRepo
+    )
+
+    await expect(useCase.execute(proposal.id, 'org-1')).rejects.toThrow(
+      ContactNotPromotedError
+    )
+    expect(repo.save).not.toHaveBeenCalled()
+  })
+
+  it('rejects advance from PAYMENT to POLICY_ISSUED when contact is missing', async () => {
+    const proposal = makeProposalAtPayment()
+
+    const repo = createMockRepo(proposal)
+    const checklistRepo = createMockChecklistRepo(true)
+    const checklistConfig = createMockChecklistConfig()
+    const contactRepo = createMockContactRepo(null)
+    const useCase = new AdvanceProposalStage(
+      repo,
+      checklistRepo,
+      checklistConfig,
+      contactRepo
+    )
+
+    await expect(useCase.execute(proposal.id, 'org-1')).rejects.toThrow(
+      ContactNotPromotedError
+    )
+    expect(repo.save).not.toHaveBeenCalled()
   })
 
   it('does not validate checklist when advancing from CAPTURE stage', async () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
-      clientId: 'c-1',
+      contactId: 'c-1',
       salespersonId: 'u-1',
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
@@ -194,15 +292,42 @@ describe('AdvanceProposalStage', () => {
     const repo = createMockRepo(proposal)
     const checklistRepo = createMockChecklistRepo(false)
     const checklistConfig = createMockChecklistConfig()
+    const contactRepo = createMockContactRepo()
     const useCase = new AdvanceProposalStage(
       repo,
       checklistRepo,
-      checklistConfig
+      checklistConfig,
+      contactRepo
     )
 
     const result = await useCase.execute(proposal.id, 'org-1')
 
     expect(result.stage).toBe('QUOTE')
     expect(checklistRepo.getSummary).not.toHaveBeenCalled()
+  })
+
+  it('does not check contact promotion when advancing to non-POLICY_ISSUED stages', async () => {
+    const proposal = Proposal.create({
+      organizationId: 'org-1',
+      contactId: 'c-1',
+      salespersonId: 'u-1',
+      branch: 'AUTO',
+      boardType: 'NEW_INSURANCE',
+    })
+    // CAPTURE -> QUOTE — no checklist or contact check
+    const repo = createMockRepo(proposal)
+    const checklistRepo = createMockChecklistRepo(true)
+    const checklistConfig = createMockChecklistConfig()
+    const contactRepo = createMockContactRepo()
+    const useCase = new AdvanceProposalStage(
+      repo,
+      checklistRepo,
+      checklistConfig,
+      contactRepo
+    )
+
+    await useCase.execute(proposal.id, 'org-1')
+
+    expect(contactRepo.findById).not.toHaveBeenCalled()
   })
 })

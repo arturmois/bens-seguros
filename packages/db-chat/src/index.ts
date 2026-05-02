@@ -5,6 +5,7 @@ export {
   runWithTenant,
 } from './tenant-context.js'
 
+export { CHANNEL_TYPES, type ChannelType } from '@repo/shared'
 export { Channel, type ChannelDocument } from './models/channel.model.js'
 export {
   Conversation,

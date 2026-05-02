@@ -7,7 +7,10 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 
+import { useContact } from '@/features/contacts/hooks/use-contacts'
+import { PromoteContactDialog } from '@/features/contacts/components/promote-contact-dialog'
 import { usePolicyByProposal } from '@/features/policies/hooks/use-policies'
+import { ApiError } from '@/lib/api-client'
 
 import { useChecklist } from '../../hooks/use-checklist'
 import { useGenerateProposalPdf } from '../../hooks/use-generate-proposal-pdf'
@@ -37,12 +40,17 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
   const pdfMutation = useGenerateProposalPdf(proposalId)
   const sendQuoteMutation = useSendQuote(proposalId)
   const [showLostDialog, setShowLostDialog] = useState(false)
+  const [promoteOpen, setPromoteOpen] = useState(false)
+
+  const proposalData = data?.data
+  const contactId = proposalData?.contactId ?? ''
+  const { data: contact } = useContact(contactId)
 
   if (isLoading) {
     return <DetailSkeleton />
   }
 
-  if (isError || !data?.data) {
+  if (isError || !proposalData) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
         <p className="text-destructive text-sm">Erro ao carregar proposta.</p>
@@ -68,7 +76,7 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
     )
   }
 
-  const proposal = data.data
+  const proposal = proposalData
   const isTerminalStage =
     proposal.stage === 'POLICY_ISSUED' || proposal.stage === 'LOST'
   const canAdvance = !isTerminalStage
@@ -78,6 +86,30 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
     checklistData?.summary.canAdvance === false
   const canMarkLost =
     proposal.stage !== 'LOST' && proposal.stage !== 'POLICY_ISSUED'
+
+  const willTransitionToPolicyIssued = proposal.stage === 'PAYMENT'
+  const contactNeedsPromotion = !contact?.clientId
+
+  function dispatchAdvance() {
+    advanceMutation.mutate(proposal.id, {
+      onError: (error) => {
+        if (
+          error instanceof ApiError &&
+          error.code === 'CONTACT_NOT_PROMOTED'
+        ) {
+          setPromoteOpen(true)
+        }
+      },
+    })
+  }
+
+  function handleAdvance() {
+    if (willTransitionToPolicyIssued && contactNeedsPromotion) {
+      setPromoteOpen(true)
+      return
+    }
+    dispatchAdvance()
+  }
 
   return (
     <div className="space-y-6">
@@ -143,7 +175,7 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
         canMarkLost={canMarkLost}
         checklistBlocking={checklistBlocking}
         advancePending={advanceMutation.isPending}
-        onAdvance={() => advanceMutation.mutate(proposalId)}
+        onAdvance={handleAdvance}
         onMarkLost={() => setShowLostDialog(true)}
       />
 
@@ -155,6 +187,19 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
         proposalId={showLostDialog ? proposalId : null}
         onClose={() => setShowLostDialog(false)}
       />
+
+      {contactId && (
+        <PromoteContactDialog
+          open={promoteOpen}
+          onOpenChange={setPromoteOpen}
+          contactId={contactId}
+          defaultLegalName={proposal.clientName ?? contact?.name ?? ''}
+          onPromoted={() => {
+            setPromoteOpen(false)
+            dispatchAdvance()
+          }}
+        />
+      )}
     </div>
   )
 }

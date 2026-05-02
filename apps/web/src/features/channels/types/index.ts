@@ -1,18 +1,12 @@
-export type {
-  ChannelData,
-  ChannelStatus,
-  ChannelType,
-} from '@/features/chat/types'
+import type { BrokerType, ChannelType } from '@repo/shared'
+
+export type { ChannelData, ChannelStatus } from '@/features/chat/types'
+export type { ChannelType }
 
 export interface CreateChannelPayload {
   readonly name: string
-  readonly type: 'WHATSAPP' | 'WEB_CHAT' | 'MESSENGER' | 'INSTAGRAM'
-  readonly brokerType:
-    | 'BAILEYS'
-    | 'META'
-    | 'WEB_CHAT'
-    | 'MESSENGER'
-    | 'INSTAGRAM'
+  readonly type: ChannelType
+  readonly brokerType: BrokerType
   readonly phoneNumber?: string
   readonly config?: Record<string, unknown>
 }

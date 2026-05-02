@@ -39,7 +39,7 @@ export function createProposalColumns(
       ),
       cell: ({ row }) => (
         <span className="font-medium">
-          {row.original.clientName ?? row.original.clientId}
+          {row.original.clientName ?? row.original.contactId}
         </span>
       ),
       enableHiding: false,

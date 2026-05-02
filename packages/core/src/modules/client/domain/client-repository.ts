@@ -1,117 +1,84 @@
-export interface ClientSocialMedia {
-  [key: string]: string | undefined
-  instagram?: string
-  facebook?: string
-  linkedin?: string
-  tiktok?: string
-}
+import type { CursorPage, Page, SortOrder } from '../../../shared/pagination.js'
+
+export type { CursorPage, Page, SortOrder }
+
+export type PersonType = 'INDIVIDUAL' | 'COMPANY'
+export type MaritalStatus =
+  | 'SINGLE'
+  | 'MARRIED'
+  | 'DIVORCED'
+  | 'WIDOWED'
+  | 'OTHER'
 
 export interface ClientData {
   id: string
   organizationId: string
-  name: string
+  legalName: string
   document: string
-  personType: 'INDIVIDUAL' | 'COMPANY'
-  type: 'LEAD' | 'CLIENT' | 'FORMER_CLIENT'
-  email: string | null
-  phone: string | null
-  birthDate: Date | null
+  documentHash: string
+  personType: PersonType
   profession: string | null
-  maritalStatus: 'SINGLE' | 'MARRIED' | 'DIVORCED' | 'WIDOWED' | 'OTHER' | null
-  address: ClientAddress | null
-  socialMedia: ClientSocialMedia | null
-  tags: string[]
-  consentLgpd: boolean
-  salespersonId: string | null
+  maritalStatus: MaritalStatus | null
+  address: Record<string, unknown> | null
+  fiscalBirthDate: Date | null
   createdAt: Date
   updatedAt: Date
+  deletedAt: Date | null
 }
 
-export interface ClientAddress {
-  [key: string]: string | undefined
-  street?: string
-  number?: string
-  complement?: string
-  neighborhood?: string
-  city?: string
-  state?: string
-  zip?: string
+export interface ClientWithMetrics extends ClientData {
+  activePolicyCount: number
+  totalPolicyCount: number
+  contactCount: number
 }
-
-export type ClientSortField = 'name' | 'document' | 'type' | 'createdAt'
-export type SortOrder = 'asc' | 'desc'
 
 export interface ClientFilters {
   organizationId: string
-  type?: 'LEAD' | 'CLIENT' | 'FORMER_CLIENT'
+  hasActivePolicy?: boolean
   search?: string
 }
 
-export interface CursorPage<TSortBy extends string = string> {
-  cursor?: string
-  limit: number
-  sortBy?: TSortBy
-  sortOrder?: SortOrder
-}
+export type ClientSortField = 'createdAt' | 'legalName'
 
-export interface Page<TItem> {
-  items: TItem[]
-  total?: number
-  nextCursor: string | null
-}
-
-export interface CreateClientInput {
+export interface CreateClientPersistence {
   organizationId: string
-  name: string
+  legalName: string
   document: string
-  personType?: 'INDIVIDUAL' | 'COMPANY'
-  type?: 'LEAD' | 'CLIENT' | 'FORMER_CLIENT'
-  email?: string | null
-  phone?: string | null
-  birthDate?: Date | null
-  profession?: string | null
-  maritalStatus?: 'SINGLE' | 'MARRIED' | 'DIVORCED' | 'WIDOWED' | 'OTHER' | null
-  address?: ClientAddress | null
-  socialMedia?: ClientSocialMedia | null
-  tags?: string[]
-  consentLgpd?: boolean
-  salespersonId?: string | null
+  personType: PersonType
+  profession: string | null
+  maritalStatus: MaritalStatus | null
+  address: Record<string, unknown> | null
+  fiscalBirthDate: Date | null
 }
 
-/**
- * Fields allowed for client updates. The `document` (CPF/CNPJ) field is
- * intentionally omitted — it is immutable after creation because it serves
- * as the encryption/hashing anchor for PII lookup and deduplication.
- */
-export interface UpdateClientInput {
-  name?: string
-  email?: string | null
-  phone?: string | null
-  birthDate?: Date | null
+export interface UpdateClientPersistence {
+  legalName?: string
+  personType?: PersonType
   profession?: string | null
-  maritalStatus?: 'SINGLE' | 'MARRIED' | 'DIVORCED' | 'WIDOWED' | 'OTHER' | null
-  address?: ClientAddress | null
-  socialMedia?: ClientSocialMedia | null
-  tags?: string[]
-  consentLgpd?: boolean
-  type?: 'LEAD' | 'CLIENT' | 'FORMER_CLIENT'
+  maritalStatus?: MaritalStatus | null
+  address?: Record<string, unknown> | null
+  fiscalBirthDate?: Date | null
 }
 
 export interface ClientRepository {
-  create(data: CreateClientInput): Promise<ClientData>
+  save(data: CreateClientPersistence): Promise<ClientData>
   findById(id: string, organizationId: string): Promise<ClientData | null>
-  findByDocument(
-    document: string,
+  findByIdWithMetrics(
+    id: string,
+    organizationId: string
+  ): Promise<ClientWithMetrics | null>
+  findByDocumentHash(
+    documentHash: string,
     organizationId: string
   ): Promise<ClientData | null>
   findMany(
     filters: ClientFilters,
     page: CursorPage<ClientSortField>
-  ): Promise<Page<ClientData>>
+  ): Promise<{ items: ClientWithMetrics[]; nextCursor: string | null }>
   update(
     id: string,
     organizationId: string,
-    data: UpdateClientInput
+    data: UpdateClientPersistence
   ): Promise<ClientData>
   softDelete(id: string, organizationId: string): Promise<void>
   lgpdAnonymize(id: string, organizationId: string): Promise<void>

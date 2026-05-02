@@ -17,7 +17,7 @@
 -- Tables with RLS enabled (16):
 --
 --   STRICT policy (no IS NULL escape — always queried through tenantPrisma):
---     Client, Proposal, ProposalChecklistItem, Policy, Claim, Commission,
+--     Client, Contact, Proposal, ProposalChecklistItem, Policy, Claim, Commission,
 --     Endorsement, Assistance, Document, Notification, AuditLog,
 --     Occurrence, Insurer
 --
@@ -39,6 +39,7 @@
 
 -- Enable RLS
 ALTER TABLE "Client" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Contact" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Proposal" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "ProposalChecklistItem" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Policy" ENABLE ROW LEVEL SECURITY;
@@ -60,6 +61,10 @@ ALTER TABLE "Insurer" ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS tenant_isolation ON "Client";
 CREATE POLICY tenant_isolation ON "Client"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+DROP POLICY IF EXISTS tenant_isolation ON "Contact";
+CREATE POLICY tenant_isolation ON "Contact"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
 DROP POLICY IF EXISTS tenant_isolation ON "Proposal";
@@ -112,6 +117,7 @@ CREATE POLICY tenant_isolation ON "Insurer"
 
 -- Force RLS for table owner too (defense-in-depth)
 ALTER TABLE "Client" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Contact" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Proposal" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "ProposalChecklistItem" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Policy" FORCE ROW LEVEL SECURITY;
@@ -177,6 +183,7 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public
 -- To DROP all policies (rollback):
 -- ============================================================================
 -- DROP POLICY IF EXISTS tenant_isolation ON "Client";
+-- DROP POLICY IF EXISTS tenant_isolation ON "Contact";
 -- DROP POLICY IF EXISTS tenant_isolation ON "Proposal";
 -- DROP POLICY IF EXISTS tenant_isolation ON "ProposalChecklistItem";
 -- DROP POLICY IF EXISTS tenant_isolation ON "Policy";
@@ -194,6 +201,7 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public
 -- DROP POLICY IF EXISTS tenant_isolation ON "AuditLogArchive";
 --
 -- ALTER TABLE "Client" DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE "Contact" DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE "Proposal" DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE "ProposalChecklistItem" DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE "Policy" DISABLE ROW LEVEL SECURITY;

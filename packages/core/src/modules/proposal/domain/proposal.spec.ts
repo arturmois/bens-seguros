@@ -9,7 +9,7 @@ import type { AutoDetails } from './insured-object-details.js'
 describe('Proposal Entity', () => {
   const validProps = {
     organizationId: 'org-1',
-    clientId: 'client-1',
+    contactId: 'client-1',
     salespersonId: 'user-1',
     branch: 'AUTO' as const,
     boardType: 'NEW_INSURANCE' as const,
@@ -19,7 +19,7 @@ describe('Proposal Entity', () => {
     const proposal = Proposal.create(validProps)
     expect(proposal.stage).toBe('CAPTURE')
     expect(proposal.organizationId).toBe('org-1')
-    expect(proposal.clientId).toBe('client-1')
+    expect(proposal.contactId).toBe('client-1')
     expect(proposal.salespersonId).toBe('user-1')
     expect(proposal.branch).toBe('AUTO')
     expect(proposal.boardType).toBe('NEW_INSURANCE')
@@ -93,7 +93,7 @@ describe('Proposal Entity', () => {
     const proposal = Proposal.restore({
       id: 'prop-1',
       organizationId: 'org-1',
-      clientId: 'client-1',
+      contactId: 'client-1',
       salespersonId: 'user-1',
       stage: 'PROTOCOL',
       boardType: 'NEW_INSURANCE',
@@ -158,7 +158,7 @@ describe('Proposal Entity', () => {
   it('creates endorsement proposals at QUOTE with source policy metadata', () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
-      clientId: 'client-1',
+      contactId: 'client-1',
       salespersonId: 'user-1',
       branch: 'AUTO',
       boardType: 'ENDORSEMENT',

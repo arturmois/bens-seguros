@@ -1,4 +1,4 @@
-import type { CursorPage, Page } from '../../client/domain/client-repository.js'
+import type { CursorPage, Page } from '../../../shared/pagination.js'
 import type { JsonObject } from '../../occurrence/domain/occurrence-repository.js'
 
 export interface EndorsementData {

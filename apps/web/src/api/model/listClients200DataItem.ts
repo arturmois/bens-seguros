@@ -4,22 +4,29 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
+import type { ListClients200DataItemAddress } from './listClients200DataItemAddress'
+import type { ListClients200DataItemMaritalStatus } from './listClients200DataItemMaritalStatus'
 import type { ListClients200DataItemPersonType } from './listClients200DataItemPersonType'
-import type { ListClients200DataItemSocialMedia } from './listClients200DataItemSocialMedia'
-import type { ListClients200DataItemType } from './listClients200DataItemType'
 
 export type ListClients200DataItem = {
   id: string
-  name: string
-  type: ListClients200DataItemType
-  personType: ListClients200DataItemPersonType
-  tags: string[]
+  organizationId: string
+  legalName: string
   document: string
+  personType: ListClients200DataItemPersonType
   /** @nullable */
-  email?: string | null
+  profession: string | null
   /** @nullable */
-  phone?: string | null
+  maritalStatus: ListClients200DataItemMaritalStatus
+  /** @nullable */
+  address: ListClients200DataItemAddress
+  /** @nullable */
+  fiscalBirthDate: string | null
   createdAt: string
+  updatedAt: string
   /** @nullable */
-  socialMedia?: ListClients200DataItemSocialMedia
+  deletedAt: string | null
+  activePolicyCount: number
+  totalPolicyCount: number
+  contactCount: number
 }

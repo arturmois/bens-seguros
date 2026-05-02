@@ -7,6 +7,10 @@ import type {
   PolicyData,
   PolicyRepository,
 } from '../../policy/domain/policy-repository.js'
+import type {
+  ContactRepository,
+  ContactWithStage,
+} from '../../contact/domain/contact-repository.js'
 import { CreateProposal } from './create-proposal.js'
 
 function createMockRepo(): ProposalRepository {
@@ -47,6 +51,47 @@ function createMockPolicyRepo(
   }
 }
 
+function createMockContactRepo(
+  contacts: ContactWithStage[] = []
+): ContactRepository {
+  return {
+    save: vi.fn(),
+    findById: vi.fn(),
+    findByIdWithStage: vi.fn(),
+    findMany: vi.fn().mockResolvedValue({ items: contacts, nextCursor: null }),
+    update: vi.fn(),
+    softDelete: vi.fn(),
+  }
+}
+
+function makeContact(
+  id: string,
+  clientId: string,
+  organizationId = 'org-1'
+): ContactWithStage {
+  const now = new Date()
+  return {
+    id,
+    organizationId,
+    name: 'Maria Souza',
+    phone: '11999999999',
+    email: 'maria@example.com',
+    source: 'MANUAL',
+    salespersonId: 'user-2',
+    clientId,
+    tags: [],
+    socialMedia: null,
+    notes: null,
+    consentLgpd: true,
+    birthDate: null,
+    createdAt: now,
+    updatedAt: now,
+    deletedAt: null,
+    stage: 'CLIENT_ACTIVE',
+    activePolicyCount: 1,
+  }
+}
+
 describe('CreateProposal', () => {
   it('creates proposal in CAPTURE stage and saves it', async () => {
     const repo = createMockRepo()
@@ -56,12 +101,13 @@ describe('CreateProposal', () => {
       repo,
       checklistRepo,
       checklistConfig,
-      createMockPolicyRepo()
+      createMockPolicyRepo(),
+      createMockContactRepo()
     )
 
     const result = await useCase.execute({
       organizationId: 'org-1',
-      clientId: 'c-1',
+      contactId: 'c-1',
       salespersonId: 'u-1',
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
@@ -84,12 +130,13 @@ describe('CreateProposal', () => {
       repo,
       checklistRepo,
       checklistConfig,
-      createMockPolicyRepo()
+      createMockPolicyRepo(),
+      createMockContactRepo()
     )
 
     await useCase.execute({
       organizationId: 'org-1',
-      clientId: 'c-1',
+      contactId: 'c-1',
       salespersonId: 'u-1',
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
@@ -114,12 +161,13 @@ describe('CreateProposal', () => {
       repo,
       checklistRepo,
       checklistConfig,
-      createMockPolicyRepo()
+      createMockPolicyRepo(),
+      createMockContactRepo()
     )
 
     await useCase.execute({
       organizationId: 'org-1',
-      clientId: 'c-1',
+      contactId: 'c-1',
       salespersonId: 'u-1',
       branch: 'LIFE',
       boardType: 'NEW_INSURANCE',
@@ -156,11 +204,15 @@ describe('CreateProposal', () => {
       salespersonName: 'Jainne',
       insurerName: 'Porto',
     })
+    const oldestContact = makeContact('contact-oldest', 'client-1')
+    const contactRepo = createMockContactRepo([oldestContact])
+
     const useCase = new CreateProposal(
       repo,
       checklistRepo,
       checklistConfig,
-      policyRepo
+      policyRepo,
+      contactRepo
     )
 
     const result = await useCase.execute({
@@ -173,12 +225,16 @@ describe('CreateProposal', () => {
     })
 
     expect(result.stage).toBe('QUOTE')
-    expect(result.clientId).toBe('client-1')
+    expect(result.contactId).toBe('contact-oldest')
     expect(result.branch).toBe('AUTO')
     expect(result.insurerId).toBe('ins-1')
     expect(result.sourcePolicySnapshot?.policyNumber).toBe('POL-001')
     expect(result.sourcePolicySnapshot?.insurerId).toBe('ins-1')
     expect(checklistConfig.getItems).toHaveBeenCalledWith('QUOTE', 'AUTO')
+    expect(contactRepo.findMany).toHaveBeenCalledWith(
+      { organizationId: 'org-1', clientId: 'client-1' },
+      { limit: 1, sortBy: 'createdAt', sortOrder: 'asc' }
+    )
   })
 
   it('rejects endorsement creation when source policy is not active', async () => {
@@ -204,7 +260,8 @@ describe('CreateProposal', () => {
         cancelReason: 'cancelada',
         createdAt: new Date(),
         updatedAt: new Date(),
-      })
+      }),
+      createMockContactRepo()
     )
 
     await expect(
@@ -219,6 +276,48 @@ describe('CreateProposal', () => {
     ).rejects.toThrow('A apólice de origem precisa estar em vigor')
   })
 
+  it('rejects endorsement creation when source policy client has no contact', async () => {
+    const policyRepo = createMockPolicyRepo({
+      id: 'pol-1',
+      organizationId: 'org-1',
+      proposalId: 'proposal-origin',
+      clientId: 'client-99',
+      salespersonId: 'user-2',
+      policyNumber: 'POL-001',
+      status: 'ACTIVE',
+      branch: 'AUTO',
+      premiumValueInCents: 250000,
+      coverageDetails: null,
+      startDate: new Date('2026-02-01T00:00:00.000Z'),
+      endDate: new Date('2027-02-01T00:00:00.000Z'),
+      cancelledAt: null,
+      cancelReason: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      insurerId: 'ins-1',
+    })
+    const contactRepo = createMockContactRepo([])
+
+    const useCase = new CreateProposal(
+      createMockRepo(),
+      createMockChecklistRepo(),
+      createMockChecklistConfig(),
+      policyRepo,
+      contactRepo
+    )
+
+    await expect(
+      useCase.execute({
+        organizationId: 'org-1',
+        salespersonId: 'user-1',
+        boardType: 'ENDORSEMENT',
+        sourcePolicyId: 'pol-1',
+        endorsementType: 'COVERAGE_CHANGE',
+        endorsementReason: 'Adicionar cobertura para vidros',
+      })
+    ).rejects.toThrow('não tem contato vinculado')
+  })
+
   it('sets quoteValidUntil to 15 days from creation', async () => {
     const repo = createMockRepo()
     const checklistRepo = createMockChecklistRepo()
@@ -227,12 +326,13 @@ describe('CreateProposal', () => {
       repo,
       checklistRepo,
       checklistConfig,
-      createMockPolicyRepo()
+      createMockPolicyRepo(),
+      createMockContactRepo()
     )
 
     const result = await useCase.execute({
       organizationId: 'org-1',
-      clientId: 'c-1',
+      contactId: 'c-1',
       salespersonId: 'u-1',
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
@@ -272,12 +372,13 @@ describe('CreateProposal', () => {
       createMockRepo(),
       createMockChecklistRepo(),
       createMockChecklistConfig(),
-      policyRepo
+      policyRepo,
+      createMockContactRepo()
     )
 
     const result = await useCase.execute({
       organizationId: 'org-1',
-      clientId: 'c-1',
+      contactId: 'c-1',
       salespersonId: 'u-1',
       branch: 'AUTO',
       boardType: 'RENEWAL',
@@ -300,12 +401,13 @@ describe('CreateProposal', () => {
       createMockRepo(),
       createMockChecklistRepo(),
       createMockChecklistConfig(),
-      policyRepo
+      policyRepo,
+      createMockContactRepo()
     )
 
     const result = await useCase.execute({
       organizationId: 'org-1',
-      clientId: 'c-1',
+      contactId: 'c-1',
       salespersonId: 'u-1',
       branch: 'AUTO',
       boardType: 'RENEWAL',
@@ -321,12 +423,13 @@ describe('CreateProposal', () => {
       createMockRepo(),
       createMockChecklistRepo(),
       createMockChecklistConfig(),
-      createMockPolicyRepo()
+      createMockPolicyRepo(),
+      createMockContactRepo()
     )
 
     const result = await useCase.execute({
       organizationId: 'org-1',
-      clientId: 'c-1',
+      contactId: 'c-1',
       salespersonId: 'u-1',
       branch: 'AUTO',
       boardType: 'RENEWAL',

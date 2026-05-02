@@ -1,11 +1,7 @@
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
 import { inject, injectable } from 'tsyringe'
-import type {
-  CursorPage,
-  Page,
-  SortOrder,
-} from '../../client/domain/client-repository.js'
+import type { CursorPage, Page, SortOrder } from '../../../shared/pagination.js'
 import type {
   CommissionData,
   CommissionFilters,
@@ -33,7 +29,7 @@ function buildOrderBy(
 const COMMISSION_INCLUDE = {
   salesperson: { select: { name: true } },
   policy: {
-    select: { policyNumber: true, client: { select: { name: true } } },
+    select: { policyNumber: true, client: { select: { legalName: true } } },
   },
 } satisfies Prisma.CommissionInclude
 

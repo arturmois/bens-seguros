@@ -1,65 +1,72 @@
+import 'reflect-metadata'
 import { describe, expect, it, vi } from 'vitest'
 import { ClientNotFoundError } from '../domain/client-errors.js'
 import type {
-  ClientData,
   ClientRepository,
+  ClientWithMetrics,
 } from '../domain/client-repository.js'
 import { GetClient } from './get-client.js'
 
-function makeClientData(overrides: Partial<ClientData> = {}): ClientData {
+function makeClientWithMetrics(
+  overrides: Partial<ClientWithMetrics> = {}
+): ClientWithMetrics {
   return {
     id: 'client-1',
     organizationId: 'org-1',
-    name: 'Maria Silva',
-    document: '12345678901',
+    legalName: 'Maria Silva',
+    document: '***.789-01',
+    documentHash: 'hash-test',
     personType: 'INDIVIDUAL',
-    type: 'CLIENT',
-    email: 'maria@test.com',
-    phone: '11999990000',
-    birthDate: null,
     profession: null,
     maritalStatus: null,
     address: null,
-    socialMedia: null,
-    tags: [],
-    consentLgpd: false,
-    salespersonId: null,
+    fiscalBirthDate: null,
     createdAt: new Date(),
     updatedAt: new Date(),
+    deletedAt: null,
+    activePolicyCount: 0,
+    totalPolicyCount: 0,
+    contactCount: 0,
     ...overrides,
   }
 }
 
-function createMockRepo(client: ClientData | null): ClientRepository {
+function makeRepo(client: ClientWithMetrics | null): ClientRepository {
   return {
-    create: vi.fn(),
-    findById: vi.fn().mockResolvedValue(client),
-    findByDocument: vi.fn(),
+    save: vi.fn(),
+    findById: vi.fn(),
+    findByIdWithMetrics: vi.fn().mockResolvedValue(client),
+    findByDocumentHash: vi.fn(),
     findMany: vi.fn(),
     update: vi.fn(),
     softDelete: vi.fn(),
+    lgpdAnonymize: vi.fn(),
   }
 }
 
 describe('GetClient', () => {
-  it('returns client when found', async () => {
-    const clientData = makeClientData()
-    const repo = createMockRepo(clientData)
+  it('returns client with metrics when found', async () => {
+    const clientData = makeClientWithMetrics({ activePolicyCount: 2 })
+    const repo = makeRepo(clientData)
     const useCase = new GetClient(repo)
 
-    const result = await useCase.execute('client-1', 'org-1')
+    const result = await useCase.execute({
+      id: 'client-1',
+      organizationId: 'org-1',
+    })
 
-    expect(repo.findById).toHaveBeenCalledWith('client-1', 'org-1')
+    expect(repo.findByIdWithMetrics).toHaveBeenCalledWith('client-1', 'org-1')
     expect(result.id).toBe('client-1')
-    expect(result.name).toBe('Maria Silva')
+    expect(result.legalName).toBe('Maria Silva')
+    expect(result.activePolicyCount).toBe(2)
   })
 
   it('throws ClientNotFoundError when client does not exist', async () => {
-    const repo = createMockRepo(null)
+    const repo = makeRepo(null)
     const useCase = new GetClient(repo)
 
-    await expect(useCase.execute('missing-id', 'org-1')).rejects.toThrow(
-      ClientNotFoundError
-    )
+    await expect(
+      useCase.execute({ id: 'missing-id', organizationId: 'org-1' })
+    ).rejects.toThrow(ClientNotFoundError)
   })
 })

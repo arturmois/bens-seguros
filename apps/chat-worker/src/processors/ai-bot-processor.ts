@@ -1,20 +1,27 @@
+import { generateWithTools } from '@repo/ai'
+import type { ContactSource } from '@repo/db'
+import {
+  AiAgent,
+  Channel,
+  type ChannelType,
+  Conversation,
+  Message,
+} from '@repo/db-chat'
+import { CHAT_PUBSUB_CHANNELS, CHAT_QUEUES } from '@repo/shared'
 import { type Job, type Queue } from 'bullmq'
 import pino from 'pino'
-import { generateWithTools } from '@repo/ai'
-import { AiAgent, Conversation, Message, Channel } from '@repo/db-chat'
-import { CHAT_PUBSUB_CHANNELS, CHAT_QUEUES } from '@repo/shared'
-import type { PubsubClient } from '../types/pubsub-client.js'
+import { createCaptureLeadTool } from '../tools/capture-lead.js'
+import { createCollectInsuredAssetDataTool } from '../tools/collect-insured-asset-data.js'
 import { createEscalateToHumanTool } from '../tools/escalate-to-human.js'
 import { createListProductsTool } from '../tools/list-products.js'
-import { createCaptureLeadTool } from '../tools/capture-lead.js'
-import { createSearchClientTool } from '../tools/search-client.js'
-import { createUpdateClientDataTool } from '../tools/update-client-data.js'
-import { createReportClaimTool } from '../tools/report-claim.js'
 import { createRegisterFinancialInquiryTool } from '../tools/register-financial-inquiry.js'
-import { createCollectInsuredAssetDataTool } from '../tools/collect-insured-asset-data.js'
-import { createSearchProposalTool } from '../tools/search-proposal.js'
+import { createReportClaimTool } from '../tools/report-claim.js'
+import { createSearchClientTool } from '../tools/search-client.js'
 import { createSearchPolicyTool } from '../tools/search-policy.js'
+import { createSearchProposalTool } from '../tools/search-proposal.js'
 import { MANDATORY_TOOLS } from '../tools/tool-registry.js'
+import { createUpdateClientDataTool } from '../tools/update-client-data.js'
+import type { PubsubClient } from '../types/pubsub-client.js'
 import {
   type AiBotJobData,
   ESCALATION_TOOL_NAME,
@@ -33,6 +40,29 @@ const DEFAULT_JOB_OPTIONS = {
   removeOnComplete: { age: 3600 },
   removeOnFail: { age: 86_400 },
 }
+
+function channelTypeToContactSource(channelType: ChannelType): ContactSource {
+  switch (channelType) {
+    case 'WEB_CHAT':
+      return 'CHAT_WIDGET'
+    case 'WHATSAPP':
+      return 'CHAT_WHATSAPP'
+    case 'MESSENGER':
+    case 'INSTAGRAM':
+      // TODO: introduce CHAT_MESSENGER / CHAT_INSTAGRAM enum values
+      // when Meta channels are wired into production.
+      logger.warn(
+        { channelType },
+        'Meta channel mapped to MANUAL source — CHAT_MESSENGER/CHAT_INSTAGRAM enum not yet wired'
+      )
+      return 'MANUAL'
+    default:
+      throw new Error(
+        `Unsupported channel type: ${channelType satisfies never}`
+      )
+  }
+}
+
 export function createAiBotProcessor(
   pubsubClient: PubsubClient,
   sendMessageQueue: Queue
@@ -137,7 +167,11 @@ export function createAiBotProcessor(
         pubsubClient
       ),
       listProducts: createListProductsTool(),
-      captureLead: createCaptureLeadTool(tenantId, contactPhone),
+      captureLead: createCaptureLeadTool(
+        tenantId,
+        contactPhone,
+        channelTypeToContactSource(channel.type)
+      ),
       searchClient: createSearchClientTool(tenantId),
       updateClientData: createUpdateClientDataTool(tenantId),
       reportClaim: createReportClaimTool(

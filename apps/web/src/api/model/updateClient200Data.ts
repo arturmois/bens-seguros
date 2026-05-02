@@ -7,31 +7,23 @@
 import type { UpdateClient200DataAddress } from './updateClient200DataAddress'
 import type { UpdateClient200DataMaritalStatus } from './updateClient200DataMaritalStatus'
 import type { UpdateClient200DataPersonType } from './updateClient200DataPersonType'
-import type { UpdateClient200DataSocialMedia } from './updateClient200DataSocialMedia'
-import type { UpdateClient200DataType } from './updateClient200DataType'
 
 export type UpdateClient200Data = {
   id: string
-  name: string
-  type: UpdateClient200DataType
-  personType: UpdateClient200DataPersonType
-  tags: string[]
+  organizationId: string
+  legalName: string
   document: string
+  personType: UpdateClient200DataPersonType
   /** @nullable */
-  email?: string | null
+  profession: string | null
   /** @nullable */
-  phone?: string | null
+  maritalStatus: UpdateClient200DataMaritalStatus
+  /** @nullable */
+  address: UpdateClient200DataAddress
+  /** @nullable */
+  fiscalBirthDate: string | null
   createdAt: string
-  /** @nullable */
-  socialMedia?: UpdateClient200DataSocialMedia
-  consentLgpd: boolean
   updatedAt: string
   /** @nullable */
-  birthDate?: string | null
-  /** @nullable */
-  profession?: string | null
-  /** @nullable */
-  maritalStatus?: UpdateClient200DataMaritalStatus
-  /** @nullable */
-  address?: UpdateClient200DataAddress
+  deletedAt: string | null
 }

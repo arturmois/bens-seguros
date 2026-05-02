@@ -14,10 +14,7 @@ import {
   TEST_ORG_ID,
   TEST_USER_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
-import {
-  makeOrganization,
-  makeMinimalClient,
-} from '../../../../__tests__/helpers/factories.js'
+import { makeOrganization } from '../../../../__tests__/helpers/factories.js'
 import { sendQuoteRoute } from '../send-quote.js'
 
 vi.mock('@react-pdf/renderer', async (importOriginal) => {
@@ -30,7 +27,7 @@ vi.mock('@react-pdf/renderer', async (importOriginal) => {
 
 vi.mock('@repo/db', () => {
   const mock = {
-    client: {
+    contact: {
       findFirst: vi.fn().mockResolvedValue({
         email: 'cliente@example.com',
         name: 'João Silva',
@@ -87,7 +84,7 @@ const makeProposal = () => {
   const base = {
     id: 'p-001',
     organizationId: TEST_ORG_ID,
-    clientId: 'c-001',
+    contactId: 'contact-001',
     salespersonId: TEST_USER_ID,
     stage: 'QUOTE',
     boardType: 'NEW_INSURANCE',
@@ -129,12 +126,10 @@ beforeEach(() => {
   )
   mockDocumentRepo.upsertByStorageKey.mockResolvedValue(undefined)
 
-  vi.mocked(prisma.client.findFirst).mockResolvedValue(
-    makeMinimalClient({
-      email: 'cliente@example.com',
-      name: 'João Silva',
-    }) as unknown as Awaited<ReturnType<typeof prisma.client.findFirst>>
-  )
+  vi.mocked(prisma.contact.findFirst).mockResolvedValue({
+    email: 'cliente@example.com',
+    name: 'João Silva',
+  } as unknown as Awaited<ReturnType<typeof prisma.contact.findFirst>>)
   vi.mocked(prisma.organization.findUnique).mockResolvedValue(
     makeOrganization() as unknown as Awaited<
       ReturnType<typeof prisma.organization.findUnique>

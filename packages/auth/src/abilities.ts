@@ -17,6 +17,7 @@ export type Subject =
   | 'all'
   | 'User'
   | 'Organization'
+  | 'Contact'
   | 'Client'
   | 'Proposal'
   | 'Policy'
@@ -34,6 +35,7 @@ export type Subject =
 export type AppAbility = MongoAbility<[Action, Subject]>
 
 const OPERATIONAL_SUBJECTS: Subject[] = [
+  'Contact',
   'Client',
   'Proposal',
   'Policy',
@@ -78,7 +80,7 @@ export function defineAbilitiesFor(role: Role): AppAbility {
       break
 
     case 'COMMERCIAL':
-      can(['create', 'read', 'update'], ['Client', 'Proposal'])
+      can(['create', 'read', 'update'], ['Contact', 'Client', 'Proposal'])
       can('read', ['Policy', 'Claim'])
       can(['read', 'approve'], 'Commission')
       can(['read', 'create'], 'Document')

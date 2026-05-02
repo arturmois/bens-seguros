@@ -1,4 +1,4 @@
-import type { CursorPage, Page } from '../../client/domain/client-repository.js'
+import type { CursorPage, Page } from '../../../shared/pagination.js'
 
 export type InsurerSortField = 'name' | 'code' | 'active' | 'updatedAt'
 

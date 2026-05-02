@@ -18,7 +18,9 @@ export function ClientExportButton({ filters }: ClientExportButtonProps) {
     mutationFn: async (f: ClientFilters) => {
       const params = new URLSearchParams()
       if (f.search) params.set('search', f.search)
-      if (f.type) params.set('type', f.type)
+      if (typeof f.hasActivePolicy === 'boolean') {
+        params.set('hasActivePolicy', String(f.hasActivePolicy))
+      }
       await downloadCsvBlob(
         `/api/v1/clients/export?${params.toString()}`,
         'clientes.csv'

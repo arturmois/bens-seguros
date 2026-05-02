@@ -1,11 +1,5 @@
+import { CHANNEL_TYPES } from '@repo/shared'
 import mongoose, { type InferSchemaType, Schema } from 'mongoose'
-
-const CONTACT_SOURCES = [
-  'WHATSAPP',
-  'WEB_CHAT',
-  'MESSENGER',
-  'INSTAGRAM',
-] as const
 
 const contactSchema = new Schema(
   {
@@ -15,10 +9,11 @@ const contactSchema = new Schema(
     email: String,
     facebookId: String,
     instagramId: String,
-    source: { type: String, enum: CONTACT_SOURCES, default: 'WHATSAPP' },
+    source: { type: String, enum: CHANNEL_TYPES, default: 'WHATSAPP' },
     pushName: String,
     profilePicUrl: String,
     clientId: String,
+    pgContactId: { type: String, default: null },
   },
   { timestamps: true }
 )

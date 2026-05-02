@@ -25,7 +25,7 @@ describe('ReopenProposal', () => {
   it('reopens a LOST proposal back to CAPTURE', async () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
-      clientId: 'client-1',
+      contactId: 'client-1',
       salespersonId: 'sp-1',
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
@@ -45,7 +45,7 @@ describe('ReopenProposal', () => {
   it('reopens a LOST endorsement proposal back to QUOTE', async () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
-      clientId: 'client-1',
+      contactId: 'client-1',
       salespersonId: 'sp-1',
       branch: 'AUTO',
       boardType: 'ENDORSEMENT',
@@ -77,7 +77,7 @@ describe('ReopenProposal', () => {
   it('throws when proposal is not LOST', async () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
-      clientId: 'client-1',
+      contactId: 'client-1',
       salespersonId: 'sp-1',
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',

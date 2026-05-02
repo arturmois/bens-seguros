@@ -86,6 +86,10 @@ export function useAdvanceProposal() {
       })
     },
     onError: (error: Error) => {
+      if (error instanceof ApiError && error.code === 'CONTACT_NOT_PROMOTED') {
+        // Caller handles this by opening PromoteContactDialog.
+        return
+      }
       const message =
         error instanceof ApiError ? error.message : 'Erro ao avançar estágio'
       toast.error(message)

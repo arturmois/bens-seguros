@@ -19,6 +19,9 @@ const mockTenantPrisma = {
   client: {
     findFirst: vi.fn(),
   },
+  contact: {
+    findFirst: vi.fn(),
+  },
   policy: {
     count: vi.fn(),
   },
@@ -33,13 +36,30 @@ vi.mock('@repo/db/tenant', () => ({
 
 let app: Awaited<ReturnType<typeof createTestApp>>
 
+const makeContactWithClient = (
+  overrides: Partial<Record<string, unknown>> = {}
+) => ({
+  id: 'contact-001',
+  organizationId: TEST_ORG_ID,
+  name: 'João Silva',
+  phone: '11999999999',
+  email: 'joao@example.com',
+  deletedAt: null,
+  client: {
+    id: 'client-001',
+    organizationId: TEST_ORG_ID,
+    legalName: 'João Silva',
+    document: '12345678901',
+    deletedAt: null,
+  },
+  ...overrides,
+})
+
 const makeClient = (overrides: Partial<Record<string, unknown>> = {}) => ({
   id: 'client-001',
   organizationId: TEST_ORG_ID,
-  name: 'João Silva',
-  type: 'CLIENT',
-  email: 'joao@example.com',
-  phone: '11999999999',
+  legalName: 'João Silva',
+  document: '12345678901',
   deletedAt: null,
   ...overrides,
 })
@@ -51,6 +71,7 @@ afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
+  mockTenantPrisma.contact.findFirst.mockResolvedValue(makeContactWithClient())
   mockTenantPrisma.client.findFirst.mockResolvedValue(makeClient())
   mockTenantPrisma.policy.count.mockResolvedValue(2)
   mockTenantPrisma.proposal.count.mockResolvedValue(1)
@@ -74,8 +95,8 @@ describe('GET /api/internal/clients/search', () => {
     expect(body.data.client?.openProposalsCount).toBe(1)
   })
 
-  it('returns found=false when client does not exist', async () => {
-    mockTenantPrisma.client.findFirst.mockResolvedValue(null)
+  it('returns found=false when contact does not exist by phone', async () => {
+    mockTenantPrisma.contact.findFirst.mockResolvedValue(null)
 
     const response = await injectAs(app, {
       method: 'GET',
@@ -102,6 +123,13 @@ describe('GET /api/internal/clients/search', () => {
   })
 
   it('searches by document hash when document is provided', async () => {
+    // For document path, the route calls client.findFirst first, then
+    // contact.findFirst (without `client` include) for email/phone.
+    mockTenantPrisma.contact.findFirst.mockResolvedValue({
+      email: 'joao@example.com',
+      phone: '11999999999',
+    })
+
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/internal/clients/search',

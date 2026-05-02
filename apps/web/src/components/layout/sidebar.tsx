@@ -10,15 +10,16 @@ import {
   AlertTriangle,
   Building2,
   ClipboardList,
+  Contact,
   DollarSign,
   FilePen,
   FileText,
+  IdCard,
   LayoutDashboard,
   LifeBuoy,
   MessageSquare,
   Settings,
   Shield,
-  Users,
   X,
 } from 'lucide-react'
 import Link from 'next/link'
@@ -39,9 +40,15 @@ const MAIN_NAV = [
     permission: null,
   },
   {
+    href: '/contacts',
+    label: 'Contatos',
+    icon: Contact,
+    permission: 'clients:read',
+  },
+  {
     href: '/clients',
     label: 'Clientes',
-    icon: Users,
+    icon: IdCard,
     permission: 'clients:read',
   },
   {

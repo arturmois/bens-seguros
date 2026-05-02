@@ -14,6 +14,7 @@ export interface ProposalFilters {
   organizationId: string
   stage?: Stage
   stages?: readonly Stage[]
+  contactId?: string
   clientId?: string
   salespersonId?: string
   boardType?: BoardType

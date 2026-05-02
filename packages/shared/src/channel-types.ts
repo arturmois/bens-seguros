@@ -15,14 +15,6 @@ export const BROKER_TYPES = [
 ] as const
 export type BrokerType = (typeof BROKER_TYPES)[number]
 
-export const CONTACT_SOURCES = [
-  'WHATSAPP',
-  'WEB_CHAT',
-  'MESSENGER',
-  'INSTAGRAM',
-] as const
-export type ContactSource = (typeof CONTACT_SOURCES)[number]
-
 export const CHANNEL_META: Record<
   ChannelType,
   { label: string; color: string }

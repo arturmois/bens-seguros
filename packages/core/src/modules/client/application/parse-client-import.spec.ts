@@ -6,12 +6,14 @@ import { ParseClientImport } from './parse-client-import.js'
 
 function createMockRepo(): ClientRepository {
   return {
-    create: vi.fn(),
+    save: vi.fn(),
     findById: vi.fn(),
+    findByIdWithMetrics: vi.fn(),
+    findByDocumentHash: vi.fn(),
     findMany: vi.fn(),
     update: vi.fn(),
     softDelete: vi.fn(),
-    findByDocument: vi.fn(),
+    lgpdAnonymize: vi.fn(),
   }
 }
 

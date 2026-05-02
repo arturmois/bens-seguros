@@ -5,16 +5,18 @@ export {
   ClientNotFoundError,
 } from './domain/client-errors.js'
 export type {
-  ClientAddress,
   ClientData,
   ClientFilters,
   ClientRepository,
   ClientSortField,
-  CreateClientInput,
+  ClientWithMetrics,
+  CreateClientPersistence,
   CursorPage,
+  MaritalStatus,
   Page,
+  PersonType,
   SortOrder,
-  UpdateClientInput,
+  UpdateClientPersistence,
 } from './domain/client-repository.js'
 
 // Application
@@ -24,7 +26,6 @@ export type {
   ClientListItem,
   PresenterContext,
 } from './application/client-presenter.js'
-export { CreateClient } from './application/create-client.js'
 export { DeleteClient } from './application/delete-client.js'
 export { LgpdDeleteClient } from './application/lgpd-delete-client.js'
 export { ExportClientsCsv } from './application/export-clients-csv.js'

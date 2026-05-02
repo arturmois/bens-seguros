@@ -8,6 +8,4 @@
 /**
  * @nullable
  */
-export type UpdateClient200DataAddress = {
-  [key: string]: unknown | string
-} | null
+export type UpdateClient200DataAddress = { [key: string]: unknown } | null

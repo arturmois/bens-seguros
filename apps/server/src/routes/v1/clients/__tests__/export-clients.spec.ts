@@ -111,11 +111,11 @@ describe('GET /api/v1/clients/export', () => {
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/clients/export',
-      query: { type: 'CLIENT', search: 'joao' },
+      query: { hasActivePolicy: 'true', search: 'joao' },
     })
 
     expect(mockGenerateCsvRows).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'CLIENT', search: 'joao' })
+      expect.objectContaining({ hasActivePolicy: true, search: 'joao' })
     )
   })
 })

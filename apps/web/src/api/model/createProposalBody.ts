@@ -8,7 +8,7 @@
 export type CreateProposalBody =
   | {
       /** @minLength 1 */
-      clientId: string
+      contactId: string
       branch:
         | 'AUTO'
         | 'RESIDENTIAL'

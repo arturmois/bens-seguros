@@ -7,7 +7,10 @@ import type { CommissionProps } from '../domain/commission-types.js'
 
 interface CommissionRelations {
   salesperson?: { name: string } | null
-  policy?: { policyNumber: string; client?: { name: string } | null } | null
+  policy?: {
+    policyNumber: string
+    client?: { legalName: string } | null
+  } | null
 }
 
 type CommissionWithRelations = PrismaCommissionRecord & CommissionRelations
@@ -37,7 +40,7 @@ export class CommissionMapper {
       updatedAt: row.updatedAt,
       salespersonName: row.salesperson?.name,
       policyNumber: row.policy?.policyNumber,
-      clientName: row.policy?.client?.name,
+      clientName: row.policy?.client?.legalName,
     }
   }
 

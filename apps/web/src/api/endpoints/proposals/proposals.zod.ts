@@ -49,6 +49,7 @@ export const ExportProposalsQueryParams = zod.object({
       )
     )
     .optional(),
+  contactId: zod.string().optional(),
   clientId: zod.string().optional(),
   salespersonId: zod.string().optional(),
   insurerId: zod.string().optional(),
@@ -141,7 +142,7 @@ export const UpdateProposalDatesResponse = zod.object({
   data: zod.object({
     id: zod.string(),
     organizationId: zod.string(),
-    clientId: zod.string(),
+    contactId: zod.string(),
     salespersonId: zod.string(),
     stage: zod.enum([
       'CAPTURE',
@@ -317,7 +318,7 @@ export const UpdateProposalDatesResponse = zod.object({
 
 export const CreateProposalBody = zod.union([
   zod.object({
-    clientId: zod.string().min(1),
+    contactId: zod.string().min(1),
     branch: zod.enum([
       'AUTO',
       'RESIDENTIAL',
@@ -382,6 +383,7 @@ export const ListProposalsQueryParams = zod.object({
       )
     )
     .optional(),
+  contactId: zod.string().optional(),
   clientId: zod.string().optional(),
   salespersonId: zod.string().optional(),
   insurerId: zod.string().optional(),
@@ -436,7 +438,7 @@ export const ListProposalsResponse = zod.object({
     zod.object({
       id: zod.string(),
       organizationId: zod.string(),
-      clientId: zod.string(),
+      contactId: zod.string(),
       salespersonId: zod.string(),
       stage: zod.enum([
         'CAPTURE',
@@ -646,7 +648,7 @@ export const GetProposalResponse = zod.object({
   data: zod.object({
     id: zod.string(),
     organizationId: zod.string(),
-    clientId: zod.string(),
+    contactId: zod.string(),
     salespersonId: zod.string(),
     stage: zod.enum([
       'CAPTURE',
@@ -846,7 +848,7 @@ export const AdvanceProposalResponse = zod.object({
   data: zod.object({
     id: zod.string(),
     organizationId: zod.string(),
-    clientId: zod.string(),
+    contactId: zod.string(),
     salespersonId: zod.string(),
     stage: zod.enum([
       'CAPTURE',
@@ -1050,7 +1052,7 @@ export const MarkProposalLostResponse = zod.object({
   data: zod.object({
     id: zod.string(),
     organizationId: zod.string(),
-    clientId: zod.string(),
+    contactId: zod.string(),
     salespersonId: zod.string(),
     stage: zod.enum([
       'CAPTURE',
@@ -1408,7 +1410,7 @@ export const UpdateProposalDetailsResponse = zod.object({
   data: zod.object({
     id: zod.string(),
     organizationId: zod.string(),
-    clientId: zod.string(),
+    contactId: zod.string(),
     salespersonId: zod.string(),
     stage: zod.enum([
       'CAPTURE',

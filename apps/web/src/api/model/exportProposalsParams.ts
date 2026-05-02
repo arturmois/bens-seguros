@@ -27,6 +27,7 @@ export type ExportProposalsParams = {
       | 'POLICY_ISSUED'
       | 'LOST'
     )[]
+  contactId?: string
   clientId?: string
   salespersonId?: string
   insurerId?: string

@@ -41,7 +41,7 @@ model User {
   policiesAsSalesperson    Policy[]   @relation("PolicySalesperson")
   claimsAssigned           Claim[]    @relation("ClaimAssignee")
   commissionsAsSalesperson Commission[] @relation("CommissionSalesperson")
-  clientsAsSalesperson     Client[]   @relation("ClientSalesperson")
+  contactsAsSalesperson    Contact[]  @relation("ContactSalesperson")
   notifications            Notification[]
 }
 
@@ -120,6 +120,8 @@ model Organization {
   members                Member[]
   invitations            Invitation[]
   proposalChecklistItems ProposalChecklistItem[]
+  clients                Client[]
+  contacts               Contact[]
 }
 
 model Member {
@@ -159,12 +161,6 @@ model Invitation {
 }
 
 // === ERP ENUMS ===
-
-enum ClientType {
-  LEAD
-  CLIENT
-  FORMER_CLIENT
-}
 
 enum PersonType {
   INDIVIDUAL
@@ -271,45 +267,77 @@ enum CommissionStatus {
 
 // === ERP MODELS ===
 
+enum ContactSource {
+  MANUAL
+  CHAT_WHATSAPP
+  CHAT_WIDGET
+  FORM_WEB
+  IMPORT
+  REFERRAL
+}
+
 model Client {
-  id                String         @id @default(cuid())
+  id                String     @id @default(cuid())
   organizationId    String
-  name              String
-  document          String         // Masked value (e.g. "***.***.789-01") for backward compat
-  documentEncrypted String         @default("") // AES-256-GCM JSON {ciphertext, iv, tag}
-  documentHash      String         @default("") // SHA-256 hex for uniqueness + lookup
-  type              ClientType     @default(LEAD)
-  personType        PersonType     @default(INDIVIDUAL)
-  email             String?
-  phone             String?
-  birthDate         DateTime?
+  legalName         String
+  personType        PersonType @default(INDIVIDUAL)
+  document          String
+  documentEncrypted String
+  documentHash      String
   profession        String?
   maritalStatus     MaritalStatus?
   address           Json?
-  tags              String[]       @default([])
-  socialMedia       Json?
-  consentLgpd       Boolean        @default(false)
-  salespersonId     String?
-  deletedAt         DateTime?
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
+  fiscalBirthDate   DateTime?
 
-  proposals   Proposal[]
-  policies    Policy[]
-  claims      Claim[]
-  assistances Assistance[]
-  salesperson User?          @relation("ClientSalesperson", fields: [salespersonId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  contacts     Contact[]
+  policies     Policy[]
+  claims       Claim[]
+  commissions  Commission[]
+  assistances  Assistance[]
 
   @@unique([organizationId, documentHash])
-  @@index([organizationId, type])
-  @@index([organizationId, createdAt(sort: Desc)])
+  @@index([organizationId, deletedAt])
+}
+
+model Contact {
+  id             String        @id @default(cuid())
+  organizationId String
+  name           String
+  phone          String?
+  email          String?
+  source         ContactSource @default(MANUAL)
+  salespersonId  String
+  clientId       String?
+  tags           String[]      @default([])
+  socialMedia    Json?
+  notes          String?
+  consentLgpd    Boolean       @default(false)
+  birthDate      DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  salesperson  User         @relation("ContactSalesperson", fields: [salespersonId], references: [id])
+  client       Client?      @relation(fields: [clientId], references: [id])
+  proposals    Proposal[]
+
   @@index([organizationId, salespersonId])
+  @@index([organizationId, clientId])
+  @@index([organizationId, phone])
+  @@index([organizationId, deletedAt])
 }
 
 model Proposal {
   id                          String            @id @default(cuid())
   organizationId              String
-  clientId                    String
+  contactId                   String
   salespersonId               String
   stage                       ProposalStage     @default(CAPTURE)
   boardType                   ProposalBoardType @default(NEW_INSURANCE)
@@ -334,7 +362,7 @@ model Proposal {
   createdAt                   DateTime          @default(now())
   updatedAt                   DateTime          @updatedAt
 
-  client        Client                @relation(fields: [clientId], references: [id])
+  contact       Contact               @relation(fields: [contactId], references: [id])
   salesperson   User                  @relation("ProposalSalesperson", fields: [salespersonId], references: [id])
   renewalPolicy Policy?               @relation("ProposalRenewal", fields: [renewalPolicyId], references: [id])
   sourcePolicy  Policy?               @relation("ProposalSourcePolicy", fields: [sourcePolicyId], references: [id])
@@ -343,7 +371,7 @@ model Proposal {
   checklistItems ProposalChecklistItem[]
 
   @@index([organizationId, stage])
-  @@index([organizationId, clientId])
+  @@index([organizationId, contactId])
   @@index([organizationId, salespersonId])
   @@index([organizationId, insurerId])
   @@index([organizationId, sourcePolicyId])
@@ -548,6 +576,7 @@ model Commission {
   id                      String           @id @default(cuid())
   organizationId          String
   policyId                String
+  clientId                String?
   salespersonId           String
   status                  CommissionStatus @default(PENDING_COMMERCIAL)
   commissionValueInCents  Int
@@ -567,6 +596,7 @@ model Commission {
   updatedAt               DateTime         @updatedAt
 
   policy             Policy       @relation(fields: [policyId], references: [id])
+  client             Client?      @relation(fields: [clientId], references: [id])
   salesperson        User         @relation("CommissionSalesperson", fields: [salespersonId], references: [id])
   originalCommission Commission?  @relation("CommissionReversal", fields: [originalCommissionId], references: [id])
   reversals          Commission[] @relation("CommissionReversal")
@@ -574,6 +604,7 @@ model Commission {
   @@index([organizationId, status])
   @@index([organizationId, salespersonId])
   @@index([organizationId, policyId])
+  @@index([organizationId, clientId])
   @@index([organizationId, createdAt(sort: Desc)])
 }
 

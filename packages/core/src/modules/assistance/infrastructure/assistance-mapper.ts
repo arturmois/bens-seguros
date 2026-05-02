@@ -3,7 +3,7 @@ import type { AssistanceData } from '../domain/assistance-repository.js'
 
 interface AssistanceRelations {
   policy?: { policyNumber: string } | null
-  client?: { name: string } | null
+  client?: { legalName: string } | null
 }
 
 type AssistanceWithRelations = PrismaAssistanceRecord & AssistanceRelations
@@ -30,7 +30,7 @@ export class AssistanceMapper {
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
       policyNumber: row.policy?.policyNumber,
-      clientName: row.client?.name,
+      clientName: row.client?.legalName,
     }
   }
 }

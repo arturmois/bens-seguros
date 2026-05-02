@@ -25,7 +25,7 @@ describe('UpdateProposalDetails', () => {
   it('updates proposal details', async () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
-      clientId: 'c-1',
+      contactId: 'c-1',
       salespersonId: 'u-1',
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
@@ -58,7 +58,7 @@ describe('UpdateProposalDetails', () => {
   it('throws InvalidStageTransitionError when proposal is LOST', async () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
-      clientId: 'c-1',
+      contactId: 'c-1',
       salespersonId: 'u-1',
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',

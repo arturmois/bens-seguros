@@ -14,6 +14,11 @@ import {
 const DOCUMENT_CPF_LENGTH = 11
 const DOCUMENT_CNPJ_LENGTH = 14
 
+interface ResolvedClient {
+  id: string
+  legalName: string
+}
+
 function isDocument(value: string): boolean {
   const digits = stripNonDigits(value)
   return (
@@ -93,7 +98,7 @@ export function createInternalClaimRoute(app: FastifyInstance) {
             dataSaved: true,
             claimData: {
               clientId: client.id,
-              clientName: client.name,
+              clientName: client.legalName,
               phoneOrDocument,
               description,
               incidentDate: incidentDate ?? null,
@@ -135,17 +140,25 @@ async function findClient(
   tenantPrisma: ReturnType<typeof createTenantClient>,
   organizationId: string,
   phoneOrDocument: string
-) {
-  const base = { organizationId, deletedAt: null }
+): Promise<ResolvedClient | null> {
+  const baseClient = { organizationId, deletedAt: null }
 
   if (isDocument(phoneOrDocument)) {
     const digits = stripNonDigits(phoneOrDocument)
-    return tenantPrisma.client.findFirst({
-      where: { ...base, documentHash: hashDocument(digits) },
+    const client = await tenantPrisma.client.findFirst({
+      where: { ...baseClient, documentHash: hashDocument(digits) },
+      select: { id: true, legalName: true },
     })
+    return client ?? null
   }
 
-  return tenantPrisma.client.findFirst({
-    where: { ...base, phone: phoneOrDocument },
+  // Phone lives on Contact (not Client) after the refactor. Look up the contact
+  // by phone, then return its linked client (if promoted).
+  const contact = await tenantPrisma.contact.findFirst({
+    where: { organizationId, phone: phoneOrDocument, deletedAt: null },
+    select: {
+      client: { select: { id: true, legalName: true } },
+    },
   })
+  return contact?.client ?? null
 }

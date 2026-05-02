@@ -4,11 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import {
-  createClient,
   deleteClient,
-  getGetClientQueryKey,
   getListClientsQueryKey,
-  updateClient,
   useGetClient,
   useListClients,
 } from '@/api/endpoints/clients/clients'
@@ -22,7 +19,7 @@ import type {
 
 import { extractErrorMessage } from '@/lib/extract-error-message'
 
-import type { ClientFilters, ClientFormValues } from '../lib/types'
+import type { ClientFilters } from '../lib/types'
 
 interface ClientsQueryData {
   readonly data: ListClients200DataItem[]
@@ -52,46 +49,6 @@ export function useClient(id: string) {
     query: {
       enabled: id.length > 0,
       select: (response) => response.data.data,
-    },
-  })
-}
-
-export function useCreateClient() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (values: ClientFormValues) => createClient(values),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: getListClientsQueryKey(),
-      })
-      toast.success('Cliente criado com sucesso')
-    },
-    onError: (error) => {
-      const message = extractErrorMessage(error, 'Erro ao criar cliente')
-      toast.error(message)
-    },
-  })
-}
-
-export function useUpdateClient() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({ id, values }: { id: string; values: ClientFormValues }) =>
-      updateClient(id, values),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: getListClientsQueryKey(),
-      })
-      queryClient.invalidateQueries({
-        queryKey: getGetClientQueryKey(variables.id),
-      })
-      toast.success('Cliente atualizado com sucesso')
-    },
-    onError: (error) => {
-      const message = extractErrorMessage(error, 'Erro ao atualizar cliente')
-      toast.error(message)
     },
   })
 }

@@ -7,101 +7,6 @@
 import * as zod from 'zod'
 
 /**
- * @summary Create a new client
- */
-export const createClientBodyNameMin = 2
-
-export const createClientBodyDocumentMin = 11
-export const createClientBodyDocumentMax = 14
-
-export const createClientBodyPersonTypeDefault = `INDIVIDUAL`
-
-export const CreateClientBody = zod.object({
-  name: zod.string().min(createClientBodyNameMin),
-  document: zod
-    .string()
-    .min(createClientBodyDocumentMin)
-    .max(createClientBodyDocumentMax),
-  personType: zod
-    .enum(['INDIVIDUAL', 'COMPANY'])
-    .default(createClientBodyPersonTypeDefault),
-  type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']).optional(),
-  email: zod.union([zod.enum(['']), zod.string().email()]).optional(),
-  phone: zod.union([zod.enum(['']), zod.string()]).optional(),
-  birthDate: zod.union([zod.enum(['']), zod.string().datetime({})]).optional(),
-  profession: zod.union([zod.enum(['']), zod.string()]).optional(),
-  maritalStatus: zod
-    .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
-    .optional(),
-  address: zod.record(zod.string(), zod.string()).optional(),
-  tags: zod.array(zod.string()).optional(),
-  consentLgpd: zod.boolean().optional(),
-  socialMedia: zod
-    .object({
-      instagram: zod.union([zod.enum(['']), zod.string()]).optional(),
-      facebook: zod.union([zod.enum(['']), zod.string()]).optional(),
-      linkedin: zod.union([zod.enum(['']), zod.string()]).optional(),
-      tiktok: zod.union([zod.enum(['']), zod.string()]).optional(),
-    })
-    .optional(),
-})
-
-/**
- * @summary List clients with cursor pagination
- */
-export const listClientsQueryLimitDefault = 20
-export const listClientsQueryLimitMax = 100
-
-export const listClientsQuerySortByDefault = `createdAt`
-export const listClientsQuerySortOrderDefault = `desc`
-
-export const ListClientsQueryParams = zod.object({
-  cursor: zod.string().optional(),
-  limit: zod
-    .number()
-    .min(1)
-    .max(listClientsQueryLimitMax)
-    .default(listClientsQueryLimitDefault),
-  type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']).optional(),
-  search: zod.string().optional(),
-  sortBy: zod
-    .enum(['name', 'document', 'type', 'createdAt'])
-    .default(listClientsQuerySortByDefault),
-  sortOrder: zod
-    .enum(['asc', 'desc'])
-    .default(listClientsQuerySortOrderDefault),
-})
-
-export const ListClientsResponse = zod.object({
-  success: zod.literal(true),
-  data: zod.array(
-    zod.object({
-      id: zod.string(),
-      name: zod.string(),
-      type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']),
-      personType: zod.enum(['INDIVIDUAL', 'COMPANY']),
-      tags: zod.array(zod.string()),
-      document: zod.string(),
-      email: zod.string().nullish(),
-      phone: zod.string().nullish(),
-      createdAt: zod.string().datetime({}),
-      socialMedia: zod
-        .object({
-          instagram: zod.union([zod.enum(['']), zod.string()]).optional(),
-          facebook: zod.union([zod.enum(['']), zod.string()]).optional(),
-          linkedin: zod.union([zod.enum(['']), zod.string()]).optional(),
-          tiktok: zod.union([zod.enum(['']), zod.string()]).optional(),
-        })
-        .nullish(),
-    })
-  ),
-  meta: zod.object({
-    total: zod.number().optional(),
-    nextCursor: zod.string().nullish(),
-  }),
-})
-
-/**
  * @summary Export clients as CSV
  */
 export const exportClientsQueryLimitDefault = 20
@@ -111,16 +16,16 @@ export const exportClientsQuerySortByDefault = `createdAt`
 export const exportClientsQuerySortOrderDefault = `desc`
 
 export const ExportClientsQueryParams = zod.object({
+  hasActivePolicy: zod.boolean().optional(),
+  search: zod.string().optional(),
   cursor: zod.string().optional(),
   limit: zod
     .number()
     .min(1)
     .max(exportClientsQueryLimitMax)
     .default(exportClientsQueryLimitDefault),
-  type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']).optional(),
-  search: zod.string().optional(),
   sortBy: zod
-    .enum(['name', 'document', 'type', 'createdAt'])
+    .enum(['createdAt', 'legalName'])
     .default(exportClientsQuerySortByDefault),
   sortOrder: zod
     .enum(['asc', 'desc'])
@@ -181,6 +86,61 @@ export const ImportStatusClientsResponse = zod.object({
 })
 
 /**
+ * @summary List clients with cursor pagination
+ */
+export const listClientsQueryLimitDefault = 20
+export const listClientsQueryLimitMax = 100
+
+export const listClientsQuerySortByDefault = `createdAt`
+export const listClientsQuerySortOrderDefault = `desc`
+
+export const ListClientsQueryParams = zod.object({
+  hasActivePolicy: zod.boolean().optional(),
+  search: zod.string().optional(),
+  cursor: zod.string().optional(),
+  limit: zod
+    .number()
+    .min(1)
+    .max(listClientsQueryLimitMax)
+    .default(listClientsQueryLimitDefault),
+  sortBy: zod
+    .enum(['createdAt', 'legalName'])
+    .default(listClientsQuerySortByDefault),
+  sortOrder: zod
+    .enum(['asc', 'desc'])
+    .default(listClientsQuerySortOrderDefault),
+})
+
+export const ListClientsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      organizationId: zod.string(),
+      legalName: zod.string(),
+      document: zod.string(),
+      personType: zod.enum(['INDIVIDUAL', 'COMPANY']),
+      profession: zod.string().nullable(),
+      maritalStatus: zod
+        .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
+        .nullable(),
+      address: zod.record(zod.string(), zod.unknown()).nullable(),
+      fiscalBirthDate: zod.string().datetime({}).nullable(),
+      createdAt: zod.string().datetime({}),
+      updatedAt: zod.string().datetime({}),
+      deletedAt: zod.string().datetime({}).nullable(),
+      activePolicyCount: zod.number(),
+      totalPolicyCount: zod.number(),
+      contactCount: zod.number(),
+    })
+  ),
+  meta: zod.object({
+    total: zod.number().optional(),
+    nextCursor: zod.string().nullish(),
+  }),
+})
+
+/**
  * @summary LGPD data anonymization — irreversible
  */
 
@@ -189,7 +149,7 @@ export const LgpdDeleteClientParams = zod.object({
 })
 
 /**
- * @summary Get a client by ID
+ * @summary Get a client by ID with metrics
  */
 
 export const GetClientParams = zod.object({
@@ -200,98 +160,61 @@ export const GetClientResponse = zod.object({
   success: zod.literal(true),
   data: zod.object({
     id: zod.string(),
-    name: zod.string(),
-    type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']),
-    personType: zod.enum(['INDIVIDUAL', 'COMPANY']),
-    tags: zod.array(zod.string()),
+    organizationId: zod.string(),
+    legalName: zod.string(),
     document: zod.string(),
-    email: zod.string().nullish(),
-    phone: zod.string().nullish(),
-    createdAt: zod.string().datetime({}),
-    socialMedia: zod
-      .object({
-        instagram: zod.union([zod.enum(['']), zod.string()]).optional(),
-        facebook: zod.union([zod.enum(['']), zod.string()]).optional(),
-        linkedin: zod.union([zod.enum(['']), zod.string()]).optional(),
-        tiktok: zod.union([zod.enum(['']), zod.string()]).optional(),
-      })
-      .nullish(),
-    consentLgpd: zod.boolean(),
-    updatedAt: zod.string().datetime({}),
-    birthDate: zod.string().datetime({}).nullish(),
-    profession: zod.string().nullish(),
+    personType: zod.enum(['INDIVIDUAL', 'COMPANY']),
+    profession: zod.string().nullable(),
     maritalStatus: zod
       .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
-      .nullish(),
-    address: zod
-      .record(zod.string(), zod.union([zod.unknown(), zod.string()]))
-      .nullish(),
+      .nullable(),
+    address: zod.record(zod.string(), zod.unknown()).nullable(),
+    fiscalBirthDate: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    deletedAt: zod.string().datetime({}).nullable(),
+    activePolicyCount: zod.number(),
+    totalPolicyCount: zod.number(),
+    contactCount: zod.number(),
   }),
 })
 
 /**
- * @summary Update a client
+ * @summary Update a client (fiscal data only)
  */
 
 export const UpdateClientParams = zod.object({
   id: zod.string().min(1),
 })
 
-export const updateClientBodyNameMin = 2
-
 export const UpdateClientBody = zod.object({
-  name: zod.string().min(updateClientBodyNameMin).optional(),
-  type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']).optional(),
-  email: zod.union([zod.enum(['']), zod.string().email()]).optional(),
-  phone: zod.union([zod.enum(['']), zod.string()]).optional(),
-  birthDate: zod.union([zod.enum(['']), zod.string().datetime({})]).optional(),
-  profession: zod.union([zod.enum(['']), zod.string()]).optional(),
+  legalName: zod.string().min(1).optional(),
+  personType: zod.enum(['INDIVIDUAL', 'COMPANY']).optional(),
+  profession: zod.string().nullish(),
   maritalStatus: zod
     .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
-    .optional(),
-  address: zod.record(zod.string(), zod.string()).optional(),
-  tags: zod.array(zod.string()).optional(),
-  consentLgpd: zod.boolean().optional(),
-  socialMedia: zod
-    .object({
-      instagram: zod.union([zod.enum(['']), zod.string()]).optional(),
-      facebook: zod.union([zod.enum(['']), zod.string()]).optional(),
-      linkedin: zod.union([zod.enum(['']), zod.string()]).optional(),
-      tiktok: zod.union([zod.enum(['']), zod.string()]).optional(),
-    })
-    .optional(),
+    .nullish(),
+  address: zod.record(zod.string(), zod.unknown()).nullish(),
+  fiscalBirthDate: zod.string().datetime({}).nullish(),
 })
 
 export const UpdateClientResponse = zod.object({
   success: zod.literal(true),
   data: zod.object({
     id: zod.string(),
-    name: zod.string(),
-    type: zod.enum(['LEAD', 'CLIENT', 'FORMER_CLIENT']),
-    personType: zod.enum(['INDIVIDUAL', 'COMPANY']),
-    tags: zod.array(zod.string()),
+    organizationId: zod.string(),
+    legalName: zod.string(),
     document: zod.string(),
-    email: zod.string().nullish(),
-    phone: zod.string().nullish(),
-    createdAt: zod.string().datetime({}),
-    socialMedia: zod
-      .object({
-        instagram: zod.union([zod.enum(['']), zod.string()]).optional(),
-        facebook: zod.union([zod.enum(['']), zod.string()]).optional(),
-        linkedin: zod.union([zod.enum(['']), zod.string()]).optional(),
-        tiktok: zod.union([zod.enum(['']), zod.string()]).optional(),
-      })
-      .nullish(),
-    consentLgpd: zod.boolean(),
-    updatedAt: zod.string().datetime({}),
-    birthDate: zod.string().datetime({}).nullish(),
-    profession: zod.string().nullish(),
+    personType: zod.enum(['INDIVIDUAL', 'COMPANY']),
+    profession: zod.string().nullable(),
     maritalStatus: zod
       .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
-      .nullish(),
-    address: zod
-      .record(zod.string(), zod.union([zod.unknown(), zod.string()]))
-      .nullish(),
+      .nullable(),
+    address: zod.record(zod.string(), zod.unknown()).nullable(),
+    fiscalBirthDate: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    deletedAt: zod.string().datetime({}).nullable(),
   }),
 })
 

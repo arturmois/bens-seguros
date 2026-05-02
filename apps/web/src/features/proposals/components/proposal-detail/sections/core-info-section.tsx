@@ -27,8 +27,8 @@ export function CoreInfoSection({
     <>
       <div className="grid gap-4 sm:grid-cols-2">
         <InfoItem
-          label="Cliente"
-          value={proposal.clientName ?? proposal.clientId}
+          label="Contato"
+          value={proposal.clientName ?? proposal.contactId}
         />
         <InfoItem
           label="Vendedor"

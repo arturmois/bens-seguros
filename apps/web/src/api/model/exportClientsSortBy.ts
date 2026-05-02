@@ -9,8 +9,6 @@ export type ExportClientsSortBy =
   (typeof ExportClientsSortBy)[keyof typeof ExportClientsSortBy]
 
 export const ExportClientsSortBy = {
-  name: 'name',
-  document: 'document',
-  type: 'type',
   createdAt: 'createdAt',
+  legalName: 'legalName',
 } as const

@@ -2,11 +2,7 @@ import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
 import type { Redis } from 'ioredis'
 import { inject, injectable } from 'tsyringe'
-import type {
-  CursorPage,
-  Page,
-  SortOrder,
-} from '../../client/domain/client-repository.js'
+import type { CursorPage, Page, SortOrder } from '../../../shared/pagination.js'
 import type {
   ClaimData,
   ClaimFilters,
@@ -28,7 +24,7 @@ function buildOrderBy(
 
 const CLAIM_INCLUDE = {
   policy: { select: { policyNumber: true } },
-  client: { select: { name: true } },
+  client: { select: { legalName: true } },
   insurer: { select: { name: true } },
   assignedTo: { select: { name: true } },
 } satisfies Prisma.ClaimInclude

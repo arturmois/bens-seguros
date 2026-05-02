@@ -89,7 +89,7 @@ describe('PUT /api/internal/clients/:id', () => {
     expect(body.error.code).toBe('INVALID_DOCUMENT')
   })
 
-  it('upgrades client type from LEAD to CLIENT when valid document is provided', async () => {
+  it('persists fiscal document fields when a valid document is provided', async () => {
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/internal/clients/client-001',
@@ -99,7 +99,11 @@ describe('PUT /api/internal/clients/:id', () => {
     expect(response.statusCode).toBe(200)
     expect(mockTenantPrisma.client.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ type: 'CLIENT' }),
+        data: expect.objectContaining({
+          document: expect.any(String),
+          documentHash: expect.any(String),
+          documentEncrypted: expect.any(String),
+        }),
       })
     )
   })

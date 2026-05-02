@@ -27,6 +27,11 @@ import type {
   CreateLead201,
   CreateLead400,
   CreateLeadBody,
+  InternalPromoteContact200,
+  InternalPromoteContact400,
+  InternalPromoteContact404,
+  InternalPromoteContact409,
+  InternalPromoteContactBody,
   ListInternalPolicies200,
   ListInternalPolicies400,
   ListInternalPoliciesParams,
@@ -51,7 +56,7 @@ import { customFetch } from '../../../lib/api-mutator'
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
 
 /**
- * @summary Create a lead from chat conversation
+ * @summary Create a lead (Contact + Proposal) from chat conversation
  */
 export type createLeadResponse201 = {
   data: CreateLead201
@@ -135,7 +140,7 @@ export type CreateLeadMutationBody = CreateLeadBody
 export type CreateLeadMutationError = CreateLead400
 
 /**
- * @summary Create a lead from chat conversation
+ * @summary Create a lead (Contact + Proposal) from chat conversation
  */
 export const useCreateLead = <TError = CreateLead400, TContext = unknown>(
   options?: {
@@ -361,7 +366,7 @@ export const prefetchSearchClientsQuery = async <
 }
 
 /**
- * @summary Update client data from chat conversation
+ * @summary Update client fiscal data from chat conversation
  */
 export type updateClientInternalResponse200 = {
   data: UpdateClientInternal200
@@ -460,7 +465,7 @@ export type UpdateClientInternalMutationError =
   | UpdateClientInternal404
 
 /**
- * @summary Update client data from chat conversation
+ * @summary Update client fiscal data from chat conversation
  */
 export const useUpdateClientInternal = <
   TError = UpdateClientInternal400 | UpdateClientInternal404,
@@ -1204,6 +1209,146 @@ export const useUpdateInternalProposalDetails = <
 > => {
   return useMutation(
     getUpdateInternalProposalDetailsMutationOptions(options),
+    queryClient
+  )
+}
+/**
+ * @summary Promote contact to client (chat-worker entrypoint)
+ */
+export type internalPromoteContactResponse200 = {
+  data: InternalPromoteContact200
+  status: 200
+}
+
+export type internalPromoteContactResponse400 = {
+  data: InternalPromoteContact400
+  status: 400
+}
+
+export type internalPromoteContactResponse404 = {
+  data: InternalPromoteContact404
+  status: 404
+}
+
+export type internalPromoteContactResponse409 = {
+  data: InternalPromoteContact409
+  status: 409
+}
+
+export type internalPromoteContactResponseSuccess =
+  internalPromoteContactResponse200 & {
+    headers: Headers
+  }
+export type internalPromoteContactResponseError = (
+  | internalPromoteContactResponse400
+  | internalPromoteContactResponse404
+  | internalPromoteContactResponse409
+) & {
+  headers: Headers
+}
+
+export type internalPromoteContactResponse =
+  | internalPromoteContactResponseSuccess
+  | internalPromoteContactResponseError
+
+export const getInternalPromoteContactUrl = (id: string) => {
+  return `/api/internal/contacts/${id}/promote`
+}
+
+export const internalPromoteContact = async (
+  id: string,
+  internalPromoteContactBody: InternalPromoteContactBody,
+  options?: RequestInit
+): Promise<internalPromoteContactResponse> => {
+  return customFetch<internalPromoteContactResponse>(
+    getInternalPromoteContactUrl(id),
+    {
+      ...options,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...options?.headers },
+      body: JSON.stringify(internalPromoteContactBody),
+    }
+  )
+}
+
+export const getInternalPromoteContactMutationOptions = <
+  TError =
+    | InternalPromoteContact400
+    | InternalPromoteContact404
+    | InternalPromoteContact409,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof internalPromoteContact>>,
+    TError,
+    { id: string; data: InternalPromoteContactBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customFetch>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof internalPromoteContact>>,
+  TError,
+  { id: string; data: InternalPromoteContactBody },
+  TContext
+> => {
+  const mutationKey = ['internalPromoteContact']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof internalPromoteContact>>,
+    { id: string; data: InternalPromoteContactBody }
+  > = (props) => {
+    const { id, data } = props ?? {}
+
+    return internalPromoteContact(id, data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type InternalPromoteContactMutationResult = NonNullable<
+  Awaited<ReturnType<typeof internalPromoteContact>>
+>
+export type InternalPromoteContactMutationBody = InternalPromoteContactBody
+export type InternalPromoteContactMutationError =
+  | InternalPromoteContact400
+  | InternalPromoteContact404
+  | InternalPromoteContact409
+
+/**
+ * @summary Promote contact to client (chat-worker entrypoint)
+ */
+export const useInternalPromoteContact = <
+  TError =
+    | InternalPromoteContact400
+    | InternalPromoteContact404
+    | InternalPromoteContact409,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof internalPromoteContact>>,
+      TError,
+      { id: string; data: InternalPromoteContactBody },
+      TContext
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof internalPromoteContact>>,
+  TError,
+  { id: string; data: InternalPromoteContactBody },
+  TContext
+> => {
+  return useMutation(
+    getInternalPromoteContactMutationOptions(options),
     queryClient
   )
 }

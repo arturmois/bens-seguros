@@ -7,7 +7,7 @@
 import * as zod from 'zod'
 
 /**
- * @summary Create a lead from chat conversation
+ * @summary Create a lead (Contact + Proposal) from chat conversation
  */
 
 export const CreateLeadBody = zod.object({
@@ -46,7 +46,7 @@ export const SearchClientsResponse = zod.object({
 })
 
 /**
- * @summary Update client data from chat conversation
+ * @summary Update client fiscal data from chat conversation
  */
 
 export const UpdateClientInternalParams = zod.object({
@@ -204,5 +204,28 @@ export const UpdateInternalProposalDetailsResponse = zod.object({
   data: zod.object({
     success: zod.boolean(),
     message: zod.string(),
+  }),
+})
+
+/**
+ * @summary Promote contact to client (chat-worker entrypoint)
+ */
+
+export const InternalPromoteContactParams = zod.object({
+  id: zod.string().min(1),
+})
+
+export const internalPromoteContactBodyDocumentMin = 11
+
+export const InternalPromoteContactBody = zod.object({
+  document: zod.string().min(internalPromoteContactBodyDocumentMin),
+  legalName: zod.string().optional(),
+  personType: zod.enum(['INDIVIDUAL', 'COMPANY']).optional(),
+})
+
+export const InternalPromoteContactResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    clientId: zod.string(),
   }),
 })

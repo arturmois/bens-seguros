@@ -3,12 +3,18 @@ import { z } from 'zod'
 import pino from 'pino'
 import { env } from '@repo/env'
 import { signRequest } from '@repo/shared'
+import type { ContactSource } from '@repo/db'
+import { Contact } from '@repo/db-chat'
 
 const logger = pino({ name: 'capture-lead-tool' })
 
 const FETCH_TIMEOUT_MS = 10_000
 
-export function createCaptureLeadTool(tenantId: string, contactPhone: string) {
+export function createCaptureLeadTool(
+  tenantId: string,
+  contactPhone: string,
+  source: ContactSource
+) {
   return tool({
     description:
       'Registra interesse do cliente em um seguro e cria uma proposta no sistema. Use quando o cliente demonstrar interesse em cotar ou contratar um seguro.',
@@ -31,7 +37,7 @@ export function createCaptureLeadTool(tenantId: string, contactPhone: string) {
         return {
           success: false,
           message:
-            'Captacao de lead indisponivel no momento. Um atendente vai ajudar.',
+            'Captação de lead indisponível no momento. Um atendente vai ajudá-lo em breve.',
         }
       }
 
@@ -41,7 +47,7 @@ export function createCaptureLeadTool(tenantId: string, contactPhone: string) {
           clientPhone: contactPhone,
           insuranceType,
           notes: details ?? '',
-          source: 'WHATSAPP_BOT',
+          source,
         })
 
         const path = '/api/internal/leads'
@@ -82,16 +88,35 @@ export function createCaptureLeadTool(tenantId: string, contactPhone: string) {
         const json: unknown = await response.json()
 
         let proposalId: string | null = null
+        let contactId: string | null = null
         if (
           typeof json === 'object' &&
           json !== null &&
           'data' in json &&
           typeof json.data === 'object' &&
-          json.data !== null &&
-          'proposalId' in json.data &&
-          typeof json.data.proposalId === 'string'
+          json.data !== null
         ) {
-          proposalId = json.data.proposalId
+          const data = json.data
+          if ('proposalId' in data && typeof data.proposalId === 'string') {
+            proposalId = data.proposalId
+          }
+          if ('contactId' in data && typeof data.contactId === 'string') {
+            contactId = data.contactId
+          }
+        }
+
+        if (contactId) {
+          try {
+            await Contact.updateOne(
+              { tenantId, whatsappPhone: contactPhone },
+              { $set: { pgContactId: contactId } }
+            )
+          } catch (mongoErr: unknown) {
+            logger.warn(
+              { err: mongoErr, tenantId, contactId },
+              'Failed to persist pgContactId on MongoDB Contact'
+            )
+          }
         }
 
         return {

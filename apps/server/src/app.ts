@@ -40,6 +40,7 @@ import { chatTokenRoute } from './routes/v1/chat/index.js'
 import { claimRoutes } from './routes/v1/claims/index.js'
 import { clientRoutes } from './routes/v1/clients/index.js'
 import { commissionRoutes } from './routes/v1/commissions/index.js'
+import { contactRoutes } from './routes/v1/contacts/index.js'
 import { documentRoutes } from './routes/v1/documents/index.js'
 import { endorsementRoutes } from './routes/v1/endorsements/index.js'
 import { insurerRoutes } from './routes/v1/insurers/index.js'
@@ -53,6 +54,7 @@ import { proposalRoutes } from './routes/v1/proposals/index.js'
 import { searchRoutes } from './routes/v1/search/index.js'
 import { termsRoutes } from './routes/terms/index.js'
 import { statsRoutes } from './routes/v1/stats/index.js'
+import { internalContactRoutes } from './routes/internal/contacts/index.js'
 import { internalLeadRoutes } from './routes/internal/leads/index.js'
 import { tenantRoutes } from './routes/v1/tenants/index.js'
 
@@ -353,6 +355,7 @@ export async function buildApp() {
     authenticatedApp.addHook('preHandler', authMiddleware)
     await authenticatedApp.register(tenantRoutes)
     await authenticatedApp.register(clientRoutes)
+    await authenticatedApp.register(contactRoutes)
     await authenticatedApp.register(proposalRoutes)
     await authenticatedApp.register(policyRoutes)
     await authenticatedApp.register(claimRoutes)
@@ -394,6 +397,7 @@ export async function buildApp() {
       }),
     })
     await internalApp.register(internalLeadRoutes)
+    await internalApp.register(internalContactRoutes)
   })
 
   // Bull Board (owner-only, inside authenticated + tenant scope)

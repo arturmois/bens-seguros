@@ -32,9 +32,8 @@ describe('ListEndorsements', () => {
   it('returns paginated endorsements', async () => {
     const repo = createMockRepo()
     vi.mocked(repo.findMany).mockResolvedValue({
-      data: [mockEndorsement],
+      items: [mockEndorsement],
       nextCursor: null,
-      hasMore: false,
     })
     const useCase = new ListEndorsements(repo)
 
@@ -42,16 +41,15 @@ describe('ListEndorsements', () => {
     const result = await useCase.execute(filters, { limit: 20 })
 
     expect(repo.findMany).toHaveBeenCalledWith(filters, { limit: 20 })
-    expect(result.data).toHaveLength(1)
-    expect(result.data[0].id).toBe('end-1')
+    expect(result.items).toHaveLength(1)
+    expect(result.items[0]?.id).toBe('end-1')
   })
 
   it('passes policyId filter to repository', async () => {
     const repo = createMockRepo()
     vi.mocked(repo.findMany).mockResolvedValue({
-      data: [],
+      items: [],
       nextCursor: null,
-      hasMore: false,
     })
     const useCase = new ListEndorsements(repo)
 
@@ -70,9 +68,8 @@ describe('ListEndorsements', () => {
   it('returns empty list without error', async () => {
     const repo = createMockRepo()
     vi.mocked(repo.findMany).mockResolvedValue({
-      data: [],
+      items: [],
       nextCursor: null,
-      hasMore: false,
     })
     const useCase = new ListEndorsements(repo)
 
@@ -81,7 +78,7 @@ describe('ListEndorsements', () => {
       { limit: 20 }
     )
 
-    expect(result.data).toHaveLength(0)
-    expect(result.hasMore).toBe(false)
+    expect(result.items).toHaveLength(0)
+    expect(result.nextCursor).toBeNull()
   })
 })

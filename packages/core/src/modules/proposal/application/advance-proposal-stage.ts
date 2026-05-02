@@ -3,6 +3,7 @@ import type { Proposal } from '../domain/proposal.js'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
 import type { ChecklistRepository } from '../domain/checklist-repository.js'
 import type { ChecklistConfigProvider } from '../domain/checklist-config.js'
+import type { ContactRepository } from '../../contact/domain/contact-repository.js'
 import { ProposalErrors } from '../domain/proposal-errors.js'
 
 @injectable()
@@ -13,7 +14,9 @@ export class AdvanceProposalStage {
     @inject('ChecklistRepository')
     private readonly checklistRepo: ChecklistRepository,
     @inject('ChecklistConfigProvider')
-    private readonly checklistConfig: ChecklistConfigProvider
+    private readonly checklistConfig: ChecklistConfigProvider,
+    @inject('ContactRepository')
+    private readonly contactRepo: ContactRepository
   ) {}
 
   async execute(proposalId: string, organizationId: string): Promise<Proposal> {
@@ -39,6 +42,10 @@ export class AdvanceProposalStage {
       }
     }
 
+    if (proposal.stage === 'PAYMENT') {
+      await this.assertContactIsPromoted(proposal.contactId, organizationId)
+    }
+
     proposal.advance()
     await this.proposalRepo.save(proposal)
 
@@ -61,5 +68,15 @@ export class AdvanceProposalStage {
     }
 
     return proposal
+  }
+
+  private async assertContactIsPromoted(
+    contactId: string,
+    organizationId: string
+  ): Promise<void> {
+    const contact = await this.contactRepo.findById(contactId, organizationId)
+    if (!contact?.clientId) {
+      throw ProposalErrors.contactNotPromoted()
+    }
   }
 }

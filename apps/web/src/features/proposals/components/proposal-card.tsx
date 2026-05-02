@@ -36,7 +36,7 @@ export function ProposalCard({
       onClick={goToDetail}
       role="button"
       tabIndex={0}
-      aria-label={`Abrir proposta de ${proposal.clientName ?? proposal.clientId}`}
+      aria-label={`Abrir proposta de ${proposal.clientName ?? proposal.contactId}`}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
@@ -47,7 +47,7 @@ export function ProposalCard({
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="truncate font-medium">
-            {proposal.clientName ?? proposal.clientId}
+            {proposal.clientName ?? proposal.contactId}
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-1">
             <Badge variant="outline">{BRANCH_LABELS[proposal.branch]}</Badge>

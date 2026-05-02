@@ -26,7 +26,7 @@ let app: Awaited<ReturnType<typeof createTestApp>>
 const makeProposal = (overrides: Partial<Record<string, unknown>> = {}) => ({
   id: 'p-001',
   organizationId: TEST_ORG_ID,
-  clientId: 'c-001',
+  contactId: 'contact-001',
   salespersonId: TEST_USER_ID,
   stage: 'CAPTURE',
   boardType: 'NEW_INSURANCE',
@@ -73,7 +73,7 @@ describe('POST /api/v1/proposals', () => {
       url: '/api/v1/proposals',
       payload: {
         boardType: 'NEW_INSURANCE',
-        clientId: 'c-001',
+        contactId: 'contact-001',
         branch: 'AUTO',
       },
     })
@@ -91,7 +91,7 @@ describe('POST /api/v1/proposals', () => {
       url: '/api/v1/proposals',
       payload: {
         boardType: 'NEW_INSURANCE',
-        clientId: 'c-001',
+        contactId: 'contact-001',
         branch: 'AUTO',
       },
     })

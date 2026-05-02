@@ -6,59 +6,43 @@ function makeClient(overrides: Partial<ClientData> = {}): ClientData {
   return {
     id: 'client-1',
     organizationId: 'org-1',
-    name: 'Maria Silva',
+    legalName: 'Maria Silva',
     document: '12345678901',
+    documentHash: 'hash-test',
     personType: 'INDIVIDUAL',
-    type: 'CLIENT',
-    email: 'maria@test.com',
-    phone: '11999990000',
-    birthDate: new Date('1990-01-15'),
     profession: 'Engenheira',
     maritalStatus: 'SINGLE',
     address: { street: 'Rua A', city: 'SP', state: 'SP', zip: '01000000' },
-    socialMedia: null,
-    tags: ['vip'],
-    consentLgpd: true,
-    salespersonId: 'user-sales-1',
+    fiscalBirthDate: new Date('1990-01-15'),
     createdAt: new Date(),
     updatedAt: new Date(),
+    deletedAt: null,
     ...overrides,
   }
 }
 
 describe('ClientPresenter.toList', () => {
-  it('masks the document and includes contact info', () => {
+  it('masks the document and exposes fiscal-only fields', () => {
     const client = makeClient()
     const result = ClientPresenter.toList(client)
 
     expect(result.document).toBe('***.***.789-01')
-    expect(result.email).toBe('maria@test.com')
-    expect(result.phone).toBe('11999990000')
+    expect(result.legalName).toBe('Maria Silva')
+    expect(result).not.toHaveProperty('email')
+    expect(result).not.toHaveProperty('phone')
     expect(result).not.toHaveProperty('address')
-    expect(result).not.toHaveProperty('birthDate')
     expect(result).not.toHaveProperty('profession')
     expect(result).not.toHaveProperty('maritalStatus')
     expect(result).not.toHaveProperty('documentEncrypted')
     expect(result).not.toHaveProperty('documentHash')
   })
 
-  it('includes only id, name, type, tags, document, createdAt, socialMedia', () => {
+  it('includes only id, legalName, personType, document, createdAt', () => {
     const client = makeClient()
     const result = ClientPresenter.toList(client)
 
     expect(Object.keys(result).sort()).toEqual(
-      [
-        'id',
-        'name',
-        'type',
-        'personType',
-        'tags',
-        'document',
-        'email',
-        'phone',
-        'createdAt',
-        'socialMedia',
-      ].sort()
+      ['id', 'legalName', 'personType', 'document', 'createdAt'].sort()
     )
   })
 
@@ -81,7 +65,7 @@ describe('ClientPresenter.toList', () => {
 })
 
 describe('ClientPresenter.toDetail', () => {
-  it('shows full document for OWNER role', () => {
+  it('shows full document and fiscal fields for OWNER role', () => {
     const client = makeClient()
     const result = ClientPresenter.toDetail(client, {
       role: 'OWNER',
@@ -89,8 +73,9 @@ describe('ClientPresenter.toDetail', () => {
     })
 
     expect(result.document).toBe('12345678901')
-    expect(result.email).toBe('maria@test.com')
-    expect(result.phone).toBe('11999990000')
+    expect(result.profession).toBe('Engenheira')
+    expect(result.fiscalBirthDate).toBeInstanceOf(Date)
+    expect(result.address).toBeDefined()
   })
 
   it('shows full document for ADMIN role', () => {
@@ -113,56 +98,30 @@ describe('ClientPresenter.toDetail', () => {
     expect(result.document).toBe('12345678901')
   })
 
-  it('shows full document for COMMERCIAL viewing own client', () => {
-    const client = makeClient({ salespersonId: 'user-sales-1' })
-    const result = ClientPresenter.toDetail(client, {
-      role: 'COMMERCIAL',
-      userId: 'user-sales-1',
-    })
-
-    expect(result.document).toBe('12345678901')
-    expect(result.email).toBe('maria@test.com')
-    expect(result.phone).toBe('11999990000')
-    expect(result.birthDate).toBeInstanceOf(Date)
-    expect(result.address).toBeDefined()
-  })
-
-  it('masks document for COMMERCIAL viewing another salesperson client', () => {
-    const client = makeClient({ salespersonId: 'user-sales-other' })
+  it('masks document for COMMERCIAL', () => {
+    const client = makeClient()
     const result = ClientPresenter.toDetail(client, {
       role: 'COMMERCIAL',
       userId: 'user-sales-1',
     })
 
     expect(result.document).toBe('***.***.789-01')
-    expect(result).not.toHaveProperty('email')
-    expect(result).not.toHaveProperty('phone')
+    expect(result).not.toHaveProperty('profession')
     expect(result).not.toHaveProperty('address')
-    expect(result).not.toHaveProperty('birthDate')
+    expect(result).not.toHaveProperty('fiscalBirthDate')
   })
 
-  it('masks document for COMMERCIAL when client has no salesperson', () => {
-    const client = makeClient({ salespersonId: null })
-    const result = ClientPresenter.toDetail(client, {
-      role: 'COMMERCIAL',
-      userId: 'user-sales-1',
-    })
-
-    expect(result.document).toBe('***.***.789-01')
-  })
-
-  it('masks document for VIEWER regardless', () => {
-    const client = makeClient({ salespersonId: 'user-sales-1' })
+  it('masks document for VIEWER', () => {
+    const client = makeClient()
     const result = ClientPresenter.toDetail(client, {
       role: 'VIEWER',
-      userId: 'user-sales-1',
+      userId: 'user-1',
     })
 
     expect(result.document).toBe('***.***.789-01')
-    expect(result).not.toHaveProperty('email')
-    expect(result).not.toHaveProperty('phone')
+    expect(result).not.toHaveProperty('profession')
     expect(result).not.toHaveProperty('address')
-    expect(result).not.toHaveProperty('birthDate')
+    expect(result).not.toHaveProperty('fiscalBirthDate')
   })
 
   it('never includes organizationId in response', () => {
@@ -173,16 +132,6 @@ describe('ClientPresenter.toDetail', () => {
     })
 
     expect(result).not.toHaveProperty('organizationId')
-  })
-
-  it('never includes salespersonId in response', () => {
-    const client = makeClient()
-    const result = ClientPresenter.toDetail(client, {
-      role: 'OWNER',
-      userId: 'user-1',
-    })
-
-    expect(result).not.toHaveProperty('salespersonId')
   })
 
   it('never includes documentEncrypted or documentHash even for OWNER', () => {

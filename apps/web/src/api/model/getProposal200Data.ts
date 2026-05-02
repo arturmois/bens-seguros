@@ -13,7 +13,7 @@ import type { GetProposal200DataStage } from './getProposal200DataStage'
 export type GetProposal200Data = {
   id: string
   organizationId: string
-  clientId: string
+  contactId: string
   salespersonId: string
   stage: GetProposal200DataStage
   boardType: GetProposal200DataBoardType

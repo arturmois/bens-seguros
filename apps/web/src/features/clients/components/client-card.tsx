@@ -1,6 +1,6 @@
 'use client'
 
-import { Eye, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { Eye, MoreHorizontal, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 import { Badge } from '@/components/ui/badge'
@@ -13,16 +13,16 @@ import {
 } from '@/components/ui/menu'
 
 import { getInitials } from '@/lib/formatters'
+import { formatDocument } from '@/lib/masks'
+import { PERSON_TYPE_BADGE_VARIANT, PERSON_TYPE_LABELS } from '../lib/constants'
 import type { ClientData } from '../lib/types'
-import { TYPE_BADGE_VARIANT, TYPE_LABELS } from '../lib/constants'
 
 interface ClientCardProps {
   readonly client: ClientData
-  readonly onEdit: (id: string) => void
   readonly onDelete: (id: string) => void
 }
 
-export function ClientCard({ client, onEdit, onDelete }: ClientCardProps) {
+export function ClientCard({ client, onDelete }: ClientCardProps) {
   const router = useRouter()
 
   return (
@@ -41,9 +41,9 @@ export function ClientCard({ client, onEdit, onDelete }: ClientCardProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
-            {getInitials(client.name)}
+            {getInitials(client.legalName)}
           </div>
-          <span className="font-medium">{client.name}</span>
+          <span className="font-medium">{client.legalName}</span>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger
@@ -66,10 +66,6 @@ export function ClientCard({ client, onEdit, onDelete }: ClientCardProps) {
               <Eye className="mr-2 size-4" />
               Ver
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit(client.id)}>
-              <Pencil className="mr-2 size-4" />
-              Editar
-            </DropdownMenuItem>
             <DropdownMenuItem
               className="text-destructive"
               onClick={() => onDelete(client.id)}
@@ -84,21 +80,21 @@ export function ClientCard({ client, onEdit, onDelete }: ClientCardProps) {
       <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
         <div>
           <div className="text-muted-foreground text-xs">Documento</div>
-          <div>{client.document}</div>
+          <div>{formatDocument(client.document)}</div>
         </div>
         <div>
           <div className="text-muted-foreground text-xs">Tipo</div>
-          <Badge variant={TYPE_BADGE_VARIANT[client.type]}>
-            {TYPE_LABELS[client.type]}
+          <Badge variant={PERSON_TYPE_BADGE_VARIANT[client.personType]}>
+            {PERSON_TYPE_LABELS[client.personType]}
           </Badge>
         </div>
         <div>
-          <div className="text-muted-foreground text-xs">E-mail</div>
-          <div className="truncate">{client.email ?? '-'}</div>
+          <div className="text-muted-foreground text-xs">Apólices ativas</div>
+          <div className="tabular-nums">{client.activePolicyCount}</div>
         </div>
         <div>
-          <div className="text-muted-foreground text-xs">Telefone</div>
-          <div>{client.phone ?? '-'}</div>
+          <div className="text-muted-foreground text-xs">Contatos</div>
+          <div className="tabular-nums">{client.contactCount}</div>
         </div>
       </div>
     </div>

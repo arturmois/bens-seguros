@@ -26,7 +26,7 @@ const makeProposal = (overrides: Partial<Record<string, unknown>> = {}) => {
   const base = {
     id: 'p-001',
     organizationId: TEST_ORG_ID,
-    clientId: 'c-001',
+    contactId: 'contact-001',
     salespersonId: 'user-001',
     stage: 'CAPTURE',
     boardType: 'NEW_INSURANCE',
@@ -141,11 +141,12 @@ describe('PUT /api/v1/proposals/:id/details', () => {
   })
 
   it('accepts LIFE branch details', async () => {
-    const lifeProposal = makeProposal({
-      branch: 'LIFE',
-      details: { branch: 'LIFE', occupation: 'Médico' },
-    })
-    mockExecute.mockResolvedValue(lifeProposal)
+    mockExecute.mockResolvedValue(
+      makeProposal({
+        branch: 'LIFE',
+        details: { branch: 'LIFE', occupation: 'Médico' },
+      })
+    )
 
     const response = await injectAs(app, {
       method: 'PUT',

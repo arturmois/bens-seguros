@@ -31,11 +31,13 @@ interface ClientFullData {
 }
 
 interface RawClientRow {
-  name: string
-  email: string | null
-  phone: string | null
+  legalName: string
   address: unknown
   documentEncrypted: string
+  // After the contact-client separation refactor, email/phone live on Contact.
+  // The caller fetches them via the policy's contact link and passes them here.
+  email: string | null
+  phone: string | null
 }
 
 function isEncryptedField(value: unknown): value is EncryptedField {
@@ -86,7 +88,7 @@ function buildClientFullData(
   const decrypted = decryptDocument(rawClient.documentEncrypted)
   const document = decrypted ?? fallbackDocument ?? 'Não informado'
   return {
-    name: rawClient.name,
+    name: rawClient.legalName,
     document,
     email: rawClient.email,
     phone: rawClient.phone,
@@ -165,16 +167,32 @@ export function generatePolicyPdfRoute(app: FastifyInstance) {
         logo: logoUrl,
       }
 
-      const rawClient = await prisma.client.findFirst({
+      const clientRow = await prisma.client.findFirst({
         where: { id: policy.clientId, organizationId },
         select: {
-          name: true,
-          email: true,
-          phone: true,
+          legalName: true,
           address: true,
           documentEncrypted: true,
         },
       })
+
+      // Email/phone now live on Contact; pull from the oldest contact linked
+      // to this client (deterministic and aligned with the Mapper choice).
+      const contactRow = await prisma.contact.findFirst({
+        where: { organizationId, clientId: policy.clientId, deletedAt: null },
+        orderBy: { createdAt: 'asc' },
+        select: { email: true, phone: true },
+      })
+
+      const rawClient = clientRow
+        ? {
+            legalName: clientRow.legalName,
+            address: clientRow.address,
+            documentEncrypted: clientRow.documentEncrypted,
+            email: contactRow?.email ?? null,
+            phone: contactRow?.phone ?? null,
+          }
+        : null
 
       const clientFullData = buildClientFullData(
         rawClient,

@@ -1,18 +1,6 @@
+import { BROKER_TYPES, CHANNEL_TYPES } from '@repo/shared'
 import mongoose, { type InferSchemaType, Schema } from 'mongoose'
 
-const CHANNEL_TYPES = [
-  'WHATSAPP',
-  'WEB_CHAT',
-  'MESSENGER',
-  'INSTAGRAM',
-] as const
-const BROKER_TYPES = [
-  'BAILEYS',
-  'META',
-  'WEB_CHAT',
-  'MESSENGER',
-  'INSTAGRAM',
-] as const
 const CHANNEL_STATUSES = [
   'CONNECTED',
   'DISCONNECTED',

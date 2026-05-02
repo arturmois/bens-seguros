@@ -33,25 +33,39 @@ export function globalSearchRoute(app: FastifyInstance) {
       const numericQuery = Number.parseInt(q, 10)
       const isNumeric = !Number.isNaN(numericQuery)
       const branchMatch = toInsuranceBranch(q)
+      const hasDocumentMatch = documentQuery.length >= 11
 
       const tenantDb = request.tenantPrisma!
+      // After the contact-client separation refactor, Client only holds fiscal
+      // data (legalName, document). Free-text name/email matching now happens
+      // through the related Contact records (clients have one or more contacts).
       const [clients, proposals, policies, claims] = await Promise.all([
         tenantDb.client.findMany({
           where: {
             organizationId,
             deletedAt: null,
             OR: [
-              { name: { contains: q, mode: 'insensitive' } },
-              { email: { contains: q, mode: 'insensitive' } },
+              { legalName: { contains: q, mode: 'insensitive' } },
+              {
+                contacts: {
+                  some: {
+                    OR: [
+                      { name: { contains: q, mode: 'insensitive' } },
+                      { email: { contains: q, mode: 'insensitive' } },
+                    ],
+                    deletedAt: null,
+                  },
+                },
+              },
               // Exact CPF/CNPJ match via hash (partial search not supported — field is encrypted)
-              ...(documentQuery.length >= 11
+              ...(hasDocumentMatch
                 ? [{ documentHash: hashDocument(documentQuery) }]
                 : []),
             ],
           },
-          select: { id: true, name: true, document: true, type: true },
+          select: { id: true, legalName: true, document: true },
           take: perEntity,
-          orderBy: { name: 'asc' },
+          orderBy: { legalName: 'asc' },
         }),
 
         tenantDb.proposal.findMany({
@@ -60,7 +74,7 @@ export function globalSearchRoute(app: FastifyInstance) {
             deletedAt: null,
             OR: [
               {
-                client: {
+                contact: {
                   name: { contains: q, mode: 'insensitive' },
                   deletedAt: null,
                 },
@@ -72,7 +86,7 @@ export function globalSearchRoute(app: FastifyInstance) {
             id: true,
             stage: true,
             branch: true,
-            client: { select: { name: true } },
+            contact: { select: { name: true } },
           },
           take: perEntity,
           orderBy: { createdAt: 'desc' },
@@ -86,7 +100,7 @@ export function globalSearchRoute(app: FastifyInstance) {
               { policyNumber: { contains: q, mode: 'insensitive' } },
               {
                 client: {
-                  name: { contains: q, mode: 'insensitive' },
+                  legalName: { contains: q, mode: 'insensitive' },
                   deletedAt: null,
                 },
               },
@@ -96,7 +110,7 @@ export function globalSearchRoute(app: FastifyInstance) {
             id: true,
             policyNumber: true,
             branch: true,
-            client: { select: { name: true } },
+            client: { select: { legalName: true } },
           },
           take: perEntity,
           orderBy: { createdAt: 'desc' },
@@ -110,7 +124,7 @@ export function globalSearchRoute(app: FastifyInstance) {
               ...(isNumeric ? [{ claimNumber: numericQuery }] : []),
               {
                 client: {
-                  name: { contains: q, mode: 'insensitive' },
+                  legalName: { contains: q, mode: 'insensitive' },
                   deletedAt: null,
                 },
               },
@@ -126,7 +140,7 @@ export function globalSearchRoute(app: FastifyInstance) {
             id: true,
             claimNumber: true,
             status: true,
-            client: { select: { name: true } },
+            client: { select: { legalName: true } },
           },
           take: perEntity,
           orderBy: { createdAt: 'desc' },
@@ -136,27 +150,29 @@ export function globalSearchRoute(app: FastifyInstance) {
       const data = {
         clients: clients.map((c) => ({
           id: c.id,
-          name: c.name,
+          name: c.legalName,
           document: c.document,
-          type: c.type,
+          // Client.type was removed; surface a generic value for back-compat
+          // until consumers migrate to the new Contact-based search responses.
+          type: 'CLIENT',
         })),
         proposals: proposals.map((p) => ({
           id: p.id,
           stage: p.stage,
           branch: p.branch,
-          clientName: p.client.name,
+          clientName: p.contact.name,
         })),
         policies: policies.map((p) => ({
           id: p.id,
           policyNumber: p.policyNumber,
           branch: p.branch,
-          clientName: p.client.name,
+          clientName: p.client.legalName,
         })),
         claims: claims.map((c) => ({
           id: c.id,
           claimNumber: c.claimNumber,
           status: c.status,
-          clientName: c.client.name,
+          clientName: c.client.legalName,
         })),
       }
 

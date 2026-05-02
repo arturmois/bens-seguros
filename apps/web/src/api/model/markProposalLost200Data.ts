@@ -13,7 +13,7 @@ import type { MarkProposalLost200DataStage } from './markProposalLost200DataStag
 export type MarkProposalLost200Data = {
   id: string
   organizationId: string
-  clientId: string
+  contactId: string
   salespersonId: string
   stage: MarkProposalLost200DataStage
   boardType: MarkProposalLost200DataBoardType

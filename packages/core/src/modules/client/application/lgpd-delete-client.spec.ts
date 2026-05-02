@@ -1,28 +1,25 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { LgpdDeleteClient } from './lgpd-delete-client.js'
-import type { ClientRepository } from '../domain/client-repository.js'
-import type { ClientData } from '../domain/client-repository.js'
+import type {
+  ClientData,
+  ClientRepository,
+} from '../domain/client-repository.js'
 
 function makeClient(overrides: Partial<ClientData> = {}): ClientData {
   return {
     id: 'client-1',
     organizationId: 'org-1',
-    name: 'João Silva',
+    legalName: 'João Silva',
     document: '***456.789-00',
+    documentHash: 'hash-test',
     personType: 'INDIVIDUAL',
-    type: 'CLIENT',
-    email: 'joao@test.com',
-    phone: '+5511999999999',
-    birthDate: new Date('1990-01-01'),
     profession: 'Engenheiro',
     maritalStatus: 'MARRIED',
     address: null,
-    socialMedia: null,
-    tags: ['vip'],
-    consentLgpd: true,
-    salespersonId: 'user-1',
+    fiscalBirthDate: new Date('1990-01-01'),
     createdAt: new Date(),
     updatedAt: new Date(),
+    deletedAt: null,
     ...overrides,
   }
 }
@@ -33,9 +30,10 @@ describe('LgpdDeleteClient', () => {
 
   beforeEach(() => {
     clientRepo = {
-      create: vi.fn(),
+      save: vi.fn(),
       findById: vi.fn(),
-      findByDocument: vi.fn(),
+      findByIdWithMetrics: vi.fn(),
+      findByDocumentHash: vi.fn(),
       findMany: vi.fn(),
       update: vi.fn(),
       softDelete: vi.fn(),

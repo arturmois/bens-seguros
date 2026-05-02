@@ -1,71 +1,37 @@
 import { z } from 'zod'
 
 import { maritalStatusEnum } from '../../shared/enums.schema.js'
-import { paginationQuery } from '../../shared/pagination.schema.js'
 import { idParam } from '../../shared/params.schema.js'
 import {
   errorResponse,
   paginatedResponse,
   successResponse,
 } from '../../shared/response.schema.js'
-import {
-  optionalDate,
-  optionalEmail,
-  optionalString,
-} from '../../shared/transforms.js'
 
-const CLIENT_TYPE_VALUES = ['LEAD', 'CLIENT', 'FORMER_CLIENT'] as const
 export const PERSON_TYPE_VALUES = ['INDIVIDUAL', 'COMPANY'] as const
 
-const socialMediaSchema = z
-  .object({
-    instagram: optionalString,
-    facebook: optionalString,
-    linkedin: optionalString,
-    tiktok: optionalString,
-  })
-  .optional()
+export const personTypeEnum = z.enum(PERSON_TYPE_VALUES)
 
-const createClientBodyBase = z.object({
-  name: z.string().trim().min(2),
-  document: z.string().trim().min(11).max(14),
-  personType: z.enum(PERSON_TYPE_VALUES).default('INDIVIDUAL'),
-  type: z.enum(CLIENT_TYPE_VALUES).optional(),
-  email: optionalEmail,
-  phone: optionalString,
-  birthDate: optionalDate,
-  profession: optionalString,
-  maritalStatus: maritalStatusEnum.optional(),
-  address: z.record(z.string()).optional(),
-  tags: z.array(z.string()).optional(),
-  consentLgpd: z.boolean().optional(),
-  socialMedia: socialMediaSchema,
+// --- Body schemas ---
+
+export const updateClientBodySchema = z.object({
+  legalName: z.string().trim().min(1).optional(),
+  personType: personTypeEnum.optional(),
+  profession: z.string().nullable().optional(),
+  maritalStatus: maritalStatusEnum.nullable().optional(),
+  address: z.record(z.string(), z.unknown()).nullable().optional(),
+  fiscalBirthDate: z.coerce.date().nullable().optional(),
 })
 
-export const createClientBodySchema = createClientBodyBase.refine(
-  (data) => {
-    const digits = data.document.replace(/\D/g, '')
-    if (data.personType === 'COMPANY') return digits.length === 14
-    return digits.length === 11
-  },
-  {
-    message: 'Documento inválido para o tipo de pessoa selecionado',
-    path: ['document'],
-  }
-)
+// --- Query schemas ---
 
-export const updateClientBodySchema = createClientBodyBase
-  .partial()
-  .omit({ document: true, personType: true })
-
-export const listClientsQuerySchema = paginationQuery().extend({
-  type: z.enum(CLIENT_TYPE_VALUES).optional(),
+export const listClientsQuerySchema = z.object({
+  hasActivePolicy: z.coerce.boolean().optional(),
   search: z.string().optional(),
-  sortBy: z
-    .enum(['name', 'document', 'type', 'createdAt'])
-    .optional()
-    .default('createdAt'),
-  sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
+  cursor: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  sortBy: z.enum(['createdAt', 'legalName']).default('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).default('desc'),
 })
 
 export { idParam as idParamSchema }
@@ -76,30 +42,42 @@ export const importJobIdParamSchema = z.object({
 
 // --- Response schemas (OpenAPI) ---
 
-const clientListItemSchema = z.object({
+export const clientWithMetricsSchema = z.object({
   id: z.string(),
-  name: z.string(),
-  type: z.enum(CLIENT_TYPE_VALUES),
-  personType: z.enum(PERSON_TYPE_VALUES),
-  tags: z.array(z.string()),
+  organizationId: z.string(),
+  legalName: z.string(),
   document: z.string(),
-  email: z.string().nullable().optional(),
-  phone: z.string().nullable().optional(),
+  personType: personTypeEnum,
+  profession: z.string().nullable(),
+  maritalStatus: maritalStatusEnum.nullable(),
+  address: z.record(z.string(), z.unknown()).nullable(),
+  fiscalBirthDate: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),
-  socialMedia: socialMediaSchema.nullable(),
-})
-
-const clientDetailSchema = clientListItemSchema.extend({
-  consentLgpd: z.boolean(),
   updatedAt: z.coerce.date(),
-  birthDate: z.coerce.date().nullable().optional(),
-  profession: z.string().nullable().optional(),
-  maritalStatus: maritalStatusEnum.nullable().optional(),
-  address: z.record(z.string().optional()).nullable().optional(),
+  deletedAt: z.coerce.date().nullable(),
+  activePolicyCount: z.number().int(),
+  totalPolicyCount: z.number().int(),
+  contactCount: z.number().int(),
 })
 
-export const clientListResponse = paginatedResponse(clientListItemSchema)
-export const clientDetailResponse = successResponse(clientDetailSchema)
+export const clientDataSchema = z.object({
+  id: z.string(),
+  organizationId: z.string(),
+  legalName: z.string(),
+  document: z.string(),
+  personType: personTypeEnum,
+  profession: z.string().nullable(),
+  maritalStatus: maritalStatusEnum.nullable(),
+  address: z.record(z.string(), z.unknown()).nullable(),
+  fiscalBirthDate: z.coerce.date().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  deletedAt: z.coerce.date().nullable(),
+})
+
+export const clientListResponse = paginatedResponse(clientWithMetricsSchema)
+export const clientDetailResponse = successResponse(clientWithMetricsSchema)
+export const clientUpdateResponse = successResponse(clientDataSchema)
 export const deleteResponse = z.void()
 export { errorResponse }
 

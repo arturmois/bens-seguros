@@ -5,8 +5,12 @@
  * OpenAPI spec version: 1.0.0
  */
 
+/**
+ * @nullable
+ */
 export type UpdateClientBodyMaritalStatus =
-  (typeof UpdateClientBodyMaritalStatus)[keyof typeof UpdateClientBodyMaritalStatus]
+  | (typeof UpdateClientBodyMaritalStatus)[keyof typeof UpdateClientBodyMaritalStatus]
+  | null
 
 export const UpdateClientBodyMaritalStatus = {
   SINGLE: 'SINGLE',

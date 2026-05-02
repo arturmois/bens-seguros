@@ -5,4 +5,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type UpdateClientBodyAddress = { [key: string]: string }
+/**
+ * @nullable
+ */
+export type UpdateClientBodyAddress = { [key: string]: unknown } | null

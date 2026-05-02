@@ -1,4 +1,4 @@
-import type { CursorPage, Page } from '../../client/domain/client-repository.js'
+import type { CursorPage, Page } from '../../../shared/pagination.js'
 import type { CommissionStatus } from './commission-types.js'
 import type { Commission } from './commission.js'
 

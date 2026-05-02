@@ -1,55 +1,59 @@
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
-import { hashDocument } from '@repo/shared'
 import { inject, injectable } from 'tsyringe'
+import { ClientErrors } from '../domain/client-errors.js'
 import type {
   ClientData,
   ClientFilters,
   ClientRepository,
   ClientSortField,
-  CreateClientInput,
+  ClientWithMetrics,
+  CreateClientPersistence,
   CursorPage,
-  Page,
-  UpdateClientInput,
+  UpdateClientPersistence,
 } from '../domain/client-repository.js'
 import { ClientMapper } from './client-mapper.js'
+
+function toInputJsonValue(
+  value: Record<string, unknown>
+): Prisma.InputJsonValue {
+  return JSON.parse(JSON.stringify(value))
+}
 
 @injectable()
 export class PrismaClientRepository implements ClientRepository {
   constructor(@inject('PrismaClient') private readonly prisma: PrismaClient) {}
 
-  async create(data: CreateClientInput): Promise<ClientData> {
-    const persistence = ClientMapper.toPersistence(data.document)
+  async save(data: CreateClientPersistence): Promise<ClientData> {
+    const docPersistence = ClientMapper.documentToPersistence(data.document)
+    const address: Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue =
+      data.address === null ? Prisma.JsonNull : toInputJsonValue(data.address)
 
-    const row = await this.prisma.client.create({
-      data: {
-        organizationId: data.organizationId,
-        name: data.name,
-        document: persistence.document,
-        documentEncrypted: persistence.documentEncrypted,
-        documentHash: persistence.documentHash,
-        personType: data.personType ?? 'INDIVIDUAL',
-        type: data.type ?? 'LEAD',
-        email: data.email ?? null,
-        phone: data.phone ?? null,
-        birthDate: data.birthDate ?? null,
-        profession: data.profession ?? null,
-        maritalStatus: data.maritalStatus ?? null,
-        address:
-          data.address === null || data.address === undefined
-            ? Prisma.JsonNull
-            : data.address,
-        socialMedia:
-          data.socialMedia === null || data.socialMedia === undefined
-            ? Prisma.JsonNull
-            : data.socialMedia,
-        tags: data.tags ?? [],
-        consentLgpd: data.consentLgpd ?? false,
-        salespersonId: data.salespersonId ?? null,
-      },
-    })
-
-    return ClientMapper.toDomain(row)
+    try {
+      const row = await this.prisma.client.create({
+        data: {
+          organizationId: data.organizationId,
+          legalName: data.legalName,
+          document: docPersistence.document,
+          documentEncrypted: docPersistence.documentEncrypted,
+          documentHash: docPersistence.documentHash,
+          personType: data.personType,
+          profession: data.profession,
+          maritalStatus: data.maritalStatus,
+          address,
+          fiscalBirthDate: data.fiscalBirthDate,
+        },
+      })
+      return ClientMapper.toDomain(row)
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2002'
+      ) {
+        throw ClientErrors.alreadyExists()
+      }
+      throw e
+    }
   }
 
   async findById(
@@ -62,13 +66,42 @@ export class PrismaClientRepository implements ClientRepository {
     return row ? ClientMapper.toDomain(row) : null
   }
 
-  async findByDocument(
-    document: string,
+  async findByIdWithMetrics(
+    id: string,
+    organizationId: string
+  ): Promise<ClientWithMetrics | null> {
+    const row = await this.prisma.client.findFirst({
+      where: { id, organizationId, deletedAt: null },
+    })
+    if (!row) return null
+
+    const [policyCounts, contactCount] = await Promise.all([
+      this.prisma.policy.groupBy({
+        by: ['status'],
+        where: { clientId: id, organizationId, deletedAt: null },
+        _count: { _all: true },
+      }),
+      this.prisma.contact.count({
+        where: { clientId: id, organizationId, deletedAt: null },
+      }),
+    ])
+
+    let active = 0
+    let total = 0
+    for (const c of policyCounts) {
+      total += c._count._all
+      if (c.status === 'ACTIVE') active += c._count._all
+    }
+
+    return ClientMapper.toWithMetrics(row, active, total, contactCount)
+  }
+
+  async findByDocumentHash(
+    documentHash: string,
     organizationId: string
   ): Promise<ClientData | null> {
-    const hash = hashDocument(document)
     const row = await this.prisma.client.findFirst({
-      where: { documentHash: hash, organizationId, deletedAt: null },
+      where: { organizationId, documentHash, deletedAt: null },
     })
     return row ? ClientMapper.toDomain(row) : null
   }
@@ -76,78 +109,116 @@ export class PrismaClientRepository implements ClientRepository {
   async findMany(
     filters: ClientFilters,
     page: CursorPage<ClientSortField>
-  ): Promise<Page<ClientData>> {
+  ): Promise<{ items: ClientWithMetrics[]; nextCursor: string | null }> {
     const where: Prisma.ClientWhereInput = {
       organizationId: filters.organizationId,
       deletedAt: null,
-      ...(filters.type && { type: filters.type }),
-      ...(filters.search && {
-        OR: [
-          { name: { contains: filters.search, mode: 'insensitive' } },
-          { email: { contains: filters.search, mode: 'insensitive' } },
-          // Exact document match via hash (partial CPF search not supported — encrypted)
-          ...(filters.search.replace(/\D/g, '').length >= 11
-            ? [{ documentHash: hashDocument(filters.search) }]
-            : []),
-        ],
-      }),
     }
 
-    const [rows, total] = await Promise.all([
-      this.prisma.client.findMany({
-        where,
-        take: page.limit + 1,
-        ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
-        orderBy: [
-          { [page.sortBy ?? 'createdAt']: page.sortOrder ?? 'desc' },
-          { id: 'desc' },
-        ],
-      }),
-      this.prisma.client.count({ where }),
+    if (filters.search) {
+      where.OR = [
+        { legalName: { contains: filters.search, mode: 'insensitive' } },
+        { document: { contains: filters.search } },
+      ]
+    }
+
+    if (filters.hasActivePolicy === true) {
+      where.policies = { some: { status: 'ACTIVE', deletedAt: null } }
+    } else if (filters.hasActivePolicy === false) {
+      where.policies = { none: { status: 'ACTIVE', deletedAt: null } }
+    }
+
+    const sortBy = page.sortBy ?? 'createdAt'
+    const sortOrder = page.sortOrder ?? 'desc'
+
+    const rows = await this.prisma.client.findMany({
+      where,
+      orderBy: [{ [sortBy]: sortOrder }, { id: sortOrder }],
+      take: page.limit + 1,
+      ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
+    })
+
+    const ids = rows.map((r) => r.id)
+
+    const [policyCounts, contactCounts] = await Promise.all([
+      ids.length > 0
+        ? this.prisma.policy.groupBy({
+            by: ['clientId', 'status'],
+            where: {
+              clientId: { in: ids },
+              organizationId: filters.organizationId,
+              deletedAt: null,
+            },
+            _count: { _all: true },
+          })
+        : Promise.resolve([]),
+      ids.length > 0
+        ? this.prisma.contact.groupBy({
+            by: ['clientId'],
+            where: {
+              clientId: { in: ids },
+              organizationId: filters.organizationId,
+              deletedAt: null,
+            },
+            _count: { _all: true },
+          })
+        : Promise.resolve([]),
     ])
 
-    const hasNext = rows.length > page.limit
-    const items = hasNext ? rows.slice(0, -1) : rows
-
-    return {
-      items: items.map(ClientMapper.toDomain),
-      total,
-      nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,
+    const policyMap = new Map<string, { active: number; total: number }>()
+    for (const c of policyCounts) {
+      const cur = policyMap.get(c.clientId) ?? { active: 0, total: 0 }
+      cur.total += c._count._all
+      if (c.status === 'ACTIVE') cur.active += c._count._all
+      policyMap.set(c.clientId, cur)
     }
+
+    const contactMap = new Map<string, number>()
+    for (const c of contactCounts) {
+      if (c.clientId) contactMap.set(c.clientId, c._count._all)
+    }
+
+    const items = rows.map((row) => {
+      const p = policyMap.get(row.id) ?? { active: 0, total: 0 }
+      const cc = contactMap.get(row.id) ?? 0
+      return ClientMapper.toWithMetrics(row, p.active, p.total, cc)
+    })
+
+    let nextCursor: string | null = null
+    if (items.length > page.limit) {
+      const popped = items.pop()
+      nextCursor = popped?.id ?? null
+    }
+
+    return { items, nextCursor }
   }
 
   async update(
     id: string,
     organizationId: string,
-    data: UpdateClientInput
+    data: UpdateClientPersistence
   ): Promise<ClientData> {
     const updateData: Prisma.ClientUpdateInput = {}
 
-    if (data.name !== undefined) updateData.name = data.name
-    if (data.email !== undefined) updateData.email = data.email
-    if (data.phone !== undefined) updateData.phone = data.phone
-    if (data.birthDate !== undefined) updateData.birthDate = data.birthDate
+    if (data.legalName !== undefined) updateData.legalName = data.legalName
+    if (data.personType !== undefined) updateData.personType = data.personType
     if (data.profession !== undefined) updateData.profession = data.profession
-    if (data.maritalStatus !== undefined)
+    if (data.maritalStatus !== undefined) {
       updateData.maritalStatus = data.maritalStatus
-    if (data.tags !== undefined) updateData.tags = data.tags
-    if (data.consentLgpd !== undefined)
-      updateData.consentLgpd = data.consentLgpd
-    if (data.type !== undefined) updateData.type = data.type
-    if (data.address !== undefined) {
-      updateData.address =
-        data.address === null ? Prisma.JsonNull : data.address
     }
-    if (data.socialMedia !== undefined) {
-      updateData.socialMedia =
-        data.socialMedia === null ? Prisma.JsonNull : data.socialMedia
+    if (data.fiscalBirthDate !== undefined) {
+      updateData.fiscalBirthDate = data.fiscalBirthDate
+    }
+    if (data.address !== undefined) {
+      const address: Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue =
+        data.address === null ? Prisma.JsonNull : toInputJsonValue(data.address)
+      updateData.address = address
     }
 
     const row = await this.prisma.client.update({
       where: { id, organizationId },
       data: updateData,
     })
-
     return ClientMapper.toDomain(row)
   }
 
@@ -163,19 +234,14 @@ export class PrismaClientRepository implements ClientRepository {
       this.prisma.client.update({
         where: { id, organizationId },
         data: {
-          name: 'Cliente removido',
+          legalName: 'Cliente removido',
           document: '***.***.***-**',
           documentEncrypted: '',
           documentHash: '',
-          email: null,
-          phone: null,
-          birthDate: null,
           profession: null,
           maritalStatus: null,
           address: Prisma.JsonNull,
-          socialMedia: Prisma.JsonNull,
-          tags: [],
-          consentLgpd: false,
+          fiscalBirthDate: null,
           deletedAt: new Date(),
         },
       }),
