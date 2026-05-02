@@ -1,6 +1,6 @@
 # Backlog
 
-Itens identificados durante revisões/QA que não cabem na PR atual mas precisam ser endereçados. Cada entrada tem origem (PR/skill/QA), arquivos afetados e nível de prioridade. Quando um item virar PR, mover pra `## Concluído` com SHA do merge.
+Itens identificados durante revisões/QA que não cabem na PR atual mas precisam ser endereçados. Cada entrada tem origem (PR/skill/QA), arquivos afetados e nível de prioridade. Quando um item virar PR mergeado, **remover a entrada deste arquivo** — o histórico fica em `git log` (mensagem do squash + SHA).
 
 ## Prioridade baixa
 
@@ -37,17 +37,3 @@ Itens identificados durante revisões/QA que não cabem na PR atual mas precisam
 
 - Não é bug do código — é comportamento esperado de cache. Documentar o `staleTime: 60_000` na tabela de canais ou reduzir para o caso de detail dialogs.
 - Alternativa: invalidar `[CHANNELS_KEY]` ao abrir o dialog em modo edit.
-
-## Concluído
-
-- **2026-05-02 — `89633e71` (PR #210) — Propagar `ContactSource` derivado do canal no `/api/internal/leads`**
-  Capture-lead recebe `ChannelType` e mapeia para `ContactSource` via `channelTypeToContactSource`; rota tightena `body.source` com `z.nativeEnum(ContactSource)` e default `'MANUAL'`; chat-worker propaga atribuição correta por canal.
-
-- **2026-05-02 — `fcb670c7` (PR #211) — Convergir `ContactSource` em `@repo/db` (HIGH + MEDIUM-1)**
-  Removidos os exports errados de `@repo/shared`; `ContactSource` re-exportado de `@repo/db` virou fonte canônica; `packages/core` domain, `apps/server` contacts schemas e `packages/db-chat/contact.model.ts` (que era semanticamente `ChannelType`) alinhados.
-
-- **2026-05-02 — `504c3051` (PR #215, ex-#212) — Centralizar `ChannelType`/`BrokerType` em `@repo/shared` (MEDIUM-2)**
-  `@repo/shared` virou fonte única; 4 duplicatas inline (db-chat model, chat-server domain, chat-server route, web frontend) consolidadas. `db-chat/index.ts` re-exporta de `@repo/shared` para manter o contrato público que o chat-worker usa. `z.enum(CHANNEL_TYPES)` agora é a validação canônica nas rotas.
-
-- **2026-05-02 — `a0684e9d` (PR #216, ex-#213) — Welcome default WEB_CHAT + cobertura `body.source` ignorado (LOW)**
-  `POST /chat/channels` aplica default `'Olá! Como podemos ajudá-lo?'` em `config.welcomeMessage` para canais Web Chat sem mensagem; teste novo em `create-lead.spec.ts` complementa os testes do #210 cobrindo o caminho de contato existente (atribuição preservada).
