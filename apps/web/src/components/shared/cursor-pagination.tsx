@@ -1,5 +1,7 @@
 'use client'
 
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -79,16 +81,20 @@ export function CursorPagination({
             size="sm"
             onClick={onPrevious}
             disabled={!hasPreviousPage}
+            aria-label="Página anterior"
           >
-            Anterior
+            <ChevronLeft className="size-4" />
+            <span className="hidden sm:inline">Anterior</span>
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={onNext}
             disabled={!hasNextPage}
+            aria-label="Próxima página"
           >
-            Próximo
+            <span className="hidden sm:inline">Próximo</span>
+            <ChevronRight className="size-4" />
           </Button>
         </div>
       </div>

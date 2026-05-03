@@ -4,6 +4,7 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
+import type { CreateLeadBodySource } from './createLeadBodySource'
 
 export type CreateLeadBody = {
   /** @minLength 1 */
@@ -12,5 +13,5 @@ export type CreateLeadBody = {
   clientPhone: string
   insuranceType: string
   notes?: string
-  source?: string
+  source?: CreateLeadBodySource
 }

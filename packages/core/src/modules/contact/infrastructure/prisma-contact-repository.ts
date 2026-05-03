@@ -99,18 +99,54 @@ export class PrismaContactRepository implements ContactRepository {
     const where: Prisma.ContactWhereInput = {
       organizationId: filters.organizationId,
       deletedAt: null,
-      ...(filters.salespersonId && { salespersonId: filters.salespersonId }),
-      ...(filters.source && { source: filters.source }),
+      // Plurais (precedência sobre singulares)
+      ...(filters.sourceIn &&
+        filters.sourceIn.length > 0 && {
+          source: { in: [...filters.sourceIn] },
+        }),
+      ...(filters.salespersonIdIn &&
+        filters.salespersonIdIn.length > 0 && {
+          salespersonId: { in: [...filters.salespersonIdIn] },
+        }),
+      // Singulares (fallback se o plural correspondente NÃO veio)
+      ...(filters.source && !filters.sourceIn && { source: filters.source }),
+      ...(filters.salespersonId &&
+        !filters.salespersonIdIn && {
+          salespersonId: filters.salespersonId,
+        }),
+      // Boolean
+      ...(filters.consentLgpd !== undefined && {
+        consentLgpd: filters.consentLgpd,
+      }),
+      // Date range em createdAt
+      ...((filters.createdFrom || filters.createdTo) && {
+        createdAt: {
+          ...(filters.createdFrom && { gte: filters.createdFrom }),
+          ...(filters.createdTo && { lte: filters.createdTo }),
+        },
+      }),
+      // clientId direto (caso interno, não vem da UI)
       ...(filters.clientId !== undefined && { clientId: filters.clientId }),
     }
 
-    if (filters.stage === 'LEAD') {
-      where.clientId = null
-    } else if (
-      filters.stage === 'CLIENT_ACTIVE' ||
-      filters.stage === 'CLIENT_INACTIVE'
-    ) {
-      where.clientId = { not: null }
+    // Stage plural ganha precedência sobre singular
+    const stages = filters.stageIn?.length
+      ? [...filters.stageIn]
+      : filters.stage
+        ? [filters.stage]
+        : null
+
+    if (stages) {
+      const includesLead = stages.includes('LEAD')
+      const includesClient =
+        stages.includes('CLIENT_ACTIVE') || stages.includes('CLIENT_INACTIVE')
+
+      if (includesLead && !includesClient) {
+        where.clientId = null
+      } else if (!includesLead && includesClient) {
+        where.clientId = { not: null }
+      }
+      // se ambos: não filtra clientId (LEAD ∪ CLIENT* = todos os contatos no domínio).
     }
 
     if (filters.search) {
@@ -163,10 +199,23 @@ export class PrismaContactRepository implements ContactRepository {
       return ContactMapper.toWithStage(row, counts.active, counts.total)
     })
 
-    if (filters.stage === 'CLIENT_ACTIVE') {
-      items = items.filter((i) => i.stage === 'CLIENT_ACTIVE')
-    } else if (filters.stage === 'CLIENT_INACTIVE') {
-      items = items.filter((i) => i.stage === 'CLIENT_INACTIVE')
+    // In-memory refinement: CLIENT_ACTIVE vs CLIENT_INACTIVE distinction
+    // requires policy count (not a DB column), so we filter here after mapping.
+    const effectiveStages = filters.stageIn?.length
+      ? filters.stageIn
+      : filters.stage
+        ? [filters.stage]
+        : null
+
+    if (effectiveStages) {
+      const includesLead = effectiveStages.includes('LEAD')
+      const includesActive = effectiveStages.includes('CLIENT_ACTIVE')
+      const includesInactive = effectiveStages.includes('CLIENT_INACTIVE')
+      const allowedStages = new Set<ContactWithStage['stage']>()
+      if (includesLead) allowedStages.add('LEAD')
+      if (includesActive) allowedStages.add('CLIENT_ACTIVE')
+      if (includesInactive) allowedStages.add('CLIENT_INACTIVE')
+      items = items.filter((i) => allowedStages.has(i.stage))
     }
 
     let nextCursor: string | null = null

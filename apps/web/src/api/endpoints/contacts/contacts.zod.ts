@@ -83,6 +83,12 @@ export const ListContactsQueryParams = zod.object({
     ])
     .optional(),
   salespersonId: zod.string().optional(),
+  stageIn: zod.string().optional(),
+  sourceIn: zod.string().optional(),
+  salespersonIdIn: zod.string().optional(),
+  consentLgpd: zod.union([zod.enum(['true']), zod.enum(['false'])]).optional(),
+  createdFrom: zod.string().datetime({}).optional(),
+  createdTo: zod.string().datetime({}).optional(),
   search: zod.string().optional(),
   cursor: zod.string().optional(),
   limit: zod

@@ -10,9 +10,20 @@ import type {
 
 export interface ListContactsInput {
   organizationId: string
+  // Singulares (deprecated)
   stage?: ContactStage
   source?: ContactSource
   salespersonId?: string
+  // Plurais
+  stageIn?: readonly ContactStage[]
+  sourceIn?: readonly ContactSource[]
+  salespersonIdIn?: readonly string[]
+  // Boolean
+  consentLgpd?: boolean
+  // Date range
+  createdFrom?: Date
+  createdTo?: Date
+  // Existentes
   search?: string
   cursor?: string
   limit: number
@@ -33,6 +44,12 @@ export class ListContacts {
         stage: input.stage,
         source: input.source,
         salespersonId: input.salespersonId,
+        stageIn: input.stageIn,
+        sourceIn: input.sourceIn,
+        salespersonIdIn: input.salespersonIdIn,
+        consentLgpd: input.consentLgpd,
+        createdFrom: input.createdFrom,
+        createdTo: input.createdTo,
         search: input.search,
       },
       {

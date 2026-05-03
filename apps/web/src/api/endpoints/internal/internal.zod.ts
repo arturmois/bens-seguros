@@ -15,7 +15,16 @@ export const CreateLeadBody = zod.object({
   clientPhone: zod.string().min(1),
   insuranceType: zod.string(),
   notes: zod.string().optional(),
-  source: zod.string().optional(),
+  source: zod
+    .enum([
+      'MANUAL',
+      'CHAT_WHATSAPP',
+      'CHAT_WIDGET',
+      'FORM_WEB',
+      'IMPORT',
+      'REFERRAL',
+    ])
+    .optional(),
 })
 
 /**

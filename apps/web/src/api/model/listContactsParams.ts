@@ -4,6 +4,7 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
+import type { ListContactsConsentLgpd } from './listContactsConsentLgpd'
 import type { ListContactsSortBy } from './listContactsSortBy'
 import type { ListContactsSortOrder } from './listContactsSortOrder'
 import type { ListContactsSource } from './listContactsSource'
@@ -13,6 +14,12 @@ export type ListContactsParams = {
   stage?: ListContactsStage
   source?: ListContactsSource
   salespersonId?: string
+  stageIn?: string
+  sourceIn?: string
+  salespersonIdIn?: string
+  consentLgpd?: (typeof ListContactsConsentLgpd)[keyof typeof ListContactsConsentLgpd]
+  createdFrom?: string
+  createdTo?: string
   search?: string
   cursor?: string
   /**

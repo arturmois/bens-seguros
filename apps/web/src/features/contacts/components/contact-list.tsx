@@ -1,60 +1,50 @@
 'use client'
 
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { Plus } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 import { CursorPagination } from '@/components/shared/cursor-pagination'
 import { DataTable } from '@/components/shared/data-table'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
-import { TableToolbar } from '@/components/shared/table-toolbar'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { UnifiedFilterBar } from '@/components/shared/unified-filter-bar'
+import type { FilterValue } from '@/components/shared/filter-types'
+import { ListContactsConsentLgpd } from '@/api/model'
+import { Button } from '@/components/ui/button'
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
 import { useContacts } from '../hooks/use-contacts'
-import { CONTACT_SOURCE_OPTIONS, CONTACT_STAGE_OPTIONS } from '../lib/constants'
-import type { ContactListItem, ContactSource, ContactStage } from '../lib/types'
+import { useContactsFilters } from '../hooks/use-contacts-filters'
+import { CONTACT_FILTERS } from '../lib/filters'
+import type { ContactListItem } from '../lib/types'
 import { ContactCard } from './contact-card'
 import { createContactsColumns } from './contacts-columns'
 
-const ALL_VALUE = '__all__'
-const STAGE_FILTER_OPTIONS = [
-  { value: ALL_VALUE, label: 'Todos os estágios' },
-  ...CONTACT_STAGE_OPTIONS,
-] as const
-const SOURCE_FILTER_OPTIONS = [
-  { value: ALL_VALUE, label: 'Todas as origens' },
-  ...CONTACT_SOURCE_OPTIONS,
-] as const
+function toConsentLgpdParam(
+  value: boolean | undefined
+):
+  | (typeof ListContactsConsentLgpd)[keyof typeof ListContactsConsentLgpd]
+  | undefined {
+  if (value === undefined) return undefined
+  return value ? ListContactsConsentLgpd.true : ListContactsConsentLgpd.false
+}
 
 export function ContactList() {
   'use no memo'
   const router = useRouter()
   const pagination = useCursorPagination()
+  const filters = useContactsFilters()
 
-  const [search, setSearch] = useState('')
-  const [stageFilter, setStageFilter] = useState<string>(ALL_VALUE)
-  const [sourceFilter, setSourceFilter] = useState<string>(ALL_VALUE)
-
-  const debouncedSearch = useDebounce(search, 300)
-
-  const stage =
-    stageFilter !== ALL_VALUE ? (stageFilter as ContactStage) : undefined
-  const source =
-    sourceFilter !== ALL_VALUE ? (sourceFilter as ContactSource) : undefined
+  const debouncedSearch = useDebounce(filters.search, 300)
 
   const { data, isLoading, isError, refetch } = useContacts({
+    ...filters.apiParams,
+    consentLgpd: toConsentLgpdParam(filters.apiParams.consentLgpd),
     search: debouncedSearch || undefined,
-    stage,
-    source,
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,
   })
@@ -75,19 +65,17 @@ export function ContactList() {
   })
 
   function handleSearchChange(value: string) {
-    setSearch(value)
+    filters.setSearch(value)
     pagination.reset()
   }
 
-  function handleStageChange(value: string | null) {
-    if (value === null) return
-    setStageFilter(value)
+  function handleFilterChange(key: string, value: FilterValue) {
+    filters.setFilter(key, value)
     pagination.reset()
   }
 
-  function handleSourceChange(value: string | null) {
-    if (value === null) return
-    setSourceFilter(value)
+  function handleClearAll() {
+    filters.clearAll()
     pagination.reset()
   }
 
@@ -99,62 +87,20 @@ export function ContactList() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <TableToolbar
-        search={search}
+      <UnifiedFilterBar
+        searchValue={filters.search}
         onSearchChange={handleSearchChange}
         searchPlaceholder="Buscar por nome, telefone ou email"
-        filters={
-          <>
-            <Select
-              value={stageFilter}
-              onValueChange={handleStageChange}
-              items={STAGE_FILTER_OPTIONS}
-            >
-              <SelectTrigger className="h-8 w-full sm:w-44" size="sm">
-                <SelectValue placeholder="Estágio">
-                  {(value: string | null) => {
-                    const item = STAGE_FILTER_OPTIONS.find(
-                      (option) => option.value === value
-                    )
-                    return item?.label ?? null
-                  }}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {STAGE_FILTER_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={sourceFilter}
-              onValueChange={handleSourceChange}
-              items={SOURCE_FILTER_OPTIONS}
-            >
-              <SelectTrigger className="h-8 w-full sm:w-44" size="sm">
-                <SelectValue placeholder="Origem">
-                  {(value: string | null) => {
-                    const item = SOURCE_FILTER_OPTIONS.find(
-                      (option) => option.value === value
-                    )
-                    return item?.label ?? null
-                  }}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {SOURCE_FILTER_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </>
-        }
-      />
+        filters={CONTACT_FILTERS}
+        values={filters.values}
+        onFilterChange={handleFilterChange}
+        onClearAll={handleClearAll}
+      >
+        <Button render={<Link href="/contacts/new" />}>
+          <Plus className="size-4" />
+          <span className="hidden sm:inline">Novo contato</span>
+        </Button>
+      </UnifiedFilterBar>
 
       <DataTable
         table={table}

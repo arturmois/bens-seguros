@@ -1,5 +1,6 @@
 import { ContactSource } from '@repo/db'
 import { z } from 'zod'
+import { csvEnumArray, csvStringArray } from '../../shared/csv-array.schema.js'
 
 // ── Entity-specific enums ───────────────────────────────────────────
 
@@ -71,9 +72,23 @@ export const promoteContactBody = z.object({
 // ── Query schemas ───────────────────────────────────────────────────
 
 export const listContactsQuery = z.object({
+  // Singulares (deprecated — mantém compat)
   stage: contactStageEnum.optional(),
   source: contactSourceEnum.optional(),
   salespersonId: z.string().optional(),
+  // Plurais
+  stageIn: csvEnumArray(contactStageEnum).optional(),
+  sourceIn: csvEnumArray(contactSourceEnum).optional(),
+  salespersonIdIn: csvStringArray().optional(),
+  // Boolean
+  consentLgpd: z
+    .union([z.literal('true'), z.literal('false')])
+    .transform((v) => v === 'true')
+    .optional(),
+  // Date range
+  createdFrom: z.coerce.date().optional(),
+  createdTo: z.coerce.date().optional(),
+  // Existentes
   search: z.string().optional(),
   cursor: z.string().optional(),
   limit: z.coerce.number().int().min(1).max(100).default(20),
