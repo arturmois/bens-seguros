@@ -4,6 +4,7 @@ import {
   AiAgent,
   Channel,
   type ChannelType,
+  Contact,
   Conversation,
   Message,
 } from '@repo/db-chat'
@@ -148,10 +149,15 @@ export function createAiBotProcessor(
 
     const chronologicalMessages = [...recentMessages].reverse()
     const lastMessage = chronologicalMessages.at(-1)
+    const contactDoc = await Contact.findById(conversation.contactId)
+      .lean()
+      .exec()
     const contactName =
-      typeof lastMessage?.senderName === 'string'
-        ? lastMessage.senderName
-        : 'Cliente'
+      typeof contactDoc?.name === 'string' && contactDoc.name.length > 0
+        ? contactDoc.name
+        : typeof lastMessage?.senderName === 'string'
+          ? lastMessage.senderName
+          : 'Cliente'
 
     const messages = buildConversationMessages(chronologicalMessages)
 

@@ -1,105 +1,13 @@
-export interface AutoDetails {
-  branch: 'AUTO'
-  brand: string
-  model: string
-  manufacturingYear: number
-  modelYear: number
-  licensePlate?: string
-  vin?: string
-  color?: string
-  fuelType?: string
-  vehicleUsage?: string
-}
-
-export interface ResidentialDetails {
-  branch: 'RESIDENTIAL'
-  propertyType: string
-  propertyUsage: string
-  cep: string
-  street?: string
-  number?: string
-  complement?: string
-  neighborhood?: string
-  city?: string
-  state?: string
-  construction?: string
-  areaM2?: number
-}
-
-export interface CondominiumDetails {
-  branch: 'CONDOMINIUM'
-  condominiumName: string
-  unitCount: number
-  cep: string
-  street?: string
-  number?: string
-  complement?: string
-  neighborhood?: string
-  city?: string
-  state?: string
-  constructionYear?: number
-  floorCount?: number
-  blockCount?: number
-  elevatorCount?: number
-  employeeCount?: number
-  hasSecurityEquipment?: boolean
-  securityEquipmentDetails?: string
-  hasFireEquipment?: boolean
-  fireEquipmentDetails?: string
-}
-
-export interface BusinessDetails {
-  branch: 'BUSINESS'
-  legalName: string
-  cnpj: string
-  businessActivity: string
-  cep?: string
-  street?: string
-  number?: string
-  complement?: string
-  neighborhood?: string
-  city?: string
-  state?: string
-  areaM2?: number
-}
-
-export interface LifeDetails {
-  branch: 'LIFE'
-  occupation: string
-  monthlyIncomeCents?: number
-  isSmoker?: boolean
-  extremeSports?: boolean
-  heightInCentimeters?: number
-  weightInGrams?: number
-  beneficiaries?: string
-}
-
-export interface OtherDetails {
-  branch: 'OTHER'
-  description: string
-}
-
-export type InsuredObjectDetails =
-  | AutoDetails
-  | ResidentialDetails
-  | CondominiumDetails
-  | BusinessDetails
-  | LifeDetails
-  | OtherDetails
-
-export function isInsuredObjectDetails(
-  value: unknown
-): value is InsuredObjectDetails {
-  if (typeof value !== 'object' || value === null || !('branch' in value))
-    return false
-  const obj = value as Record<string, unknown>
-  const branches = new Set([
-    'AUTO',
-    'RESIDENTIAL',
-    'CONDOMINIUM',
-    'BUSINESS',
-    'LIFE',
-    'OTHER',
-  ])
-  return typeof obj.branch === 'string' && branches.has(obj.branch)
-}
+export {
+  insuredObjectDetailsSchema,
+  isInsuredObjectDetails,
+} from '@repo/shared'
+export type {
+  AutoDetails,
+  BusinessDetails,
+  CondominiumDetails,
+  InsuredObjectDetails,
+  LifeDetails,
+  OtherDetails,
+  ResidentialDetails,
+} from '@repo/shared'

@@ -1,8 +1,12 @@
+import { insuredObjectDetailsSchema } from '@repo/shared'
 import { z } from 'zod'
+
 import { branchEnum } from '../../shared/enums.schema.js'
 import { paginationQuery } from '../../shared/pagination.schema.js'
 import { idParam } from '../../shared/params.schema.js'
 import { errorResponse, successResponse } from '../../shared/response.schema.js'
+
+export const insuredObjectDetails = insuredObjectDetailsSchema
 
 // ── Entity-specific enums ───────────────────────────────────────────
 
@@ -71,97 +75,7 @@ export const markLostBody = z.object({
   reason: z.string().min(1),
 })
 
-// ── Insured object details (discriminated union by branch) ──────────
-
-const autoDetailsSchema = z.object({
-  branch: z.literal('AUTO'),
-  brand: z.string().min(1),
-  model: z.string().min(1),
-  manufacturingYear: z.number().int().min(1900).max(2100),
-  modelYear: z.number().int().min(1900).max(2100),
-  licensePlate: z.string().optional(),
-  vin: z.string().optional(),
-  color: z.string().optional(),
-  fuelType: z.string().optional(),
-  vehicleUsage: z.string().optional(),
-})
-
-const residentialDetailsSchema = z.object({
-  branch: z.literal('RESIDENTIAL'),
-  propertyType: z.string().min(1),
-  propertyUsage: z.string().min(1),
-  cep: z.string().min(1),
-  street: z.string().trim().optional(),
-  number: z.string().trim().optional(),
-  complement: z.string().trim().optional(),
-  neighborhood: z.string().trim().optional(),
-  city: z.string().trim().optional(),
-  state: z.string().trim().length(2).optional(),
-  construction: z.string().optional(),
-  areaM2: z.number().optional(),
-})
-
-const condominiumDetailsSchema = z.object({
-  branch: z.literal('CONDOMINIUM'),
-  condominiumName: z.string().min(1),
-  unitCount: z.number().int().min(1),
-  cep: z.string().min(1),
-  street: z.string().trim().optional(),
-  number: z.string().trim().optional(),
-  complement: z.string().trim().optional(),
-  neighborhood: z.string().trim().optional(),
-  city: z.string().trim().optional(),
-  state: z.string().trim().length(2).optional(),
-  constructionYear: z.number().int().optional(),
-  floorCount: z.number().int().optional(),
-  blockCount: z.number().int().optional(),
-  elevatorCount: z.number().int().optional(),
-  employeeCount: z.number().int().optional(),
-  hasSecurityEquipment: z.boolean().optional(),
-  securityEquipmentDetails: z.string().optional(),
-  hasFireEquipment: z.boolean().optional(),
-  fireEquipmentDetails: z.string().optional(),
-})
-
-const businessDetailsSchema = z.object({
-  branch: z.literal('BUSINESS'),
-  legalName: z.string().min(1),
-  cnpj: z.string().min(1),
-  businessActivity: z.string().min(1),
-  cep: z.string().optional(),
-  street: z.string().trim().optional(),
-  number: z.string().trim().optional(),
-  complement: z.string().trim().optional(),
-  neighborhood: z.string().trim().optional(),
-  city: z.string().trim().optional(),
-  state: z.string().trim().length(2).optional(),
-  areaM2: z.number().optional(),
-})
-
-const lifeDetailsSchema = z.object({
-  branch: z.literal('LIFE'),
-  occupation: z.string().min(1),
-  monthlyIncomeCents: z.number().int().min(0).optional(),
-  isSmoker: z.boolean().optional(),
-  extremeSports: z.boolean().optional(),
-  heightInCentimeters: z.number().int().min(100).max(250).optional(),
-  weightInGrams: z.number().int().min(20000).max(300000).optional(),
-  beneficiaries: z.string().optional(),
-})
-
-const otherDetailsSchema = z.object({
-  branch: z.literal('OTHER'),
-  description: z.string().min(1),
-})
-
-export const insuredObjectDetails = z.discriminatedUnion('branch', [
-  autoDetailsSchema,
-  residentialDetailsSchema,
-  condominiumDetailsSchema,
-  businessDetailsSchema,
-  lifeDetailsSchema,
-  otherDetailsSchema,
-])
+// ── Insured object details — re-exported from @repo/shared above ─────
 
 export const updateProposalDetailsBody = z.object({
   details: insuredObjectDetails,

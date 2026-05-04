@@ -2,8 +2,8 @@ import { container, CreateContact, CreateProposal } from '@repo/core'
 import { createTenantClient } from '@repo/db/tenant'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { handleDomainError } from '../../v1/handle-domain-error.js'
 import { errorResponse } from '../../shared/response.schema.js'
+import { handleDomainError } from '../../v1/handle-domain-error.js'
 import { createLeadBodySchema, createLeadResponse } from './schemas/index.js'
 
 type Branch =
@@ -16,12 +16,12 @@ type Branch =
 
 const INSURANCE_TYPE_TO_BRANCH: Record<string, Branch> = {
   AUTO: 'AUTO',
-  VIDA: 'LIFE',
-  RESIDENCIAL: 'RESIDENTIAL',
-  EMPRESARIAL: 'BUSINESS',
-  CONDOMINIO: 'CONDOMINIUM',
-  VIAGEM: 'OTHER',
-  OUTRO: 'OTHER',
+  LIFE: 'LIFE',
+  RESIDENTIAL: 'RESIDENTIAL',
+  BUSINESS: 'BUSINESS',
+  CONDOMINIUM: 'CONDOMINIUM',
+  TRAVEL: 'OTHER',
+  OTHER: 'OTHER',
 }
 
 export function createLeadRoute(app: FastifyInstance) {
@@ -64,8 +64,10 @@ export function createLeadRoute(app: FastifyInstance) {
         })
 
         let contactId: string
+        let contactName: string
         if (existingContact) {
           contactId = existingContact.id
+          contactName = existingContact.name
         } else {
           const createContactUC = container.resolve(CreateContact)
           const contact = await createContactUC.execute({
@@ -77,6 +79,7 @@ export function createLeadRoute(app: FastifyInstance) {
             consentLgpd: true,
           })
           contactId = contact.id
+          contactName = contact.name
         }
 
         const branch = INSURANCE_TYPE_TO_BRANCH[body.insuranceType] ?? 'OTHER'
@@ -95,7 +98,7 @@ export function createLeadRoute(app: FastifyInstance) {
           data: {
             proposalId: proposal.id,
             contactId,
-            message: `Lead registrado: ${body.clientName} - ${body.insuranceType}`,
+            message: `Lead registrado: ${contactName} - ${body.insuranceType}`,
           },
         })
       } catch (error) {

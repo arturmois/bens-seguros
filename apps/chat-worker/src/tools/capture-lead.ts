@@ -1,10 +1,10 @@
-import { tool } from 'ai'
-import { z } from 'zod'
-import pino from 'pino'
-import { env } from '@repo/env'
-import { signRequest } from '@repo/shared'
 import type { ContactSource } from '@repo/db'
 import { Contact } from '@repo/db-chat'
+import { env } from '@repo/env'
+import { signRequest } from '@repo/shared'
+import { tool } from 'ai'
+import pino from 'pino'
+import { z } from 'zod'
 
 const logger = pino({ name: 'capture-lead-tool' })
 
@@ -21,7 +21,14 @@ export function createCaptureLeadTool(
     parameters: z.object({
       clientName: z.string().describe('Nome completo do cliente'),
       insuranceType: z
-        .enum(['AUTO', 'LIFE', 'RESIDENTIAL', 'BUSINESS', 'TRAVEL', 'OTHER'])
+        .enum([
+          'AUTO',
+          'LIFE',
+          'RESIDENTIAL',
+          'CONDOMINIUM',
+          'BUSINESS',
+          'OTHER',
+        ])
         .describe('Tipo de seguro desejado'),
       details: z
         .string()
@@ -41,9 +48,19 @@ export function createCaptureLeadTool(
         }
       }
 
+      const storedContact = await Contact.findOne({
+        tenantId,
+        whatsappPhone: contactPhone,
+      }).lean()
+
+      const authoritativeName =
+        typeof storedContact?.name === 'string' && storedContact.name.length > 0
+          ? storedContact.name
+          : clientName
+
       try {
         const body = JSON.stringify({
-          clientName,
+          clientName: authoritativeName,
           clientPhone: contactPhone,
           insuranceType,
           notes: details ?? '',

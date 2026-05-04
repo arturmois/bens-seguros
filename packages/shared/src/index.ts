@@ -24,6 +24,22 @@ export {
   normalizeToMask,
   parseFlexibleDate,
 } from './date-utils'
+export {
+  BRANCH_VALUES,
+  branchEnum,
+  insuredObjectDetailsSchema,
+  isInsuredObjectDetails,
+} from './insured-object-details-schema'
+export type {
+  AutoDetails,
+  Branch,
+  BusinessDetails,
+  CondominiumDetails,
+  InsuredObjectDetails,
+  LifeDetails,
+  OtherDetails,
+  ResidentialDetails,
+} from './insured-object-details-schema'
 export { signRequest, verifyRequest } from './internal-auth'
 export { RATE_LIMITS } from './rate-limit-constants'
 export * from './socket-events'

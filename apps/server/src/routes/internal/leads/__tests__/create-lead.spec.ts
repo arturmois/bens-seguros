@@ -112,7 +112,7 @@ describe('POST /api/internal/leads', () => {
       payload: {
         clientName: 'João Silva',
         clientPhone: '11999999999',
-        insuranceType: 'VIDA',
+        insuranceType: 'LIFE',
       },
     })
 
@@ -178,7 +178,7 @@ describe('POST /api/internal/leads', () => {
       payload: {
         clientName: 'Maria Souza',
         clientPhone: '11988888888',
-        insuranceType: 'RESIDENCIAL',
+        insuranceType: 'RESIDENTIAL',
       },
     })
 

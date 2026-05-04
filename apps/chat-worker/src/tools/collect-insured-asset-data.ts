@@ -1,8 +1,8 @@
-import { tool } from 'ai'
-import { z } from 'zod'
-import pino from 'pino'
 import { env } from '@repo/env'
-import { signRequest } from '@repo/shared'
+import { insuredObjectDetailsSchema, signRequest } from '@repo/shared'
+import { tool } from 'ai'
+import pino from 'pino'
+import { z } from 'zod'
 
 const logger = pino({ name: 'collect-insured-asset-data-tool' })
 
@@ -11,22 +11,17 @@ const FETCH_TIMEOUT_MS = 10_000
 export function createCollectInsuredAssetDataTool(tenantId: string) {
   return tool({
     description:
-      'Registra os dados do bem segurado na proposta (veículo, imóvel, vida, etc.). Use após criar a proposta para completar os detalhes do objeto de seguro.',
+      'Registra os dados do bem segurado na proposta. Chame APENAS depois que captureLead retornar um proposalId. Os campos obrigatórios variam por branch.',
     parameters: z.object({
-      proposalId: z.string().describe('ID da proposta a ser atualizada'),
-      insuranceType: z
-        .enum([
-          'AUTO',
-          'RESIDENTIAL',
-          'LIFE',
-          'BUSINESS',
-          'CONDOMINIUM',
-          'TRAVEL',
-        ])
-        .describe('Tipo de seguro'),
-      data: z.record(z.unknown()).describe('Dados específicos do bem segurado'),
+      proposalId: z
+        .string()
+        .min(1)
+        .describe('ID da proposta retornado por captureLead'),
+      details: insuredObjectDetailsSchema.describe(
+        'Dados do bem segurado. O campo branch determina os campos obrigatórios.'
+      ),
     }),
-    execute: async ({ proposalId, insuranceType, data }) => {
+    execute: async ({ proposalId, details }) => {
       if (!env.INTERNAL_API_URL || !env.INTERNAL_API_SECRET) {
         logger.warn(
           { tenantId },
@@ -41,7 +36,7 @@ export function createCollectInsuredAssetDataTool(tenantId: string) {
       try {
         const path = `/api/internal/proposals/${proposalId}/details`
         const body = JSON.stringify({
-          details: { branch: insuranceType, ...data },
+          details,
           premiumValueInCents: 0,
           commissionBasisPoints: 0,
         })
