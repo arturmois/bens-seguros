@@ -2,17 +2,16 @@
 
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { Plus } from 'lucide-react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
+import { ListContactsConsentLgpd } from '@/api/model'
 import { CursorPagination } from '@/components/shared/cursor-pagination'
 import { DataTable } from '@/components/shared/data-table'
+import type { FilterValue } from '@/components/shared/filter-types'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
 import { UnifiedFilterBar } from '@/components/shared/unified-filter-bar'
-import type { FilterValue } from '@/components/shared/filter-types'
-import { ListContactsConsentLgpd } from '@/api/model'
 import { Button } from '@/components/ui/button'
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
@@ -23,6 +22,7 @@ import { CONTACT_FILTERS } from '../lib/filters'
 import type { ContactListItem } from '../lib/types'
 import { ContactCard } from './contact-card'
 import { createContactsColumns } from './contacts-columns'
+import { CreateContactDialog } from './create-contact-dialog'
 
 function toConsentLgpdParam(
   value: boolean | undefined
@@ -38,6 +38,12 @@ export function ContactList() {
   const router = useRouter()
   const pagination = useCursorPagination()
   const filters = useContactsFilters()
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
+
+  function handleContactCreated(contactId: string) {
+    setCreateDialogOpen(false)
+    router.push(`/contacts/${contactId}`)
+  }
 
   const debouncedSearch = useDebounce(filters.search, 300)
 
@@ -96,7 +102,7 @@ export function ContactList() {
         onFilterChange={handleFilterChange}
         onClearAll={handleClearAll}
       >
-        <Button render={<Link href="/contacts/new" />}>
+        <Button onClick={() => setCreateDialogOpen(true)}>
           <Plus className="size-4" />
           <span className="hidden sm:inline">Novo contato</span>
         </Button>
@@ -128,6 +134,12 @@ export function ContactList() {
         onNext={() => {
           if (nextCursor) pagination.goToNext(nextCursor)
         }}
+      />
+
+      <CreateContactDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onCreated={handleContactCreated}
       />
     </div>
   )

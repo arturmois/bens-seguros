@@ -31,26 +31,35 @@ export const contactParams = z.object({ id: z.string().min(1) })
 
 // ── Body schemas ────────────────────────────────────────────────────
 
-export const createContactBody = z
-  .object({
-    name: z.string().trim().min(1, 'Nome é obrigatório'),
-    phone: z.string().trim().optional(),
-    email: z.string().trim().email('Email inválido').optional(),
-    source: contactSourceEnum,
-    salespersonId: z.string().min(1).optional(),
-    tags: z.array(z.string()).optional(),
-    notes: z.string().optional(),
-    consentLgpd: z.boolean(),
-    birthDate: z.coerce.date().optional(),
-    socialMedia: z.record(z.string(), z.unknown()).optional(),
-  })
-  .refine((data) => Boolean(data.phone) || Boolean(data.email), {
-    message: 'Informe telefone ou email',
-  })
+export const createContactBody = z.object({
+  name: z.string().trim().min(1, 'Nome é obrigatório'),
+  phone: z
+    .string()
+    .trim()
+    .refine(
+      (value) => value.replace(/\D/g, '').length === 13,
+      'Telefone incompleto'
+    ),
+  email: z.string().trim().email('Email inválido').optional(),
+  source: contactSourceEnum,
+  salespersonId: z.string().min(1).optional(),
+  tags: z.array(z.string()).optional(),
+  notes: z.string().optional(),
+  consentLgpd: z.boolean(),
+  birthDate: z.coerce.date().optional(),
+  socialMedia: z.record(z.string(), z.unknown()).optional(),
+})
 
 export const updateContactBody = z.object({
   name: z.string().trim().min(1).optional(),
-  phone: z.string().trim().nullable().optional(),
+  phone: z
+    .string()
+    .trim()
+    .refine(
+      (value) => value.replace(/\D/g, '').length === 13,
+      'Telefone incompleto'
+    )
+    .optional(),
   email: z.string().trim().email().nullable().optional(),
   tags: z.array(z.string()).optional(),
   notes: z.string().nullable().optional(),

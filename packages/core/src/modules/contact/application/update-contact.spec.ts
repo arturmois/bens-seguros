@@ -10,7 +10,7 @@ const existing: ContactData = {
   id: 'c-1',
   organizationId: 'org-1',
   name: 'Maria',
-  phone: '+55119',
+  phone: '+5511999998888',
   email: null,
   source: 'MANUAL',
   salespersonId: 'u-1',

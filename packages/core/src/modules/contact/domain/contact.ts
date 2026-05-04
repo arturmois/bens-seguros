@@ -26,7 +26,7 @@ export interface ContactProps {
 export interface CreateContactInput {
   organizationId: string
   name: string
-  phone?: string
+  phone: string
   email?: string
   source: ContactSource
   salespersonId: string
@@ -44,15 +44,12 @@ export class Contact {
     if (!input.name || input.name.trim().length === 0) {
       throw ContactErrors.invalid('Nome do contato é obrigatório')
     }
-    if (!input.phone && !input.email) {
-      throw ContactErrors.invalid('Informe telefone ou email do contato')
-    }
     const now = new Date()
     return new Contact({
       id: randomUUID(),
       organizationId: input.organizationId,
       name: input.name.trim(),
-      phone: input.phone ?? null,
+      phone: input.phone,
       email: input.email ?? null,
       source: input.source,
       salespersonId: input.salespersonId,
@@ -134,7 +131,6 @@ export class Contact {
       Pick<
         ContactProps,
         | 'name'
-        | 'phone'
         | 'email'
         | 'tags'
         | 'notes'
@@ -142,7 +138,7 @@ export class Contact {
         | 'birthDate'
         | 'salespersonId'
       >
-    >
+    > & { phone?: string }
   ): void {
     if (input.name !== undefined) {
       if (input.name.trim().length === 0) {
@@ -150,11 +146,8 @@ export class Contact {
       }
       this.props.name = input.name.trim()
     }
-    if (input.phone !== undefined) this.props.phone = input.phone || null
+    if (input.phone !== undefined) this.props.phone = input.phone
     if (input.email !== undefined) this.props.email = input.email || null
-    if (this.props.phone === null && this.props.email === null) {
-      throw ContactErrors.invalid('Informe telefone ou email do contato')
-    }
     if (input.tags !== undefined) this.props.tags = input.tags
     if (input.notes !== undefined) this.props.notes = input.notes
     if (input.socialMedia !== undefined)

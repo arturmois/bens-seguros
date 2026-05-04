@@ -20,23 +20,13 @@ describe('Contact', () => {
     expect(c.clientId).toBeNull()
   })
 
-  it('creates contact with email only', () => {
-    const c = Contact.create({
-      ...baseInput,
-      phone: undefined,
-      email: 'maria@x.com',
-    })
+  it('creates contact with optional email', () => {
+    const c = Contact.create({ ...baseInput, email: 'maria@x.com' })
     expect(c.email).toBe('maria@x.com')
   })
 
   it('rejects empty name', () => {
     expect(() => Contact.create({ ...baseInput, name: '' })).toThrow(/nome/i)
-  })
-
-  it('rejects when both phone and email are missing', () => {
-    expect(() =>
-      Contact.create({ ...baseInput, phone: undefined, email: undefined })
-    ).toThrow(/telefone|email/i)
   })
 
   it('linkToClient sets clientId', () => {

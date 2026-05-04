@@ -68,7 +68,7 @@ export default function EditContactPage({ params }: EditContactPageProps) {
         </div>
       </div>
 
-      <Card className="max-w-3xl">
+      <Card>
         <CardHeader>
           <CardTitle>Dados do contato</CardTitle>
           <CardDescription>

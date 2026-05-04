@@ -57,18 +57,4 @@ describe('CreateContact', () => {
     ).rejects.toThrow(/nome/i)
     expect(repo.save).not.toHaveBeenCalled()
   })
-
-  it('rejects when phone and email both missing', async () => {
-    const repo = createMockRepo()
-    const useCase = new CreateContact(repo)
-    await expect(
-      useCase.execute({
-        organizationId: 'org-1',
-        name: 'Maria',
-        source: 'MANUAL',
-        salespersonId: 'user-1',
-        consentLgpd: true,
-      })
-    ).rejects.toThrow(/telefone|email/i)
-  })
 })

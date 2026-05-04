@@ -1,3 +1,5 @@
+import { ApiError } from './api-client'
+
 function isErrorResponse(
   data: unknown
 ): data is { error: { message: string } } {
@@ -10,6 +12,9 @@ function isErrorResponse(
 }
 
 export function extractErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof ApiError) {
+    return error.message.trim() || fallback
+  }
   if (
     typeof error === 'object' &&
     error !== null &&

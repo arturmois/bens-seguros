@@ -10,7 +10,7 @@ export interface UpdateContactInput {
   id: string
   organizationId: string
   name?: string
-  phone?: string | null
+  phone?: string
   email?: string | null
   tags?: string[]
   notes?: string | null
@@ -32,7 +32,7 @@ export class UpdateContact {
     const restored = Contact.restore(found)
     restored.updateBasic({
       name: input.name,
-      phone: input.phone === null ? null : (input.phone ?? undefined),
+      phone: input.phone,
       email: input.email === null ? null : (input.email ?? undefined),
       tags: input.tags,
       notes: input.notes ?? undefined,

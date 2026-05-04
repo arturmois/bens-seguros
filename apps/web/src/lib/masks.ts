@@ -9,7 +9,7 @@ export const CNPJ_MASK = {
 }
 
 export const PHONE_MASK = {
-  mask: '(__) _____-____',
+  mask: '+55 (__) _____-____',
   replacement: { _: /\d/ },
 }
 

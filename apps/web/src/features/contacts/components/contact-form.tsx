@@ -1,10 +1,12 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { InputMask } from '@react-input/mask'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 
 import { FormField } from '@/components/shared/form-field'
 import { Button } from '@/components/ui/button'
@@ -26,8 +28,10 @@ import { CreateContactBody as CreateContactBaseSchema } from '@/api/endpoints/co
 
 import { useCreateContact, useUpdateContact } from '../hooks/use-contacts'
 
-// Local form schema overrides: treat empty `email` and `phone` as absent so
-// users can submit with only one of them (the API invariant is `phone OR email`).
+import { PHONE_MASK } from '@/lib/masks'
+
+// Local form schema overrides: treat empty `email` and `notes` as absent.
+// Phone is required by the API — base schema's min(1) governs directly.
 const emptyToUndef = (value: unknown) =>
   typeof value === 'string' && value.trim() === '' ? undefined : value
 
@@ -36,9 +40,16 @@ const CreateContactSchema = CreateContactBaseSchema.extend({
     emptyToUndef,
     z.string().email('Email inválido').optional()
   ),
-  phone: z.preprocess(emptyToUndef, z.string().optional()),
   notes: z.preprocess(emptyToUndef, z.string().optional()),
+  phone: z
+    .string()
+    .trim()
+    .refine(
+      (value) => value.replace(/\D/g, '').length === 13,
+      'Telefone incompleto'
+    ),
 })
+
 import { CONTACT_SOURCE_OPTIONS } from '../lib/constants'
 import type {
   ContactSource,
@@ -51,6 +62,9 @@ interface ContactFormProps {
   readonly initial?: ContactWithStage
   readonly onSuccess?: (contactId: string) => void
   readonly onCancel?: () => void
+  readonly hideFooter?: boolean
+  readonly formId?: string
+  readonly onPendingChange?: (pending: boolean) => void
 }
 
 const EMPTY_FORM_VALUES: CreateContactValues = {
@@ -81,6 +95,9 @@ export function ContactForm({
   initial,
   onSuccess,
   onCancel,
+  hideFooter,
+  formId,
+  onPendingChange,
 }: ContactFormProps) {
   const router = useRouter()
   const createMutation = useCreateContact()
@@ -89,7 +106,7 @@ export function ContactForm({
 
   const form = useForm<CreateContactValues>({
     resolver: zodResolver(CreateContactSchema),
-    mode: 'onBlur',
+    mode: 'onSubmit',
     defaultValues: buildDefaultValues(initial),
   })
 
@@ -97,10 +114,14 @@ export function ContactForm({
     if (initial) form.reset(buildDefaultValues(initial))
   }, [initial, form])
 
+  useEffect(() => {
+    onPendingChange?.(isPending)
+  }, [isPending, onPendingChange])
+
   function handleSubmit(values: CreateContactValues) {
     const sanitized: CreateContactValues = {
       ...values,
-      phone: values.phone?.trim() ? values.phone.trim() : undefined,
+      phone: values.phone.trim(),
       email: values.email?.trim() ? values.email.trim() : undefined,
       notes: values.notes?.trim() ? values.notes.trim() : undefined,
     }
@@ -111,7 +132,7 @@ export function ContactForm({
           id: initial.id,
           data: {
             name: sanitized.name,
-            phone: sanitized.phone ?? null,
+            phone: sanitized.phone,
             email: sanitized.email ?? null,
             notes: sanitized.notes ?? null,
             tags: sanitized.tags ?? [],
@@ -130,8 +151,11 @@ export function ContactForm({
     createMutation.mutate(sanitized, {
       onSuccess: (response) => {
         const responseBody = response.data
-        if (!('data' in responseBody) || !responseBody.data?.id) return
-        const newId = responseBody.data.id
+        const newId = 'data' in responseBody ? responseBody.data?.id : undefined
+        if (!newId) {
+          toast.error('Resposta inesperada do servidor ao criar contato')
+          return
+        }
         onSuccess?.(newId)
         if (!onSuccess) router.push(`/contacts/${newId}`)
       },
@@ -151,6 +175,7 @@ export function ContactForm({
   return (
     <FormProvider {...form}>
       <form
+        id={formId}
         onSubmit={form.handleSubmit(handleSubmit)}
         className="space-y-6"
         noValidate
@@ -195,10 +220,20 @@ export function ContactForm({
             />
           </FormField>
 
-          <FormField label="Telefone" error={errors.phone?.message}>
-            <Input
-              placeholder="+55 (11) 99999-9999"
-              {...form.register('phone')}
+          <FormField label="Telefone" error={errors.phone?.message} required>
+            <Controller
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <InputMask
+                  component={Input}
+                  mask={PHONE_MASK.mask}
+                  replacement={PHONE_MASK.replacement}
+                  placeholder="+55 (11) 99999-9999"
+                  {...field}
+                  value={String(field.value ?? '')}
+                />
+              )}
             />
           </FormField>
 
@@ -238,15 +273,17 @@ export function ContactForm({
           </p>
         ) : null}
 
-        <div className="flex gap-3 pt-2">
-          <Button type="submit" disabled={isPending}>
-            {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-            {mode === 'create' ? 'Criar contato' : 'Salvar alterações'}
-          </Button>
-          <Button type="button" variant="outline" onClick={handleCancel}>
-            Cancelar
-          </Button>
-        </div>
+        {!hideFooter && (
+          <div className="flex gap-3 pt-2">
+            <Button type="submit" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {mode === 'create' ? 'Criar contato' : 'Salvar alterações'}
+            </Button>
+            <Button type="button" variant="outline" onClick={handleCancel}>
+              Cancelar
+            </Button>
+          </div>
+        )}
       </form>
     </FormProvider>
   )
