@@ -4,6 +4,6 @@ import { acceptInvitationRoute } from './accept-invitation.js'
 import { getPublicInvitationRoute } from './get-public-invitation.js'
 
 export function publicInvitationRoutes(app: FastifyInstance, auth: Auth) {
-  getPublicInvitationRoute(app)
+  getPublicInvitationRoute(app, auth)
   acceptInvitationRoute(app, auth)
 }

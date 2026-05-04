@@ -5,6 +5,10 @@ on:
     branches: [main]
   workflow_call:
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -28,5 +32,22 @@ jobs:
         if: github.event_name == 'pull_request'
       - run: pnpm test
       - name: Coverage report
-        run: pnpm test -- --coverage
+        run: pnpm exec turbo test -- --coverage --coverage.reporter=json-summary --coverage.reporter=text
         continue-on-error: true
+      - name: Quality Gates (passive — não bloqueia merge)
+        if: github.event_name == 'pull_request'
+        run: node .quality-gates/quality-gate.mjs --check
+        continue-on-error: true
+      - name: Upload quality gates report
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-gates-report
+          path: .quality-gates/output/
+          retention-days: 14
+      - name: Comentário no PR com diff vs baseline
+        if: always() && github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: quality-gates
+          path: .quality-gates/output/report.md

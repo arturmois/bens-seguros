@@ -51,6 +51,12 @@ export const publicInvitationResponse = successResponse(
     organizationName: z.string(),
     inviterName: z.string(),
     hasAccount: z.boolean(),
+    currentSession: z
+      .object({
+        userId: z.string(),
+        email: z.string(),
+      })
+      .nullable(),
   })
 )
 
@@ -63,6 +69,9 @@ export const acceptInvitationBodySchema = z.discriminatedUnion('mode', [
   z.object({
     mode: z.literal('login'),
     password: z.string().min(1),
+  }),
+  z.object({
+    mode: z.literal('current-session'),
   }),
 ])
 

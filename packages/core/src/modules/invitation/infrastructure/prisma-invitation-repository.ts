@@ -39,7 +39,7 @@ export class PrismaInvitationRepository implements InvitationRepository {
     const member = await this.prisma.member.findUnique({
       where: { organizationId_userId: { organizationId, userId } },
     })
-    return member !== null
+    return member !== null && member.active === true
   }
 
   async acceptAndCreateMember(
@@ -50,8 +50,12 @@ export class PrismaInvitationRepository implements InvitationRepository {
   ): Promise<void> {
     const memberRole = toRole(role)
     await this.prisma.$transaction([
-      this.prisma.member.create({
-        data: { organizationId, userId, role: memberRole },
+      // upsert handles both new member and reactivation of soft-deleted member.
+      // Composite unique key (organizationId, userId) drives the match.
+      this.prisma.member.upsert({
+        where: { organizationId_userId: { organizationId, userId } },
+        create: { organizationId, userId, role: memberRole },
+        update: { role: memberRole, active: true },
       }),
       this.prisma.invitation.update({
         where: { id: invitationId },

@@ -17,6 +17,11 @@ import { useQueryClient } from '@tanstack/react-query'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
+interface SessionRef {
+  readonly userId: string
+  readonly email: string
+}
+
 interface InvitationData {
   readonly id: string
   readonly email: string
@@ -24,12 +29,15 @@ interface InvitationData {
   readonly organizationName: string
   readonly inviterName: string
   readonly hasAccount: boolean
+  readonly currentSession: SessionRef | null
 }
 
 type PageState =
   | { kind: 'loading' }
   | { kind: 'register'; invitation: InvitationData }
   | { kind: 'login'; invitation: InvitationData }
+  | { kind: 'accept-as-current'; invitation: InvitationData }
+  | { kind: 'wrong-account'; invitation: InvitationData }
   | { kind: 'error'; variant: 'expired' | 'already_accepted' | 'not_found' }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -87,6 +95,7 @@ async function acceptInvitation(
   payload:
     | { mode: 'register'; name: string; password: string }
     | { mode: 'login'; password: string }
+    | { mode: 'current-session' }
 ): Promise<{ organizationId: string }> {
   const res = await fetch(`${API_BASE}/api/v1/invitations/${id}/accept`, {
     method: 'POST',
@@ -121,6 +130,58 @@ function resolveErrorVariant(
   if (err.code === 'INVITATION_ALREADY_ACCEPTED') return 'already_accepted'
   if (err.code === 'INVITATION_EXPIRED') return 'expired'
   return 'not_found'
+}
+
+interface AcceptErrorInfo {
+  readonly title: string
+  readonly description: string
+}
+
+function resolveAcceptError(err: unknown): AcceptErrorInfo {
+  if (!(err instanceof InvitationFetchError)) {
+    return {
+      title: 'Erro inesperado',
+      description: 'Tente novamente em alguns instantes.',
+    }
+  }
+  switch (err.code) {
+    case 'EMAIL_ALREADY_EXISTS':
+      return {
+        title: 'Email já cadastrado',
+        description:
+          'Este email já tem conta. Recarregue a página pra entrar com sua senha.',
+      }
+    case 'WEAK_PASSWORD':
+      return {
+        title: 'Senha não atende aos requisitos',
+        description: 'Use no mínimo 8 caracteres.',
+      }
+    case 'INVALID_CREDENTIALS':
+      return {
+        title: 'Senha incorreta',
+        description: 'Verifique a senha e tente novamente.',
+      }
+    case 'INVITATION_ALREADY_ACCEPTED':
+      return {
+        title: 'Convite já aceito',
+        description: 'Você já faz parte desta organização.',
+      }
+    case 'SESSION_EMAIL_MISMATCH':
+      return {
+        title: 'Conta não corresponde',
+        description: 'Saia da sessão atual e abra o convite novamente.',
+      }
+    case 'NO_SESSION':
+      return {
+        title: 'Sessão expirada',
+        description: 'Faça login pra continuar.',
+      }
+    default:
+      return {
+        title: 'Erro ao processar convite',
+        description: 'Tente novamente ou contate o suporte.',
+      }
+  }
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -182,16 +243,8 @@ function InvitationRegisterForm({
       })
       onSuccess(result.organizationId)
     } catch (err) {
-      const variant = resolveErrorVariant(err)
-      if (variant === 'already_accepted') {
-        toast.error('Convite já aceito', {
-          description: 'Você já faz parte desta organização.',
-        })
-      } else {
-        toast.error('Erro ao criar conta', {
-          description: 'Tente novamente ou contate o suporte.',
-        })
-      }
+      const info = resolveAcceptError(err)
+      toast.error(info.title, { description: info.description })
     }
   }
 
@@ -310,16 +363,8 @@ function InvitationLoginForm({
       })
       onSuccess(result.organizationId)
     } catch (err) {
-      const variant = resolveErrorVariant(err)
-      if (variant === 'already_accepted') {
-        toast.error('Convite já aceito', {
-          description: 'Você já faz parte desta organização.',
-        })
-      } else {
-        toast.error('Senha incorreta', {
-          description: 'Verifique sua senha e tente novamente.',
-        })
-      }
+      const info = resolveAcceptError(err)
+      toast.error(info.title, { description: info.description })
     }
   }
 
@@ -354,7 +399,92 @@ function InvitationLoginForm({
         {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
         Entrar e aceitar convite
       </Button>
+
+      <div className="text-muted-foreground pt-1 text-center text-xs">
+        <a href="/reset-password" className="hover:text-foreground underline">
+          Esqueci minha senha
+        </a>
+      </div>
     </form>
+  )
+}
+
+interface InvitationAcceptAsCurrentProps {
+  readonly invitation: InvitationData
+  readonly onSuccess: (orgId: string) => void
+}
+
+function InvitationAcceptAsCurrent({
+  invitation,
+  onSuccess,
+}: InvitationAcceptAsCurrentProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  async function handleAccept() {
+    setIsSubmitting(true)
+    try {
+      const result = await acceptInvitation(invitation.id, {
+        mode: 'current-session',
+      })
+      onSuccess(result.organizationId)
+    } catch (err) {
+      const info = resolveAcceptError(err)
+      toast.error(info.title, { description: info.description })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-muted/50 rounded-md border p-3 text-sm">
+        Você está logado como <strong>{invitation.email}</strong> — basta um
+        clique pra aceitar este convite.
+      </div>
+      <Button
+        type="button"
+        className="w-full"
+        disabled={isSubmitting}
+        onClick={handleAccept}
+      >
+        {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
+        Aceitar convite
+      </Button>
+    </div>
+  )
+}
+
+interface InvitationWrongAccountProps {
+  readonly invitation: InvitationData
+}
+
+function InvitationWrongAccount({ invitation }: InvitationWrongAccountProps) {
+  const sessionEmail = invitation.currentSession?.email ?? ''
+
+  async function handleSignOut() {
+    await fetch(`${API_BASE}/api/auth/sign-out`, {
+      method: 'POST',
+      credentials: 'include',
+    }).catch(() => null)
+    window.location.reload()
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="border-destructive/40 bg-destructive/5 rounded-md border p-3 text-sm">
+        Você está logado como <strong>{sessionEmail}</strong>, mas este convite
+        é pra <strong>{invitation.email}</strong>. Saia da sessão atual pra
+        continuar.
+      </div>
+      <Button
+        type="button"
+        variant="destructive"
+        className="w-full"
+        onClick={handleSignOut}
+      >
+        Sair e abrir o convite novamente
+      </Button>
+    </div>
   )
 }
 
@@ -416,6 +546,14 @@ export function AcceptInvitationContent() {
 
     fetchInvitation(invitationId)
       .then((invitation) => {
+        if (invitation.currentSession) {
+          const matches = invitation.currentSession.email === invitation.email
+          setState({
+            kind: matches ? 'accept-as-current' : 'wrong-account',
+            invitation,
+          })
+          return
+        }
         setState({
           kind: invitation.hasAccount ? 'login' : 'register',
           invitation,
@@ -464,6 +602,15 @@ export function AcceptInvitationContent() {
           invitation={state.invitation}
           onSuccess={handleSuccess}
         />
+      )}
+      {state.kind === 'accept-as-current' && (
+        <InvitationAcceptAsCurrent
+          invitation={state.invitation}
+          onSuccess={handleSuccess}
+        />
+      )}
+      {state.kind === 'wrong-account' && (
+        <InvitationWrongAccount invitation={state.invitation} />
       )}
     </div>
   )

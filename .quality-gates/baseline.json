@@ -1,0 +1,395 @@
+{
+  "collectedAt": "2026-05-04T18:56:41.202Z",
+  "fileSize": {
+    "limit": 200,
+    "totalFiles": 1071,
+    "violationsCount": 78,
+    "violations": [
+      {
+        "path": "packages/db/prisma/seed.ts",
+        "lines": 1256
+      },
+      {
+        "path": "apps/web/src/components/ui/sidebar.tsx",
+        "lines": 740
+      },
+      {
+        "path": "apps/chat-server/src/infra/http/routes/meta-routes.ts",
+        "lines": 693
+      },
+      {
+        "path": "apps/web/src/components/ui/drawer.tsx",
+        "lines": 627
+      },
+      {
+        "path": "apps/server/src/routes/v1/stats/stats-helpers.ts",
+        "lines": 603
+      },
+      {
+        "path": "apps/chat-worker/src/index.ts",
+        "lines": 481
+      },
+      {
+        "path": "apps/web/src/app/(onboarding)/accept-invitation/content.tsx",
+        "lines": 471
+      },
+      {
+        "path": "apps/web/src/components/ui/combobox.tsx",
+        "lines": 442
+      },
+      {
+        "path": "apps/chat-server/src/infra/http/routes/webhook-routes.ts",
+        "lines": 424
+      },
+      {
+        "path": "apps/server/src/app.ts",
+        "lines": 413
+      },
+      {
+        "path": "apps/server/src/container-registrations.ts",
+        "lines": 406
+      },
+      {
+        "path": "packages/core/src/modules/proposal/domain/proposal.ts",
+        "lines": 385
+      },
+      {
+        "path": "apps/web/src/features/channels/components/channels-page.tsx",
+        "lines": 347
+      },
+      {
+        "path": "apps/chat-server/src/infra/socket/socket-handler.ts",
+        "lines": 335
+      },
+      {
+        "path": "apps/worker/src/processors/csv-import-processor.ts",
+        "lines": 333
+      },
+      {
+        "path": "apps/chat-worker/src/processors/ai-bot-processor.ts",
+        "lines": 326
+      },
+      {
+        "path": "apps/web/src/components/ui/menu.tsx",
+        "lines": 326
+      },
+      {
+        "path": "apps/server/src/pdf-templates/policy-summary-pdf.tsx",
+        "lines": 325
+      },
+      {
+        "path": "apps/web/src/components/layout/sidebar.tsx",
+        "lines": 316
+      },
+      {
+        "path": "apps/web/src/components/ui/autocomplete.tsx",
+        "lines": 315
+      },
+      {
+        "path": "apps/chat-server/src/app.ts",
+        "lines": 310
+      },
+      {
+        "path": "apps/web/src/features/contacts/components/contact-form.tsx",
+        "lines": 291
+      },
+      {
+        "path": "apps/web/src/features/documents/components/document-list.tsx",
+        "lines": 286
+      },
+      {
+        "path": "apps/web/src/features/channels/components/channel-qr-dialog.tsx",
+        "lines": 284
+      },
+      {
+        "path": "apps/web/src/features/chat/hooks/use-messages.ts",
+        "lines": 282
+      },
+      {
+        "path": "apps/web/src/components/ui/toast.tsx",
+        "lines": 281
+      },
+      {
+        "path": "packages/core/src/modules/contact/infrastructure/prisma-contact-repository.ts",
+        "lines": 276
+      },
+      {
+        "path": "apps/chat-server/src/infra/http/routes/channel-routes.ts",
+        "lines": 269
+      },
+      {
+        "path": "apps/web/src/features/assistances/components/assistance-form.tsx",
+        "lines": 266
+      },
+      {
+        "path": "apps/web/src/components/ui/command.tsx",
+        "lines": 265
+      },
+      {
+        "path": "apps/web/src/features/claims/components/claim-detail.tsx",
+        "lines": 265
+      },
+      {
+        "path": "apps/web/src/components/ui/select.tsx",
+        "lines": 256
+      },
+      {
+        "path": "apps/web/src/features/claims/components/claim-form.tsx",
+        "lines": 256
+      },
+      {
+        "path": "packages/core/src/modules/client/infrastructure/prisma-client-repository.ts",
+        "lines": 256
+      },
+      {
+        "path": "apps/server/src/pdf-templates/insured-object-section.tsx",
+        "lines": 254
+      },
+      {
+        "path": "apps/web/src/components/ui/card.tsx",
+        "lines": 254
+      },
+      {
+        "path": "apps/web/src/features/policies/components/policy-detail.tsx",
+        "lines": 254
+      },
+      {
+        "path": "apps/web/src/components/shared/command-palette.tsx",
+        "lines": 251
+      },
+      {
+        "path": "apps/chat-server/src/infra/repository/mongoose-conversation-repository.ts",
+        "lines": 248
+      },
+      {
+        "path": "apps/web/src/features/chat/components/conversation-list.tsx",
+        "lines": 248
+      },
+      {
+        "path": "apps/chat-server/src/infra/http/routes/channel-meta-service.ts",
+        "lines": 246
+      },
+      {
+        "path": "apps/web/src/features/endorsements/components/endorsement-form.tsx",
+        "lines": 245
+      },
+      {
+        "path": "apps/chat-worker/src/messaging/baileys-broker.ts",
+        "lines": 242
+      },
+      {
+        "path": "apps/server/src/__tests__/helpers/factories.ts",
+        "lines": 242
+      },
+      {
+        "path": "apps/web/src/features/commissions/components/commission-detail.tsx",
+        "lines": 238
+      },
+      {
+        "path": "apps/web/src/features/claims/components/claims-table.tsx",
+        "lines": 235
+      },
+      {
+        "path": "apps/server/src/routes/v1/policies/generate-policy-pdf.ts",
+        "lines": 232
+      },
+      {
+        "path": "apps/web/src/features/proposals/lib/constants.ts",
+        "lines": 232
+      },
+      {
+        "path": "apps/web/src/features/chat/hooks/use-conversations.ts",
+        "lines": 231
+      },
+      {
+        "path": "apps/web/src/components/ui/sheet.tsx",
+        "lines": 230
+      },
+      {
+        "path": "apps/web/src/features/clients/components/client-detail.tsx",
+        "lines": 226
+      },
+      {
+        "path": "apps/web/src/features/channels/components/channel-form-dialog.tsx",
+        "lines": 224
+      },
+      {
+        "path": "apps/web/src/features/channels/components/meta-embedded-signup.tsx",
+        "lines": 224
+      },
+      {
+        "path": "apps/web/src/features/insurers/components/insurers-table.tsx",
+        "lines": 223
+      },
+      {
+        "path": "packages/aggilizador/src/builders/auto-payload-builder.ts",
+        "lines": 223
+      },
+      {
+        "path": "apps/web/src/features/auth/components/register-form.tsx",
+        "lines": 222
+      },
+      {
+        "path": "apps/server/src/routes/v1/proposals/_schemas.ts",
+        "lines": 219
+      },
+      {
+        "path": "apps/web/src/components/ui/dialog.tsx",
+        "lines": 219
+      },
+      {
+        "path": "apps/web/src/features/policies/components/policies-table.tsx",
+        "lines": 219
+      },
+      {
+        "path": "apps/chat-server/src/infra/http/routes/meta-oauth-service.ts",
+        "lines": 218
+      },
+      {
+        "path": "apps/web/src/components/shared/policy-search.tsx",
+        "lines": 213
+      },
+      {
+        "path": "apps/server/src/pdf-templates/proposal-quote-pdf.tsx",
+        "lines": 211
+      },
+      {
+        "path": "apps/web/src/features/assistances/components/assistance-detail.tsx",
+        "lines": 211
+      },
+      {
+        "path": "apps/web/src/features/channels/components/channel-form-fields.tsx",
+        "lines": 211
+      },
+      {
+        "path": "apps/web/src/features/clients/components/clients-table.tsx",
+        "lines": 211
+      },
+      {
+        "path": "apps/chat-worker/src/tools/list-products.ts",
+        "lines": 209
+      },
+      {
+        "path": "apps/web/src/features/ai-agents/components/ai-agent-form-dialog.tsx",
+        "lines": 209
+      },
+      {
+        "path": "packages/core/src/modules/commission/infrastructure/prisma-commission-repository.ts",
+        "lines": 209
+      },
+      {
+        "path": "apps/chat-worker/src/processors/messaging-platform-processor.ts",
+        "lines": 208
+      },
+      {
+        "path": "apps/web/src/features/contacts/components/contact-search.tsx",
+        "lines": 208
+      },
+      {
+        "path": "apps/web/src/features/proposals/components/proposal-detail/index.tsx",
+        "lines": 206
+      },
+      {
+        "path": "packages/core/src/modules/commission/domain/commission.ts",
+        "lines": 206
+      },
+      {
+        "path": "apps/server/src/routes/v1/policies/import-policies.ts",
+        "lines": 205
+      },
+      {
+        "path": "apps/web/src/features/documents/components/document-upload.tsx",
+        "lines": 204
+      },
+      {
+        "path": "apps/server/src/routes/v1/clients/import-clients.ts",
+        "lines": 203
+      },
+      {
+        "path": "apps/web/src/features/ai-agents/components/ai-agents-table.tsx",
+        "lines": 203
+      },
+      {
+        "path": "apps/web/src/features/commissions/components/commissions-table.tsx",
+        "lines": 203
+      },
+      {
+        "path": "apps/web/src/features/address/components/address-fields-with-cep.spec.tsx",
+        "lines": 202
+      }
+    ]
+  },
+  "eslint": {
+    "errors": 0,
+    "warnings": 0,
+    "byRule": {},
+    "topRules": [],
+    "perWorkspace": [
+      {
+        "workspace": "@app/server",
+        "dir": "apps/server",
+        "errors": 0,
+        "warnings": 0
+      },
+      {
+        "workspace": "@app/web",
+        "dir": "apps/web",
+        "errors": 0,
+        "warnings": 0
+      }
+    ]
+  },
+  "duplication": {
+    "percentage": 4.49,
+    "duplicatedLines": 4672,
+    "totalLines": 104125,
+    "clones": 258
+  },
+  "coverage": {
+    "collected": true,
+    "perWorkspace": [
+      {
+        "workspace": "apps/chat-server",
+        "linesPct": 9.55
+      },
+      {
+        "workspace": "apps/server",
+        "linesPct": 67.13
+      },
+      {
+        "workspace": "apps/web",
+        "linesPct": 69.63
+      },
+      {
+        "workspace": "packages/aggilizador",
+        "linesPct": 91.28
+      },
+      {
+        "workspace": "packages/auth",
+        "linesPct": 24.56
+      },
+      {
+        "workspace": "packages/core",
+        "linesPct": 49.62
+      },
+      {
+        "workspace": "packages/shared",
+        "linesPct": 34.37
+      }
+    ],
+    "lines": {
+      "pct": 49.48,
+      "covered": 11838,
+      "total": 23923
+    },
+    "statements": {
+      "pct": 49.48
+    },
+    "branches": {
+      "pct": 78.93
+    },
+    "functions": {
+      "pct": 75.44
+    }
+  }
+}
