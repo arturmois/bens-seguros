@@ -1,4 +1,5 @@
 import type {
+  CreateClientBody,
   GetClient200Data,
   ListClients200DataItem,
   ListClients200DataItemPersonType,
@@ -14,3 +15,5 @@ export interface ClientFilters {
   readonly cursor?: string
   readonly limit?: number
 }
+
+export type ClientFormValues = CreateClientBody

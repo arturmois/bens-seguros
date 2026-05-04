@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import {
+  createClient,
   deleteClient,
   getListClientsQueryKey,
   useGetClient,
@@ -19,7 +20,7 @@ import type {
 
 import { extractErrorMessage } from '@/lib/extract-error-message'
 
-import type { ClientFilters } from '../lib/types'
+import type { ClientFilters, ClientFormValues } from '../lib/types'
 
 interface ClientsQueryData {
   readonly data: ListClients200DataItem[]
@@ -66,6 +67,24 @@ export function useDeleteClient() {
     },
     onError: (error) => {
       const message = extractErrorMessage(error, 'Erro ao excluir cliente')
+      toast.error(message)
+    },
+  })
+}
+
+export function useCreateClient() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (values: ClientFormValues) => createClient(values),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getListClientsQueryKey(),
+      })
+      toast.success('Cliente criado com sucesso')
+    },
+    onError: (error) => {
+      const message = extractErrorMessage(error, 'Erro ao criar cliente')
       toast.error(message)
     },
   })

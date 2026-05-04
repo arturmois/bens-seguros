@@ -43,7 +43,7 @@ export const PromoteContactResponse = zod.object({
 
 export const CreateContactBody = zod.object({
   name: zod.string().min(1),
-  phone: zod.string().min(1),
+  phone: zod.string(),
   email: zod.string().email().optional(),
   source: zod.enum([
     'MANUAL',
@@ -189,7 +189,7 @@ export const UpdateContactParams = zod.object({
 
 export const UpdateContactBody = zod.object({
   name: zod.string().min(1).optional(),
-  phone: zod.string().min(1).optional(),
+  phone: zod.string().optional(),
   email: zod.string().email().nullish(),
   tags: zod.array(zod.string()).optional(),
   notes: zod.string().nullish(),

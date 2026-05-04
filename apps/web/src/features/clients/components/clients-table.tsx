@@ -35,6 +35,7 @@ import { ClientCard } from './client-card'
 import { ClientExportButton } from './client-export-button'
 import { ClientImportButton } from './client-import-button'
 import { createClientColumns } from './clients-columns'
+import { NewClientButton } from './new-client-button'
 
 function parseHasActivePolicy(value: string): boolean | undefined {
   if (value === 'true') return true
@@ -158,6 +159,7 @@ export function ClientsContent() {
             hasActivePolicy: parseHasActivePolicy(activePolicyFilter),
           }}
         />
+        <NewClientButton />
       </TableToolbar>
 
       <DataTable

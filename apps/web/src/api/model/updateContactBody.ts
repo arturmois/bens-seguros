@@ -9,7 +9,6 @@ import type { UpdateContactBodySocialMedia } from './updateContactBodySocialMedi
 export type UpdateContactBody = {
   /** @minLength 1 */
   name?: string
-  /** @minLength 1 */
   phone?: string
   /** @nullable */
   email?: string | null

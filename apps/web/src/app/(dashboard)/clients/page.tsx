@@ -14,7 +14,7 @@ export default function ClientsPage() {
           { label: 'Clientes' },
         ]}
         title="Clientes"
-        description="Clientes (registros fiscais). Para criar, vá em Contatos e promova."
+        description="Clientes (registros fiscais)."
       />
       <ClientsContent />
     </div>

@@ -14,6 +14,16 @@ export const personTypeEnum = z.enum(PERSON_TYPE_VALUES)
 
 // --- Body schemas ---
 
+export const createClientBodySchema = z.object({
+  legalName: z.string().trim().min(1).max(200),
+  document: z.string().trim().min(11).max(14),
+  personType: personTypeEnum.default('INDIVIDUAL'),
+  profession: z.string().trim().max(100).nullable().optional(),
+  maritalStatus: maritalStatusEnum.nullable().optional(),
+  address: z.record(z.string(), z.unknown()).nullable().optional(),
+  fiscalBirthDate: z.coerce.date().nullable().optional(),
+})
+
 export const updateClientBodySchema = z.object({
   legalName: z.string().trim().min(1).optional(),
   personType: personTypeEnum.optional(),
@@ -78,6 +88,7 @@ export const clientDataSchema = z.object({
 export const clientListResponse = paginatedResponse(clientWithMetricsSchema)
 export const clientDetailResponse = successResponse(clientWithMetricsSchema)
 export const clientUpdateResponse = successResponse(clientDataSchema)
+export const clientCreateResponse = successResponse(clientWithMetricsSchema)
 export const deleteResponse = z.void()
 export { errorResponse }
 

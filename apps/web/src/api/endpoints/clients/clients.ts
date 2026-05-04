@@ -21,6 +21,8 @@ import type {
 } from '@tanstack/react-query'
 
 import type {
+  CreateClient201,
+  CreateClientBody,
   ExportClientsParams,
   GetClient200,
   ImportConfirmClients200,
@@ -903,6 +905,101 @@ export const prefetchImportStatusClientsQuery = async <
   return queryClient
 }
 
+/**
+ * @summary Create a client (fiscal data)
+ */
+export type createClientResponse201 = {
+  data: CreateClient201
+  status: 201
+}
+
+export type createClientResponseSuccess = createClientResponse201 & {
+  headers: Headers
+}
+export type createClientResponse = createClientResponseSuccess
+
+export const getCreateClientUrl = () => {
+  return `/api/v1/clients`
+}
+
+export const createClient = async (
+  createClientBody: CreateClientBody,
+  options?: RequestInit
+): Promise<createClientResponse> => {
+  return customFetch<createClientResponse>(getCreateClientUrl(), {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(createClientBody),
+  })
+}
+
+export const getCreateClientMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createClient>>,
+    TError,
+    { data: CreateClientBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customFetch>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createClient>>,
+  TError,
+  { data: CreateClientBody },
+  TContext
+> => {
+  const mutationKey = ['createClient']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createClient>>,
+    { data: CreateClientBody }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return createClient(data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type CreateClientMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createClient>>
+>
+export type CreateClientMutationBody = CreateClientBody
+export type CreateClientMutationError = unknown
+
+/**
+ * @summary Create a client (fiscal data)
+ */
+export const useCreateClient = <TError = unknown, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof createClient>>,
+      TError,
+      { data: CreateClientBody },
+      TContext
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof createClient>>,
+  TError,
+  { data: CreateClientBody },
+  TContext
+> => {
+  return useMutation(getCreateClientMutationOptions(options), queryClient)
+}
 /**
  * @summary List clients with cursor pagination
  */

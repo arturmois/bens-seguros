@@ -13,6 +13,9 @@ export function registerAuthRoutes(
   app.route({
     method: ['GET', 'POST'],
     url: '/api/auth/*',
+    schema: {
+      hide: true,
+    },
     preHandler: authRateLimitHook,
     async handler(request, reply) {
       const url = new URL(request.url, `http://${request.headers.host}`)

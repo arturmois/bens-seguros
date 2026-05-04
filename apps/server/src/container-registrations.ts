@@ -11,6 +11,7 @@ import {
   CreateAssistance,
   CreateClaim,
   CreateCommission,
+  CreateClient,
   CreateContact,
   CreateEndorsement,
   CreateInsurer,
@@ -151,6 +152,9 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register('StorageProvider', { useValue: storageProvider })
 
   // Client use cases
+  container.register(CreateClient, {
+    useFactory: () => new CreateClient(clientRepo),
+  })
   container.register(ListClients, {
     useFactory: () => new ListClients(clientRepo),
   })

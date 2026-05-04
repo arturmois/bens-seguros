@@ -10,7 +10,6 @@ import type { CreateContactBodySource } from './createContactBodySource'
 export type CreateContactBody = {
   /** @minLength 1 */
   name: string
-  /** @minLength 1 */
   phone: string
   email?: string
   source: CreateContactBodySource

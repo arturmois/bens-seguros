@@ -1,5 +1,7 @@
 import type { SortingState, VisibilityState } from '@tanstack/react-table'
 
+import type { CreateClientBodyMaritalStatus } from '@/api/model'
+
 import type { ClientPersonType } from './types'
 
 interface SelectOption<TValue extends string> {
@@ -24,6 +26,16 @@ export const PERSON_TYPE_BADGE_VARIANT: Record<
   INDIVIDUAL: 'default',
   COMPANY: 'secondary',
 }
+
+export const MARITAL_STATUS_OPTIONS: readonly SelectOption<
+  NonNullable<CreateClientBodyMaritalStatus>
+>[] = [
+  { value: 'SINGLE', label: 'Solteiro(a)' },
+  { value: 'MARRIED', label: 'Casado(a)' },
+  { value: 'DIVORCED', label: 'Divorciado(a)' },
+  { value: 'WIDOWED', label: 'Viúvo(a)' },
+  { value: 'OTHER', label: 'Outro' },
+] as const
 
 export const ACTIVE_POLICY_FILTER_OPTIONS = [
   { value: '', label: 'Todos' },

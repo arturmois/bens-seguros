@@ -86,6 +86,34 @@ export const ImportStatusClientsResponse = zod.object({
 })
 
 /**
+ * @summary Create a client (fiscal data)
+ */
+export const createClientBodyLegalNameMax = 200
+
+export const createClientBodyDocumentMin = 11
+export const createClientBodyDocumentMax = 14
+
+export const createClientBodyPersonTypeDefault = `INDIVIDUAL`
+export const createClientBodyProfessionMax = 100
+
+export const CreateClientBody = zod.object({
+  legalName: zod.string().min(1).max(createClientBodyLegalNameMax),
+  document: zod
+    .string()
+    .min(createClientBodyDocumentMin)
+    .max(createClientBodyDocumentMax),
+  personType: zod
+    .enum(['INDIVIDUAL', 'COMPANY'])
+    .default(createClientBodyPersonTypeDefault),
+  profession: zod.string().max(createClientBodyProfessionMax).nullish(),
+  maritalStatus: zod
+    .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
+    .nullish(),
+  address: zod.record(zod.string(), zod.unknown()).nullish(),
+  fiscalBirthDate: zod.string().datetime({}).nullish(),
+})
+
+/**
  * @summary List clients with cursor pagination
  */
 export const listClientsQueryLimitDefault = 20

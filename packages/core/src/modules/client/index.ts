@@ -32,6 +32,8 @@ export { ExportClientsCsv } from './application/export-clients-csv.js'
 export { GetClient } from './application/get-client.js'
 export { ListClients } from './application/list-clients.js'
 export { UpdateClient } from './application/update-client.js'
+export { CreateClient } from './application/create-client.js'
+export type { CreateClientInput } from './application/create-client.js'
 
 export { clientImportRowSchema } from './application/client-import-schema.js'
 export type { ClientImportRow } from './application/client-import-schema.js'
