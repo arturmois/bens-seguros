@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect } from 'react'
-import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
+import { useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -19,7 +19,6 @@ import { FormField } from '@/components/ui/form-field'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
-import type { AiAgentData } from '../types'
 import {
   useAiAgent,
   useAvailableTools,
@@ -31,6 +30,7 @@ import {
   DEFAULT_AGENT_FORM,
   type AiAgentFormValues,
 } from '../lib/schemas'
+import type { AiAgentData } from '../types'
 import {
   ActiveToggle,
   AiAgentNumericFields,
@@ -148,12 +148,12 @@ export function AiAgentFormDialog({
             <FormField
               label="System Prompt"
               error={form.formState.errors.systemPrompt?.message}
-              helperText="Instruções de comportamento do agente. Max 2000 caracteres."
+              helperText="Instruções de comportamento do agente. Max 4000 caracteres."
             >
               <Textarea
                 placeholder="Você é um assistente especializado em seguros..."
                 rows={5}
-                maxLength={2000}
+                maxLength={4000}
                 {...form.register('systemPrompt')}
               />
             </FormField>

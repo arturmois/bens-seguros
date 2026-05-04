@@ -8,7 +8,7 @@ export const aiAgentFormSchema = z.object({
   description: z.string().max(300, 'Descrição muito longa').optional(),
   systemPrompt: z
     .string()
-    .max(2000, 'Prompt deve ter no máximo 2000 caracteres')
+    .max(4000, 'Prompt deve ter no máximo 4000 caracteres')
     .optional(),
   provider: z.enum(['claude', 'openai']),
   temperature: z.coerce.number().min(0).max(1),
