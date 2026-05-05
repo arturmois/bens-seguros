@@ -2,6 +2,7 @@ import type { Auth } from '@repo/auth'
 import {
   AcceptInvitation,
   container,
+  type CacheService,
   type InvitationRepository,
 } from '@repo/core'
 import { RATE_LIMITS } from '@repo/shared'
@@ -36,6 +37,14 @@ function errorReply(
 
 function applyCookies(reply: FastifyReply, cookies: readonly string[]): void {
   for (const cookie of cookies) reply.header('set-cookie', cookie)
+}
+
+function resolveCache(): CacheService | null {
+  try {
+    return container.resolve<CacheService>('CacheService')
+  } catch {
+    return null
+  }
 }
 
 export function acceptInvitationRoute(app: FastifyInstance, auth: Auth) {
@@ -123,6 +132,14 @@ export function acceptInvitationRoute(app: FastifyInstance, auth: Auth) {
         logger: request.log,
       })
       applyCookies(reply, orgCookies)
+
+      // Invalidate the members listing cache so the new/reactivated member
+      // appears immediately for owners/admins (matches create-invitation,
+      // delete-member, and update-member-role conventions).
+      const cacheService = resolveCache()
+      if (cacheService) {
+        await cacheService.delete(`cache:${result.organizationId}:members`)
+      }
 
       return reply.send({
         success: true,
