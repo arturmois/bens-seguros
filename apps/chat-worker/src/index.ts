@@ -324,15 +324,15 @@ async function bootstrap(): Promise<void> {
     { ...workerDefaults, concurrency: 5 }
   )
 
-  const incomingWorker = new Worker(
-    CHAT_QUEUES.PROCESS_INCOMING,
-    createIncomingMessageProcessor(pubsubRedis, aiBotQueue),
-    { ...workerDefaults, concurrency: 3 }
-  )
-
   const sendMessageQueue = new Queue(CHAT_QUEUES.SEND_MESSAGE, {
     connection: bullmqConnection,
   })
+
+  const incomingWorker = new Worker(
+    CHAT_QUEUES.PROCESS_INCOMING,
+    createIncomingMessageProcessor(pubsubRedis, aiBotQueue, sendMessageQueue),
+    { ...workerDefaults, concurrency: 3 }
+  )
 
   const aiBotWorker = new Worker(
     CHAT_QUEUES.AI_BOT,

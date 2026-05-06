@@ -1,14 +1,24 @@
 import type { Queue } from 'bullmq'
+import { Channel, Contact, Message } from '@repo/db-chat'
+import {
+  CLIENT_CLOSE_CONFIRMATION_TEXT,
+  CLIENT_CLOSE_SYSTEM_MESSAGE,
+  detectClientCommand,
+  isRecord,
+} from '@repo/shared'
 import pino from 'pino'
 import { z } from 'zod'
-import { Channel, Contact, Message } from '@repo/db-chat'
-import { isRecord } from '@repo/shared'
+
 import type { PubsubClient } from '../types/pubsub-client.js'
-import type { MessagingPlatformJobData } from './incoming-message-processor.js'
+import { closeConversationOnMongo } from './close-conversation-helper.js'
 import {
+  DEFAULT_JOB_OPTIONS,
+  enqueueAiBotJob,
+  findOpenConversation,
   findOrCreateConversationAtomic,
   publishMessageEvents,
 } from './incoming-message-helpers.js'
+import type { MessagingPlatformJobData } from './incoming-message-processor.js'
 
 const logger = pino({ name: 'messaging-platform-processor' })
 
@@ -83,7 +93,8 @@ async function fetchMetaContactName(
 export async function processMessagingPlatformMessage(
   data: MessagingPlatformJobData,
   pubsubClient: PubsubClient,
-  aiBotQueue: Queue
+  aiBotQueue: Queue,
+  sendMessageQueue: Queue
 ): Promise<void> {
   const {
     source,
@@ -153,6 +164,25 @@ export async function processMessagingPlatformMessage(
     name: contactName,
   })
 
+  const messageType = attachmentType ?? (text ? 'TEXT' : 'OTHER')
+
+  const command = detectClientCommand(text, messageType)
+  if (command === 'CLOSE') {
+    await handleClientCloseCommandPlatform({
+      tenantId,
+      channelId,
+      contactId,
+      senderId,
+      contactName: existingContact?.name ?? contactName ?? null,
+      text: text ?? '',
+      messageId,
+      timestamp,
+      pubsubClient,
+      sendMessageQueue,
+    })
+    return
+  }
+
   const {
     id: conversationId,
     status: conversationStatus,
@@ -164,8 +194,6 @@ export async function processMessagingPlatformMessage(
     phone: senderId,
     hasAiUser: Boolean(channel.aiAgentId),
   })
-
-  const messageType = attachmentType ?? (text ? 'TEXT' : 'OTHER')
 
   const senderName = existingContact?.name ?? contactName ?? senderId
 
@@ -181,7 +209,7 @@ export async function processMessagingPlatformMessage(
     externalId: messageId,
   })
 
-  await publishMessageEvents(pubsubClient, aiBotQueue, {
+  await publishMessageEvents(pubsubClient, {
     savedMessage,
     conversationId,
     tenantId,
@@ -194,6 +222,15 @@ export async function processMessagingPlatformMessage(
     isNew,
   })
 
+  if (conversationStatus === 'BOT_ACTIVE') {
+    await enqueueAiBotJob(
+      aiBotQueue,
+      conversationId,
+      tenantId,
+      String(savedMessage._id)
+    )
+  }
+
   logger.info(
     {
       externalId: messageId,
@@ -203,5 +240,129 @@ export async function processMessagingPlatformMessage(
       conversationStatus,
     },
     'Messaging platform incoming message processed'
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Client close command handler
+// ---------------------------------------------------------------------------
+
+interface HandleClientCloseCommandPlatformOptions {
+  readonly tenantId: string
+  readonly channelId: string
+  readonly contactId: string
+  readonly senderId: string
+  readonly contactName: string | null
+  readonly text: string
+  readonly messageId: string
+  readonly timestamp: number
+  readonly pubsubClient: PubsubClient
+  readonly sendMessageQueue: Queue
+}
+
+async function handleClientCloseCommandPlatform(
+  options: HandleClientCloseCommandPlatformOptions
+): Promise<void> {
+  const {
+    tenantId,
+    channelId,
+    contactId,
+    senderId,
+    contactName,
+    text,
+    messageId,
+    timestamp,
+    pubsubClient,
+    sendMessageQueue,
+  } = options
+
+  const open = await findOpenConversation(tenantId, channelId, contactId)
+  if (!open) {
+    logger.debug(
+      { tenantId, channelId, contactId },
+      'Client close command without open conversation, ignoring'
+    )
+    return
+  }
+
+  const savedClientMessage = await Message.create({
+    conversationId: open.id,
+    tenantId,
+    senderType: 'CLIENT',
+    senderName: contactName,
+    text,
+    type: 'TEXT',
+    status: 'DELIVERED',
+    externalId: messageId,
+  })
+
+  await publishMessageEvents(pubsubClient, {
+    savedMessage: savedClientMessage,
+    conversationId: open.id,
+    tenantId,
+    senderName: contactName ?? senderId,
+    text,
+    type: 'TEXT',
+    externalId: messageId,
+    timestamp,
+    conversationStatus: open.status,
+    isNew: false,
+  })
+
+  const closeResult = await closeConversationOnMongo(
+    open.id,
+    tenantId,
+    {
+      closedBy: 'client',
+      systemMessage: CLIENT_CLOSE_SYSTEM_MESSAGE,
+    },
+    pubsubClient
+  )
+
+  if (!closeResult.closed) {
+    logger.debug(
+      { conversationId: open.id, tenantId },
+      'Conversation race-closed, skipping confirmation send'
+    )
+    return
+  }
+
+  const confirmationMessage = await Message.create({
+    conversationId: open.id,
+    tenantId,
+    senderType: 'SYSTEM',
+    text: CLIENT_CLOSE_CONFIRMATION_TEXT,
+    type: 'TEXT',
+    status: 'PENDING',
+  })
+
+  try {
+    await sendMessageQueue.add(
+      'send-message',
+      {
+        messageId: String(confirmationMessage._id),
+        conversationId: open.id,
+        channelId,
+        tenantId,
+        to: senderId,
+        text: CLIENT_CLOSE_CONFIRMATION_TEXT,
+        type: 'TEXT',
+      },
+      {
+        ...DEFAULT_JOB_OPTIONS,
+        jobId: `fim-confirm-${String(confirmationMessage._id)}`,
+      }
+    )
+  } catch (err: unknown) {
+    await Message.updateOne(
+      { _id: confirmationMessage._id },
+      { $set: { status: 'FAILED' } }
+    )
+    throw err
+  }
+
+  logger.info(
+    { conversationId: open.id, tenantId },
+    'Client close command handled (platform) — conversation closed and confirmation enqueued'
   )
 }

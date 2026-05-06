@@ -48,3 +48,19 @@ export const WHATSAPP_STATE_KEYS = {
   state: (channelId: string): string => `whatsapp:state:${channelId}`,
   lastQr: (channelId: string): string => `whatsapp:last_qr:${channelId}`,
 } as const
+
+/** Commands that the client can send via chat to control the conversation. */
+export const CHAT_CLIENT_COMMANDS = {
+  CLOSE: '/fim',
+} as const
+
+/** System message recorded in history when the client closes via command. */
+export const CLIENT_CLOSE_SYSTEM_MESSAGE =
+  'Atendimento encerrado pelo cliente via comando /fim'
+
+/** Confirmation text sent back to the client after a command-driven close. */
+export const CLIENT_CLOSE_CONFIRMATION_TEXT =
+  'Atendimento encerrado. Caso precise, é só enviar uma nova mensagem que abriremos outro atendimento.'
+
+/** System message recorded in history when the auto-close job closes a conversation. */
+export const AUTO_CLOSE_SYSTEM_MESSAGE = 'Atendimento encerrado por inatividade'
