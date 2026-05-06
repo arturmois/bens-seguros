@@ -49,9 +49,15 @@ docker compose -f "$COMPOSE_FILE" pull $CONTAINERS
 
 # --- Run Prisma migrations using the NEW image (server only) ---
 # Uses docker run (not exec) so the new image's --chown=app:app permissions apply.
+# Migrations require DDL (CREATE TABLE, etc.) — runtime app_user has only DML grants,
+# so we use DATABASE_ADMIN_URL (superuser) for prisma migrate deploy.
 if [ "$SERVICE" = "server" ]; then
   DOCKERHUB_USER=$(grep '^DOCKERHUB_USERNAME=' "${DEPLOY_DIR}/.env" | cut -d= -f2)
-  DB_URL=$(grep '^DATABASE_URL=' "${DEPLOY_DIR}/.env" | cut -d= -f2-)
+  DB_URL=$(grep '^DATABASE_ADMIN_URL=' "${DEPLOY_DIR}/.env" | cut -d= -f2-)
+  if [ -z "$DB_URL" ]; then
+    echo "ERROR: DATABASE_ADMIN_URL not set in ${DEPLOY_DIR}/.env — required for prisma migrate deploy"
+    exit 1
+  fi
   IMAGE="${DOCKERHUB_USER}/bens-server:${TAG}"
   NETWORK=$(docker inspect bens-seguros-postgres-1 --format='{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{end}}' 2>/dev/null || echo "bens-seguros_default")
   echo "Running Prisma migrations with new image ${IMAGE}..."
@@ -59,6 +65,26 @@ if [ "$SERVICE" = "server" ]; then
     -e DATABASE_URL="${DB_URL}" \
     "$IMAGE" npx prisma migrate deploy || {
     echo "ERROR: Prisma migration failed! Aborting deploy."
+    exit 1
+  }
+
+  # Apply RLS policies and re-grant DML privileges to app_user (idempotent).
+  # Required because: (1) RLS policies are not part of Prisma migrations,
+  # (2) new tables created by migrate deploy don't inherit grants until ALTER DEFAULT
+  # PRIVILEGES is in effect for them.
+  echo "Applying RLS policies and app_user grants..."
+  RLS_TMP="/tmp/rls-policies-${TAG}.sql"
+  docker run --rm "$IMAGE" cat /app/prisma/rls-policies.sql > "$RLS_TMP" || {
+    echo "ERROR: Could not extract rls-policies.sql from image"
+    rm -f "$RLS_TMP"
+    exit 1
+  }
+  docker cp "$RLS_TMP" bens-seguros-postgres-1:/tmp/rls-policies.sql
+  rm -f "$RLS_TMP"
+  PG_ADMIN_USER=$(echo "$DB_URL" | sed -E 's|^postgresql://([^:]+):.*|\1|')
+  PG_DB=$(echo "$DB_URL" | sed -E 's|^.*/([^?]+).*$|\1|')
+  docker exec bens-seguros-postgres-1 psql -U "$PG_ADMIN_USER" -d "$PG_DB" -f /tmp/rls-policies.sql || {
+    echo "ERROR: Failed to apply RLS policies! Aborting deploy."
     exit 1
   }
 fi
