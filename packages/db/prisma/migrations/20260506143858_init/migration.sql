@@ -2,9 +2,6 @@
 CREATE TYPE "Role" AS ENUM ('OWNER', 'ADMIN', 'MANAGER', 'COMMERCIAL', 'VIEWER');
 
 -- CreateEnum
-CREATE TYPE "ClientType" AS ENUM ('LEAD', 'CLIENT', 'FORMER_CLIENT');
-
--- CreateEnum
 CREATE TYPE "PersonType" AS ENUM ('INDIVIDUAL', 'COMPANY');
 
 -- CreateEnum
@@ -39,6 +36,9 @@ CREATE TYPE "DocumentType" AS ENUM ('DRIVER_LICENSE', 'VEHICLE_REGISTRATION', 'H
 
 -- CreateEnum
 CREATE TYPE "CommissionStatus" AS ENUM ('PENDING_COMMERCIAL', 'PENDING_ADMIN', 'APPROVED', 'PAID', 'REJECTED', 'REVERSED');
+
+-- CreateEnum
+CREATE TYPE "ContactSource" AS ENUM ('MANUAL', 'CHAT_WHATSAPP', 'CHAT_WIDGET', 'FORM_WEB', 'IMPORT', 'REFERRAL');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -162,34 +162,49 @@ CREATE TABLE "Invitation" (
 CREATE TABLE "Client" (
     "id" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "document" TEXT NOT NULL,
-    "documentEncrypted" TEXT NOT NULL DEFAULT '',
-    "documentHash" TEXT NOT NULL DEFAULT '',
-    "type" "ClientType" NOT NULL DEFAULT 'LEAD',
+    "legalName" TEXT NOT NULL,
     "personType" "PersonType" NOT NULL DEFAULT 'INDIVIDUAL',
-    "email" TEXT,
-    "phone" TEXT,
-    "birthDate" TIMESTAMP(3),
+    "document" TEXT NOT NULL,
+    "documentEncrypted" TEXT NOT NULL,
+    "documentHash" TEXT NOT NULL,
     "profession" TEXT,
     "maritalStatus" "MaritalStatus",
     "address" JSONB,
-    "tags" TEXT[] DEFAULT ARRAY[]::TEXT[],
-    "socialMedia" JSONB,
-    "consentLgpd" BOOLEAN NOT NULL DEFAULT false,
-    "salespersonId" TEXT,
-    "deletedAt" TIMESTAMP(3),
+    "fiscalBirthDate" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Client_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Contact" (
+    "id" TEXT NOT NULL,
+    "organizationId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "phone" TEXT,
+    "email" TEXT,
+    "source" "ContactSource" NOT NULL DEFAULT 'MANUAL',
+    "salespersonId" TEXT NOT NULL,
+    "clientId" TEXT,
+    "tags" TEXT[] DEFAULT ARRAY[]::TEXT[],
+    "socialMedia" JSONB,
+    "notes" TEXT,
+    "consentLgpd" BOOLEAN NOT NULL DEFAULT false,
+    "birthDate" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "Contact_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Proposal" (
     "id" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
-    "clientId" TEXT NOT NULL,
+    "contactId" TEXT NOT NULL,
     "salespersonId" TEXT NOT NULL,
     "stage" "ProposalStage" NOT NULL DEFAULT 'CAPTURE',
     "boardType" "ProposalBoardType" NOT NULL DEFAULT 'NEW_INSURANCE',
@@ -374,6 +389,7 @@ CREATE TABLE "Commission" (
     "id" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
     "policyId" TEXT NOT NULL,
+    "clientId" TEXT,
     "salespersonId" TEXT NOT NULL,
     "status" "CommissionStatus" NOT NULL DEFAULT 'PENDING_COMMERCIAL',
     "commissionValueInCents" INTEGER NOT NULL,
@@ -494,22 +510,28 @@ CREATE INDEX "Invitation_organizationId_idx" ON "Invitation"("organizationId");
 CREATE INDEX "Invitation_email_idx" ON "Invitation"("email");
 
 -- CreateIndex
-CREATE INDEX "Client_organizationId_type_idx" ON "Client"("organizationId", "type");
-
--- CreateIndex
-CREATE INDEX "Client_organizationId_createdAt_idx" ON "Client"("organizationId", "createdAt" DESC);
-
--- CreateIndex
-CREATE INDEX "Client_organizationId_salespersonId_idx" ON "Client"("organizationId", "salespersonId");
+CREATE INDEX "Client_organizationId_deletedAt_idx" ON "Client"("organizationId", "deletedAt");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Client_organizationId_documentHash_key" ON "Client"("organizationId", "documentHash");
 
 -- CreateIndex
+CREATE INDEX "Contact_organizationId_salespersonId_idx" ON "Contact"("organizationId", "salespersonId");
+
+-- CreateIndex
+CREATE INDEX "Contact_organizationId_clientId_idx" ON "Contact"("organizationId", "clientId");
+
+-- CreateIndex
+CREATE INDEX "Contact_organizationId_phone_idx" ON "Contact"("organizationId", "phone");
+
+-- CreateIndex
+CREATE INDEX "Contact_organizationId_deletedAt_idx" ON "Contact"("organizationId", "deletedAt");
+
+-- CreateIndex
 CREATE INDEX "Proposal_organizationId_stage_idx" ON "Proposal"("organizationId", "stage");
 
 -- CreateIndex
-CREATE INDEX "Proposal_organizationId_clientId_idx" ON "Proposal"("organizationId", "clientId");
+CREATE INDEX "Proposal_organizationId_contactId_idx" ON "Proposal"("organizationId", "contactId");
 
 -- CreateIndex
 CREATE INDEX "Proposal_organizationId_salespersonId_idx" ON "Proposal"("organizationId", "salespersonId");
@@ -525,6 +547,9 @@ CREATE INDEX "Proposal_organizationId_boardType_createdAt_idx" ON "Proposal"("or
 
 -- CreateIndex
 CREATE INDEX "Proposal_organizationId_createdAt_idx" ON "Proposal"("organizationId", "createdAt" DESC);
+
+-- CreateIndex
+CREATE INDEX "Proposal_organizationId_stage_updatedAt_idx" ON "Proposal"("organizationId", "stage", "updatedAt" DESC);
 
 -- CreateIndex
 CREATE INDEX "ProposalChecklistItem_proposalId_idx" ON "ProposalChecklistItem"("proposalId");
@@ -611,10 +636,16 @@ CREATE INDEX "Commission_organizationId_salespersonId_idx" ON "Commission"("orga
 CREATE INDEX "Commission_organizationId_policyId_idx" ON "Commission"("organizationId", "policyId");
 
 -- CreateIndex
+CREATE INDEX "Commission_organizationId_clientId_idx" ON "Commission"("organizationId", "clientId");
+
+-- CreateIndex
 CREATE INDEX "Commission_organizationId_createdAt_idx" ON "Commission"("organizationId", "createdAt" DESC);
 
 -- CreateIndex
 CREATE INDEX "Notification_organizationId_userId_read_idx" ON "Notification"("organizationId", "userId", "read");
+
+-- CreateIndex
+CREATE INDEX "Notification_organizationId_userId_createdAt_idx" ON "Notification"("organizationId", "userId", "createdAt" DESC);
 
 -- CreateIndex
 CREATE INDEX "Notification_organizationId_createdAt_idx" ON "Notification"("organizationId", "createdAt" DESC);
@@ -630,6 +661,9 @@ CREATE INDEX "AuditLog_organizationId_action_idx" ON "AuditLog"("organizationId"
 
 -- CreateIndex
 CREATE INDEX "AuditLog_organizationId_userId_idx" ON "AuditLog"("organizationId", "userId");
+
+-- CreateIndex
+CREATE INDEX "AuditLog_organizationId_userId_createdAt_idx" ON "AuditLog"("organizationId", "userId", "createdAt" DESC);
 
 -- CreateIndex
 CREATE INDEX "AuditLogArchive_organizationId_createdAt_idx" ON "AuditLogArchive"("organizationId", "createdAt" DESC);
@@ -653,10 +687,19 @@ ALTER TABLE "Member" ADD CONSTRAINT "Member_userId_fkey" FOREIGN KEY ("userId") 
 ALTER TABLE "Invitation" ADD CONSTRAINT "Invitation_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Client" ADD CONSTRAINT "Client_salespersonId_fkey" FOREIGN KEY ("salespersonId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Client" ADD CONSTRAINT "Client_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Contact" ADD CONSTRAINT "Contact_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Contact" ADD CONSTRAINT "Contact_salespersonId_fkey" FOREIGN KEY ("salespersonId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Contact" ADD CONSTRAINT "Contact_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_contactId_fkey" FOREIGN KEY ("contactId") REFERENCES "Contact"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_salespersonId_fkey" FOREIGN KEY ("salespersonId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -719,6 +762,9 @@ ALTER TABLE "Assistance" ADD CONSTRAINT "Assistance_claimId_fkey" FOREIGN KEY ("
 ALTER TABLE "Commission" ADD CONSTRAINT "Commission_policyId_fkey" FOREIGN KEY ("policyId") REFERENCES "Policy"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Commission" ADD CONSTRAINT "Commission_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Commission" ADD CONSTRAINT "Commission_salespersonId_fkey" FOREIGN KEY ("salespersonId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -726,115 +772,3 @@ ALTER TABLE "Commission" ADD CONSTRAINT "Commission_originalCommissionId_fkey" F
 
 -- AddForeignKey
 ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- ============================================================================
--- Row Level Security (RLS) — Tenant Isolation
--- ============================================================================
--- Defense-in-depth: even if application middleware fails to filter by
--- organizationId, the database itself enforces tenant isolation.
--- Each request sets: SET LOCAL app.current_tenant = '<organizationId>'
--- If app.current_tenant is not set, current_setting(..., true) returns NULL
--- which matches 0 rows — safe default (deny all).
-
--- STRICT policies (always queried through tenantPrisma)
-ALTER TABLE "Client" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Proposal" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "ProposalChecklistItem" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Policy" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Claim" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Commission" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Endorsement" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Assistance" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Document" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Notification" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "AuditLog" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Occurrence" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Insurer" ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS tenant_isolation ON "Client";
-CREATE POLICY tenant_isolation ON "Client"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-
-DROP POLICY IF EXISTS tenant_isolation ON "Proposal";
-CREATE POLICY tenant_isolation ON "Proposal"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-
-DROP POLICY IF EXISTS tenant_isolation ON "ProposalChecklistItem";
-CREATE POLICY tenant_isolation ON "ProposalChecklistItem"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-
-DROP POLICY IF EXISTS tenant_isolation ON "Policy";
-CREATE POLICY tenant_isolation ON "Policy"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-
-DROP POLICY IF EXISTS tenant_isolation ON "Claim";
-CREATE POLICY tenant_isolation ON "Claim"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-
-DROP POLICY IF EXISTS tenant_isolation ON "Commission";
-CREATE POLICY tenant_isolation ON "Commission"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-
-DROP POLICY IF EXISTS tenant_isolation ON "Endorsement";
-CREATE POLICY tenant_isolation ON "Endorsement"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-
-DROP POLICY IF EXISTS tenant_isolation ON "Assistance";
-CREATE POLICY tenant_isolation ON "Assistance"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-
-DROP POLICY IF EXISTS tenant_isolation ON "Document";
-CREATE POLICY tenant_isolation ON "Document"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-
-DROP POLICY IF EXISTS tenant_isolation ON "Notification";
-CREATE POLICY tenant_isolation ON "Notification"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-
-DROP POLICY IF EXISTS tenant_isolation ON "AuditLog";
-CREATE POLICY tenant_isolation ON "AuditLog"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-
-DROP POLICY IF EXISTS tenant_isolation ON "Occurrence";
-CREATE POLICY tenant_isolation ON "Occurrence"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-
-DROP POLICY IF EXISTS tenant_isolation ON "Insurer";
-CREATE POLICY tenant_isolation ON "Insurer"
-  USING ("organizationId" = current_setting('app.current_tenant', true));
-
-ALTER TABLE "Client" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Proposal" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "ProposalChecklistItem" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Policy" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Claim" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Commission" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Endorsement" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Assistance" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Document" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Notification" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "AuditLog" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Occurrence" FORCE ROW LEVEL SECURITY;
-ALTER TABLE "Insurer" FORCE ROW LEVEL SECURITY;
-
--- PERMISSIVE policies (Better Auth + workers query without tenant context)
-ALTER TABLE "Member" ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS tenant_isolation ON "Member";
-CREATE POLICY tenant_isolation ON "Member"
-  USING ("organizationId" = current_setting('app.current_tenant', true)
-         OR current_setting('app.current_tenant', true) IS NULL);
-ALTER TABLE "Member" FORCE ROW LEVEL SECURITY;
-
-ALTER TABLE "Invitation" ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS tenant_isolation ON "Invitation";
-CREATE POLICY tenant_isolation ON "Invitation"
-  USING ("organizationId" = current_setting('app.current_tenant', true)
-         OR current_setting('app.current_tenant', true) IS NULL);
-ALTER TABLE "Invitation" FORCE ROW LEVEL SECURITY;
-
-ALTER TABLE "AuditLogArchive" ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS tenant_isolation ON "AuditLogArchive";
-CREATE POLICY tenant_isolation ON "AuditLogArchive"
-  USING ("organizationId" = current_setting('app.current_tenant', true)
-         OR current_setting('app.current_tenant', true) IS NULL);
-ALTER TABLE "AuditLogArchive" FORCE ROW LEVEL SECURITY;
