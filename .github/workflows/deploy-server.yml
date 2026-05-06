@@ -2,19 +2,7 @@ name: Deploy Server
 
 on:
   push:
-    branches: [main]
-    paths:
-      - 'apps/server/**'
-      - 'apps/worker/**'
-      - 'packages/core/**'
-      - 'packages/db/**'
-      - 'packages/auth/**'
-      - 'packages/env/**'
-      - 'packages/shared/**'
-      - 'Dockerfile.server'
-      - 'pnpm-lock.yaml'
-      - 'nginx/**'
-      - 'scripts/deploy.sh'
+    tags: ['v*']
   workflow_dispatch:
 
 permissions:

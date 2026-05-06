@@ -2,18 +2,7 @@ name: Deploy Chat
 
 on:
   push:
-    branches: [main]
-    paths:
-      - 'apps/chat-server/**'
-      - 'apps/chat-worker/**'
-      - 'packages/db-chat/**'
-      - 'packages/ai/**'
-      - 'packages/env/**'
-      - 'packages/shared/**'
-      - 'Dockerfile.chat'
-      - 'pnpm-lock.yaml'
-      - 'nginx/**'
-      - 'scripts/deploy.sh'
+    tags: ['v*']
   workflow_dispatch:
 
 permissions:

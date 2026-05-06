@@ -417,6 +417,18 @@ Cada etapa (task) dos planos em `docs/plans/` segue este fluxo obrigatorio:
 
 ## Git & CI/CD
 
+- **Workflow:** trunk-based com tag-based release.
+  - Feature branch curta (24-48h max) → PR → `main` (squash merge preferido)
+  - `main` é sempre verde e sempre deployable, mas **não deploya automaticamente**
+  - Push em `main` roda só quality gates no CI (lint, typecheck, build, test) — sem deploy
+  - Deploy para prod é disparado por **tag `v*`**:
+    ```
+    git checkout main && git pull
+    git tag -a v1.2.3 -m "Release v1.2.3"
+    git push origin v1.2.3
+    ```
+    A tag `v*` triggera `Deploy Server` + `Deploy Chat` atomicamente (mesmo SHA).
+  - Deploy emergencial sem tag: `gh workflow run "Deploy Server"` ou via UI (workflow_dispatch).
 - **Conventional Commits:** `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`
 - **Branch naming:** `feat/<name>`, `fix/<name>`, `chore/<name>`
 - **Pre-commit:** Husky + lint-staged (ESLint + Prettier)
