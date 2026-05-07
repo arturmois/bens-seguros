@@ -4,6 +4,7 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
+import type { GetPublicInvitation200DataCurrentSession } from './getPublicInvitation200DataCurrentSession'
 
 export type GetPublicInvitation200Data = {
   id: string
@@ -14,4 +15,6 @@ export type GetPublicInvitation200Data = {
   organizationName: string
   inviterName: string
   hasAccount: boolean
+  /** @nullable */
+  currentSession: GetPublicInvitation200DataCurrentSession
 }

@@ -138,4 +138,44 @@ describe('GET /api/v1/clients', () => {
     const body = response.json()
     expect(body.meta.nextCursor).toBe(cursor)
   })
+
+  it('parses personTypeIn from CSV query param', async () => {
+    mockExecute.mockResolvedValue({ items: [], nextCursor: null })
+
+    const response = await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/clients',
+      query: { personTypeIn: 'INDIVIDUAL,COMPANY' },
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.objectContaining({ personTypeIn: ['INDIVIDUAL', 'COMPANY'] })
+    )
+  })
+
+  it('passes hasActivePolicy=false correctly (regression: z.coerce.boolean bug)', async () => {
+    mockExecute.mockResolvedValue({ items: [], nextCursor: null })
+
+    const response = await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/clients',
+      query: { hasActivePolicy: 'false' },
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.objectContaining({ hasActivePolicy: false })
+    )
+  })
+
+  it('returns 400 when personTypeIn has invalid value', async () => {
+    const response = await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/clients',
+      query: { personTypeIn: 'BOGUS' },
+    })
+
+    expect(response.statusCode).toBe(400)
+  })
 })

@@ -2,11 +2,13 @@ import { inject, injectable } from 'tsyringe'
 import type {
   ClientRepository,
   ClientWithMetrics,
+  PersonType,
 } from '../domain/client-repository.js'
 
 export interface ListClientsInput {
   organizationId: string
   hasActivePolicy?: boolean
+  personTypeIn?: readonly PersonType[]
   search?: string
   cursor?: string
   limit: number
@@ -27,6 +29,7 @@ export class ListClients {
       {
         organizationId: input.organizationId,
         hasActivePolicy: input.hasActivePolicy,
+        personTypeIn: input.personTypeIn,
         search: input.search,
       },
       {

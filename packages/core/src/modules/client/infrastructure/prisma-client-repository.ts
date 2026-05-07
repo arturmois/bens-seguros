@@ -128,6 +128,10 @@ export class PrismaClientRepository implements ClientRepository {
       where.policies = { none: { status: 'ACTIVE', deletedAt: null } }
     }
 
+    if (filters.personTypeIn?.length) {
+      where.personType = { in: [...filters.personTypeIn] }
+    }
+
     const sortBy = page.sortBy ?? 'createdAt'
     const sortOrder = page.sortOrder ?? 'desc'
 

@@ -18,11 +18,19 @@ export function listClientsRoute(app: FastifyInstance) {
     preHandler: [requireAbility('read', 'Client')],
     handler: async (request, reply) => {
       const useCase = container.resolve(ListClients)
-      const { limit, cursor, sortBy, sortOrder, hasActivePolicy, search } =
-        request.query
+      const {
+        limit,
+        cursor,
+        sortBy,
+        sortOrder,
+        hasActivePolicy,
+        personTypeIn,
+        search,
+      } = request.query
       const result = await useCase.execute({
         organizationId: request.organizationId!,
         hasActivePolicy,
+        personTypeIn,
         search,
         cursor,
         limit,

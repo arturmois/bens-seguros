@@ -25,11 +25,17 @@ export const GetPublicInvitationResponse = zod.object({
     organizationName: zod.string(),
     inviterName: zod.string(),
     hasAccount: zod.boolean(),
+    currentSession: zod
+      .object({
+        userId: zod.string(),
+        email: zod.string(),
+      })
+      .nullable(),
   }),
 })
 
 /**
- * @summary Accept invitation (register or login)
+ * @summary Accept invitation (register, login, or current-session)
  */
 
 export const AcceptInvitationParams = zod.object({
@@ -49,6 +55,9 @@ export const AcceptInvitationBody = zod.union([
   zod.object({
     mode: zod.enum(['login']),
     password: zod.string().min(1),
+  }),
+  zod.object({
+    mode: zod.enum(['current-session']),
   }),
 ])
 

@@ -4,11 +4,13 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
+import type { ListClientsHasActivePolicy } from './listClientsHasActivePolicy'
 import type { ListClientsSortBy } from './listClientsSortBy'
 import type { ListClientsSortOrder } from './listClientsSortOrder'
 
 export type ListClientsParams = {
-  hasActivePolicy?: boolean
+  hasActivePolicy?: (typeof ListClientsHasActivePolicy)[keyof typeof ListClientsHasActivePolicy]
+  personTypeIn?: string
   search?: string
   cursor?: string
   /**

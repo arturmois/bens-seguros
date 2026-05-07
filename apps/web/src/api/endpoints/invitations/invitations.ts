@@ -24,8 +24,10 @@ import type {
   AcceptInvitation200,
   AcceptInvitation400,
   AcceptInvitation401,
+  AcceptInvitation403,
   AcceptInvitation404,
   AcceptInvitation409,
+  AcceptInvitation422,
   AcceptInvitationBody,
   CreateInvitation201,
   CreateInvitationBody,
@@ -263,7 +265,7 @@ export const prefetchGetPublicInvitationQuery = async <
 }
 
 /**
- * @summary Accept invitation (register or login)
+ * @summary Accept invitation (register, login, or current-session)
  */
 export type acceptInvitationResponse200 = {
   data: AcceptInvitation200
@@ -280,6 +282,11 @@ export type acceptInvitationResponse401 = {
   status: 401
 }
 
+export type acceptInvitationResponse403 = {
+  data: AcceptInvitation403
+  status: 403
+}
+
 export type acceptInvitationResponse404 = {
   data: AcceptInvitation404
   status: 404
@@ -290,14 +297,21 @@ export type acceptInvitationResponse409 = {
   status: 409
 }
 
+export type acceptInvitationResponse422 = {
+  data: AcceptInvitation422
+  status: 422
+}
+
 export type acceptInvitationResponseSuccess = acceptInvitationResponse200 & {
   headers: Headers
 }
 export type acceptInvitationResponseError = (
   | acceptInvitationResponse400
   | acceptInvitationResponse401
+  | acceptInvitationResponse403
   | acceptInvitationResponse404
   | acceptInvitationResponse409
+  | acceptInvitationResponse422
 ) & {
   headers: Headers
 }
@@ -327,8 +341,10 @@ export const getAcceptInvitationMutationOptions = <
   TError =
     | AcceptInvitation400
     | AcceptInvitation401
+    | AcceptInvitation403
     | AcceptInvitation404
-    | AcceptInvitation409,
+    | AcceptInvitation409
+    | AcceptInvitation422,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -372,18 +388,22 @@ export type AcceptInvitationMutationBody = AcceptInvitationBody
 export type AcceptInvitationMutationError =
   | AcceptInvitation400
   | AcceptInvitation401
+  | AcceptInvitation403
   | AcceptInvitation404
   | AcceptInvitation409
+  | AcceptInvitation422
 
 /**
- * @summary Accept invitation (register or login)
+ * @summary Accept invitation (register, login, or current-session)
  */
 export const useAcceptInvitation = <
   TError =
     | AcceptInvitation400
     | AcceptInvitation401
+    | AcceptInvitation403
     | AcceptInvitation404
-    | AcceptInvitation409,
+    | AcceptInvitation409
+    | AcceptInvitation422,
   TContext = unknown,
 >(
   options?: {

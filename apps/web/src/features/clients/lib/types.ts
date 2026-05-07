@@ -11,7 +11,8 @@ export type ClientDetail = GetClient200Data
 
 export interface ClientFilters {
   readonly search?: string
-  readonly hasActivePolicy?: boolean
+  readonly personTypeIn?: string
+  readonly hasActivePolicy?: 'true' | 'false'
   readonly cursor?: string
   readonly limit?: number
 }

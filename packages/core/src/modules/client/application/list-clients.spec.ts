@@ -41,4 +41,61 @@ describe('ListClients', () => {
       })
     )
   })
+
+  it('passes personTypeIn filter to the repository', async () => {
+    const repo = makeRepo()
+    const useCase = new ListClients(repo)
+
+    await useCase.execute({
+      organizationId: 'org-1',
+      personTypeIn: ['INDIVIDUAL'],
+      limit: 20,
+    })
+
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        organizationId: 'org-1',
+        personTypeIn: ['INDIVIDUAL'],
+      }),
+      expect.anything()
+    )
+  })
+
+  it('passes multi-value personTypeIn filter (INDIVIDUAL + COMPANY)', async () => {
+    const repo = makeRepo()
+    const useCase = new ListClients(repo)
+
+    await useCase.execute({
+      organizationId: 'org-1',
+      personTypeIn: ['INDIVIDUAL', 'COMPANY'],
+      limit: 20,
+    })
+
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        personTypeIn: ['INDIVIDUAL', 'COMPANY'],
+      }),
+      expect.anything()
+    )
+  })
+
+  it('combines personTypeIn with hasActivePolicy', async () => {
+    const repo = makeRepo()
+    const useCase = new ListClients(repo)
+
+    await useCase.execute({
+      organizationId: 'org-1',
+      personTypeIn: ['INDIVIDUAL', 'COMPANY'],
+      hasActivePolicy: true,
+      limit: 20,
+    })
+
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        personTypeIn: ['INDIVIDUAL', 'COMPANY'],
+        hasActivePolicy: true,
+      }),
+      expect.anything()
+    )
+  })
 })

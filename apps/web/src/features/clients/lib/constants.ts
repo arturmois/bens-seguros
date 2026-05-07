@@ -37,12 +37,6 @@ export const MARITAL_STATUS_OPTIONS: readonly SelectOption<
   { value: 'OTHER', label: 'Outro' },
 ] as const
 
-export const ACTIVE_POLICY_FILTER_OPTIONS = [
-  { value: '', label: 'Todos' },
-  { value: 'true', label: 'Com apólice ativa' },
-  { value: 'false', label: 'Sem apólice ativa' },
-] as const
-
 export const DEFAULT_COLUMN_VISIBILITY: VisibilityState = {
   document: true,
   personType: true,

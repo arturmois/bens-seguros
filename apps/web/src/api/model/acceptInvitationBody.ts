@@ -18,3 +18,6 @@ export type AcceptInvitationBody =
       /** @minLength 1 */
       password: string
     }
+  | {
+      mode: 'current-session'
+    }

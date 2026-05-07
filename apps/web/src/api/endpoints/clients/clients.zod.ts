@@ -16,7 +16,10 @@ export const exportClientsQuerySortByDefault = `createdAt`
 export const exportClientsQuerySortOrderDefault = `desc`
 
 export const ExportClientsQueryParams = zod.object({
-  hasActivePolicy: zod.boolean().optional(),
+  hasActivePolicy: zod
+    .union([zod.enum(['true']), zod.enum(['false'])])
+    .optional(),
+  personTypeIn: zod.string().optional(),
   search: zod.string().optional(),
   cursor: zod.string().optional(),
   limit: zod
@@ -123,7 +126,10 @@ export const listClientsQuerySortByDefault = `createdAt`
 export const listClientsQuerySortOrderDefault = `desc`
 
 export const ListClientsQueryParams = zod.object({
-  hasActivePolicy: zod.boolean().optional(),
+  hasActivePolicy: zod
+    .union([zod.enum(['true']), zod.enum(['false'])])
+    .optional(),
+  personTypeIn: zod.string().optional(),
   search: zod.string().optional(),
   cursor: zod.string().optional(),
   limit: zod

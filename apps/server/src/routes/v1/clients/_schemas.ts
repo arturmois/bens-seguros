@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { csvEnumArray } from '../../shared/csv-array.schema.js'
 import { maritalStatusEnum } from '../../shared/enums.schema.js'
 import { idParam } from '../../shared/params.schema.js'
 import {
@@ -36,7 +37,13 @@ export const updateClientBodySchema = z.object({
 // --- Query schemas ---
 
 export const listClientsQuerySchema = z.object({
-  hasActivePolicy: z.coerce.boolean().optional(),
+  // Boolean — schema corrigido (z.coerce.boolean() interpreta 'false' como true)
+  hasActivePolicy: z
+    .union([z.literal('true'), z.literal('false')])
+    .transform((v) => v === 'true')
+    .optional(),
+  // Enum multi-select (PF/PJ)
+  personTypeIn: csvEnumArray(personTypeEnum).optional(),
   search: z.string().optional(),
   cursor: z.string().optional(),
   limit: z.coerce.number().int().min(1).max(100).default(20),

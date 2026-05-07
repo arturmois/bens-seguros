@@ -118,4 +118,24 @@ describe('GET /api/v1/clients/export', () => {
       expect.objectContaining({ hasActivePolicy: true, search: 'joao' })
     )
   })
+
+  it('passes personTypeIn to ExportClientsCsv', async () => {
+    const mockGenerateCsvRows = vi.fn().mockReturnValue(makeCsvGenerator())
+    vi.mocked(container.resolve).mockImplementation((token: unknown) => {
+      if (typeof token === 'function') {
+        return { generateCsvRows: mockGenerateCsvRows }
+      }
+      return null
+    })
+
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/clients/export',
+      query: { personTypeIn: 'COMPANY' },
+    })
+
+    expect(mockGenerateCsvRows).toHaveBeenCalledWith(
+      expect.objectContaining({ personTypeIn: ['COMPANY'] })
+    )
+  })
 })

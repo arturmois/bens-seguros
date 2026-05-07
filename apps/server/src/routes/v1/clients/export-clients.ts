@@ -18,11 +18,12 @@ export function exportClientsRoute(app: FastifyInstance) {
     },
     preHandler: [requireAbility('read', 'Client')],
     handler: async (request, reply) => {
-      const { hasActivePolicy, search } = request.query
+      const { hasActivePolicy, personTypeIn, search } = request.query
       const useCase = container.resolve(ExportClientsCsv)
       const csvGenerator = useCase.generateCsvRows({
         organizationId: request.organizationId!,
         hasActivePolicy,
+        personTypeIn,
         search,
       })
 

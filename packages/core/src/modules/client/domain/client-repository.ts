@@ -35,6 +35,7 @@ export interface ClientWithMetrics extends ClientData {
 export interface ClientFilters {
   organizationId: string
   hasActivePolicy?: boolean
+  personTypeIn?: readonly PersonType[]
   search?: string
 }
 
