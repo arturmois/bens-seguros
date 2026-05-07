@@ -20,7 +20,10 @@ import { createReportClaimTool } from '../tools/report-claim.js'
 import { createSearchClientTool } from '../tools/search-client.js'
 import { createSearchPolicyTool } from '../tools/search-policy.js'
 import { createSearchProposalTool } from '../tools/search-proposal.js'
-import { MANDATORY_TOOLS } from '../tools/tool-registry.js'
+import {
+  CONFIGURABLE_TOOL_NAMES,
+  MANDATORY_TOOLS,
+} from '../tools/tool-registry.js'
 import { createUpdateClientDataTool } from '../tools/update-client-data.js'
 import type { PubsubClient } from '../types/pubsub-client.js'
 import {
@@ -29,6 +32,7 @@ import {
   buildConversationMessages,
   buildSystemPrompt,
   escalateToHuman,
+  findUnknownToolReferences,
   getAiAgentConfig,
   isProviderConfigured,
 } from './ai-bot-helpers.js'
@@ -108,6 +112,22 @@ export function createAiBotProcessor(
     }
 
     const config = getAiAgentConfig(aiAgent as Record<string, unknown>)
+
+    const unknownToolReferences = findUnknownToolReferences(
+      config.systemPrompt,
+      [...MANDATORY_TOOLS, ...CONFIGURABLE_TOOL_NAMES]
+    )
+    if (unknownToolReferences.length > 0) {
+      logger.warn(
+        {
+          conversationId,
+          tenantId,
+          agentId: String(channel.aiAgentId),
+          unknownToolReferences,
+        },
+        'AI agent system prompt references tool names that are not registered — model will not be able to call them'
+      )
+    }
 
     if (!isProviderConfigured(config.provider)) {
       logger.error(
