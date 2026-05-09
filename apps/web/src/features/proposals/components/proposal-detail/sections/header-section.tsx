@@ -44,12 +44,7 @@ export function HeaderSection({
       <Badge variant="outline">{BRANCH_LABELS[proposal.branch]}</Badge>
       <Badge variant="secondary">{BOARD_TYPE_LABELS[proposal.boardType]}</Badge>
       {showActions && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onGeneratePdf}
-          disabled={pdfPending}
-        >
+        <Button variant="outline" onClick={onGeneratePdf} disabled={pdfPending}>
           {pdfPending ? (
             <Loader2 className="mr-2 size-4 animate-spin" />
           ) : (

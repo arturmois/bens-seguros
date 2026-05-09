@@ -130,7 +130,7 @@ export function ClaimDetail({ claimId }: ClaimDetailProps) {
             <TabsTab value="occurrences">Ocorrências</TabsTab>
             <TabsTab value="documents">Documentos</TabsTab>
           </TabsList>
-          <Button size="sm" onClick={() => setOccurrenceFormOpen(true)}>
+          <Button onClick={() => setOccurrenceFormOpen(true)}>
             <Plus className="mr-1 h-4 w-4" />
             Nova Ocorrência
           </Button>
@@ -181,7 +181,7 @@ function ClaimDetailHeader({
         <ClaimStatusBadge status={status} />
         <ClaimPriorityBadge priority={priority} />
       </div>
-      <Button variant="destructive" size="sm" onClick={onDelete}>
+      <Button variant="destructive" onClick={onDelete}>
         <Trash2 className="mr-2 h-4 w-4" />
         Excluir
       </Button>

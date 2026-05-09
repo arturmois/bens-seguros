@@ -14,7 +14,6 @@ export function ClientImportButton() {
     <>
       <Button
         variant="outline"
-        size="sm"
         onClick={() => setOpen(true)}
         aria-label="Importar clientes via CSV"
       >

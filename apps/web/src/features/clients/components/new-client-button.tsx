@@ -14,7 +14,7 @@ export function NewClientButton() {
   if (!hasPermission(activeOrg.role, 'clients:create')) return null
 
   return (
-    <Button size="sm" render={<Link href="/clients/new" />}>
+    <Button render={<Link href="/clients/new" />}>
       <Plus className="size-4 sm:mr-2" />
       <span className="hidden sm:inline">Novo cliente</span>
     </Button>

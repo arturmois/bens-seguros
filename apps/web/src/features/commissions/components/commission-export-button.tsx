@@ -19,7 +19,6 @@ export function CommissionExportButton({
   return (
     <Button
       variant="outline"
-      size="sm"
       onClick={() => exportCsv.mutate(filters)}
       disabled={exportCsv.isPending}
       aria-label="Exportar comissões em CSV"

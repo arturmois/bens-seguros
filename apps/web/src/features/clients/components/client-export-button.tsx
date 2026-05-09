@@ -34,7 +34,6 @@ export function ClientExportButton({ filters }: ClientExportButtonProps) {
   return (
     <Button
       variant="outline"
-      size="sm"
       onClick={() => exportCsv.mutate(filters)}
       disabled={exportCsv.isPending}
       aria-label="Exportar clientes em CSV"

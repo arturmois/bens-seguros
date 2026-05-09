@@ -52,7 +52,7 @@ export function AuditToolbar({
       </div>
 
       <Popover>
-        <PopoverTrigger render={<Button variant="outline" size="sm" />}>
+        <PopoverTrigger render={<Button variant="outline" />}>
           <SlidersHorizontal className="size-4" />
           Colunas
         </PopoverTrigger>

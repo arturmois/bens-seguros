@@ -36,7 +36,7 @@ export function LgpdDeleteDialogTrigger({
 
   return (
     <>
-      <Button variant="destructive" size="sm" onClick={() => setOpen(true)}>
+      <Button variant="destructive" onClick={() => setOpen(true)}>
         Exclusão LGPD
       </Button>
       <LgpdDeleteDialog

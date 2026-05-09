@@ -42,7 +42,6 @@ export function PolicyExportButton({ filters }: PolicyExportButtonProps) {
   return (
     <Button
       variant="outline"
-      size="sm"
       onClick={() => exportCsv.mutate(filters)}
       disabled={exportCsv.isPending}
       aria-label="Exportar apólices em CSV"

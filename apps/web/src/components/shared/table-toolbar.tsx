@@ -49,7 +49,7 @@ export function TableToolbar({
       <div className="flex items-center gap-2">
         {showColumnToggle && (
           <Popover>
-            <PopoverTrigger render={<Button variant="outline" size="sm" />}>
+            <PopoverTrigger render={<Button variant="outline" />}>
               <SlidersHorizontal className="size-4" />
               Colunas
             </PopoverTrigger>

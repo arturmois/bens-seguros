@@ -48,7 +48,6 @@ export function SendQuoteDialog({
     <>
       <Button
         variant="outline"
-        size="sm"
         disabled={disabled || isPending}
         onClick={() => setOpen(true)}
       >

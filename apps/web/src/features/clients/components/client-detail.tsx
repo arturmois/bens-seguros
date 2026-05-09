@@ -142,11 +142,7 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setDeleteOpen(true)}
-            >
+            <Button variant="destructive" onClick={() => setDeleteOpen(true)}>
               <Trash2 className="mr-2 h-4 w-4" />
               Excluir
             </Button>

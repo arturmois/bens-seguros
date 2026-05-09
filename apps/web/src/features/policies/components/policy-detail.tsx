@@ -134,7 +134,6 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
         <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
-            size="sm"
             onClick={() => pdfMutation.mutate()}
             disabled={pdfMutation.isPending}
           >
@@ -149,7 +148,6 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
             <>
               <Button
                 variant="outline"
-                size="sm"
                 onClick={() => setShowEndorsementSheet(true)}
               >
                 <Plus className="mr-2 size-4" />
@@ -157,7 +155,6 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
               </Button>
               <Button
                 variant="destructive"
-                size="sm"
                 onClick={() => setShowCancelDialog(true)}
               >
                 <Ban className="mr-2 size-4" />

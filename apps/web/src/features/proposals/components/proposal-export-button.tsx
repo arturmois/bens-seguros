@@ -40,7 +40,6 @@ export function ProposalExportButton({ filters }: ProposalExportButtonProps) {
   return (
     <Button
       variant="outline"
-      size="sm"
       onClick={() => exportCsv.mutate(filters)}
       disabled={exportCsv.isPending}
       aria-label="Exportar propostas em CSV"
