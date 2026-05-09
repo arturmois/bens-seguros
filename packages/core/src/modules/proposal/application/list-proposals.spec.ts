@@ -49,14 +49,14 @@ describe('ListProposals', () => {
     expect(repo.findMany).toHaveBeenCalledWith(filters, page)
   })
 
-  it('filters by multiple stages and updatedAt range', async () => {
+  it('filters by multiple stages (stageIn) and updatedAt range', async () => {
     const updatedAtFrom = new Date('2026-04-10')
     const updatedAtTo = new Date('2026-04-17')
 
     await useCase.execute(
       {
         organizationId: 'org-1',
-        stages: ['QUOTE', 'PROTOCOL'],
+        stageIn: ['QUOTE', 'PROTOCOL'],
         updatedAtFrom,
         updatedAtTo,
       },
@@ -65,10 +65,34 @@ describe('ListProposals', () => {
 
     expect(repo.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        stages: ['QUOTE', 'PROTOCOL'],
+        stageIn: ['QUOTE', 'PROTOCOL'],
         updatedAtFrom,
         updatedAtTo,
       }),
+      expect.anything()
+    )
+  })
+
+  it('forwards branchIn to repository when provided', async () => {
+    await useCase.execute(
+      { organizationId: 'org-1', branchIn: ['AUTO', 'RESIDENTIAL'] },
+      { limit: 20 }
+    )
+
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ branchIn: ['AUTO', 'RESIDENTIAL'] }),
+      expect.anything()
+    )
+  })
+
+  it('forwards salespersonIdIn to repository when provided', async () => {
+    await useCase.execute(
+      { organizationId: 'org-1', salespersonIdIn: ['user-1', 'user-2'] },
+      { limit: 20 }
+    )
+
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ salespersonIdIn: ['user-1', 'user-2'] }),
       expect.anything()
     )
   })

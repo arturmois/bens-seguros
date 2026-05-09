@@ -1,6 +1,6 @@
 import { Calendar, Check, Circle, User } from 'lucide-react'
 import type { FilterDefinition } from '@/components/shared/filter-types'
-import { useSalespersonOptions } from '../hooks/use-salesperson-options'
+import { useSalespersonOptions } from '@/features/members/hooks/use-salesperson-options'
 import { CONTACT_SOURCE_OPTIONS, CONTACT_STAGE_OPTIONS } from './constants'
 
 export const CONTACT_FILTERS: readonly FilterDefinition[] = [

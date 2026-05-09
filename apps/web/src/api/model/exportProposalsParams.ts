@@ -17,26 +17,19 @@ export type ExportProposalsParams = {
    */
   limit?: number
   stage?: ExportProposalsStage
-  stages?: string &
-    (
-      | 'CAPTURE'
-      | 'QUOTE'
-      | 'PROTOCOL'
-      | 'INSPECTION'
-      | 'PAYMENT'
-      | 'POLICY_ISSUED'
-      | 'LOST'
-    )[]
   contactId?: string
   clientId?: string
   salespersonId?: string
   insurerId?: string
   sourcePolicyId?: string
+  boardType?: ExportProposalsBoardType
+  stageIn?: string
+  branchIn?: string
+  salespersonIdIn?: string
   createdFrom?: string
   createdTo?: string
   updatedAtFrom?: string
   updatedAtTo?: string
-  boardType?: ExportProposalsBoardType
   search?: string
   sortBy?: ExportProposalsSortBy
   sortOrder?: ExportProposalsSortOrder

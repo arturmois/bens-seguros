@@ -1,8 +1,10 @@
 'use client'
 
 import { useMemo } from 'react'
+
 import type { FilterOption } from '@/components/shared/filter-types'
-import { useMembers } from '@/features/members/hooks/use-members'
+
+import { useMembers } from './use-members'
 
 export function useSalespersonOptions(): {
   readonly options: readonly FilterOption[]

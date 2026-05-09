@@ -1,4 +1,4 @@
-import type { Proposal, Stage, BoardType } from './proposal.js'
+import type { Branch, Proposal, Stage, BoardType } from './proposal.js'
 
 export type ProposalSortField =
   | 'clientName'
@@ -13,7 +13,9 @@ export type SortOrder = 'asc' | 'desc'
 export interface ProposalFilters {
   organizationId: string
   stage?: Stage
-  stages?: readonly Stage[]
+  stageIn?: readonly Stage[]
+  branchIn?: readonly Branch[]
+  salespersonIdIn?: readonly string[]
   contactId?: string
   clientId?: string
   salespersonId?: string

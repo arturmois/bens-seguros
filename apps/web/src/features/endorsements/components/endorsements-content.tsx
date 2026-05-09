@@ -2,7 +2,9 @@
 
 import dynamic from 'next/dynamic'
 
+import { UnifiedFilterBar } from '@/components/shared/unified-filter-bar'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useProposalsFilters } from '@/features/proposals/hooks/use-proposals-filters'
 
 function KanbanSkeleton() {
   return (
@@ -30,11 +32,23 @@ const ProposalKanban = dynamic(
 )
 
 export function EndorsementsContent() {
+  const filters = useProposalsFilters()
+
   return (
-    <ProposalKanban
-      initialBoardType="ENDORSEMENT"
-      allowedBoardTypes={['ENDORSEMENT']}
-      searchPlaceholder="Buscar por apólice ou segurado..."
-    />
+    <div className="flex flex-col gap-4">
+      <UnifiedFilterBar
+        searchValue={filters.search}
+        onSearchChange={filters.setSearch}
+        searchPlaceholder="Buscar por apólice ou segurado..."
+        filters={[]}
+        values={filters.values}
+        onFilterChange={filters.setFilter}
+        onClearAll={filters.clearAll}
+      />
+      <ProposalKanban
+        boardTypeOverride="ENDORSEMENT"
+        allowedBoardTypes={['ENDORSEMENT']}
+      />
+    </div>
   )
 }

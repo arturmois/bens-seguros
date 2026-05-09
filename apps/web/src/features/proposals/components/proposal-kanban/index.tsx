@@ -14,31 +14,38 @@ import { useQueryClient } from '@tanstack/react-query'
 
 import { useDebounce } from '@/hooks/use-debounce'
 
+import { useProposalsFilters } from '../../hooks/use-proposals-filters'
 import type { KanbanFilters } from '../../hooks/use-kanban-proposals'
-import type { BoardType, ProposalData } from '../../lib/constants'
+import type {
+  BoardType,
+  ProposalData,
+  ProposalStage,
+} from '../../lib/constants'
 import { ENDORSEMENT_STAGES, KANBAN_STAGES, STAGES } from '../../lib/constants'
 import { IssuePolicyDialog } from '../issue-policy-dialog'
 import { KanbanCard } from '../kanban-card'
 import { KanbanCardDetail } from '../kanban-card-detail'
 import { KanbanColumn } from '../kanban-column'
-import { KanbanToolbar } from '../kanban-parts'
 import { LostReasonDialog } from '../lost-reason-dialog'
 import { getNextStage } from './kanban-utils'
 import { useKanbanDnd } from './use-kanban-dnd'
 
 interface ProposalKanbanProps {
-  initialBoardType?: BoardType
-  allowedBoardTypes?: readonly BoardType[]
-  searchPlaceholder?: string
+  readonly allowedBoardTypes?: readonly BoardType[]
+  /** Forces a board type regardless of URL state. Used by /endorsements. */
+  readonly boardTypeOverride?: BoardType
+}
+
+function isProposalStage(value: string): value is ProposalStage {
+  return (STAGES as readonly string[]).includes(value)
 }
 
 export function ProposalKanban({
-  initialBoardType = 'NEW_INSURANCE',
   allowedBoardTypes = ['NEW_INSURANCE', 'RENEWAL'] as const,
-  searchPlaceholder,
+  boardTypeOverride,
 }: ProposalKanbanProps) {
-  const [boardType, setBoardType] = useState<BoardType>(initialBoardType)
-  const [search, setSearch] = useState('')
+  const filters = useProposalsFilters()
+
   const [selectedProposal, setSelectedProposal] = useState<ProposalData | null>(
     null
   )
@@ -47,15 +54,35 @@ export function ProposalKanban({
     string | null
   >(null)
 
-  const debouncedSearch = useDebounce(search, 300)
+  const debouncedSearch = useDebounce(filters.apiParams.search, 300)
   const queryClient = useQueryClient()
 
-  const visibleStages =
-    boardType === 'ENDORSEMENT' ? ENDORSEMENT_STAGES : KANBAN_STAGES
+  const effectiveBoardType: BoardType =
+    boardTypeOverride ?? allowedBoardTypes[0] ?? 'NEW_INSURANCE'
 
-  const filters: KanbanFilters = {
-    boardType,
+  const baseStages =
+    effectiveBoardType === 'ENDORSEMENT' ? ENDORSEMENT_STAGES : KANBAN_STAGES
+
+  const stageInRaw = filters.values.stageIn
+  const stageInTyped: readonly ProposalStage[] | undefined = Array.isArray(
+    stageInRaw
+  )
+    ? stageInRaw.filter(isProposalStage)
+    : undefined
+
+  const visibleStages: readonly ProposalStage[] = stageInTyped?.length
+    ? baseStages.filter((s) => stageInTyped.includes(s))
+    : baseStages
+
+  const kanbanFilters: KanbanFilters = {
+    boardType: effectiveBoardType,
     search: debouncedSearch || undefined,
+    branchIn: filters.apiParams.branchIn,
+    salespersonIdIn: filters.apiParams.salespersonIdIn,
+    createdFrom: filters.apiParams.createdFrom,
+    createdTo: filters.apiParams.createdTo,
+    updatedAtFrom: filters.apiParams.updatedAtFrom,
+    updatedAtTo: filters.apiParams.updatedAtTo,
   }
 
   const {
@@ -64,7 +91,7 @@ export function ProposalKanban({
     handleDragEnd,
     buildOptimisticProposals,
   } = useKanbanDnd({
-    filters,
+    filters: kanbanFilters,
     visibleStages,
     onPolicyIssue: setIssuePolicyProposalId,
     onLostDrop: setLostProposalId,
@@ -78,15 +105,6 @@ export function ProposalKanban({
 
   return (
     <div className="space-y-4">
-      <KanbanToolbar
-        search={search}
-        onSearchChange={setSearch}
-        boardType={boardType}
-        onBoardTypeChange={setBoardType}
-        allowedBoardTypes={allowedBoardTypes}
-        searchPlaceholder={searchPlaceholder}
-      />
-
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -101,7 +119,7 @@ export function ProposalKanban({
             <KanbanColumn
               key={stage}
               stage={stage}
-              filters={filters}
+              filters={kanbanFilters}
               optimisticProposals={buildOptimisticProposals(stage)}
               onCardClick={setSelectedProposal}
             />

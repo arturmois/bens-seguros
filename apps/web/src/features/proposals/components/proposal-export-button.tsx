@@ -4,30 +4,22 @@ import { Download, Loader2 } from 'lucide-react'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
+import type { ListProposalsParams } from '@/api/model'
 import { Button } from '@/components/ui/button'
 import { downloadCsvBlob } from '@/lib/csv-download'
 
-import type { ProposalStage, BoardType } from '../lib/constants'
-
-interface ProposalExportFilters {
-  readonly stage?: ProposalStage
-  readonly clientId?: string
-  readonly boardType?: BoardType
-  readonly search?: string
-}
-
 interface ProposalExportButtonProps {
-  readonly filters: ProposalExportFilters
+  readonly filters: ListProposalsParams
 }
 
 export function ProposalExportButton({ filters }: ProposalExportButtonProps) {
   const exportCsv = useMutation({
-    mutationFn: async (f: ProposalExportFilters) => {
+    mutationFn: async (f: ListProposalsParams) => {
       const params = new URLSearchParams()
-      if (f.stage) params.set('stage', f.stage)
-      if (f.clientId) params.set('clientId', f.clientId)
-      if (f.boardType) params.set('boardType', f.boardType)
-      if (f.search) params.set('search', f.search)
+      for (const [key, value] of Object.entries(f)) {
+        if (value === undefined || value === null || value === '') continue
+        params.set(key, String(value))
+      }
       await downloadCsvBlob(
         `/api/v1/proposals/export?${params.toString()}`,
         'propostas.csv'

@@ -33,32 +33,19 @@ export const ExportProposalsQueryParams = zod.object({
       'LOST',
     ])
     .optional(),
-  stages: zod
-    .string()
-    .and(
-      zod.array(
-        zod.enum([
-          'CAPTURE',
-          'QUOTE',
-          'PROTOCOL',
-          'INSPECTION',
-          'PAYMENT',
-          'POLICY_ISSUED',
-          'LOST',
-        ])
-      )
-    )
-    .optional(),
   contactId: zod.string().optional(),
   clientId: zod.string().optional(),
   salespersonId: zod.string().optional(),
   insurerId: zod.string().optional(),
   sourcePolicyId: zod.string().optional(),
+  boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']).optional(),
+  stageIn: zod.string().optional(),
+  branchIn: zod.string().optional(),
+  salespersonIdIn: zod.string().optional(),
   createdFrom: zod.string().datetime({}).optional(),
   createdTo: zod.string().datetime({}).optional(),
   updatedAtFrom: zod.string().datetime({}).optional(),
   updatedAtTo: zod.string().datetime({}).optional(),
-  boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']).optional(),
   search: zod.string().optional(),
   sortBy: zod
     .enum([
@@ -367,32 +354,19 @@ export const ListProposalsQueryParams = zod.object({
       'LOST',
     ])
     .optional(),
-  stages: zod
-    .string()
-    .and(
-      zod.array(
-        zod.enum([
-          'CAPTURE',
-          'QUOTE',
-          'PROTOCOL',
-          'INSPECTION',
-          'PAYMENT',
-          'POLICY_ISSUED',
-          'LOST',
-        ])
-      )
-    )
-    .optional(),
   contactId: zod.string().optional(),
   clientId: zod.string().optional(),
   salespersonId: zod.string().optional(),
   insurerId: zod.string().optional(),
   sourcePolicyId: zod.string().optional(),
+  boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']).optional(),
+  stageIn: zod.string().optional(),
+  branchIn: zod.string().optional(),
+  salespersonIdIn: zod.string().optional(),
   createdFrom: zod.string().datetime({}).optional(),
   createdTo: zod.string().datetime({}).optional(),
   updatedAtFrom: zod.string().datetime({}).optional(),
   updatedAtTo: zod.string().datetime({}).optional(),
-  boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']).optional(),
   search: zod.string().optional(),
   sortBy: zod
     .enum([

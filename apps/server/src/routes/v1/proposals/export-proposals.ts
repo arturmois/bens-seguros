@@ -19,12 +19,17 @@ export function exportProposalsRoute(app: FastifyInstance) {
     handler: async (request, reply) => {
       const {
         stage,
+        stageIn,
         clientId,
         salespersonId,
+        salespersonIdIn,
         insurerId,
         sourcePolicyId,
+        branchIn,
         createdFrom,
         createdTo,
+        updatedAtFrom,
+        updatedAtTo,
         boardType,
         search,
       } = request.query
@@ -32,12 +37,17 @@ export function exportProposalsRoute(app: FastifyInstance) {
       const stream = useCase.generateCsvRows({
         organizationId: request.organizationId!,
         stage,
+        stageIn,
         clientId,
         salespersonId,
+        salespersonIdIn,
         insurerId,
         sourcePolicyId,
+        branchIn,
         createdFrom,
         createdTo,
+        updatedAtFrom,
+        updatedAtTo,
         boardType,
         search,
       })

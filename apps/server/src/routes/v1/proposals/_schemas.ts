@@ -1,6 +1,7 @@
 import { insuredObjectDetailsSchema } from '@repo/shared'
 import { z } from 'zod'
 
+import { csvEnumArray } from '../../shared/csv-array.schema.js'
 import { branchEnum } from '../../shared/enums.schema.js'
 import { paginationQuery } from '../../shared/pagination.schema.js'
 import { idParam } from '../../shared/params.schema.js'
@@ -88,23 +89,23 @@ export const updateProposalDetailsBody = z.object({
 
 export const listProposalsQuery = paginationQuery().extend({
   stage: proposalStageEnum.optional(),
-  // CSV form accepted from URL (e.g. ?stages=QUOTE,PROTOCOL)
-  stages: z
-    .string()
-    .transform((v) => v.split(',').filter(Boolean))
-    .pipe(z.array(proposalStageEnum))
-    .optional(),
   contactId: z.string().optional(),
   // clientId filters via contact.clientId (semantic kept for UX backward compat).
   clientId: z.string().optional(),
   salespersonId: z.string().optional(),
   insurerId: z.string().optional(),
   sourcePolicyId: z.string().optional(),
+  boardType: boardTypeEnum.optional(),
+
+  stageIn: csvEnumArray(proposalStageEnum).optional(),
+  branchIn: csvEnumArray(branchEnum).optional(),
+  salespersonIdIn: csvEnumArray(z.string().min(1)).optional(),
+
   createdFrom: z.coerce.date().optional(),
   createdTo: z.coerce.date().optional(),
   updatedAtFrom: z.coerce.date().optional(),
   updatedAtTo: z.coerce.date().optional(),
-  boardType: boardTypeEnum.optional(),
+
   search: z.string().optional(),
   sortBy: proposalSortByEnum.optional().default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),

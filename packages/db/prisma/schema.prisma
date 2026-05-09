@@ -371,6 +371,7 @@ model Proposal {
   checklistItems ProposalChecklistItem[]
 
   @@index([organizationId, stage])
+  @@index([organizationId, branch])
   @@index([organizationId, contactId])
   @@index([organizationId, salespersonId])
   @@index([organizationId, insurerId])

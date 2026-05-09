@@ -1,10 +1,7 @@
-import { Plus } from 'lucide-react'
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import Link from 'next/link'
 
 import { ListPageHeader } from '@/components/shared/list-page-header'
-import { Button } from '@/components/ui/button'
 
 import { ProposalsContent } from './proposals-content'
 
@@ -20,12 +17,6 @@ export default function ProposalsPage() {
         ]}
         title="Propostas"
         description="Pipeline de propostas de seguro."
-        action={
-          <Button render={<Link href="/proposals/new" />}>
-            <Plus className="size-4" />
-            Nova Proposta
-          </Button>
-        }
       />
       <Suspense>
         <ProposalsContent />

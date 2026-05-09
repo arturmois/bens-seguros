@@ -128,4 +128,69 @@ describe('GET /api/v1/proposals', () => {
     const body = response.json()
     expect(body.data).toEqual([])
   })
+
+  it('parses stageIn from CSV query', async () => {
+    mockExecute.mockResolvedValue({ items: [], nextCursor: null })
+
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/proposals',
+      query: { stageIn: 'QUOTE,PROTOCOL' },
+    })
+
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.objectContaining({ stageIn: ['QUOTE', 'PROTOCOL'] }),
+      expect.anything()
+    )
+  })
+
+  it('parses branchIn from CSV query', async () => {
+    mockExecute.mockResolvedValue({ items: [], nextCursor: null })
+
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/proposals',
+      query: { branchIn: 'AUTO,RESIDENTIAL' },
+    })
+
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.objectContaining({ branchIn: ['AUTO', 'RESIDENTIAL'] }),
+      expect.anything()
+    )
+  })
+
+  it('parses salespersonIdIn from CSV query', async () => {
+    mockExecute.mockResolvedValue({ items: [], nextCursor: null })
+
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/proposals',
+      query: { salespersonIdIn: 'user-1,user-2' },
+    })
+
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.objectContaining({ salespersonIdIn: ['user-1', 'user-2'] }),
+      expect.anything()
+    )
+  })
+
+  it('rejects branchIn=INVALID with 400', async () => {
+    const response = await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/proposals',
+      query: { branchIn: 'INVALID' },
+    })
+
+    expect(response.statusCode).toBe(400)
+  })
+
+  it('rejects stageIn=INVALID with 400', async () => {
+    const response = await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/proposals',
+      query: { stageIn: 'INVALID' },
+    })
+
+    expect(response.statusCode).toBe(400)
+  })
 })

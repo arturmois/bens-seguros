@@ -102,8 +102,8 @@ export class PrismaProposalRepository implements ProposalRepository {
     }
 
     const stageFilter: Prisma.EnumProposalStageFilter | undefined =
-      filters.stages && filters.stages.length > 0
-        ? { in: [...filters.stages] }
+      filters.stageIn && filters.stageIn.length > 0
+        ? { in: [...filters.stageIn] }
         : filters.stage
           ? { equals: filters.stage }
           : undefined
@@ -112,6 +112,12 @@ export class PrismaProposalRepository implements ProposalRepository {
       organizationId: filters.organizationId,
       deletedAt: null,
       ...(stageFilter && { stage: stageFilter }),
+      ...(filters.branchIn?.length && {
+        branch: { in: [...filters.branchIn] },
+      }),
+      ...(filters.salespersonIdIn?.length && {
+        salespersonId: { in: [...filters.salespersonIdIn] },
+      }),
       ...(filters.contactId && { contactId: filters.contactId }),
       ...(filters.clientId && { contact: { clientId: filters.clientId } }),
       ...(filters.salespersonId && { salespersonId: filters.salespersonId }),

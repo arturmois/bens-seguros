@@ -34,7 +34,7 @@ export function Logo({
           dominantBaseline="middle"
           textAnchor="middle"
           className="fill-accent-400"
-          fontFamily="Inter, sans-serif"
+          fontFamily="Geist, sans-serif"
           fontWeight="700"
           fontSize="22"
         >
