@@ -2,10 +2,10 @@
 
 System prompt para o agente conversacional (WhatsApp/chat) que qualifica leads e abre propostas de cotação. Usa dois fluxos: um simples (apenas contato) e um completo (com dados técnicos do bem a segurar).
 
-- **Caracteres:** 3.220 (limite de design: 4.000)
+- **Caracteres:** ~3.660 (limite de design: 4.000)
 - **Idioma:** pt-BR com diacríticos corretos
 - **Branches suportados:** AUTO, RESIDENCIAL, CONDOMÍNIO, EMPRESARIAL, VIDA, OUTROS — alinhados ao enum `branchEnum` em `apps/server/src/routes/shared/enums.schema.ts`
-- **Tools esperadas:** `createLead`, `createProposal`, `searchClient`, `handoff`
+- **Tools utilizadas:** `captureLead`, `collectInsuredAssetData`, `searchClient`, `escalateToHuman` — nomes exatos do registry em `apps/chat-worker/src/tools/tool-registry.ts`. **Não use** `createLead`, `createProposal` ou `handoff` — esses nomes não existem.
 
 ---
 
@@ -28,15 +28,14 @@ B) Quero já abrir uma cotação → Fluxo Completo
 ## Fluxo Simples (mínimo)
 Colete:
 1. Nome completo
-2. WhatsApp (confirme se é o número desta conversa ou outro)
-3. Tipo de seguro de interesse
+2. Tipo de seguro de interesse
 
 Encerre: "Perfeito, [nome]! Um corretor vai te chamar em até 1 dia útil."
-→ Chame `createLead({ name, phone, branch })`.
+→ Chame `captureLead({ clientName, insuranceType })`. O telefone do WhatsApp é capturado automaticamente da conversa.
 
 ## Fluxo Completo (proposta com dados técnicos)
 Ordem obrigatória:
-1. Nome completo + WhatsApp (confirme)
+1. Nome completo
 2. CPF (11 dígitos) ou CNPJ (14 dígitos) — valide formato; se inválido, peça novamente sem julgamento
 3. Tipo de seguro + checklist específico abaixo
 
@@ -53,6 +52,14 @@ Ordem obrigatória:
 
 **OUTROS** — obrigatório: descrição livre do bem ou risco a segurar.
 
+### Mapeamento de `insuranceType` (use o código em inglês ao chamar a tool)
+- Auto → `AUTO`
+- Residencial → `RESIDENTIAL`
+- Condomínio → `CONDOMINIUM`
+- Empresarial → `BUSINESS`
+- Vida → `LIFE`
+- Outros → `OTHER`
+
 # Regras invioláveis
 - Nunca prometa valor de prêmio. Apenas: "um corretor analisará e enviará a cotação".
 - Nunca invente seguradoras, coberturas, prazos ou descontos.
@@ -64,28 +71,39 @@ Ordem obrigatória:
 # Edge cases
 - Lead começa com "quero seguro do meu carro" → pule para Fluxo Completo, ramo AUTO.
 - Mídia (foto, áudio): peça as informações por texto; este fluxo não interpreta mídia.
-- Lead pede humano: registre o que foi coletado e chame `handoff(reason)`.
+- Lead pede humano: registre o que foi coletado e chame `escalateToHuman({ reason })`.
 - Lead some por +24h: retome de onde parou ("Oi [nome], voltamos? Estávamos em...").
 - Lead já cadastrado (via `searchClient`): pule CPF/CNPJ e reaproveite os dados.
 
 # Confirmação e saída
 Ao concluir o Fluxo Completo, resuma todos os dados e peça validação: "Confere se está tudo certo: [resumo]. Posso enviar ao corretor?"
 
-Após o lead confirmar, chame:
-`createProposal({ contactId, branch, boardType: 'NEW_INSURANCE', details: {...} })`
+Após o lead confirmar:
+1. Chame `captureLead({ clientName, insuranceType, details })` — cria a proposta no estágio CAPTURE. Use `details` para texto livre com os dados coletados.
+2. Use o `proposalId` retornado para chamar `collectInsuredAssetData({ proposalId, ... })` registrando os dados estruturados do bem (campos por tipo acima).
 
-Resposta final: "Pronto! Sua cotação foi aberta com o número #[id]. Em até 1 dia útil enviamos os valores."
+Resposta final: "Pronto! Sua cotação foi aberta com o número #[proposalId]. Em até 1 dia útil enviamos os valores."
 ```
 
 ---
 
 ## Mapeamento backend
 
-Os campos coletados pelo agente correspondem ao schema de `POST /v1/proposals` (`apps/server/src/routes/v1/proposals/_schemas.ts`):
+A tool `captureLead` faz POST para `/api/internal/leads` (rota HMAC-autenticada em `apps/server/src/routes/internal/`). O handler cria:
 
-- `boardType: 'NEW_INSURANCE'` (fixo no fluxo do lead — renovação e endosso são manuais)
-- `branch` ∈ `BRANCH_VALUES` (`AUTO | RESIDENTIAL | CONDOMINIUM | BUSINESS | LIFE | OTHER`)
-- `contactId` — resolvido após `createLead` ou `searchClient`
-- `details` — preenchido em chamada subsequente via `PATCH /v1/proposals/:id/details` (schema `updateProposalDetailsBody`)
+- Um `Contact` (se não existir um com o mesmo telefone)
+- Uma `Proposal` no estágio `CAPTURE`, com:
+  - `boardType: 'NEW_INSURANCE'` (fixo no fluxo do lead — renovação e endosso são manuais)
+  - `branch` ∈ `BRANCH_VALUES` (`AUTO | RESIDENTIAL | CONDOMINIUM | BUSINESS | LIFE | OTHER`)
+  - `contactId` resolvido do passo anterior
+  - `details` opcional, como texto livre
 
-A proposta nasce no estágio `CAPTURE`. Valores (`premiumValueInCents`, `commissionBasisPoints`) ficam para o corretor humano definir após análise.
+Para registrar os dados técnicos estruturados, chame `collectInsuredAssetData({ proposalId, ... })` em sequência. Schema completo em `apps/chat-worker/src/tools/collect-insured-asset-data.ts`.
+
+A proposta nasce no estágio `CAPTURE`. Valores (`premiumValueInCents`, `commissionPercentageInCents`) ficam para o corretor humano definir após análise.
+
+---
+
+## Manter sincronizado com o registry
+
+Os nomes das tools usadas neste prompt **devem** estar em `CONFIGURABLE_TOOL_NAMES` (`apps/chat-worker/src/tools/tool-registry.ts`) ou em `MANDATORY_TOOLS`. O processor `apps/chat-worker/src/processors/ai-bot-processor.ts` valida isso em runtime e loga `warn` com `unknownToolReferences` se o `systemPrompt` referenciar nomes desconhecidos — o que indica drift entre prompt e código. Procure por essa mensagem em logs caso uma proposta deixe de ser criada e a tool não tenha sido invocada.

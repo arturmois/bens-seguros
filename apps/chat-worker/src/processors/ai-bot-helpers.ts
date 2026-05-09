@@ -96,6 +96,24 @@ const TOOL_PROMPT_DESCRIPTIONS: Record<string, string> = {
   searchPolicy: 'consultar apolices ativas do cliente',
 }
 
+const TOOL_CALL_PATTERN = /`([a-z][a-zA-Z0-9_]*)\s*\(/g
+
+export function findUnknownToolReferences(
+  prompt: string,
+  knownToolNames: readonly string[]
+): string[] {
+  const known = new Set(knownToolNames)
+  const matches = prompt.matchAll(TOOL_CALL_PATTERN)
+  const unknown = new Set<string>()
+  for (const match of matches) {
+    const name = match[1]
+    if (name && !known.has(name)) {
+      unknown.add(name)
+    }
+  }
+  return [...unknown].sort()
+}
+
 export function buildSystemPrompt(
   contactName: string,
   channelName: string,
