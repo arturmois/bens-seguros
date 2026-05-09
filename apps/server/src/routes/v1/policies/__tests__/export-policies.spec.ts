@@ -114,4 +114,27 @@ describe('GET /api/v1/policies/export', () => {
       expect.objectContaining({ status: 'ACTIVE', branch: 'AUTO' })
     )
   })
+
+  it('propagates statusIn, branchIn, boardTypeIn to export use case', async () => {
+    const mockGenerateCsvRows = vi.fn().mockReturnValue(makeCsvGenerator())
+    vi.mocked(container.resolve).mockImplementation((token: unknown) => {
+      if (typeof token === 'function') {
+        return { generateCsvRows: mockGenerateCsvRows }
+      }
+      return null
+    })
+
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/policies/export?statusIn=ACTIVE,EXPIRED&branchIn=AUTO&boardTypeIn=RENEWAL',
+    })
+
+    expect(mockGenerateCsvRows).toHaveBeenCalledWith(
+      expect.objectContaining({
+        statusIn: ['ACTIVE', 'EXPIRED'],
+        branchIn: ['AUTO'],
+        boardTypeIn: ['RENEWAL'],
+      })
+    )
+  })
 })

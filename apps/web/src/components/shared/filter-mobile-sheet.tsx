@@ -76,28 +76,34 @@ export function FilterMobileSheet({
 
         {!editingFilter && (
           <div className="space-y-1">
-            {filters.map((filter) => {
-              const v = values[filter.key]
-              const hasValue =
-                v !== undefined && !(Array.isArray(v) && v.length === 0)
-              return (
-                <button
-                  key={filter.key}
-                  type="button"
-                  onClick={() => setEditingKey(filter.key)}
-                  className="hover:bg-accent flex w-full items-center justify-between rounded-md px-3 py-2 text-left"
-                >
-                  <span className="text-sm">{filter.label}</span>
-                  <span className="text-muted-foreground text-xs">
-                    {hasValue ? 'Definido' : '—'}
-                  </span>
-                </button>
-              )
-            })}
+            {filters
+              .filter((filter) => !filter.hiddenInPopover)
+              .map((filter) => {
+                const v = values[filter.key]
+                const hasValue =
+                  v !== undefined && !(Array.isArray(v) && v.length === 0)
+                return (
+                  <button
+                    key={filter.key}
+                    type="button"
+                    onClick={() => setEditingKey(filter.key)}
+                    className="hover:bg-accent flex w-full items-center justify-between rounded-md px-3 py-2 text-left"
+                  >
+                    <span className="text-sm">{filter.label}</span>
+                    <span className="text-muted-foreground text-xs">
+                      {hasValue ? 'Definido' : '—'}
+                    </span>
+                  </button>
+                )
+              })}
             <div className="flex items-center justify-between border-t pt-3">
               <button
                 type="button"
-                onClick={() => setEditingKey(filters[0]?.key ?? null)}
+                onClick={() =>
+                  setEditingKey(
+                    filters.find((f) => !f.hiddenInPopover)?.key ?? null
+                  )
+                }
                 className="text-primary inline-flex items-center gap-1 text-sm"
               >
                 <Plus className="size-3.5" /> Adicionar filtro

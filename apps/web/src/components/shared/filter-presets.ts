@@ -1,4 +1,5 @@
 import {
+  addDays,
   endOfMonth,
   endOfQuarter,
   endOfToday,
@@ -45,6 +46,11 @@ export const DATE_RANGE_PRESETS: readonly DateRangePreset[] = [
       from: startOfQuarter(new Date()),
       to: endOfQuarter(new Date()),
     }),
+  },
+  {
+    value: 'expiring-7d',
+    label: 'Vencendo em 7 dias',
+    compute: () => ({ from: startOfToday(), to: addDays(startOfToday(), 7) }),
   },
 ] as const
 

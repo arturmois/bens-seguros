@@ -17,14 +17,36 @@ export function exportPoliciesRoute(app: FastifyInstance) {
     },
     preHandler: [requireAbility('read', 'Policy')],
     handler: async (request, reply) => {
-      const { status, clientId, proposalId, branch, search } = request.query
+      const {
+        status,
+        statusIn,
+        clientId,
+        proposalId,
+        branch,
+        branchIn,
+        boardType,
+        boardTypeIn,
+        createdFrom,
+        createdTo,
+        endDateFrom,
+        endDateTo,
+        search,
+      } = request.query
       const useCase = container.resolve(ExportPoliciesCsv)
       const stream = useCase.generateCsvRows({
         organizationId: request.organizationId!,
         status,
+        statusIn,
         clientId,
         proposalId,
         branch,
+        branchIn,
+        boardType,
+        boardTypeIn,
+        createdFrom,
+        createdTo,
+        endDateFrom,
+        endDateTo,
         search,
       })
 

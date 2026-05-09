@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 interface FilterChipProps {
   readonly label: string
   readonly value: string
-  readonly onClick: () => void
+  readonly onClick?: () => void
   readonly onRemove: () => void
 }
 
@@ -24,15 +24,22 @@ export function FilterChip({
       )}
       data-slot="filter-chip"
     >
-      <button
-        type="button"
-        onClick={onClick}
-        className="flex items-center gap-1.5"
-        aria-label={`Editar filtro ${label}`}
-      >
-        <span className="text-muted-foreground">{label}:</span>
-        <span className="font-medium">{value}</span>
-      </button>
+      {onClick ? (
+        <button
+          type="button"
+          onClick={onClick}
+          className="flex items-center gap-1.5"
+          aria-label={`Editar filtro ${label}`}
+        >
+          <span className="text-muted-foreground">{label}:</span>
+          <span className="font-medium">{value}</span>
+        </button>
+      ) : (
+        <span className="flex items-center gap-1.5">
+          <span className="text-muted-foreground">{label}:</span>
+          <span className="font-medium">{value}</span>
+        </span>
+      )}
       <button
         type="button"
         onClick={onRemove}

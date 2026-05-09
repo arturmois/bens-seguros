@@ -20,12 +20,15 @@ export const ExportPoliciesQueryParams = zod.object({
     .max(exportPoliciesQueryLimitMax)
     .default(exportPoliciesQueryLimitDefault),
   status: zod.enum(['ACTIVE', 'CANCELLED', 'EXPIRED']).optional(),
+  statusIn: zod.string().optional(),
   clientId: zod.string().optional(),
   proposalId: zod.string().optional(),
   branch: zod
     .enum(['AUTO', 'RESIDENTIAL', 'CONDOMINIUM', 'BUSINESS', 'LIFE', 'OTHER'])
     .optional(),
+  branchIn: zod.string().optional(),
   boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']).optional(),
+  boardTypeIn: zod.string().optional(),
   createdFrom: zod.string().datetime({}).optional(),
   createdTo: zod.string().datetime({}).optional(),
   endDateFrom: zod.string().datetime({}).optional(),
@@ -179,12 +182,15 @@ export const ListPoliciesQueryParams = zod.object({
     .max(listPoliciesQueryLimitMax)
     .default(listPoliciesQueryLimitDefault),
   status: zod.enum(['ACTIVE', 'CANCELLED', 'EXPIRED']).optional(),
+  statusIn: zod.string().optional(),
   clientId: zod.string().optional(),
   proposalId: zod.string().optional(),
   branch: zod
     .enum(['AUTO', 'RESIDENTIAL', 'CONDOMINIUM', 'BUSINESS', 'LIFE', 'OTHER'])
     .optional(),
+  branchIn: zod.string().optional(),
   boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']).optional(),
+  boardTypeIn: zod.string().optional(),
   createdFrom: zod.string().datetime({}).optional(),
   createdTo: zod.string().datetime({}).optional(),
   endDateFrom: zod.string().datetime({}).optional(),

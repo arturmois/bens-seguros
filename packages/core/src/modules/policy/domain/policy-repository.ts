@@ -40,6 +40,7 @@ export interface PolicyData {
 export interface PolicyFilters {
   organizationId: string
   status?: 'ACTIVE' | 'CANCELLED' | 'EXPIRED'
+  statusIn?: readonly ('ACTIVE' | 'CANCELLED' | 'EXPIRED')[]
   clientId?: string
   proposalId?: string
   salespersonId?: string
@@ -50,8 +51,17 @@ export interface PolicyFilters {
     | 'BUSINESS'
     | 'LIFE'
     | 'OTHER'
+  branchIn?: readonly (
+    | 'AUTO'
+    | 'RESIDENTIAL'
+    | 'CONDOMINIUM'
+    | 'BUSINESS'
+    | 'LIFE'
+    | 'OTHER'
+  )[]
   search?: string
   boardType?: 'NEW_INSURANCE' | 'RENEWAL' | 'ENDORSEMENT'
+  boardTypeIn?: readonly ('NEW_INSURANCE' | 'RENEWAL' | 'ENDORSEMENT')[]
   createdFrom?: Date
   createdTo?: Date
   endDateFrom?: Date

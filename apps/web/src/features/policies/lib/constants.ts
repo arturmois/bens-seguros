@@ -2,11 +2,6 @@ import type { VisibilityState } from '@tanstack/react-table'
 
 import type { PolicyBranch, PolicyStatus } from './types'
 
-interface FilterTabOption {
-  readonly value: string
-  readonly label: string
-}
-
 interface HideableColumn {
   readonly id: string
   readonly label: string
@@ -21,19 +16,6 @@ export const HIDEABLE_COLUMNS: readonly HideableColumn[] = [
   { id: 'premiumValueInCents', label: 'Valor' },
   { id: 'validity', label: 'Vigência' },
   { id: 'createdAt', label: 'Criado em' },
-] as const
-
-export const STATUS_FILTER_OPTIONS: readonly FilterTabOption[] = [
-  { value: '', label: 'Todas' },
-  { value: 'ACTIVE', label: 'Ativa' },
-  { value: 'CANCELLED', label: 'Cancelada' },
-  { value: 'EXPIRED', label: 'Expirada' },
-] as const
-
-export const POLICY_STATUSES: readonly PolicyStatus[] = [
-  'ACTIVE',
-  'CANCELLED',
-  'EXPIRED',
 ] as const
 
 export const POLICY_STATUS_LABELS: Record<PolicyStatus, string> = {

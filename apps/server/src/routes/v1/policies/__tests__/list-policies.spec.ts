@@ -120,4 +120,83 @@ describe('GET /api/v1/policies', () => {
       expect.anything()
     )
   })
+
+  it('parses statusIn=ACTIVE,EXPIRED and forwards array to use case', async () => {
+    mockExecute.mockResolvedValue({ items: [], nextCursor: null })
+
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/policies?statusIn=ACTIVE,EXPIRED',
+    })
+
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.objectContaining({ statusIn: ['ACTIVE', 'EXPIRED'] }),
+      expect.anything()
+    )
+  })
+
+  it('parses branchIn=AUTO,LIFE and forwards array to use case', async () => {
+    mockExecute.mockResolvedValue({ items: [], nextCursor: null })
+
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/policies?branchIn=AUTO,LIFE',
+    })
+
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.objectContaining({ branchIn: ['AUTO', 'LIFE'] }),
+      expect.anything()
+    )
+  })
+
+  it('parses boardTypeIn=RENEWAL,ENDORSEMENT and forwards array to use case', async () => {
+    mockExecute.mockResolvedValue({ items: [], nextCursor: null })
+
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/policies?boardTypeIn=RENEWAL,ENDORSEMENT',
+    })
+
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.objectContaining({ boardTypeIn: ['RENEWAL', 'ENDORSEMENT'] }),
+      expect.anything()
+    )
+  })
+
+  it('returns 400 when statusIn contains an invalid value', async () => {
+    const response = await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/policies?statusIn=ACTIVE,INVALID',
+    })
+
+    expect(response.statusCode).toBe(400)
+  })
+
+  it('accepts both status=ACTIVE and statusIn=EXPIRED in same request', async () => {
+    mockExecute.mockResolvedValue({ items: [], nextCursor: null })
+
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/policies?status=ACTIVE&statusIn=EXPIRED',
+    })
+
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.objectContaining({ status: 'ACTIVE', statusIn: ['EXPIRED'] }),
+      expect.anything()
+    )
+  })
+
+  it('omits all in-filters when query has no plurals', async () => {
+    mockExecute.mockResolvedValue({ items: [], nextCursor: null })
+
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/policies',
+    })
+
+    const callArg = mockExecute.mock.calls[0]?.[0] as Record<string, unknown>
+    expect(callArg).not.toHaveProperty('statusIn')
+    expect(callArg).not.toHaveProperty('branchIn')
+    expect(callArg).not.toHaveProperty('boardTypeIn')
+  })
 })

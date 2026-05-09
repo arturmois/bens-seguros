@@ -62,4 +62,101 @@ describe('ListPolicies', () => {
       expect.anything()
     )
   })
+
+  it('forwards statusIn array to repository', async () => {
+    const repo = makeMockRepo()
+    const useCase = new ListPolicies(repo)
+
+    await useCase.execute(
+      { organizationId: 'org-1', statusIn: ['ACTIVE', 'EXPIRED'] },
+      { limit: 20 }
+    )
+
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ statusIn: ['ACTIVE', 'EXPIRED'] }),
+      expect.anything()
+    )
+  })
+
+  it('forwards branchIn array to repository', async () => {
+    const repo = makeMockRepo()
+    const useCase = new ListPolicies(repo)
+
+    await useCase.execute(
+      { organizationId: 'org-1', branchIn: ['AUTO', 'LIFE'] },
+      { limit: 20 }
+    )
+
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ branchIn: ['AUTO', 'LIFE'] }),
+      expect.anything()
+    )
+  })
+
+  it('forwards boardTypeIn array to repository', async () => {
+    const repo = makeMockRepo()
+    const useCase = new ListPolicies(repo)
+
+    await useCase.execute(
+      { organizationId: 'org-1', boardTypeIn: ['RENEWAL', 'ENDORSEMENT'] },
+      { limit: 20 }
+    )
+
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ boardTypeIn: ['RENEWAL', 'ENDORSEMENT'] }),
+      expect.anything()
+    )
+  })
+
+  it('forwards both status and statusIn (repo decides priority)', async () => {
+    const repo = makeMockRepo()
+    const useCase = new ListPolicies(repo)
+
+    await useCase.execute(
+      { organizationId: 'org-1', status: 'ACTIVE', statusIn: ['EXPIRED'] },
+      { limit: 20 }
+    )
+
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ status: 'ACTIVE', statusIn: ['EXPIRED'] }),
+      expect.anything()
+    )
+  })
+
+  it('forwards both branch and branchIn', async () => {
+    const repo = makeMockRepo()
+    const useCase = new ListPolicies(repo)
+
+    await useCase.execute(
+      { organizationId: 'org-1', branch: 'AUTO', branchIn: ['LIFE'] },
+      { limit: 20 }
+    )
+
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ branch: 'AUTO', branchIn: ['LIFE'] }),
+      expect.anything()
+    )
+  })
+
+  it('forwards both boardType and boardTypeIn', async () => {
+    const repo = makeMockRepo()
+    const useCase = new ListPolicies(repo)
+
+    await useCase.execute(
+      {
+        organizationId: 'org-1',
+        boardType: 'NEW_INSURANCE',
+        boardTypeIn: ['RENEWAL'],
+      },
+      { limit: 20 }
+    )
+
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        boardType: 'NEW_INSURANCE',
+        boardTypeIn: ['RENEWAL'],
+      }),
+      expect.anything()
+    )
+  })
 })

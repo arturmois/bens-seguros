@@ -99,7 +99,7 @@ function StaticChip({ filter, value, onEdit, onRemove }: ChipProps) {
     <FilterChip
       label={filter.label}
       value={display}
-      onClick={onEdit}
+      onClick={filter.hiddenInPopover ? undefined : onEdit}
       onRemove={onRemove}
     />
   )
@@ -132,7 +132,7 @@ function DynamicEnumChip({
     <FilterChip
       label={filter.label}
       value={display}
-      onClick={onEdit}
+      onClick={filter.hiddenInPopover ? undefined : onEdit}
       onRemove={onRemove}
     />
   )

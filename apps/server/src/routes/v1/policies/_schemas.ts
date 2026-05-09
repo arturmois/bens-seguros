@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { csvEnumArray } from '../../shared/csv-array.schema.js'
 import { branchEnum } from '../../shared/enums.schema.js'
 import { paginationQuery } from '../../shared/pagination.schema.js'
 import { idParam } from '../../shared/params.schema.js'
@@ -25,12 +26,17 @@ export const issuePolicyBody = z
     path: ['endDate'],
   })
 
+const boardTypeEnum = z.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT'])
+
 export const listPoliciesQuery = paginationQuery().extend({
   status: policyStatusEnum.optional(),
+  statusIn: csvEnumArray(policyStatusEnum).optional(),
   clientId: z.string().optional(),
   proposalId: z.string().optional(),
   branch: branchEnum.optional(),
-  boardType: z.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']).optional(),
+  branchIn: csvEnumArray(branchEnum).optional(),
+  boardType: boardTypeEnum.optional(),
+  boardTypeIn: csvEnumArray(boardTypeEnum).optional(),
   createdFrom: z.coerce.date().optional(),
   createdTo: z.coerce.date().optional(),
   endDateFrom: z.coerce.date().optional(),

@@ -18,6 +18,7 @@ export interface FilterDefinitionEnum {
     readonly options: readonly FilterOption[]
     readonly isLoading: boolean
   }
+  readonly hiddenInPopover?: boolean
 }
 
 export interface FilterDefinitionDateRange {
@@ -26,6 +27,7 @@ export interface FilterDefinitionDateRange {
   readonly label: string
   readonly icon: LucideIcon
   readonly type: 'dateRange'
+  readonly hiddenInPopover?: boolean
 }
 
 export interface FilterDefinitionBoolean {
@@ -34,6 +36,7 @@ export interface FilterDefinitionBoolean {
   readonly label: string
   readonly icon: LucideIcon
   readonly type: 'boolean'
+  readonly hiddenInPopover?: boolean
 }
 
 export type FilterDefinition =

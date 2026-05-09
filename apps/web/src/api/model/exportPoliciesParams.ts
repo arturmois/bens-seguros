@@ -16,10 +16,13 @@ export type ExportPoliciesParams = {
    */
   limit?: number
   status?: ExportPoliciesStatus
+  statusIn?: string
   clientId?: string
   proposalId?: string
   branch?: ExportPoliciesBranch
+  branchIn?: string
   boardType?: ExportPoliciesBoardType
+  boardTypeIn?: string
   createdFrom?: string
   createdTo?: string
   endDateFrom?: string

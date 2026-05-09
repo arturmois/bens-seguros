@@ -96,12 +96,18 @@ export class PrismaPolicyRepository implements PolicyRepository {
     const where: Prisma.PolicyWhereInput = {
       organizationId: filters.organizationId,
       deletedAt: null,
-      ...(filters.status && { status: filters.status }),
+      ...(filters.statusIn?.length
+        ? { status: { in: [...filters.statusIn] } }
+        : filters.status && { status: filters.status }),
       ...(filters.clientId && { clientId: filters.clientId }),
       ...(filters.proposalId && { proposalId: filters.proposalId }),
       ...(filters.salespersonId && { salespersonId: filters.salespersonId }),
-      ...(filters.branch && { branch: filters.branch }),
-      ...(filters.boardType && { proposal: { boardType: filters.boardType } }),
+      ...(filters.branchIn?.length
+        ? { branch: { in: [...filters.branchIn] } }
+        : filters.branch && { branch: filters.branch }),
+      ...(filters.boardTypeIn?.length
+        ? { proposal: { boardType: { in: [...filters.boardTypeIn] } } }
+        : filters.boardType && { proposal: { boardType: filters.boardType } }),
       ...(Object.keys(createdAt).length > 0 && { createdAt }),
       ...(Object.keys(endDate).length > 0 && { endDate }),
       ...(filters.search && {

@@ -75,20 +75,22 @@ export function FilterPopover({
             <div className="text-muted-foreground border-b px-3 py-1.5 text-xs font-medium">
               Filtros disponíveis
             </div>
-            {filters.map((filter) => {
-              const Icon = filter.icon
-              return (
-                <button
-                  key={filter.key}
-                  type="button"
-                  onClick={() => handleSelectField(filter.key)}
-                  className="hover:bg-accent flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm"
-                >
-                  <Icon className="text-muted-foreground size-3.5" />
-                  <span>{filter.label}</span>
-                </button>
-              )
-            })}
+            {filters
+              .filter((filter) => !filter.hiddenInPopover)
+              .map((filter) => {
+                const Icon = filter.icon
+                return (
+                  <button
+                    key={filter.key}
+                    type="button"
+                    onClick={() => handleSelectField(filter.key)}
+                    className="hover:bg-accent flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm"
+                  >
+                    <Icon className="text-muted-foreground size-3.5" />
+                    <span>{filter.label}</span>
+                  </button>
+                )
+              })}
           </div>
         )}
 
