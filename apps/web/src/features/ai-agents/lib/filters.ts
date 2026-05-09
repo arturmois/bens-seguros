@@ -1,18 +1,24 @@
-import type { AiAgentData } from '../types'
-import type { AiAgentStatusFilter } from './types'
+import { Check } from 'lucide-react'
 
-export function isAiAgentStatusFilter(
-  value: string
-): value is AiAgentStatusFilter {
-  return value === 'ALL' || value === 'ACTIVE' || value === 'INACTIVE'
-}
+import type { FilterDefinition } from '@/components/shared/filter-types'
+
+import type { AiAgentData } from '../types'
+
+export const AI_AGENT_FILTERS: readonly FilterDefinition[] = [
+  {
+    key: 'active',
+    label: 'Status',
+    icon: Check,
+    type: 'boolean',
+  },
+] as const
 
 export function matchesStatus(
   agent: AiAgentData,
-  filter: AiAgentStatusFilter
+  active: boolean | undefined
 ): boolean {
-  if (filter === 'ALL') return true
-  return filter === 'ACTIVE' ? agent.isActive : !agent.isActive
+  if (active === undefined) return true
+  return agent.isActive === active
 }
 
 export function matchesSearch(agent: AiAgentData, search: string): boolean {

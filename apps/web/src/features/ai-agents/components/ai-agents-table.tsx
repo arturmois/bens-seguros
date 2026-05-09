@@ -10,29 +10,24 @@ import { Brain, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { DataTable } from '@/components/shared/data-table'
-import { FilterTabs } from '@/components/shared/filter-tabs'
+import type { FilterValue } from '@/components/shared/filter-types'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
-import { TableToolbar } from '@/components/shared/table-toolbar'
+import { UnifiedFilterBar } from '@/components/shared/unified-filter-bar'
 import { Button } from '@/components/ui/button'
 import { useDebounce } from '@/hooks/use-debounce'
 
 import { useOrgs } from '@/features/org/hooks/use-orgs'
 import { useAiAgents } from '../hooks/use-ai-agents'
+import { useAiAgentsFilters } from '../hooks/use-ai-agents-filters'
 import {
   DEFAULT_COLUMN_VISIBILITY,
   DEFAULT_SORTING,
   DUPLICATE_PREFIX,
   HIDEABLE_COLUMNS,
   MAX_AGENT_NAME_LENGTH,
-  STATUS_FILTER_OPTIONS,
 } from '../lib/constants'
-import {
-  isAiAgentStatusFilter,
-  matchesSearch,
-  matchesStatus,
-} from '../lib/filters'
-import type { AiAgentStatusFilter } from '../lib/types'
+import { AI_AGENT_FILTERS, matchesSearch, matchesStatus } from '../lib/filters'
 import type { AiAgentData } from '../types'
 import { AiAgentCard } from './ai-agent-card'
 import { AiAgentFormDialog } from './ai-agent-form-dialog'
@@ -43,8 +38,7 @@ export function AiAgentsTable() {
   'use no memo'
   const { activeOrg } = useOrgs()
   const role = activeOrg?.role ?? 'VIEWER'
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<AiAgentStatusFilter>('ALL')
+  const filters = useAiAgentsFilters()
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
@@ -55,20 +49,18 @@ export function AiAgentsTable() {
   const [formOpen, setFormOpen] = useState(false)
   const [deletingAgent, setDeletingAgent] = useState<AiAgentData | null>(null)
 
-  const debouncedSearch = useDebounce(search, 300)
+  const debouncedSearch = useDebounce(filters.search, 300)
   const { data, isLoading, isError, refetch } = useAiAgents()
 
   const agents = useMemo<AiAgentData[]>(() => {
     const list = data ?? []
     return list.filter(
       (agent) =>
-        matchesStatus(agent, statusFilter) &&
+        matchesStatus(agent, filters.active) &&
         matchesSearch(agent, debouncedSearch)
     )
-  }, [data, statusFilter, debouncedSearch])
+  }, [data, filters.active, debouncedSearch])
 
-  // Setters are referentially stable; DUPLICATE_PREFIX/MAX_AGENT_NAME_LENGTH
-  // are module-level constants. Empty dep array is intentional.
   const columnActions = useMemo(
     () => ({
       onEdit: (agent: AiAgentData) => {
@@ -113,8 +105,8 @@ export function AiAgentsTable() {
     setFormOpen(true)
   }
 
-  function handleStatusFilterChange(value: string) {
-    if (isAiAgentStatusFilter(value)) setStatusFilter(value)
+  function handleFilterChange(key: string, value: FilterValue) {
+    filters.setFilter(key, value)
   }
 
   function handleColumnToggle(id: string, visible: boolean) {
@@ -137,16 +129,14 @@ export function AiAgentsTable() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <FilterTabs
-        options={STATUS_FILTER_OPTIONS}
-        value={statusFilter}
-        onChange={handleStatusFilterChange}
-      />
-
-      <TableToolbar
-        search={search}
-        onSearchChange={setSearch}
+      <UnifiedFilterBar
+        searchValue={filters.search}
+        onSearchChange={filters.setSearch}
         searchPlaceholder="Buscar agentes..."
+        filters={AI_AGENT_FILTERS}
+        values={filters.values}
+        onFilterChange={handleFilterChange}
+        onClearAll={filters.clearAll}
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
@@ -155,7 +145,7 @@ export function AiAgentsTable() {
           <Plus className="size-4 sm:mr-2" />
           <span className="hidden sm:inline">Novo agente</span>
         </Button>
-      </TableToolbar>
+      </UnifiedFilterBar>
 
       <DataTable
         table={table}
