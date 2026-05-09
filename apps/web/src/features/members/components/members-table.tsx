@@ -9,6 +9,8 @@ import {
 import { Users } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+import type { ReactNode } from 'react'
+
 import { ConfirmDeleteDialog } from '@/components/shared/confirm-delete-dialog'
 import { DataTable } from '@/components/shared/data-table'
 import type { FilterValue } from '@/components/shared/filter-types'
@@ -38,6 +40,7 @@ interface MembersTableProps {
   readonly canManage: boolean
   readonly currentUserId: string
   readonly currentUserRole: string
+  readonly headerAction?: ReactNode
 }
 
 function canActOnMember(
@@ -55,6 +58,7 @@ export function MembersTable({
   canManage,
   currentUserId,
   currentUserRole,
+  headerAction,
 }: MembersTableProps) {
   'use no memo'
   const { data, isLoading, isError, refetch } = useMembers()
@@ -146,7 +150,9 @@ export function MembersTable({
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
-      />
+      >
+        {headerAction}
+      </UnifiedFilterBar>
 
       <DataTable
         table={table}

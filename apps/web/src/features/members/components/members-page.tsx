@@ -34,6 +34,13 @@ export function MembersPage() {
   const membersCount = members?.length ?? 0
   const invitationsCount = invitations?.length ?? 0
 
+  const inviteButton = canManage ? (
+    <Button onClick={() => setFormOpen(true)}>
+      <Plus className="mr-2 size-4" />
+      Convidar
+    </Button>
+  ) : null
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -45,12 +52,7 @@ export function MembersPage() {
             Gerencie os membros e convites da sua organização.
           </p>
         </div>
-        {canManage && (
-          <Button onClick={() => setFormOpen(true)}>
-            <Plus className="mr-2 size-4" />
-            Convidar
-          </Button>
-        )}
+        {activeTab === 'invitations' && inviteButton}
       </div>
 
       <TabBar
@@ -66,6 +68,7 @@ export function MembersPage() {
           canManage={canManage}
           currentUserId={user?.id ?? ''}
           currentUserRole={userRole}
+          headerAction={inviteButton}
         />
       )}
       {activeTab === 'invitations' && canManage && (
