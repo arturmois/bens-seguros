@@ -24,6 +24,7 @@ import { useDebounce } from '@/hooks/use-debounce'
 import { useOrgs } from '@/features/org/hooks/use-orgs'
 import { useClaims, useDeleteClaim } from '../hooks/use-claims'
 import { useClaimsFilters } from '../hooks/use-claims-filters'
+import { ClaimCreateButton } from './claim-create-button'
 import {
   DEFAULT_COLUMN_VISIBILITY,
   DEFAULT_SORTING,
@@ -164,7 +165,9 @@ export function ClaimsTable() {
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
-      />
+      >
+        <ClaimCreateButton />
+      </UnifiedFilterBar>
 
       <DataTable
         table={table}

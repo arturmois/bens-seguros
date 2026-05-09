@@ -25,6 +25,7 @@ import { useDebounce } from '@/hooks/use-debounce'
 
 import { useAssistances } from '../hooks/use-assistances'
 import { useAssistancesFilters } from '../hooks/use-assistances-filters'
+import { AssistanceCreateButton } from './assistance-create-button'
 import {
   DEFAULT_COLUMN_VISIBILITY,
   DEFAULT_SORTING,
@@ -141,7 +142,9 @@ export function AssistancesTable() {
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
-      />
+      >
+        <AssistanceCreateButton />
+      </UnifiedFilterBar>
 
       <DataTable
         table={table}

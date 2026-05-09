@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 
 import { ListPageHeader } from '@/components/shared/list-page-header'
-import { AssistanceCreateButton } from '@/features/assistances/components/assistance-create-button'
 
 import { AssistancesContent } from './assistances-content'
 
@@ -17,7 +16,6 @@ export default function AssistancesPage() {
         ]}
         title="Assistências"
         description="Gerenciamento de assistências e acompanhamento de prestadores."
-        action={<AssistanceCreateButton />}
       />
       <AssistancesContent />
     </div>

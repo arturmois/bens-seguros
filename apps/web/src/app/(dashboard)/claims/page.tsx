@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 
 import { ListPageHeader } from '@/components/shared/list-page-header'
-import { ClaimCreateButton } from '@/features/claims/components/claim-create-button'
 
 import { ClaimsContent } from './claims-content'
 
@@ -17,7 +16,6 @@ export default function ClaimsPage() {
         ]}
         title="Sinistros"
         description="Gerenciamento de sinistros e acompanhamento de ocorrências."
-        action={<ClaimCreateButton />}
       />
       <ClaimsContent />
     </div>
