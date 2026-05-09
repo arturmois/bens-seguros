@@ -7,7 +7,9 @@ import type { AuditLogFilters, AuditLogsQueryData } from '../lib/types'
 export function useAuditLogs(filters: AuditLogFilters) {
   const params = {
     entityType: filters.entityType,
+    entityTypeIn: filters.entityTypeIn,
     action: filters.action,
+    actionIn: filters.actionIn,
     userId: filters.userId,
     dateFrom: filters.dateFrom,
     dateTo: filters.dateTo,

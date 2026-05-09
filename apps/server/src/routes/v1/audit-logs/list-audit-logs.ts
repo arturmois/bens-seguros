@@ -18,15 +18,28 @@ export function listAuditLogsRoute(app: FastifyInstance) {
     },
     preHandler: [requireAbility('read', 'AuditLog')],
     handler: async (request, reply) => {
-      const { entityType, action, userId, dateFrom, dateTo, cursor, limit } =
-        request.query
+      const {
+        entityType,
+        entityTypeIn,
+        action,
+        actionIn,
+        userId,
+        dateFrom,
+        dateTo,
+        cursor,
+        limit,
+      } = request.query
 
       const orgId = request.organizationId!
 
       const where: Prisma.AuditLogWhereInput = {
         organizationId: orgId,
-        ...(entityType ? { entityType } : {}),
-        ...(action ? { action } : {}),
+        ...(entityTypeIn?.length
+          ? { entityType: { in: [...entityTypeIn] } }
+          : entityType && { entityType }),
+        ...(actionIn?.length
+          ? { action: { in: [...actionIn] } }
+          : action && { action }),
         ...(userId ? { userId } : {}),
         ...(dateFrom || dateTo
           ? {

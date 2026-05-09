@@ -1,10 +1,13 @@
 import { z } from 'zod'
 
+import { csvEnumArray } from '../../shared/csv-array.schema.js'
 import { paginatedResponse } from '../../shared/response.schema.js'
 
 export const listAuditLogsQuerySchema = z.object({
   entityType: z.string().optional(),
+  entityTypeIn: csvEnumArray(z.string().min(1)).optional(),
   action: z.string().optional(),
+  actionIn: csvEnumArray(z.string().min(1)).optional(),
   userId: z.string().optional(),
   dateFrom: z.string().optional(),
   dateTo: z.string().optional(),

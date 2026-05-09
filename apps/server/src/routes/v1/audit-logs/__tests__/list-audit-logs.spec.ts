@@ -119,4 +119,46 @@ describe('GET /api/v1/audit-logs', () => {
 
     expect(response.statusCode).toBe(400)
   })
+
+  it('parses entityTypeIn from CSV query', async () => {
+    const { prisma } = await import('@repo/db')
+    vi.mocked(prisma.auditLog.findMany).mockResolvedValue(
+      [] as unknown as Awaited<ReturnType<typeof prisma.auditLog.findMany>>
+    )
+    vi.mocked(prisma.auditLog.count).mockResolvedValue(0)
+
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/audit-logs?entityTypeIn=Client,Proposal',
+    })
+
+    expect(vi.mocked(prisma.auditLog.findMany)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          entityType: { in: ['Client', 'Proposal'] },
+        }),
+      })
+    )
+  })
+
+  it('parses actionIn from CSV query', async () => {
+    const { prisma } = await import('@repo/db')
+    vi.mocked(prisma.auditLog.findMany).mockResolvedValue(
+      [] as unknown as Awaited<ReturnType<typeof prisma.auditLog.findMany>>
+    )
+    vi.mocked(prisma.auditLog.count).mockResolvedValue(0)
+
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/audit-logs?actionIn=CREATE,UPDATE',
+    })
+
+    expect(vi.mocked(prisma.auditLog.findMany)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          action: { in: ['CREATE', 'UPDATE'] },
+        }),
+      })
+    )
+  })
 })

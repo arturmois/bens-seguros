@@ -7,7 +7,9 @@ export type AuditLogData = ListAuditLogs200DataItem
 
 export interface AuditLogFilters {
   readonly entityType?: string
+  readonly entityTypeIn?: string
   readonly action?: string
+  readonly actionIn?: string
   readonly userId?: string
   readonly dateFrom?: string
   readonly dateTo?: string

@@ -18,8 +18,9 @@ import type { FilterDefinition, FilterValue } from './filter-types'
 
 interface UnifiedFilterBarProps {
   readonly searchPlaceholder?: string
-  readonly searchValue: string
-  readonly onSearchChange: (value: string) => void
+  readonly searchValue?: string
+  readonly onSearchChange?: (value: string) => void
+  readonly hideSearch?: boolean
   readonly filters: readonly FilterDefinition[]
   readonly values: Readonly<Record<string, FilterValue>>
   readonly onFilterChange: (key: string, value: FilterValue) => void
@@ -32,8 +33,9 @@ interface UnifiedFilterBarProps {
 
 export function UnifiedFilterBar({
   searchPlaceholder = 'Buscar...',
-  searchValue,
+  searchValue = '',
   onSearchChange,
+  hideSearch = false,
   filters,
   values,
   onFilterChange,
@@ -63,16 +65,18 @@ export function UnifiedFilterBar({
   return (
     <div className="flex flex-col gap-2" data-slot="unified-filter-bar">
       <div className="flex flex-wrap items-center gap-2">
-        <InputGroup className="flex-1 md:max-w-[320px] [&_input]:h-8 [&_input]:leading-8">
-          <InputGroupAddon>
-            <Search className="text-muted-foreground size-4" />
-          </InputGroupAddon>
-          <InputGroupInput
-            placeholder={searchPlaceholder}
-            value={searchValue}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
-        </InputGroup>
+        {!hideSearch && (
+          <InputGroup className="flex-1 md:max-w-[320px] [&_input]:h-8 [&_input]:leading-8">
+            <InputGroupAddon>
+              <Search className="text-muted-foreground size-4" />
+            </InputGroupAddon>
+            <InputGroupInput
+              placeholder={searchPlaceholder}
+              value={searchValue}
+              onChange={(e) => onSearchChange?.(e.target.value)}
+            />
+          </InputGroup>
+        )}
 
         {isDesktop ? (
           <FilterPopover

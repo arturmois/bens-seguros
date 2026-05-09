@@ -3,48 +3,48 @@
 import type { VisibilityState } from '@tanstack/react-table'
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { ClipboardList } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { CursorPagination } from '@/components/shared/cursor-pagination'
 import { DataTable } from '@/components/shared/data-table'
-import { FilterTabs } from '@/components/shared/filter-tabs'
+import type { FilterValue } from '@/components/shared/filter-types'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
-import {
-  isPeriodFilter,
-  PERIOD_FILTER_OPTIONS,
-  resolvePeriodRange,
-  type PeriodFilter,
-} from '@/components/shared/period-filter'
 import { TableErrorState } from '@/components/shared/table-error-state'
+import { UnifiedFilterBar } from '@/components/shared/unified-filter-bar'
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 
+import { useAuditFilters } from '../hooks/use-audit-filters'
 import { useAuditLogs } from '../hooks/use-audit-logs'
-import { DEFAULT_COLUMN_VISIBILITY } from '../lib/constants'
+import { DEFAULT_COLUMN_VISIBILITY, HIDEABLE_COLUMNS } from '../lib/constants'
+import { AUDIT_FILTERS } from '../lib/filters'
 import type { AuditLogData } from '../lib/types'
 import { AuditCard } from './audit-card'
 import { createAuditColumns } from './audit-columns'
 import { AuditDetailModal } from './audit-detail-modal'
-import { AuditToolbar } from './audit-toolbar'
 
 export function AuditTable() {
   'use no memo'
   const pagination = useCursorPagination(30)
+  const filters = useAuditFilters()
 
-  const [actionFilter, setActionFilter] = useState('')
-  const [entityType, setEntityType] = useState<string | undefined>(undefined)
-  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>('ALL')
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
   const [selectedEntry, setSelectedEntry] = useState<AuditLogData | null>(null)
 
-  const { dateFrom, dateTo } = resolvePeriodRange(periodFilter)
+  const filterFingerprint = JSON.stringify(filters.apiParams)
+  const lastFingerprint = useRef(filterFingerprint)
+  useEffect(() => {
+    if (lastFingerprint.current === filterFingerprint) return
+    lastFingerprint.current = filterFingerprint
+    pagination.reset()
+  }, [filterFingerprint, pagination])
 
   const { data, isLoading, isError, refetch } = useAuditLogs({
-    action: actionFilter || undefined,
-    entityType,
-    dateFrom,
-    dateTo,
+    actionIn: filters.apiParams.actionIn,
+    entityTypeIn: filters.apiParams.entityTypeIn,
+    dateFrom: filters.apiParams.dateFrom,
+    dateTo: filters.apiParams.dateTo,
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,
   })
@@ -74,21 +74,8 @@ export function AuditTable() {
     rowCount: total,
   })
 
-  function handleActionFilterChange(value: string) {
-    setActionFilter(value)
-    pagination.reset()
-  }
-
-  function handleEntityTypeChange(value: string) {
-    setEntityType(value === 'ALL' ? undefined : value)
-    pagination.reset()
-  }
-
-  function handlePeriodFilterChange(value: string) {
-    if (isPeriodFilter(value)) {
-      setPeriodFilter(value)
-      pagination.reset()
-    }
+  function handleFilterChange(key: string, value: FilterValue) {
+    filters.setFilter(key, value)
   }
 
   function handleColumnToggle(id: string, visible: boolean) {
@@ -106,19 +93,15 @@ export function AuditTable() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <FilterTabs
-        options={PERIOD_FILTER_OPTIONS}
-        value={periodFilter}
-        onChange={handlePeriodFilterChange}
-      />
-
-      <AuditToolbar
-        entityType={entityType}
-        onEntityTypeChange={handleEntityTypeChange}
-        actionFilter={actionFilter}
-        onActionFilterChange={handleActionFilterChange}
+      <UnifiedFilterBar
+        hideSearch
+        filters={AUDIT_FILTERS}
+        values={filters.values}
+        onFilterChange={handleFilterChange}
+        onClearAll={filters.clearAll}
         columnVisibility={columnVisibility}
-        onColumnToggle={handleColumnToggle}
+        onColumnVisibilityChange={handleColumnToggle}
+        hideableColumns={HIDEABLE_COLUMNS}
       />
 
       <DataTable
