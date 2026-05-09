@@ -82,7 +82,9 @@ export class PrismaCommissionRepository implements CommissionRepository {
     const where: Prisma.CommissionWhereInput = {
       organizationId: filters.organizationId,
       deletedAt: null,
-      ...(filters.status && { status: filters.status }),
+      ...(filters.statusIn?.length
+        ? { status: { in: [...filters.statusIn] } }
+        : filters.status && { status: filters.status }),
       ...(filters.salespersonId && { salespersonId: filters.salespersonId }),
       ...(filters.policyId && { policyId: filters.policyId }),
       ...(filters.dateFrom && { createdAt: { gte: filters.dateFrom } }),

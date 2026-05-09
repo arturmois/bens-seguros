@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { csvEnumArray } from '../../shared/csv-array.schema.js'
 import { dateRangeQuery } from '../../shared/date-range.schema.js'
 import { paginationQuery } from '../../shared/pagination.schema.js'
 import { idParam } from '../../shared/params.schema.js'
@@ -32,6 +33,7 @@ export const listCommissionsQuery = paginationQuery()
   .merge(dateRangeQuery)
   .extend({
     status: commissionStatusEnum.optional(),
+    statusIn: csvEnumArray(commissionStatusEnum).optional(),
     salespersonId: z.string().optional(),
     policyId: z.string().optional(),
     search: z.string().optional(),

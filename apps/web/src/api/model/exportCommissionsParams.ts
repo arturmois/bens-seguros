@@ -18,6 +18,7 @@ export type ExportCommissionsParams = {
   dateFrom?: string
   dateTo?: string
   status?: ExportCommissionsStatus
+  statusIn?: string
   salespersonId?: string
   policyId?: string
   search?: string

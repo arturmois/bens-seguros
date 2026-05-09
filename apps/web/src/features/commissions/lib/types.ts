@@ -8,6 +8,7 @@ export type CommissionData = ListCommissions200DataItem
 
 export interface CommissionFilters {
   readonly status?: CommissionStatus
+  readonly statusIn?: string
   readonly salespersonId?: string
   readonly policyId?: string
   readonly search?: string

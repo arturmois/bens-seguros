@@ -18,12 +18,20 @@ export async function exportCommissionsRoute(app: FastifyInstance) {
     },
     preHandler: [requireAbility('read', 'Commission')],
     async handler(request, reply) {
-      const { status, salespersonId, policyId, search, dateFrom, dateTo } =
-        request.query
+      const {
+        status,
+        statusIn,
+        salespersonId,
+        policyId,
+        search,
+        dateFrom,
+        dateTo,
+      } = request.query
       const useCase = container.resolve(ExportCommissionsCsv)
       const stream = useCase.generateCsvRows({
         organizationId: request.organizationId!,
         status,
+        statusIn,
         salespersonId,
         policyId,
         search,

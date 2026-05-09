@@ -131,4 +131,27 @@ describe('GET /api/v1/commissions', () => {
 
     expect(response.statusCode).toBe(400)
   })
+
+  it('parses statusIn from CSV query', async () => {
+    mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
+
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/commissions?statusIn=APPROVED,PAID',
+    })
+
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.objectContaining({ statusIn: ['APPROVED', 'PAID'] }),
+      expect.any(Object)
+    )
+  })
+
+  it('returns 400 when statusIn has an invalid value', async () => {
+    const response = await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/commissions?statusIn=APPROVED,INVALID',
+    })
+
+    expect(response.statusCode).toBe(400)
+  })
 })

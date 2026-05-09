@@ -163,6 +163,7 @@ export function useReverseCommission() {
 function buildFilterParams(filters: CommissionFilters): URLSearchParams {
   const params = new URLSearchParams()
   if (filters.status) params.set('status', filters.status)
+  if (filters.statusIn) params.set('statusIn', filters.statusIn)
   if (filters.salespersonId) params.set('salespersonId', filters.salespersonId)
   if (filters.policyId) params.set('policyId', filters.policyId)
   if (filters.search) params.set('search', filters.search)

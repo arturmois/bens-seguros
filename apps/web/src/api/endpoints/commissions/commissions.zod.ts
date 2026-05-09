@@ -34,6 +34,7 @@ export const ExportCommissionsQueryParams = zod.object({
       'REVERSED',
     ])
     .optional(),
+  statusIn: zod.string().optional(),
   salespersonId: zod.string().optional(),
   policyId: zod.string().optional(),
   search: zod.string().optional(),
@@ -73,6 +74,7 @@ export const ListCommissionsQueryParams = zod.object({
       'REVERSED',
     ])
     .optional(),
+  statusIn: zod.string().optional(),
   salespersonId: zod.string().optional(),
   policyId: zod.string().optional(),
   search: zod.string().optional(),

@@ -37,6 +37,7 @@ export interface CommissionData {
 export interface CommissionFilters {
   organizationId: string
   status?: CommissionStatus
+  statusIn?: readonly CommissionStatus[]
   salespersonId?: string
   policyId?: string
   search?: string
