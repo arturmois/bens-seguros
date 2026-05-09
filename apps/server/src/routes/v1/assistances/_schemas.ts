@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { csvEnumArray } from '../../shared/csv-array.schema.js'
 import { idParam } from '../../shared/params.schema.js'
 import {
   paginatedResponse,
@@ -14,6 +15,8 @@ const ASSISTANCE_STATUS_VALUES = [
   'IN_PROGRESS',
   'COMPLETED',
 ] as const
+
+const assistanceStatusEnum = z.enum(ASSISTANCE_STATUS_VALUES)
 
 const emptyToUndefined = z.literal('').transform(() => undefined)
 
@@ -40,11 +43,13 @@ export const updateAssistanceStatusBodySchema = z.object({
 })
 
 export const listAssistancesQuerySchema = z.object({
-  status: z.enum(ASSISTANCE_STATUS_VALUES).optional(),
+  status: assistanceStatusEnum.optional(),
+  statusIn: csvEnumArray(assistanceStatusEnum).optional(),
   statusGroup: z.enum(['open', 'closed']).optional(),
   policyId: z.string().optional(),
   clientId: z.string().optional(),
   type: z.string().optional(),
+  typeIn: csvEnumArray(z.string().min(1)).optional(),
   search: z.string().optional(),
   cursor: z.string().optional(),
   limit: z.coerce.number().min(1).max(100).default(20),

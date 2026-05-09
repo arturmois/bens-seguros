@@ -46,10 +46,12 @@ export const ListAssistancesQueryParams = zod.object({
       'COMPLETED',
     ])
     .optional(),
+  statusIn: zod.string().optional(),
   statusGroup: zod.enum(['open', 'closed']).optional(),
   policyId: zod.string().optional(),
   clientId: zod.string().optional(),
   type: zod.string().optional(),
+  typeIn: zod.string().optional(),
   search: zod.string().optional(),
   cursor: zod.string().optional(),
   limit: zod

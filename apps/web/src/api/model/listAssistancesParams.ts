@@ -11,10 +11,12 @@ import type { ListAssistancesStatusGroup } from './listAssistancesStatusGroup'
 
 export type ListAssistancesParams = {
   status?: ListAssistancesStatus
+  statusIn?: string
   statusGroup?: ListAssistancesStatusGroup
   policyId?: string
   clientId?: string
   type?: string
+  typeIn?: string
   search?: string
   cursor?: string
   /**

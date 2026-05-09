@@ -103,4 +103,37 @@ describe('ListAssistances', () => {
     expect(result.total).toBe(1)
     expect(result.nextCursor).toBeNull()
   })
+
+  it('forwards statusIn array to repository', async () => {
+    const repo = makeMockRepo()
+    const useCase = new ListAssistances(repo)
+
+    await useCase.execute(
+      {
+        organizationId: 'org-1',
+        statusIn: ['REQUESTED', 'DISPATCHED'],
+      },
+      { limit: 20 }
+    )
+
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ statusIn: ['REQUESTED', 'DISPATCHED'] }),
+      expect.anything()
+    )
+  })
+
+  it('forwards typeIn array to repository', async () => {
+    const repo = makeMockRepo()
+    const useCase = new ListAssistances(repo)
+
+    await useCase.execute(
+      { organizationId: 'org-1', typeIn: ['TOW_TRUCK', 'MECHANIC'] },
+      { limit: 20 }
+    )
+
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ typeIn: ['TOW_TRUCK', 'MECHANIC'] }),
+      expect.anything()
+    )
+  })
 })

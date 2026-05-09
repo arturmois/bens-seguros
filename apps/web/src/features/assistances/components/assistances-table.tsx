@@ -7,8 +7,8 @@ import {
   type SortingState,
 } from '@tanstack/react-table'
 import { Ambulance } from 'lucide-react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import type {
   ListAssistancesSortOrder,
@@ -16,23 +16,22 @@ import type {
 } from '@/api/model'
 import { CursorPagination } from '@/components/shared/cursor-pagination'
 import { DataTable } from '@/components/shared/data-table'
-import { FilterTabs } from '@/components/shared/filter-tabs'
+import type { FilterValue } from '@/components/shared/filter-types'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
-import { TableToolbar } from '@/components/shared/table-toolbar'
-import { ToolbarFilterSelect } from '@/components/shared/toolbar-filter-select'
+import { UnifiedFilterBar } from '@/components/shared/unified-filter-bar'
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
 import { useAssistances } from '../hooks/use-assistances'
+import { useAssistancesFilters } from '../hooks/use-assistances-filters'
 import {
   DEFAULT_COLUMN_VISIBILITY,
   DEFAULT_SORTING,
   HIDEABLE_COLUMNS,
-  STATUS_SELECT_OPTIONS,
-  TYPE_FILTER_OPTIONS,
 } from '../lib/constants'
-import { isAssistanceStatus, isSortBy } from '../lib/type-guards'
+import { ASSISTANCE_FILTERS } from '../lib/filters'
+import { isSortBy } from '../lib/type-guards'
 import type { AssistanceData } from '../lib/types'
 import { AssistanceCard } from './assistance-card'
 import { createAssistanceColumns } from './assistances-columns'
@@ -46,20 +45,26 @@ function isStatusGroup(value: string): value is ListAssistancesStatusGroup {
 export function AssistancesTable() {
   'use no memo'
   const router = useRouter()
-  const searchParams = useSearchParams()
   const pagination = useCursorPagination()
+  const filters = useAssistancesFilters()
 
-  const urlStatusGroup = searchParams.get('statusGroup')
-
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
-  const [typeFilter, setTypeFilter] = useState('')
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
 
-  const debouncedSearch = useDebounce(search, 300)
+  const debouncedSearch = useDebounce(filters.search, 300)
+
+  const filterFingerprint = JSON.stringify({
+    ...filters.apiParams,
+    search: debouncedSearch || undefined,
+  })
+  const lastFingerprint = useRef(filterFingerprint)
+  useEffect(() => {
+    if (lastFingerprint.current === filterFingerprint) return
+    lastFingerprint.current = filterFingerprint
+    pagination.reset()
+  }, [filterFingerprint, pagination])
 
   const sortId = sorting[0]?.id
   const sortBy = sortId && isSortBy(sortId) ? sortId : undefined
@@ -67,16 +72,17 @@ export function AssistancesTable() {
     ? 'desc'
     : 'asc'
 
-  const statusParam =
-    statusFilter && isAssistanceStatus(statusFilter) ? statusFilter : undefined
   const statusGroupParam =
-    urlStatusGroup && isStatusGroup(urlStatusGroup) ? urlStatusGroup : undefined
+    filters.apiParams.statusGroup &&
+    isStatusGroup(filters.apiParams.statusGroup)
+      ? filters.apiParams.statusGroup
+      : undefined
 
   const { data, isLoading, isError, refetch } = useAssistances({
     search: debouncedSearch || undefined,
-    status: statusParam,
+    statusIn: filters.apiParams.statusIn,
+    typeIn: filters.apiParams.typeIn,
     statusGroup: statusGroupParam,
-    type: typeFilter || undefined,
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,
     sortBy,
@@ -105,19 +111,8 @@ export function AssistancesTable() {
     rowCount: total,
   })
 
-  function handleSearchChange(value: string) {
-    setSearch(value)
-    pagination.reset()
-  }
-
-  function handleStatusFilterChange(value: string) {
-    setStatusFilter(value)
-    pagination.reset()
-  }
-
-  function handleTypeFilterChange(value: string) {
-    setTypeFilter(value)
-    pagination.reset()
+  function handleFilterChange(key: string, value: FilterValue) {
+    filters.setFilter(key, value)
   }
 
   function handleColumnToggle(id: string, visible: boolean) {
@@ -135,26 +130,14 @@ export function AssistancesTable() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <FilterTabs
-        options={TYPE_FILTER_OPTIONS}
-        value={typeFilter}
-        onChange={handleTypeFilterChange}
-      />
-
-      <TableToolbar
-        search={search}
-        onSearchChange={handleSearchChange}
+      <UnifiedFilterBar
+        searchValue={filters.search}
+        onSearchChange={filters.setSearch}
         searchPlaceholder="Buscar assistências..."
-        filters={
-          <ToolbarFilterSelect
-            value={statusFilter}
-            onValueChange={handleStatusFilterChange}
-            allLabel="Todos status"
-            allValue=""
-            options={STATUS_SELECT_OPTIONS.filter((opt) => opt.value !== '')}
-            widthClass="w-[180px]"
-          />
-        }
+        filters={ASSISTANCE_FILTERS}
+        values={filters.values}
+        onFilterChange={handleFilterChange}
+        onClearAll={filters.clearAll}
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}

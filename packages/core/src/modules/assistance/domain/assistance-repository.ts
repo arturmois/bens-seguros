@@ -34,10 +34,12 @@ export interface AssistanceData {
 export interface AssistanceFilters {
   organizationId: string
   status?: AssistanceStatus
+  statusIn?: readonly AssistanceStatus[]
   statusGroup?: 'open' | 'closed'
   policyId?: string
   clientId?: string
   type?: string
+  typeIn?: readonly string[]
   search?: string
 }
 

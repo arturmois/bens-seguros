@@ -90,18 +90,6 @@ export const VALID_ASSISTANCE_TRANSITIONS: Record<
   COMPLETED: [],
 } as const
 
-export const STATUS_SELECT_OPTIONS = [
-  { value: '', label: 'Todos status' },
-  ...ASSISTANCE_STATUS_OPTIONS,
-] as const
-
-export const TYPE_FILTER_OPTIONS = [
-  { value: '', label: 'Todos' },
-  { value: 'TOW_TRUCK', label: 'Guincho' },
-  { value: 'MECHANIC', label: 'Mecânico' },
-  { value: 'LOCKSMITH', label: 'Chaveiro' },
-] as const
-
 export const DEFAULT_COLUMN_VISIBILITY: VisibilityState = {
   policyNumber: true,
   clientName: true,

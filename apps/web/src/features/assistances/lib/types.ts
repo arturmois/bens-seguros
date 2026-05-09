@@ -16,10 +16,12 @@ export type AssistanceType =
 
 export interface AssistanceFilters {
   readonly status?: AssistanceStatus
+  readonly statusIn?: string
   readonly statusGroup?: ListAssistancesStatusGroup
   readonly policyId?: string
   readonly clientId?: string
   readonly type?: string
+  readonly typeIn?: string
   readonly search?: string
   readonly cursor?: string
   readonly limit?: number
