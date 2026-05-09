@@ -43,6 +43,7 @@
   "devDependencies": {
     "@config/typescript-config": "workspace:^",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.5.0",
     "@vitest/coverage-v8": "^3.0.0",
     "tsup": "^8.4.0",
     "tsx": "^4.19.0",

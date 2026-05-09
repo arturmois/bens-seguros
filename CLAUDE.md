@@ -6,9 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Multi-tenant SaaS ERP for Brazilian insurance brokers. Monorepo with 7 apps + 7 packages + 3 config packages.
+Multi-tenant SaaS ERP for Brazilian insurance brokers. Monorepo with 6 apps + 8 packages + 3 config packages.
 
-**Spec:** `docs/ESPECIFICACAO-FINAL.md` | **Plans:** `docs/plans/` | **UI:** `docs/UI-PATTERNS.md` | **Frontend:** `docs/FRONTEND-PATTERNS.md` | **Arch Decisions:** `docs/ARCHITECTURE-DECISIONS.md` | **Chat:** `docs/CHAT-SPEC.md` | **Multi-Channel:** `docs/MULTI-CHANNEL-SETUP.md` | **Security:** `docs/SECURITY-SPEC.md` | **Settings:** `docs/SETTINGS-DESIGN.md`
+**Spec:** `docs/ESPECIFICACAO-FINAL.md` | **Plans:** `docs/plans/` | **UI:** `docs/UI-PATTERNS.md` | **Frontend:** `docs/FRONTEND-PATTERNS.md` | **Arch Decisions:** `docs/ARCHITECTURE-DECISIONS.md` | **Chat:** `docs/CHAT-SPEC.md` | **Multi-Channel:** `docs/MULTI-CHANNEL-SETUP.md` | **Security:** `docs/SECURITY-SPEC.md` | **Settings:** `docs/SETTINGS-DESIGN.md` | **Deploy:** `docs/DEPLOY-TUTORIAL.md` | **Pre-Prod Audit:** `docs/AUDITORIA-PRE-PRODUCAO.md`
 
 ## Development Commands
 
@@ -97,19 +97,19 @@ Organization: **Corretora Exemplo** (slug: `corretora-exemplo`). Includes 8 insu
 | `apps/chat-worker` | BullMQ consumer         | Chat processors — AI responses, Baileys WhatsApp, Meta messaging |
 | `apps/worker`      | BullMQ consumer         | ERP processors — PDF generation, email sending, CSV imports      |
 | `apps/widget`      | Vite + React 19         | Embeddable web chat widget for customer-facing sites             |
-| `apps/design`      | Next.js (scaffold)      | Design system preview — inactive/empty                           |
 
 ### Packages
 
-| Package            | Purpose                                                                                  |
-| ------------------ | ---------------------------------------------------------------------------------------- |
-| `packages/core`    | Domain logic (DDD modules: proposal, commission, client, policy, etc.)                   |
-| `packages/db`      | Prisma schema + PostgreSQL client + RLS                                                  |
-| `packages/db-chat` | Mongoose models + MongoDB connection (conversations, messages, contacts)                 |
-| `packages/auth`    | Better Auth client + CASL abilities (5 roles: OWNER, ADMIN, MANAGER, COMMERCIAL, VIEWER) |
-| `packages/env`     | t3-env + Zod validated environment variables                                             |
-| `packages/ai`      | Vercel AI SDK wrappers (Claude Sonnet primary)                                           |
-| `packages/shared`  | Cross-app types, constants, crypto, socket events                                        |
+| Package                | Purpose                                                                                                     |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `packages/core`        | Domain logic (DDD modules: proposal, commission, client, policy, etc.)                                      |
+| `packages/db`          | Prisma schema + PostgreSQL client + RLS                                                                     |
+| `packages/db-chat`     | Mongoose models + MongoDB connection (conversations, messages, contacts)                                    |
+| `packages/auth`        | Better Auth client + CASL abilities (5 roles: OWNER, ADMIN, MANAGER, COMMERCIAL, VIEWER)                    |
+| `packages/env`         | t3-env + Zod validated environment variables                                                                |
+| `packages/ai`          | Vercel AI SDK wrappers (Claude Sonnet primary)                                                              |
+| `packages/shared`      | Cross-app types, constants, crypto, socket events                                                           |
+| `packages/aggilizador` | TypeScript SDK for the Aggilizador insurance-quote API (auto branch + FIPE catalog) — used by `apps/server` |
 
 ### Config (`config/`)
 

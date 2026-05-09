@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 
 import { ListPageHeader } from '@/components/shared/list-page-header'
-import { InsurerCreateButton } from '@/features/insurers/components/insurer-create-button'
 import { InsurersTable } from '@/features/insurers/components/insurers-table'
 
 export const metadata: Metadata = { title: 'Seguradoras' }
@@ -16,7 +15,6 @@ export default function InsurersPage() {
         ]}
         title="Seguradoras"
         description="Gerencie as seguradoras disponíveis para propostas, apólices e sinistros."
-        action={<InsurerCreateButton />}
       />
       <InsurersTable />
     </div>

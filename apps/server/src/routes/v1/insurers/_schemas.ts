@@ -7,12 +7,6 @@ const emptyToUndefined = z.literal('').transform(() => undefined)
 
 const optionalString = z.union([emptyToUndefined, z.string()]).optional()
 
-const queryBoolean = z.preprocess((value) => {
-  if (value === 'true') return true
-  if (value === 'false') return false
-  return value
-}, z.boolean())
-
 export const createInsurerBodySchema = z.object({
   name: z.string().min(1),
   code: optionalString,
@@ -27,7 +21,10 @@ export const updateInsurerBodySchema = z.object({
 export const insurerSortByEnum = z.enum(['name', 'code', 'active', 'updatedAt'])
 
 export const listInsurersQuerySchema = z.object({
-  active: queryBoolean.optional(),
+  active: z
+    .union([z.literal('true'), z.literal('false')])
+    .transform((v) => v === 'true')
+    .optional(),
   search: z.string().optional(),
   cursor: z.string().optional(),
   limit: z.coerce.number().min(1).max(100).default(20),

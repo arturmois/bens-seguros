@@ -5,49 +5,51 @@ import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { Building2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
+import {
+  ListInsurersActive,
+  type ListInsurersSortBy,
+  type ListInsurersSortOrder,
+} from '@/api/model'
 import { CursorPagination } from '@/components/shared/cursor-pagination'
 import { DataTable } from '@/components/shared/data-table'
-import { FilterTabs } from '@/components/shared/filter-tabs'
+import type { FilterValue } from '@/components/shared/filter-types'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
-import { TableToolbar } from '@/components/shared/table-toolbar'
+import { UnifiedFilterBar } from '@/components/shared/unified-filter-bar'
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
-import type { ListInsurersSortBy, ListInsurersSortOrder } from '@/api/model'
-
 import { useOrgs } from '@/features/org/hooks/use-orgs'
+
 import { useInsurers, useUpdateInsurerMutation } from '../hooks/use-insurers'
+import { useInsurersFilters } from '../hooks/use-insurers-filters'
 import {
   DEFAULT_COLUMN_VISIBILITY,
   DEFAULT_SORTING,
   HIDEABLE_COLUMNS,
-  STATUS_FILTER_OPTIONS,
 } from '../lib/constants'
+import { INSURER_FILTERS } from '../lib/filters'
 import { isInsurerSortBy } from '../lib/type-guards'
-import type { InsurerData, InsurerStatusFilter } from '../lib/types'
+import type { InsurerData } from '../lib/types'
 import { InsurerCard } from './insurer-card'
+import { InsurerCreateButton } from './insurer-create-button'
 import { InsurerFormDialog } from './insurer-form-dialog'
 import { createInsurerColumns } from './insurers-columns'
 
-function isStatusFilter(value: string): value is InsurerStatusFilter {
-  return value === 'ALL' || value === 'ACTIVE' || value === 'INACTIVE'
-}
-
-function resolveActiveFilter(status: InsurerStatusFilter): boolean | undefined {
-  if (status === 'ALL') return undefined
-  return status === 'ACTIVE'
+function toActiveParam(
+  value: boolean | undefined
+): (typeof ListInsurersActive)[keyof typeof ListInsurersActive] | undefined {
+  if (value === undefined) return undefined
+  return value ? ListInsurersActive.true : ListInsurersActive.false
 }
 
 export function InsurersTable() {
   'use no memo'
   const pagination = useCursorPagination()
+  const filters = useInsurersFilters()
   const { activeOrg } = useOrgs()
   const role = activeOrg?.role ?? 'VIEWER'
 
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] =
-    useState<InsurerStatusFilter>('ACTIVE')
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
@@ -57,7 +59,7 @@ export function InsurersTable() {
   )
   const [editOpen, setEditOpen] = useState(false)
 
-  const debouncedSearch = useDebounce(search, 300)
+  const debouncedSearch = useDebounce(filters.search, 300)
   const { mutate: updateInsurerMutate } = useUpdateInsurerMutation()
 
   const sortId = sorting[0]?.id
@@ -67,7 +69,7 @@ export function InsurersTable() {
     sorting[0] !== undefined ? (sorting[0].desc ? 'desc' : 'asc') : undefined
 
   const { data, isLoading, isError, refetch } = useInsurers({
-    active: resolveActiveFilter(statusFilter),
+    active: toActiveParam(filters.apiParams.active),
     search: debouncedSearch || undefined,
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,
@@ -123,15 +125,18 @@ export function InsurersTable() {
     manualFiltering: true,
   })
 
-  function handleStatusFilterChange(value: string) {
-    if (isStatusFilter(value)) {
-      setStatusFilter(value)
-      pagination.reset()
-    }
+  function handleSearchChange(value: string) {
+    filters.setSearch(value)
+    pagination.reset()
   }
 
-  function handleSearchChange(value: string) {
-    setSearch(value)
+  function handleFilterChange(key: string, value: FilterValue) {
+    filters.setFilter(key, value)
+    pagination.reset()
+  }
+
+  function handleClearAll() {
+    filters.clearAll()
     pagination.reset()
   }
 
@@ -139,7 +144,8 @@ export function InsurersTable() {
     setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
 
-  const hasFilters = Boolean(debouncedSearch) || statusFilter !== 'ACTIVE'
+  const hasFilters =
+    Boolean(debouncedSearch) || filters.apiParams.active === false
   const emptyMessage = hasFilters
     ? 'Nenhuma seguradora encontrada'
     : 'Nenhuma seguradora cadastrada'
@@ -158,20 +164,20 @@ export function InsurersTable() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <FilterTabs
-        options={STATUS_FILTER_OPTIONS}
-        value={statusFilter}
-        onChange={handleStatusFilterChange}
-      />
-
-      <TableToolbar
-        search={search}
+      <UnifiedFilterBar
+        searchValue={filters.search}
         onSearchChange={handleSearchChange}
         searchPlaceholder="Buscar por nome ou código..."
+        filters={INSURER_FILTERS}
+        values={filters.values}
+        onFilterChange={handleFilterChange}
+        onClearAll={handleClearAll}
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
-      />
+      >
+        <InsurerCreateButton />
+      </UnifiedFilterBar>
 
       <DataTable
         table={table}

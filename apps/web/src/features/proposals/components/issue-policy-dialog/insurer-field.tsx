@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Controller, type Control, type UseFormSetValue } from 'react-hook-form'
 
 import { useListInsurers } from '@/api/endpoints/insurers/insurers'
-import type { ListInsurers200DataItem } from '@/api/model'
+import { ListInsurersActive, type ListInsurers200DataItem } from '@/api/model'
 import { FormField } from '@/components/shared/form-field'
 import { Button } from '@/components/ui/button'
 import {
@@ -36,7 +36,7 @@ export function InsurerField({
     data: insurersResponse,
     isLoading: insurersLoading,
     isError: insurersError,
-  } = useListInsurers({ active: true })
+  } = useListInsurers({ active: ListInsurersActive.true })
   const [insurerDialogOpen, setInsurerDialogOpen] = useState(false)
   const [createdInsurer, setCreatedInsurer] =
     useState<ListInsurers200DataItem | null>(null)

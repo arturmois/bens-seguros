@@ -12,8 +12,6 @@ export type InsurerListParams = ListInsurersParams
 export type InsurerCreateBody = CreateInsurerBody
 export type InsurerUpdateBody = UpdateInsurerBody
 
-export type InsurerStatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE'
-
 export interface InsurersListData {
   readonly data: readonly InsurerData[]
   readonly meta: InsurerListMeta

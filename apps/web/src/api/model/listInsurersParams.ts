@@ -4,11 +4,12 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
+import type { ListInsurersActive } from './listInsurersActive'
 import type { ListInsurersSortBy } from './listInsurersSortBy'
 import type { ListInsurersSortOrder } from './listInsurersSortOrder'
 
 export type ListInsurersParams = {
-  active?: boolean
+  active?: (typeof ListInsurersActive)[keyof typeof ListInsurersActive]
   search?: string
   cursor?: string
   /**

@@ -25,7 +25,7 @@ export const listInsurersQuerySortByDefault = `name`
 export const listInsurersQuerySortOrderDefault = `asc`
 
 export const ListInsurersQueryParams = zod.object({
-  active: zod.boolean().optional(),
+  active: zod.union([zod.enum(['true']), zod.enum(['false'])]).optional(),
   search: zod.string().optional(),
   cursor: zod.string().optional(),
   limit: zod

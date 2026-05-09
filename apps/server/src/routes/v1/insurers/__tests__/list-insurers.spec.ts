@@ -102,4 +102,61 @@ describe('GET /api/v1/insurers', () => {
 
     expect(response.statusCode).toBe(400)
   })
+
+  it('forwards active=true to the use case', async () => {
+    mockExecute.mockResolvedValue({ items: [], nextCursor: null })
+
+    const response = await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/insurers',
+      query: { active: 'true' },
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.objectContaining({ active: true }),
+      expect.anything()
+    )
+  })
+
+  it('forwards active=false to the use case', async () => {
+    mockExecute.mockResolvedValue({ items: [], nextCursor: null })
+
+    const response = await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/insurers',
+      query: { active: 'false' },
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.objectContaining({ active: false }),
+      expect.anything()
+    )
+  })
+
+  it('omits active when not provided', async () => {
+    mockExecute.mockResolvedValue({ items: [], nextCursor: null })
+
+    const response = await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/insurers',
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.objectContaining({ active: undefined }),
+      expect.anything()
+    )
+  })
+
+  it('returns 400 when active is not "true" or "false"', async () => {
+    const response = await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/insurers',
+      query: { active: 'invalid' },
+    })
+
+    expect(response.statusCode).toBe(400)
+  })
 })
