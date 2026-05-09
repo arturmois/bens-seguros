@@ -1,13 +1,47 @@
+import { Check, Shield } from 'lucide-react'
+
+import type { FilterDefinition } from '@/components/shared/filter-types'
+
 import type { MemberData } from '../types'
 
-export function matchesRole(member: MemberData, filter: string): boolean {
-  if (filter === 'ALL') return true
-  return member.role === filter
+const ROLE_OPTIONS = [
+  { value: 'OWNER', label: 'Proprietário' },
+  { value: 'ADMIN', label: 'Administrador' },
+  { value: 'MANAGER', label: 'Gerente' },
+  { value: 'COMMERCIAL', label: 'Comercial' },
+  { value: 'VIEWER', label: 'Visualizador' },
+] as const
+
+export const MEMBER_FILTERS: readonly FilterDefinition[] = [
+  {
+    key: 'active',
+    label: 'Status',
+    icon: Check,
+    type: 'boolean',
+  },
+  {
+    key: 'roleIn',
+    label: 'Cargo',
+    icon: Shield,
+    type: 'enum',
+    options: ROLE_OPTIONS,
+  },
+] as const
+
+export function matchesActive(
+  member: MemberData,
+  active: boolean | undefined
+): boolean {
+  if (active === undefined) return true
+  return member.active === active
 }
 
-export function matchesActive(member: MemberData, filter: string): boolean {
-  if (filter === 'ALL') return true
-  return filter === 'ACTIVE' ? member.active : !member.active
+export function matchesRole(
+  member: MemberData,
+  roleIn: readonly string[] | undefined
+): boolean {
+  if (!roleIn || roleIn.length === 0) return true
+  return roleIn.includes(member.role)
 }
 
 export function matchesSearch(member: MemberData, search: string): boolean {

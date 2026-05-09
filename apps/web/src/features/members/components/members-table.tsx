@@ -11,24 +11,25 @@ import { useMemo, useState } from 'react'
 
 import { ConfirmDeleteDialog } from '@/components/shared/confirm-delete-dialog'
 import { DataTable } from '@/components/shared/data-table'
-import { FilterTabs } from '@/components/shared/filter-tabs'
+import type { FilterValue } from '@/components/shared/filter-types'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
-import { TableToolbar } from '@/components/shared/table-toolbar'
-import { ToolbarFilterSelect } from '@/components/shared/toolbar-filter-select'
+import { UnifiedFilterBar } from '@/components/shared/unified-filter-bar'
 import { useDebounce } from '@/hooks/use-debounce'
 
 import { useMembers, useRemoveMember } from '../hooks/use-members'
+import { useMembersFilters } from '../hooks/use-members-filters'
 import {
-  ACTIVE_FILTER_OPTIONS,
   DEFAULT_COLUMN_VISIBILITY,
   DEFAULT_SORTING,
   HIDEABLE_COLUMNS,
-  isActiveFilter,
-  ROLE_SELECT_OPTIONS,
-  type ActiveFilter,
 } from '../lib/constants'
-import { matchesActive, matchesRole, matchesSearch } from '../lib/filters'
+import {
+  MEMBER_FILTERS,
+  matchesActive,
+  matchesRole,
+  matchesSearch,
+} from '../lib/filters'
 import type { MemberData } from '../types'
 import { MemberCard } from './member-card'
 import { createMemberColumns } from './members-columns'
@@ -58,27 +59,25 @@ export function MembersTable({
   'use no memo'
   const { data, isLoading, isError, refetch } = useMembers()
   const removeMember = useRemoveMember()
+  const filters = useMembersFilters()
 
-  const [search, setSearch] = useState('')
-  const [roleFilter, setRoleFilter] = useState<string>('ALL')
-  const [activeFilter, setActiveFilter] = useState<ActiveFilter>('ALL')
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
   const [memberToRemove, setMemberToRemove] = useState<MemberData | null>(null)
 
-  const debouncedSearch = useDebounce(search, 300)
+  const debouncedSearch = useDebounce(filters.search, 300)
 
   const members = useMemo<MemberData[]>(() => {
     const list = data ?? []
     return list.filter(
       (member) =>
-        matchesActive(member, activeFilter) &&
-        matchesRole(member, roleFilter) &&
+        matchesActive(member, filters.active) &&
+        matchesRole(member, filters.roleIn) &&
         matchesSearch(member, debouncedSearch)
     )
-  }, [data, activeFilter, roleFilter, debouncedSearch])
+  }, [data, filters.active, filters.roleIn, debouncedSearch])
 
   const columnActions = useMemo(
     () => ({
@@ -104,6 +103,10 @@ export function MembersTable({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   })
+
+  function handleFilterChange(key: string, value: FilterValue) {
+    filters.setFilter(key, value)
+  }
 
   function handleColumnToggle(id: string, visible: boolean) {
     setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
@@ -132,28 +135,14 @@ export function MembersTable({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <FilterTabs
-        options={ACTIVE_FILTER_OPTIONS}
-        value={activeFilter}
-        onChange={(value) => {
-          if (isActiveFilter(value)) setActiveFilter(value)
-        }}
-      />
-
-      <TableToolbar
-        search={search}
-        onSearchChange={setSearch}
+      <UnifiedFilterBar
+        searchValue={filters.search}
+        onSearchChange={filters.setSearch}
         searchPlaceholder="Buscar membros..."
-        filters={
-          <ToolbarFilterSelect
-            value={roleFilter}
-            onValueChange={setRoleFilter}
-            allLabel="Todos cargos"
-            allValue="ALL"
-            options={ROLE_SELECT_OPTIONS.filter((opt) => opt.value !== 'ALL')}
-            widthClass="w-[170px]"
-          />
-        }
+        filters={MEMBER_FILTERS}
+        values={filters.values}
+        onFilterChange={handleFilterChange}
+        onClearAll={filters.clearAll}
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
