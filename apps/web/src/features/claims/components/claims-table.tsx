@@ -7,31 +7,30 @@ import {
   type SortingState,
 } from '@tanstack/react-table'
 import { ShieldAlert } from 'lucide-react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import type { ListClaimsSortOrder, ListClaimsStatusGroup } from '@/api/model'
 import { ConfirmDeleteDialog } from '@/components/shared/confirm-delete-dialog'
 import { CursorPagination } from '@/components/shared/cursor-pagination'
 import { DataTable } from '@/components/shared/data-table'
-import { FilterTabs } from '@/components/shared/filter-tabs'
+import type { FilterValue } from '@/components/shared/filter-types'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
-import { TableToolbar } from '@/components/shared/table-toolbar'
-import { ToolbarFilterSelect } from '@/components/shared/toolbar-filter-select'
+import { UnifiedFilterBar } from '@/components/shared/unified-filter-bar'
 import { useCursorPagination } from '@/hooks/use-cursor-pagination'
 import { useDebounce } from '@/hooks/use-debounce'
 
 import { useOrgs } from '@/features/org/hooks/use-orgs'
 import { useClaims, useDeleteClaim } from '../hooks/use-claims'
+import { useClaimsFilters } from '../hooks/use-claims-filters'
 import {
   DEFAULT_COLUMN_VISIBILITY,
   DEFAULT_SORTING,
   HIDEABLE_COLUMNS,
-  PRIORITY_FILTER_OPTIONS,
-  STATUS_SELECT_OPTIONS,
 } from '../lib/constants'
-import { isClaimPriority, isClaimStatus, isSortBy } from '../lib/type-guards'
+import { CLAIM_FILTERS } from '../lib/filters'
+import { isSortBy } from '../lib/type-guards'
 import type { ClaimData } from '../lib/types'
 import { ClaimCard } from './claim-card'
 import { createClaimColumns } from './claims-columns'
@@ -45,23 +44,29 @@ function isStatusGroup(value: string): value is ListClaimsStatusGroup {
 export function ClaimsTable() {
   'use no memo'
   const router = useRouter()
-  const searchParams = useSearchParams()
   const pagination = useCursorPagination()
+  const filters = useClaimsFilters()
   const { activeOrg } = useOrgs()
   const role = activeOrg?.role ?? 'VIEWER'
 
-  const urlStatusGroup = searchParams.get('statusGroup')
-
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
-  const [priorityFilter, setPriorityFilter] = useState('')
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
   const [deletingClaimId, setDeletingClaimId] = useState<string | null>(null)
 
-  const debouncedSearch = useDebounce(search, 300)
+  const debouncedSearch = useDebounce(filters.search, 300)
+
+  const filterFingerprint = JSON.stringify({
+    ...filters.apiParams,
+    search: debouncedSearch || undefined,
+  })
+  const lastFingerprint = useRef(filterFingerprint)
+  useEffect(() => {
+    if (lastFingerprint.current === filterFingerprint) return
+    lastFingerprint.current = filterFingerprint
+    pagination.reset()
+  }, [filterFingerprint, pagination])
 
   const sortId = sorting[0]?.id
   const sortBy = sortId && isSortBy(sortId) ? sortId : undefined
@@ -69,20 +74,17 @@ export function ClaimsTable() {
     ? 'desc'
     : 'asc'
 
-  const statusParam =
-    statusFilter && isClaimStatus(statusFilter) ? statusFilter : undefined
-  const priorityParam =
-    priorityFilter && isClaimPriority(priorityFilter)
-      ? priorityFilter
-      : undefined
   const statusGroupParam =
-    urlStatusGroup && isStatusGroup(urlStatusGroup) ? urlStatusGroup : undefined
+    filters.apiParams.statusGroup &&
+    isStatusGroup(filters.apiParams.statusGroup)
+      ? filters.apiParams.statusGroup
+      : undefined
 
   const { data, isLoading, isError, refetch } = useClaims({
     search: debouncedSearch || undefined,
-    status: statusParam,
+    statusIn: filters.apiParams.statusIn,
+    priorityIn: filters.apiParams.priorityIn,
     statusGroup: statusGroupParam,
-    priority: priorityParam,
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,
     sortBy,
@@ -124,19 +126,8 @@ export function ClaimsTable() {
     rowCount: total,
   })
 
-  function handleSearchChange(value: string) {
-    setSearch(value)
-    pagination.reset()
-  }
-
-  function handleStatusFilterChange(value: string) {
-    setStatusFilter(value)
-    pagination.reset()
-  }
-
-  function handlePriorityFilterChange(value: string) {
-    setPriorityFilter(value)
-    pagination.reset()
+  function handleFilterChange(key: string, value: FilterValue) {
+    filters.setFilter(key, value)
   }
 
   function handleColumnToggle(id: string, visible: boolean) {
@@ -162,30 +153,18 @@ export function ClaimsTable() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <FilterTabs
-        options={PRIORITY_FILTER_OPTIONS}
-        value={priorityFilter}
-        onChange={handlePriorityFilterChange}
-      />
-
-      <TableToolbar
-        search={search}
-        onSearchChange={handleSearchChange}
+      <UnifiedFilterBar
+        searchValue={filters.search}
+        onSearchChange={filters.setSearch}
         searchPlaceholder="Buscar sinistros..."
-        filters={
-          <ToolbarFilterSelect
-            value={statusFilter}
-            onValueChange={handleStatusFilterChange}
-            allLabel="Todos status"
-            allValue=""
-            options={STATUS_SELECT_OPTIONS.filter((opt) => opt.value !== '')}
-            widthClass="w-[170px]"
-          />
-        }
+        filters={CLAIM_FILTERS}
+        values={filters.values}
+        onFilterChange={handleFilterChange}
+        onClearAll={filters.clearAll}
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
-      ></TableToolbar>
+      />
 
       <DataTable
         table={table}

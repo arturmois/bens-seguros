@@ -57,8 +57,10 @@ export const ListClaimsQueryParams = zod.object({
       'COMPLETED',
     ])
     .optional(),
+  statusIn: zod.string().optional(),
   statusGroup: zod.enum(['open', 'closed']).optional(),
   priority: zod.enum(['NORMAL', 'HIGH', 'URGENT']).optional(),
+  priorityIn: zod.string().optional(),
   policyId: zod.string().optional(),
   clientId: zod.string().optional(),
   search: zod.string().optional(),

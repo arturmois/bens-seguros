@@ -141,4 +141,41 @@ describe('GET /api/v1/claims', () => {
 
     expect(response.statusCode).toBe(400)
   })
+
+  it('parses statusIn from CSV query', async () => {
+    mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
+
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/claims?statusIn=IN_ANALYSIS,APPROVED',
+    })
+
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.objectContaining({ statusIn: ['IN_ANALYSIS', 'APPROVED'] }),
+      expect.anything()
+    )
+  })
+
+  it('parses priorityIn from CSV query', async () => {
+    mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
+
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/claims?priorityIn=HIGH,URGENT',
+    })
+
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.objectContaining({ priorityIn: ['HIGH', 'URGENT'] }),
+      expect.anything()
+    )
+  })
+
+  it('returns 400 when priorityIn has an invalid value', async () => {
+    const response = await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/claims?priorityIn=HIGH,INVALID',
+    })
+
+    expect(response.statusCode).toBe(400)
+  })
 })

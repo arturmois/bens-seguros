@@ -18,8 +18,10 @@ export type ListClaimsParams = {
    */
   limit?: number
   status?: ListClaimsStatus
+  statusIn?: string
   statusGroup?: ListClaimsStatusGroup
   priority?: ListClaimsPriority
+  priorityIn?: string
   policyId?: string
   clientId?: string
   search?: string

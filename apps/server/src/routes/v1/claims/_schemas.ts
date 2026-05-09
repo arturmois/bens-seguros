@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { csvEnumArray } from '../../shared/csv-array.schema.js'
 import { paginationQuery } from '../../shared/pagination.schema.js'
 import { idParam } from '../../shared/params.schema.js'
 import {
@@ -28,6 +29,9 @@ const CLAIM_STATUS_VALUES = [
 
 const CLAIM_PRIORITY_VALUES = ['NORMAL', 'HIGH', 'URGENT'] as const
 
+const claimStatusEnum = z.enum(CLAIM_STATUS_VALUES)
+const claimPriorityEnum = z.enum(CLAIM_PRIORITY_VALUES)
+
 // --- Request schemas ---
 
 export const createClaimBodySchema = z.object({
@@ -47,9 +51,11 @@ export const updateClaimStatusBodySchema = z.object({
 })
 
 export const listClaimsQuerySchema = paginationQuery().extend({
-  status: z.enum(CLAIM_STATUS_VALUES).optional(),
+  status: claimStatusEnum.optional(),
+  statusIn: csvEnumArray(claimStatusEnum).optional(),
   statusGroup: z.enum(['open', 'closed']).optional(),
-  priority: z.enum(CLAIM_PRIORITY_VALUES).optional(),
+  priority: claimPriorityEnum.optional(),
+  priorityIn: csvEnumArray(claimPriorityEnum).optional(),
   policyId: z.string().optional(),
   clientId: z.string().optional(),
   search: z.string().optional(),

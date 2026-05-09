@@ -7,11 +7,6 @@ interface SelectOption<TValue extends string> {
   readonly label: string
 }
 
-interface FilterTabOption {
-  readonly value: string
-  readonly label: string
-}
-
 interface HideableColumn {
   readonly id: string
   readonly label: string
@@ -29,25 +24,6 @@ export const HIDEABLE_COLUMNS: readonly HideableColumn[] = [
   { id: 'priority', label: 'Prioridade' },
   { id: 'incidentLocation', label: 'Local' },
   { id: 'createdAt', label: 'Criado em' },
-] as const
-
-export const PRIORITY_FILTER_OPTIONS: readonly FilterTabOption[] = [
-  { value: '', label: 'Todas' },
-  { value: 'NORMAL', label: 'Normal' },
-  { value: 'HIGH', label: 'Alta' },
-  { value: 'URGENT', label: 'Urgente' },
-] as const
-
-export const STATUS_SELECT_OPTIONS: readonly FilterTabOption[] = [
-  { value: '', label: 'Todos status' },
-  { value: 'REGISTERED', label: 'Registrado' },
-  { value: 'IN_ANALYSIS', label: 'Em Análise' },
-  { value: 'AWAITING_DOCUMENT', label: 'Aguard. Doc.' },
-  { value: 'PENDING_INSPECTION', label: 'Pend. Vistoria' },
-  { value: 'APPROVED', label: 'Aprovado' },
-  { value: 'REJECTED', label: 'Rejeitado' },
-  { value: 'PAID', label: 'Pago' },
-  { value: 'COMPLETED', label: 'Concluído' },
 ] as const
 
 export const CLAIM_STATUS_LABELS: Record<ClaimStatus, string> = {

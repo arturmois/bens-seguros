@@ -14,8 +14,10 @@ export type ClaimPriority = ListClaims200DataItemPriority
 
 export interface ClaimFilters {
   readonly status?: ClaimStatus
+  readonly statusIn?: string
   readonly statusGroup?: ListClaimsStatusGroup
   readonly priority?: ClaimPriority
+  readonly priorityIn?: string
   readonly policyId?: string
   readonly clientId?: string
   readonly search?: string

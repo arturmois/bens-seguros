@@ -99,4 +99,34 @@ describe('ListClaims', () => {
     expect(result.total).toBe(1)
     expect(result.nextCursor).toBeNull()
   })
+
+  it('forwards statusIn array to repository', async () => {
+    const repo = makeMockRepo()
+    const useCase = new ListClaims(repo)
+
+    await useCase.execute(
+      { organizationId: 'org-1', statusIn: ['IN_ANALYSIS', 'APPROVED'] },
+      { limit: 20 }
+    )
+
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ statusIn: ['IN_ANALYSIS', 'APPROVED'] }),
+      expect.anything()
+    )
+  })
+
+  it('forwards priorityIn array to repository', async () => {
+    const repo = makeMockRepo()
+    const useCase = new ListClaims(repo)
+
+    await useCase.execute(
+      { organizationId: 'org-1', priorityIn: ['HIGH', 'URGENT'] },
+      { limit: 20 }
+    )
+
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ priorityIn: ['HIGH', 'URGENT'] }),
+      expect.anything()
+    )
+  })
 })

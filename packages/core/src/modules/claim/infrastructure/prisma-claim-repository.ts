@@ -120,19 +120,23 @@ export class PrismaClaimRepository implements ClaimRepository {
     page: CursorPage<ClaimSortField>
   ): Promise<Page<ClaimData>> {
     const statusWhere: Prisma.ClaimWhereInput =
-      filters.statusGroup === 'open'
-        ? { status: { notIn: ['COMPLETED', 'REJECTED'] } }
-        : filters.statusGroup === 'closed'
-          ? { status: { in: ['COMPLETED', 'REJECTED'] } }
-          : filters.status
-            ? { status: filters.status }
-            : {}
+      filters.statusIn && filters.statusIn.length > 0
+        ? { status: { in: [...filters.statusIn] } }
+        : filters.statusGroup === 'open'
+          ? { status: { notIn: ['COMPLETED', 'REJECTED'] } }
+          : filters.statusGroup === 'closed'
+            ? { status: { in: ['COMPLETED', 'REJECTED'] } }
+            : filters.status
+              ? { status: filters.status }
+              : {}
 
     const where: Prisma.ClaimWhereInput = {
       organizationId: filters.organizationId,
       deletedAt: null,
       ...statusWhere,
-      ...(filters.priority && { priority: filters.priority }),
+      ...(filters.priorityIn?.length
+        ? { priority: { in: [...filters.priorityIn] } }
+        : filters.priority && { priority: filters.priority }),
       ...(filters.policyId && { policyId: filters.policyId }),
       ...(filters.clientId && { clientId: filters.clientId }),
       ...(filters.search && {
