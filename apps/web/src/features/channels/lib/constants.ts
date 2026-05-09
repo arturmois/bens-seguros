@@ -1,11 +1,6 @@
 import type { SortingState, VisibilityState } from '@tanstack/react-table'
 
-import type { ChannelBrokerType, ChannelStatusFilter } from './types'
-
-interface SelectOption<TValue extends string> {
-  readonly value: TValue
-  readonly label: string
-}
+import type { ChannelBrokerType } from './types'
 
 export const BROKER_TYPE_LABELS: Record<ChannelBrokerType, string> = {
   BAILEYS: 'Baileys',
@@ -14,14 +9,6 @@ export const BROKER_TYPE_LABELS: Record<ChannelBrokerType, string> = {
   MESSENGER: 'Messenger',
   INSTAGRAM: 'Instagram',
 }
-
-export const STATUS_FILTER_OPTIONS: readonly SelectOption<ChannelStatusFilter>[] =
-  [
-    { value: 'ALL', label: 'Todos' },
-    { value: 'CONNECTED', label: 'Conectados' },
-    { value: 'DISCONNECTED', label: 'Offline' },
-    { value: 'QR_PENDING', label: 'QR' },
-  ] as const
 
 export const DEFAULT_COLUMN_VISIBILITY: VisibilityState = {
   phoneNumber: true,

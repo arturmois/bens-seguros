@@ -10,26 +10,21 @@ import { MessageCircle } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { DataTable } from '@/components/shared/data-table'
-import { FilterTabs } from '@/components/shared/filter-tabs'
+import type { FilterValue } from '@/components/shared/filter-types'
 import { MobileCardList } from '@/components/shared/mobile-card-list'
 import { TableErrorState } from '@/components/shared/table-error-state'
-import { TableToolbar } from '@/components/shared/table-toolbar'
+import { UnifiedFilterBar } from '@/components/shared/unified-filter-bar'
 import { useDebounce } from '@/hooks/use-debounce'
 
 import { useOrgs } from '@/features/org/hooks/use-orgs'
 import { useChannels } from '../hooks/use-channels'
+import { useChannelsFilters } from '../hooks/use-channels-filters'
 import {
   DEFAULT_COLUMN_VISIBILITY,
   DEFAULT_SORTING,
   HIDEABLE_COLUMNS,
-  STATUS_FILTER_OPTIONS,
 } from '../lib/constants'
-import {
-  isChannelStatusFilter,
-  matchesSearch,
-  matchesStatus,
-} from '../lib/filters'
-import type { ChannelStatusFilter } from '../lib/types'
+import { CHANNEL_FILTERS, matchesSearch, matchesStatus } from '../lib/filters'
 import type { ChannelData } from '../types'
 import { ChannelCard } from './channel-card'
 import { createChannelColumns } from './channels-columns'
@@ -50,24 +45,23 @@ export function ChannelsTable({
   'use no memo'
   const { activeOrg } = useOrgs()
   const role = activeOrg?.role ?? 'VIEWER'
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<ChannelStatusFilter>('ALL')
+  const filters = useChannelsFilters()
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
 
-  const debouncedSearch = useDebounce(search, 300)
+  const debouncedSearch = useDebounce(filters.search, 300)
   const { data, isLoading, isError, refetch } = useChannels()
 
   const channels = useMemo<ChannelData[]>(() => {
     const list = data ?? []
     return list.filter(
       (channel) =>
-        matchesStatus(channel, statusFilter) &&
+        matchesStatus(channel, filters.statusIn) &&
         matchesSearch(channel, debouncedSearch)
     )
-  }, [data, statusFilter, debouncedSearch])
+  }, [data, filters.statusIn, debouncedSearch])
 
   const columnActions = useMemo(
     () => ({ onEdit, onQrCode, onEmbed, onDeactivate }),
@@ -89,8 +83,8 @@ export function ChannelsTable({
     getSortedRowModel: getSortedRowModel(),
   })
 
-  function handleStatusFilterChange(value: string) {
-    if (isChannelStatusFilter(value)) setStatusFilter(value)
+  function handleFilterChange(key: string, value: FilterValue) {
+    filters.setFilter(key, value)
   }
 
   function handleColumnToggle(id: string, visible: boolean) {
@@ -113,16 +107,14 @@ export function ChannelsTable({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <FilterTabs
-        options={STATUS_FILTER_OPTIONS}
-        value={statusFilter}
-        onChange={handleStatusFilterChange}
-      />
-
-      <TableToolbar
-        search={search}
-        onSearchChange={setSearch}
+      <UnifiedFilterBar
+        searchValue={filters.search}
+        onSearchChange={filters.setSearch}
         searchPlaceholder="Buscar canais..."
+        filters={CHANNEL_FILTERS}
+        values={filters.values}
+        onFilterChange={handleFilterChange}
+        onClearAll={filters.clearAll}
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
