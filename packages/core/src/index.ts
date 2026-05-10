@@ -31,14 +31,7 @@ export {
 } from './shared/legal-constants.js'
 
 export * from './modules/assistance/index.js'
-export {
-  logApprove,
-  logAudit,
-  logCreate,
-  logDelete,
-  logReject,
-  logUpdate,
-} from './modules/audit/log-audit.js'
+export * from './modules/audit/index.js'
 export * from './modules/cep/index.js'
 export * from './modules/claim/index.js'
 export * from './modules/client/index.js'

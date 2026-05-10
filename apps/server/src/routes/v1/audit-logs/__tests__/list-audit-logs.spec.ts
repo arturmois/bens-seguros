@@ -14,23 +14,18 @@ import {
   TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
 import { makeAuditLog } from '../../../../__tests__/helpers/factories.js'
+import { mockResolve } from '../../../../__tests__/helpers/mock-use-case.js'
 import { listAuditLogsRoute } from '../list-audit-logs.js'
 
-vi.mock('@repo/db', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('@repo/db')>()
-  const mockPrisma = {
-    auditLog: {
-      findMany: vi.fn(),
-      count: vi.fn(),
-    },
-  }
+vi.mock('@repo/core', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('@repo/core')>()
   return {
     ...mod,
-    prisma: mockPrisma,
-    prismaAdmin: mockPrisma,
+    container: { resolve: vi.fn() },
   }
 })
 
+const mockExecute = vi.fn()
 let app: Awaited<ReturnType<typeof createTestApp>>
 
 beforeAll(async () => {
@@ -40,15 +35,16 @@ afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
+  mockResolve(mockExecute)
 })
 
 describe('GET /api/v1/audit-logs', () => {
   it('returns 200 with paginated audit log list', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.auditLog.findMany).mockResolvedValue([
-      makeAuditLog(),
-    ] as unknown as Awaited<ReturnType<typeof prisma.auditLog.findMany>>)
-    vi.mocked(prisma.auditLog.count).mockResolvedValue(1)
+    mockExecute.mockResolvedValue({
+      items: [makeAuditLog()],
+      total: 1,
+      nextCursor: null,
+    })
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/audit-logs',
@@ -62,14 +58,14 @@ describe('GET /api/v1/audit-logs', () => {
     expect(body.meta.nextCursor).toBeNull()
   })
   it('returns 200 with nextCursor when more pages exist', async () => {
-    const logs = Array.from({ length: 31 }, (_, i) =>
+    const items = Array.from({ length: 30 }, (_, i) =>
       makeAuditLog({ id: `audit-id-${String(i).padStart(3, '0')}` })
     )
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.auditLog.findMany).mockResolvedValue(
-      logs as unknown as Awaited<ReturnType<typeof prisma.auditLog.findMany>>
-    )
-    vi.mocked(prisma.auditLog.count).mockResolvedValue(50)
+    mockExecute.mockResolvedValue({
+      items,
+      total: 50,
+      nextCursor: 'audit-id-029',
+    })
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/audit-logs',
@@ -77,28 +73,22 @@ describe('GET /api/v1/audit-logs', () => {
     })
     expect(response.statusCode).toBe(200)
     const body = response.json()
-    expect(body.meta.nextCursor).not.toBeNull()
+    expect(body.meta.nextCursor).toBe('audit-id-029')
     expect(body.data).toHaveLength(30)
   })
-  it('filters by entityType when query param is provided', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.auditLog.findMany).mockResolvedValue(
-      [] as unknown as Awaited<ReturnType<typeof prisma.auditLog.findMany>>
-    )
-    vi.mocked(prisma.auditLog.count).mockResolvedValue(0)
-    const response = await injectAs(app, {
+  it('passes entityType filter to the use case', async () => {
+    mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
+    await injectAs(app, {
       method: 'GET',
       url: '/api/v1/audit-logs',
       query: { entityType: 'Client' },
     })
-    expect(response.statusCode).toBe(200)
-    expect(vi.mocked(prisma.auditLog.findMany)).toHaveBeenCalledWith(
+    expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({
-          organizationId: TEST_ORG_ID,
-          entityType: 'Client',
-        }),
-      })
+        organizationId: TEST_ORG_ID,
+        entityType: 'Client',
+      }),
+      expect.anything()
     )
   })
   it('returns 400 when limit is out of range', async () => {
@@ -110,39 +100,77 @@ describe('GET /api/v1/audit-logs', () => {
     expect(response.statusCode).toBe(400)
   })
   it('parses entityTypeIn from CSV query', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.auditLog.findMany).mockResolvedValue(
-      [] as unknown as Awaited<ReturnType<typeof prisma.auditLog.findMany>>
-    )
-    vi.mocked(prisma.auditLog.count).mockResolvedValue(0)
+    mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/audit-logs?entityTypeIn=Client,Proposal',
     })
-    expect(vi.mocked(prisma.auditLog.findMany)).toHaveBeenCalledWith(
+    expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({
-          entityType: { in: ['Client', 'Proposal'] },
-        }),
-      })
+        entityTypeIn: ['Client', 'Proposal'],
+      }),
+      expect.anything()
     )
   })
   it('parses actionIn from CSV query', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.auditLog.findMany).mockResolvedValue(
-      [] as unknown as Awaited<ReturnType<typeof prisma.auditLog.findMany>>
-    )
-    vi.mocked(prisma.auditLog.count).mockResolvedValue(0)
+    mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/audit-logs?actionIn=CREATE,UPDATE',
     })
-    expect(vi.mocked(prisma.auditLog.findMany)).toHaveBeenCalledWith(
+    expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({
-          action: { in: ['CREATE', 'UPDATE'] },
-        }),
-      })
+        actionIn: ['CREATE', 'UPDATE'],
+      }),
+      expect.anything()
     )
+  })
+  it('passes pagination params to the use case', async () => {
+    mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/audit-logs',
+      query: { limit: '15', cursor: 'audit-id-100' },
+    })
+    expect(mockExecute).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ limit: 15, cursor: 'audit-id-100' })
+    )
+  })
+  it('converts dateFrom and dateTo strings to Date before reaching the use case', async () => {
+    mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/audit-logs',
+      query: {
+        dateFrom: '2026-05-01T00:00:00.000Z',
+        dateTo: '2026-05-09T23:59:59.999Z',
+      },
+    })
+    const filters = mockExecute.mock.calls[0]?.[0] as {
+      dateFrom: unknown
+      dateTo: unknown
+    }
+    expect(filters.dateFrom).toBeInstanceOf(Date)
+    expect(filters.dateTo).toBeInstanceOf(Date)
+    expect((filters.dateFrom as Date).toISOString()).toBe(
+      '2026-05-01T00:00:00.000Z'
+    )
+    expect((filters.dateTo as Date).toISOString()).toBe(
+      '2026-05-09T23:59:59.999Z'
+    )
+  })
+  it('leaves dateFrom and dateTo undefined when not provided', async () => {
+    mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/audit-logs',
+    })
+    const filters = mockExecute.mock.calls[0]?.[0] as {
+      dateFrom: unknown
+      dateTo: unknown
+    }
+    expect(filters.dateFrom).toBeUndefined()
+    expect(filters.dateTo).toBeUndefined()
   })
 })
