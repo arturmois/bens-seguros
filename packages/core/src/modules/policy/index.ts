@@ -15,6 +15,18 @@ export {
   PolicyErrors,
 } from './domain/policy-errors.js'
 
+export type {
+  PolicyPdfClientFull,
+  PolicyPdfRenderInput,
+  PolicyPdfRenderer,
+} from './domain/policy-pdf-renderer.js'
+
+export { EnsurePolicyPdf } from './application/ensure-policy-pdf.js'
+export type {
+  EnsurePolicyPdfInput,
+  EnsurePolicyPdfResult,
+} from './application/ensure-policy-pdf.js'
+
 export { ExportPoliciesCsv } from './application/export-policies-csv.js'
 export { IssuePolicy } from './application/issue-policy.js'
 export { ListPolicies } from './application/list-policies.js'

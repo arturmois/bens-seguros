@@ -36,6 +36,7 @@ import {
   GetDocumentUrl,
   GetEndorsement,
   GetOrganization,
+  EnsurePolicyPdf,
   GetPolicy,
   GetProposal,
   GlobalSearch,
@@ -113,6 +114,7 @@ import { prismaAdmin } from '@repo/db'
 import { env } from '@repo/env'
 import type { Redis } from 'ioredis'
 import { BullmqNotificationDispatcher } from './services/bullmq-notification-dispatcher.js'
+import { ReactPolicyPdfRenderer } from './services/react-policy-pdf-renderer.js'
 
 export function registerDependencies(redis: Redis | null = null) {
   const cacheService = redis
@@ -266,6 +268,16 @@ export function registerDependencies(redis: Redis | null = null) {
     useFactory: () => new ListPolicies(policyRepo),
   })
   container.register(GetPolicy, { useFactory: () => new GetPolicy(policyRepo) })
+  container.register(EnsurePolicyPdf, {
+    useFactory: (c) =>
+      new EnsurePolicyPdf(
+        policyRepo,
+        organizationRepo,
+        documentRepo,
+        storageProvider,
+        c.resolve('PolicyPdfRenderer')
+      ),
+  })
   container.register(CancelPolicy, {
     useFactory: () => new CancelPolicy(policyRepo),
   })
@@ -407,6 +419,9 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register('MemberRepository', { useValue: memberRepo })
   container.register('NotificationDispatcher', {
     useValue: new BullmqNotificationDispatcher(),
+  })
+  container.register('PolicyPdfRenderer', {
+    useValue: new ReactPolicyPdfRenderer(),
   })
   container.register(UpdateMemberRole, {
     useFactory: () => new UpdateMemberRole(memberRepo, cacheService),
