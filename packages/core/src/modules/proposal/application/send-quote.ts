@@ -1,6 +1,6 @@
 import { inject, injectable } from 'tsyringe'
-import type { ProposalRepository } from '../domain/proposal-repository.js'
 import { ProposalErrors } from '../domain/proposal-errors.js'
+import type { ProposalRepository } from '../domain/proposal-repository.js'
 import type { Proposal } from '../domain/proposal.js'
 
 @injectable()
@@ -25,7 +25,7 @@ export class SendQuote {
     if (!clientEmail) {
       throw ProposalErrors.clientHasNoEmail()
     }
-    if (proposal.stage === 'LOST') {
+    if (proposal.isLost()) {
       throw ProposalErrors.cannotSendQuoteForLostProposal()
     }
     return proposal

@@ -2,8 +2,8 @@ import { randomUUID } from 'node:crypto'
 
 import type { InsuredObjectDetails } from './insured-object-details.js'
 import {
-  ProposalErrors,
   InvalidStageTransitionError,
+  ProposalErrors,
 } from './proposal-errors.js'
 
 const STAGES = [
@@ -153,7 +153,7 @@ interface CreateProposalInput {
   quoteValidUntil?: Date
 }
 
-export type { Stage, ActiveStage, Branch, BoardType }
+export type { ActiveStage, BoardType, Branch, Stage }
 
 export class Proposal {
   private constructor(private readonly props: ProposalProps) {}
@@ -270,6 +270,26 @@ export class Proposal {
   updateQuoteValidity(date: Date): void {
     this.props.quoteValidUntil = date
     this.props.updatedAt = new Date()
+  }
+
+  isLost(): boolean {
+    return this.props.stage === 'LOST'
+  }
+
+  needsDetailsToAdvance(): boolean {
+    return this.props.stage === 'QUOTE' && this.props.details === null
+  }
+
+  requiresChecklistToAdvance(): boolean {
+    return this.props.stage !== 'CAPTURE'
+  }
+
+  requiresPromotedContact(): boolean {
+    return this.props.stage === 'PAYMENT'
+  }
+
+  acceptsNewChecklistItems(): boolean {
+    return this.props.stage !== 'POLICY_ISSUED' && this.props.stage !== 'LOST'
   }
 
   get id(): string {

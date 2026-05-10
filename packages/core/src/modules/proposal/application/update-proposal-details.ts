@@ -1,8 +1,8 @@
-import { injectable, inject } from 'tsyringe'
-import type { Proposal } from '../domain/proposal.js'
-import type { ProposalRepository } from '../domain/proposal-repository.js'
+import { inject, injectable } from 'tsyringe'
 import type { InsuredObjectDetails } from '../domain/insured-object-details.js'
 import { ProposalErrors } from '../domain/proposal-errors.js'
+import type { ProposalRepository } from '../domain/proposal-repository.js'
+import type { Proposal } from '../domain/proposal.js'
 
 interface UpdateProposalDetailsDTO {
   details: InsuredObjectDetails
@@ -28,7 +28,7 @@ export class UpdateProposalDetails {
       organizationId
     )
     if (!proposal) throw ProposalErrors.notFound(proposalId)
-    if (proposal.stage === 'LOST') {
+    if (proposal.isLost()) {
       throw ProposalErrors.invalidTransition('LOST', 'editar detalhes')
     }
     proposal.updateDetails(
