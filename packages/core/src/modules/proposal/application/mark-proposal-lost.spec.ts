@@ -11,7 +11,7 @@ function createMockRepo(proposal: Proposal | null): ProposalRepository {
   return {
     save: vi.fn(),
     findById: vi.fn().mockResolvedValue(proposal),
-    findMany: vi.fn(),
+    listForView: vi.fn(),
   }
 }
 

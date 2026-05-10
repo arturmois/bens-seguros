@@ -11,7 +11,7 @@ function makeRepo(): ProposalRepository {
   return {
     save: vi.fn(),
     findById: vi.fn(),
-    findMany: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
+    listForView: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
   }
 }
 
@@ -30,7 +30,7 @@ describe('ListProposals', () => {
       sortOrder: 'asc',
     }
     await useCase.execute(filters, page)
-    expect(repo.findMany).toHaveBeenCalledWith(
+    expect(repo.listForView).toHaveBeenCalledWith(
       filters,
       expect.objectContaining({ sortBy: 'clientName', sortOrder: 'asc' })
     )
@@ -39,7 +39,7 @@ describe('ListProposals', () => {
     const filters: ProposalFilters = { organizationId: 'org-1' }
     const page: ProposalCursorPage = { limit: 10 }
     await useCase.execute(filters, page)
-    expect(repo.findMany).toHaveBeenCalledWith(filters, page)
+    expect(repo.listForView).toHaveBeenCalledWith(filters, page)
   })
   it('filters by multiple stages (stageIn) and updatedAt range', async () => {
     const updatedAtFrom = new Date('2026-04-10')
@@ -53,7 +53,7 @@ describe('ListProposals', () => {
       },
       { limit: 20 }
     )
-    expect(repo.findMany).toHaveBeenCalledWith(
+    expect(repo.listForView).toHaveBeenCalledWith(
       expect.objectContaining({
         stageIn: ['QUOTE', 'PROTOCOL'],
         updatedAtFrom,
@@ -67,7 +67,7 @@ describe('ListProposals', () => {
       { organizationId: 'org-1', branchIn: ['AUTO', 'RESIDENTIAL'] },
       { limit: 20 }
     )
-    expect(repo.findMany).toHaveBeenCalledWith(
+    expect(repo.listForView).toHaveBeenCalledWith(
       expect.objectContaining({ branchIn: ['AUTO', 'RESIDENTIAL'] }),
       expect.anything()
     )
@@ -77,7 +77,7 @@ describe('ListProposals', () => {
       { organizationId: 'org-1', salespersonIdIn: ['user-1', 'user-2'] },
       { limit: 20 }
     )
-    expect(repo.findMany).toHaveBeenCalledWith(
+    expect(repo.listForView).toHaveBeenCalledWith(
       expect.objectContaining({ salespersonIdIn: ['user-1', 'user-2'] }),
       expect.anything()
     )

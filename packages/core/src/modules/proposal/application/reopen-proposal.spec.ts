@@ -7,7 +7,7 @@ function createMockRepo(): ProposalRepository {
   return {
     findById: vi.fn(),
     save: vi.fn(),
-    findMany: vi.fn(),
+    listForView: vi.fn(),
     count: vi.fn(),
     delete: vi.fn(),
   } as unknown as ProposalRepository

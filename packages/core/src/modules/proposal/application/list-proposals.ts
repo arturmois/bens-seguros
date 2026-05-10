@@ -1,9 +1,9 @@
 import { injectable, inject } from 'tsyringe'
+import type { ProposalListPage } from '../domain/proposal-list-item.js'
 import type {
-  ProposalRepository,
-  ProposalFilters,
   ProposalCursorPage,
-  ProposalPage,
+  ProposalFilters,
+  ProposalRepository,
 } from '../domain/proposal-repository.js'
 
 @injectable()
@@ -16,7 +16,7 @@ export class ListProposals {
   async execute(
     filters: ProposalFilters,
     page: ProposalCursorPage
-  ): Promise<ProposalPage> {
-    return this.proposalRepo.findMany(filters, page)
+  ): Promise<ProposalListPage> {
+    return this.proposalRepo.listForView(filters, page)
   }
 }

@@ -25,7 +25,7 @@ export function listProposalsRoute(app: FastifyInstance) {
       )
       return reply.send({
         success: true,
-        data: result.items.map((p) => p.toJSON()),
+        data: result.items,
         meta: { nextCursor: result.nextCursor },
       })
     },

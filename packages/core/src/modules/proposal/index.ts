@@ -33,9 +33,12 @@ export {
 export type {
   ProposalCursorPage,
   ProposalFilters,
-  ProposalPage,
   ProposalRepository,
 } from './domain/proposal-repository.js'
+export type {
+  ProposalListItem,
+  ProposalListPage,
+} from './domain/proposal-list-item.js'
 export { Proposal } from './domain/proposal.js'
 export type {
   ActiveStage,

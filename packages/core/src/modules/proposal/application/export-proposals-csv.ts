@@ -33,7 +33,7 @@ export class ExportProposalsCsv {
     let cursor: string | undefined
     let hasMore = true
     while (hasMore) {
-      const result = await this.proposalRepo.findMany(filters, {
+      const result = await this.proposalRepo.listForView(filters, {
         limit: BATCH_SIZE,
         cursor,
       })

@@ -1,13 +1,18 @@
 import { injectable, inject } from 'tsyringe'
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
+import { parseSourcePolicySnapshot } from '../domain/proposal.js'
 import type { Proposal } from '../domain/proposal.js'
+import type {
+  ProposalListItem,
+  ProposalListPage,
+} from '../domain/proposal-list-item.js'
 import type {
   ProposalRepository,
   ProposalFilters,
   ProposalCursorPage,
-  ProposalPage,
 } from '../domain/proposal-repository.js'
+import { isInsuredObjectDetails } from '../domain/insured-object-details.js'
 import { ProposalMapper } from './proposal-mapper.js'
 
 const PROPOSAL_INCLUDE = {
@@ -56,10 +61,56 @@ export class PrismaProposalRepository implements ProposalRepository {
     return row ? ProposalMapper.toDomain(row) : null
   }
 
-  async findMany(
+  async listForView(
     filters: ProposalFilters,
     page: ProposalCursorPage
-  ): Promise<ProposalPage> {
+  ): Promise<ProposalListPage> {
+    const { hasNext, items } = await this.queryRows(filters, page)
+    return {
+      items: items.map((row) => this.toListItem(row)),
+      nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,
+    }
+  }
+
+  private toListItem(
+    row: Prisma.ProposalGetPayload<{ include: typeof PROPOSAL_INCLUDE }>
+  ): ProposalListItem {
+    return {
+      id: row.id,
+      organizationId: row.organizationId,
+      contactId: row.contactId,
+      salespersonId: row.salespersonId,
+      stage: row.stage,
+      boardType: row.boardType,
+      branch: row.branch,
+      premiumValueInCents: row.premiumValueInCents,
+      commissionPercentageInCents: row.commissionPercentageInCents,
+      details: isInsuredObjectDetails(row.details) ? row.details : null,
+      lostReason: row.lostReason,
+      renewalPolicyId: row.renewalPolicyId,
+      renewalPolicyNumber: row.renewalPolicyNumber ?? null,
+      sourcePolicyId: row.sourcePolicyId,
+      endorsementType: row.endorsementType,
+      endorsementReason: row.endorsementReason,
+      sourcePolicySnapshot: parseSourcePolicySnapshot(row.sourcePolicySnapshot),
+      insurerId: row.insurerId,
+      deletedAt: row.deletedAt,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      coverageStartDate: row.coverageStartDate ?? null,
+      coverageEndDate: row.coverageEndDate ?? null,
+      sentToClientAt: row.sentToClientAt ?? null,
+      clientResponseAt: row.clientResponseAt ?? null,
+      quoteValidUntil: row.quoteValidUntil ?? null,
+      clientName: row.contact?.name,
+      clientDocument: row.contact?.client?.document,
+      clientPersonType: row.contact?.client?.personType,
+      salespersonName: row.salesperson?.name,
+      insurerName: row.insurer?.name,
+    }
+  }
+
+  private async queryRows(filters: ProposalFilters, page: ProposalCursorPage) {
     const sortBy = page.sortBy ?? 'createdAt'
     const sortOrder = page.sortOrder ?? 'desc'
     const primaryOrderBy: Prisma.ProposalOrderByWithRelationInput = (() => {
@@ -148,9 +199,6 @@ export class PrismaProposalRepository implements ProposalRepository {
     })
     const hasNext = rows.length > page.limit
     const items = hasNext ? rows.slice(0, -1) : rows
-    return {
-      items: items.map(ProposalMapper.toDomain),
-      nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,
-    }
+    return { hasNext, items }
   }
 }
