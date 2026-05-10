@@ -64,7 +64,6 @@ describe('GET /api/internal/policies', () => {
       url: '/api/internal/policies',
       query: { clientId: 'client-001' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -73,58 +72,48 @@ describe('GET /api/internal/policies', () => {
     expect(body.data.policies[0].policyNumber).toBe('12345')
     expect(body.data.policies[0].insurerName).toBe('Seguradora ABC')
   })
-
   it('resolves clientId from phone when clientId is not provided', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/internal/policies',
       query: { phone: '11999999999' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(mockTenantPrisma.contact.findFirst).toHaveBeenCalled()
   })
-
   it('returns empty list when client is not found', async () => {
     mockTenantPrisma.contact.findFirst.mockResolvedValue(null)
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/internal/policies',
       query: { phone: '11000000000' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data.policies).toHaveLength(0)
     expect(body.data.total).toBe(0)
   })
-
   it('returns 400 when neither clientId nor phone is provided', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/internal/policies',
     })
-
     expect(response.statusCode).toBe(400)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('MISSING_PARAMS')
   })
-
   it('returns policies with null insurer when insurer is absent', async () => {
     mockTenantPrisma.policy.findMany.mockResolvedValue([
       makePolicy({ insurer: null }),
     ])
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/internal/policies',
       query: { clientId: 'client-001' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data.policies[0].insurerName).toBeNull()

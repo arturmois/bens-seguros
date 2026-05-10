@@ -34,12 +34,10 @@ export function deleteMemberRoute(app: FastifyInstance) {
         const organizationId = request.organizationId!
         const callerRole = request.role! as Role
         const callerUserId = request.user!.id
-
         const before = await prisma.member.findFirst({
           where: { id, organizationId, active: true },
           select: { role: true, userId: true },
         })
-
         const deactivateMember = container.resolve(DeactivateMember)
         await deactivateMember.execute({
           id,
@@ -47,19 +45,16 @@ export function deleteMemberRoute(app: FastifyInstance) {
           callerUserId,
           callerRole,
         })
-
         auditDelete({
           request,
           entityType: 'Member',
           entityId: id,
           before: { role: before?.role, userId: before?.userId },
         })
-
         const cacheService = resolveCache()
         if (cacheService) {
           await cacheService.delete(`cache:${organizationId}:members`)
         }
-
         return reply.send({ success: true, data: { id } })
       } catch (error) {
         return handleDomainError(error, reply)

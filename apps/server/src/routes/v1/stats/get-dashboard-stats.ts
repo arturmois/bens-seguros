@@ -24,18 +24,14 @@ export function getDashboardStatsRoute(app: FastifyInstance) {
     handler: async (request, reply) => {
       const { preset } = request.query
       const orgId = request.organizationId!
-
       const cache = container.resolve<CacheService>('CacheService')
       const cacheKey = `dashboard:stats:${orgId}:${preset}`
-
       const cached = await cache.get<DashboardData>(cacheKey)
       if (cached) {
         return reply.send({ success: true, data: cached })
       }
-
       const data = await buildDashboardData(orgId, preset)
       await cache.set(cacheKey, data, 60)
-
       return reply.send({ success: true, data })
     },
   })

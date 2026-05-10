@@ -64,18 +64,15 @@ export class PrismaNotificationRepository implements NotificationRepository {
       userId: filters.userId,
       ...(filters.read !== undefined && { read: filters.read }),
     }
-
     const rows = await this.prisma.notification.findMany({
       where,
       orderBy: { createdAt: 'desc' },
       take: limit + 1,
       ...(filters.cursor ? { cursor: { id: filters.cursor }, skip: 1 } : {}),
     })
-
     const hasMore = rows.length > limit
     const data = (hasMore ? rows.slice(0, limit) : rows).map(toData)
     const nextCursor = hasMore ? (data.at(-1)?.id ?? null) : null
-
     return { data, nextCursor }
   }
 
@@ -120,20 +117,17 @@ export class PrismaNotificationRepository implements NotificationRepository {
       },
       _count: { id: true },
     })
-
     const counts: Record<string, number> = {
       Policy: 0,
       Claim: 0,
       Commission: 0,
       Proposal: 0,
     }
-
     for (const row of results) {
       if (row.entityType) {
         counts[row.entityType] = row._count.id
       }
     }
-
     return counts
   }
 }

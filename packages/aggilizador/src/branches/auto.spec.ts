@@ -63,7 +63,6 @@ describe('AutoQuoteService', () => {
   let service: AutoQuoteService
   let mockBuilder: AutoPayloadBuilder
   let mockRegistry: EnumRegistry
-
   beforeEach(() => {
     mockBuilder = {
       buildContactPayload: vi.fn().mockResolvedValue({ BrokerId: 1366 }),
@@ -71,24 +70,20 @@ describe('AutoQuoteService', () => {
         .fn()
         .mockResolvedValue({ Id: 'abc', BrokerId: 1366 }),
     } as unknown as AutoPayloadBuilder
-
     mockRegistry = {
       getEnumList: vi
         .fn()
         .mockResolvedValue([{ key: '1', value: 'Masculino' }]),
     } as unknown as EnumRegistry
-
     service = new AutoQuoteService(
       'https://api.aggilizador.com.br',
       mockBuilder,
       mockRegistry
     )
   })
-
   afterEach(() => {
     vi.restoreAllMocks()
   })
-
   it('submits a quote via Contact then Auto endpoints', async () => {
     const fetchSpy = vi
       .spyOn(globalThis, 'fetch')
@@ -100,9 +95,7 @@ describe('AutoQuoteService', () => {
       .mockResolvedValueOnce(
         new Response(JSON.stringify('mongo123'), { status: 200 })
       )
-
     const result = await service.submitQuote(SAMPLE_INPUT)
-
     expect(result).toEqual({ id: 'mongo123' })
     expect(fetchSpy).toHaveBeenCalledTimes(2)
     expect(fetchSpy.mock.calls[0]?.[0]).toBe(
@@ -117,7 +110,6 @@ describe('AutoQuoteService', () => {
       'mongo123'
     )
   })
-
   it('throws AggilizadorBusinessError when Contact returns errors', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
       new Response(
@@ -125,12 +117,10 @@ describe('AutoQuoteService', () => {
         { status: 200 }
       )
     )
-
     await expect(service.submitQuote(SAMPLE_INPUT)).rejects.toThrow(
       'CPF inválido'
     )
   })
-
   it('delegates getEnums to registry', async () => {
     const enums = await service.getEnums()
     expect(mockRegistry.getEnumList).toHaveBeenCalled()

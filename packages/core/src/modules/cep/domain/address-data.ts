@@ -1,8 +1,8 @@
 export interface AddressData {
-  readonly zipCode: string // 8 digits, no hyphen
+  readonly zipCode: string
   readonly street: string
   readonly neighborhood: string
   readonly city: string
-  readonly state: string // 2-letter UF (e.g., "SP")
+  readonly state: string
   readonly complement: string | null
 }

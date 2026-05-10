@@ -66,14 +66,11 @@ function formatDateToISO(date: Date | undefined): string {
 export function ClaimForm() {
   const router = useRouter()
   const createClaim = useCreateClaim()
-
   const form = useForm<ClaimFormValues>({
     resolver: zodResolver(CreateClaimBody),
     defaultValues: EMPTY_CLAIM_FORM_VALUES,
   })
-
   const [clientDisplayName, setClientDisplayName] = useState('')
-
   const handlePolicySelect = useCallback(
     (selection: { policyId: string; clientId: string; clientName: string }) => {
       form.setValue('policyId', selection.policyId, { shouldValidate: true })
@@ -82,13 +79,11 @@ export function ClaimForm() {
     },
     [form]
   )
-
   function handleSubmit(values: ClaimFormValues) {
     createClaim.mutate(values, {
       onSuccess: () => router.push('/claims'),
     })
   }
-
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
       <div>
@@ -97,7 +92,6 @@ export function ClaimForm() {
           Informações básicas sobre o sinistro.
         </p>
       </div>
-
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField
           label="Apólice"
@@ -109,7 +103,6 @@ export function ClaimForm() {
             onChange={handlePolicySelect}
           />
         </FormField>
-
         <FormField
           label="Cliente"
           error={form.formState.errors.clientId?.message}
@@ -123,7 +116,6 @@ export function ClaimForm() {
           />
         </FormField>
       </div>
-
       <FormField
         label="Descrição"
         error={form.formState.errors.description?.message}
@@ -135,16 +127,13 @@ export function ClaimForm() {
           {...form.register('description')}
         />
       </FormField>
-
       <Separator />
-
       <div>
         <h3 className="text-base font-medium">Detalhes</h3>
         <p className="text-muted-foreground text-sm">
           Informações adicionais sobre o incidente.
         </p>
       </div>
-
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField
           label="Prioridade"
@@ -184,7 +173,6 @@ export function ClaimForm() {
             )}
           />
         </FormField>
-
         <FormField
           label="Data do Incidente"
           error={form.formState.errors.incidentDate?.message}
@@ -201,7 +189,6 @@ export function ClaimForm() {
           />
         </FormField>
       </div>
-
       <FormField
         label="Local do Incidente"
         error={form.formState.errors.incidentLocation?.message}
@@ -211,16 +198,13 @@ export function ClaimForm() {
           {...form.register('incidentLocation')}
         />
       </FormField>
-
       <Separator />
-
       <div>
         <h3 className="text-base font-medium">Seguradora</h3>
         <p className="text-muted-foreground text-sm">
           Dados da seguradora (opcional).
         </p>
       </div>
-
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField
           label="Seguradora"
@@ -232,9 +216,7 @@ export function ClaimForm() {
           />
         </FormField>
       </div>
-
       <Separator />
-
       <div className="flex justify-end gap-3">
         <Button
           type="button"

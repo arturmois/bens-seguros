@@ -121,7 +121,6 @@ export function DialogHeader({
     ),
     'data-slot': 'dialog-header',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -147,7 +146,6 @@ export function DialogFooter({
     ),
     'data-slot': 'dialog-footer',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -199,7 +197,6 @@ export function DialogPanel({
     ),
     'data-slot': 'dialog-panel',
   }
-
   return (
     <ScrollArea scrollFade={scrollFade}>
       {useRender({

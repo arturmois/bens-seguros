@@ -8,7 +8,6 @@ import { updateAssistanceStatusRoute } from './update-assistance-status.js'
 
 export async function assistanceRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
-
   createAssistanceRoute(app)
   listAssistancesRoute(app)
   getAssistanceRoute(app)

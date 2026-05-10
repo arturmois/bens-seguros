@@ -45,14 +45,11 @@ export class UpdateMemberRole {
 
   async execute(input: UpdateMemberRoleInput): Promise<MemberRecord> {
     const { id, organizationId, callerUserId, callerRole, newRole } = input
-
     const member = await this.memberRepo.findById(id, organizationId)
     if (!member) throw new MemberNotFoundError(id)
     if (member.userId === callerUserId) throw new SelfRemovalError()
-
     assertCanManageRole(callerRole, toMemberRole(member.role))
     assertCanManageRole(callerRole, toMemberRole(newRole))
-
     if (member.role === 'OWNER') {
       const ownerCount = await this.memberRepo.countByRole(
         organizationId,
@@ -60,7 +57,6 @@ export class UpdateMemberRole {
       )
       if (ownerCount <= 1) throw new LastOwnerError()
     }
-
     return this.memberRepo.updateRole(id, organizationId, newRole)
   }
 }

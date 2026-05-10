@@ -62,7 +62,6 @@ export function NotificationItem({
 }: NotificationItemProps) {
   const Icon = ICON_MAP[notification.type] ?? Bell
   const iconColor = COLOR_MAP[notification.type] ?? 'text-muted-foreground'
-
   return (
     <button
       type="button"

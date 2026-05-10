@@ -23,9 +23,6 @@ export class WebChatBroker implements Broker {
   }
 
   async sendMessage(_payload: MessagePayload): Promise<MessageResult> {
-    // WebChatBroker is stateless — no external API call needed.
-    // Message is already saved by send-message-processor.
-    // Delivery to visitor happens via Redis pub/sub → Socket.IO /widget namespace.
     return {
       externalId: `webchat-${Date.now()}`,
       status: 'SENT',

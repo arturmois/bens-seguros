@@ -1,4 +1,3 @@
-/** Minimal logger interface compatible with both Pino Logger and FastifyBaseLogger */
 export interface AppLogger {
   info(msg: string): void
   info(obj: Record<string, unknown>, msg: string): void

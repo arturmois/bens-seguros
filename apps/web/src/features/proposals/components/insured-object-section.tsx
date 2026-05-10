@@ -25,11 +25,9 @@ interface InsuredObjectSectionProps {
 
 export function InsuredObjectSection({ proposal }: InsuredObjectSectionProps) {
   const updateMutation = useUpdateProposalDetails()
-
   if (proposal.stage === 'CAPTURE') {
     return null
   }
-
   function handleSubmit(data: {
     details: InsuredObjectDetails
     premiumValueInCents: number
@@ -42,7 +40,6 @@ export function InsuredObjectSection({ proposal }: InsuredObjectSectionProps) {
       commissionBasisPoints: data.commissionBasisPoints,
     })
   }
-
   return (
     <>
       <Separator />

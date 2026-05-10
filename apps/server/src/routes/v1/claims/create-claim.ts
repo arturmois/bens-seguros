@@ -29,8 +29,6 @@ export function createClaimRoute(app: FastifyInstance) {
           organizationId: request.organizationId!,
           ...request.body,
         })
-
-        // Notify ADMIN + MANAGER about new claim
         const managers = await prisma.member.findMany({
           where: {
             organizationId: request.organizationId!,
@@ -69,7 +67,6 @@ export function createClaimRoute(app: FastifyInstance) {
             request.log.error({ err }, 'Failed to enqueue claim notifications')
           })
         }
-
         auditCreate({
           request,
           entityType: 'Claim',

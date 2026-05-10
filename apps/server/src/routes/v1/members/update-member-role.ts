@@ -40,13 +40,11 @@ export function updateMemberRoleRoute(app: FastifyInstance) {
         const organizationId = request.organizationId!
         const callerRole = request.role! as Role
         const callerUserId = request.user!.id
-
         const updateMemberRole = container.resolve(UpdateMemberRole)
         const before = await prisma.member.findFirst({
           where: { id, organizationId, active: true },
           select: { role: true },
         })
-
         const updated = await updateMemberRole.execute({
           id,
           organizationId,
@@ -54,7 +52,6 @@ export function updateMemberRoleRoute(app: FastifyInstance) {
           callerRole,
           newRole,
         })
-
         auditUpdate({
           request,
           entityType: 'Member',
@@ -62,12 +59,10 @@ export function updateMemberRoleRoute(app: FastifyInstance) {
           before: { role: before?.role },
           after: { role: newRole },
         })
-
         const cacheService = resolveCache()
         if (cacheService) {
           await cacheService.delete(`cache:${organizationId}:members`)
         }
-
         return reply.send({ success: true, data: updated })
       } catch (error) {
         return handleDomainError(error, reply)

@@ -29,7 +29,6 @@ export function ProposalsTable() {
     lostDialogProposalId,
     setLostDialogProposalId,
   } = useProposalsTable()
-
   if (isError) {
     return (
       <TableErrorState
@@ -38,7 +37,6 @@ export function ProposalsTable() {
       />
     )
   }
-
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <DataTable
@@ -50,7 +48,6 @@ export function ProposalsTable() {
         columnVisibility={columnVisibility}
         onRowClick={(proposal) => router.push(`/proposals/${proposal.id}`)}
       />
-
       <MobileCardList
         data={proposals}
         keyExtractor={(proposal) => proposal.id}
@@ -67,7 +64,6 @@ export function ProposalsTable() {
           />
         )}
       />
-
       <CursorPagination
         total={knownTotal}
         pageSize={pagination.pageSize}
@@ -80,7 +76,6 @@ export function ProposalsTable() {
           if (nextCursor) pagination.goToNext(nextCursor)
         }}
       />
-
       <LostReasonDialog
         proposalId={lostDialogProposalId}
         onClose={() => setLostDialogProposalId(null)}

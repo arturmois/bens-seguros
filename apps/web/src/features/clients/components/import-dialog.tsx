@@ -47,14 +47,11 @@ export function ImportDialog({ open, onOpenChange }: ImportDialogProps) {
   const [step, setStep] = useState<ImportStep>('upload')
   const [preview, setPreview] = useState<ImportPreviewResponse | null>(null)
   const [jobId, setJobId] = useState('')
-
   const uploadCsv = useUploadCsv()
   const confirmImport = useConfirmImport()
   const importStatus = useImportStatus(jobId, step === 'processing')
-
   const uploadReset = uploadCsv.reset
   const confirmReset = confirmImport.reset
-
   useEffect(() => {
     if (!open) {
       setStep('upload')
@@ -64,17 +61,14 @@ export function ImportDialog({ open, onOpenChange }: ImportDialogProps) {
       confirmReset()
     }
   }, [open, uploadReset, confirmReset])
-
   useEffect(() => {
     if (step !== 'processing') return
     if (!importStatus.data) return
-
     const { status } = importStatus.data
     if (status === 'completed' || status === 'failed') {
       setStep('results')
     }
   }, [step, importStatus.data])
-
   const handleFileSelect = useCallback(
     (file: File) => {
       uploadCsv.mutate(file, {
@@ -87,7 +81,6 @@ export function ImportDialog({ open, onOpenChange }: ImportDialogProps) {
     },
     [uploadCsv]
   )
-
   const handleConfirm = useCallback(() => {
     confirmImport.mutate(jobId, {
       onSuccess: () => {
@@ -95,19 +88,15 @@ export function ImportDialog({ open, onOpenChange }: ImportDialogProps) {
       },
     })
   }, [confirmImport, jobId])
-
   const handleCancel = useCallback(() => {
     setStep('upload')
     setPreview(null)
     setJobId('')
   }, [])
-
   const handleClose = useCallback(() => {
     onOpenChange(false)
   }, [onOpenChange])
-
   const isClosable = step === 'upload' || step === 'results'
-
   return (
     <Dialog open={open} onOpenChange={isClosable ? onOpenChange : undefined}>
       <DialogContent className="sm:max-w-lg" showCloseButton={isClosable}>
@@ -115,7 +104,6 @@ export function ImportDialog({ open, onOpenChange }: ImportDialogProps) {
           <DialogTitle>{STEP_TITLES[step]}</DialogTitle>
           <DialogDescription>{STEP_DESCRIPTIONS[step]}</DialogDescription>
         </DialogHeader>
-
         <DialogPanel>
           {step === 'upload' && (
             <ImportStepUpload
@@ -123,7 +111,6 @@ export function ImportDialog({ open, onOpenChange }: ImportDialogProps) {
               isUploading={uploadCsv.isPending}
             />
           )}
-
           {step === 'preview' && preview && (
             <ImportStepPreview
               preview={preview}
@@ -132,11 +119,9 @@ export function ImportDialog({ open, onOpenChange }: ImportDialogProps) {
               isConfirming={confirmImport.isPending}
             />
           )}
-
           {step === 'processing' && (
             <ImportStepProcessing status={importStatus.data} />
           )}
-
           {step === 'results' && importStatus.data && (
             <ImportStepResults
               status={importStatus.data}

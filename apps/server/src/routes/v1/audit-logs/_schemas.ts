@@ -15,8 +15,6 @@ export const listAuditLogsQuerySchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(30),
 })
 
-// --- Response schemas ---
-
 const auditLogSchema = z.object({
   id: z.string(),
   organizationId: z.string(),

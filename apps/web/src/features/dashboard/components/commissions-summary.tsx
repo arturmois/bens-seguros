@@ -45,13 +45,11 @@ export function CommissionsSummary({
       </Card>
     )
   }
-
   const grouped = {
     pending: 0,
     approved: 0,
     paid: 0,
   }
-
   for (const item of data ?? []) {
     const group = STATUS_GROUPS[item.status]
     if (group) {
@@ -59,13 +57,11 @@ export function CommissionsSummary({
       grouped[key] += item._sum.commissionValueInCents ?? 0
     }
   }
-
   const chartData = [
     { name: 'Pendentes', value: grouped.pending / 100 },
     { name: 'Aprovadas', value: grouped.approved / 100 },
     { name: 'Pagas', value: grouped.paid / 100 },
   ]
-
   return (
     <Card>
       <CardHeader>

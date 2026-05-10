@@ -9,8 +9,6 @@ import { markAsReadRoute } from './mark-as-read.js'
 
 export async function notificationRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
-
-  // Static paths must be registered before parametric paths
   getUnreadCountRoute(app)
   getAlertCountsRoute(app)
   markAllAsReadRoute(app)

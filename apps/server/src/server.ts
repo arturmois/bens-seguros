@@ -18,11 +18,8 @@ if (env.SENTRY_DSN) {
 
 const start = async () => {
   const app = await buildApp()
-
   const port = env.PORT ?? 3001
   const host = env.HOST
-
-  // Verify RLS is enabled and forced on tenant-scoped tables (AA-001)
   const [rlsCheck] = await prisma.$queryRaw<[{ count: bigint }]>`
     SELECT count(*) FROM pg_class
     WHERE relname = 'Client'
@@ -35,10 +32,8 @@ const start = async () => {
     )
     process.exit(1)
   }
-
   await app.listen({ port, host })
   app.log.info(`Server running on http://${host}:${port}`)
-
   const shutdown = async () => {
     app.log.info('Shutting down server...')
     await app.close()
@@ -48,7 +43,6 @@ const start = async () => {
     app.log.info('Server shut down')
     process.exit(0)
   }
-
   process.on('SIGTERM', () => void shutdown())
   process.on('SIGINT', () => void shutdown())
 }

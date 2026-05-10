@@ -28,7 +28,6 @@ export async function generateWithTools(
     maxTokens: options.maxTokens ?? 500,
     temperature: options.temperature ?? 0.7,
   })
-
   const toolResults: ReadonlyArray<{ toolName: string; result: unknown }> =
     result.steps
       .flatMap((step) => {
@@ -39,7 +38,6 @@ export async function generateWithTools(
         toolName: entry.toolName,
         result: entry.result,
       }))
-
   return {
     text: result.text,
     toolResults,

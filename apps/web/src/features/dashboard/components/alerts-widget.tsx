@@ -59,7 +59,6 @@ const ALERT_ROWS: readonly AlertRow[] = [
 
 export function AlertsWidget() {
   const { data: alertCounts, isLoading, isError, refetch } = useAlertCounts()
-
   if (isLoading) {
     return (
       <Card>
@@ -76,7 +75,6 @@ export function AlertsWidget() {
       </Card>
     )
   }
-
   if (isError) {
     return (
       <Card>
@@ -97,7 +95,6 @@ export function AlertsWidget() {
       </Card>
     )
   }
-
   const counts = alertCounts ?? {
     Policy: 0,
     Claim: 0,
@@ -105,7 +102,6 @@ export function AlertsWidget() {
     Proposal: 0,
   }
   const totalAlerts = Object.values(counts).reduce((sum, c) => sum + c, 0)
-
   if (totalAlerts === 0) {
     return (
       <Card>
@@ -123,11 +119,9 @@ export function AlertsWidget() {
       </Card>
     )
   }
-
   const activeRows = ALERT_ROWS.filter(
     (row) => (counts[row.entityType] ?? 0) > 0
   )
-
   return (
     <Card>
       <CardHeader>

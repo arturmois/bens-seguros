@@ -32,7 +32,6 @@ import { useKanbanDnd } from './use-kanban-dnd'
 
 interface ProposalKanbanProps {
   readonly allowedBoardTypes?: readonly BoardType[]
-  /** Forces a board type regardless of URL state. Used by /endorsements. */
   readonly boardTypeOverride?: BoardType
 }
 
@@ -45,7 +44,6 @@ export function ProposalKanban({
   boardTypeOverride,
 }: ProposalKanbanProps) {
   const filters = useProposalsFilters()
-
   const [selectedProposal, setSelectedProposal] = useState<ProposalData | null>(
     null
   )
@@ -53,27 +51,21 @@ export function ProposalKanban({
   const [issuePolicyProposalId, setIssuePolicyProposalId] = useState<
     string | null
   >(null)
-
   const debouncedSearch = useDebounce(filters.apiParams.search, 300)
   const queryClient = useQueryClient()
-
   const effectiveBoardType: BoardType =
     boardTypeOverride ?? allowedBoardTypes[0] ?? 'NEW_INSURANCE'
-
   const baseStages =
     effectiveBoardType === 'ENDORSEMENT' ? ENDORSEMENT_STAGES : KANBAN_STAGES
-
   const stageInRaw = filters.values.stageIn
   const stageInTyped: readonly ProposalStage[] | undefined = Array.isArray(
     stageInRaw
   )
     ? stageInRaw.filter(isProposalStage)
     : undefined
-
   const visibleStages: readonly ProposalStage[] = stageInTyped?.length
     ? baseStages.filter((s) => stageInTyped.includes(s))
     : baseStages
-
   const kanbanFilters: KanbanFilters = {
     boardType: effectiveBoardType,
     search: debouncedSearch || undefined,
@@ -84,7 +76,6 @@ export function ProposalKanban({
     updatedAtFrom: filters.apiParams.updatedAtFrom,
     updatedAtTo: filters.apiParams.updatedAtTo,
   }
-
   const {
     activeProposal,
     handleDragStart,
@@ -96,13 +87,11 @@ export function ProposalKanban({
     onPolicyIssue: setIssuePolicyProposalId,
     onLostDrop: setLostProposalId,
   })
-
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
     })
   )
-
   return (
     <div className="space-y-4">
       <DndContext
@@ -125,7 +114,6 @@ export function ProposalKanban({
             />
           ))}
         </div>
-
         <DragOverlay>
           {activeProposal ? (
             <div className="rotate-2 opacity-90">
@@ -134,7 +122,6 @@ export function ProposalKanban({
           ) : null}
         </DragOverlay>
       </DndContext>
-
       <KanbanCardDetail
         proposal={selectedProposal}
         onClose={() => setSelectedProposal(null)}
@@ -151,12 +138,10 @@ export function ProposalKanban({
           }
         }}
       />
-
       <LostReasonDialog
         proposalId={lostProposalId}
         onClose={() => setLostProposalId(null)}
       />
-
       {issuePolicyProposalId && (
         <IssuePolicyDialog
           proposalId={issuePolicyProposalId}

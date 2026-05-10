@@ -32,26 +32,21 @@ export function PercentageInput({
   const maxPercent = max / 100
   const [display, setDisplay] = useState(() => basisToDisplay(value))
   const lastExternalValue = useRef(value)
-
-  // Sync display when external value changes (e.g. form reset)
   if (value !== lastExternalValue.current) {
     lastExternalValue.current = value
     setDisplay(basisToDisplay(value))
   }
-
   const handleInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const raw = e.target.value
       const formatted = formatPercentInput(raw, maxPercent)
       setDisplay(formatted)
-
       const basis = parsePercentToBasis(formatted, max)
       lastExternalValue.current = basis
       onChange(basis)
     },
     [onChange, max, maxPercent]
   )
-
   const handlePaste = useCallback(
     (e: React.ClipboardEvent<HTMLInputElement>) => {
       e.preventDefault()
@@ -59,14 +54,12 @@ export function PercentageInput({
       const cleaned = cleanPastedPercent(pasted)
       const formatted = formatPercentInput(cleaned, maxPercent)
       setDisplay(formatted)
-
       const basis = parsePercentToBasis(formatted, max)
       lastExternalValue.current = basis
       onChange(basis)
     },
     [onChange, max, maxPercent]
   )
-
   const handleBlur = useCallback(() => {
     if (!display) return
     const basis = parsePercentToBasis(display, max)
@@ -76,7 +69,6 @@ export function PercentageInput({
     }
     setDisplay(basisToDisplay(basis))
   }, [display, max])
-
   return (
     <div className="relative">
       <Input

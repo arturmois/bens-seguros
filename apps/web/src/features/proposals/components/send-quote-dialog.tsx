@@ -38,12 +38,10 @@ export function SendQuoteDialog({
 }: SendQuoteDialogProps) {
   const [open, setOpen] = useState(false)
   const isResend = Boolean(sentToClientAt)
-
   function handleSend() {
     onSend()
     setOpen(false)
   }
-
   return (
     <>
       <Button
@@ -58,7 +56,6 @@ export function SendQuoteDialog({
         )}
         {isResend ? 'Reenviar Cotação' : 'Enviar Cotação'}
       </Button>
-
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

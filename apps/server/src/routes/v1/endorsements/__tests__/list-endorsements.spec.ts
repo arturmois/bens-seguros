@@ -50,12 +50,10 @@ describe('GET /api/v1/endorsements', () => {
       items: [makeEndorsement()],
       nextCursor: null,
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/endorsements',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -63,63 +61,52 @@ describe('GET /api/v1/endorsements', () => {
     expect(body.data[0].type).toBe('COVERAGE_CHANGE')
     expect(body.meta.nextCursor).toBeNull()
   })
-
   it('returns 200 with empty list when no endorsements exist', async () => {
     mockExecute.mockResolvedValue({ items: [], nextCursor: null })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/endorsements',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data).toHaveLength(0)
     expect(body.meta.nextCursor).toBeNull()
   })
-
   it('returns 200 with nextCursor when more pages exist', async () => {
     mockExecute.mockResolvedValue({
       items: [makeEndorsement(), makeEndorsement({ id: 'endorsement-id-002' })],
       nextCursor: 'endorsement-id-002',
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/endorsements',
       query: { limit: '2' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.meta.nextCursor).toBe('endorsement-id-002')
   })
-
   it('returns 200 with filtered results when policyId is provided', async () => {
     mockExecute.mockResolvedValue({
       items: [makeEndorsement()],
       nextCursor: null,
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/endorsements',
       query: { policyId: 'policy-id-001' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data[0].policyId).toBe('policy-id-001')
   })
-
   it('returns 400 when limit is out of range', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/endorsements',
       query: { limit: '0' },
     })
-
     expect(response.statusCode).toBe(400)
   })
 })

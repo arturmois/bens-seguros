@@ -40,7 +40,6 @@ export function BrokerRanking({
   visible,
 }: BrokerRankingProps): React.ReactElement | null {
   if (!visible) return null
-
   if (isLoading) {
     return (
       <Card>
@@ -55,7 +54,6 @@ export function BrokerRanking({
       </Card>
     )
   }
-
   if (!ranking || ranking.length === 0) {
     return (
       <Card>
@@ -68,7 +66,6 @@ export function BrokerRanking({
       </Card>
     )
   }
-
   return (
     <Card>
       <RankingHeader />

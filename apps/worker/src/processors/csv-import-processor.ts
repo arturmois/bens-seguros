@@ -36,7 +36,6 @@ function extractClientRow(raw: Record<string, unknown>) {
   const tags = raw['Tags'] ? String(raw['Tags']).split(';').filter(Boolean) : []
   const birthDateRaw = raw['Data Nascimento']
   const birthDate = birthDateRaw ? new Date(String(birthDateRaw)) : null
-
   return {
     nome: String(raw['Nome'] ?? ''),
     cpfCnpj: String(raw['CPF/CNPJ'] ?? ''),
@@ -60,7 +59,6 @@ function extractClientRow(raw: Record<string, unknown>) {
 function extractPolicyRow(raw: Record<string, unknown>) {
   const ramo = String(raw['Ramo'] ?? 'OTHER')
   const status = String(raw['Status'] ?? 'ACTIVE')
-
   return {
     numeroApolice: String(raw['Numero Apolice'] ?? ''),
     cpfCnpjCliente: String(raw['CPF/CNPJ Cliente'] ?? ''),
@@ -91,7 +89,6 @@ async function processClientBatch(
   batchStartIndex: number
 ): Promise<void> {
   const encryptionKey = getEncryptionKey()
-
   for (let i = 0; i < batch.length; i++) {
     const raw = batch[i]
     if (!raw) continue
@@ -100,13 +97,11 @@ async function processClientBatch(
     const hash = hashDocument(rawDocument)
     const masked = maskDocument(rawDocument)
     const encrypted = encrypt(rawDocument, encryptionKey)
-
     try {
       const existing = await prismaAdmin.client.findFirst({
         where: { organizationId, documentHash: hash, deletedAt: null },
         select: { id: true },
       })
-
       const client =
         existing ??
         (await prismaAdmin.client.create({
@@ -126,14 +121,12 @@ async function processClientBatch(
           },
           select: { id: true },
         }))
-
       const contactExists =
         existing &&
         (await prismaAdmin.contact.findFirst({
           where: { organizationId, clientId: client.id, deletedAt: null },
           select: { id: true },
         }))
-
       if (!contactExists) {
         await prismaAdmin.contact.create({
           data: {
@@ -150,7 +143,6 @@ async function processClientBatch(
           },
         })
       }
-
       if (existing) {
         progress.skipped += 1
       } else {
@@ -181,9 +173,7 @@ async function processPolicyBatch(
     const raw = batch[i]
     if (!raw) continue
     const row = extractPolicyRow(raw)
-
     try {
-      // Look up client by documentHash (document column stores masked value)
       const clientHash = hashDocument(row.cpfCnpjCliente)
       const client = await prismaAdmin.client.findFirst({
         where: {
@@ -193,7 +183,6 @@ async function processPolicyBatch(
         },
         select: { id: true },
       })
-
       if (!client) {
         progress.failed += 1
         if (progress.errors.length < MAX_IMPORT_ERRORS) {
@@ -204,8 +193,6 @@ async function processPolicyBatch(
         }
         continue
       }
-
-      // Check for duplicate policyNumber
       const existing = await prismaAdmin.policy.findFirst({
         where: {
           organizationId,
@@ -213,20 +200,16 @@ async function processPolicyBatch(
         },
         select: { id: true },
       })
-
       if (existing) {
         progress.skipped += 1
         continue
       }
-
       const premiumInCents = Math.round(row.premioReais * 100)
-
       const contact = await prismaAdmin.contact.findFirst({
         where: { organizationId, clientId: client.id, deletedAt: null },
         orderBy: { createdAt: 'asc' },
         select: { id: true },
       })
-
       if (!contact) {
         progress.failed += 1
         if (progress.errors.length < MAX_IMPORT_ERRORS) {
@@ -237,7 +220,6 @@ async function processPolicyBatch(
         }
         continue
       }
-
       const proposal = await prismaAdmin.proposal.create({
         data: {
           organizationId,
@@ -250,7 +232,6 @@ async function processPolicyBatch(
           commissionPercentageInCents: 0,
         },
       })
-
       await prismaAdmin.policy.create({
         data: {
           organizationId,
@@ -265,7 +246,6 @@ async function processPolicyBatch(
           endDate: row.fimVigencia,
         },
       })
-
       progress.created += 1
     } catch (err: unknown) {
       progress.failed += 1
@@ -283,7 +263,6 @@ async function processPolicyBatch(
 
 export function setupCsvImportProcessor(connection: ConnectionOptions) {
   const queue = new Queue<CsvImportJobData>(QUEUE_NAME, { connection })
-
   const worker = new Worker<CsvImportJobData>(
     QUEUE_NAME,
     async (job: Job<CsvImportJobData>) => {
@@ -296,20 +275,16 @@ export function setupCsvImportProcessor(connection: ConnectionOptions) {
         total: totalRows,
         errors: [],
       }
-
       for (let i = 0; i < rows.length; i += IMPORT_BATCH_SIZE) {
         const batch = rows.slice(i, i + IMPORT_BATCH_SIZE)
-
         if (entityType === 'client') {
           await processClientBatch(batch, organizationId, userId, progress, i)
         } else {
           await processPolicyBatch(batch, organizationId, userId, progress, i)
         }
-
         progress.processed += batch.length
         await job.updateProgress(progress)
       }
-
       return progress
     },
     {
@@ -319,14 +294,11 @@ export function setupCsvImportProcessor(connection: ConnectionOptions) {
       removeOnFail: { age: 86_400 },
     }
   )
-
   worker.on('failed', (job, err) => {
     logger.error({ jobId: job?.id, err }, 'CSV import job failed')
   })
-
   worker.on('completed', (job) => {
     logger.info({ jobId: job.id }, 'CSV import job completed')
   })
-
   return { queue, worker }
 }

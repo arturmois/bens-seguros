@@ -34,38 +34,30 @@ beforeEach(() => {
 describe('DELETE /api/v1/claims/:id', () => {
   it('returns 204 on successful deletion', async () => {
     mockExecute.mockResolvedValue(undefined)
-
     const response = await injectAs(app, {
       method: 'DELETE',
       url: '/api/v1/claims/claim-id-001',
       headers: { 'content-type': 'text/plain' },
     })
-
     expect(response.statusCode).toBe(204)
     expect(response.body).toBe('')
   })
-
   it('calls use case with correct id and organizationId', async () => {
     mockExecute.mockResolvedValue(undefined)
-
     await injectAs(app, {
       method: 'DELETE',
       url: '/api/v1/claims/claim-id-001',
       headers: { 'content-type': 'text/plain' },
     })
-
     expect(mockExecute).toHaveBeenCalledWith('claim-id-001', expect.any(String))
   })
-
   it('returns 404 when claim does not exist', async () => {
     mockResolveError('CLAIM_NOT_FOUND', 'Claim not found')
-
     const response = await injectAs(app, {
       method: 'DELETE',
       url: '/api/v1/claims/nonexistent-id',
       headers: { 'content-type': 'text/plain' },
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.success).toBe(false)

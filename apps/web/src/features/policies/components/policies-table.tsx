@@ -33,14 +33,11 @@ export function PoliciesTable() {
   const filters = usePoliciesFilters()
   const { activeOrg } = useOrgs()
   const role = activeOrg?.role ?? 'VIEWER'
-
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
   const [cancelTarget, setCancelTarget] = useState<PolicyData | null>(null)
-
   const debouncedSearch = useDebounce(filters.search, 300)
-
   const apiParams = useMemo(
     () => ({
       ...filters.apiParams,
@@ -48,18 +45,15 @@ export function PoliciesTable() {
     }),
     [filters.apiParams, debouncedSearch]
   )
-
   const { data, isLoading, isError, refetch } = usePolicies({
     ...apiParams,
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,
   })
-
   const policies: PolicyData[] = data?.data ?? []
   const nextCursor = data?.meta?.nextCursor ?? null
   const knownTotal =
     (pagination.currentPage - 1) * pagination.pageSize + policies.length
-
   const columnActions = useMemo(
     () => ({
       onView: (id: string) => router.push(`/policies/${id}`),
@@ -67,12 +61,10 @@ export function PoliciesTable() {
     }),
     [router]
   )
-
   const columns = useMemo(
     () => createPolicyColumns(columnActions, role),
     [columnActions, role]
   )
-
   const table = useReactTable({
     data: policies,
     columns,
@@ -82,32 +74,26 @@ export function PoliciesTable() {
     manualPagination: true,
     manualFiltering: true,
   })
-
   function handleSearchChange(value: string) {
     filters.setSearch(value)
     pagination.reset()
   }
-
   function handleFilterChange(key: string, value: FilterValue) {
     filters.setFilter(key, value)
     pagination.reset()
   }
-
   function handleClearAll() {
     filters.clearAll()
     pagination.reset()
   }
-
   function handleColumnToggle(id: string, visible: boolean) {
     setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
-
   if (isError) {
     return (
       <TableErrorState message="Erro ao carregar apólices." onRetry={refetch} />
     )
   }
-
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <UnifiedFilterBar
@@ -124,7 +110,6 @@ export function PoliciesTable() {
       >
         <PolicyExportButton filters={apiParams} />
       </UnifiedFilterBar>
-
       <DataTable
         table={table}
         isLoading={isLoading}
@@ -134,7 +119,6 @@ export function PoliciesTable() {
         columnVisibility={columnVisibility}
         onRowClick={(policy) => router.push(`/policies/${policy.id}`)}
       />
-
       <MobileCardList
         data={policies}
         keyExtractor={(p) => p.id}
@@ -144,7 +128,6 @@ export function PoliciesTable() {
         emptyDescription="As apólices serão criadas a partir de propostas aprovadas."
         renderCard={(policy) => <PolicyCard policy={policy} />}
       />
-
       <CursorPagination
         total={knownTotal}
         pageSize={pagination.pageSize}
@@ -157,7 +140,6 @@ export function PoliciesTable() {
           if (nextCursor) pagination.goToNext(nextCursor)
         }}
       />
-
       <CancelPolicyDialog
         policy={cancelTarget}
         onClose={() => setCancelTarget(null)}

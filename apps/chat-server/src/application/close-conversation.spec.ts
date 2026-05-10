@@ -1,4 +1,3 @@
-// apps/chat-server/src/application/close-conversation.spec.ts
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { InvalidConversationTransitionError } from '../domain/errors.js'
 import type { ConversationRepository } from '../domain/ports/conversation-repository.js'
@@ -65,19 +64,15 @@ const BASE_INPUT = {
 describe('CloseConversation', () => {
   let conversationRepo: ConversationRepository
   let messageRepo: MessageRepository
-
   beforeEach(() => {
     vi.clearAllMocks()
   })
-
   it('closes conversation via atomicTransition from valid states', async () => {
     const closed = makeConversationData({ status: 'CLOSED' })
     conversationRepo = createMockConversationRepo(closed)
     messageRepo = createMockMessageRepo()
     const useCase = new CloseConversation(conversationRepo, messageRepo)
-
     const result = await useCase.execute(BASE_INPUT)
-
     expect(result.status).toBe('CLOSED')
     expect(conversationRepo.atomicTransition).toHaveBeenCalledWith(
       'conv-1',
@@ -87,16 +82,13 @@ describe('CloseConversation', () => {
       { closedAt: expect.any(Date), closedBy: 'agent-1' }
     )
   })
-
   it('creates system message after closing', async () => {
     conversationRepo = createMockConversationRepo(
       makeConversationData({ status: 'CLOSED' })
     )
     messageRepo = createMockMessageRepo()
     const useCase = new CloseConversation(conversationRepo, messageRepo)
-
     await useCase.execute(BASE_INPUT)
-
     expect(messageRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({
         conversationId: 'conv-1',
@@ -108,12 +100,10 @@ describe('CloseConversation', () => {
       })
     )
   })
-
   it('throws when atomicTransition returns null (already closed or concurrent change)', async () => {
     conversationRepo = createMockConversationRepo(null)
     messageRepo = createMockMessageRepo()
     const useCase = new CloseConversation(conversationRepo, messageRepo)
-
     await expect(useCase.execute(BASE_INPUT)).rejects.toThrow(
       InvalidConversationTransitionError
     )

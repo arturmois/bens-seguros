@@ -17,7 +17,6 @@ export function Card({
     ),
     'data-slot': 'card',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -37,7 +36,6 @@ export function CardFrame({
     ),
     'data-slot': 'card-frame',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -57,7 +55,6 @@ export function CardFrameHeader({
     ),
     'data-slot': 'card-frame-header',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -74,7 +71,6 @@ export function CardFrameTitle({
     className: cn('self-center font-semibold text-sm', className),
     'data-slot': 'card-frame-title',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -91,7 +87,6 @@ export function CardFrameDescription({
     className: cn('self-center text-muted-foreground text-sm', className),
     'data-slot': 'card-frame-description',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -111,7 +106,6 @@ export function CardFrameAction({
     ),
     'data-slot': 'card-frame-action',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -128,7 +122,6 @@ export function CardFrameFooter({
     className: cn('px-6 py-4', className),
     'data-slot': 'card-frame-footer',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -148,7 +141,6 @@ export function CardHeader({
     ),
     'data-slot': 'card-header',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -165,7 +157,6 @@ export function CardTitle({
     className: cn('font-semibold text-lg leading-none', className),
     'data-slot': 'card-title',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -182,7 +173,6 @@ export function CardDescription({
     className: cn('text-muted-foreground text-sm', className),
     'data-slot': 'card-description',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -202,7 +192,6 @@ export function CardAction({
     ),
     'data-slot': 'card-action',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -222,7 +211,6 @@ export function CardPanel({
     ),
     'data-slot': 'card-panel',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -242,7 +230,6 @@ export function CardFooter({
     ),
     'data-slot': 'card-footer',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),

@@ -27,7 +27,6 @@ export class R2StorageProvider implements StorageProvider {
         'R2 credentials are required: R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY'
       )
     }
-
     this.bucket = env.R2_BUCKET_NAME
     this.client = new S3Client({
       region: 'auto',
@@ -52,7 +51,6 @@ export class R2StorageProvider implements StorageProvider {
         ContentType: contentType,
       })
     )
-
     return { storageKey: key }
   }
 
@@ -61,7 +59,6 @@ export class R2StorageProvider implements StorageProvider {
       Bucket: this.bucket,
       Key: key,
     })
-
     return getSignedUrl(this.client, command, {
       expiresIn: expiresIn ?? DEFAULT_SIGNED_URL_EXPIRY,
     })

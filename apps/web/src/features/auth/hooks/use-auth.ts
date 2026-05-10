@@ -12,25 +12,21 @@ import { clearChatToken } from '@/features/chat/lib/chat-api'
 
 async function fetchSession() {
   const response = await authClient.getSession()
-
   if (response.error) {
     return null
   }
-
   return response.data
 }
 
 export function useAuth() {
   const router = useRouter()
   const queryClient = useQueryClient()
-
   const session = useQuery({
     queryKey: ['auth', 'session'],
     queryFn: fetchSession,
     retry: false,
     staleTime: 30_000,
   })
-
   const login = useMutation({
     mutationFn: async ({
       email,
@@ -53,15 +49,11 @@ export function useAuth() {
     },
     onSuccess: async (response) => {
       if (!response) return
-
       const invitationId = response.invitationId
-
       if (invitationId) {
         await handleInvitationAfterLogin(invitationId)
         return
       }
-
-      // Try to restore last active org from cookie (survives logout)
       const lastOrgId = getActiveOrgCookie()
       if (lastOrgId) {
         const res = await authClient.organization.setActive({
@@ -73,15 +65,12 @@ export function useAuth() {
           router.push('/dashboard')
           return
         }
-        // Org no longer valid for this user — clear stale cookie
         clearActiveOrgCookie()
       }
-
       await queryClient.invalidateQueries({ queryKey: ['auth'] })
       router.push('/select-org')
     },
   })
-
   const register = useMutation({
     mutationFn: async ({
       email,
@@ -101,8 +90,6 @@ export function useAuth() {
       return { email, invitationId }
     },
     onSuccess: (response) => {
-      // With requireEmailVerification, Better Auth does NOT create a session
-      // on signup. sendOnSignUp: true sends the verification email automatically.
       const params = new URLSearchParams({ email: response.email })
       if (response.invitationId) {
         params.set('invitationId', response.invitationId)
@@ -110,7 +97,6 @@ export function useAuth() {
       router.push(`/verify-email?${params.toString()}`)
     },
   })
-
   const logout = useMutation({
     mutationFn: () => authClient.signOut(),
     onSuccess: () => {
@@ -120,13 +106,11 @@ export function useAuth() {
       router.push('/login')
     },
   })
-
   async function handleInvitationAfterLogin(invitationId: string) {
     try {
       const res = await authClient.organization.acceptInvitation({
         invitationId,
       })
-
       if (!res.error) {
         const member = res.data
         const orgId =
@@ -136,7 +120,6 @@ export function useAuth() {
           typeof member.organizationId === 'string'
             ? member.organizationId
             : null
-
         if (orgId) {
           await authClient.organization.setActive({ organizationId: orgId })
           setActiveOrgCookie(orgId)
@@ -146,11 +129,9 @@ export function useAuth() {
       // Invitation acceptance failed — continue with normal flow.
       // The user can still access the accept-invitation page separately.
     }
-
     queryClient.invalidateQueries({ queryKey: ['auth'] })
     router.push('/dashboard')
   }
-
   return {
     user: session.data?.user ?? null,
     session: session.data?.session ?? null,

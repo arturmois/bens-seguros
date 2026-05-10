@@ -33,11 +33,9 @@ export function generateProposalPdfRoute(app: FastifyInstance) {
         request.query !== null &&
         'force' in request.query &&
         (request.query as Record<string, unknown>)['force'] === 'true'
-
       const documentRepo =
         container.resolve<DocumentRepository>('DocumentRepository')
       const storage = container.resolve<StorageProvider>('StorageProvider')
-
       if (!forceRegenerate) {
         const existing = await documentRepo.findByEntity(
           'PROPOSAL',
@@ -52,7 +50,6 @@ export function generateProposalPdfRoute(app: FastifyInstance) {
           return reply.send({ success: true, data: { url, cached: true } })
         }
       }
-
       const getProposalUseCase = container.resolve(GetProposal)
       let proposal
       try {
@@ -60,12 +57,10 @@ export function generateProposalPdfRoute(app: FastifyInstance) {
       } catch (error) {
         return handleDomainError(error, reply)
       }
-
       const org = await prisma.organization.findUnique({
         where: { id: organizationId },
         select: { id: true, name: true, logo: true },
       })
-
       if (!org) {
         return reply.status(404).send({
           success: false,
@@ -75,18 +70,15 @@ export function generateProposalPdfRoute(app: FastifyInstance) {
           },
         })
       }
-
       let logoUrl: string | null = null
       if (org.logo) {
         logoUrl = await storage.getSignedUrl(org.logo)
       }
-
       const organizationData = {
         id: org.id,
         name: org.name,
         logo: logoUrl,
       }
-
       const buffer = Buffer.from(
         await renderToBuffer(
           ProposalQuotePdf({
@@ -95,10 +87,8 @@ export function generateProposalPdfRoute(app: FastifyInstance) {
           })
         )
       )
-
       const storageKey = `organizations/${organizationId}/proposals/${id}/cotacao.pdf`
       await storage.upload(storageKey, buffer, 'application/pdf')
-
       await documentRepo.upsertByStorageKey({
         organizationId,
         entityType: 'PROPOSAL',
@@ -110,7 +100,6 @@ export function generateProposalPdfRoute(app: FastifyInstance) {
         storageKey,
         createdBy: request.user!.id,
       })
-
       const url = await storage.getSignedUrl(storageKey)
       return reply.send({ success: true, data: { url, cached: false } })
     },

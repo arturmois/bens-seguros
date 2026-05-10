@@ -33,30 +33,24 @@ export function createPairChannelProcessor(
     job: Job<PairChannelJobData>
   ): Promise<void> {
     const { channelId, tenantId, phoneNumber } = job.data
-
     logger.info(
       { channelId, tenantId, phoneNumber },
       'Processing pair-channel job'
     )
-
     const channel = await Channel.findOne({ _id: channelId, tenantId })
       .lean()
       .exec()
-
     if (!channel) {
       throw new UnrecoverableError(
         `Channel not found: channelId=${channelId} tenantId=${tenantId}`
       )
     }
-
     if (channel.brokerType !== 'BAILEYS') {
       throw new UnrecoverableError(
         `Channel ${channelId} is not a Baileys channel (type=${String(channel.brokerType)})`
       )
     }
-
     const events = buildEvents(channelId, tenantId)
-
     try {
       const code = await manager.connectChannelWithPairingCode(
         channelId,
@@ -64,38 +58,32 @@ export function createPairChannelProcessor(
         phoneNumber,
         events
       )
-
       const result: PairingCodeResult = {
         channelId,
         tenantId,
         success: true,
         code,
       }
-
       await pubsubRedis.publish(
         CHAT_PUBSUB_CHANNELS.PAIRING_CODE_RESULT,
         JSON.stringify(result)
       )
-
       logger.info(
         { channelId, tenantId },
         'Pairing code generated successfully'
       )
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error'
-
       const result: PairingCodeResult = {
         channelId,
         tenantId,
         success: false,
         error: errorMessage,
       }
-
       await pubsubRedis.publish(
         CHAT_PUBSUB_CHANNELS.PAIRING_CODE_RESULT,
         JSON.stringify(result)
       )
-
       logger.error(
         { channelId, tenantId, err },
         'Failed to generate pairing code'

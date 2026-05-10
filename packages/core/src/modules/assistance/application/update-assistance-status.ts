@@ -32,14 +32,11 @@ export class UpdateAssistanceStatus {
     if (!assistance) {
       throw AssistanceErrors.notFound(id)
     }
-
     const allowed = VALID_TRANSITIONS[assistance.status]
     if (!allowed.includes(newStatus)) {
       throw AssistanceErrors.invalidTransition(assistance.status, newStatus)
     }
-
     const completedAt = newStatus === 'COMPLETED' ? new Date() : undefined
-
     return this.assistanceRepo.updateStatus(id, organizationId, {
       status: newStatus,
       completedAt,

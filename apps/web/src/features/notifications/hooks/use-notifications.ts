@@ -42,7 +42,6 @@ export function useUnreadCount() {
 
 export function useMarkAsRead() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: string) => {
       await markNotificationRead(id)
@@ -59,7 +58,6 @@ export function useMarkAsRead() {
 
 export function useMarkAllAsRead() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async () => {
       await markAllNotificationsRead()

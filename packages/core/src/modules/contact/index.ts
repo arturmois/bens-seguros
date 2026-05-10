@@ -1,4 +1,3 @@
-// Domain
 export { Contact } from './domain/contact.js'
 export type {
   ContactProps,
@@ -22,7 +21,6 @@ export type {
   UpdateContactPersistence,
 } from './domain/contact-repository.js'
 
-// Application
 export { CreateContact } from './application/create-contact.js'
 export { GetContact } from './application/get-contact.js'
 export { ListContacts } from './application/list-contacts.js'
@@ -33,6 +31,5 @@ export { SoftDeleteContact } from './application/soft-delete-contact.js'
 export { UpdateContact } from './application/update-contact.js'
 export type { UpdateContactInput } from './application/update-contact.js'
 
-// Infrastructure
 export { ContactMapper } from './infrastructure/contact-mapper.js'
 export { PrismaContactRepository } from './infrastructure/prisma-contact-repository.js'

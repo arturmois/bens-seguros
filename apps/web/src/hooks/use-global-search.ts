@@ -23,7 +23,6 @@ export function useGlobalSearch(
   const limit = options?.limit ?? DEFAULT_LIMIT
   const debouncedQuery = useDebounce(query.trim(), debounceMs)
   const enabled = debouncedQuery.length >= MIN_QUERY_LENGTH
-
   const { data, isLoading, isError } = useQuery<GlobalSearchResults>({
     queryKey: [GLOBAL_SEARCH_KEY, debouncedQuery],
     queryFn: async () => {
@@ -37,19 +36,15 @@ export function useGlobalSearch(
       return response.data
     },
     enabled,
-    // Search results use shorter staleTime (30s vs project default 60s)
-    // because users expect fresh results on each keystroke session
     staleTime: 30_000,
     gcTime: 60_000,
   })
-
   const totalResults = data
     ? data.clients.length +
       data.proposals.length +
       data.policies.length +
       data.claims.length
     : 0
-
   return {
     results: data,
     isLoading: enabled && isLoading,

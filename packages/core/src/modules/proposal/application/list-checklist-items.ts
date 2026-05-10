@@ -26,7 +26,6 @@ export class ListChecklistItems {
     if (!proposal) {
       throw new ProposalNotFoundError(proposalId)
     }
-
     const [items, summary] = await Promise.all([
       this.checklistRepo.findByProposal(proposalId),
       this.checklistRepo.getSummary(proposalId),

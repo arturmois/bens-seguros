@@ -33,18 +33,15 @@ export function useCepLookup(): UseCepLookupReturn {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<CepLookupError | null>(null)
   const requestIdRef = useRef(0)
-
   const lookup = useCallback(
     async (cep: string): Promise<GetCep200Data | null> => {
       const normalized = cep.replace(/\D/g, '')
       if (normalized.length !== 8) {
         return null
       }
-
       const requestId = ++requestIdRef.current
       setIsLoading(true)
       setError(null)
-
       try {
         const response = await getCep(normalized)
         if (requestId !== requestIdRef.current) return null
@@ -62,6 +59,5 @@ export function useCepLookup(): UseCepLookupReturn {
     },
     []
   )
-
   return { lookup, isLoading, error }
 }

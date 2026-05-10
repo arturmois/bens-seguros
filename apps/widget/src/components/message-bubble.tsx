@@ -22,8 +22,6 @@ export function MessageBubble({
   primaryColor,
 }: MessageBubbleProps): React.JSX.Element {
   const { senderType, text, senderName, createdAt, status } = message
-
-  // System messages: centered, italic
   if (senderType === 'SYSTEM') {
     return (
       <div
@@ -46,9 +44,7 @@ export function MessageBubble({
       </div>
     )
   }
-
   const isSent = senderType === 'CLIENT'
-
   return (
     <div
       style={{
@@ -73,7 +69,6 @@ export function MessageBubble({
           {senderName}
         </span>
       )}
-
       <div
         style={{
           maxWidth: '80%',
@@ -101,7 +96,6 @@ export function MessageBubble({
           {text}
         </p>
       </div>
-
       {/* Timestamp and status */}
       <div
         style={{

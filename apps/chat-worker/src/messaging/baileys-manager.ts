@@ -37,7 +37,6 @@ function countChannelsForTenant(tenantId: string): number {
       count += 1
     }
   }
-
   return count
 }
 
@@ -50,7 +49,6 @@ export async function connectChannel(
     logger.warn({ channelId }, 'Channel already connected, skipping')
     return
   }
-
   const currentCount = countChannelsForTenant(tenantId)
   if (currentCount >= CHAT_LIMITS.MAX_BAILEYS_CHANNELS_PER_ORG) {
     logger.warn(
@@ -65,10 +63,8 @@ export async function connectChannel(
       `Tenant ${tenantId} has reached the max of ${String(CHAT_LIMITS.MAX_BAILEYS_CHANNELS_PER_ORG)} Baileys channels`
     )
   }
-
   const broker = new BaileysBroker(tenantId, channelId)
   connections.set(channelId, { broker, tenantId })
-
   logger.info({ channelId, tenantId }, 'Connecting Baileys channel')
   await broker.connect(events)
 }
@@ -86,7 +82,6 @@ export async function connectChannelWithPairingCode(
       connections.delete(channelId)
     }
   }
-
   const currentCount = countChannelsForTenant(tenantId)
   if (currentCount >= CHAT_LIMITS.MAX_BAILEYS_CHANNELS_PER_ORG) {
     logger.warn(
@@ -101,16 +96,13 @@ export async function connectChannelWithPairingCode(
       `Tenant ${tenantId} has reached the max of ${String(CHAT_LIMITS.MAX_BAILEYS_CHANNELS_PER_ORG)} Baileys channels`
     )
   }
-
   const broker = new BaileysBroker(tenantId, channelId)
   connections.set(channelId, { broker, tenantId })
-
   logger.info(
     { channelId, tenantId },
     'Connecting Baileys channel with pairing code'
   )
   const code = await broker.connectWithPairingCode(phoneNumber, events)
-
   return code
 }
 
@@ -119,7 +111,6 @@ export async function disconnectChannel(channelId: string): Promise<void> {
   if (!conn) {
     return
   }
-
   logger.info(
     { channelId, tenantId: conn.tenantId },
     'Disconnecting Baileys channel'
@@ -135,7 +126,6 @@ export function getChannel(channelId: string): BaileysBroker | undefined {
 export async function disconnectAll(): Promise<void> {
   logger.info({ count: connections.size }, 'Disconnecting all Baileys channels')
   const tasks: Array<Promise<void>> = []
-
   for (const [channelId, conn] of connections) {
     tasks.push(
       conn.broker.disconnect().then(() => {
@@ -143,12 +133,9 @@ export async function disconnectAll(): Promise<void> {
       })
     )
   }
-
   await Promise.all(tasks)
 }
 
-// Cross-tenant by design: worker reconnects all tenants' Baileys channels on startup.
-// Each channel includes tenantId for tenant-scoped event routing.
 export async function loadActiveChannels(
   createEvents: (channelId: string, tenantId: string) => BrokerEvents
 ): Promise<void> {
@@ -158,16 +145,13 @@ export async function loadActiveChannels(
   })
     .lean()
     .exec()
-
   logger.info(
     { count: channels.length },
     'Loading active Baileys channels from database'
   )
-
   for (const channel of channels) {
     const channelId = String(channel._id)
     const tenantId = channel.tenantId
-
     try {
       const events = createEvents(channelId, tenantId)
       await connectChannel(channelId, tenantId, events)

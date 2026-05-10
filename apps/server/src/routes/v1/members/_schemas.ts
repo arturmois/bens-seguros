@@ -18,8 +18,6 @@ export const listMembersQuerySchema = z.object({
 
 export { idParam as idParamSchema }
 
-// --- Response schemas ---
-
 const memberListItemSchema = z.object({
   id: z.string(),
   userId: z.string(),

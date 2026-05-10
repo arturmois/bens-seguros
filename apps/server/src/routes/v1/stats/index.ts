@@ -6,7 +6,6 @@ import { getDashboardStatsRoute } from './get-dashboard-stats.js'
 
 export async function statsRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
-
   getDashboardStatsRoute(app)
   exportDashboardPdfRoute(app)
 }

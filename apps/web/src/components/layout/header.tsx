@@ -25,7 +25,6 @@ export function Header({ collapsed, onToggleSidebar }: HeaderProps) {
           <PanelLeftClose className="size-4" />
         )}
       </Button>
-
       <div className="flex items-center gap-2">
         <NotificationBell />
       </div>

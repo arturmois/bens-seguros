@@ -22,17 +22,14 @@ interface MetaSendResponse {
 function parseConfig(config: Record<string, unknown>): MetaConfig {
   const metaToken = config.metaToken
   const metaPhoneNumberId = config.metaPhoneNumberId
-
   if (typeof metaToken !== 'string' || metaToken.length === 0) {
     throw new Error('MetaBroker: metaToken is required in channel config')
   }
-
   if (typeof metaPhoneNumberId !== 'string' || metaPhoneNumberId.length === 0) {
     throw new Error(
       'MetaBroker: metaPhoneNumberId is required in channel config'
     )
   }
-
   return { metaToken, metaPhoneNumberId }
 }
 
@@ -63,7 +60,6 @@ export class MetaBroker implements Broker {
   async sendMessage(payload: MessagePayload): Promise<MessageResult> {
     const url = `${META_API_BASE}/${this.config.metaPhoneNumberId}/messages`
     const body = this.buildRequestBody(payload)
-
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -73,16 +69,13 @@ export class MetaBroker implements Broker {
         },
         body: JSON.stringify(body),
       })
-
       const data = (await response.json()) as MetaSendResponse
-
       if (!response.ok || data.error) {
         const errorCode =
           data.error?.message ?? `HTTP_${String(response.status)}`
         this.logger.warn({ errorCode, phone: payload.to }, 'Meta send failed')
         return { externalId: '', status: 'FAILED', errorCode }
       }
-
       const externalId = data.messages?.[0]?.id ?? ''
       return { externalId, status: 'SENT' }
     } catch (err: unknown) {
@@ -95,12 +88,10 @@ export class MetaBroker implements Broker {
 
   private buildRequestBody(payload: MessagePayload): Record<string, unknown> {
     const phone = formatPhone(payload.to)
-
     const base = {
       messaging_product: 'whatsapp',
       to: phone,
     }
-
     switch (payload.type) {
       case 'TEXT':
         return { ...base, type: 'text', text: { body: payload.text ?? '' } }

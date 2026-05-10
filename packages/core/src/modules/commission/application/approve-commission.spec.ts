@@ -59,63 +59,50 @@ describe('ApproveCommissionCommercial', () => {
     const data = makeCommissionData({ status: 'PENDING_COMMERCIAL' })
     const repo = createMockRepo(data)
     const useCase = new ApproveCommissionCommercial(repo)
-
     await useCase.execute('comm-1', 'org-1', 'approver-1')
-
     expect(repo.update).toHaveBeenCalledTimes(1)
     const savedCommission = vi.mocked(repo.update).mock.calls[0]?.[0]
     expect(savedCommission?.status).toBe('PENDING_ADMIN')
   })
-
   it('throws CommissionNotFoundError when commission does not exist', async () => {
     const repo = createMockRepo(null)
     const useCase = new ApproveCommissionCommercial(repo)
-
     await expect(useCase.execute('missing', 'org-1', 'user-1')).rejects.toThrow(
       CommissionNotFoundError
     )
   })
-
   it('throws InvalidCommissionTransitionError when status is not PENDING_COMMERCIAL', async () => {
     const data = makeCommissionData({ status: 'APPROVED' })
     const repo = createMockRepo(data)
     const useCase = new ApproveCommissionCommercial(repo)
-
     await expect(useCase.execute('comm-1', 'org-1', 'user-1')).rejects.toThrow(
       InvalidCommissionTransitionError
     )
   })
 })
-
 describe('ApproveCommissionAdmin', () => {
   it('advances commission from PENDING_ADMIN to APPROVED with approver info', async () => {
     const data = makeCommissionData({ status: 'PENDING_ADMIN' })
     const repo = createMockRepo(data)
     const useCase = new ApproveCommissionAdmin(repo)
-
     await useCase.execute('comm-1', 'org-1', 'admin-1')
-
     expect(repo.update).toHaveBeenCalledTimes(1)
     const savedCommission = vi.mocked(repo.update).mock.calls[0]?.[0]
     expect(savedCommission?.status).toBe('APPROVED')
     expect(savedCommission?.approvedBy).toBe('admin-1')
     expect(savedCommission?.approvedAt).toBeInstanceOf(Date)
   })
-
   it('throws CommissionNotFoundError when commission does not exist', async () => {
     const repo = createMockRepo(null)
     const useCase = new ApproveCommissionAdmin(repo)
-
     await expect(useCase.execute('missing', 'org-1', 'user-1')).rejects.toThrow(
       CommissionNotFoundError
     )
   })
-
   it('throws InvalidCommissionTransitionError when status is not PENDING_ADMIN', async () => {
     const data = makeCommissionData({ status: 'PENDING_COMMERCIAL' })
     const repo = createMockRepo(data)
     const useCase = new ApproveCommissionAdmin(repo)
-
     await expect(useCase.execute('comm-1', 'org-1', 'user-1')).rejects.toThrow(
       InvalidCommissionTransitionError
     )

@@ -48,14 +48,11 @@ export function AssistancesTable() {
   const router = useRouter()
   const pagination = useCursorPagination()
   const filters = useAssistancesFilters()
-
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
-
   const debouncedSearch = useDebounce(filters.search, 300)
-
   const filterFingerprint = JSON.stringify({
     ...filters.apiParams,
     search: debouncedSearch || undefined,
@@ -66,19 +63,16 @@ export function AssistancesTable() {
     lastFingerprint.current = filterFingerprint
     pagination.reset()
   }, [filterFingerprint, pagination])
-
   const sortId = sorting[0]?.id
   const sortBy = sortId && isSortBy(sortId) ? sortId : undefined
   const sortOrder: ListAssistancesSortOrder | undefined = sorting[0]?.desc
     ? 'desc'
     : 'asc'
-
   const statusGroupParam =
     filters.apiParams.statusGroup &&
     isStatusGroup(filters.apiParams.statusGroup)
       ? filters.apiParams.statusGroup
       : undefined
-
   const { data, isLoading, isError, refetch } = useAssistances({
     search: debouncedSearch || undefined,
     statusIn: filters.apiParams.statusIn,
@@ -89,13 +83,10 @@ export function AssistancesTable() {
     sortBy,
     sortOrder,
   })
-
   const assistances: AssistanceData[] = data?.data ?? []
   const total = data?.meta?.total ?? 0
   const nextCursor = data?.meta?.nextCursor ?? null
-
   const columns = useMemo(() => createAssistanceColumns(), [])
-
   const table = useReactTable({
     data: assistances,
     columns,
@@ -111,15 +102,12 @@ export function AssistancesTable() {
     manualFiltering: true,
     rowCount: total,
   })
-
   function handleFilterChange(key: string, value: FilterValue) {
     filters.setFilter(key, value)
   }
-
   function handleColumnToggle(id: string, visible: boolean) {
     setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
-
   if (isError) {
     return (
       <TableErrorState
@@ -128,7 +116,6 @@ export function AssistancesTable() {
       />
     )
   }
-
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <UnifiedFilterBar
@@ -145,7 +132,6 @@ export function AssistancesTable() {
       >
         <AssistanceCreateButton />
       </UnifiedFilterBar>
-
       <DataTable
         table={table}
         isLoading={isLoading}
@@ -157,7 +143,6 @@ export function AssistancesTable() {
           router.push(`/assistances/${assistance.id}`)
         }
       />
-
       <MobileCardList
         data={assistances}
         keyExtractor={(a) => a.id}
@@ -167,7 +152,6 @@ export function AssistancesTable() {
         emptyDescription="Registre uma nova assistência para começar."
         renderCard={(assistance) => <AssistanceCard assistance={assistance} />}
       />
-
       <CursorPagination
         total={total}
         pageSize={pagination.pageSize}

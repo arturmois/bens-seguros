@@ -57,12 +57,10 @@ const makeClaim = (overrides: Partial<Record<string, unknown>> = {}) => ({
 describe('GET /api/v1/claims/:id', () => {
   it('returns 200 with claim detail for existing id', async () => {
     mockExecute.mockResolvedValue(makeClaim())
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/claims/claim-id-001',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -70,32 +68,25 @@ describe('GET /api/v1/claims/:id', () => {
     expect(body.data.claimNumber).toBe(1001)
     expect(body.data.status).toBe('REGISTERED')
   })
-
   it('calls use case with correct id and organizationId', async () => {
     mockExecute.mockResolvedValue(makeClaim())
-
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/claims/claim-id-001',
     })
-
     expect(mockExecute).toHaveBeenCalledWith('claim-id-001', TEST_ORG_ID)
   })
-
   it('returns 404 when claim does not exist', async () => {
     mockResolveError('CLAIM_NOT_FOUND', 'Claim not found')
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/claims/nonexistent-id',
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('CLAIM_NOT_FOUND')
   })
-
   it('returns optional enriched fields when present', async () => {
     mockExecute.mockResolvedValue(
       makeClaim({
@@ -104,12 +95,10 @@ describe('GET /api/v1/claims/:id', () => {
         insurerName: 'Seguradora ABC',
       })
     )
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/claims/claim-id-001',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data.clientName).toBe('João Silva')

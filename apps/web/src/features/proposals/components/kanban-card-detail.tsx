@@ -41,7 +41,6 @@ export function KanbanCardDetail({
   onAdvanceSuccess,
 }: KanbanCardDetailProps) {
   if (!proposal) return null
-
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-lg">
@@ -52,12 +51,10 @@ export function KanbanCardDetail({
             {BRANCH_LABELS[proposal.branch]}
           </DialogDescription>
         </DialogHeader>
-
         <KanbanCardDetailBody
           proposal={proposal}
           onAdvanceSuccess={onAdvanceSuccess}
         />
-
         <DialogFooter>
           <Button
             variant="outline"
@@ -81,7 +78,6 @@ function KanbanCardDetailBody({
 }) {
   const { data: checklistData } = useChecklist(proposal.id)
   const advanceMutation = useAdvanceProposal()
-
   const isTerminalStage =
     proposal.stage === 'POLICY_ISSUED' || proposal.stage === 'LOST'
   const canAdvance = !isTerminalStage
@@ -89,13 +85,11 @@ function KanbanCardDetailBody({
     !isTerminalStage &&
     proposal.stage !== 'CAPTURE' &&
     checklistData?.summary.canAdvance === false
-
   function handleAdvance() {
     advanceMutation.mutate(proposal.id, {
       onSuccess: () => onAdvanceSuccess?.(proposal.id),
     })
   }
-
   return (
     <div className="space-y-4 px-6">
       <div className="grid grid-cols-2 gap-3">
@@ -118,7 +112,6 @@ function KanbanCardDetailBody({
           </DetailItem>
         )}
       </div>
-
       {proposal.boardType === 'ENDORSEMENT' &&
         proposal.sourcePolicySnapshot && (
           <div className="space-y-2 rounded-lg border p-3">
@@ -145,7 +138,6 @@ function KanbanCardDetailBody({
             )}
           </div>
         )}
-
       <ProposalStageActions
         canAdvance={canAdvance}
         canMarkLost={false}
@@ -154,11 +146,9 @@ function KanbanCardDetailBody({
         onAdvance={handleAdvance}
         onMarkLost={() => {}}
       />
-
       {proposal.stage === 'POLICY_ISSUED' && (
         <IssuePolicySection proposalId={proposal.id} />
       )}
-
       <div className="space-y-2">
         <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
           Checklist

@@ -11,10 +11,6 @@ export const DEFAULT_JOB_OPTIONS = {
   removeOnFail: { age: 86_400 },
 }
 
-// ---------------------------------------------------------------------------
-// Contact helpers
-// ---------------------------------------------------------------------------
-
 export async function upsertContact(
   tenantId: string,
   phone: string,
@@ -25,13 +21,8 @@ export async function upsertContact(
     { $set: { pushName } },
     { upsert: true, new: true }
   ).exec()
-
   return String(contact._id)
 }
-
-// ---------------------------------------------------------------------------
-// Conversation helpers
-// ---------------------------------------------------------------------------
 
 interface FindOrCreateConversationOptions {
   readonly tenantId: string
@@ -52,7 +43,6 @@ export async function findOrCreateConversationAtomic(
 ): Promise<FindOrCreateConversationResult> {
   const { tenantId, channelId, contactId, phone, hasAiUser } = options
   const initialStatus = hasAiUser ? 'BOT_ACTIVE' : 'WAITING_HUMAN'
-
   const result = await Conversation.findOneAndUpdate(
     { tenantId, channelId, contactId, status: { $ne: 'CLOSED' } },
     {
@@ -66,14 +56,11 @@ export async function findOrCreateConversationAtomic(
     },
     { upsert: true, new: true, includeResultMetadata: true }
   ).exec()
-
   const isNew = Boolean(result.lastErrorObject?.upserted)
   const doc = result.value
-
   if (!doc) {
     throw new Error('findOneAndUpdate with upsert returned null')
   }
-
   return {
     id: String(doc._id),
     status: String(doc.status),
@@ -81,11 +68,6 @@ export async function findOrCreateConversationAtomic(
   }
 }
 
-/**
- * Lookup-only: returns the open (non-CLOSED) conversation for the
- * (tenant, channel, contact) tuple, or null. Used by the client-command
- * branch — we must not create a stub conversation just to immediately close it.
- */
 export async function findOpenConversation(
   tenantId: string,
   channelId: string,
@@ -103,14 +85,9 @@ export async function findOpenConversation(
     .select('_id status')
     .lean()
     .exec()
-
   if (!doc) return null
   return { id: String(doc._id), status: String(doc.status) }
 }
-
-// ---------------------------------------------------------------------------
-// Publish helpers
-// ---------------------------------------------------------------------------
 
 interface PublishMessageEventsOptions {
   readonly savedMessage: { readonly _id: unknown; readonly createdAt?: Date }
@@ -125,11 +102,6 @@ interface PublishMessageEventsOptions {
   readonly isNew: boolean
 }
 
-/**
- * Updates the conversation lastMessage fields, publishes the inbound message
- * event, the conversation-update event (when new), and the unread-update
- * event. Does NOT enqueue the AI bot — callers decide via enqueueAiBotJob.
- */
 export async function publishMessageEvents(
   pubsubClient: PubsubClient,
   options: PublishMessageEventsOptions
@@ -146,7 +118,6 @@ export async function publishMessageEvents(
     conversationStatus,
     isNew,
   } = options
-
   const messageAt = new Date(timestamp)
   await Conversation.updateOne(
     { _id: conversationId, tenantId },
@@ -158,7 +129,6 @@ export async function publishMessageEvents(
       },
     }
   ).exec()
-
   const messagePayload = JSON.stringify({
     id: String(savedMessage._id),
     conversationId,
@@ -173,12 +143,10 @@ export async function publishMessageEvents(
     createdAt:
       savedMessage.createdAt?.toISOString() ?? new Date().toISOString(),
   })
-
   await pubsubClient.publish(
     CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE,
     messagePayload
   )
-
   if (isNew) {
     await pubsubClient.publish(
       CHAT_PUBSUB_CHANNELS.CONVERSATION_UPDATE,
@@ -190,20 +158,12 @@ export async function publishMessageEvents(
       })
     )
   }
-
   await pubsubClient.publish(
     CHAT_PUBSUB_CHANNELS.UNREAD_UPDATE,
     JSON.stringify({ tenantId, conversationId, userId: null })
   )
 }
 
-/**
- * Enqueue an AI bot job for a conversation.
- *
- * The jobId convention deduplicates: at most one AI bot job per conversation
- * runs at a time. removeOnComplete/removeOnFail: true frees the jobId
- * immediately so subsequent messages can trigger new AI jobs.
- */
 export async function enqueueAiBotJob(
   aiBotQueue: Queue,
   conversationId: string,

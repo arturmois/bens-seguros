@@ -23,7 +23,6 @@ function formatDate(dateStr: string): string {
 
 export function RenewalPolicyCard({ policyId }: RenewalPolicyCardProps) {
   const { data, isLoading, isError } = usePolicy(policyId)
-
   if (isLoading) {
     return (
       <Card>
@@ -41,11 +40,8 @@ export function RenewalPolicyCard({ policyId }: RenewalPolicyCardProps) {
       </Card>
     )
   }
-
   if (isError || !data?.data) return null
-
   const policy = data.data
-
   return (
     <Card>
       <CardHeader>

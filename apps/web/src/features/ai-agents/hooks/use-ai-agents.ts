@@ -55,7 +55,6 @@ export function useAvailableTools() {
 
 export function useCreateAiAgent() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (payload: CreateAiAgentPayload) => {
       const response = await chatApi.post<AiAgentData>(
@@ -83,7 +82,6 @@ export function useCreateAiAgent() {
 
 export function useUpdateAiAgent() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({
       id,
@@ -117,7 +115,6 @@ export function useUpdateAiAgent() {
 
 export function useDeleteAiAgent() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: string) => {
       await chatApi.delete(`/chat/ai-agents/${id}`)

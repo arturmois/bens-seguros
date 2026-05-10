@@ -20,8 +20,6 @@ export function presetToDays(preset: DashboardPreset): number {
   return map[preset]
 }
 
-// --- Response schemas ---
-
 const metricComparisonSchema = z.object({
   current: z.number(),
   previous: z.number(),
@@ -98,7 +96,6 @@ const dashboardDataSchema = z.object({
   averageTicket: metricComparisonSchema,
   commissionsReceivable: z.number(),
   ranking: z.array(rankingEntrySchema).readonly(),
-  // --- SCRUM-25 additions ---
   newInsurance: metricComparisonSchema,
   renewal7dPremiumCents: z.number(),
   warnings: warningsSchema,

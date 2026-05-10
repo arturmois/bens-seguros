@@ -10,8 +10,6 @@ import { listPoliciesRoute } from './list-policies.js'
 
 export async function policyRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
-
-  // Routes with static paths must be registered BEFORE parameterized /:id routes
   exportPoliciesRoute(app)
   importPoliciesRoutes(app)
   generatePolicyPdfRoute(app)

@@ -27,7 +27,6 @@ export function ConversationListItem({
 }: ConversationListItemProps) {
   const displayName = getDisplayName(conversation)
   const isWaiting = conversation.status === 'WAITING_HUMAN'
-
   return (
     <button
       onClick={onSelect}
@@ -46,7 +45,6 @@ export function ConversationListItem({
           </span>
         </div>
       </div>
-
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 truncate">

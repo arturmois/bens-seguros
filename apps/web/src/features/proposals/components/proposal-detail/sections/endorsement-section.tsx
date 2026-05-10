@@ -17,7 +17,6 @@ export function EndorsementSection({ proposal }: EndorsementSectionProps) {
   if (proposal.boardType !== 'ENDORSEMENT' || !proposal.sourcePolicySnapshot) {
     return null
   }
-
   return (
     <>
       <Separator />

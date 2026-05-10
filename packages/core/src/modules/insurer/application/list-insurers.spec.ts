@@ -11,7 +11,6 @@ import type { CursorPage } from '../../client/domain/client-repository.js'
 describe('ListInsurers', () => {
   let repo: InsurerRepository
   let useCase: ListInsurers
-
   beforeEach(() => {
     repo = {
       create: vi.fn(),
@@ -22,7 +21,6 @@ describe('ListInsurers', () => {
     }
     useCase = new ListInsurers(repo)
   })
-
   it('passes sortBy=name asc through to the repository', async () => {
     const filters: InsurerFilters = { organizationId: 'org-1' }
     const page: CursorPage<InsurerSortField> = {
@@ -36,7 +34,6 @@ describe('ListInsurers', () => {
       expect.objectContaining({ sortBy: 'name', sortOrder: 'asc' })
     )
   })
-
   it('passes sortBy=code asc through to the repository', async () => {
     const filters: InsurerFilters = { organizationId: 'org-1' }
     const page: CursorPage<InsurerSortField> = {
@@ -50,7 +47,6 @@ describe('ListInsurers', () => {
       expect.objectContaining({ sortBy: 'code', sortOrder: 'asc' })
     )
   })
-
   it('passes sortBy=active desc through to the repository', async () => {
     const filters: InsurerFilters = { organizationId: 'org-1' }
     const page: CursorPage<InsurerSortField> = {
@@ -64,7 +60,6 @@ describe('ListInsurers', () => {
       expect.objectContaining({ sortBy: 'active', sortOrder: 'desc' })
     )
   })
-
   it('passes sortBy=updatedAt desc through to the repository', async () => {
     const filters: InsurerFilters = { organizationId: 'org-1' }
     const page: CursorPage<InsurerSortField> = {
@@ -78,7 +73,6 @@ describe('ListInsurers', () => {
       expect.objectContaining({ sortBy: 'updatedAt', sortOrder: 'desc' })
     )
   })
-
   it('passes undefined sortBy through to the repository (default passthrough)', async () => {
     const filters: InsurerFilters = { organizationId: 'org-1' }
     const page: CursorPage<InsurerSortField> = { limit: 10 }

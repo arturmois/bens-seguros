@@ -37,14 +37,12 @@ export function getPublicInvitationRoute(app: FastifyInstance, auth: Auth) {
     },
     handler: async (request, reply) => {
       const { id } = request.params
-
       const invitation = await prisma.invitation.findUnique({
         where: { id },
         include: {
           organization: { select: { name: true } },
         },
       })
-
       if (!invitation) {
         return reply.status(404).send({
           success: false,
@@ -54,7 +52,6 @@ export function getPublicInvitationRoute(app: FastifyInstance, auth: Auth) {
           },
         })
       }
-
       const [inviter, existingUser, currentSession] = await Promise.all([
         prisma.user.findUnique({
           where: { id: invitation.inviterId },
@@ -70,7 +67,6 @@ export function getPublicInvitationRoute(app: FastifyInstance, auth: Auth) {
           logger: request.log,
         }),
       ])
-
       return reply.send({
         success: true,
         data: {

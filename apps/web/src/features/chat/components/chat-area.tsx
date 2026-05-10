@@ -29,8 +29,8 @@ interface ChatAreaProps {
   readonly onTransfer: () => void
 }
 
-const NEAR_BOTTOM_THRESHOLD = 120 // px from bottom to consider "at bottom"
-const NEAR_TOP_THRESHOLD = 80 // px from top to trigger older messages load
+const NEAR_BOTTOM_THRESHOLD = 120
+const NEAR_TOP_THRESHOLD = 80
 
 export function ChatArea({
   conversation,
@@ -54,7 +54,6 @@ export function ChatArea({
   const isAtBottomRef = useRef(true)
   const prevMessageCountRef = useRef(messages.length)
   const wasLoadingRef = useRef(isLoading)
-
   const virtualizer = useVirtualizer({
     count: messages.length,
     getScrollElement: () => scrollContainerRef.current,
@@ -62,7 +61,6 @@ export function ChatArea({
     overscan: 5,
     getItemKey: (index) => messages[index]?.id ?? index,
   })
-
   const scrollToBottom = useCallback(
     (behavior: ScrollBehavior = 'smooth') => {
       if (messages.length === 0) return
@@ -70,15 +68,12 @@ export function ChatArea({
     },
     [virtualizer, messages.length]
   )
-
-  // Track whether user is near the bottom of the scroll container
   const updateBottomState = useCallback(() => {
     const el = scrollContainerRef.current
     if (!el) return
     const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
     isAtBottomRef.current = distanceFromBottom <= NEAR_BOTTOM_THRESHOLD
   }, [])
-
   const handleScroll = useCallback(
     (e: React.UIEvent<HTMLDivElement>) => {
       updateBottomState()
@@ -92,38 +87,28 @@ export function ChatArea({
     },
     [hasOlderMessages, isLoadingOlder, onLoadOlderMessages, updateBottomState]
   )
-
-  // Auto-scroll to bottom when new messages arrive (only if user was at bottom)
   useEffect(() => {
     const prevCount = prevMessageCountRef.current
     prevMessageCountRef.current = messages.length
-
     if (messages.length === 0) return
-
     const isNewMessage = messages.length > prevCount
     if (isNewMessage && isAtBottomRef.current) {
       scrollToBottom('smooth')
     }
   }, [messages.length, scrollToBottom])
-
-  // Scroll to bottom when loading completes (initial load)
   useEffect(() => {
     const wasLoading = wasLoadingRef.current
     wasLoadingRef.current = isLoading
-
     if (wasLoading && !isLoading && !isError && messages.length > 0) {
       scrollToBottom('instant')
     }
   }, [isLoading, isError, messages.length, scrollToBottom])
-
   if (!conversation) {
     return <EmptyState />
   }
-
   const canSendMessage =
     conversation.status === 'HUMAN_ACTIVE' &&
     conversation.assignedTo === currentUserId
-
   return (
     <div className="bg-(--chat-bg) flex h-full flex-col">
       <ChatHeader
@@ -135,7 +120,6 @@ export function ChatArea({
         onOpenProfile={onOpenProfile}
         onTransfer={onTransfer}
       />
-
       {/* Messages */}
       <div
         ref={scrollContainerRef}
@@ -188,7 +172,6 @@ export function ChatArea({
           </>
         )}
       </div>
-
       <MessageInput
         onSendMessage={onSendMessage}
         onEmitTyping={onEmitTyping}

@@ -73,64 +73,53 @@ describe('POST /api/v1/proposals/:id/lost', () => {
       url: '/api/v1/proposals/p-001/lost',
       payload: { reason: 'Cliente escolheu outra seguradora' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.stage).toBe('LOST')
     expect(body.data.lostReason).toBe('Cliente escolheu outra seguradora')
   })
-
   it('calls use case with id, organizationId, and reason', async () => {
     await injectAs(app, {
       method: 'POST',
       url: '/api/v1/proposals/p-001/lost',
       payload: { reason: 'Preço alto demais' },
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       'p-001',
       TEST_ORG_ID,
       'Preço alto demais'
     )
   })
-
   it('returns 404 when proposal does not exist', async () => {
     mockResolveError('PROPOSAL_NOT_FOUND', 'Proposal not found')
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/proposals/nonexistent/lost',
       payload: { reason: 'Cancelamento' },
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.error.code).toBe('PROPOSAL_NOT_FOUND')
   })
-
   it('returns non-2xx when reason is missing', async () => {
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/proposals/p-001/lost',
       payload: {},
     })
-
     expect(response.statusCode).toBeGreaterThanOrEqual(400)
   })
-
   it('returns 422 on INVALID_STAGE_TRANSITION error', async () => {
     mockResolveError(
       'INVALID_STAGE_TRANSITION',
       'Cannot mark as lost from POLICY_ISSUED'
     )
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/proposals/p-001/lost',
       payload: { reason: 'Desistência' },
     })
-
     expect(response.statusCode).toBe(422)
     const body = response.json()
     expect(body.error.code).toBe('INVALID_STAGE_TRANSITION')

@@ -26,7 +26,6 @@ export function WhatsAppMethodDialog({
     process.env.NEXT_PUBLIC_META_WA_CONFIG_ID &&
     process.env.NEXT_PUBLIC_META_APP_ID
   )
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -36,7 +35,6 @@ export function WhatsAppMethodDialog({
             Escolha como deseja conectar o WhatsApp
           </DialogDescription>
         </DialogHeader>
-
         <div className="flex flex-col gap-3 px-6 pb-6">
           <button
             type="button"
@@ -61,7 +59,6 @@ export function WhatsAppMethodDialog({
               </p>
             </div>
           </button>
-
           <button
             type="button"
             onClick={() => {

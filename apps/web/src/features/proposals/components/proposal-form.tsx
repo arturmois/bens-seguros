@@ -35,7 +35,6 @@ const BRANCH_OPTIONS = BRANCHES.map((b) => ({
   value: b,
   label: BRANCH_LABELS[b],
 }))
-// ENDORSEMENT proposals are created via EndorsementProposalDialog (from policy detail)
 const BOARD_TYPE_OPTIONS = BOARD_TYPES.filter((bt) => bt !== 'ENDORSEMENT').map(
   (bt) => ({
     value: bt,
@@ -51,7 +50,6 @@ interface ProposalFormProps {
 export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
   const createMutation = useCreateProposal()
   const [quickCreateOpen, setQuickCreateOpen] = useState(false)
-
   const form = useForm<ProposalFormValues>({
     resolver: zodResolver(CreateProposalBody),
     mode: 'onBlur',
@@ -59,9 +57,7 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
       contactId: '',
     },
   })
-
   const boardType = form.watch('boardType')
-
   const handleSubmit = (values: ProposalFormValues) => {
     createMutation.mutate(values, {
       onSuccess: () => {
@@ -70,11 +66,9 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
       },
     })
   }
-
   const handleContactCreated = (contactId: string) => {
     form.setValue('contactId', contactId, { shouldValidate: true })
   }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -84,7 +78,6 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
             Preencha os dados para criar uma nova proposta.
           </DialogDescription>
         </DialogHeader>
-
         <DialogPanel>
           <form
             id="proposal-form"
@@ -100,7 +93,6 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
             />
           </form>
         </DialogPanel>
-
         <DialogFooter>
           <Button
             type="button"
@@ -121,7 +113,6 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
           </Button>
         </DialogFooter>
       </DialogContent>
-
       <QuickCreateContact
         open={quickCreateOpen}
         onOpenChange={setQuickCreateOpen}

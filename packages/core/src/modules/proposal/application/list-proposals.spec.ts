@@ -18,12 +18,10 @@ function makeRepo(): ProposalRepository {
 describe('ListProposals', () => {
   let repo: ProposalRepository
   let useCase: ListProposals
-
   beforeEach(() => {
     repo = makeRepo()
     useCase = new ListProposals(repo)
   })
-
   it('passes sortBy and sortOrder through to the repository', async () => {
     const filters: ProposalFilters = { organizationId: 'org-1' }
     const page: ProposalCursorPage = {
@@ -31,28 +29,21 @@ describe('ListProposals', () => {
       sortBy: 'clientName',
       sortOrder: 'asc',
     }
-
     await useCase.execute(filters, page)
-
     expect(repo.findMany).toHaveBeenCalledWith(
       filters,
       expect.objectContaining({ sortBy: 'clientName', sortOrder: 'asc' })
     )
   })
-
   it('forwards default page when sortBy omitted', async () => {
     const filters: ProposalFilters = { organizationId: 'org-1' }
     const page: ProposalCursorPage = { limit: 10 }
-
     await useCase.execute(filters, page)
-
     expect(repo.findMany).toHaveBeenCalledWith(filters, page)
   })
-
   it('filters by multiple stages (stageIn) and updatedAt range', async () => {
     const updatedAtFrom = new Date('2026-04-10')
     const updatedAtTo = new Date('2026-04-17')
-
     await useCase.execute(
       {
         organizationId: 'org-1',
@@ -62,7 +53,6 @@ describe('ListProposals', () => {
       },
       { limit: 20 }
     )
-
     expect(repo.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         stageIn: ['QUOTE', 'PROTOCOL'],
@@ -72,25 +62,21 @@ describe('ListProposals', () => {
       expect.anything()
     )
   })
-
   it('forwards branchIn to repository when provided', async () => {
     await useCase.execute(
       { organizationId: 'org-1', branchIn: ['AUTO', 'RESIDENTIAL'] },
       { limit: 20 }
     )
-
     expect(repo.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ branchIn: ['AUTO', 'RESIDENTIAL'] }),
       expect.anything()
     )
   })
-
   it('forwards salespersonIdIn to repository when provided', async () => {
     await useCase.execute(
       { organizationId: 'org-1', salespersonIdIn: ['user-1', 'user-2'] },
       { limit: 20 }
     )
-
     expect(repo.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ salespersonIdIn: ['user-1', 'user-2'] }),
       expect.anything()

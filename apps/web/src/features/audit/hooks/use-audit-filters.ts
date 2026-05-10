@@ -23,14 +23,12 @@ function resolveDateRange(
   toInput: string | null
 ): { from?: string; to?: string } {
   if (!preset) return {}
-
   if (preset !== CUSTOM_PRESET) {
     const found = findPreset(preset)
     if (!found) return {}
     const range = found.compute()
     return { from: range.from.toISOString(), to: range.to.toISOString() }
   }
-
   const from = fromInput
     ? new Date(`${fromInput}T00:00:00`).toISOString()
     : undefined
@@ -51,7 +49,6 @@ export function useAuditFilters() {
     },
     { history: 'push' }
   )
-
   const values: Readonly<Record<string, FilterValue>> = useMemo(() => {
     const createdAt: DateRangeValue | undefined = state.createdAtPreset
       ? {
@@ -66,7 +63,6 @@ export function useAuditFilters() {
       createdAt,
     }
   }, [state])
-
   const apiParams = useMemo(() => {
     const created = resolveDateRange(
       state.createdAtPreset,
@@ -82,7 +78,6 @@ export function useAuditFilters() {
       dateTo: created.to,
     }
   }, [state])
-
   function setFilter(key: string, value: FilterValue): void {
     if (key === 'actionIn' || key === 'entityTypeIn') {
       const arr = asEnumValue(value)
@@ -98,7 +93,6 @@ export function useAuditFilters() {
       })
     }
   }
-
   function clearAll(): void {
     void setState({
       actionIn: null,
@@ -108,7 +102,6 @@ export function useAuditFilters() {
       createdAtTo: null,
     })
   }
-
   return {
     actionIn: state.actionIn ?? undefined,
     entityTypeIn: state.entityTypeIn ?? undefined,

@@ -77,13 +77,11 @@ const validBody = {
 describe('POST /api/v1/claims', () => {
   it('returns 201 with claim detail on valid creation', async () => {
     mockExecute.mockResolvedValue(makeClaim())
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/claims',
       payload: validBody,
     })
-
     expect(response.statusCode).toBe(201)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -91,7 +89,6 @@ describe('POST /api/v1/claims', () => {
     expect(body.data.status).toBe('REGISTERED')
     expect(body.data.priority).toBe('NORMAL')
   })
-
   it('returns 201 with optional fields when provided', async () => {
     mockExecute.mockResolvedValue(
       makeClaim({
@@ -100,7 +97,6 @@ describe('POST /api/v1/claims', () => {
         priority: 'HIGH',
       })
     )
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/claims',
@@ -111,44 +107,36 @@ describe('POST /api/v1/claims', () => {
         priority: 'HIGH',
       },
     })
-
     expect(response.statusCode).toBe(201)
     const body = response.json()
     expect(body.data.estimatedValueInCents).toBe(500000)
     expect(body.data.priority).toBe('HIGH')
   })
-
   it('passes organizationId to use case', async () => {
     mockExecute.mockResolvedValue(makeClaim())
-
     await injectAs(app, {
       method: 'POST',
       url: '/api/v1/claims',
       payload: validBody,
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({ organizationId: TEST_ORG_ID })
     )
   })
-
   it('returns 400 when required field description is missing', async () => {
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/claims',
       payload: { policyId: 'policy-id-001', clientId: 'client-id-001' },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('returns 400 when priority has invalid value', async () => {
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/claims',
       payload: { ...validBody, priority: 'INVALID_PRIORITY' },
     })
-
     expect(response.statusCode).toBe(400)
   })
 })

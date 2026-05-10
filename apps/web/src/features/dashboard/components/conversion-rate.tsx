@@ -25,9 +25,7 @@ export function ConversionRate({ data, isLoading }: ConversionRateProps) {
       </Card>
     )
   }
-
   if (!data) return null
-
   return (
     <Card>
       <CardHeader>

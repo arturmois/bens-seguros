@@ -153,7 +153,6 @@ function LifeSection({ details }: { readonly details: LifeDetails }) {
           Math.pow(details.heightInCentimeters / 100, 2)
         ).toFixed(1)
       : null
-
   return (
     <>
       <View style={styles.row}>
@@ -241,7 +240,6 @@ export function InsuredObjectSection({ details }: InsuredObjectSectionProps) {
     LIFE: 'Vida',
     OTHER: 'Outros',
   }
-
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>

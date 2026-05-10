@@ -59,13 +59,11 @@ export class SaveIncomingMessage {
         }
       }
     }
-
     const contact = await this.contactRepo.upsertByPhone(
       input.tenantId,
       input.whatsappPhone,
       input.pushName ?? undefined
     )
-
     const { conversation, isNewConversation } =
       await this.findOrCreateConversation({
         tenantId: input.tenantId,
@@ -74,9 +72,7 @@ export class SaveIncomingMessage {
         whatsappPhone: input.whatsappPhone,
         hasAi: input.hasAi,
       })
-
     const now = new Date()
-
     const message = await this.messageRepo.create({
       conversationId: conversation.id,
       tenantId: input.tenantId,
@@ -92,14 +88,12 @@ export class SaveIncomingMessage {
       externalId: input.externalId,
       createdAt: now,
     })
-
     await this.conversationRepo.updateLastMessage(
       conversation.id,
       input.tenantId,
       input.text ?? '',
       now
     )
-
     return {
       conversation: {
         ...conversation,
@@ -124,11 +118,9 @@ export class SaveIncomingMessage {
       params.contactId,
       params.channelId
     )
-
     if (existing) {
       return { conversation: existing, isNewConversation: false }
     }
-
     const entity = ConversationEntity.create({
       tenantId: params.tenantId,
       channelId: params.channelId,
@@ -136,7 +128,6 @@ export class SaveIncomingMessage {
       whatsappPhone: params.whatsappPhone,
       hasAi: params.hasAi,
     })
-
     const created = await this.conversationRepo.create(entity.toJSON())
     return { conversation: created, isNewConversation: true }
   }

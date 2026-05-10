@@ -46,7 +46,6 @@ export function useInvitations() {
 
 export function useInviteMember() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (payload: {
       email: string
@@ -71,7 +70,6 @@ export function useInviteMember() {
 
 export function useChangeMemberRole() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({
       id,
@@ -91,30 +89,24 @@ export function useChangeMemberRole() {
         toast.error('Erro ao alterar cargo')
         return
       }
-
       if (error.code === 'ROLE_HIERARCHY_VIOLATION') {
         toast.error('Você não pode atribuir um cargo igual ou superior ao seu')
         return
       }
-
       if (error.code === 'LAST_OWNER') {
         toast.error('Não é possível rebaixar o último proprietário')
         return
       }
-
       if (error.code === 'SELF_REMOVAL') {
         toast.error('Você não pode alterar seu próprio cargo')
         return
       }
-
       toast.error('Erro ao alterar cargo')
     },
   })
 }
-
 export function useRemoveMember() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: string) => {
       await deactivateMember(id)
@@ -128,32 +120,26 @@ export function useRemoveMember() {
         toast.error('Erro ao remover membro')
         return
       }
-
       if (error.code === 'LAST_OWNER') {
         toast.error('Não é possível remover o último proprietário')
         return
       }
-
       if (error.code === 'SELF_REMOVAL') {
         toast.error('Você não pode se remover da organização')
         return
       }
-
       if (error.code === 'ROLE_HIERARCHY_VIOLATION') {
         toast.error(
           'Você não pode remover um membro com cargo igual ou superior ao seu'
         )
         return
       }
-
       toast.error('Erro ao remover membro')
     },
   })
 }
-
 export function useRevokeInvitation() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: string) => {
       await revokeInvitation(id)

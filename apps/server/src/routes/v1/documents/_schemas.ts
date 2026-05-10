@@ -41,8 +41,6 @@ export const uploadDocumentQuerySchema = z.object({
 
 export { idParam as idParamSchema }
 
-// --- Response schemas ---
-
 const documentSchema = z.object({
   id: z.string(),
   organizationId: z.string(),

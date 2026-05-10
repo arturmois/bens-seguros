@@ -121,12 +121,10 @@ export function buildSystemPrompt(
   enabledTools: string[] = []
 ): string {
   const base = customPrompt ?? DEFAULT_SYSTEM_PROMPT
-
   const activeToolNames = ['escalateToHuman', ...enabledTools]
   const toolLines = activeToolNames
     .filter((name) => TOOL_PROMPT_DESCRIPTIONS[name])
     .map((name) => `- ${name}: ${TOOL_PROMPT_DESCRIPTIONS[name]}`)
-
   return [
     base,
     '',
@@ -158,9 +156,7 @@ export async function escalateToHuman(
     { _id: conversationId, tenantId, status: 'BOT_ACTIVE' },
     { $set: { status: 'WAITING_HUMAN' } }
   ).exec()
-
   if (result.matchedCount === 0) return
-
   const escalationText = 'Transferido para um atendente. Aguarde.'
   const systemMessage = await Message.create({
     conversationId,
@@ -170,7 +166,6 @@ export async function escalateToHuman(
     type: 'TEXT',
     status: 'DELIVERED',
   })
-
   await pubsubClient.publish(
     CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE,
     JSON.stringify({
@@ -188,7 +183,6 @@ export async function escalateToHuman(
         systemMessage.createdAt?.toISOString() ?? new Date().toISOString(),
     })
   )
-
   await pubsubClient.publish(
     CHAT_PUBSUB_CHANNELS.CONVERSATION_UPDATE,
     JSON.stringify({ tenantId, conversationId, status: 'WAITING_HUMAN' })

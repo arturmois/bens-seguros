@@ -7,9 +7,7 @@ function buildConnectSrc(): string {
   const chatUrl = (
     process.env.NEXT_PUBLIC_CHAT_SERVER_URL ?? 'http://localhost:3002'
   ).trim()
-
   const toWsOrigin = (httpOrigin: string) => httpOrigin.replace(/^http/, 'ws')
-
   const origins = new Set<string>([
     "'self'",
     'https://api.bensseg.com',
@@ -22,17 +20,13 @@ function buildConnectSrc(): string {
     chatUrl,
     toWsOrigin(chatUrl),
   ])
-
   return `connect-src ${Array.from(origins).join(' ')}`
 }
 
 export function buildCspHeader(nonce: string): string {
-  // 'self' is a fallback for browsers that don't support 'strict-dynamic' (CSP L3).
-  // In compliant browsers, 'strict-dynamic' takes precedence and 'self' is ignored.
   const scriptSrc = IS_DEV
     ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval'`
     : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`
-
   return [
     "default-src 'self'",
     scriptSrc,

@@ -77,29 +77,24 @@ const makeCommission = (overrides: Partial<Record<string, unknown>> = {}) => ({
 describe('POST /api/v1/commissions/:id/reject', () => {
   it('returns 200 with rejected commission', async () => {
     mockExecute.mockResolvedValue(makeCommission())
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/commissions/commission-id-001/reject',
       payload: { reason: 'Documentação incompleta' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.status).toBe('REJECTED')
     expect(body.data.rejectionReason).toBe('Documentação incompleta')
   })
-
   it('calls use case with correct params including reason', async () => {
     mockExecute.mockResolvedValue(makeCommission())
-
     await injectAs(app, {
       method: 'POST',
       url: '/api/v1/commissions/commission-id-001/reject',
       payload: { reason: 'Valor incorreto' },
     })
-
     expect(mockExecute).toHaveBeenCalledWith({
       id: 'commission-id-001',
       organizationId: TEST_ORG_ID,
@@ -107,35 +102,29 @@ describe('POST /api/v1/commissions/:id/reject', () => {
       reason: 'Valor incorreto',
     })
   })
-
   it('returns 422 when commission transition is invalid', async () => {
     mockResolveError(
       'INVALID_COMMISSION_TRANSITION',
       'Invalid commission transition'
     )
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/commissions/commission-id-001/reject',
       payload: { reason: 'Motivo qualquer' },
     })
-
     expect(response.statusCode).toBe(422)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('INVALID_COMMISSION_TRANSITION')
   })
-
   it('returns 400 when reason is empty', async () => {
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/commissions/commission-id-001/reject',
       payload: { reason: '' },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('sends notification when salesperson exists', async () => {
     const { prisma } = await import('@repo/db')
     const { enqueueNotification } =
@@ -150,13 +139,11 @@ describe('POST /api/v1/commissions/:id/reject', () => {
     mockExecute.mockResolvedValue(
       makeCommission({ salespersonId: 'user-id-001' })
     )
-
     await injectAs(app, {
       method: 'POST',
       url: '/api/v1/commissions/commission-id-001/reject',
       payload: { reason: 'Documentação incompleta' },
     })
-
     expect(enqueueNotification).toHaveBeenCalledWith(
       expect.objectContaining({
         notification: expect.objectContaining({

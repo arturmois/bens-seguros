@@ -53,7 +53,6 @@ const VIEW_OPTIONS = [
 
 export function ProposalsContent() {
   const filters = useProposalsFilters()
-
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <UnifiedFilterBar
@@ -77,7 +76,6 @@ export function ProposalsContent() {
           Nova Proposta
         </Button>
       </UnifiedFilterBar>
-
       {filters.view === 'table' ? (
         <ProposalsTable />
       ) : (

@@ -54,13 +54,11 @@ export function TrendChart({ data, isLoading }: TrendChartProps) {
       </Card>
     )
   }
-
   const chartData = (data ?? []).map((d) => ({
     month: formatMonth(d.month),
     proposals: Number(d.proposals),
     issued: Number(d.issued),
   }))
-
   return (
     <Card>
       <CardHeader>

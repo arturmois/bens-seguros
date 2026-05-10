@@ -49,15 +49,12 @@ export function ClaimsTable() {
   const filters = useClaimsFilters()
   const { activeOrg } = useOrgs()
   const role = activeOrg?.role ?? 'VIEWER'
-
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
   const [deletingClaimId, setDeletingClaimId] = useState<string | null>(null)
-
   const debouncedSearch = useDebounce(filters.search, 300)
-
   const filterFingerprint = JSON.stringify({
     ...filters.apiParams,
     search: debouncedSearch || undefined,
@@ -68,19 +65,16 @@ export function ClaimsTable() {
     lastFingerprint.current = filterFingerprint
     pagination.reset()
   }, [filterFingerprint, pagination])
-
   const sortId = sorting[0]?.id
   const sortBy = sortId && isSortBy(sortId) ? sortId : undefined
   const sortOrder: ListClaimsSortOrder | undefined = sorting[0]?.desc
     ? 'desc'
     : 'asc'
-
   const statusGroupParam =
     filters.apiParams.statusGroup &&
     isStatusGroup(filters.apiParams.statusGroup)
       ? filters.apiParams.statusGroup
       : undefined
-
   const { data, isLoading, isError, refetch } = useClaims({
     search: debouncedSearch || undefined,
     statusIn: filters.apiParams.statusIn,
@@ -91,13 +85,10 @@ export function ClaimsTable() {
     sortBy,
     sortOrder,
   })
-
   const deleteClaim = useDeleteClaim()
-
   const claims: ClaimData[] = data?.data ?? []
   const total = data?.meta?.total ?? 0
   const nextCursor = data?.meta?.nextCursor ?? null
-
   const columnActions = useMemo(
     () => ({
       onView: (id: string) => router.push(`/claims/${id}`),
@@ -105,12 +96,10 @@ export function ClaimsTable() {
     }),
     [router]
   )
-
   const columns = useMemo(
     () => createClaimColumns(columnActions, role),
     [columnActions, role]
   )
-
   const table = useReactTable({
     data: claims,
     columns,
@@ -126,15 +115,12 @@ export function ClaimsTable() {
     manualFiltering: true,
     rowCount: total,
   })
-
   function handleFilterChange(key: string, value: FilterValue) {
     filters.setFilter(key, value)
   }
-
   function handleColumnToggle(id: string, visible: boolean) {
     setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
-
   function handleConfirmDelete() {
     if (deletingClaimId) {
       deleteClaim.mutate(deletingClaimId, {
@@ -142,7 +128,6 @@ export function ClaimsTable() {
       })
     }
   }
-
   if (isError) {
     return (
       <TableErrorState
@@ -151,7 +136,6 @@ export function ClaimsTable() {
       />
     )
   }
-
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <UnifiedFilterBar
@@ -168,7 +152,6 @@ export function ClaimsTable() {
       >
         <ClaimCreateButton />
       </UnifiedFilterBar>
-
       <DataTable
         table={table}
         isLoading={isLoading}
@@ -178,7 +161,6 @@ export function ClaimsTable() {
         columnVisibility={columnVisibility}
         onRowClick={(claim) => router.push(`/claims/${claim.id}`)}
       />
-
       <MobileCardList
         data={claims}
         keyExtractor={(c) => c.id}
@@ -188,7 +170,6 @@ export function ClaimsTable() {
         emptyDescription="Registre um novo sinistro para começar."
         renderCard={(claim) => <ClaimCard claim={claim} />}
       />
-
       <CursorPagination
         total={total}
         pageSize={pagination.pageSize}
@@ -201,7 +182,6 @@ export function ClaimsTable() {
           if (nextCursor) pagination.goToNext(nextCursor)
         }}
       />
-
       <ConfirmDeleteDialog
         entityLabel="sinistro"
         open={Boolean(deletingClaimId)}

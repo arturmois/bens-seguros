@@ -17,7 +17,6 @@ const QUEUE_NAME = 'erp-notifications'
 export function setupNotificationProcessor(connection: ConnectionOptions) {
   const queue = new Queue<NotificationJobData>(QUEUE_NAME, { connection })
   const repo = new PrismaNotificationRepository(prismaAdmin)
-
   let emailProvider: EmailProvider | null = null
   if (env.RESEND_API_KEY) {
     emailProvider = new ResendEmailProvider({
@@ -25,16 +24,11 @@ export function setupNotificationProcessor(connection: ConnectionOptions) {
       fromAddress: env.RESEND_FROM_ADDRESS,
     })
   }
-
   const worker = new Worker<NotificationJobData>(
     QUEUE_NAME,
     async (job: Job<NotificationJobData>) => {
       const { notification, email } = job.data
-
-      // Create in-app notification
       const created = await repo.create(notification)
-
-      // Send email if payload provided and provider configured
       if (email && emailProvider) {
         try {
           await emailProvider.send(email)
@@ -49,7 +43,6 @@ export function setupNotificationProcessor(connection: ConnectionOptions) {
           )
         }
       }
-
       logger.info(
         {
           notificationId: created.id,
@@ -69,10 +62,8 @@ export function setupNotificationProcessor(connection: ConnectionOptions) {
       removeOnFail: { age: 86_400 },
     }
   )
-
   worker.on('failed', (job, err) => {
     logger.error({ jobId: job?.id, err }, 'Notification job failed')
   })
-
   return { worker, queue }
 }

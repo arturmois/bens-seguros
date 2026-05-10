@@ -8,7 +8,7 @@ const logger = pino({ name: 'csv-import-enqueuer' })
 
 const QUEUE_NAME = 'csv-import'
 const REDIS_PREFIX = 'csv-import:'
-const STAGING_TTL_SECONDS = 1800 // 30 minutes
+const STAGING_TTL_SECONDS = 1800
 
 function parseRedisUrl(url: string): {
   host: string
@@ -75,7 +75,6 @@ export async function retrieveStagedData(
   const redis = getRedis()
   const data = await redis.get(`${REDIS_PREFIX}${jobId}`)
   if (!data) return null
-
   const staged: unknown = JSON.parse(data)
   if (
     typeof staged !== 'object' ||
@@ -86,7 +85,6 @@ export async function retrieveStagedData(
     logger.warn({ jobId }, 'Staged data missing organizationId structure')
     return null
   }
-
   const typedStaged = staged as StagedImportData
   if (typedStaged.organizationId !== organizationId) {
     logger.warn(
@@ -95,7 +93,6 @@ export async function retrieveStagedData(
     )
     return null
   }
-
   return typedStaged.rows
 }
 
@@ -137,11 +134,9 @@ export async function getImportJobStatus(jobId: string): Promise<{
       result: null,
     }
   }
-
   const state = await job.getState()
   const progress = job.progress as Record<string, unknown> | undefined
   const result = job.returnvalue as Record<string, unknown> | undefined
-
   return {
     status:
       state === 'unknown'

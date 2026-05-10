@@ -30,7 +30,6 @@ export function searchClientsRoute(app: FastifyInstance) {
     handler: async (request, reply) => {
       const { phone, document } = request.query
       const organizationId = request.organizationId!
-
       if (!phone && !document) {
         return reply.status(400).send({
           success: false,
@@ -40,23 +39,19 @@ export function searchClientsRoute(app: FastifyInstance) {
           },
         })
       }
-
       const tenantPrisma = createTenantClient(organizationId)
-
       const resolved = await resolveClient(
         tenantPrisma,
         organizationId,
         phone,
         document
       )
-
       if (!resolved) {
         return reply.status(200).send({
           success: true,
           data: { found: false, client: null },
         })
       }
-
       const [activePoliciesCount, openProposalsCount] = await Promise.all([
         tenantPrisma.policy.count({
           where: {
@@ -75,7 +70,6 @@ export function searchClientsRoute(app: FastifyInstance) {
           },
         }),
       ])
-
       return reply.status(200).send({
         success: true,
         data: {
@@ -83,9 +77,6 @@ export function searchClientsRoute(app: FastifyInstance) {
           client: {
             id: resolved.id,
             name: resolved.legalName,
-            // Client.type was removed in the contact-client separation refactor.
-            // Stage is now derived from active policies (CLIENT) or absence of them
-            // (LEAD). Surface a simple synthetic value to keep API back-compat.
             type:
               activePoliciesCount > 0 ? ('CLIENT' as const) : ('LEAD' as const),
             email: resolved.email,
@@ -99,7 +90,6 @@ export function searchClientsRoute(app: FastifyInstance) {
     },
   })
 }
-
 async function resolveClient(
   tenantPrisma: ReturnType<typeof createTenantClient>,
   organizationId: string,
@@ -128,7 +118,6 @@ async function resolveClient(
       phone: contact?.phone ?? null,
     }
   }
-
   if (phone) {
     const contact = await tenantPrisma.contact.findFirst({
       where: { organizationId, phone, deletedAt: null },
@@ -142,6 +131,5 @@ async function resolveClient(
       phone: contact.phone,
     }
   }
-
   return null
 }

@@ -35,22 +35,17 @@ export function ClaimStatusActions({
     null
   )
   const updateStatus = useUpdateClaimStatus()
-
   const allowedTransitions = VALID_CLAIM_TRANSITIONS[currentStatus]
-
   if (allowedTransitions.length === 0) {
     return null
   }
-
   function handleConfirm() {
     if (!confirmingStatus) return
-
     updateStatus.mutate(
       { id: claimId, status: confirmingStatus },
       { onSuccess: () => setConfirmingStatus(null) }
     )
   }
-
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-medium">Alterar Status</h3>
@@ -63,7 +58,6 @@ export function ClaimStatusActions({
           />
         ))}
       </div>
-
       <AlertDialog
         open={confirmingStatus !== null}
         onOpenChange={(open) => {
@@ -110,7 +104,6 @@ function StatusTransitionButton({
   readonly onClick: () => void
 }) {
   const { variant, className } = CLAIM_STATUS_BUTTON_STYLES[targetStatus]
-
   return (
     <Button
       type="button"

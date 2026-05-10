@@ -31,11 +31,8 @@ export class UploadDocument {
 
   async execute(dto: UploadDocumentInput): Promise<DocumentData> {
     await validateFileContent(dto.buffer, dto.fileName)
-
     const storageKey = `${dto.organizationId}/${dto.entityType}/${dto.entityId}/${randomUUID()}-${dto.fileName}`
-
     await this.storage.upload(storageKey, dto.buffer, dto.mimeType)
-
     return this.documentRepo.create({
       organizationId: dto.organizationId,
       entityType: dto.entityType,

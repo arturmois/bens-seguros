@@ -44,10 +44,6 @@ export class BaileysBroker implements Broker {
     level: env.BAILEYS_LOG_LEVEL,
   })
 
-  /**
-   * Retry counter cache lives outside the socket lifecycle
-   * so it persists across reconnections.
-   */
   private readonly msgRetryCounterCache = createBaileysCacheStore()
 
   constructor(tenantId: string, channelId: string) {
@@ -70,7 +66,6 @@ export class BaileysBroker implements Broker {
     const { socket, saveCreds } = await this.createSocket()
     this.socket = socket
     this.setupEventListeners(socket, events, saveCreds)
-
     const sanitizedPhone = phoneNumber.replace(/\D/g, '')
     return socket.requestPairingCode(sanitizedPhone)
   }
@@ -92,7 +87,6 @@ export class BaileysBroker implements Broker {
     if (!this.socket) {
       return { externalId: '', status: 'FAILED', errorCode: 'NOT_CONNECTED' }
     }
-
     try {
       const result = await this.socket.sendMessage(
         phoneToJid(payload.to),
@@ -110,10 +104,6 @@ export class BaileysBroker implements Broker {
     return this.connected
   }
 
-  /**
-   * Creates the WASocket with auth state, version, and caches.
-   * Shared between connect() and connectWithPairingCode().
-   */
   private async createSocket(): Promise<{
     socket: WASocket
     saveCreds: () => Promise<void>
@@ -122,7 +112,6 @@ export class BaileysBroker implements Broker {
       `./baileys-sessions/${this.channelId}`
     )
     const { version } = await fetchLatestBaileysVersion()
-
     const socket = makeWASocket({
       version,
       auth: {
@@ -135,21 +124,15 @@ export class BaileysBroker implements Broker {
       syncFullHistory: false,
       getMessage: (key: WAMessageKey) => this.getMessageForRetry(key),
     })
-
     return { socket, saveCreds }
   }
 
-  /**
-   * Retrieve a stored message for Baileys retry/resend mechanism.
-   */
   private async getMessageForRetry(
     key: WAMessageKey
   ): Promise<Record<string, unknown> | undefined> {
     if (!key.id) return undefined
-
     const msg = await Message.findOne({ externalId: key.id }).lean().exec()
     if (!msg?.metadata || !isMessageMetadata(msg.metadata)) return undefined
-
     return msg.metadata
   }
 
@@ -159,22 +142,17 @@ export class BaileysBroker implements Broker {
     saveCreds: () => Promise<void>
   ): void {
     socket.ev.on('creds.update', saveCreds)
-
     socket.ev.on('connection.update', (update) => {
       this.handleConnectionUpdate(update, events)
     })
-
     socket.ev.on('messages.upsert', ({ messages, type }) => {
       if (type !== 'notify') return
-
       for (const msg of messages) {
         if (msg.key.fromMe) continue
         if (!isPersonalJid(msg.key.remoteJid)) continue
-
         events.onMessage(toIncomingMessage(msg))
       }
     })
-
     socket.ev.on('messages.update', (updates) => {
       for (const update of updates) {
         const mapped = mapWAStatusUpdate(update)
@@ -194,12 +172,10 @@ export class BaileysBroker implements Broker {
     update: Partial<ConnectionState>,
     events: BrokerEvents
   ): void {
-    // Handle QR and open states normally
     if (update.qr) {
       events.onConnectionUpdate('QR_PENDING', update.qr)
       return
     }
-
     if (update.connection === 'open') {
       this.reconnectAttempts = 0
       if (!this.connected) {
@@ -208,11 +184,9 @@ export class BaileysBroker implements Broker {
       }
       return
     }
-
     if (update.connection === 'close') {
       if (shouldReconnect(update)) {
         this.reconnectAttempts += 1
-
         if (this.reconnectAttempts > this.maxReconnectAttempts) {
           this.connected = false
           this.logger.error(
@@ -222,7 +196,6 @@ export class BaileysBroker implements Broker {
           events.onConnectionUpdate('DISCONNECTED')
           return
         }
-
         const delay = this.calculateBackoffDelay()
         this.logger.info(
           { channelId: this.channelId, attempt: this.reconnectAttempts, delay },
@@ -232,7 +205,6 @@ export class BaileysBroker implements Broker {
           void this.connect({ ...events })
         }, delay)
       } else {
-        // Permanent disconnect (loggedOut) — notify frontend
         this.connected = false
         events.onConnectionUpdate('DISCONNECTED')
       }

@@ -22,10 +22,8 @@ export class MarkProposalLost {
     if (!proposal) {
       throw ProposalErrors.notFound(proposalId)
     }
-
     proposal.markAsLost(reason)
     await this.proposalRepo.save(proposal)
-
     return proposal
   }
 }

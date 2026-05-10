@@ -26,7 +26,6 @@ export function PairingCodeTab({
         Ideal para ambientes sem câmera. Digite o número do WhatsApp e insira o
         código de 8 dígitos no celular.
       </p>
-
       <div className="flex gap-2">
         <Input
           placeholder="+5511999998888"
@@ -42,9 +41,7 @@ export function PairingCodeTab({
           {loading ? <Loader2 className="size-4 animate-spin" /> : 'Gerar'}
         </Button>
       </div>
-
       {code && <PairingCodeDisplay code={code} />}
-
       {error && (
         <p className="text-destructive text-center text-sm" role="alert">
           {error}
@@ -57,7 +54,6 @@ export function PairingCodeTab({
 function PairingCodeDisplay({ code }: { readonly code: string }) {
   const formatted =
     code.length === 8 ? `${code.slice(0, 4)}-${code.slice(4)}` : code
-
   return (
     <div className="flex flex-col items-center gap-2 rounded-lg border p-4">
       <p className="text-muted-foreground text-sm">

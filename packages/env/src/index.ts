@@ -34,33 +34,24 @@ export const env = createEnv({
     SENTRY_DSN: z.string().url().optional(),
     COOKIE_DOMAIN: z.string().optional(),
     META_WEBHOOK_VERIFY_TOKEN: z.string().optional(),
-    // Meta centralized app — OAuth + webhook HMAC
     META_APP_ID: z.string().min(1).optional(),
     META_APP_SECRET: z.string().min(1).optional(),
     META_OAUTH_REDIRECT_URI: z.string().url().optional(),
     META_WA_CONFIG_ID: z.string().optional(),
     STORAGE_PROVIDER: z.enum(['local', 'r2']).default('local'),
-    // SEC-1: PII encryption key — hex-encoded 32-byte key (64 hex chars)
-    // Required: all-zeros default removed to prevent trivial decryption of PII
     ENCRYPTION_KEY: encryptionKeySchema,
-    // Dedicated key for HMAC hashing of PII (CPF/CNPJ). Separate from ENCRYPTION_KEY.
-    // Falls back to ENCRYPTION_KEY if not set (backwards compat).
     HMAC_KEY: z
       .string()
       .min(32, 'HMAC_KEY must be at least 32 characters')
       .optional(),
-    // Internal API for lead capture from AI bot
     INTERNAL_API_URL: z.string().url().optional(),
     INTERNAL_API_SECRET: z
       .string()
       .min(32, 'INTERNAL_API_SECRET must be at least 32 characters')
       .optional(),
-    // Deployment: runtime port/host (platforms like Railway/Render set PORT automatically)
     PORT: z.coerce.number().int().positive().optional(),
     HOST: z.string().default('0.0.0.0'),
-    // Chat-server: path to widget dist directory for static serving
     WIDGET_DIST_PATH: z.string().optional(),
-    // Chat-worker: Baileys WhatsApp session storage
     BAILEYS_SESSIONS_DIR: z.string().default('./baileys-sessions'),
     BAILEYS_LOG_LEVEL: z
       .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])

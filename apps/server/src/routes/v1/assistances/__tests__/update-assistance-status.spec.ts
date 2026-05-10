@@ -60,67 +60,55 @@ const makeAssistance = (
 describe('POST /api/v1/assistances/:id/status', () => {
   it('returns 200 with updated assistance on valid status transition', async () => {
     mockExecute.mockResolvedValue(makeAssistance('COMPLETED'))
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/assistances/assistance-id-001/status',
       payload: { status: 'COMPLETED' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.status).toBe('COMPLETED')
     expect(body.data.organizationId).toBe(TEST_ORG_ID)
   })
-
   it('returns 400 when status is invalid', async () => {
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/assistances/assistance-id-001/status',
       payload: { status: 'INVALID_STATUS' },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('returns 400 when status is missing', async () => {
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/assistances/assistance-id-001/status',
       payload: {},
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('returns 422 on invalid status transition', async () => {
     mockResolveError(
       'INVALID_ASSISTANCE_STATUS_TRANSITION',
       'Cannot transition to the requested status'
     )
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/assistances/assistance-id-001/status',
       payload: { status: 'REQUESTED' },
     })
-
     expect(response.statusCode).toBe(422)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('INVALID_ASSISTANCE_STATUS_TRANSITION')
   })
-
   it('returns 404 when assistance is not found', async () => {
     mockResolveError('ASSISTANCE_NOT_FOUND', 'Assistance not found')
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/assistances/nonexistent-id/status',
       payload: { status: 'COMPLETED' },
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.error.code).toBe('ASSISTANCE_NOT_FOUND')

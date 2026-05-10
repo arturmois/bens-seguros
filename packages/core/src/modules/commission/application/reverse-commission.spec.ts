@@ -65,13 +65,10 @@ describe('ReverseCommission', () => {
     const data = makeCommissionData({ status: 'PAID' })
     const repo = createMockRepo(data)
     const useCase = new ReverseCommission(repo)
-
     const result = await useCase.execute('comm-1', 'org-1')
-
     expect(repo.reverseAtomic).toHaveBeenCalledTimes(1)
     expect(repo.save).not.toHaveBeenCalled()
     expect(repo.update).not.toHaveBeenCalled()
-
     const [updatedOriginal, createdReversal] =
       vi.mocked(repo.reverseAtomic).mock.calls[0] ?? []
     expect(createdReversal?.isReversal).toBe(true)
@@ -79,35 +76,28 @@ describe('ReverseCommission', () => {
     expect(createdReversal?.commissionValueInCents).toBe(-15000)
     expect(createdReversal?.status).toBe('PENDING_COMMERCIAL')
     expect(updatedOriginal?.status).toBe('REVERSED')
-
     expect(result.reversal.isReversal).toBe(true)
     expect(result.original.status).toBe('REVERSED')
   })
-
   it('throws CommissionNotFoundError when commission does not exist', async () => {
     const repo = createMockRepo(null)
     const useCase = new ReverseCommission(repo)
-
     await expect(useCase.execute('missing', 'org-1')).rejects.toThrow(
       CommissionNotFoundError
     )
   })
-
   it('throws CommissionNotPaidError when commission is not PAID', async () => {
     const data = makeCommissionData({ status: 'APPROVED' })
     const repo = createMockRepo(data)
     const useCase = new ReverseCommission(repo)
-
     await expect(useCase.execute('comm-1', 'org-1')).rejects.toThrow(
       CommissionNotPaidError
     )
   })
-
   it('throws CommissionNotPaidError when commission is PENDING_COMMERCIAL', async () => {
     const data = makeCommissionData({ status: 'PENDING_COMMERCIAL' })
     const repo = createMockRepo(data)
     const useCase = new ReverseCommission(repo)
-
     await expect(useCase.execute('comm-1', 'org-1')).rejects.toThrow(
       CommissionNotPaidError
     )

@@ -17,52 +17,42 @@ export function setupProactiveAlertsProcessor(
   notificationQueue: Queue<NotificationJobData>
 ) {
   const queue = new Queue(QUEUE_NAME, { connection })
-
   queue.upsertJobScheduler(
     'proactive-alerts-daily',
     { pattern: '0 8 * * *' },
     { name: 'check-all-alerts' }
   )
-
   const worker = new Worker(
     QUEUE_NAME,
     async () => {
       logger.info('Starting proactive alerts check')
-
       const organizations = await prismaAdmin.organization.findMany({
         select: { id: true },
       })
-
       for (const org of organizations) {
         const orgLogger = logger.child({ organizationId: org.id })
-
         try {
           await checkPoliciesExpiring(org.id, notificationQueue, orgLogger)
         } catch (err: unknown) {
           orgLogger.error({ err }, 'Policy expiry check failed')
         }
-
         try {
           await checkClaimsStalled(org.id, notificationQueue, orgLogger)
         } catch (err: unknown) {
           orgLogger.error({ err }, 'Claims stalled check failed')
         }
-
         try {
           await checkCommissionsPending(org.id, notificationQueue, orgLogger)
         } catch (err: unknown) {
           orgLogger.error({ err }, 'Commissions pending check failed')
         }
-
         try {
           await checkProposalsStagnant(org.id, notificationQueue, orgLogger)
         } catch (err: unknown) {
           orgLogger.error({ err }, 'Proposals stagnant check failed')
         }
-
         orgLogger.info('Completed all checks for organization')
       }
-
       logger.info(
         { organizationCount: organizations.length },
         'Proactive alerts check completed'
@@ -77,10 +67,8 @@ export function setupProactiveAlertsProcessor(
       removeOnFail: { age: 86_400 },
     }
   )
-
   worker.on('failed', (job, err) => {
     logger.error({ jobId: job?.id, err }, 'Proactive alerts job failed')
   })
-
   return { worker, queue }
 }

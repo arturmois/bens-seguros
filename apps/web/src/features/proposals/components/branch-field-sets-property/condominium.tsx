@@ -21,7 +21,6 @@ export function CondominiumFields({
 }: CondominiumFieldsProps) {
   const isCompanyClient = autoFill?.clientPersonType === 'COMPANY'
   const condominiumNameValue = useWatch({ control, name: 'condominiumName' })
-
   return (
     <>
       <FieldWrapper label="Nome do Condomínio" required>

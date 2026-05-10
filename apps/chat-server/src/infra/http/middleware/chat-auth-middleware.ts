@@ -15,7 +15,6 @@ export async function chatAuthMiddleware(
   reply: FastifyReply
 ): Promise<void> {
   const authHeader = request.headers.authorization
-
   if (!authHeader?.startsWith('Bearer ')) {
     await reply.status(401).send({
       success: false,
@@ -23,15 +22,12 @@ export async function chatAuthMiddleware(
     })
     return
   }
-
   const token = authHeader.slice(7)
-
   try {
     const decoded: unknown = jwt.verify(token, env.SOCKET_JWT_SECRET, {
       algorithms: ['HS256'],
     })
     const parsed = jwtPayloadSchema.safeParse(decoded)
-
     if (!parsed.success) {
       await reply.status(401).send({
         success: false,
@@ -39,7 +35,6 @@ export async function chatAuthMiddleware(
       })
       return
     }
-
     request.user = {
       userId: parsed.data.userId,
       organizationId: parsed.data.organizationId,

@@ -13,8 +13,6 @@ export const PERSON_TYPE_VALUES = ['INDIVIDUAL', 'COMPANY'] as const
 
 export const personTypeEnum = z.enum(PERSON_TYPE_VALUES)
 
-// --- Body schemas ---
-
 export const createClientBodySchema = z.object({
   legalName: z.string().trim().min(1).max(200),
   document: z.string().trim().min(11).max(14),
@@ -34,15 +32,11 @@ export const updateClientBodySchema = z.object({
   fiscalBirthDate: z.coerce.date().nullable().optional(),
 })
 
-// --- Query schemas ---
-
 export const listClientsQuerySchema = z.object({
-  // Boolean — schema corrigido (z.coerce.boolean() interpreta 'false' como true)
   hasActivePolicy: z
     .union([z.literal('true'), z.literal('false')])
     .transform((v) => v === 'true')
     .optional(),
-  // Enum multi-select (PF/PJ)
   personTypeIn: csvEnumArray(personTypeEnum).optional(),
   search: z.string().optional(),
   cursor: z.string().optional(),
@@ -56,8 +50,6 @@ export { idParam as idParamSchema }
 export const importJobIdParamSchema = z.object({
   jobId: z.string().uuid(),
 })
-
-// --- Response schemas (OpenAPI) ---
 
 export const clientWithMetricsSchema = z.object({
   id: z.string(),
@@ -98,8 +90,6 @@ export const clientUpdateResponse = successResponse(clientDataSchema)
 export const clientCreateResponse = successResponse(clientWithMetricsSchema)
 export const deleteResponse = z.void()
 export { errorResponse }
-
-// --- Import response schemas (OpenAPI) ---
 
 const csvRowErrorSchema = z.object({
   row: z.number(),

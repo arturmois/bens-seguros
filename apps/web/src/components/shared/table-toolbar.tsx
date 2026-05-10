@@ -30,7 +30,6 @@ export function TableToolbar({
 }: TableToolbarProps) {
   const showColumnToggle =
     columnVisibility && onColumnVisibilityChange && hideableColumns?.length
-
   return (
     <div className="flex flex-wrap items-center justify-between gap-2">
       <div className="flex flex-1 flex-wrap items-center gap-2">
@@ -45,7 +44,6 @@ export function TableToolbar({
         </div>
         {filters}
       </div>
-
       <div className="flex items-center gap-2">
         {showColumnToggle && (
           <Popover>

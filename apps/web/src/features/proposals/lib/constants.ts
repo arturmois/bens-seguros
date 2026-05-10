@@ -10,11 +10,6 @@ import type {
   GetProposalChecklist200DataSummary,
 } from '@/api/model'
 
-// ---------------------------------------------------------------------------
-// Type aliases — keep existing names used across the codebase so that
-// component files do not need mass-renaming.
-// ---------------------------------------------------------------------------
-
 export type ProposalStage = ListProposals200DataItemStage
 export type InsuranceBranch = ListProposals200DataItemBranch
 export type BoardType = ListProposals200DataItemBoardType
@@ -23,11 +18,6 @@ export type ProposalDetail = GetProposal200Data
 export type ChecklistItem = GetProposalChecklist200DataItemsItem
 export type ChecklistSummary = GetProposalChecklist200DataSummary
 
-/**
- * Insured-object detail shapes used by branch-specific form fields.
- * Orval collapses the discriminated union into a single opaque type, so we
- * re-export the per-branch interfaces here for components that need them.
- */
 export interface AutoDetails {
   branch: 'AUTO'
   brand: string
@@ -117,10 +107,6 @@ export type InsuredObjectDetails =
   | LifeDetails
   | OtherDetails
 
-// ---------------------------------------------------------------------------
-// UI constants — labels, badge variants, ordered arrays
-// ---------------------------------------------------------------------------
-
 export const STAGE_LABELS: Record<ProposalStage, string> = {
   CAPTURE: 'Captação',
   QUOTE: 'Cotação',
@@ -200,10 +186,6 @@ export const ENDORSEMENT_STAGES: readonly ProposalStage[] = [
   'POLICY_ISSUED',
   'LOST',
 ] as const
-
-// ---------------------------------------------------------------------------
-// Shared table primitives — column visibility + default sort
-// ---------------------------------------------------------------------------
 
 export const ALL_FILTER_VALUE = '__all__'
 

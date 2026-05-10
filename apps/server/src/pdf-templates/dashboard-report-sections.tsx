@@ -65,7 +65,6 @@ export function RankingSection({
       </View>
     )
   }
-
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Ranking de Corretores</Text>

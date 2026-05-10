@@ -67,7 +67,6 @@ export function Button({
   const isDisabled: boolean = Boolean(loading || disabledProp)
   const typeValue: React.ButtonHTMLAttributes<HTMLButtonElement>['type'] =
     render ? undefined : 'button'
-
   const defaultProps = {
     children: (
       <>
@@ -87,7 +86,6 @@ export function Button({
     disabled: isDisabled,
     type: typeValue,
   }
-
   return useRender({
     defaultTagName: 'button',
     props: mergeProps<'button'>(defaultProps, props),

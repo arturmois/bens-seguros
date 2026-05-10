@@ -100,13 +100,8 @@ export function registerDependencies(redis: Redis | null = null) {
     const cacheService = new RedisCacheService(redis)
     container.register('CacheService', { useValue: cacheService })
   }
-
-  // CepCacheService is always registered so LookupCep can resolve it even
-  // when Redis is unavailable (tests, degraded boot). NoopCacheService makes
-  // every lookup a cache miss, which is safe — ViaCEP is called every time.
   const cepCache = redis ? new RedisCacheService(redis) : new NoopCacheService()
   container.register('CepCacheService', { useValue: cepCache })
-
   container.register('CepLookupProvider', { useClass: ViaCepProvider })
   container.register(LookupCep, {
     useFactory: (c) =>
@@ -115,7 +110,6 @@ export function registerDependencies(redis: Redis | null = null) {
         c.resolve('CepCacheService')
       ),
   })
-
   const clientRepo = new PrismaClientRepository(prismaAdmin)
   const contactRepo = new PrismaContactRepository(prismaAdmin)
   const proposalRepo = new PrismaProposalRepository(prismaAdmin)
@@ -129,12 +123,10 @@ export function registerDependencies(redis: Redis | null = null) {
   const documentRepo = new PrismaDocumentRepository(prismaAdmin)
   const insurerRepo = new PrismaInsurerRepository(prismaAdmin)
   const commissionRepo = new PrismaCommissionRepository(prismaAdmin)
-
   const storageProvider =
     env.STORAGE_PROVIDER === 'r2'
       ? new R2StorageProvider()
       : new LocalStorageProvider()
-
   container.register('PrismaClient', { useValue: prismaAdmin })
   container.register('ClientRepository', { useValue: clientRepo })
   container.register('ContactRepository', { useValue: contactRepo })
@@ -150,8 +142,6 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register('InsurerRepository', { useValue: insurerRepo })
   container.register('CommissionRepository', { useValue: commissionRepo })
   container.register('StorageProvider', { useValue: storageProvider })
-
-  // Client use cases
   container.register(CreateClient, {
     useFactory: () => new CreateClient(clientRepo),
   })
@@ -171,8 +161,6 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register(ParseClientImport, {
     useFactory: () => new ParseClientImport(clientRepo),
   })
-
-  // Contact use cases
   container.register(CreateContact, {
     useFactory: () => new CreateContact(contactRepo),
   })
@@ -191,8 +179,6 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register(SoftDeleteContact, {
     useFactory: () => new SoftDeleteContact(contactRepo),
   })
-
-  // Proposal use cases
   container.register(CreateProposal, {
     useFactory: () =>
       new CreateProposal(
@@ -237,8 +223,6 @@ export function registerDependencies(redis: Redis | null = null) {
     useFactory: () =>
       new CompleteChecklistByAttachment(checklistRepo, proposalRepo),
   })
-
-  // Policy use cases
   container.register(OnPolicyIssued, {
     useFactory: () => new OnPolicyIssued(commissionRepo),
   })
@@ -264,8 +248,6 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register(ParsePolicyImport, {
     useFactory: () => new ParsePolicyImport(policyRepo),
   })
-
-  // Claim use cases
   container.register(CreateClaim, {
     useFactory: () => new CreateClaim(claimRepo),
   })
@@ -279,16 +261,12 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register(DeleteClaim, {
     useFactory: () => new DeleteClaim(claimRepo),
   })
-
-  // Occurrence use cases
   container.register(CreateOccurrence, {
     useFactory: () => new CreateOccurrence(occurrenceRepo, claimRepo),
   })
   container.register(ListOccurrences, {
     useFactory: () => new ListOccurrences(occurrenceRepo),
   })
-
-  // Endorsement use cases
   container.register(CreateEndorsement, {
     useFactory: () => new CreateEndorsement(endorsementRepo),
   })
@@ -298,8 +276,6 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register(GetEndorsement, {
     useFactory: () => new GetEndorsement(endorsementRepo),
   })
-
-  // Assistance use cases
   container.register(CreateAssistance, {
     useFactory: () => new CreateAssistance(assistanceRepo),
   })
@@ -312,8 +288,6 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register(UpdateAssistanceStatus, {
     useFactory: () => new UpdateAssistanceStatus(assistanceRepo),
   })
-
-  // Document use cases
   container.register(UploadDocument, {
     useFactory: () => new UploadDocument(storageProvider, documentRepo),
   })
@@ -326,8 +300,6 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register(DeleteDocument, {
     useFactory: () => new DeleteDocument(documentRepo, storageProvider),
   })
-
-  // Insurer use cases
   container.register(CreateInsurer, {
     useFactory: () => new CreateInsurer(insurerRepo),
   })
@@ -337,8 +309,6 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register(UpdateInsurer, {
     useFactory: () => new UpdateInsurer(insurerRepo),
   })
-
-  // Commission use cases
   container.register(CreateCommission, {
     useFactory: () => new CreateCommission(commissionRepo),
   })
@@ -366,8 +336,6 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register(ExportCommissionsCsv, {
     useFactory: () => new ExportCommissionsCsv(commissionRepo),
   })
-
-  // Member use cases
   const memberRepo = new PrismaMemberRepository(prismaAdmin)
   container.register('MemberRepository', { useValue: memberRepo })
   container.register(UpdateMemberRole, {
@@ -376,15 +344,11 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register(DeactivateMember, {
     useFactory: () => new DeactivateMember(memberRepo),
   })
-
-  // Invitation use cases
   const invitationRepo = new PrismaInvitationRepository(prismaAdmin)
   container.register('InvitationRepository', { useValue: invitationRepo })
   container.register(AcceptInvitation, {
     useFactory: () => new AcceptInvitation(invitationRepo),
   })
-
-  // Notification use cases
   const notificationRepo = new PrismaNotificationRepository(prismaAdmin)
   container.register('NotificationRepository', { useValue: notificationRepo })
   container.register(ListNotifications, {

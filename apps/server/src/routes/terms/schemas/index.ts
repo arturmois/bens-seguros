@@ -7,8 +7,6 @@ export const acceptTermsSchema = z.object({
   privacyVersion: z.string(),
 })
 
-// --- Response schemas ---
-
 export const termsStatusResponse = successResponse(
   z.object({
     needsReAccept: z.boolean(),

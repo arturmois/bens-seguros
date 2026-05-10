@@ -14,8 +14,6 @@ import {
   optionalString,
 } from '../../shared/transforms.js'
 
-// --- Enums ---
-
 const CLAIM_STATUS_VALUES = [
   'REGISTERED',
   'IN_ANALYSIS',
@@ -31,8 +29,6 @@ const CLAIM_PRIORITY_VALUES = ['NORMAL', 'HIGH', 'URGENT'] as const
 
 const claimStatusEnum = z.enum(CLAIM_STATUS_VALUES)
 const claimPriorityEnum = z.enum(CLAIM_PRIORITY_VALUES)
-
-// --- Request schemas ---
 
 export const createClaimBodySchema = z.object({
   policyId: z.string().min(1),
@@ -73,8 +69,6 @@ export const createOccurrenceBodySchema = z.object({
 })
 
 export { idParam as idParamSchema }
-
-// --- Response schemas (OpenAPI) ---
 
 const claimDetailSchema = z.object({
   id: z.string(),

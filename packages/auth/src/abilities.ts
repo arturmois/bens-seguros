@@ -50,12 +50,10 @@ export function defineAbilitiesFor(role: Role): AppAbility {
   const { can, cannot, build } = new AbilityBuilder<AppAbility>(
     createMongoAbility
   )
-
   switch (role) {
     case 'OWNER':
       can('manage', 'all')
       break
-
     case 'ADMIN':
       can('manage', OPERATIONAL_SUBJECTS)
       can('manage', 'Commission')
@@ -68,7 +66,6 @@ export function defineAbilitiesFor(role: Role): AppAbility {
       can(['read', 'update', 'delete'], 'Member')
       can(['create', 'read', 'delete'], 'Invitation')
       break
-
     case 'MANAGER':
       can('manage', OPERATIONAL_SUBJECTS)
       can('manage', 'Commission')
@@ -78,7 +75,6 @@ export function defineAbilitiesFor(role: Role): AppAbility {
       can('read', 'Member')
       can('read', 'Invitation')
       break
-
     case 'COMMERCIAL':
       can(['create', 'read', 'update'], ['Contact', 'Client', 'Proposal'])
       can('read', ['Policy', 'Claim'])
@@ -87,13 +83,11 @@ export function defineAbilitiesFor(role: Role): AppAbility {
       can('read', 'Notification')
       can('read', 'Member')
       break
-
     case 'VIEWER':
       can('read', OPERATIONAL_SUBJECTS)
       cannot('read', 'Insurer')
       can('read', ['Commission', 'Notification'])
       break
   }
-
   return build()
 }

@@ -9,14 +9,12 @@ const FOOTER_LINKS = [
 
 export function MarketingFooter(): React.ReactElement {
   const currentYear = new Date().getFullYear()
-
   return (
     <footer className="bg-[#0f172a]">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 py-8 md:flex-row md:justify-between">
         <Link href="/" aria-label="Bens Seguros - Página inicial">
           <Logo size="sm" className="text-white" />
         </Link>
-
         <nav aria-label="Links do rodapé">
           <ul className="flex items-center gap-6">
             {FOOTER_LINKS.map((link) => (
@@ -31,7 +29,6 @@ export function MarketingFooter(): React.ReactElement {
             ))}
           </ul>
         </nav>
-
         <p className="text-sm text-slate-500">© {currentYear} Bens Seguros</p>
       </div>
     </footer>

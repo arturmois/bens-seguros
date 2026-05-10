@@ -32,8 +32,6 @@ export const CONTACT_FILTERS: readonly FilterDefinition[] = [
     icon: Calendar,
     type: 'dateRange',
   },
-  // tagsIn — postergado. Depende de novo endpoint GET /v1/contacts/tags
-  //   pra listar valores distintos de Contact.tags. Plano separado.
   {
     key: 'consentLgpd',
     label: 'Consentimento LGPD',

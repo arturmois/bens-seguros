@@ -10,11 +10,9 @@ vi.mock('@repo/db', () => ({
 
 describe('ProposalMapper', () => {
   let ProposalMapper: typeof import('./proposal-mapper.js').ProposalMapper
-
   beforeAll(async () => {
     ;({ ProposalMapper } = await import('./proposal-mapper.js'))
   })
-
   it('rehydrates source policy snapshot dates from persistence', () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
@@ -35,7 +33,6 @@ describe('ProposalMapper', () => {
         insurerName: 'Porto',
       },
     })
-
     const persisted = ProposalMapper.toPersistence(proposal)
     const restored = ProposalMapper.toDomain({
       ...persisted,
@@ -43,7 +40,6 @@ describe('ProposalMapper', () => {
       deletedAt: null,
       sourcePolicySnapshot: persisted.sourcePolicySnapshot,
     } as never)
-
     expect(restored.sourcePolicySnapshot?.startDate).toBeInstanceOf(Date)
     expect(restored.sourcePolicySnapshot?.endDate).toBeInstanceOf(Date)
     expect(restored.sourcePolicySnapshot?.startDate.toISOString()).toBe(
@@ -53,7 +49,6 @@ describe('ProposalMapper', () => {
       '2027-02-01T00:00:00.000Z'
     )
   })
-
   it('drops invalid source policy snapshot payloads from persistence', () => {
     const restored = ProposalMapper.toDomain({
       id: 'prop-1',
@@ -85,7 +80,6 @@ describe('ProposalMapper', () => {
       createdAt: new Date('2026-02-01T00:00:00.000Z'),
       updatedAt: new Date('2026-02-01T00:00:00.000Z'),
     } as never)
-
     expect(restored.sourcePolicySnapshot).toBeNull()
   })
 })

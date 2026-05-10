@@ -26,7 +26,6 @@ export function createSearchClientTool(tenantId: string) {
           error: 'At least one of phone or document is required',
         }
       }
-
       if (!env.INTERNAL_API_URL || !env.INTERNAL_API_SECRET) {
         logger.warn(
           { tenantId },
@@ -34,12 +33,10 @@ export function createSearchClientTool(tenantId: string) {
         )
         return { found: false, error: 'Internal API not configured' }
       }
-
       try {
         const params = new URLSearchParams()
         if (phone) params.set('phone', phone)
         if (document) params.set('document', document)
-
         const path = '/api/internal/clients/search'
         const timestamp = Math.floor(Date.now() / 1000)
         const signature = signRequest({
@@ -50,7 +47,6 @@ export function createSearchClientTool(tenantId: string) {
           body: '',
           timestamp,
         })
-
         const response = await fetch(
           `${env.INTERNAL_API_URL}${path}?${params.toString()}`,
           {
@@ -64,7 +60,6 @@ export function createSearchClientTool(tenantId: string) {
             signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
           }
         )
-
         if (!response.ok) {
           logger.error(
             { status: response.status, tenantId },
@@ -75,13 +70,10 @@ export function createSearchClientTool(tenantId: string) {
             error: `API responded with status ${String(response.status)}`,
           }
         }
-
         const json: unknown = await response.json()
-
         if (typeof json === 'object' && json !== null && 'data' in json) {
           return (json as { data: unknown }).data
         }
-
         return { found: false, error: 'Unexpected response format' }
       } catch (err: unknown) {
         logger.error(

@@ -46,7 +46,6 @@ export function createUpdateClientDataTool(tenantId: string) {
         )
         return { success: false, message: 'Internal API not configured' }
       }
-
       try {
         const path = `/api/internal/clients/${clientId}`
         const body = JSON.stringify(fields)
@@ -59,7 +58,6 @@ export function createUpdateClientDataTool(tenantId: string) {
           body,
           timestamp,
         })
-
         const response = await fetch(`${env.INTERNAL_API_URL}${path}`, {
           method: 'PUT',
           headers: {
@@ -71,7 +69,6 @@ export function createUpdateClientDataTool(tenantId: string) {
           body,
           signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         })
-
         if (!response.ok) {
           logger.error(
             { status: response.status, tenantId, clientId },
@@ -82,9 +79,7 @@ export function createUpdateClientDataTool(tenantId: string) {
             message: `API responded with status ${String(response.status)}`,
           }
         }
-
         const json: unknown = await response.json()
-
         if (
           typeof json === 'object' &&
           json !== null &&
@@ -96,7 +91,6 @@ export function createUpdateClientDataTool(tenantId: string) {
             .data
           return { success: data.success, message: data.message }
         }
-
         return { success: true, message: 'Dados do cliente atualizados' }
       } catch (err: unknown) {
         logger.error(

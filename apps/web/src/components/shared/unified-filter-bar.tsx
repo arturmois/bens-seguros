@@ -47,7 +47,6 @@ export function UnifiedFilterBar({
 }: UnifiedFilterBarProps) {
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const [editingKey, setEditingKey] = useState<string | null>(null)
-
   const activeCount = useMemo(
     () =>
       filters.reduce((acc, f) => {
@@ -58,10 +57,8 @@ export function UnifiedFilterBar({
       }, 0),
     [filters, values]
   )
-
   const showColumnToggle =
     columnVisibility && onColumnVisibilityChange && hideableColumns?.length
-
   return (
     <div className="flex flex-col gap-2" data-slot="unified-filter-bar">
       <div className="flex flex-wrap items-center gap-2">
@@ -77,7 +74,6 @@ export function UnifiedFilterBar({
             />
           </InputGroup>
         )}
-
         {isDesktop ? (
           <FilterPopover
             filters={filters}
@@ -95,7 +91,6 @@ export function UnifiedFilterBar({
             onClearAll={onClearAll}
           />
         )}
-
         <div className="ms-auto flex items-center gap-2">
           {showColumnToggle && (
             <Popover>
@@ -131,7 +126,6 @@ export function UnifiedFilterBar({
           {children}
         </div>
       </div>
-
       {isDesktop && (
         <FilterChipsBar
           filters={filters}

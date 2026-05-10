@@ -9,7 +9,6 @@ import { AssistanceForm } from '@/features/assistances/components/assistance-for
 
 export function NewAssistanceContent() {
   const router = useRouter()
-
   return (
     <div className="space-y-6">
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
@@ -25,7 +24,6 @@ export function NewAssistanceContent() {
         <span className="text-muted-foreground">/</span>
         <span className="text-muted-foreground">Nova Assistência</span>
       </nav>
-
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">
           Nova Assistência
@@ -34,7 +32,6 @@ export function NewAssistanceContent() {
           Preencha os dados para registrar uma nova assistência.
         </p>
       </div>
-
       <AssistanceForm />
     </div>
   )

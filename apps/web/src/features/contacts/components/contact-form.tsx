@@ -30,8 +30,6 @@ import { useCreateContact, useUpdateContact } from '../hooks/use-contacts'
 
 import { PHONE_MASK } from '@/lib/masks'
 
-// Local form schema overrides: treat empty `email` and `notes` as absent.
-// Phone is required by the API — base schema's min(1) governs directly.
 const emptyToUndef = (value: unknown) =>
   typeof value === 'string' && value.trim() === '' ? undefined : value
 
@@ -103,21 +101,17 @@ export function ContactForm({
   const createMutation = useCreateContact()
   const updateMutation = useUpdateContact()
   const isPending = createMutation.isPending || updateMutation.isPending
-
   const form = useForm<CreateContactValues>({
     resolver: zodResolver(CreateContactSchema),
     mode: 'onSubmit',
     defaultValues: buildDefaultValues(initial),
   })
-
   useEffect(() => {
     if (initial) form.reset(buildDefaultValues(initial))
   }, [initial, form])
-
   useEffect(() => {
     onPendingChange?.(isPending)
   }, [isPending, onPendingChange])
-
   function handleSubmit(values: CreateContactValues) {
     const sanitized: CreateContactValues = {
       ...values,
@@ -125,7 +119,6 @@ export function ContactForm({
       email: values.email?.trim() ? values.email.trim() : undefined,
       notes: values.notes?.trim() ? values.notes.trim() : undefined,
     }
-
     if (mode === 'edit' && initial) {
       updateMutation.mutate(
         {
@@ -147,7 +140,6 @@ export function ContactForm({
       )
       return
     }
-
     createMutation.mutate(sanitized, {
       onSuccess: (response) => {
         const responseBody = response.data
@@ -161,7 +153,6 @@ export function ContactForm({
       },
     })
   }
-
   function handleCancel() {
     if (onCancel) {
       onCancel()
@@ -169,9 +160,7 @@ export function ContactForm({
     }
     router.back()
   }
-
   const errors = form.formState.errors
-
   return (
     <FormProvider {...form}>
       <form
@@ -184,7 +173,6 @@ export function ContactForm({
           <FormField label="Nome" error={errors.name?.message} required>
             <Input placeholder="Nome do contato" {...form.register('name')} />
           </FormField>
-
           <FormField label="Origem" error={errors.source?.message} required>
             <Controller
               control={form.control}
@@ -219,7 +207,6 @@ export function ContactForm({
               )}
             />
           </FormField>
-
           <FormField label="Telefone" error={errors.phone?.message} required>
             <Controller
               control={form.control}
@@ -236,7 +223,6 @@ export function ContactForm({
               )}
             />
           </FormField>
-
           <FormField label="Email" error={errors.email?.message}>
             <Input
               type="email"
@@ -245,14 +231,12 @@ export function ContactForm({
             />
           </FormField>
         </div>
-
         <FormField label="Anotações" error={errors.notes?.message}>
           <Textarea
             placeholder="Observações internas"
             {...form.register('notes')}
           />
         </FormField>
-
         <div className="flex items-center gap-3">
           <Controller
             control={form.control}
@@ -272,7 +256,6 @@ export function ContactForm({
             {errors.consentLgpd.message}
           </p>
         ) : null}
-
         {!hideFooter && (
           <div className="flex gap-3 pt-2">
             <Button type="submit" disabled={isPending}>

@@ -40,16 +40,13 @@ export function CursorPagination({
     value: String(size),
     label: String(size),
   }))
-
   const from = total === 0 ? 0 : (currentPage - 1) * pageSize + 1
   const to = Math.min(currentPage * pageSize, total)
-
   return (
     <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
       <span className="text-muted-foreground text-sm">
         Mostrando {from}-{to} de {total} resultados
       </span>
-
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <span className="text-muted-foreground text-sm">Linhas</span>
@@ -74,7 +71,6 @@ export function CursorPagination({
             </SelectContent>
           </Select>
         </div>
-
         <div className="flex items-center gap-1">
           <Button
             variant="outline"

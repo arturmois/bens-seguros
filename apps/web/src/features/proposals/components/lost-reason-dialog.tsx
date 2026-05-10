@@ -27,10 +27,8 @@ export function LostReasonDialog({
 }: LostReasonDialogProps) {
   const [reason, setReason] = useState('')
   const markLostMutation = useMarkProposalLost()
-
   const handleSubmit = () => {
     if (!proposalId || !reason.trim()) return
-
     markLostMutation.mutate(
       { id: proposalId, reason: reason.trim() },
       {
@@ -41,14 +39,12 @@ export function LostReasonDialog({
       }
     )
   }
-
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       setReason('')
       onClose()
     }
   }
-
   return (
     <Dialog open={!!proposalId} onOpenChange={handleOpenChange}>
       <DialogContent>

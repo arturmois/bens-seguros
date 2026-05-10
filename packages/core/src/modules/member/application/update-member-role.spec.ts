@@ -37,7 +37,6 @@ describe('UpdateMemberRole', () => {
       role: 'MANAGER',
     })
     const useCase = new UpdateMemberRole(repo)
-
     const result = await useCase.execute({
       id: 'mem-1',
       organizationId: 'org-1',
@@ -45,16 +44,13 @@ describe('UpdateMemberRole', () => {
       callerRole: 'ADMIN',
       newRole: 'MANAGER',
     })
-
     expect(repo.updateRole).toHaveBeenCalledWith('mem-1', 'org-1', 'MANAGER')
     expect(result.role).toBe('MANAGER')
   })
-
   it('throws MemberNotFoundError when member does not exist', async () => {
     const repo = createMockRepo()
     vi.mocked(repo.findById).mockResolvedValue(null)
     const useCase = new UpdateMemberRole(repo)
-
     await expect(
       useCase.execute({
         id: 'mem-999',
@@ -65,7 +61,6 @@ describe('UpdateMemberRole', () => {
       })
     ).rejects.toThrow(MemberNotFoundError)
   })
-
   it('throws SelfRemovalError when caller tries to change own role', async () => {
     const repo = createMockRepo()
     vi.mocked(repo.findById).mockResolvedValue({
@@ -73,7 +68,6 @@ describe('UpdateMemberRole', () => {
       userId: 'user-self',
     })
     const useCase = new UpdateMemberRole(repo)
-
     await expect(
       useCase.execute({
         id: 'mem-1',
@@ -84,12 +78,10 @@ describe('UpdateMemberRole', () => {
       })
     ).rejects.toThrow(SelfRemovalError)
   })
-
   it('throws RoleHierarchyError when caller role is not higher than target', async () => {
     const repo = createMockRepo()
     vi.mocked(repo.findById).mockResolvedValue({ ...baseMember, role: 'ADMIN' })
     const useCase = new UpdateMemberRole(repo)
-
     await expect(
       useCase.execute({
         id: 'mem-1',
@@ -100,13 +92,11 @@ describe('UpdateMemberRole', () => {
       })
     ).rejects.toThrow(RoleHierarchyError)
   })
-
   it('throws LastOwnerError when demoting the only OWNER', async () => {
     const repo = createMockRepo()
     vi.mocked(repo.findById).mockResolvedValue({ ...baseMember, role: 'OWNER' })
     vi.mocked(repo.countByRole).mockResolvedValue(1)
     const useCase = new UpdateMemberRole(repo)
-
     await expect(
       useCase.execute({
         id: 'mem-1',
@@ -117,7 +107,6 @@ describe('UpdateMemberRole', () => {
       })
     ).rejects.toThrow(LastOwnerError)
   })
-
   it('calls countByRole when target member is OWNER', async () => {
     const repo = createMockRepo()
     vi.mocked(repo.findById).mockResolvedValue({ ...baseMember, role: 'OWNER' })
@@ -127,7 +116,6 @@ describe('UpdateMemberRole', () => {
       role: 'ADMIN',
     })
     const useCase = new UpdateMemberRole(repo)
-
     await useCase.execute({
       id: 'mem-1',
       organizationId: 'org-1',
@@ -135,7 +123,6 @@ describe('UpdateMemberRole', () => {
       callerRole: 'OWNER',
       newRole: 'ADMIN',
     })
-
     expect(repo.countByRole).toHaveBeenCalledWith('org-1', 'OWNER')
   })
 })

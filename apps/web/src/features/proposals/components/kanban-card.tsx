@@ -26,7 +26,6 @@ interface KanbanCardProps {
 
 export function KanbanCard({ proposal, onClick }: KanbanCardProps) {
   const isEndorsement = proposal.boardType === 'ENDORSEMENT'
-
   return (
     <div
       role="button"

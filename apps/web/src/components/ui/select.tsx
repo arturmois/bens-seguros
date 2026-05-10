@@ -45,7 +45,6 @@ export function SelectButton({
 }: SelectButtonProps): React.ReactElement {
   const typeValue: React.ButtonHTMLAttributes<HTMLButtonElement>['type'] =
     render ? undefined : 'button'
-
   const defaultProps = {
     children: (
       <>
@@ -59,7 +58,6 @@ export function SelectButton({
     'data-slot': 'select-button',
     type: typeValue,
   }
-
   return useRender({
     defaultTagName: 'button',
     props: mergeProps<'button'>(defaultProps, props),

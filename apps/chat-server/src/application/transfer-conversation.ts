@@ -29,7 +29,6 @@ export class TransferConversation {
         'transferir sem agente destino'
       )
     }
-
     const updated = await this.conversationRepo.atomicTransition(
       input.conversationId,
       input.tenantId,
@@ -40,14 +39,12 @@ export class TransferConversation {
         assignedToName: input.targetAgentName,
       }
     )
-
     if (!updated) {
       throw ChatErrors.invalidTransition(
         'HUMAN_ACTIVE',
         'transferir conversa (não encontrada ou estado alterado concorrentemente)'
       )
     }
-
     await this.messageRepo.create({
       conversationId: input.conversationId,
       tenantId: input.tenantId,
@@ -63,7 +60,6 @@ export class TransferConversation {
       externalId: null,
       createdAt: new Date(),
     })
-
     return updated
   }
 }

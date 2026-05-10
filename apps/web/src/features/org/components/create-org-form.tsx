@@ -38,20 +38,16 @@ export function CreateOrgForm() {
   const queryClient = useQueryClient()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [slugError, setSlugError] = useState('')
-
   const form = useForm<CreateOrgFormData>({
     resolver: zodResolver(createOrgSchema),
     defaultValues: { name: '', slug: '' },
   })
-
   const nameValue = form.watch('name')
-
   useEffect(() => {
     if (nameValue) {
       form.setValue('slug', slugify(nameValue), { shouldValidate: true })
     }
   }, [nameValue, form])
-
   const onSubmit = async (data: CreateOrgFormData) => {
     setIsSubmitting(true)
     setSlugError('')
@@ -60,29 +56,24 @@ export function CreateOrgForm() {
         name: data.name,
         slug: data.slug,
       })
-
       if (createRes.error) {
         const message = createRes.error.message ?? 'Erro ao criar organização'
         const isSlugTaken =
           message.toLowerCase().includes('slug') ||
           message.toLowerCase().includes('already') ||
           message.toLowerCase().includes('existe')
-
         if (isSlugTaken) {
           setSlugError('Este slug já está em uso. Escolha outro.')
           return
         }
-
         toast.error(message)
         return
       }
-
       const orgId = createRes.data?.id
       if (orgId) {
         await authClient.organization.setActive({ organizationId: orgId })
         setActiveOrgCookie(orgId)
       }
-
       queryClient.invalidateQueries({ queryKey: ['auth'] })
       queryClient.invalidateQueries({ queryKey: ['orgs'] })
       router.push('/dashboard')
@@ -92,7 +83,6 @@ export function CreateOrgForm() {
       setIsSubmitting(false)
     }
   }
-
   return (
     <div className="bg-card rounded-lg border p-8 shadow-sm">
       <div className="mb-6 text-center">
@@ -104,7 +94,6 @@ export function CreateOrgForm() {
           Estas informações podem ser alteradas depois
         </p>
       </div>
-
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="name">Nome da corretora *</Label>
@@ -119,7 +108,6 @@ export function CreateOrgForm() {
             </p>
           )}
         </div>
-
         <div className="space-y-2">
           <Label htmlFor="slug">Identificador (slug)</Label>
           <div className="flex items-center overflow-hidden rounded-md border">
@@ -144,7 +132,6 @@ export function CreateOrgForm() {
           )}
           {slugError && <p className="text-destructive text-sm">{slugError}</p>}
         </div>
-
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? (
             <>
@@ -154,7 +141,6 @@ export function CreateOrgForm() {
             'Criar corretora'
           )}
         </Button>
-
         <p className="text-muted-foreground text-center text-xs">
           Você será o administrador (Owner) desta organização
         </p>

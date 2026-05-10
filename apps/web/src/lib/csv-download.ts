@@ -7,11 +7,9 @@ export async function downloadCsvBlob(
   const response = await fetch(`${API_URL}${path}`, {
     credentials: 'include',
   })
-
   if (!response.ok) {
     throw new Error('Falha ao exportar CSV')
   }
-
   const blob = await response.blob()
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement('a')

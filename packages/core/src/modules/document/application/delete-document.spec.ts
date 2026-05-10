@@ -1,4 +1,3 @@
-// packages/core/src/modules/document/application/delete-document.spec.ts
 import { describe, expect, it, vi } from 'vitest'
 import type {
   DocumentRepository,
@@ -51,20 +50,16 @@ describe('DeleteDocument', () => {
     const docRepo = createMockDocRepo(doc)
     const storage = createMockStorage()
     const useCase = new DeleteDocument(docRepo, storage)
-
     await useCase.execute('doc-1', 'org-1')
-
     expect(docRepo.delete).toHaveBeenCalledWith('doc-1', 'org-1')
     expect(storage.delete).toHaveBeenCalledWith(
       'org-1/PROPOSAL/prop-1/abc-contract.pdf'
     )
   })
-
   it('throws DocumentNotFoundError when document does not exist', async () => {
     const docRepo = createMockDocRepo(null)
     const storage = createMockStorage()
     const useCase = new DeleteDocument(docRepo, storage)
-
     await expect(useCase.execute('missing', 'org-1')).rejects.toThrow(
       DocumentNotFoundError
     )

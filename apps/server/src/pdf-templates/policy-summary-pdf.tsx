@@ -87,7 +87,6 @@ function ClientSection({ policy, clientFull }: ClientSectionProps) {
   const email = displayOrFallback(clientFull?.email)
   const phone = displayOrFallback(clientFull?.phone)
   const address = buildAddressDisplay(clientFull?.address ?? null)
-
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Segurado</Text>
@@ -124,7 +123,6 @@ function ClientSection({ policy, clientFull }: ClientSectionProps) {
 function PolicyInfoSection({ policy }: { readonly policy: PolicyData }) {
   const boardTypeLabel =
     BOARD_TYPE_LABELS[policy.boardType ?? ''] ?? 'Não informado'
-
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Dados da Apólice</Text>
@@ -216,10 +214,8 @@ function formatCoverageValue(val: JsonValue): string {
 
 function CoverageSection({ policy }: { readonly policy: PolicyData }) {
   if (!policy.coverageDetails) return null
-
   const entries = Object.entries(policy.coverageDetails)
   if (entries.length === 0) return null
-
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Coberturas</Text>
@@ -261,7 +257,6 @@ function InsuredObjectFallbackSection() {
 
 function CancelSection({ policy }: { readonly policy: PolicyData }) {
   if (policy.status !== 'CANCELLED' || !policy.cancelledAt) return null
-
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Cancelamento</Text>
@@ -294,26 +289,18 @@ export function PolicySummaryPdf({
           docDate={formatDate(policy.createdAt)}
           docNumber={policy.policyNumber}
         />
-
         <PolicyInfoSection policy={policy} />
-
         <ClientSection policy={policy} clientFull={clientFull} />
-
         <VigencySection policy={policy} />
-
         <PremiumSection policy={policy} />
-
         {policy.proposalDetails &&
         isInsuredObjectDetails(policy.proposalDetails) ? (
           <InsuredObjectSection details={policy.proposalDetails} />
         ) : (
           <InsuredObjectFallbackSection />
         )}
-
         <CoverageSection policy={policy} />
-
         <CancelSection policy={policy} />
-
         <PdfFooter
           salespersonName={policy.salespersonName ?? organization.name}
           creci={organization.creci}

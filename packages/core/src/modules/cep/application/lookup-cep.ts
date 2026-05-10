@@ -5,7 +5,7 @@ import type { CepLookupProvider } from '../domain/cep-lookup-provider.js'
 import { CepNotFoundError, InvalidCepError } from '../domain/errors.js'
 
 const CACHE_KEY_PREFIX = 'cep:'
-const CACHE_TTL_SECONDS = 60 * 60 * 24 * 30 // 30 days
+const CACHE_TTL_SECONDS = 60 * 60 * 24 * 30
 
 interface LookupCepInput {
   readonly cep: string
@@ -25,18 +25,15 @@ export class LookupCep {
     if (normalized.length !== 8) {
       throw new InvalidCepError()
     }
-
     const cacheKey = `${CACHE_KEY_PREFIX}${normalized}`
     const cached = await this.cache.get<AddressData>(cacheKey)
     if (cached) {
       return cached
     }
-
     const result = await this.provider.lookup(normalized)
     if (!result) {
       throw new CepNotFoundError()
     }
-
     await this.cache.set(cacheKey, result, CACHE_TTL_SECONDS)
     return result
   }

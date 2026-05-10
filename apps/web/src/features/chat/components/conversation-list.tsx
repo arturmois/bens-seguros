@@ -102,22 +102,18 @@ export function ConversationList({
 }: ConversationListProps) {
   const [searchInput, setSearchInput] = useState(filters.search ?? '')
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
   useEffect(() => {
     return () => {
       if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
     }
   }, [])
-
   const activeTab: FilterTab = filters.status ?? 'ALL'
-
   const handleTabChange = (tab: FilterTab) => {
     onFiltersChange({
       ...filters,
       status: tab === 'ALL' ? undefined : tab,
     })
   }
-
   const handleSearchChange = (value: string) => {
     setSearchInput(value)
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
@@ -128,7 +124,6 @@ export function ConversationList({
       })
     }, 300)
   }
-
   const handleChannelTypeChange = (value: string | null) => {
     const selected = value ?? 'ALL'
     onFiltersChange({
@@ -137,17 +132,14 @@ export function ConversationList({
         selected !== 'ALL' && isChannelType(selected) ? selected : undefined,
     })
   }
-
   const filteredConversations = filters.channelType
     ? conversations.filter((c) => c.channelType === filters.channelType)
     : conversations
-
   const sortedConversations = [...filteredConversations].sort((a, b) => {
     const aTime = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0
     const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0
     return bTime - aTime
   })
-
   return (
     <div className="bg-sidebar flex h-full flex-col">
       {/* Header */}
@@ -157,7 +149,6 @@ export function ConversationList({
         </h1>
         <MessageCircle className="text-primary h-5 w-5" />
       </div>
-
       {/* Search */}
       <div className="px-3 py-2">
         <div className="relative">
@@ -170,7 +161,6 @@ export function ConversationList({
           />
         </div>
       </div>
-
       {/* Filter Tabs */}
       <div className="flex justify-between gap-1 px-3 pb-2">
         {FILTER_TABS.map((tab) => (
@@ -189,7 +179,6 @@ export function ConversationList({
           </Button>
         ))}
       </div>
-
       {/* Channel Filter */}
       <div className="px-3 pb-2">
         <Select
@@ -222,7 +211,6 @@ export function ConversationList({
           </SelectContent>
         </Select>
       </div>
-
       {/* Conversation List */}
       <div className="chat-scrollbar flex-1 overflow-y-auto">
         {isLoading && <ConversationListSkeleton />}

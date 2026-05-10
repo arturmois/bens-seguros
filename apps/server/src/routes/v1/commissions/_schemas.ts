@@ -10,8 +10,6 @@ import {
   successResponse,
 } from '../../shared/response.schema.js'
 
-// ── Enums ──────────────────────────────────────────────────────────
-
 export const COMMISSION_STATUS_VALUES = [
   'PENDING_COMMERCIAL',
   'PENDING_ADMIN',
@@ -23,11 +21,7 @@ export const COMMISSION_STATUS_VALUES = [
 
 export const commissionStatusEnum = z.enum(COMMISSION_STATUS_VALUES)
 
-// ── Params ─────────────────────────────────────────────────────────
-
 export const commissionIdParam = idParam
-
-// ── Query ──────────────────────────────────────────────────────────
 
 export const listCommissionsQuery = paginationQuery()
   .merge(dateRangeQuery)
@@ -49,13 +43,9 @@ export const listCommissionsQuery = paginationQuery()
     sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
   })
 
-// ── Body ───────────────────────────────────────────────────────────
-
 export const rejectCommissionBody = z.object({
   reason: z.string().min(1),
 })
-
-// ── Response (OpenAPI) ─────────────────────────────────────────────
 
 const commissionItem = z.object({
   id: z.string(),

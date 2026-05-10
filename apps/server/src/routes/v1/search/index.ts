@@ -5,6 +5,5 @@ import { globalSearchRoute } from './global-search.js'
 
 export async function searchRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
-
   globalSearchRoute(app)
 }

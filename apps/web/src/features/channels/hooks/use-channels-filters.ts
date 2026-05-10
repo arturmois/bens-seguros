@@ -29,9 +29,7 @@ export function useChannelsFilters() {
     },
     { history: 'push' }
   )
-
   const [touched, setTouched] = useState<boolean>(readTouchedFlag)
-
   const initialUrlHadStatus = useRef(
     state.statusIn !== null && state.statusIn.length > 0
   )
@@ -41,42 +39,35 @@ export function useChannelsFilters() {
       setTouched(true)
     }
   }, [touched])
-
   function markTouched(): void {
     if (touched) return
     writeTouchedFlag()
     setTouched(true)
   }
-
   const effectiveStatusIn: readonly string[] | undefined = useMemo(() => {
     if (!touched && (state.statusIn === null || state.statusIn.length === 0)) {
       return ['CONNECTED']
     }
     return state.statusIn ?? undefined
   }, [state.statusIn, touched])
-
   const values: Readonly<Record<string, FilterValue>> = useMemo(
     () => ({ statusIn: effectiveStatusIn }),
     [effectiveStatusIn]
   )
-
   function setFilter(key: string, value: FilterValue): void {
     if (key !== 'statusIn') return
     markTouched()
     const arr = asEnumValue(value)
     void setState({ statusIn: arr && arr.length > 0 ? [...arr] : null })
   }
-
   function setSearch(next: string): void {
     markTouched()
     void setState({ search: next })
   }
-
   function clearAll(): void {
     markTouched()
     void setState({ statusIn: null, search: '' })
   }
-
   return {
     statusIn: effectiveStatusIn,
     search: state.search,

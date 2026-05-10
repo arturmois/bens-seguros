@@ -18,7 +18,6 @@ import {
 import { buildCsvMultipart } from '../../../../__tests__/helpers/multipart.js'
 import { importPoliciesRoutes } from '../import-policies.js'
 
-// Mock csv-import-enqueuer service
 vi.mock('../../../../services/csv-import-enqueuer.js', () => ({
   stageImportData: vi.fn(),
   retrieveStagedData: vi.fn(),
@@ -59,28 +58,23 @@ describe('GET /api/v1/policies/import/template', () => {
       method: 'GET',
       url: '/api/v1/policies/import/template',
     })
-
     expect(response.statusCode).toBe(200)
     expect(response.headers['content-type']).toContain('text/csv')
   })
-
   it('returns CSV attachment header with correct filename', async () => {
     const response = await app.inject({
       method: 'GET',
       url: '/api/v1/policies/import/template',
     })
-
     expect(response.headers['content-disposition']).toContain(
       'filename="modelo-apolices.csv"'
     )
   })
-
   it('returns CSV with header row', async () => {
     const response = await app.inject({
       method: 'GET',
       url: '/api/v1/policies/import/template',
     })
-
     expect(response.statusCode).toBe(200)
     expect(response.body).toContain('Numero Apolice')
   })
@@ -90,7 +84,6 @@ describe('POST /api/v1/policies/import', () => {
   it('returns 400 when no file is sent', async () => {
     const boundary = '----ImportBoundaryEmpty'
     const emptyBody = `--${boundary}--\r\n`
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/policies/import',
@@ -100,13 +93,11 @@ describe('POST /api/v1/policies/import', () => {
       },
       payload: Buffer.from(emptyBody),
     })
-
     expect(response.statusCode).toBe(400)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('NO_FILE')
   })
-
   it('returns 400 when file is not a CSV', async () => {
     const boundary = '----ImportBoundaryTxt'
     const header =
@@ -119,7 +110,6 @@ describe('POST /api/v1/policies/import', () => {
       Buffer.from('some text content'),
       Buffer.from(footer),
     ])
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/policies/import',
@@ -129,19 +119,16 @@ describe('POST /api/v1/policies/import', () => {
       },
       payload: body,
     })
-
     expect(response.statusCode).toBe(400)
     const json = response.json()
     expect(json.success).toBe(false)
     expect(json.error.code).toBe('INVALID_FORMAT')
   })
-
   it('returns 200 with import preview on valid CSV', async () => {
     const csvContent =
       'Numero Apolice,CPF/CNPJ Cliente,Ramo\nPOL-001,12345678901,AUTO\n'
     const boundary = '----ImportBoundaryValid'
     const body = buildCsvMultipart('apolices.csv', csvContent, boundary)
-
     vi.mocked(container.resolve).mockImplementation((token: unknown) => {
       if (typeof token === 'function') {
         return {
@@ -156,7 +143,6 @@ describe('POST /api/v1/policies/import', () => {
       return null
     })
     vi.mocked(stageImportData).mockResolvedValue(undefined)
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/policies/import',
@@ -166,7 +152,6 @@ describe('POST /api/v1/policies/import', () => {
       },
       payload: body,
     })
-
     expect(response.statusCode).toBe(200)
     const json = response.json()
     expect(json.success).toBe(true)
@@ -174,33 +159,27 @@ describe('POST /api/v1/policies/import', () => {
     expect(json.data.preview).toBeDefined()
   })
 })
-
 describe('POST /api/v1/policies/import/:jobId/confirm', () => {
   it('returns 404 when staged data does not exist', async () => {
     vi.mocked(retrieveStagedData).mockResolvedValue(null)
-
     const response = await app.inject({
       method: 'POST',
       url: `/api/v1/policies/import/${TEST_JOB_ID}/confirm`,
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('JOB_NOT_FOUND')
   })
-
   it('returns 200 and enqueues job when staged data exists', async () => {
     const rows = [{ policyNumber: 'POL-001', document: '12345678901' }]
     vi.mocked(retrieveStagedData).mockResolvedValue(rows)
     vi.mocked(enqueueImportJob).mockResolvedValue(undefined)
     vi.mocked(removeStagedData).mockResolvedValue(undefined)
-
     const response = await app.inject({
       method: 'POST',
       url: `/api/v1/policies/import/${TEST_JOB_ID}/confirm`,
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -214,7 +193,6 @@ describe('POST /api/v1/policies/import/:jobId/confirm', () => {
     )
   })
 })
-
 describe('GET /api/v1/policies/import/:jobId/status', () => {
   it('returns 404 when job is not found', async () => {
     vi.mocked(getImportJobStatus).mockResolvedValue({
@@ -223,18 +201,15 @@ describe('GET /api/v1/policies/import/:jobId/status', () => {
       progress: null,
       result: null,
     })
-
     const response = await app.inject({
       method: 'GET',
       url: `/api/v1/policies/import/${TEST_JOB_ID}/status`,
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('JOB_NOT_FOUND')
   })
-
   it('returns 200 with active status', async () => {
     vi.mocked(getImportJobStatus).mockResolvedValue({
       status: 'active',
@@ -242,18 +217,15 @@ describe('GET /api/v1/policies/import/:jobId/status', () => {
       progress: { processed: 3, total: 10 },
       result: null,
     })
-
     const response = await app.inject({
       method: 'GET',
       url: `/api/v1/policies/import/${TEST_JOB_ID}/status`,
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.status).toBe('active')
   })
-
   it('returns 200 with completed status and result', async () => {
     vi.mocked(getImportJobStatus).mockResolvedValue({
       status: 'completed',
@@ -261,19 +233,16 @@ describe('GET /api/v1/policies/import/:jobId/status', () => {
       progress: null,
       result: { imported: 5, errors: 0 },
     })
-
     const response = await app.inject({
       method: 'GET',
       url: `/api/v1/policies/import/${TEST_JOB_ID}/status`,
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.status).toBe('completed')
     expect(body.data.progress).toEqual({ imported: 5, errors: 0 })
   })
-
   it('returns 404 when job belongs to different organization', async () => {
     vi.mocked(getImportJobStatus).mockResolvedValue({
       status: 'active',
@@ -281,12 +250,10 @@ describe('GET /api/v1/policies/import/:jobId/status', () => {
       progress: null,
       result: null,
     })
-
     const response = await app.inject({
       method: 'GET',
       url: `/api/v1/policies/import/${TEST_JOB_ID}/status`,
     })
-
     expect(response.statusCode).toBe(404)
   })
 })

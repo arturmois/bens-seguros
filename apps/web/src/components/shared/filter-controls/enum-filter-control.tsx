@@ -26,15 +26,12 @@ export function EnumFilterControl({
 }: EnumFilterControlProps) {
   const [draft, setDraft] = useState<readonly string[]>(value ?? [])
   const [query, setQuery] = useState('')
-
   const showSearch = options.length > SEARCH_THRESHOLD
-
   const filtered = useMemo(() => {
     if (!query.trim()) return options
     const q = query.trim().toLowerCase()
     return options.filter((o) => o.label.toLowerCase().includes(q))
   }, [options, query])
-
   function toggle(optionValue: string) {
     setDraft((current) =>
       current.includes(optionValue)
@@ -42,16 +39,13 @@ export function EnumFilterControl({
         : [...current, optionValue]
     )
   }
-
   function handleApply() {
     onCommit(draft.length > 0 ? draft : undefined)
     onClose()
   }
-
   function handleClear() {
     setDraft([])
   }
-
   return (
     <div className="flex w-full flex-col" data-slot="enum-filter-control">
       <div className="flex items-center justify-between border-b px-3 py-2">
@@ -62,7 +56,6 @@ export function EnumFilterControl({
             : ''}
         </span>
       </div>
-
       {showSearch && (
         <div className="border-b px-2 py-1.5">
           <div className="relative">
@@ -77,7 +70,6 @@ export function EnumFilterControl({
           </div>
         </div>
       )}
-
       <div className="max-h-64 overflow-y-auto py-1">
         {isLoadingOptions && (
           <div className="text-muted-foreground px-3 py-2 text-xs">
@@ -117,7 +109,6 @@ export function EnumFilterControl({
             )
           })}
       </div>
-
       <div className="flex items-center justify-between border-t px-3 py-2 text-xs">
         <button
           type="button"

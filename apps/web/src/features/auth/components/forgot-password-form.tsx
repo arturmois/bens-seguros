@@ -22,7 +22,6 @@ export function ForgotPasswordForm() {
   const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
   })
-
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setIsPending(true)
     try {
@@ -36,7 +35,6 @@ export function ForgotPasswordForm() {
       setSubmitted(true)
     }
   }
-
   if (submitted) {
     return (
       <div className="flex flex-col items-center text-center">
@@ -56,7 +54,6 @@ export function ForgotPasswordForm() {
       </div>
     )
   }
-
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
@@ -77,7 +74,6 @@ export function ForgotPasswordForm() {
           </p>
         )}
       </div>
-
       <Button
         type="submit"
         className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 w-full bg-gradient-to-r font-bold text-slate-900"

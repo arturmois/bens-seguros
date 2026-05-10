@@ -28,16 +28,13 @@ export class ExportClientsCsv {
 
   async *generateCsvRows(filters: ClientFilters): AsyncGenerator<string> {
     yield CSV_BOM + CLIENT_CSV_COLUMNS.join(',') + '\n'
-
     let cursor: string | undefined
     let hasMore = true
-
     while (hasMore) {
       const result = await this.clientRepo.findMany(filters, {
         limit: BATCH_SIZE,
         cursor,
       })
-
       for (const c of result.items) {
         yield formatCsvRow([
           c.id,
@@ -52,7 +49,6 @@ export class ExportClientsCsv {
           c.createdAt.toISOString(),
         ]) + '\n'
       }
-
       hasMore = result.items.length === BATCH_SIZE
       cursor = result.items.at(-1)?.id
     }

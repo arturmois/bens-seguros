@@ -32,7 +32,6 @@ export function createCollectInsuredAssetDataTool(tenantId: string) {
           message: 'Internal API not configured',
         }
       }
-
       try {
         const path = `/api/internal/proposals/${proposalId}/details`
         const body = JSON.stringify({
@@ -49,7 +48,6 @@ export function createCollectInsuredAssetDataTool(tenantId: string) {
           body,
           timestamp,
         })
-
         const response = await fetch(`${env.INTERNAL_API_URL}${path}`, {
           method: 'PUT',
           headers: {
@@ -61,7 +59,6 @@ export function createCollectInsuredAssetDataTool(tenantId: string) {
           body,
           signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         })
-
         if (!response.ok) {
           logger.error(
             { status: response.status, tenantId, proposalId },
@@ -72,9 +69,7 @@ export function createCollectInsuredAssetDataTool(tenantId: string) {
             message: `API responded with status ${String(response.status)}`,
           }
         }
-
         const json: unknown = await response.json()
-
         if (
           typeof json === 'object' &&
           json !== null &&
@@ -90,7 +85,6 @@ export function createCollectInsuredAssetDataTool(tenantId: string) {
             message: responseData.message,
           }
         }
-
         return { success: true, message: 'Detalhes da proposta atualizados' }
       } catch (err: unknown) {
         logger.error(

@@ -59,7 +59,6 @@ export function useCommission(id: string) {
 
 export function useApproveCommercial() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (id: string) => approveCommissionCommercial(id),
     onSuccess: (_data, id) => {
@@ -79,7 +78,6 @@ export function useApproveCommercial() {
 
 export function useApproveAdmin() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (id: string) => approveCommissionAdmin(id),
     onSuccess: (_data, id) => {
@@ -99,7 +97,6 @@ export function useApproveAdmin() {
 
 export function useRejectCommission() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) =>
       rejectCommission(id, { reason }),
@@ -120,7 +117,6 @@ export function useRejectCommission() {
 
 export function usePayCommission() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (id: string) => payCommission(id),
     onSuccess: (_data, id) => {
@@ -142,7 +138,6 @@ export function usePayCommission() {
 
 export function useReverseCommission() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (id: string) => reverseCommission(id),
     onSuccess: (_data, id) => {
@@ -172,9 +167,6 @@ function buildFilterParams(filters: CommissionFilters): URLSearchParams {
   return params
 }
 
-/**
- * CSV export stays manual because it downloads a blob via fetch, not JSON.
- */
 export function useExportCommissionsCsv() {
   return useMutation({
     mutationFn: async (filters: CommissionFilters) => {

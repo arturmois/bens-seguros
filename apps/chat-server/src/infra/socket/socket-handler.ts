@@ -47,26 +47,21 @@ export function setupSocketHandlers(
 ): PresenceTracker {
   const presence = new PresenceTracker(io, logger)
   presence.start()
-
   io.on('connection', (socket: Socket) => {
     const user = getUserData(socket)
     const lobbyRoom = `tenant:${user.organizationId}:lobby`
-
     void socket.join(lobbyRoom)
     void socket.join(`tenant:${user.organizationId}:user:${user.userId}`)
     presence.heartbeat(user.organizationId, user.userId, user.name)
-
     logger.info(
       { userId: user.userId, orgId: user.organizationId },
       'Agent connected'
     )
-
     registerConversationEvents(socket, user, logger)
     registerMessageEvents(socket, user, logger)
     registerPresenceEvents(socket, user, presence, logger)
     registerCatchUpEvent(socket, user, logger)
     registerChannelStatusEvents(socket, user, logger, redis)
-
     socket.on('disconnect', () => {
       presence.removeAgent(user.organizationId, user.userId)
       io.to(lobbyRoom).emit(SOCKET_EVENTS.AGENT_STATUS_UPDATE, {
@@ -75,10 +70,8 @@ export function setupSocketHandlers(
       logger.info({ userId: user.userId }, 'Agent disconnected')
     })
   })
-
   return presence
 }
-
 function registerConversationEvents(
   socket: Socket,
   user: SocketUserData,
@@ -93,13 +86,11 @@ function registerConversationEvents(
       'Subscribed to conversation'
     )
   })
-
   socket.on(SOCKET_EVENTS.UNSUBSCRIBE_CONVERSATION, (data: unknown) => {
     const parsed = parseConversationId(data)
     if (!parsed) return
     void socket.leave(`tenant:${user.organizationId}:conversation:${parsed}`)
   })
-
   socket.on(
     SOCKET_EVENTS.ASSIGN_CONVERSATION,
     async (data: unknown, ack?: unknown) => {
@@ -121,7 +112,6 @@ function registerConversationEvents(
       }
     }
   )
-
   socket.on(
     SOCKET_EVENTS.CLOSE_CONVERSATION,
     async (data: unknown, ack?: unknown) => {
@@ -143,7 +133,6 @@ function registerConversationEvents(
       }
     }
   )
-
   socket.on(
     SOCKET_EVENTS.TRANSFER_CONVERSATION,
     async (data: unknown, ack?: unknown) => {
@@ -199,7 +188,6 @@ function registerMessageEvents(
           senderType: 'AGENT',
           text: msgData.text,
         })
-
         const messagePayload = {
           id: result.id,
           conversationId: msgData.conversationId,
@@ -213,16 +201,13 @@ function registerMessageEvents(
           externalId: null,
           createdAt: result.createdAt,
         }
-
         const lobbyRoom = `tenant:${user.organizationId}:lobby`
         const convRoom = `tenant:${user.organizationId}:conversation:${msgData.conversationId}`
-
         socket.to(convRoom).emit(SOCKET_EVENTS.INCOMING_MESSAGE, messagePayload)
         socket
           .to(lobbyRoom)
           .except(convRoom)
           .emit(SOCKET_EVENTS.INCOMING_MESSAGE, messagePayload)
-
         if (typeof ack === 'function') ack({ success: true, data: result })
       } catch (err: unknown) {
         logger.error({ err }, 'Failed to send message')
@@ -231,7 +216,6 @@ function registerMessageEvents(
       }
     }
   )
-
   socket.on(SOCKET_EVENTS.TYPING_START, (data: unknown) => {
     const parsed = parseConversationId(data)
     if (!parsed) return
@@ -244,7 +228,6 @@ function registerMessageEvents(
       })
   })
 }
-
 function registerPresenceEvents(
   socket: Socket,
   user: SocketUserData,
@@ -294,12 +277,10 @@ function registerChannelStatusEvents(
       try {
         const channelId = parseChannelId(data)
         if (!channelId) return
-
         const channel = await Channel.findOne({
           _id: channelId,
           tenantId: user.organizationId,
         }).lean()
-
         if (!channel) {
           if (typeof ack === 'function') {
             ack({
@@ -309,12 +290,10 @@ function registerChannelStatusEvents(
           }
           return
         }
-
         const [state, qr] = await Promise.all([
           redis.get(WHATSAPP_STATE_KEYS.state(channelId)),
           redis.get(WHATSAPP_STATE_KEYS.lastQr(channelId)),
         ])
-
         if (typeof ack === 'function') {
           ack({
             success: true,

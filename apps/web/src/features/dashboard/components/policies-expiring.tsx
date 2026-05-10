@@ -24,9 +24,7 @@ export function PoliciesExpiring({ count, isLoading }: PoliciesExpiringProps) {
       </Card>
     )
   }
-
   const expiringCount = count ?? 0
-
   return (
     <Card>
       <CardHeader>

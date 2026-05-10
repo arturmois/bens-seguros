@@ -23,25 +23,20 @@ export function deleteInvitationRoute(app: FastifyInstance) {
       try {
         const { id } = request.params
         const organizationId = request.organizationId!
-
         const invitation = await prisma.invitation.findFirst({
           where: { id, organizationId, status: 'pending' },
         })
-
         if (!invitation) throw new InvitationNotFoundError(id)
-
         await prisma.invitation.update({
           where: { id },
           data: { status: 'canceled' },
         })
-
         auditDelete({
           request,
           entityType: 'Invitation',
           entityId: id,
           before: { email: invitation.email, role: invitation.role },
         })
-
         return reply.send({ success: true, data: { id } })
       } catch (error) {
         return handleDomainError(error, reply)

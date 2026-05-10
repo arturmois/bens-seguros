@@ -11,7 +11,6 @@ import { updateInternalProposalDetailsRoute } from './update-proposal-details.js
 
 export async function internalLeadRoutes(app: FastifyInstance) {
   app.addHook('preHandler', internalAuthMiddleware)
-
   createLeadRoute(app)
   searchClientsRoute(app)
   updateClientRoute(app)

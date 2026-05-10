@@ -8,13 +8,11 @@ const QUEUE_NAME = 'erp-expire-policies'
 
 export function setupExpirePoliciesProcessor(connection: ConnectionOptions) {
   const queue = new Queue(QUEUE_NAME, { connection })
-
   queue.upsertJobScheduler(
     'expire-policies-daily',
     { pattern: '0 2 * * *' },
     { name: 'expire-active-policies' }
   )
-
   const worker = new Worker(
     QUEUE_NAME,
     async () => {
@@ -27,7 +25,6 @@ export function setupExpirePoliciesProcessor(connection: ConnectionOptions) {
           status: 'EXPIRED',
         },
       })
-
       logger.info(
         { expiredCount: result.count },
         'Policy expiration job completed'
@@ -42,10 +39,8 @@ export function setupExpirePoliciesProcessor(connection: ConnectionOptions) {
       removeOnFail: { age: 86_400 },
     }
   )
-
   worker.on('failed', (job, err) => {
     logger.error({ jobId: job?.id, err }, 'Policy expiration job failed')
   })
-
   return { worker, queue }
 }

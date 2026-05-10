@@ -22,10 +22,8 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
   const [highlightedIndex, setHighlightedIndex] = useState(-1)
   const containerRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
-
   const debouncedSearch = useDebounce(search, 300)
   const enabled = debouncedSearch.length >= 2
-
   const { data: results, isLoading } = useListPolicies(
     { search: debouncedSearch, limit: 10, status: ListPoliciesStatus.ACTIVE },
     {
@@ -35,9 +33,7 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
       },
     }
   )
-
   const policies = results ?? []
-
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       const target = event.target
@@ -49,11 +45,9 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
   useEffect(() => {
     setHighlightedIndex(-1)
   }, [results])
-
   const selectPolicy = useCallback(
     (policy: (typeof policies)[number]) => {
       const label = `${policy.policyNumber} \u2014 ${policy.clientName ?? 'Sem cliente'}`
@@ -64,10 +58,8 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
     },
     [onChange, policies]
   )
-
   function handleKeyDown(e: React.KeyboardEvent) {
     if (!showResults || policies.length === 0) return
-
     if (e.key === 'ArrowDown') {
       e.preventDefault()
       setHighlightedIndex((prev) => (prev < policies.length - 1 ? prev + 1 : 0))
@@ -85,13 +77,11 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
       setShowResults(false)
     }
   }
-
   const displayValue = value && selectedLabel ? selectedLabel : search
   const hasResults = showResults && policies.length > 0
   const hasNoResults =
     showResults && enabled && !isLoading && policies.length === 0
   const listId = 'policy-search-results'
-
   return (
     <div ref={containerRef} className="relative">
       <div className="relative">
@@ -125,7 +115,6 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
           <Loader2 className="text-muted-foreground absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin" />
         )}
       </div>
-
       {hasResults && (
         <ul
           ref={listRef}
@@ -159,7 +148,6 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
           ))}
         </ul>
       )}
-
       {hasNoResults && (
         <div
           role="status"

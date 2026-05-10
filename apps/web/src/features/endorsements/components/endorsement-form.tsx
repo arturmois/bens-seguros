@@ -97,12 +97,10 @@ export function EndorsementForm({
     resolver: zodResolver(endorsementFormSchema),
     defaultValues: EMPTY_VALUES,
   })
-
   useEffect(() => {
     if (!open) return
     form.reset(EMPTY_VALUES)
   }, [open, form])
-
   function handleSubmit(values: EndorsementFormValues) {
     createEndorsement.mutate(
       {
@@ -118,7 +116,6 @@ export function EndorsementForm({
       { onSuccess: () => onOpenChange(false) }
     )
   }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
@@ -128,7 +125,6 @@ export function EndorsementForm({
             Registre um novo endosso para esta apólice.
           </DialogDescription>
         </DialogHeader>
-
         <DialogPanel>
           <form
             id="endorsement-form"
@@ -171,7 +167,6 @@ export function EndorsementForm({
                 )}
               />
             </FormField>
-
             <FormField
               label="Descrição"
               error={form.formState.errors.description?.message}
@@ -183,7 +178,6 @@ export function EndorsementForm({
                 {...form.register('description')}
               />
             </FormField>
-
             <FormField
               label="Data Efetiva"
               error={form.formState.errors.effectiveDate?.message}
@@ -200,7 +194,6 @@ export function EndorsementForm({
                 )}
               />
             </FormField>
-
             <FormField label="Dados Anteriores (JSON)">
               <Textarea
                 placeholder='{"campo": "valor_anterior"}'
@@ -208,7 +201,6 @@ export function EndorsementForm({
                 {...form.register('previousVersionSnapshot')}
               />
             </FormField>
-
             <FormField label="Alterações (JSON)">
               <Textarea
                 placeholder='{"campo": "novo_valor"}'
@@ -218,7 +210,6 @@ export function EndorsementForm({
             </FormField>
           </form>
         </DialogPanel>
-
         <DialogFooter>
           <Button
             type="button"

@@ -37,18 +37,15 @@ export class GetConversation {
       conversationId,
       tenantId
     )
-
     if (!conversation) {
       throw ChatErrors.conversationNotFound(conversationId)
     }
-
     const [messages, contact] = await Promise.all([
       this.messageRepo.findByConversation(conversationId, tenantId, {
         limit: 50,
       }),
       this.contactRepo.findById(conversation.contactId, tenantId),
     ])
-
     return { conversation, messages, contact }
   }
 }

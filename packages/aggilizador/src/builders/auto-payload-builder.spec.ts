@@ -82,12 +82,10 @@ function createMockRegistry(): EnumRegistry {
 describe('AutoPayloadBuilder', () => {
   let builder: AutoPayloadBuilder
   let registry: EnumRegistry
-
   beforeEach(() => {
     registry = createMockRegistry()
     builder = new AutoPayloadBuilder(registry)
   })
-
   it('builds contact payload with correct structure', async () => {
     const payload = await builder.buildContactPayload(SAMPLE_INPUT)
     expect(payload.BrokerId).toBe(1366)
@@ -108,18 +106,15 @@ describe('AutoPayloadBuilder', () => {
       Numero: null,
     })
   })
-
   it('formats phone number with parentheses and dash', async () => {
     const payload = await builder.buildContactPayload(SAMPLE_INPUT)
     expect(payload.Data.TelefoneCelular.Ddd).toBe('(11)')
     expect(payload.Data.TelefoneCelular.Numero).toBe('99999-8888')
   })
-
   it('formats birth date to UTC-3 ISO string', async () => {
     const payload = await builder.buildContactPayload(SAMPLE_INPUT)
     expect(payload.Data.DataNascimento).toBe('1985-03-15T03:00:00.000Z')
   })
-
   it('builds submit payload with all sections', async () => {
     const payload = await builder.buildSubmitPayload(SAMPLE_INPUT, 'abc123')
     expect(payload.Id).toBe('abc123')
@@ -143,7 +138,6 @@ describe('AutoPayloadBuilder', () => {
     expect(payload.CalculationResidence).toBeNull()
     expect(payload.CalculationLife).toBeNull()
   })
-
   it('maps boolean fields to string 0/1', async () => {
     const payload = await builder.buildSubmitPayload(SAMPLE_INPUT, 'abc123')
     expect(payload.CalculationAuto.Veiculo.ZeroKm).toBe('0')

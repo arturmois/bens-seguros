@@ -22,7 +22,6 @@ export function Slider({
     }
     return [min]
   }, [value, defaultValue, min])
-
   return (
     <SliderPrimitive.Root
       className={cn('data-[orientation=horizontal]:w-full', className)}

@@ -11,8 +11,6 @@ export const createLeadBodySchema = z.object({
   source: z.nativeEnum(ContactSource).optional(),
 })
 
-// --- Response schemas ---
-
 export const createLeadResponse = successResponse(
   z.object({
     proposalId: z.string(),
@@ -101,8 +99,6 @@ export const createInternalClaimResponse = successResponse(
   })
 )
 
-// --- List proposals ---
-
 export const listInternalProposalsQuerySchema = z.object({
   clientId: z.string().optional(),
   phone: z.string().optional(),
@@ -125,8 +121,6 @@ export const listInternalProposalsResponse = successResponse(
     total: z.number(),
   })
 )
-
-// --- List policies ---
 
 export const listInternalPoliciesQuerySchema = z.object({
   clientId: z.string().optional(),
@@ -161,8 +155,6 @@ export const listInternalPoliciesResponse = successResponse(
     total: z.number(),
   })
 )
-
-// --- Update proposal details ---
 
 export const updateInternalProposalDetailsParamsSchema = z.object({
   id: z.string().min(1),

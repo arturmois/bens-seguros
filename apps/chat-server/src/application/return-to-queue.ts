@@ -28,14 +28,12 @@ export class ReturnToQueue {
       'WAITING_HUMAN',
       { assignedTo: null, assignedToName: null }
     )
-
     if (!updated) {
       throw ChatErrors.invalidTransition(
         'HUMAN_ACTIVE',
         'devolver para fila (não encontrada ou estado alterado concorrentemente)'
       )
     }
-
     await this.messageRepo.create({
       conversationId: input.conversationId,
       tenantId: input.tenantId,
@@ -51,7 +49,6 @@ export class ReturnToQueue {
       externalId: null,
       createdAt: new Date(),
     })
-
     return updated
   }
 }

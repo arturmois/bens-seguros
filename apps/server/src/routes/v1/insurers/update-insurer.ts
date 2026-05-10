@@ -40,19 +40,16 @@ export function updateInsurerRoute(app: FastifyInstance) {
           organizationId: request.organizationId!,
           ...request.body,
         })
-
         auditUpdate({
           request,
           entityType: 'Insurer',
           entityId: insurer.id,
           after: insurer,
         })
-
         const cacheService = resolveCache()
         if (cacheService) {
           await cacheService.delete(`cache:${request.organizationId!}:insurers`)
         }
-
         return reply.send({ success: true, data: insurer })
       } catch (error) {
         return handleDomainError(error, reply)

@@ -56,7 +56,6 @@ export function AiAgentFormDialog({
   const updateAgent = useUpdateAiAgent()
   const isPending = createAgent.isPending || updateAgent.isPending
   const availableTools = useAvailableTools()
-
   const form = useForm<AiAgentFormValues>({
     resolver: zodResolver(aiAgentFormSchema),
     defaultValues: agent
@@ -73,7 +72,6 @@ export function AiAgentFormDialog({
         }
       : DEFAULT_AGENT_FORM,
   })
-
   useEffect(() => {
     if (!open) return
     if (agent) {
@@ -92,7 +90,6 @@ export function AiAgentFormDialog({
     }
     form.reset(DEFAULT_AGENT_FORM)
   }, [open, agent, form])
-
   function handleSubmit(values: AiAgentFormValues) {
     if (isEditMode && agent) {
       updateAgent.mutate(
@@ -103,9 +100,7 @@ export function AiAgentFormDialog({
     }
     createAgent.mutate(values, { onSuccess: () => onOpenChange(false) })
   }
-
   const linkedChannels = agentDetail.data?.linkedChannels ?? []
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
@@ -119,7 +114,6 @@ export function AiAgentFormDialog({
               : 'Configure um novo agente de IA para atendimento.'}
           </DialogDescription>
         </DialogHeader>
-
         <DialogPanel>
           <form
             id="ai-agent-form"
@@ -188,7 +182,6 @@ export function AiAgentFormDialog({
             )}
           </form>
         </DialogPanel>
-
         <DialogFooter>
           <Button
             type="button"

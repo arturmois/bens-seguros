@@ -55,7 +55,6 @@ describe('UpdateInsurer', () => {
       duplicate: null,
     })
     const useCase = new UpdateInsurer(repo)
-
     const result = await useCase.execute({
       id: 'ins-1',
       organizationId: 'org-1',
@@ -63,7 +62,6 @@ describe('UpdateInsurer', () => {
       code: 'ALZ',
       active: false,
     })
-
     expect(repo.findById).toHaveBeenCalledWith('ins-1', 'org-1')
     expect(repo.findByName).toHaveBeenCalledWith('Allianz', 'org-1')
     expect(repo.update).toHaveBeenCalledWith({
@@ -75,11 +73,9 @@ describe('UpdateInsurer', () => {
     })
     expect(result.active).toBe(false)
   })
-
   it('throws InsurerNotFoundError when insurer does not exist', async () => {
     const repo = createRepo({ current: null, duplicate: null })
     const useCase = new UpdateInsurer(repo)
-
     await expect(
       useCase.execute({
         id: 'missing',
@@ -90,14 +86,12 @@ describe('UpdateInsurer', () => {
       })
     ).rejects.toThrow(InsurerNotFoundError)
   })
-
   it('throws InsurerAlreadyExistsError when another insurer already uses the name', async () => {
     const repo = createRepo({
       current: makeInsurer({ id: 'ins-1', name: 'Porto Seguro' }),
       duplicate: makeInsurer({ id: 'ins-2', name: 'Allianz' }),
     })
     const useCase = new UpdateInsurer(repo)
-
     await expect(
       useCase.execute({
         id: 'ins-1',
@@ -109,7 +103,6 @@ describe('UpdateInsurer', () => {
     ).rejects.toThrow(InsurerAlreadyExistsError)
   })
 })
-
 describe('PrismaInsurerRepository', () => {
   it('preserves the existing code and enforces organizationId when updating without code', async () => {
     const updateMany = vi.fn().mockResolvedValue({ count: 1 })
@@ -127,14 +120,12 @@ describe('PrismaInsurerRepository', () => {
       },
     } as unknown as PrismaClient
     const repo = new PrismaInsurerRepository(prisma)
-
     const result = await repo.update({
       id: 'ins-1',
       organizationId: 'org-1',
       name: 'Bradesco',
       active: false,
     })
-
     expect(updateMany).toHaveBeenCalledWith({
       where: { id: 'ins-1', organizationId: 'org-1' },
       data: {

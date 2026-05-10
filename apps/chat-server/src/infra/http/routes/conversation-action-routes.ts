@@ -34,7 +34,6 @@ export async function conversationActionRoutes(
       const { id } = conversationIdSchema.parse(request.params)
       const tenantId = request.organizationId
       const { userId, name } = request.user
-
       try {
         const useCase = container.resolve(AssignConversation)
         const result = await useCase.execute({
@@ -43,14 +42,12 @@ export async function conversationActionRoutes(
           agentId: userId,
           agentName: name,
         })
-
         return reply.status(200).send({ success: true, data: result })
       } catch (error: unknown) {
         handleDomainError(error, reply)
       }
     }
   )
-
   app.post(
     '/chat/conversations/:id/transfer',
     async (
@@ -63,7 +60,6 @@ export async function conversationActionRoutes(
       const { id } = conversationIdSchema.parse(request.params)
       const { toUserId, toUserName } = transferBodySchema.parse(request.body)
       const tenantId = request.organizationId
-
       try {
         const useCase = container.resolve(TransferConversation)
         const result = await useCase.execute({
@@ -72,14 +68,12 @@ export async function conversationActionRoutes(
           targetAgentId: toUserId,
           targetAgentName: toUserName,
         })
-
         return reply.send({ success: true, data: result })
       } catch (error: unknown) {
         handleDomainError(error, reply)
       }
     }
   )
-
   app.post(
     '/chat/conversations/:id/return',
     async (
@@ -88,18 +82,15 @@ export async function conversationActionRoutes(
     ) => {
       const { id } = conversationIdSchema.parse(request.params)
       const tenantId = request.organizationId
-
       try {
         const useCase = container.resolve(ReturnToQueue)
         const result = await useCase.execute({ conversationId: id, tenantId })
-
         return reply.send({ success: true, data: result })
       } catch (error: unknown) {
         handleDomainError(error, reply)
       }
     }
   )
-
   app.post(
     '/chat/conversations/:id/return-to-bot',
     async (
@@ -108,18 +99,15 @@ export async function conversationActionRoutes(
     ) => {
       const { id } = conversationIdSchema.parse(request.params)
       const tenantId = request.organizationId
-
       try {
         const useCase = container.resolve(ReturnToBot)
         const result = await useCase.execute({ conversationId: id, tenantId })
-
         return reply.send({ success: true, data: result })
       } catch (error: unknown) {
         handleDomainError(error, reply)
       }
     }
   )
-
   app.post(
     '/chat/conversations/:id/close',
     async (
@@ -129,7 +117,6 @@ export async function conversationActionRoutes(
       const { id } = conversationIdSchema.parse(request.params)
       const tenantId = request.organizationId
       const { userId, name } = request.user
-
       try {
         const useCase = container.resolve(CloseConversation)
         const result = await useCase.execute({
@@ -138,14 +125,12 @@ export async function conversationActionRoutes(
           closedBy: userId,
           closedByName: name,
         })
-
         return reply.send({ success: true, data: result })
       } catch (error: unknown) {
         handleDomainError(error, reply)
       }
     }
   )
-
   app.post(
     '/chat/conversations/:id/messages',
     async (
@@ -159,7 +144,6 @@ export async function conversationActionRoutes(
       const { text } = sendMessageBodySchema.parse(request.body)
       const tenantId = request.organizationId
       const { userId, name } = request.user
-
       try {
         const useCase = container.resolve(SendMessage)
         const result = await useCase.execute({
@@ -170,14 +154,12 @@ export async function conversationActionRoutes(
           senderType: 'AGENT',
           text,
         })
-
         return reply.status(201).send({ success: true, data: result })
       } catch (error: unknown) {
         handleDomainError(error, reply)
       }
     }
   )
-
   app.post(
     '/chat/conversations/:id/read',
     async (
@@ -187,10 +169,8 @@ export async function conversationActionRoutes(
       const { id } = conversationIdSchema.parse(request.params)
       const tenantId = request.organizationId
       const { userId } = request.user
-
       const useCase = container.resolve(MarkAsRead)
       await useCase.execute({ conversationId: id, userId, tenantId })
-
       return reply.send({ success: true, data: null })
     }
   )

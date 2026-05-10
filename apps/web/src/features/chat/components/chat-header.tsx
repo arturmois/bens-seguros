@@ -39,7 +39,6 @@ export function ChatHeader({
   onTransfer,
 }: ChatHeaderProps) {
   const displayName = getContactDisplayName(contact, conversation)
-
   return (
     <div className="border-border bg-card border-b">
       <div className="flex items-center justify-between px-3 py-2 md:px-4 md:py-3">
@@ -52,7 +51,6 @@ export function ChatHeader({
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-
           <Button
             variant="ghost"
             onClick={onOpenProfile}
@@ -93,7 +91,6 @@ export function ChatHeader({
             </div>
           </Button>
         </div>
-
         <div className="flex items-center gap-1">
           <HeaderActions
             conversation={conversation}
@@ -102,7 +99,6 @@ export function ChatHeader({
           />
         </div>
       </div>
-
       <TypingIndicator typingUser={typingUser} />
     </div>
   )

@@ -77,24 +77,20 @@ describe('SendMessage', () => {
   let conversationRepo: ConversationRepository
   let messageRepo: MessageRepository
   let queueProducer: QueueProducer
-
   beforeEach(() => {
     vi.clearAllMocks()
   })
-
   it('creates message with PENDING status and enqueues to send queue', async () => {
     const conversation = makeConversationData()
     conversationRepo = createMockConversationRepo(conversation)
     messageRepo = createMockMessageRepo()
     queueProducer = createMockQueueProducer()
-
     const useCase = new SendMessage(
       conversationRepo,
       messageRepo,
       queueProducer
     )
     const result = await useCase.execute(BASE_INPUT)
-
     expect(result.status).toBe('PENDING')
     expect(result.text).toBe('Hello, how can I help?')
     expect(result.senderType).toBe('AGENT')
@@ -112,19 +108,16 @@ describe('SendMessage', () => {
       })
     )
   })
-
   it('updates conversation lastMessage after creating message', async () => {
     conversationRepo = createMockConversationRepo(makeConversationData())
     messageRepo = createMockMessageRepo()
     queueProducer = createMockQueueProducer()
-
     const useCase = new SendMessage(
       conversationRepo,
       messageRepo,
       queueProducer
     )
     await useCase.execute(BASE_INPUT)
-
     expect(conversationRepo.updateLastMessage).toHaveBeenCalledWith(
       'conv-1',
       'tenant-1',
@@ -132,18 +125,15 @@ describe('SendMessage', () => {
       expect.any(Date)
     )
   })
-
   it('throws ConversationNotFoundError when conversation does not exist', async () => {
     conversationRepo = createMockConversationRepo(null)
     messageRepo = createMockMessageRepo()
     queueProducer = createMockQueueProducer()
-
     const useCase = new SendMessage(
       conversationRepo,
       messageRepo,
       queueProducer
     )
-
     await expect(useCase.execute(BASE_INPUT)).rejects.toThrow(
       ConversationNotFoundError
     )

@@ -24,7 +24,6 @@ import {
 
 export function importPoliciesRoutes(app: FastifyInstance) {
   const typedApp = app.withTypeProvider<ZodTypeProvider>()
-
   typedApp.route({
     method: 'GET',
     url: '/api/v1/policies/import/template',
@@ -47,7 +46,6 @@ export function importPoliciesRoutes(app: FastifyInstance) {
         .send(template)
     },
   })
-
   typedApp.route({
     method: 'POST',
     url: '/api/v1/policies/import',
@@ -71,7 +69,6 @@ export function importPoliciesRoutes(app: FastifyInstance) {
           error: { code: 'NO_FILE', message: 'Nenhum arquivo enviado' },
         })
       }
-
       if (!file.filename.endsWith('.csv')) {
         return reply.status(400).send({
           success: false,
@@ -81,7 +78,6 @@ export function importPoliciesRoutes(app: FastifyInstance) {
           },
         })
       }
-
       const buffer = await file.toBuffer()
       if (buffer.length > MAX_IMPORT_FILE_SIZE) {
         return reply.status(413).send({
@@ -92,10 +88,8 @@ export function importPoliciesRoutes(app: FastifyInstance) {
           },
         })
       }
-
       const csvContent = buffer.toString('utf-8')
       const useCase = container.resolve(ParsePolicyImport)
-
       try {
         const result = await useCase.execute(
           csvContent,
@@ -125,7 +119,6 @@ export function importPoliciesRoutes(app: FastifyInstance) {
       }
     },
   })
-
   typedApp.route({
     method: 'POST',
     url: '/api/v1/policies/import/:jobId/confirm',
@@ -152,7 +145,6 @@ export function importPoliciesRoutes(app: FastifyInstance) {
           },
         })
       }
-
       await enqueueImportJob(request.params.jobId, {
         entityType: 'policy',
         organizationId: request.organizationId!,
@@ -160,16 +152,13 @@ export function importPoliciesRoutes(app: FastifyInstance) {
         rows,
         totalRows: rows.length,
       })
-
       await removeStagedData(request.params.jobId)
-
       return reply.send({
         success: true,
         data: { jobId: request.params.jobId },
       })
     },
   })
-
   typedApp.route({
     method: 'GET',
     url: '/api/v1/policies/import/:jobId/status',
@@ -184,14 +173,12 @@ export function importPoliciesRoutes(app: FastifyInstance) {
     handler: async (request, reply) => {
       const { status, organizationId, progress, result } =
         await getImportJobStatus(request.params.jobId)
-
       if (status === 'not_found' || organizationId !== request.organizationId) {
         return reply.status(404).send({
           success: false,
           error: { code: 'JOB_NOT_FOUND', message: 'Job não encontrado' },
         })
       }
-
       return reply.send({
         success: true,
         data: {

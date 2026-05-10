@@ -41,16 +41,13 @@ export class IssuePolicy {
     if (!proposal) {
       throw ProposalErrors.notFound(dto.proposalId)
     }
-
     if (proposal.stage !== 'POLICY_ISSUED') {
       throw PolicyErrors.notIssuable(dto.proposalId)
     }
-
     const insurerId = dto.insurerId ?? proposal.insurerId
     if (!insurerId) {
       throw PolicyErrors.missingInsurer(dto.proposalId)
     }
-
     const contact = await this.contactRepo.findById(
       proposal.contactId,
       dto.organizationId
@@ -58,7 +55,6 @@ export class IssuePolicy {
     if (!contact?.clientId) {
       throw ProposalErrors.contactNotPromoted()
     }
-
     const policy = await this.policyRepo.create({
       id: randomUUID(),
       organizationId: dto.organizationId,
@@ -74,7 +70,6 @@ export class IssuePolicy {
       startDate: dto.startDate,
       endDate: dto.endDate,
     })
-
     await this.onPolicyIssued.execute({
       organizationId: dto.organizationId,
       policyId: policy.id,
@@ -82,7 +77,6 @@ export class IssuePolicy {
       premiumValueInCents: proposal.premiumValueInCents,
       commissionPercentageInBasisPoints: proposal.commissionPercentageInCents,
     })
-
     return policy
   }
 }

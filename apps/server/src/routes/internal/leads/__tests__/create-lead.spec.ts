@@ -68,8 +68,6 @@ beforeEach(() => {
   mockTenantPrisma.member.findFirst.mockResolvedValue(makeMember())
   mockCreateContactExecute.mockResolvedValue(makeContact())
   mockCreateProposalExecute.mockResolvedValue(makeProposal())
-
-  // Token-based dispatch keeps tests independent of call order.
   vi.mocked(container.resolve).mockImplementation((token: unknown) => {
     if (typeof token !== 'function') return null
     const name = (token as { name?: string }).name ?? ''
@@ -94,7 +92,6 @@ describe('POST /api/internal/leads', () => {
         insuranceType: 'AUTO',
       },
     })
-
     expect(response.statusCode).toBe(201)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -102,10 +99,8 @@ describe('POST /api/internal/leads', () => {
     expect(body.data.contactId).toBe('contact-001')
     expect(mockCreateContactExecute).toHaveBeenCalledOnce()
   })
-
   it('reuses existing contact when phone already exists', async () => {
     mockTenantPrisma.contact.findFirst.mockResolvedValue(makeContact())
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/internal/leads',
@@ -115,18 +110,15 @@ describe('POST /api/internal/leads', () => {
         insuranceType: 'LIFE',
       },
     })
-
     expect(response.statusCode).toBe(201)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(mockCreateContactExecute).not.toHaveBeenCalled()
   })
-
   it('ignores body.source for existing contacts to preserve original channel attribution', async () => {
     mockTenantPrisma.contact.findFirst.mockResolvedValue(
       makeContact({ source: 'CHAT_WHATSAPP' })
     )
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/internal/leads',
@@ -137,14 +129,11 @@ describe('POST /api/internal/leads', () => {
         source: 'CHAT_WIDGET',
       },
     })
-
     expect(response.statusCode).toBe(201)
     expect(mockCreateContactExecute).not.toHaveBeenCalled()
   })
-
   it('returns 400 when no active member exists in org', async () => {
     mockTenantPrisma.member.findFirst.mockResolvedValue(null)
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/internal/leads',
@@ -154,23 +143,19 @@ describe('POST /api/internal/leads', () => {
         insuranceType: 'AUTO',
       },
     })
-
     expect(response.statusCode).toBe(400)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('NO_MEMBER')
   })
-
   it('returns 400 when required fields are missing', async () => {
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/internal/leads',
       payload: { clientPhone: '11999999999' },
     })
-
     expect(response.statusCode).toBeGreaterThanOrEqual(400)
   })
-
   it('maps insurance type to branch correctly and calls CreateProposal use case', async () => {
     const response = await injectAs(app, {
       method: 'POST',
@@ -181,7 +166,6 @@ describe('POST /api/internal/leads', () => {
         insuranceType: 'RESIDENTIAL',
       },
     })
-
     expect(response.statusCode).toBe(201)
     expect(mockCreateProposalExecute).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -190,7 +174,6 @@ describe('POST /api/internal/leads', () => {
       })
     )
   })
-
   it('persists Contact.source as CHAT_WIDGET when body.source = CHAT_WIDGET', async () => {
     const response = await injectAs(app, {
       method: 'POST',
@@ -202,13 +185,11 @@ describe('POST /api/internal/leads', () => {
         source: 'CHAT_WIDGET',
       },
     })
-
     expect(response.statusCode).toBe(201)
     expect(mockCreateContactExecute).toHaveBeenCalledWith(
       expect.objectContaining({ source: 'CHAT_WIDGET' })
     )
   })
-
   it('persists Contact.source as CHAT_WHATSAPP when body.source = CHAT_WHATSAPP', async () => {
     const response = await injectAs(app, {
       method: 'POST',
@@ -220,13 +201,11 @@ describe('POST /api/internal/leads', () => {
         source: 'CHAT_WHATSAPP',
       },
     })
-
     expect(response.statusCode).toBe(201)
     expect(mockCreateContactExecute).toHaveBeenCalledWith(
       expect.objectContaining({ source: 'CHAT_WHATSAPP' })
     )
   })
-
   it('falls back to MANUAL when body.source is omitted', async () => {
     const response = await injectAs(app, {
       method: 'POST',
@@ -237,13 +216,11 @@ describe('POST /api/internal/leads', () => {
         insuranceType: 'AUTO',
       },
     })
-
     expect(response.statusCode).toBe(201)
     expect(mockCreateContactExecute).toHaveBeenCalledWith(
       expect.objectContaining({ source: 'MANUAL' })
     )
   })
-
   it('rejects unknown source values with 400', async () => {
     const response = await injectAs(app, {
       method: 'POST',
@@ -255,14 +232,11 @@ describe('POST /api/internal/leads', () => {
         source: 'WHATSAPP_BOT',
       },
     })
-
     expect(response.statusCode).toBe(400)
     const body = response.json()
     expect(body.success).toBe(false)
-    // Schema rejection — must NOT be the NO_MEMBER path
     expect(body.error.code).toBe('VALIDATION_ERROR')
     expect(body.error.code).not.toBe('NO_MEMBER')
-    // The validation error must reference the 'source' field
     expect(JSON.stringify(body.error)).toMatch(/source/i)
     expect(mockCreateContactExecute).not.toHaveBeenCalled()
   })

@@ -5,7 +5,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { errorResponse } from '../../shared/response.schema.js'
 import { organizationDetailResponse } from './_schemas.js'
 
-const ORG_CACHE_TTL = 3600 // 1h
+const ORG_CACHE_TTL = 3600
 
 interface OrgCacheData {
   id: string
@@ -36,7 +36,6 @@ export function getOrganizationRoute(app: FastifyInstance) {
     handler: async (request, reply) => {
       const organizationId = request.organizationId!
       const cacheKey = `cache:${organizationId}:org`
-
       const cacheService = resolveCache()
       if (cacheService) {
         const cached = await cacheService.get<OrgCacheData>(cacheKey)
@@ -59,7 +58,6 @@ export function getOrganizationRoute(app: FastifyInstance) {
           })
         }
       }
-
       const org = await prisma.organization.findUnique({
         where: { id: organizationId },
         select: {
@@ -70,7 +68,6 @@ export function getOrganizationRoute(app: FastifyInstance) {
           createdAt: true,
         },
       })
-
       if (!org) {
         return reply.status(404).send({
           success: false,
@@ -80,7 +77,6 @@ export function getOrganizationRoute(app: FastifyInstance) {
           },
         })
       }
-
       if (cacheService) {
         await cacheService.set(
           cacheKey,
@@ -94,13 +90,11 @@ export function getOrganizationRoute(app: FastifyInstance) {
           ORG_CACHE_TTL
         )
       }
-
       let logoUrl: string | null = null
       if (org.logo) {
         const storage = container.resolve<StorageProvider>('StorageProvider')
         logoUrl = await storage.getSignedUrl(org.logo)
       }
-
       return reply.send({
         success: true,
         data: {

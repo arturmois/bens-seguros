@@ -72,7 +72,6 @@ describe('GET /api/v1/proposals/:id', () => {
       method: 'GET',
       url: '/api/v1/proposals/p-001',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -80,30 +79,24 @@ describe('GET /api/v1/proposals/:id', () => {
     expect(body.data.stage).toBe('QUOTE')
     expect(body.data.branch).toBe('AUTO')
   })
-
   it('calls use case with id and organizationId', async () => {
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/proposals/p-001',
     })
-
     expect(mockExecute).toHaveBeenCalledWith('p-001', TEST_ORG_ID)
   })
-
   it('returns 404 when proposal does not exist', async () => {
     mockResolveError('PROPOSAL_NOT_FOUND', 'Proposal not found')
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/proposals/nonexistent',
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('PROPOSAL_NOT_FOUND')
   })
-
   it('returns premium and commission in cents', async () => {
     mockExecute.mockResolvedValue(
       makeProposal({
@@ -111,12 +104,10 @@ describe('GET /api/v1/proposals/:id', () => {
         commissionPercentageInCents: 1500,
       })
     )
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/proposals/p-001',
     })
-
     const body = response.json()
     expect(body.data.premiumValueInCents).toBe(250000)
     expect(body.data.commissionPercentageInCents).toBe(1500)

@@ -29,14 +29,11 @@ export async function connectWhatsAppEmbeddedSignup(
   if (!appId || !appSecret) {
     throw new Error('META_APP_ID and META_APP_SECRET required')
   }
-
-  // Exchange code for BISU token (non-expiring)
   const tokenParams = new URLSearchParams({
     client_id: appId,
     client_secret: appSecret,
     code: input.code,
   })
-
   const tokenResponse = await fetch(
     `${META_GRAPH_API}/oauth/access_token?${tokenParams.toString()}`
   )
@@ -45,7 +42,6 @@ export async function connectWhatsAppEmbeddedSignup(
     typeof tokenRaw === 'object' && tokenRaw !== null
       ? (tokenRaw as Record<string, unknown>)
       : {}
-
   if (!tokenResponse.ok || typeof tokenData['error'] === 'object') {
     const err =
       typeof tokenData['error'] === 'object' && tokenData['error'] !== null
@@ -57,18 +53,13 @@ export async function connectWhatsAppEmbeddedSignup(
       }`
     )
   }
-
   const accessToken = tokenData['access_token']
   if (typeof accessToken !== 'string' || !accessToken) {
     throw new Error('WhatsApp token exchange returned no access_token')
   }
-
-  // Generate random 6-digit PIN for phone registration
   const pin = String(
     Math.floor(100000 + (randomBytes(4).readUInt32BE() % 900000))
   )
-
-  // Register phone number
   const registerResponse = await fetch(
     `${META_GRAPH_API}/${input.phoneNumberId}/register`,
     {
@@ -83,7 +74,6 @@ export async function connectWhatsAppEmbeddedSignup(
       }),
     }
   )
-
   if (!registerResponse.ok) {
     const registerRaw: unknown = await registerResponse.json()
     const registerData =
@@ -103,14 +93,10 @@ export async function connectWhatsAppEmbeddedSignup(
       }`
     )
   }
-
-  // Subscribe WABA to webhooks
   await fetch(`${META_GRAPH_API}/${input.wabaId}/subscribed_apps`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${accessToken}` },
   })
-
-  // Fetch phone number details
   const phoneResponse = await fetch(
     `${META_GRAPH_API}/${input.phoneNumberId}?fields=display_phone_number&access_token=${accessToken}`
   )
@@ -123,11 +109,8 @@ export async function connectWhatsAppEmbeddedSignup(
     typeof phoneData['display_phone_number'] === 'string'
       ? phoneData['display_phone_number']
       : null
-
-  // Encrypt token and PIN, then create channel
   const encryptedToken = encryptToken(accessToken)
   const encryptedPin = encryptToken(pin)
-
   const channel = await Channel.create({
     tenantId: input.tenantId,
     name: input.name,
@@ -147,7 +130,6 @@ export async function connectWhatsAppEmbeddedSignup(
       metaRegistrationPin: encryptedPin,
     },
   })
-
   return {
     channelId: String(channel._id),
     name: channel.name,

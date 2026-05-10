@@ -26,7 +26,6 @@ export function useChannels() {
 
 export function useCreateChannel() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (payload: CreateChannelPayload) => {
       const response = await chatApi.post<ChannelData>(
@@ -49,7 +48,6 @@ export function useCreateChannel() {
 
 export function useUpdateChannel() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({
       id,
@@ -80,7 +78,6 @@ export function useUpdateChannel() {
 
 export function useDeactivateChannel() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: string) => {
       const response = await chatApi.delete<ChannelData>(`/chat/channels/${id}`)
@@ -126,7 +123,6 @@ export function useValidateMetaChannel() {
 
 export function useDisconnectMetaChannel() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (channelId: string) => {
       const response = await chatApi.post<{ disconnected: boolean }>(

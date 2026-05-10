@@ -16,13 +16,10 @@ import { updateProposalDetailsRoute } from './update-proposal-details.js'
 
 export async function proposalRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
-
-  // IMPORTANT: export and pdf routes must be registered BEFORE /:id to avoid route conflict
   exportProposalsRoute(app)
   generateProposalPdfRoute(app)
   sendQuoteRoute(app)
   updateProposalDatesRoute(app)
-
   createProposalRoute(app)
   listProposalsRoute(app)
   getProposalRoute(app)

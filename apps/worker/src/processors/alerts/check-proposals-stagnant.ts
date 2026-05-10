@@ -15,14 +15,12 @@ export async function checkProposalsStagnant(
 ): Promise<void> {
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - STAGNANT_DAYS)
-
   const managers = await prismaAdmin.member.findMany({
     where: {
       organizationId,
       role: { in: ['MANAGER', 'ADMIN', 'OWNER'] },
     },
   })
-
   const proposals = await prismaAdmin.proposal.findMany({
     where: {
       organizationId,
@@ -34,7 +32,6 @@ export async function checkProposalsStagnant(
       contact: { include: { client: true } },
     },
   })
-
   for (const proposal of proposals) {
     const isDuplicate = await hasExistingAlert({
       organizationId,
@@ -42,19 +39,15 @@ export async function checkProposalsStagnant(
       entityId: proposal.id,
       type: 'PROPOSAL_STAGNANT',
     })
-
     if (isDuplicate) {
       continue
     }
-
     const daysSinceUpdate = Math.floor(
       (Date.now() - proposal.updatedAt.getTime()) / (1000 * 60 * 60 * 24)
     )
     const clientName =
       proposal.contact?.client?.legalName ?? proposal.contact?.name ?? 'N/A'
     const body = `Proposta de ${clientName} parada no estagio ${proposal.stage} ha ${daysSinceUpdate} dias`
-
-    // Notify salesperson
     await notificationQueue.add(
       'notification',
       {
@@ -70,8 +63,6 @@ export async function checkProposalsStagnant(
       },
       DEFAULT_JOB_OPTIONS
     )
-
-    // Notify MANAGERs
     for (const manager of managers) {
       if (manager.userId === proposal.salespersonId) {
         continue
@@ -92,7 +83,6 @@ export async function checkProposalsStagnant(
         DEFAULT_JOB_OPTIONS
       )
     }
-
     logger.info(
       { proposalId: proposal.id, daysSinceUpdate, stage: proposal.stage },
       'Proposal stagnant alert enqueued'

@@ -21,7 +21,6 @@ export function RenewalPolicyInput({
 }: RenewalPolicyInputProps) {
   const debouncedValue = useDebounce(value, 300)
   const enabled = debouncedValue.length >= 2
-
   const { data, isLoading } = useListPolicies(
     { search: debouncedValue, limit: 5, status: ListPoliciesStatus.ACTIVE },
     {
@@ -31,7 +30,6 @@ export function RenewalPolicyInput({
       },
     }
   )
-
   const matchedClient = useMemo(() => {
     if (!enabled || isLoading) return null
     const match = data?.find(
@@ -39,7 +37,6 @@ export function RenewalPolicyInput({
     )
     return match?.clientName ?? null
   }, [data, debouncedValue, enabled, isLoading])
-
   return (
     <div className="space-y-1.5">
       <div className="relative">

@@ -19,7 +19,6 @@ export function useAssistancesFilters() {
     },
     { history: 'push' }
   )
-
   const values: Readonly<Record<string, FilterValue>> = useMemo(
     () => ({
       statusIn: state.statusIn ?? undefined,
@@ -27,7 +26,6 @@ export function useAssistancesFilters() {
     }),
     [state.statusIn, state.typeIn]
   )
-
   const apiParams = useMemo(
     () => ({
       statusIn: state.statusIn?.length ? state.statusIn.join(',') : undefined,
@@ -37,18 +35,15 @@ export function useAssistancesFilters() {
     }),
     [state.statusIn, state.typeIn, state.statusGroup, state.search]
   )
-
   function setFilter(key: string, value: FilterValue): void {
     if (key === 'statusIn' || key === 'typeIn') {
       const arr = asEnumValue(value)
       void setState({ [key]: arr && arr.length > 0 ? [...arr] : null })
     }
   }
-
   function setSearch(next: string): void {
     void setState({ search: next })
   }
-
   function clearAll(): void {
     void setState({
       statusIn: null,
@@ -57,7 +52,6 @@ export function useAssistancesFilters() {
       search: '',
     })
   }
-
   return {
     statusIn: state.statusIn ?? undefined,
     typeIn: state.typeIn ?? undefined,

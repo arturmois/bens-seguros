@@ -51,7 +51,6 @@ export function MetaAssetSelect({
 }: MetaAssetSelectProps) {
   const visibleAssets =
     channelType === 'INSTAGRAM' ? assets.filter((a) => a.hasInstagram) : assets
-
   const firstAsset = visibleAssets[0]
   const [selectedPageId, setSelectedPageId] = useState<string>(
     firstAsset?.pageId ?? ''
@@ -59,7 +58,6 @@ export function MetaAssetSelect({
   const [channelName, setChannelName] = useState<string>(
     firstAsset ? buildDefaultName(firstAsset.pageName, channelType) : ''
   )
-
   function handlePageSelect(pageId: string) {
     setSelectedPageId(pageId)
     const asset = visibleAssets.find((a) => a.pageId === pageId)
@@ -67,11 +65,9 @@ export function MetaAssetSelect({
       setChannelName(buildDefaultName(asset.pageName, channelType))
     }
   }
-
   function handleConnect() {
     const asset = visibleAssets.find((a) => a.pageId === selectedPageId)
     if (!asset) return
-
     onConnect({
       pageId: asset.pageId,
       name: channelName.trim() || buildDefaultName(asset.pageName, channelType),
@@ -79,7 +75,6 @@ export function MetaAssetSelect({
       instagramAccountId: asset.instagramAccountId ?? undefined,
     })
   }
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="flex flex-col overflow-y-auto sm:max-w-lg">
@@ -90,7 +85,6 @@ export function MetaAssetSelect({
             {channelType === 'MESSENGER' ? 'Messenger' : 'Instagram'}.
           </SheetDescription>
         </SheetHeader>
-
         <div className="flex-1 space-y-6 px-4 py-4">
           {visibleAssets.length === 0 ? (
             <p className="text-muted-foreground text-sm">
@@ -124,7 +118,6 @@ export function MetaAssetSelect({
               ))}
             </RadioGroup>
           )}
-
           <div className="space-y-2">
             <Label htmlFor="channel-name">Nome do canal</Label>
             <Input
@@ -135,7 +128,6 @@ export function MetaAssetSelect({
             />
           </div>
         </div>
-
         <SheetFooter>
           <Button variant="outline" onClick={onCancel}>
             Cancelar

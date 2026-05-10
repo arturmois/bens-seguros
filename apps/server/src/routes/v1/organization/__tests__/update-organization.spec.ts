@@ -60,20 +60,17 @@ describe('PUT /api/v1/organization', () => {
         slug: 'corretora-atualizada',
       }) as unknown as Awaited<ReturnType<typeof prisma.organization.update>>
     )
-
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/organization',
       payload: validBody,
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.name).toBe('Corretora Atualizada')
     expect(body.data.slug).toBe('corretora-atualizada')
   })
-
   it('returns 409 when slug is taken by another organization', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.organization.findFirst).mockResolvedValue(
@@ -81,46 +78,38 @@ describe('PUT /api/v1/organization', () => {
         ReturnType<typeof prisma.organization.findFirst>
       >
     )
-
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/organization',
       payload: validBody,
     })
-
     expect(response.statusCode).toBe(409)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('SLUG_CONFLICT')
   })
-
   it('returns 400 when slug has invalid characters', async () => {
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/organization',
       payload: { name: 'Corretora', slug: 'Corretora INVÁLIDA' },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('returns 400 when name is too short', async () => {
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/organization',
       payload: { name: 'A', slug: 'corretora' },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('returns 400 when body is missing', async () => {
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/organization',
       headers: { 'content-type': 'text/plain' },
     })
-
     expect(response.statusCode).toBe(400)
   })
 })

@@ -62,7 +62,6 @@ export function SettingsLayout({
           Gerencie as configurações da sua organização.
         </p>
       </div>
-
       <div className="flex flex-col gap-8 lg:flex-row">
         <nav
           aria-label="Seções de configuração"
@@ -76,7 +75,6 @@ export function SettingsLayout({
             />
           ))}
         </nav>
-
         <div className="min-w-0 flex-1">{children}</div>
       </div>
     </div>
@@ -90,7 +88,6 @@ interface SettingsNavItemProps {
 
 function SettingsNavItem({ section, isActive }: SettingsNavItemProps) {
   const Icon = section.icon
-
   if (section.disabled) {
     return (
       <span className="text-muted-foreground/50 flex min-h-10 cursor-not-allowed items-center gap-3 whitespace-nowrap rounded-md px-3 py-2 text-sm lg:whitespace-normal">
@@ -100,7 +97,6 @@ function SettingsNavItem({ section, isActive }: SettingsNavItemProps) {
       </span>
     )
   }
-
   return (
     <Link
       href={section.href}

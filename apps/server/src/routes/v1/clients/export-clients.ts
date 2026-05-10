@@ -6,7 +6,6 @@ import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { listClientsQuerySchema } from './_schemas.js'
 
 export function exportClientsRoute(app: FastifyInstance) {
-  // IMPORTANT: export route must be registered BEFORE /:id to avoid route conflict
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'GET',
     url: '/api/v1/clients/export',
@@ -26,9 +25,7 @@ export function exportClientsRoute(app: FastifyInstance) {
         personTypeIn,
         search,
       })
-
       const readable = Readable.from(csvGenerator)
-
       return reply
         .header('Content-Type', 'text/csv; charset=utf-8')
         .header('Content-Disposition', 'attachment; filename="clientes.csv"')

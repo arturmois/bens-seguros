@@ -41,9 +41,7 @@ export async function widgetCreateConversationRoute(
           },
         })
       }
-
       const { channelId, name, phone, email } = parsed.data
-
       if (!isValidObjectId(channelId)) {
         return reply.status(404).send({
           success: false,
@@ -53,7 +51,6 @@ export async function widgetCreateConversationRoute(
           },
         })
       }
-
       const channel = await Channel.findOne({
         _id: channelId,
         isActive: true,
@@ -61,7 +58,6 @@ export async function widgetCreateConversationRoute(
       })
         .lean()
         .exec()
-
       if (!channel) {
         return reply.status(404).send({
           success: false,
@@ -71,7 +67,6 @@ export async function widgetCreateConversationRoute(
           },
         })
       }
-
       const { allowedOrigins, welcomeMessage } = getChannelConfig(
         channel.config
       )
@@ -85,9 +80,7 @@ export async function widgetCreateConversationRoute(
           },
         })
       }
-
       const tenantId = String(channel.tenantId)
-
       const contact = await Contact.findOneAndUpdate(
         { tenantId, whatsappPhone: phone },
         {
@@ -98,9 +91,7 @@ export async function widgetCreateConversationRoute(
       )
         .lean()
         .exec()
-
       const contactId = String(contact._id)
-
       const existingConversation = await Conversation.findOne({
         tenantId,
         contactId,
@@ -109,16 +100,13 @@ export async function widgetCreateConversationRoute(
       })
         .lean()
         .exec()
-
       let conversationId: string
       let isNew = false
-
       if (existingConversation) {
         conversationId = String(existingConversation._id)
       } else {
         const initialStatus = channel.aiAgentId ? 'BOT_ACTIVE' : 'WAITING_HUMAN'
         const now = new Date()
-
         const newConversation = await Conversation.create({
           tenantId,
           channelId,
@@ -128,10 +116,8 @@ export async function widgetCreateConversationRoute(
           lastMessageText: welcomeMessage,
           lastMessageAt: now,
         })
-
         conversationId = String(newConversation._id)
         isNew = true
-
         await Message.create({
           conversationId,
           tenantId,
@@ -140,7 +126,6 @@ export async function widgetCreateConversationRoute(
           type: 'TEXT',
           status: 'DELIVERED',
         })
-
         const redisPub = app.redisPub
         if (redisPub) {
           await redisPub.publish(
@@ -154,14 +139,12 @@ export async function widgetCreateConversationRoute(
           )
         }
       }
-
       const visitorToken = signVisitorToken({
         conversationId,
         contactId,
         channelId,
         tenantId,
       })
-
       const statusCode = isNew ? 201 : 200
       return reply.status(statusCode).send({
         success: true,

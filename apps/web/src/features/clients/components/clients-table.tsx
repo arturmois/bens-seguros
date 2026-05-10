@@ -59,22 +59,18 @@ export function ClientsContent() {
   const filters = useClientsFilters()
   const { activeOrg } = useOrgs()
   const role = activeOrg?.role ?? 'VIEWER'
-
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
   const [deletingClientId, setDeletingClientId] = useState<string | null>(null)
-
   const debouncedSearch = useDebounce(filters.search, 300)
   const deleteClient = useDeleteClient()
-
   const sortId = sorting[0]?.id
   const sortBy = sortId && isSortBy(sortId) ? sortId : undefined
   const sortOrder: ListClientsSortOrder | undefined = sorting[0]?.desc
     ? 'desc'
     : 'asc'
-
   const apiFilters = useMemo(
     () => ({
       search: debouncedSearch || undefined,
@@ -89,7 +85,6 @@ export function ClientsContent() {
       filters.apiParams.personTypeIn,
     ]
   )
-
   const { data, isLoading, isError, refetch } = useClients({
     ...apiFilters,
     cursor: pagination.currentCursor,
@@ -97,11 +92,9 @@ export function ClientsContent() {
     sortBy,
     sortOrder,
   })
-
   const clients: ClientData[] = data?.data ?? []
   const total = data?.meta?.total ?? 0
   const nextCursor = data?.meta?.nextCursor ?? null
-
   const columnActions = useMemo(
     () => ({
       onView: (id: string) => router.push(`/clients/${id}`),
@@ -109,12 +102,10 @@ export function ClientsContent() {
     }),
     [router]
   )
-
   const columns = useMemo(
     () => createClientColumns(columnActions, role),
     [columnActions, role]
   )
-
   const table = useReactTable({
     data: clients,
     columns,
@@ -130,39 +121,32 @@ export function ClientsContent() {
     manualFiltering: true,
     rowCount: total,
   })
-
   function handleSearchChange(value: string) {
     filters.setSearch(value)
     pagination.reset()
   }
-
   function handleFilterChange(key: string, value: FilterValue) {
     filters.setFilter(key, value)
     pagination.reset()
   }
-
   function handleClearAll() {
     filters.clearAll()
     pagination.reset()
   }
-
   function handleColumnToggle(id: string, visible: boolean) {
     setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
-
   function handleConfirmDelete() {
     if (!deletingClientId) return
     deleteClient.mutate(deletingClientId, {
       onSuccess: () => setDeletingClientId(null),
     })
   }
-
   if (isError) {
     return (
       <TableErrorState message="Erro ao carregar clientes." onRetry={refetch} />
     )
   }
-
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <UnifiedFilterBar
@@ -181,7 +165,6 @@ export function ClientsContent() {
         <ClientExportButton filters={apiFilters} />
         <NewClientButton />
       </UnifiedFilterBar>
-
       <DataTable
         table={table}
         isLoading={isLoading}
@@ -189,7 +172,6 @@ export function ClientsContent() {
         columnVisibility={columnVisibility}
         onRowClick={(client) => router.push(`/clients/${client.id}`)}
       />
-
       <MobileCardList
         data={clients}
         keyExtractor={(c) => c.id}
@@ -202,7 +184,6 @@ export function ClientsContent() {
           />
         )}
       />
-
       <CursorPagination
         total={total}
         pageSize={pagination.pageSize}
@@ -215,7 +196,6 @@ export function ClientsContent() {
           if (nextCursor) pagination.goToNext(nextCursor)
         }}
       />
-
       <ConfirmDeleteDialog
         entityLabel="cliente"
         open={Boolean(deletingClientId)}

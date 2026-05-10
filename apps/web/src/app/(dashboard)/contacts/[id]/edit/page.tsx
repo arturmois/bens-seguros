@@ -24,7 +24,6 @@ export default function EditContactPage({ params }: EditContactPageProps) {
   const { id } = use(params)
   const router = useRouter()
   const { data: contact, isLoading, isError } = useContact(id)
-
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -32,7 +31,6 @@ export default function EditContactPage({ params }: EditContactPageProps) {
       </div>
     )
   }
-
   if (isError || !contact) {
     return (
       <div className="flex h-64 flex-col items-center justify-center gap-3">
@@ -45,7 +43,6 @@ export default function EditContactPage({ params }: EditContactPageProps) {
       </div>
     )
   }
-
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -57,7 +54,6 @@ export default function EditContactPage({ params }: EditContactPageProps) {
             { label: 'Editar' },
           ]}
         />
-
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
             Editar contato
@@ -67,7 +63,6 @@ export default function EditContactPage({ params }: EditContactPageProps) {
           </p>
         </div>
       </div>
-
       <Card>
         <CardHeader>
           <CardTitle>Dados do contato</CardTitle>

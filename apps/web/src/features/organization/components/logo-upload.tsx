@@ -18,43 +18,36 @@ interface LogoUploadProps {
 export function LogoUpload({ organization, isReadOnly }: LogoUploadProps) {
   const uploadLogo = useUploadLogo()
   const inputRef = useRef<HTMLInputElement>(null)
-
   const handleFile = useCallback(
     (file: File) => {
       uploadLogo.mutate(file)
     },
     [uploadLogo]
   )
-
   function handleDrop(event: React.DragEvent<HTMLDivElement>) {
     event.preventDefault()
     if (isReadOnly) return
     const file = event.dataTransfer.files[0]
     if (file) handleFile(file)
   }
-
   function handleDragOver(event: React.DragEvent<HTMLDivElement>) {
     event.preventDefault()
   }
-
   function handleClick() {
     if (isReadOnly) return
     inputRef.current?.click()
   }
-
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
       handleClick()
     }
   }
-
   function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
     if (file) handleFile(file)
     event.target.value = ''
   }
-
   return (
     <div className="space-y-2">
       <p className="text-sm font-medium">Logo</p>

@@ -46,7 +46,6 @@ export function PromoteContactDialog({
   onPromoted,
 }: PromoteContactDialogProps) {
   const promoteMutation = usePromoteContact()
-
   const form = useForm<PromoteContactValues>({
     resolver: zodResolver(PromoteContactSchema),
     mode: 'onBlur',
@@ -56,10 +55,8 @@ export function PromoteContactDialog({
       personType: 'INDIVIDUAL',
     },
   })
-
   const personType = useWatch({ control: form.control, name: 'personType' })
   const isCompany = personType === 'COMPANY'
-
   function handleSubmit(values: PromoteContactValues) {
     promoteMutation.mutate(
       { id: contactId, data: values },
@@ -79,14 +76,11 @@ export function PromoteContactDialog({
       }
     )
   }
-
   function handleOpenChange(next: boolean) {
     if (!next) form.clearErrors()
     onOpenChange(next)
   }
-
   const errors = form.formState.errors
-
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -97,7 +91,6 @@ export function PromoteContactDialog({
             documento, o vínculo será automático.
           </DialogDescription>
         </DialogHeader>
-
         <DialogPanel>
           <FormProvider {...form}>
             <form
@@ -143,7 +136,6 @@ export function PromoteContactDialog({
                   )}
                 />
               </FormField>
-
               <FormField
                 label={isCompany ? 'CNPJ' : 'CPF'}
                 error={errors.document?.message}
@@ -155,7 +147,6 @@ export function PromoteContactDialog({
                   {...form.register('document')}
                 />
               </FormField>
-
               <FormField
                 label={isCompany ? 'Razão social' : 'Nome legal'}
                 error={errors.legalName?.message}
@@ -172,7 +163,6 @@ export function PromoteContactDialog({
             </form>
           </FormProvider>
         </DialogPanel>
-
         <DialogFooter>
           <Button
             type="button"

@@ -78,7 +78,6 @@ export function acceptInvitationRoute(app: FastifyInstance, auth: Auth) {
     handler: async (request, reply) => {
       const { id } = request.params
       const body = request.body
-
       const invitationRepo = container.resolve<InvitationRepository>(
         'InvitationRepository'
       )
@@ -91,9 +90,7 @@ export function acceptInvitationRoute(app: FastifyInstance, auth: Auth) {
           'Convite não encontrado'
         )
       }
-
       const authHeaders = buildOriginHeaders(request)
-
       let authResult: AuthResult
       try {
         authResult = await authenticateForInvitation({
@@ -110,12 +107,10 @@ export function acceptInvitationRoute(app: FastifyInstance, auth: Auth) {
         request.log.error({ err }, 'Unexpected error during invite auth')
         return errorReply(reply, 500, 'INTERNAL_ERROR', 'Erro inesperado')
       }
-
       applyCookies(reply, authResult.cookies)
       if (authResult.cookies.length > 0) {
         authHeaders.set('cookie', authResult.cookies.join('; '))
       }
-
       let result: { organizationId: string; role: string }
       try {
         result = await container
@@ -124,7 +119,6 @@ export function acceptInvitationRoute(app: FastifyInstance, auth: Auth) {
       } catch (err) {
         return handleDomainError(err, reply)
       }
-
       const orgCookies = await applyActiveOrg({
         auth,
         organizationId: result.organizationId,
@@ -132,15 +126,10 @@ export function acceptInvitationRoute(app: FastifyInstance, auth: Auth) {
         logger: request.log,
       })
       applyCookies(reply, orgCookies)
-
-      // Invalidate the members listing cache so the new/reactivated member
-      // appears immediately for owners/admins (matches create-invitation,
-      // delete-member, and update-member-role conventions).
       const cacheService = resolveCache()
       if (cacheService) {
         await cacheService.delete(`cache:${result.organizationId}:members`)
       }
-
       return reply.send({
         success: true,
         data: {

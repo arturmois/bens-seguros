@@ -14,13 +14,10 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
   const [tocOpen, setTocOpen] = useState(false)
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map())
   const scrollLockRef = useRef(false)
-
   useEffect(() => {
     function handleScroll() {
       if (scrollLockRef.current) return
-
       const scrollY = window.scrollY + 120
-
       let current = doc.sections[0]?.id ?? ''
       for (const el of sectionRefs.current.values()) {
         if (el.offsetTop <= scrollY) {
@@ -29,12 +26,10 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
       }
       setActiveSection(current)
     }
-
     window.addEventListener('scroll', handleScroll, { passive: true })
     handleScroll()
     return () => window.removeEventListener('scroll', handleScroll)
   }, [doc.sections])
-
   function scrollToSection(id: string) {
     const el = sectionRefs.current.get(id)
     if (el) {
@@ -47,7 +42,6 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
       }, 1500)
     }
   }
-
   return (
     <div className="mx-auto max-w-6xl px-4 pb-12 pt-24 sm:px-6">
       {/* Header */}
@@ -60,7 +54,6 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
           {new Date(doc.updatedAt).toLocaleDateString('pt-BR')}
         </p>
       </div>
-
       {/* Mobile TOC toggle */}
       <div className="mb-6 md:hidden">
         <button
@@ -99,7 +92,6 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
           </nav>
         )}
       </div>
-
       {/* Desktop layout: sidebar + content */}
       <div className="flex gap-10">
         {/* Sidebar TOC (desktop) */}
@@ -128,7 +120,6 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
             </ul>
           </nav>
         </aside>
-
         {/* Content */}
         <article className="min-w-0 flex-1">
           {doc.sections.map((section) => (

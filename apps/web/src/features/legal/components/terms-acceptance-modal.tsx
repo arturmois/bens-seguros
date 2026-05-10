@@ -19,17 +19,14 @@ import { useTermsAcceptance } from '../hooks/use-terms-acceptance'
 
 export function TermsAcceptanceModal() {
   const { needsReAccept, isLoading, accept } = useTermsAcceptance()
-
   if (isLoading || !needsReAccept) {
     return null
   }
-
   function handleAccept() {
     accept.mutate(undefined, {
       onError: () => toast.error('Erro ao aceitar os termos. Tente novamente.'),
     })
   }
-
   return (
     <Dialog open modal>
       <DialogContent showCloseButton={false} bottomStickOnMobile={false}>
@@ -41,7 +38,6 @@ export function TermsAcceptanceModal() {
             revise e aceite para continuar utilizando a plataforma.
           </DialogDescription>
         </DialogHeader>
-
         <div className="flex flex-col gap-3 px-6">
           <Link
             href="/terms"
@@ -58,7 +54,6 @@ export function TermsAcceptanceModal() {
             Ler Política de Privacidade →
           </Link>
         </div>
-
         <DialogFooter>
           <Button
             onClick={handleAccept}

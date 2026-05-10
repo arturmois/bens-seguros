@@ -62,7 +62,6 @@ export class PrismaProposalRepository implements ProposalRepository {
   ): Promise<ProposalPage> {
     const sortBy = page.sortBy ?? 'createdAt'
     const sortOrder = page.sortOrder ?? 'desc'
-
     const primaryOrderBy: Prisma.ProposalOrderByWithRelationInput = (() => {
       switch (sortBy) {
         case 'clientName':
@@ -80,34 +79,26 @@ export class PrismaProposalRepository implements ProposalRepository {
           return { createdAt: sortOrder }
       }
     })()
-
     const createdAt: Prisma.DateTimeFilter = {}
-
     if (filters.createdFrom) {
       createdAt.gte = filters.createdFrom
     }
-
     if (filters.createdTo) {
       createdAt.lte = filters.createdTo
     }
-
     const updatedAt: Prisma.DateTimeFilter = {}
-
     if (filters.updatedAtFrom) {
       updatedAt.gte = filters.updatedAtFrom
     }
-
     if (filters.updatedAtTo) {
       updatedAt.lte = filters.updatedAtTo
     }
-
     const stageFilter: Prisma.EnumProposalStageFilter | undefined =
       filters.stageIn && filters.stageIn.length > 0
         ? { in: [...filters.stageIn] }
         : filters.stage
           ? { equals: filters.stage }
           : undefined
-
     const where: Prisma.ProposalWhereInput = {
       organizationId: filters.organizationId,
       deletedAt: null,
@@ -148,7 +139,6 @@ export class PrismaProposalRepository implements ProposalRepository {
         ],
       }),
     }
-
     const rows = await this.prisma.proposal.findMany({
       where,
       include: PROPOSAL_INCLUDE,
@@ -156,10 +146,8 @@ export class PrismaProposalRepository implements ProposalRepository {
       ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
       orderBy: [primaryOrderBy, { id: sortOrder }],
     })
-
     const hasNext = rows.length > page.limit
     const items = hasNext ? rows.slice(0, -1) : rows
-
     return {
       items: items.map(ProposalMapper.toDomain),
       nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,

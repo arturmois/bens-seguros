@@ -56,7 +56,6 @@ const makeDocument = () => ({
 describe('POST /api/v1/documents/upload', () => {
   it('returns 201 with document data on valid file upload', async () => {
     mockExecute.mockResolvedValue(makeDocument())
-
     const boundary = '----TestBoundary1234567890'
     const fileContent = Buffer.from('fake-pdf-content')
     const body = buildMultipartBody(
@@ -66,7 +65,6 @@ describe('POST /api/v1/documents/upload', () => {
       fileContent,
       boundary
     )
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/documents/upload?entityType=CLIENT&entityId=client-id-001',
@@ -76,18 +74,15 @@ describe('POST /api/v1/documents/upload', () => {
       },
       payload: body,
     })
-
     expect(response.statusCode).toBe(201)
     const json = response.json()
     expect(json.success).toBe(true)
     expect(json.data.organizationId).toBe(TEST_ORG_ID)
     expect(json.data.entityType).toBe('CLIENT')
   })
-
   it('returns 400 when no file is provided in multipart body', async () => {
     const boundary = '----TestBoundaryEmpty'
     const emptyBody = `--${boundary}--\r\n`
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/documents/upload?entityType=CLIENT&entityId=client-id-001',
@@ -97,13 +92,11 @@ describe('POST /api/v1/documents/upload', () => {
       },
       payload: Buffer.from(emptyBody),
     })
-
     expect(response.statusCode).toBe(400)
     const json = response.json()
     expect(json.success).toBe(false)
     expect(json.error.code).toBe('FILE_REQUIRED')
   })
-
   it('rejects request when entityType query param is missing', async () => {
     const boundary = '----TestBoundaryQuery'
     const fileContent = Buffer.from('content')
@@ -114,7 +107,6 @@ describe('POST /api/v1/documents/upload', () => {
       fileContent,
       boundary
     )
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/documents/upload?entityId=client-id-001',
@@ -124,11 +116,8 @@ describe('POST /api/v1/documents/upload', () => {
       },
       payload: body,
     })
-
-    // Multipart routes return 4xx when querystring validation fails
     expect(response.statusCode).toBeGreaterThanOrEqual(400)
   })
-
   it('rejects request when entityId query param is missing', async () => {
     const boundary = '----TestBoundaryEntityId'
     const fileContent = Buffer.from('content')
@@ -139,7 +128,6 @@ describe('POST /api/v1/documents/upload', () => {
       fileContent,
       boundary
     )
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/documents/upload?entityType=POLICY',
@@ -149,8 +137,6 @@ describe('POST /api/v1/documents/upload', () => {
       },
       payload: body,
     })
-
-    // Multipart routes return 4xx when querystring validation fails
     expect(response.statusCode).toBeGreaterThanOrEqual(400)
   })
 })

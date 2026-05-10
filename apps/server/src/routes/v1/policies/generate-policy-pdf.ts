@@ -34,8 +34,6 @@ interface RawClientRow {
   legalName: string
   address: unknown
   documentEncrypted: string
-  // After the contact-client separation refactor, email/phone live on Contact.
-  // The caller fetches them via the policy's contact link and passes them here.
   email: string | null
   phone: string | null
 }
@@ -112,11 +110,9 @@ export function generatePolicyPdfRoute(app: FastifyInstance) {
     handler: async (request, reply) => {
       const organizationId = request.organizationId!
       const forceRegenerate = request.query.force === 'true'
-
       const documentRepo =
         container.resolve<DocumentRepository>('DocumentRepository')
       const storage = container.resolve<StorageProvider>('StorageProvider')
-
       if (!forceRegenerate) {
         const existing = await documentRepo.findByEntity(
           'POLICY',
@@ -129,7 +125,6 @@ export function generatePolicyPdfRoute(app: FastifyInstance) {
           return reply.send({ success: true, data: { url, cached: true } })
         }
       }
-
       const getPolicyUseCase = container.resolve(GetPolicy)
       let policy
       try {
@@ -140,12 +135,10 @@ export function generatePolicyPdfRoute(app: FastifyInstance) {
       } catch (error) {
         return handleDomainError(error, reply)
       }
-
       const org = await prisma.organization.findUnique({
         where: { id: organizationId },
         select: { id: true, name: true, logo: true },
       })
-
       if (!org) {
         return reply.status(404).send({
           success: false,
@@ -155,18 +148,15 @@ export function generatePolicyPdfRoute(app: FastifyInstance) {
           },
         })
       }
-
       let logoUrl: string | null = null
       if (org.logo) {
         logoUrl = await storage.getSignedUrl(org.logo)
       }
-
       const organizationData = {
         id: org.id,
         name: org.name,
         logo: logoUrl,
       }
-
       const clientRow = await prisma.client.findFirst({
         where: { id: policy.clientId, organizationId },
         select: {
@@ -175,15 +165,11 @@ export function generatePolicyPdfRoute(app: FastifyInstance) {
           documentEncrypted: true,
         },
       })
-
-      // Email/phone now live on Contact; pull from the oldest contact linked
-      // to this client (deterministic and aligned with the Mapper choice).
       const contactRow = await prisma.contact.findFirst({
         where: { organizationId, clientId: policy.clientId, deletedAt: null },
         orderBy: { createdAt: 'asc' },
         select: { email: true, phone: true },
       })
-
       const rawClient = clientRow
         ? {
             legalName: clientRow.legalName,
@@ -193,12 +179,10 @@ export function generatePolicyPdfRoute(app: FastifyInstance) {
             phone: contactRow?.phone ?? null,
           }
         : null
-
       const clientFullData = buildClientFullData(
         rawClient,
         policy.clientDocument
       )
-
       const buffer = Buffer.from(
         await renderToBuffer(
           PolicySummaryPdf({
@@ -208,10 +192,8 @@ export function generatePolicyPdfRoute(app: FastifyInstance) {
           })
         )
       )
-
       const storageKey = `organizations/${organizationId}/policies/${request.params.id}/apolice.pdf`
       await storage.upload(storageKey, buffer, 'application/pdf')
-
       await documentRepo.upsertByStorageKey({
         organizationId,
         entityType: 'POLICY',
@@ -223,7 +205,6 @@ export function generatePolicyPdfRoute(app: FastifyInstance) {
         storageKey,
         createdBy: request.user!.id,
       })
-
       const url = await storage.getSignedUrl(storageKey)
       return reply.send({ success: true, data: { url, cached: false } })
     },

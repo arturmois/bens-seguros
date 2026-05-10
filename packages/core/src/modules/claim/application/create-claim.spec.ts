@@ -54,14 +54,11 @@ describe('CreateClaim', () => {
       incidentDate: new Date('2024-06-15'),
       incidentLocation: 'BR-101 km 42',
     }
-
     const result = await useCase.execute(dto)
-
     expect(repo.create).toHaveBeenCalledWith(dto)
     expect(result.claimNumber).toBe(42)
     expect(result.status).toBe('REGISTERED')
   })
-
   it('associates claim with policy', async () => {
     const claimData = makeClaimData({ policyId: 'pol-99' })
     const repo = createMockRepo(claimData)
@@ -72,9 +69,7 @@ describe('CreateClaim', () => {
       clientId: 'c-1',
       description: 'Water damage in kitchen',
     }
-
     const result = await useCase.execute(dto)
-
     expect(repo.create).toHaveBeenCalledWith(dto)
     expect(result.policyId).toBe('pol-99')
     expect(result.organizationId).toBe('org-1')

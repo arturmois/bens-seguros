@@ -39,14 +39,11 @@ export function ContactList() {
   const pagination = useCursorPagination()
   const filters = useContactsFilters()
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
-
   function handleContactCreated(contactId: string) {
     setCreateDialogOpen(false)
     router.push(`/contacts/${contactId}`)
   }
-
   const debouncedSearch = useDebounce(filters.search, 300)
-
   const { data, isLoading, isError, refetch } = useContacts({
     ...filters.apiParams,
     consentLgpd: toConsentLgpdParam(filters.apiParams.consentLgpd),
@@ -54,14 +51,11 @@ export function ContactList() {
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,
   })
-
   const contacts: ContactListItem[] = data?.data ?? []
   const nextCursor = data?.meta?.nextCursor ?? null
   const knownTotal =
     (pagination.currentPage - 1) * pagination.pageSize + contacts.length
-
   const columns = useMemo(() => createContactsColumns(), [])
-
   const table = useReactTable({
     data: contacts,
     columns,
@@ -69,28 +63,23 @@ export function ContactList() {
     manualPagination: true,
     manualFiltering: true,
   })
-
   function handleSearchChange(value: string) {
     filters.setSearch(value)
     pagination.reset()
   }
-
   function handleFilterChange(key: string, value: FilterValue) {
     filters.setFilter(key, value)
     pagination.reset()
   }
-
   function handleClearAll() {
     filters.clearAll()
     pagination.reset()
   }
-
   if (isError) {
     return (
       <TableErrorState message="Erro ao carregar contatos." onRetry={refetch} />
     )
   }
-
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <UnifiedFilterBar
@@ -107,14 +96,12 @@ export function ContactList() {
           <span className="hidden sm:inline">Novo contato</span>
         </Button>
       </UnifiedFilterBar>
-
       <DataTable
         table={table}
         isLoading={isLoading}
         emptyMessage="Nenhum contato encontrado."
         onRowClick={(contact) => router.push(`/contacts/${contact.id}`)}
       />
-
       <MobileCardList
         data={contacts}
         keyExtractor={(c) => c.id}
@@ -122,7 +109,6 @@ export function ContactList() {
         emptyMessage="Nenhum contato encontrado."
         renderCard={(contact) => <ContactCard contact={contact} />}
       />
-
       <CursorPagination
         total={knownTotal}
         pageSize={pagination.pageSize}
@@ -135,7 +121,6 @@ export function ContactList() {
           if (nextCursor) pagination.goToNext(nextCursor)
         }}
       />
-
       <CreateContactDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}

@@ -97,7 +97,6 @@ describe('PromoteContact', () => {
     document: '52998224725',
     legalName: 'Maria Silva',
   }
-
   it('cria novo Client quando documentHash não existe', async () => {
     const { contactRepo, clientRepo } = createMocks({ contact: makeContact() })
     const useCase = new PromoteContact(contactRepo, clientRepo)
@@ -109,7 +108,6 @@ describe('PromoteContact', () => {
       expect.objectContaining({ clientId: client.id })
     )
   })
-
   it('vincula a Client existente quando documentHash já existe na org', async () => {
     const existing = makeClient({ id: 'client-existing' })
     const { contactRepo, clientRepo } = createMocks({
@@ -126,12 +124,9 @@ describe('PromoteContact', () => {
       expect.objectContaining({ clientId: 'client-existing' })
     )
   })
-
   it('é idempotente — chamar 2x com mesmo doc retorna mesmo Client', async () => {
     const existing = makeClient({
       id: 'client-X',
-      // Match the incoming document hash so the use case treats this as the
-      // already-linked, same-document case.
       documentHash: hashDocument(baseInput.document),
     })
     const promoted = makeContact({ clientId: 'client-X' })
@@ -143,9 +138,8 @@ describe('PromoteContact', () => {
     const client = await useCase.execute(baseInput)
     expect(client.id).toBe('client-X')
     expect(clientRepo.save).not.toHaveBeenCalled()
-    expect(contactRepo.update).not.toHaveBeenCalled() // já vinculado
+    expect(contactRepo.update).not.toHaveBeenCalled()
   })
-
   it('lança DocumentMismatchError quando contato já vinculado a Client com hash diferente', async () => {
     const otherClient = makeClient({
       id: 'client-Y',
@@ -173,7 +167,6 @@ describe('PromoteContact', () => {
       /já está vinculado|não corresponde/i
     )
   })
-
   it('lança ContactNotFound quando contato não existe', async () => {
     const { contactRepo, clientRepo } = createMocks({ contact: null })
     const useCase = new PromoteContact(contactRepo, clientRepo)

@@ -19,8 +19,6 @@ export const updateOrganizationSchema = z.object({
 
 export type UpdateOrganizationInput = z.infer<typeof updateOrganizationSchema>
 
-// --- Response schemas ---
-
 const organizationDataSchema = z.object({
   id: z.string(),
   name: z.string(),

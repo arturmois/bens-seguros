@@ -28,13 +28,11 @@ export class RejectCommission {
     if (!data) {
       throw CommissionErrors.notFound(input.id)
     }
-
     const commission = Commission.restore({
       ...data,
       splitPercentage: data.splitPercentage ?? 10000,
     })
     commission.reject(input.userId, input.reason)
-
     return this.commissionRepo.update(commission)
   }
 }

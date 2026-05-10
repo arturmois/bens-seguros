@@ -116,7 +116,6 @@ export function WhatsAppFields({
           )}
         />
       </FormField>
-
       <FormField label="Número" error={errors.phoneNumber?.message}>
         <Input
           placeholder="Ex: +55 11 99999-0000"
@@ -140,7 +139,6 @@ export function WebChatFields({ register }: WebChatFieldsProps) {
       >
         <Input placeholder="#1f4b5f" {...register('widgetColor')} />
       </FormField>
-
       <FormField label="Mensagem de Boas-Vindas">
         <Textarea
           placeholder="Olá! Como podemos ajudá-lo?"
@@ -148,7 +146,6 @@ export function WebChatFields({ register }: WebChatFieldsProps) {
           {...register('welcomeMessage')}
         />
       </FormField>
-
       <FormField
         label="Origens Permitidas"
         helperText="URLs separadas por vírgula (ex: https://meusite.com)."
@@ -176,7 +173,6 @@ export function buildCreatePayload(
   values: ChannelFormValues
 ): CreateChannelPayload {
   const base = { name: values.name }
-
   if (values.channelType === 'WHATSAPP') {
     return {
       ...base,
@@ -185,7 +181,6 @@ export function buildCreatePayload(
       phoneNumber: values.phoneNumber,
     }
   }
-
   if (values.channelType === 'WEB_CHAT') {
     return {
       ...base,
@@ -201,7 +196,6 @@ export function buildCreatePayload(
       },
     }
   }
-
   return {
     ...base,
     type: values.channelType,

@@ -30,7 +30,6 @@ export function ClientExportButton({ filters }: ClientExportButtonProps) {
     onSuccess: () => toast.success('Exportação concluída'),
     onError: () => toast.error('Erro ao exportar clientes'),
   })
-
   return (
     <Button
       variant="outline"

@@ -28,28 +28,23 @@ export class ParseClientImport {
       header: true,
       skipEmptyLines: true,
     })
-
     if (parsed.data.length === 0) {
       throw new CsvImportError(
         'NO_VALID_ROWS',
         'Nenhuma linha encontrada no CSV'
       )
     }
-
     if (parsed.data.length > MAX_IMPORT_ROWS) {
       throw new CsvImportError(
         'TOO_MANY_ROWS',
         `Maximo de ${String(MAX_IMPORT_ROWS)} linhas permitido`
       )
     }
-
     const errors: CsvRowError[] = []
     const validRows: Record<string, unknown>[] = []
-
     for (let i = 0; i < parsed.data.length; i++) {
       const row = parsed.data[i]
       if (!row) continue
-
       const result = clientImportRowSchema.safeParse(row)
       if (!result.success) {
         if (errors.length < MAX_IMPORT_ERRORS) {
@@ -66,27 +61,22 @@ export class ParseClientImport {
         validRows.push(result.data)
       }
     }
-
     const total = parsed.data.length
     const invalid = total - validRows.length
-
     if (invalid > total * 0.5) {
       throw new CsvImportError(
         'TOO_MANY_ERRORS',
         `Mais de 50% das linhas sao invalidas (${String(invalid)}/${String(total)})`
       )
     }
-
     if (validRows.length === 0) {
       throw new CsvImportError(
         'NO_VALID_ROWS',
         'Nenhuma linha valida encontrada'
       )
     }
-
     const jobId = randomUUID()
     const preview = parsed.data.slice(0, 5)
-
     return {
       jobId,
       preview,

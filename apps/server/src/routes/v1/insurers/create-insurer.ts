@@ -34,12 +34,10 @@ export function createInsurerRoute(app: FastifyInstance) {
           ...request.body,
         })
         auditCreate({ request, entityType: 'Insurer', entityId: insurer.id })
-
         const cacheService = resolveCache()
         if (cacheService) {
           await cacheService.delete(`cache:${request.organizationId!}:insurers`)
         }
-
         return reply.status(201).send({ success: true, data: insurer })
       } catch (error) {
         return handleDomainError(error, reply)

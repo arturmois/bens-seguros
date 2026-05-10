@@ -22,13 +22,11 @@ export class ApproveCommissionCommercial {
     if (!data) {
       throw CommissionErrors.notFound(id)
     }
-
     const commission = Commission.restore({
       ...data,
       splitPercentage: data.splitPercentage ?? 10000,
     })
     commission.approveByCommercial(userId)
-
     return this.commissionRepo.update(commission)
   }
 }

@@ -20,14 +20,12 @@ export async function checkClaimsStalled(
 ): Promise<void> {
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - STALLED_DAYS)
-
   const managers = await prismaAdmin.member.findMany({
     where: {
       organizationId,
       role: { in: ['MANAGER', 'ADMIN', 'OWNER'] },
     },
   })
-
   const claims = await prismaAdmin.claim.findMany({
     where: {
       organizationId,
@@ -36,7 +34,6 @@ export async function checkClaimsStalled(
       updatedAt: { lt: cutoff },
     },
   })
-
   for (const claim of claims) {
     const isDuplicate = await hasExistingAlert({
       organizationId,
@@ -44,17 +41,13 @@ export async function checkClaimsStalled(
       entityId: claim.id,
       type: 'CLAIM_STALLED',
     })
-
     if (isDuplicate) {
       continue
     }
-
     const daysSinceUpdate = Math.floor(
       (Date.now() - claim.updatedAt.getTime()) / (1000 * 60 * 60 * 24)
     )
     const body = `Sinistro #${claim.claimNumber} sem atualizacao ha ${daysSinceUpdate} dias`
-
-    // Notify assignedTo if set
     if (claim.assignedToId) {
       await notificationQueue.add(
         'notification',
@@ -72,8 +65,6 @@ export async function checkClaimsStalled(
         DEFAULT_JOB_OPTIONS
       )
     }
-
-    // Notify MANAGERs
     for (const manager of managers) {
       if (manager.userId === claim.assignedToId) {
         continue
@@ -94,7 +85,6 @@ export async function checkClaimsStalled(
         DEFAULT_JOB_OPTIONS
       )
     }
-
     logger.info(
       { claimId: claim.id, daysSinceUpdate },
       'Claim stalled alert enqueued'

@@ -11,7 +11,6 @@ import { extractErrorMessage } from '@/lib/extract-error-message'
 export function useLgpdDeleteClient() {
   const queryClient = useQueryClient()
   const router = useRouter()
-
   return useMutation({
     mutationFn: (clientId: string) =>
       api.post(`/api/v1/clients/${clientId}/lgpd-delete`, {}),

@@ -69,7 +69,6 @@ export class PrismaContactRepository implements ContactRepository {
       where: { id, organizationId, deletedAt: null },
     })
     if (!row) return null
-
     let activeCount = 0
     let totalCount = 0
     if (row.clientId) {
@@ -88,7 +87,6 @@ export class PrismaContactRepository implements ContactRepository {
         if (c.status === 'ACTIVE') activeCount += n
       }
     }
-
     return ContactMapper.toWithStage(row, activeCount, totalCount)
   }
 
@@ -99,7 +97,6 @@ export class PrismaContactRepository implements ContactRepository {
     const where: Prisma.ContactWhereInput = {
       organizationId: filters.organizationId,
       deletedAt: null,
-      // Plurais (precedência sobre singulares)
       ...(filters.sourceIn &&
         filters.sourceIn.length > 0 && {
           source: { in: [...filters.sourceIn] },
@@ -108,39 +105,31 @@ export class PrismaContactRepository implements ContactRepository {
         filters.salespersonIdIn.length > 0 && {
           salespersonId: { in: [...filters.salespersonIdIn] },
         }),
-      // Singulares (fallback se o plural correspondente NÃO veio)
       ...(filters.source && !filters.sourceIn && { source: filters.source }),
       ...(filters.salespersonId &&
         !filters.salespersonIdIn && {
           salespersonId: filters.salespersonId,
         }),
-      // Boolean
       ...(filters.consentLgpd !== undefined && {
         consentLgpd: filters.consentLgpd,
       }),
-      // Date range em createdAt
       ...((filters.createdFrom || filters.createdTo) && {
         createdAt: {
           ...(filters.createdFrom && { gte: filters.createdFrom }),
           ...(filters.createdTo && { lte: filters.createdTo }),
         },
       }),
-      // clientId direto (caso interno, não vem da UI)
       ...(filters.clientId !== undefined && { clientId: filters.clientId }),
     }
-
-    // Stage plural ganha precedência sobre singular
     const stages = filters.stageIn?.length
       ? [...filters.stageIn]
       : filters.stage
         ? [filters.stage]
         : null
-
     if (stages) {
       const includesLead = stages.includes('LEAD')
       const includesClient =
         stages.includes('CLIENT_ACTIVE') || stages.includes('CLIENT_INACTIVE')
-
       if (includesLead && !includesClient) {
         where.clientId = null
       } else if (!includesLead && includesClient) {
@@ -148,7 +137,6 @@ export class PrismaContactRepository implements ContactRepository {
       }
       // se ambos: não filtra clientId (LEAD ∪ CLIENT* = todos os contatos no domínio).
     }
-
     if (filters.search) {
       where.OR = [
         { name: { contains: filters.search, mode: 'insensitive' } },
@@ -156,21 +144,17 @@ export class PrismaContactRepository implements ContactRepository {
         { email: { contains: filters.search, mode: 'insensitive' } },
       ]
     }
-
     const sortBy = page.sortBy ?? 'createdAt'
     const sortOrder = page.sortOrder ?? 'desc'
-
     const rows = await this.prisma.contact.findMany({
       where,
       orderBy: [{ [sortBy]: sortOrder }, { id: sortOrder }],
       take: page.limit + 1,
       ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
     })
-
     const clientIds = rows
       .map((r) => r.clientId)
       .filter((id): id is string => id !== null)
-
     const policyCounts =
       clientIds.length > 0
         ? await this.prisma.policy.groupBy({
@@ -183,7 +167,6 @@ export class PrismaContactRepository implements ContactRepository {
             _count: { _all: true },
           })
         : []
-
     const countsByClient = new Map<string, { active: number; total: number }>()
     for (const c of policyCounts) {
       const cur = countsByClient.get(c.clientId) ?? { active: 0, total: 0 }
@@ -191,22 +174,17 @@ export class PrismaContactRepository implements ContactRepository {
       if (c.status === 'ACTIVE') cur.active += c._count._all
       countsByClient.set(c.clientId, cur)
     }
-
     let items: ContactWithStage[] = rows.map((row) => {
       const counts = row.clientId
         ? (countsByClient.get(row.clientId) ?? { active: 0, total: 0 })
         : { active: 0, total: 0 }
       return ContactMapper.toWithStage(row, counts.active, counts.total)
     })
-
-    // In-memory refinement: CLIENT_ACTIVE vs CLIENT_INACTIVE distinction
-    // requires policy count (not a DB column), so we filter here after mapping.
     const effectiveStages = filters.stageIn?.length
       ? filters.stageIn
       : filters.stage
         ? [filters.stage]
         : null
-
     if (effectiveStages) {
       const includesLead = effectiveStages.includes('LEAD')
       const includesActive = effectiveStages.includes('CLIENT_ACTIVE')
@@ -217,13 +195,11 @@ export class PrismaContactRepository implements ContactRepository {
       if (includesInactive) allowedStages.add('CLIENT_INACTIVE')
       items = items.filter((i) => allowedStages.has(i.stage))
     }
-
     let nextCursor: string | null = null
     if (items.length > page.limit) {
       const popped = items.pop()
       nextCursor = popped?.id ?? null
     }
-
     return { items, nextCursor }
   }
 
@@ -233,7 +209,6 @@ export class PrismaContactRepository implements ContactRepository {
     data: UpdateContactPersistence
   ): Promise<ContactData> {
     const updateData: Prisma.ContactUpdateInput = {}
-
     if (data.name !== undefined) updateData.name = data.name
     if (data.phone !== undefined) updateData.phone = data.phone
     if (data.email !== undefined) updateData.email = data.email
@@ -258,7 +233,6 @@ export class PrismaContactRepository implements ContactRepository {
     }
     if (data.notes !== undefined) updateData.notes = data.notes
     if (data.birthDate !== undefined) updateData.birthDate = data.birthDate
-
     const row = await this.prisma.contact.update({
       where: { id, organizationId },
       data: updateData,

@@ -14,10 +14,8 @@ export class AggilizadorClient {
   constructor(config?: ClientConfig) {
     const baseUrl = config?.baseUrl ?? DEFAULT_BASE_URL
     const fipeBaseUrl = config?.fipeBaseUrl ?? DEFAULT_FIPE_BASE_URL
-
     const registry = new EnumRegistry(baseUrl)
     const builder = new AutoPayloadBuilder(registry)
-
     this.auto = new AutoQuoteService(baseUrl, builder, registry)
     this.fipe = new FipeClient(fipeBaseUrl)
   }

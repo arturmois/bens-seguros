@@ -33,7 +33,6 @@ export function LgpdDeleteDialogTrigger({
   clientName,
 }: LgpdDeleteDialogTriggerProps) {
   const [open, setOpen] = useState(false)
-
   return (
     <>
       <Button variant="destructive" onClick={() => setOpen(true)}>
@@ -62,9 +61,7 @@ export function LgpdDeleteDialog({
 }: LgpdDeleteDialogControlledProps) {
   const [confirmation, setConfirmation] = useState('')
   const { mutate, isPending } = useLgpdDeleteClient()
-
   const isConfirmed = confirmation === clientName
-
   function handleConfirm() {
     mutate(clientId, {
       onSuccess: () => {
@@ -73,12 +70,10 @@ export function LgpdDeleteDialog({
       },
     })
   }
-
   function handleOpenChange(next: boolean) {
     if (!next) setConfirmation('')
     onOpenChange(next)
   }
-
   return (
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogContent>

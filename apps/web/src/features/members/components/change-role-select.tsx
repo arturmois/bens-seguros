@@ -43,19 +43,16 @@ export function ChangeRoleSelect({
 }: ChangeRoleSelectProps) {
   const changeMemberRole = useChangeMemberRole()
   const availableRoles = getAvailableRoles(callerRole)
-
   function handleRoleChange(value: string | null) {
     if (!value || value === currentRole) return
     if (!isValidRole(value)) return
     changeMemberRole.mutate({ id: memberId, role: value })
   }
-
   if (availableRoles.length === 0) {
     return (
       <span className="text-sm">{ROLE_LABELS[currentRole] ?? currentRole}</span>
     )
   }
-
   return (
     <div className="relative inline-flex items-center gap-2">
       <Select

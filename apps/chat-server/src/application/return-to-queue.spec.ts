@@ -1,4 +1,3 @@
-// apps/chat-server/src/application/return-to-queue.spec.ts
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { InvalidConversationTransitionError } from '../domain/errors.js'
 import type { ConversationRepository } from '../domain/ports/conversation-repository.js'
@@ -58,22 +57,18 @@ function createMockMessageRepo(): MessageRepository {
 describe('ReturnToQueue', () => {
   let conversationRepo: ConversationRepository
   let messageRepo: MessageRepository
-
   beforeEach(() => {
     vi.clearAllMocks()
   })
-
   it('returns conversation to queue clearing assignment', async () => {
     const returned = makeConversationData({ status: 'WAITING_HUMAN' })
     conversationRepo = createMockConversationRepo(returned)
     messageRepo = createMockMessageRepo()
     const useCase = new ReturnToQueue(conversationRepo, messageRepo)
-
     const result = await useCase.execute({
       conversationId: 'conv-1',
       tenantId: 'tenant-1',
     })
-
     expect(result.status).toBe('WAITING_HUMAN')
     expect(conversationRepo.atomicTransition).toHaveBeenCalledWith(
       'conv-1',
@@ -83,14 +78,11 @@ describe('ReturnToQueue', () => {
       { assignedTo: null, assignedToName: null }
     )
   })
-
   it('creates system message', async () => {
     conversationRepo = createMockConversationRepo(makeConversationData())
     messageRepo = createMockMessageRepo()
     const useCase = new ReturnToQueue(conversationRepo, messageRepo)
-
     await useCase.execute({ conversationId: 'conv-1', tenantId: 'tenant-1' })
-
     expect(messageRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({
         senderType: 'SYSTEM',
@@ -98,12 +90,10 @@ describe('ReturnToQueue', () => {
       })
     )
   })
-
   it('throws when atomicTransition returns null', async () => {
     conversationRepo = createMockConversationRepo(null)
     messageRepo = createMockMessageRepo()
     const useCase = new ReturnToQueue(conversationRepo, messageRepo)
-
     await expect(
       useCase.execute({ conversationId: 'conv-1', tenantId: 'tenant-1' })
     ).rejects.toThrow(InvalidConversationTransitionError)

@@ -55,72 +55,59 @@ const makePolicy = (overrides: Partial<Record<string, unknown>> = {}) => ({
 describe('POST /api/v1/policies/:id/cancel', () => {
   it('returns 200 with cancelled policy', async () => {
     mockExecute.mockResolvedValue(makePolicy())
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/policies/policy-id-001/cancel',
       payload: { reason: 'Cliente solicitou cancelamento' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.status).toBe('CANCELLED')
     expect(body.data.cancelReason).toBe('Cliente solicitou cancelamento')
   })
-
   it('calls use case with id, organizationId and reason', async () => {
     mockExecute.mockResolvedValue(makePolicy())
-
     await injectAs(app, {
       method: 'POST',
       url: '/api/v1/policies/policy-id-001/cancel',
       payload: { reason: 'Sinistro total' },
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       'policy-id-001',
       TEST_ORG_ID,
       'Sinistro total'
     )
   })
-
   it('returns 404 when policy does not exist', async () => {
     mockResolveError('POLICY_NOT_FOUND', 'Policy not found')
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/policies/nonexistent-id/cancel',
       payload: { reason: 'Cancelamento' },
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('POLICY_NOT_FOUND')
   })
-
   it('returns 409 when policy is already cancelled', async () => {
     mockResolveError('POLICY_ALREADY_CANCELLED', 'Policy is already cancelled')
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/policies/policy-id-001/cancel',
       payload: { reason: 'Cancelamento' },
     })
-
     expect(response.statusCode).toBe(409)
     const body = response.json()
     expect(body.error.code).toBe('POLICY_ALREADY_CANCELLED')
   })
-
   it('returns 400 when reason is missing', async () => {
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/policies/policy-id-001/cancel',
       payload: {},
     })
-
     expect(response.statusCode).toBe(400)
   })
 })

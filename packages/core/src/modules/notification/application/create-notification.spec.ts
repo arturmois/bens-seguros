@@ -1,4 +1,3 @@
-// packages/core/src/modules/notification/application/create-notification.spec.ts
 import { describe, expect, it, vi } from 'vitest'
 import type { NotificationRepository } from '../domain/notification-repository.js'
 import { CreateNotification } from './create-notification.js'
@@ -26,7 +25,6 @@ describe('CreateNotification', () => {
   it('creates notification with correct data', async () => {
     const repo = createMockRepo()
     const useCase = new CreateNotification(repo)
-
     const result = await useCase.execute({
       organizationId: 'org-1',
       userId: 'user-1',
@@ -36,7 +34,6 @@ describe('CreateNotification', () => {
       entityType: 'Policy',
       entityId: 'pol-1',
     })
-
     expect(repo.create).toHaveBeenCalledWith({
       organizationId: 'org-1',
       userId: 'user-1',

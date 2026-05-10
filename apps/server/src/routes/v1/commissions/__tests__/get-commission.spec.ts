@@ -59,44 +59,35 @@ const makeCommission = (overrides: Partial<Record<string, unknown>> = {}) => ({
 describe('GET /api/v1/commissions/:id', () => {
   it('returns 200 with commission detail', async () => {
     mockExecute.mockResolvedValue(makeCommission())
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/commissions/commission-id-001',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.id).toBe('commission-id-001')
     expect(body.data.commissionValueInCents).toBe(150000)
   })
-
   it('calls use case with correct id and organizationId', async () => {
     mockExecute.mockResolvedValue(makeCommission())
-
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/commissions/commission-id-001',
     })
-
     expect(mockExecute).toHaveBeenCalledWith('commission-id-001', TEST_ORG_ID)
   })
-
   it('returns 404 when commission does not exist', async () => {
     mockResolveError('COMMISSION_NOT_FOUND', 'Commission not found')
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/commissions/nonexistent-id',
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('COMMISSION_NOT_FOUND')
   })
-
   it('returns commission with optional salesperson and policy info', async () => {
     mockExecute.mockResolvedValue(
       makeCommission({
@@ -105,12 +96,10 @@ describe('GET /api/v1/commissions/:id', () => {
         clientName: 'Cliente Teste',
       })
     )
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/commissions/commission-id-001',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data.salespersonName).toBe('João Silva')

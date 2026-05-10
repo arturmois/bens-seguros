@@ -19,17 +19,14 @@ export function FormField({
 }: FormFieldProps) {
   const id = useId()
   const errorId = `${id}-error`
-
   const childProps: Record<string, string> = { id }
   if (error) {
     childProps['aria-describedby'] = errorId
     childProps['aria-invalid'] = 'true'
   }
-
   const enhancedChildren = isValidElement(children)
     ? cloneElement(children, childProps)
     : children
-
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>

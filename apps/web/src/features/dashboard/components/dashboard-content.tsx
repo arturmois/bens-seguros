@@ -61,7 +61,6 @@ export function DashboardContent() {
     activeOrg?.role === 'OWNER' ||
     activeOrg?.role === 'ADMIN' ||
     activeOrg?.role === 'MANAGER'
-
   if (isError) {
     return (
       <Card>
@@ -77,7 +76,6 @@ export function DashboardContent() {
       </Card>
     )
   }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-end gap-2 overflow-x-auto">

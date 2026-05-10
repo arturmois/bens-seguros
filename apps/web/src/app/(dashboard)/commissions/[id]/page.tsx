@@ -8,7 +8,6 @@ export default async function CommissionDetailPage({
   params,
 }: CommissionDetailPageProps) {
   const { id } = await params
-
   return (
     <div className="space-y-6">
       <CommissionDetailContent commissionId={id} />

@@ -36,40 +36,29 @@ describe('ListOccurrences', () => {
     ]
     const repo = makeOccurrenceRepo(occurrences)
     const useCase = new ListOccurrences(repo)
-
     const result = await useCase.execute('claim-1', 'org-1')
-
     expect(repo.findByClaimId).toHaveBeenCalledWith('claim-1', 'org-1')
     expect(result).toHaveLength(2)
     expect(result[0]?.id).toBe('occ-1')
   })
-
   it('passes organizationId to repository for tenant isolation', async () => {
     const repo = makeOccurrenceRepo([])
     const useCase = new ListOccurrences(repo)
-
     await useCase.execute('claim-99', 'org-tenant-a')
-
     expect(repo.findByClaimId).toHaveBeenCalledWith('claim-99', 'org-tenant-a')
   })
-
   it('returns empty list when claim has no occurrences', async () => {
     const repo = makeOccurrenceRepo([])
     const useCase = new ListOccurrences(repo)
-
     const result = await useCase.execute('claim-1', 'org-1')
-
     expect(result).toHaveLength(0)
   })
-
   it('returns occurrences with organizationId field', async () => {
     const repo = makeOccurrenceRepo([
       makeOccurrenceData({ organizationId: 'org-xyz' }),
     ])
     const useCase = new ListOccurrences(repo)
-
     const result = await useCase.execute('claim-1', 'org-xyz')
-
     expect(result[0]?.organizationId).toBe('org-xyz')
   })
 })

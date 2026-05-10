@@ -126,17 +126,13 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname()
   const { data: alertCounts } = useAlertCounts()
-
   const mainItems = MAIN_NAV.filter(
     (item) => !item.permission || hasPermission(role, item.permission)
   )
-
   const secondaryItems = SECONDARY_NAV.filter(
     (item) => !item.permission || hasPermission(role, item.permission)
   )
-
   const isMobileMode = mobileOpen !== undefined
-
   if (isMobileMode) {
     return (
       <>
@@ -163,7 +159,6 @@ export function Sidebar({
               <X className="size-5" />
             </button>
           </div>
-
           <SidebarNav
             mainItems={mainItems}
             secondaryItems={secondaryItems}
@@ -172,13 +167,11 @@ export function Sidebar({
             alertCounts={alertCounts}
             onNavigate={onMobileClose}
           />
-
           <UserMenu collapsed={false} />
         </aside>
       </>
     )
   }
-
   return (
     <aside
       className={cn(
@@ -187,7 +180,6 @@ export function Sidebar({
       )}
     >
       <OrgSwitcher collapsed={collapsed} />
-
       <SidebarNav
         mainItems={mainItems}
         secondaryItems={secondaryItems}
@@ -195,7 +187,6 @@ export function Sidebar({
         collapsed={collapsed}
         alertCounts={alertCounts}
       />
-
       <UserMenu collapsed={collapsed} />
     </aside>
   )
@@ -230,7 +221,6 @@ function SidebarNav({
         {mainItems.map((item) => {
           const entityType = ALERT_BADGE_MAP[item.href]
           const badgeCount = entityType ? (alertCounts?.[entityType] ?? 0) : 0
-
           return (
             <NavItem
               key={item.href}
@@ -245,7 +235,6 @@ function SidebarNav({
           )
         })}
       </div>
-
       {secondaryItems.length > 0 && (
         <>
           <div className="my-2" />

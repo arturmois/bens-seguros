@@ -24,9 +24,6 @@ import {
 
 export function importClientsRoutes(app: FastifyInstance) {
   const typed = app.withTypeProvider<ZodTypeProvider>()
-
-  // --- Import routes (must be before /:id) ---
-
   typed.route({
     method: 'GET',
     url: '/api/v1/clients/import/template',
@@ -49,7 +46,6 @@ export function importClientsRoutes(app: FastifyInstance) {
         .send(template)
     },
   })
-
   typed.route({
     method: 'POST',
     url: '/api/v1/clients/import',
@@ -73,7 +69,6 @@ export function importClientsRoutes(app: FastifyInstance) {
           error: { code: 'NO_FILE', message: 'Nenhum arquivo enviado' },
         })
       }
-
       if (!file.filename.endsWith('.csv')) {
         return reply.status(400).send({
           success: false,
@@ -83,7 +78,6 @@ export function importClientsRoutes(app: FastifyInstance) {
           },
         })
       }
-
       const buffer = await file.toBuffer()
       if (buffer.length > MAX_IMPORT_FILE_SIZE) {
         return reply.status(413).send({
@@ -94,10 +88,8 @@ export function importClientsRoutes(app: FastifyInstance) {
           },
         })
       }
-
       const csvContent = buffer.toString('utf-8')
       const useCase = container.resolve(ParseClientImport)
-
       try {
         const result = await useCase.execute(
           csvContent,
@@ -127,7 +119,6 @@ export function importClientsRoutes(app: FastifyInstance) {
       }
     },
   })
-
   typed.route({
     method: 'POST',
     url: '/api/v1/clients/import/:jobId/confirm',
@@ -152,7 +143,6 @@ export function importClientsRoutes(app: FastifyInstance) {
           },
         })
       }
-
       await enqueueImportJob(jobId, {
         entityType: 'client',
         organizationId: request.organizationId!,
@@ -160,13 +150,10 @@ export function importClientsRoutes(app: FastifyInstance) {
         rows,
         totalRows: rows.length,
       })
-
       await removeStagedData(jobId)
-
       return reply.send({ success: true, data: { jobId } })
     },
   })
-
   typed.route({
     method: 'GET',
     url: '/api/v1/clients/import/:jobId/status',
@@ -182,14 +169,12 @@ export function importClientsRoutes(app: FastifyInstance) {
       const { jobId } = request.params
       const { status, organizationId, progress, result } =
         await getImportJobStatus(jobId)
-
       if (status === 'not_found' || organizationId !== request.organizationId) {
         return reply.status(404).send({
           success: false,
           error: { code: 'JOB_NOT_FOUND', message: 'Job não encontrado' },
         })
       }
-
       return reply.send({
         success: true,
         data: {

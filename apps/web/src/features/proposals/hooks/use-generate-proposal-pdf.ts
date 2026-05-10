@@ -10,9 +10,6 @@ interface PdfResponse {
   url: string
 }
 
-/**
- * PDF generation stays manual because it uses window.open on the response URL.
- */
 export function useGenerateProposalPdf(proposalId: string) {
   return useMutation({
     mutationFn: () =>

@@ -40,9 +40,7 @@ export function ChannelsPage() {
   const { activeOrg } = useOrgs()
   const role = activeOrg?.role ?? 'VIEWER'
   const canManage = hasPermission(role, 'settings:manage')
-
   const { refetch } = useChannels()
-
   const [formOpen, setFormOpen] = useState(false)
   const [editingChannel, setEditingChannel] = useState<ChannelData | undefined>(
     undefined
@@ -56,33 +54,26 @@ export function ChannelsPage() {
   const [assetSelectOpen, setAssetSelectOpen] = useState(false)
   const [whatsAppMethodOpen, setWhatsAppMethodOpen] = useState(false)
   const [embeddedSignupOpen, setEmbeddedSignupOpen] = useState(false)
-
   const searchParams = useSearchParams()
   const messengerOAuth = useMetaOAuth()
   const instagramOAuth = useMetaOAuth()
-
   const activeOAuth =
     activeOAuthChannel === 'MESSENGER' ? messengerOAuth : instagramOAuth
-
   const hasProcessedRef = useRef(false)
-
   useEffect(() => {
     if (hasProcessedRef.current) return
-
     const metaSession = searchParams.get('meta_session')
     const metaChannelType = searchParams.get('meta_channel_type') as
       | 'MESSENGER'
       | 'INSTAGRAM'
       | null
     const metaError = searchParams.get('meta_error')
-
     if (metaError) {
       hasProcessedRef.current = true
       toast.error(`Erro na autenticação Meta: ${metaError}`)
       window.history.replaceState({}, '', '/settings?section=canais')
       return
     }
-
     if (metaSession && metaChannelType) {
       hasProcessedRef.current = true
       const oauth =
@@ -93,35 +84,28 @@ export function ChannelsPage() {
       window.history.replaceState({}, '', '/settings?section=canais')
     }
   }, [searchParams, messengerOAuth, instagramOAuth])
-
   const handleEdit = useCallback((channel: ChannelData) => {
     setEditingChannel(channel)
     setFormOpen(true)
   }, [])
-
   const handleWebChatConnect = useCallback(() => {
     setEditingChannel(undefined)
     setFormOpen(true)
   }, [])
-
   const handleQrCode = useCallback((channel: ChannelData) => {
     setQrChannel(channel)
   }, [])
-
   const handleDeactivate = useCallback((channel: ChannelData) => {
     setDeactivateChannel(channel)
   }, [])
-
   const handleEmbed = useCallback((channel: ChannelData) => {
     setEmbedChannelId(channel.id)
   }, [])
-
   function handleAssetCancel() {
     setAssetSelectOpen(false)
     setActiveOAuthChannel(null)
     activeOAuth.reset()
   }
-
   function handleAssetConnect(input: {
     pageId: string
     name: string
@@ -134,7 +118,6 @@ export function ChannelsPage() {
       void refetch()
     })
   }
-
   const headerAction = canManage ? (
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button />}>
@@ -153,7 +136,6 @@ export function ChannelsPage() {
       </DropdownMenuContent>
     </DropdownMenu>
   ) : null
-
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-6">
       <div>
@@ -162,7 +144,6 @@ export function ChannelsPage() {
           Gerencie seus canais de comunicação.
         </p>
       </div>
-
       <ChannelsTable
         onEdit={handleEdit}
         onQrCode={handleQrCode}
@@ -170,13 +151,11 @@ export function ChannelsPage() {
         onDeactivate={handleDeactivate}
         headerAction={headerAction}
       />
-
       <ChannelFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
         channel={editingChannel}
       />
-
       <ChannelQrDialog
         open={qrChannel !== null}
         onOpenChange={(open) => {
@@ -184,7 +163,6 @@ export function ChannelsPage() {
         }}
         channel={qrChannel}
       />
-
       <DeactivateChannelDialog
         open={deactivateChannel !== null}
         onOpenChange={(open) => {
@@ -192,7 +170,6 @@ export function ChannelsPage() {
         }}
         channel={deactivateChannel}
       />
-
       <EmbedCodeDialog
         open={embedChannelId !== null}
         onOpenChange={(open) => {
@@ -200,7 +177,6 @@ export function ChannelsPage() {
         }}
         channelId={embedChannelId}
       />
-
       {activeOAuthChannel && (
         <MetaAssetSelect
           open={assetSelectOpen}
@@ -213,7 +189,6 @@ export function ChannelsPage() {
           onCancel={handleAssetCancel}
         />
       )}
-
       <WhatsAppMethodDialog
         open={whatsAppMethodOpen}
         onOpenChange={setWhatsAppMethodOpen}
@@ -224,7 +199,6 @@ export function ChannelsPage() {
         }}
         onSelectCloudApi={() => setEmbeddedSignupOpen(true)}
       />
-
       <Dialog open={embeddedSignupOpen} onOpenChange={setEmbeddedSignupOpen}>
         <DialogContent showCloseButton={false}>
           <DialogHeader>

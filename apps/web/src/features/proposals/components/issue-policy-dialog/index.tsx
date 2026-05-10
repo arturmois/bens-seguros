@@ -43,17 +43,14 @@ export function IssuePolicyDialog({
 }: IssuePolicyDialogProps) {
   const router = useRouter()
   const issuePolicy = useIssuePolicy()
-
   const form = useForm<IssuePolicyFormValues>({
     resolver: zodResolver(issuePolicyFormSchema),
     defaultValues: EMPTY_VALUES,
   })
-
   useEffect(() => {
     if (!open) return
     form.reset(EMPTY_VALUES)
   }, [open, form])
-
   function handleSubmit(values: IssuePolicyFormValues) {
     issuePolicy.mutate(
       { proposalId, ...values },
@@ -65,7 +62,6 @@ export function IssuePolicyDialog({
       }
     )
   }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
@@ -75,7 +71,6 @@ export function IssuePolicyDialog({
             Preencha os dados para emitir a apólice vinculada a esta proposta.
           </DialogDescription>
         </DialogHeader>
-
         <DialogPanel>
           <form
             id="issue-policy-form"
@@ -92,14 +87,12 @@ export function IssuePolicyDialog({
                 {...form.register('policyNumber')}
               />
             </FormField>
-
             <InsurerField
               control={form.control}
               setValue={form.setValue}
               error={form.formState.errors.insurerId?.message}
               dialogOpen={open}
             />
-
             <FormField
               label="Início da Vigência"
               error={form.formState.errors.startDate?.message}
@@ -116,7 +109,6 @@ export function IssuePolicyDialog({
                 )}
               />
             </FormField>
-
             <FormField
               label="Fim da Vigência"
               error={form.formState.errors.endDate?.message}
@@ -135,7 +127,6 @@ export function IssuePolicyDialog({
             </FormField>
           </form>
         </DialogPanel>
-
         <DialogFooter>
           <Button
             type="button"

@@ -41,8 +41,6 @@ export const listEndorsementsQuerySchema = z.object({
 
 export { idParam as idParamSchema }
 
-// --- Response schemas ---
-
 const endorsementSchema = z.object({
   id: z.string(),
   organizationId: z.string(),

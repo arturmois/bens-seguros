@@ -30,16 +30,13 @@ export class ExportProposalsCsv {
 
   async *generateCsvRows(filters: ProposalFilters): AsyncGenerator<string> {
     yield CSV_BOM + PROPOSAL_CSV_COLUMNS.join(',') + '\n'
-
     let cursor: string | undefined
     let hasMore = true
-
     while (hasMore) {
       const result = await this.proposalRepo.findMany(filters, {
         limit: BATCH_SIZE,
         cursor,
       })
-
       for (const p of result.items) {
         yield formatCsvRow([
           p.id,
@@ -55,7 +52,6 @@ export class ExportProposalsCsv {
           p.createdAt.toISOString(),
         ]) + '\n'
       }
-
       hasMore = result.items.length === BATCH_SIZE
       cursor = result.items.at(-1)?.id
     }

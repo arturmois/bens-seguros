@@ -21,7 +21,6 @@ export function ConversationStatusBadge({
   status,
 }: ConversationStatusBadgeProps) {
   const config = STATUS_CONFIG[status]
-
   return (
     <Badge variant={config.variant} size="sm">
       {config.label}

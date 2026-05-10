@@ -85,7 +85,6 @@ describe('POST /api/internal/claims', () => {
       url: '/api/internal/claims',
       payload: makeBody(),
     })
-
     expect(response.statusCode).toBe(201)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -93,16 +92,13 @@ describe('POST /api/internal/claims', () => {
     expect(body.data.claimNumber).toBe('SIN-42')
     expect(mockExecute).toHaveBeenCalledOnce()
   })
-
   it('returns dataSaved=true without creating claim when client is not found', async () => {
     mockTenantPrisma.client.findFirst.mockResolvedValue(null)
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/internal/claims',
       payload: makeBody({ phoneOrDocument: '11000000000' }),
     })
-
     expect(response.statusCode).toBe(201)
     const body = response.json()
     expect(body.data.claimCreated).toBe(false)
@@ -110,33 +106,27 @@ describe('POST /api/internal/claims', () => {
     expect(body.data.claimData).toBeDefined()
     expect(mockExecute).not.toHaveBeenCalled()
   })
-
   it('returns dataSaved=true without creating claim when no active policy is found', async () => {
     mockTenantPrisma.policy.findFirst.mockResolvedValue(null)
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/internal/claims',
       payload: makeBody(),
     })
-
     expect(response.statusCode).toBe(201)
     const body = response.json()
     expect(body.data.claimCreated).toBe(false)
     expect(body.data.dataSaved).toBe(true)
     expect(mockExecute).not.toHaveBeenCalled()
   })
-
   it('returns 400 when required fields are missing', async () => {
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/internal/claims',
       payload: { phoneOrDocument: '11999999999' },
     })
-
     expect(response.statusCode).toBeGreaterThanOrEqual(400)
   })
-
   it('accepts optional incidentDate and incidentLocation', async () => {
     const response = await injectAs(app, {
       method: 'POST',
@@ -147,7 +137,6 @@ describe('POST /api/internal/claims', () => {
         insuranceType: 'AUTO',
       }),
     })
-
     expect(response.statusCode).toBe(201)
     const body = response.json()
     expect(body.data.claimCreated).toBe(true)

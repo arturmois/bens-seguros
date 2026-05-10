@@ -124,58 +124,48 @@ describe('POST /api/v1/stats/dashboard/pdf', () => {
       method: 'POST',
       url: '/api/v1/stats/dashboard/pdf',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.url).toBe('https://cdn.example.com/relatorio.pdf')
   })
-
   it('uploads PDF to storage with correct key', async () => {
     await app.inject({
       method: 'POST',
       url: '/api/v1/stats/dashboard/pdf',
     })
-
     expect(mockStorage.upload).toHaveBeenCalledWith(
       expect.stringContaining(`organizations/${TEST_ORG_ID}/reports/`),
       expect.any(Buffer),
       'application/pdf'
     )
   })
-
   it('returns 404 when organization does not exist', async () => {
     vi.mocked(prisma.organization.findUnique).mockResolvedValue(null)
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/stats/dashboard/pdf',
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.error.code).toBe('ORGANIZATION_NOT_FOUND')
   })
-
   it('calls buildDashboardData with correct orgId and preset', async () => {
     await app.inject({
       method: 'POST',
       url: '/api/v1/stats/dashboard/pdf',
       query: { preset: '7d' },
     })
-
     expect(vi.mocked(buildDashboardData)).toHaveBeenCalledWith(
       TEST_ORG_ID,
       '7d'
     )
   })
-
   it('saves document reference via DocumentRepository', async () => {
     await app.inject({
       method: 'POST',
       url: '/api/v1/stats/dashboard/pdf',
     })
-
     expect(mockDocumentRepo.upsertByStorageKey).toHaveBeenCalledWith(
       expect.objectContaining({
         organizationId: TEST_ORG_ID,

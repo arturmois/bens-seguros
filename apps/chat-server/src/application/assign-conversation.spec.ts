@@ -56,7 +56,6 @@ describe('AssignConversation', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
-
   it('returns updated conversation on successful atomic assign', async () => {
     const assigned = makeConversationData({
       status: 'HUMAN_ACTIVE',
@@ -65,9 +64,7 @@ describe('AssignConversation', () => {
     })
     const repo = createMockRepo(assigned)
     const useCase = new AssignConversation(repo)
-
     const result = await useCase.execute(BASE_INPUT)
-
     expect(result.assignedTo).toBe('agent-1')
     expect(result.assignedToName).toBe('Agent Smith')
     expect(result.status).toBe('HUMAN_ACTIVE')
@@ -78,11 +75,9 @@ describe('AssignConversation', () => {
       'Agent Smith'
     )
   })
-
   it('throws ConversationAlreadyAssignedError when atomic assign returns null (race condition)', async () => {
     const repo = createMockRepo(null)
     const useCase = new AssignConversation(repo)
-
     await expect(useCase.execute(BASE_INPUT)).rejects.toThrow(
       ConversationAlreadyAssignedError
     )

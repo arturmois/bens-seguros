@@ -71,7 +71,6 @@ export function EndorsementProposalDialog({
     resolver: zodResolver(endorsementProposalSchema),
     defaultValues: EMPTY_VALUES,
   })
-
   useEffect(() => {
     if (!open) return
     form.reset({
@@ -79,7 +78,6 @@ export function EndorsementProposalDialog({
       sourcePolicyId: policyId,
     })
   }, [form, open, policyId])
-
   function handleSubmit(values: EndorsementProposalFormValues) {
     createProposal.mutate(
       {
@@ -94,7 +92,6 @@ export function EndorsementProposalDialog({
       }
     )
   }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
@@ -105,14 +102,12 @@ export function EndorsementProposalDialog({
             histórico continua na aba Registros de Endosso.
           </DialogDescription>
         </DialogHeader>
-
         <DialogPanel>
           <EndorsementPolicySummary
             policyNumber={policyNumber}
             clientName={clientName}
             branch={branch}
           />
-
           <form
             id="endorsement-proposal-form"
             onSubmit={form.handleSubmit(handleSubmit)}
@@ -148,7 +143,6 @@ export function EndorsementProposalDialog({
                 )}
               />
             </FormField>
-
             <FormField
               label="Motivo"
               error={form.formState.errors.endorsementReason?.message}
@@ -162,7 +156,6 @@ export function EndorsementProposalDialog({
             </FormField>
           </form>
         </DialogPanel>
-
         <DialogFooter>
           <Button
             type="button"

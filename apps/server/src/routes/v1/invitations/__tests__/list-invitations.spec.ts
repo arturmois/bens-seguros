@@ -46,12 +46,10 @@ describe('GET /api/v1/invitations', () => {
       makeInvitation(),
     ] as unknown as Awaited<ReturnType<typeof prisma.invitation.findMany>>)
     vi.mocked(prisma.invitation.count).mockResolvedValue(1)
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/invitations',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -61,25 +59,21 @@ describe('GET /api/v1/invitations', () => {
     expect(body.meta.total).toBe(1)
     expect(body.meta.nextCursor).toBeNull()
   })
-
   it('returns 200 with empty list when no pending invitations', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.invitation.findMany).mockResolvedValue(
       [] as unknown as Awaited<ReturnType<typeof prisma.invitation.findMany>>
     )
     vi.mocked(prisma.invitation.count).mockResolvedValue(0)
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/invitations',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data).toHaveLength(0)
     expect(body.meta.total).toBe(0)
   })
-
   it('returns nextCursor when more pages exist', async () => {
     const { prisma } = await import('@repo/db')
     const invitations = [
@@ -92,25 +86,21 @@ describe('GET /api/v1/invitations', () => {
       >
     )
     vi.mocked(prisma.invitation.count).mockResolvedValue(2)
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/invitations',
       query: { limit: '1' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.meta.nextCursor).toBe('invite-id-001')
   })
-
   it('returns 400 when limit is out of range', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/invitations',
       query: { limit: '0' },
     })
-
     expect(response.statusCode).toBe(400)
   })
 })

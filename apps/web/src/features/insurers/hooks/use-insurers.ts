@@ -36,13 +36,11 @@ function handleInsurerError(error: unknown, fallback: string) {
     toast.error(error.message)
     return
   }
-
   toast.error(extractErrorMessage(error, fallback))
 }
 
 export function useCreateInsurerMutation() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (body: InsurerCreateBody) => {
       const response = await createInsurer(body)
@@ -60,7 +58,6 @@ export function useCreateInsurerMutation() {
 
 export function useUpdateInsurerMutation() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({
       id,

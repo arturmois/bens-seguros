@@ -13,7 +13,6 @@ describe('ProposalsPendingCard', () => {
     render(<ProposalsPendingCard data={undefined} isLoading />)
     expect(screen.getByTestId('proposals-pending-card-loading')).toBeTruthy()
   })
-
   it('renders total and 3 chips', () => {
     render(
       <ProposalsPendingCard
@@ -32,7 +31,6 @@ describe('ProposalsPendingCard', () => {
       screen.getByRole('link', { name: /2 propostas críticas/i })
     ).toBeTruthy()
   })
-
   it('inDay link has updatedAtFrom but no updatedAtTo', () => {
     render(
       <ProposalsPendingCard
@@ -46,7 +44,6 @@ describe('ProposalsPendingCard', () => {
     expect(href).toContain('updatedAtFrom=')
     expect(href).not.toContain('updatedAtTo=')
   })
-
   it('critical link has updatedAtTo but no updatedAtFrom', () => {
     render(
       <ProposalsPendingCard
@@ -61,7 +58,6 @@ describe('ProposalsPendingCard', () => {
     expect(href).toContain('updatedAtTo=')
     expect(href).not.toContain('updatedAtFrom=')
   })
-
   it('shows empty state when total is zero', () => {
     render(
       <ProposalsPendingCard

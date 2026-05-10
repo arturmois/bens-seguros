@@ -26,7 +26,6 @@ export function PricingCard({
 }: PricingCardProps): React.ReactElement {
   const price = billing === 'monthly' ? monthlyPrice : annualPrice
   const isEnterprise = price === null
-
   return (
     <div
       className={`relative flex flex-col rounded-2xl border p-6 ${popular ? 'md:order-0 order-first' : ''} ${
@@ -38,15 +37,12 @@ export function PricingCard({
       }`}
     >
       {popular && <PopularBadge />}
-
       <h3
         className={`text-lg font-semibold ${dark ? 'text-white' : 'text-slate-900'}`}
       >
         {name}
       </h3>
-
       <PriceDisplay price={price} isEnterprise={isEnterprise} dark={dark} />
-
       <ul className="mt-6 flex flex-1 flex-col gap-3">
         {features.map((feature) => (
           <li key={feature} className="flex items-start gap-2">
@@ -59,7 +55,6 @@ export function PricingCard({
           </li>
         ))}
       </ul>
-
       <CtaButton
         href={ctaHref}
         label={ctaLabel}
@@ -96,7 +91,6 @@ function PriceDisplay({
       </p>
     )
   }
-
   return (
     <p className="mt-4">
       <span
@@ -130,7 +124,6 @@ function CtaButton({
       </Link>
     )
   }
-
   if (dark) {
     return (
       <a
@@ -141,7 +134,6 @@ function CtaButton({
       </a>
     )
   }
-
   return (
     <Link
       href={href}

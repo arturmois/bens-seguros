@@ -6,8 +6,6 @@ import type {
 } from '../domain/member-repository.js'
 import { MEMBER_ROLES, type MemberRole } from '../domain/member-roles.js'
 
-// Domain MemberRole values are a strict subset of Prisma Role enum values.
-// This set enables safe narrowing at the infrastructure boundary.
 const VALID_ROLE_VALUES: ReadonlySet<string> = new Set(
   Object.values(MEMBER_ROLES)
 )

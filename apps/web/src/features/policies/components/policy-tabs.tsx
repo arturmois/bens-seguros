@@ -17,7 +17,6 @@ interface PolicyTabsProps {
 
 export function PolicyTabs({ policyId }: PolicyTabsProps) {
   const [endorsementFormOpen, setEndorsementFormOpen] = useState(false)
-
   return (
     <>
       <Tabs defaultValue="endorsements">
@@ -31,17 +30,14 @@ export function PolicyTabs({ policyId }: PolicyTabsProps) {
             Registrar Endosso Histórico
           </Button>
         </div>
-
         <TabsContent value="endorsements" className="mt-4">
           <EndorsementList policyId={policyId} />
         </TabsContent>
-
         <TabsContent value="documents" className="mt-4 space-y-4">
           <DocumentUpload entityType="POLICY" entityId={policyId} />
           <DocumentList entityType="POLICY" entityId={policyId} />
         </TabsContent>
       </Tabs>
-
       <EndorsementForm
         policyId={policyId}
         open={endorsementFormOpen}

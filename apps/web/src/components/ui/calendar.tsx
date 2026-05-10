@@ -59,16 +59,13 @@ export function Calendar({
     (acc, key) => {
       const userClass = classNames?.[key as keyof typeof classNames]
       const baseClass = defaultClassNames[key as keyof typeof defaultClassNames]
-
       acc[key as keyof typeof defaultClassNames] = userClass
         ? cn(baseClass, userClass)
         : baseClass
-
       return acc
     },
     { ...defaultClassNames } as typeof defaultClassNames
   )
-
   const defaultComponents = {
     Chevron: ({
       className,
@@ -87,7 +84,6 @@ export function Calendar({
           />
         )
       }
-
       if (orientation === 'right') {
         return (
           <ChevronRightIcon
@@ -97,7 +93,6 @@ export function Calendar({
           />
         )
       }
-
       return (
         <ChevronsUpDownIcon
           className={className}
@@ -107,12 +102,10 @@ export function Calendar({
       )
     },
   }
-
   const mergedComponents = {
     ...defaultComponents,
     ...userComponents,
   }
-
   const dayPickerProps = {
     className: cn(
       'w-fit [--cell-size:--spacing(10)] sm:[--cell-size:--spacing(9)]',
@@ -129,7 +122,6 @@ export function Calendar({
     showOutsideDays,
     ...props,
   }
-
   return (
     <DayPicker
       {...(dayPickerProps as React.ComponentProps<typeof DayPicker>)}

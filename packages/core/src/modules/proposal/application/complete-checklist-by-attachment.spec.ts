@@ -1,4 +1,3 @@
-// packages/core/src/modules/proposal/application/complete-checklist-by-attachment.spec.ts
 import { describe, expect, it, vi } from 'vitest'
 import { Proposal } from '../domain/proposal.js'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
@@ -53,14 +52,12 @@ describe('CompleteChecklistByAttachment', () => {
       checklistRepo,
       proposalRepo
     )
-
     const result = await useCase.execute(
       'item-1',
       proposal.id,
       'org-1',
       'user-1'
     )
-
     expect(result.isCompleted).toBe(true)
     expect(checklistRepo.complete).toHaveBeenCalledWith(
       'item-1',
@@ -68,7 +65,6 @@ describe('CompleteChecklistByAttachment', () => {
       'user-1'
     )
   })
-
   it('throws ProposalNotFoundError when proposal does not exist', async () => {
     const proposalRepo = createMockProposalRepo(null)
     const checklistRepo = createMockChecklistRepo()
@@ -76,7 +72,6 @@ describe('CompleteChecklistByAttachment', () => {
       checklistRepo,
       proposalRepo
     )
-
     await expect(
       useCase.execute('item-1', 'missing', 'org-1', 'user-1')
     ).rejects.toThrow(ProposalNotFoundError)

@@ -7,8 +7,6 @@ export const searchQuerySchema = z.object({
 
 export type SearchQuery = z.infer<typeof searchQuerySchema>
 
-// --- Response schemas ---
-
 const searchClientSchema = z.object({
   id: z.string(),
   name: z.string(),

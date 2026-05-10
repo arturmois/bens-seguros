@@ -24,7 +24,6 @@ export class CloseConversation {
 
   async execute(input: CloseConversationInput): Promise<ConversationData> {
     const now = new Date()
-
     const updated = await this.conversationRepo.atomicTransition(
       input.conversationId,
       input.tenantId,
@@ -32,14 +31,12 @@ export class CloseConversation {
       'CLOSED',
       { closedAt: now, closedBy: input.closedBy }
     )
-
     if (!updated) {
       throw ChatErrors.invalidTransition(
         'CLOSED',
         'fechar conversa (ja fechada ou estado alterado concorrentemente)'
       )
     }
-
     await this.messageRepo.create({
       conversationId: input.conversationId,
       tenantId: input.tenantId,
@@ -55,7 +52,6 @@ export class CloseConversation {
       externalId: null,
       createdAt: now,
     })
-
     return updated
   }
 }

@@ -30,11 +30,9 @@ interface OccurrenceListProps {
 
 export function OccurrenceList({ claimId }: OccurrenceListProps) {
   const { data, isLoading, isError, refetch } = useClaimOccurrences(claimId)
-
   if (isLoading) {
     return <OccurrenceListSkeleton />
   }
-
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-8">
@@ -47,7 +45,6 @@ export function OccurrenceList({ claimId }: OccurrenceListProps) {
       </div>
     )
   }
-
   if (!data || data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-8">
@@ -58,11 +55,9 @@ export function OccurrenceList({ claimId }: OccurrenceListProps) {
       </div>
     )
   }
-
   const sorted = [...data].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   )
-
   return (
     <div className="relative space-y-0">
       <div className="bg-border absolute left-4 top-0 h-full w-px" />

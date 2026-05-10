@@ -1,4 +1,3 @@
-// packages/core/src/modules/commission/application/pay-commission.spec.ts
 import { describe, expect, it, vi } from 'vitest'
 import {
   CommissionNotFoundError,
@@ -59,39 +58,31 @@ describe('PayCommission', () => {
     const data = makeCommissionData({ status: 'APPROVED' })
     const repo = createMockRepo(data)
     const useCase = new PayCommission(repo)
-
     await useCase.execute('comm-1', 'org-1')
-
     expect(repo.update).toHaveBeenCalledTimes(1)
     const saved = vi.mocked(repo.update).mock.calls[0]?.[0]
     expect(saved?.status).toBe('PAID')
     expect(saved?.paidAt).toBeInstanceOf(Date)
   })
-
   it('rejects payment from PENDING_COMMERCIAL status', async () => {
     const data = makeCommissionData({ status: 'PENDING_COMMERCIAL' })
     const repo = createMockRepo(data)
     const useCase = new PayCommission(repo)
-
     await expect(useCase.execute('comm-1', 'org-1')).rejects.toThrow(
       InvalidCommissionTransitionError
     )
   })
-
   it('rejects double payment from PAID status', async () => {
     const data = makeCommissionData({ status: 'PAID', paidAt: new Date() })
     const repo = createMockRepo(data)
     const useCase = new PayCommission(repo)
-
     await expect(useCase.execute('comm-1', 'org-1')).rejects.toThrow(
       InvalidCommissionTransitionError
     )
   })
-
   it('throws CommissionNotFoundError when commission does not exist', async () => {
     const repo = createMockRepo(null)
     const useCase = new PayCommission(repo)
-
     await expect(useCase.execute('missing', 'org-1')).rejects.toThrow(
       CommissionNotFoundError
     )

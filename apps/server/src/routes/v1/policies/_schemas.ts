@@ -56,8 +56,6 @@ export const generatePdfQuery = z.object({
   force: z.string().optional(),
 })
 
-// ── Response schemas (OpenAPI) ────────────────────────────────────
-
 const policyDetailSchema = z.object({
   id: z.string(),
   organizationId: z.string(),
@@ -82,7 +80,6 @@ const policyDetailSchema = z.object({
   proposalIdentifier: z.string().optional(),
 })
 
-/** List returns the same shape — handler sends full PolicyData items */
 export const policyListResponse = z.object({
   success: z.literal(true),
   data: z.array(policyDetailSchema),
@@ -99,8 +96,6 @@ const pdfDataSchema = z.object({
 })
 
 export const policyPdfResponse = successResponse(pdfDataSchema)
-
-// ── Import response schemas ───────────────────────────────────────
 
 const csvRowErrorSchema = z.object({
   row: z.number(),

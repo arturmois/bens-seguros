@@ -39,8 +39,6 @@ const ADDRESS_FIELD_NAMES = {
   state: 'address.state',
 } as const
 
-// Adapter: reads the FormProvider context as FieldValues (widening) so that
-// AddressFieldsWithCep — which expects Control<FieldValues> — receives compatible helpers.
 function AddressSection() {
   const { control, register, setValue } = useFormContext<FieldValues>()
   return (
@@ -56,13 +54,11 @@ function AddressSection() {
 export function ClientForm() {
   const router = useRouter()
   const createMutation = useCreateClient()
-
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(createClientBodySchema),
     mode: 'onBlur',
     defaultValues: DEFAULT_VALUES,
   })
-
   function handleSubmit(values: ClientFormValues) {
     createMutation.mutate(values, {
       onSuccess: (response) => {
@@ -71,7 +67,6 @@ export function ClientForm() {
       },
     })
   }
-
   return (
     <FormProvider {...form}>
       <form
@@ -86,7 +81,6 @@ export function ClientForm() {
           </p>
           <IdentificationFields />
         </section>
-
         <section>
           <h2 className="text-lg font-medium">Dados pessoais</h2>
           <p className="text-muted-foreground mb-4 text-sm">
@@ -94,7 +88,6 @@ export function ClientForm() {
           </p>
           <PersonalInfoFields />
         </section>
-
         <section>
           <h2 className="text-lg font-medium">Endereço</h2>
           <p className="text-muted-foreground mb-4 text-sm">
@@ -102,7 +95,6 @@ export function ClientForm() {
           </p>
           <AddressSection />
         </section>
-
         <div className="flex items-center justify-end gap-2">
           <Button
             type="button"

@@ -69,7 +69,6 @@ export function BranchFields({
     premiumValueInCents: defaultPremium ?? 0,
     commissionBasisPoints: defaultCommission ?? 0,
   }
-
   if (
     'branch' in rawDefaults &&
     rawDefaults.branch === 'LIFE' &&
@@ -79,11 +78,8 @@ export function BranchFields({
   ) {
     baseDefaults.weightKg = rawDefaults.weightInGrams / 1000
   }
-
   const formDefaults = buildAutoFillDefaults(branch, autoFill, baseDefaults)
-
   const form = useForm<FieldValues>({ defaultValues: formDefaults })
-
   function handleFormSubmit(values: FieldValues) {
     const { premiumValueInCents, commissionBasisPoints, ...rest } = values
     const details: InsuredObjectDetails = buildDetails(branch, rest)
@@ -93,9 +89,7 @@ export function BranchFields({
       commissionBasisPoints: commissionBasisPoints ?? 0,
     })
   }
-
   const BranchComponent = BRANCH_FIELD_MAP[branch]
-
   return (
     <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
@@ -106,7 +100,6 @@ export function BranchFields({
           autoFill={autoFill}
         />
       </div>
-
       <div className="border-border border-t pt-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <FieldWrapper label="Valor do Prêmio" required>
@@ -135,7 +128,6 @@ export function BranchFields({
           </FieldWrapper>
         </div>
       </div>
-
       <div className="flex justify-end pt-2">
         <Button type="submit" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

@@ -39,10 +39,8 @@ export function ContactSearch({
   const [showResults, setShowResults] = useState(false)
   const [highlightedIndex, setHighlightedIndex] = useState(-1)
   const [selectedLabel, setSelectedLabel] = useState('')
-
   const containerRef = useRef<HTMLDivElement>(null)
   const debouncedSearch = useDebounce(search, DEBOUNCE_MS)
-
   const { data, isLoading } = useQuery({
     queryKey: ['contacts-search', debouncedSearch],
     enabled: debouncedSearch.length >= MIN_SEARCH_LENGTH,
@@ -56,7 +54,6 @@ export function ContactSearch({
       return [] as ContactListItem[]
     },
   })
-
   const selectContact = useCallback(
     (contact: ContactListItem) => {
       onChange(contact.id)
@@ -66,7 +63,6 @@ export function ContactSearch({
     },
     [onChange]
   )
-
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       const target = event.target
@@ -78,14 +74,11 @@ export function ContactSearch({
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
   useEffect(() => {
     setHighlightedIndex(-1)
   }, [data])
-
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (!showResults || !data || data.length === 0) return
-
     if (event.key === 'ArrowDown') {
       event.preventDefault()
       setHighlightedIndex((prev) => (prev < data.length - 1 ? prev + 1 : 0))
@@ -109,7 +102,6 @@ export function ContactSearch({
       setShowResults(false)
     }
   }
-
   const displayValue = value && selectedLabel ? selectedLabel : search
   const hasResults = showResults && data && data.length > 0
   const hasNoResults =
@@ -118,7 +110,6 @@ export function ContactSearch({
     !isLoading &&
     data &&
     data.length === 0
-
   return (
     <div className="relative" ref={containerRef}>
       <div className="flex gap-2">
@@ -161,7 +152,6 @@ export function ContactSearch({
           </Button>
         )}
       </div>
-
       {hasResults && (
         <ul
           id="contact-search-results"
@@ -190,7 +180,6 @@ export function ContactSearch({
           ))}
         </ul>
       )}
-
       {hasNoResults && (
         <div
           role="status"

@@ -19,7 +19,6 @@ export function useClaimsFilters() {
     },
     { history: 'push' }
   )
-
   const values: Readonly<Record<string, FilterValue>> = useMemo(
     () => ({
       statusIn: state.statusIn ?? undefined,
@@ -27,7 +26,6 @@ export function useClaimsFilters() {
     }),
     [state.statusIn, state.priorityIn]
   )
-
   const apiParams = useMemo(
     () => ({
       statusIn: state.statusIn?.length ? state.statusIn.join(',') : undefined,
@@ -39,18 +37,15 @@ export function useClaimsFilters() {
     }),
     [state.statusIn, state.priorityIn, state.statusGroup, state.search]
   )
-
   function setFilter(key: string, value: FilterValue): void {
     if (key === 'statusIn' || key === 'priorityIn') {
       const arr = asEnumValue(value)
       void setState({ [key]: arr && arr.length > 0 ? [...arr] : null })
     }
   }
-
   function setSearch(next: string): void {
     void setState({ search: next })
   }
-
   function clearAll(): void {
     void setState({
       statusIn: null,
@@ -59,7 +54,6 @@ export function useClaimsFilters() {
       search: '',
     })
   }
-
   return {
     statusIn: state.statusIn ?? undefined,
     priorityIn: state.priorityIn ?? undefined,

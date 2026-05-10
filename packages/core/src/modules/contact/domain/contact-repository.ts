@@ -28,20 +28,15 @@ export interface ContactWithStage extends ContactData {
 
 export interface ContactFilters {
   organizationId: string
-  // Singulares (deprecated — mantém compat até migração de outras tabelas)
   stage?: ContactStage
   salespersonId?: string
   source?: ContactSource
-  // Plurais (multi-select)
   stageIn?: readonly ContactStage[]
   sourceIn?: readonly ContactSource[]
   salespersonIdIn?: readonly string[]
-  // Boolean
   consentLgpd?: boolean
-  // Date range (createdAt)
   createdFrom?: Date
   createdTo?: Date
-  // Existentes
   search?: string
   clientId?: string
 }

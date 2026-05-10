@@ -29,7 +29,6 @@ export function AutocompleteInput({
   clearProps?: AutocompletePrimitive.Clear.Props
 }): React.ReactElement {
   const sizeValue = (size ?? 'default') as 'sm' | 'default' | 'lg' | number
-
   return (
     <AutocompletePrimitive.InputGroup
       className="not-has-[>*.w-full]:w-fit text-foreground has-disabled:opacity-64 relative w-full"

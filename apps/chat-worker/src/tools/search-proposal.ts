@@ -31,7 +31,6 @@ export function createSearchProposalTool(tenantId: string) {
           error: 'clientId or phone is required',
         }
       }
-
       if (!env.INTERNAL_API_URL || !env.INTERNAL_API_SECRET) {
         logger.warn(
           { tenantId },
@@ -39,13 +38,11 @@ export function createSearchProposalTool(tenantId: string) {
         )
         return { proposals: [], total: 0, error: 'Internal API not configured' }
       }
-
       try {
         const params = new URLSearchParams()
         if (clientId) params.set('clientId', clientId)
         if (phone) params.set('phone', phone)
         if (status) params.set('status', status)
-
         const path = '/api/internal/proposals'
         const timestamp = Math.floor(Date.now() / 1000)
         const signature = signRequest({
@@ -56,7 +53,6 @@ export function createSearchProposalTool(tenantId: string) {
           body: '',
           timestamp,
         })
-
         const response = await fetch(
           `${env.INTERNAL_API_URL}${path}?${params.toString()}`,
           {
@@ -70,7 +66,6 @@ export function createSearchProposalTool(tenantId: string) {
             signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
           }
         )
-
         if (!response.ok) {
           logger.error(
             { status: response.status, tenantId },
@@ -82,13 +77,10 @@ export function createSearchProposalTool(tenantId: string) {
             error: `API responded with status ${String(response.status)}`,
           }
         }
-
         const json: unknown = await response.json()
-
         if (typeof json === 'object' && json !== null && 'data' in json) {
           return (json as { data: unknown }).data
         }
-
         return { proposals: [], total: 0, error: 'Unexpected response format' }
       } catch (err: unknown) {
         logger.error(

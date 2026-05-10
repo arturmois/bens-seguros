@@ -28,7 +28,6 @@ export class UpdateContact {
   async execute(input: UpdateContactInput): Promise<ContactData> {
     const found = await this.repo.findById(input.id, input.organizationId)
     if (!found) throw ContactErrors.notFound(input.id)
-
     const restored = Contact.restore(found)
     restored.updateBasic({
       name: input.name,

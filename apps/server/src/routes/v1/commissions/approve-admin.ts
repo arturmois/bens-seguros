@@ -41,8 +41,6 @@ export async function approveAdminRoute(app: FastifyInstance) {
           entityId: id,
           after: { status: commission.status },
         })
-
-        // Notify salesperson about approval
         if (commission.salespersonId) {
           const salesperson = await prisma.user.findUnique({
             where: { id: commission.salespersonId },
@@ -83,7 +81,6 @@ export async function approveAdminRoute(app: FastifyInstance) {
             })
           }
         }
-
         return reply.send({ success: true, data: commission })
       } catch (error) {
         return handleDomainError(error, reply)

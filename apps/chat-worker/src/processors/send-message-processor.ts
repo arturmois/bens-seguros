@@ -40,7 +40,6 @@ function toConfigRecord(config: unknown): Record<string, unknown> {
     const record = Object.fromEntries(
       Object.entries(config as Record<string, unknown>)
     )
-    // Decrypt encrypted metaToken if present
     if (isEncryptedField(record['metaToken'])) {
       record['metaToken'] = decryptToken(record['metaToken'])
     }
@@ -87,7 +86,6 @@ export function createSendMessageProcessor(
   ): Promise<void> {
     const { messageId, channelId, tenantId, to, text, mediaUrl, type } =
       job.data
-
     const channel = await Channel.findOne({ _id: channelId, tenantId })
       .lean()
       .exec()
@@ -96,19 +94,15 @@ export function createSendMessageProcessor(
         `Channel not found: channelId=${channelId} tenantId=${tenantId}`
       )
     }
-
     const broker = selectBroker(
       channel.brokerType ?? 'BAILEYS',
       channelId,
       channel.config,
       manager
     )
-
     const result = await broker.sendMessage({ to, text, mediaUrl, type })
-
     if (result.status === 'FAILED') {
       const errorCode = result.errorCode ?? 'UNKNOWN'
-
       if (isPermanentError(errorCode)) {
         await Message.updateOne(
           { _id: messageId, tenantId },
@@ -120,19 +114,15 @@ export function createSendMessageProcessor(
         )
         throw new UnrecoverableError(`Permanent send error: ${errorCode}`)
       }
-
       if (errorCode === 'RATE_LIMIT') {
         throw new DelayedError('Rate limit reached, delaying retry')
       }
-
       throw new Error(`Transient send error: ${errorCode}`)
     }
-
     await Message.updateOne(
       { _id: messageId, tenantId },
       { $set: { status: 'SENT', externalId: result.externalId } }
     ).exec()
-
     await pubsubClient.publish(
       CHAT_PUBSUB_CHANNELS.MESSAGE_STATUS,
       JSON.stringify({
@@ -143,11 +133,6 @@ export function createSendMessageProcessor(
         externalId: result.externalId,
       })
     )
-
-    // WebChat: publish message content so /widget namespace delivers to visitor.
-    // External brokers deliver via their own APIs, but WebChat has no external
-    // channel — delivery happens via Redis pub/sub to Socket.IO /widget.
-    // Skip for BOT messages: ai-bot-processor already publishes those.
     if (channel.brokerType === 'WEB_CHAT') {
       const sentMessage = await Message.findById(messageId).lean().exec()
       if (sentMessage && sentMessage.senderType !== 'BOT') {
@@ -161,7 +146,6 @@ export function createSendMessageProcessor(
         )
       }
     }
-
     logger.info(
       { messageId, externalId: result.externalId },
       'Message sent successfully'

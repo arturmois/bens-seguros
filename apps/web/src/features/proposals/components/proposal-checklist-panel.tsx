@@ -66,7 +66,6 @@ export function ProposalChecklistPanel({
 }: ProposalChecklistPanelProps) {
   const { data, isLoading, isError } = useChecklist(proposalId)
   const completeMutation = useCompleteChecklistItem(proposalId)
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -74,7 +73,6 @@ export function ProposalChecklistPanel({
       </div>
     )
   }
-
   if (isError || !data) {
     return (
       <p className="text-destructive py-4 text-sm">
@@ -82,9 +80,7 @@ export function ProposalChecklistPanel({
       </p>
     )
   }
-
   const { items, summary } = data
-
   if (items.length === 0) {
     return (
       <div className="text-muted-foreground flex items-center gap-2 py-6 text-sm">
@@ -93,15 +89,12 @@ export function ProposalChecklistPanel({
       </div>
     )
   }
-
   const progressValue =
     summary.required > 0
       ? Math.round((summary.requiredCompleted / summary.required) * 100)
       : 100
-
   const requiredItems = items.filter((item) => item.isRequired)
   const optionalItems = items.filter((item) => !item.isRequired)
-
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -120,7 +113,6 @@ export function ProposalChecklistPanel({
           </ProgressTrack>
         </Progress>
       </div>
-
       {!summary.canAdvance && (
         <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/30">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
@@ -129,7 +121,6 @@ export function ProposalChecklistPanel({
           </p>
         </div>
       )}
-
       {requiredItems.length > 0 && (
         <div className="space-y-1">
           <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
@@ -147,7 +138,6 @@ export function ProposalChecklistPanel({
           </div>
         </div>
       )}
-
       {optionalItems.length > 0 && (
         <div className="space-y-1">
           <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">

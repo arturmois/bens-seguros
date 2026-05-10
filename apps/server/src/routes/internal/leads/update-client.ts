@@ -19,16 +19,6 @@ import {
 const CPF_LENGTH = 11
 const CNPJ_LENGTH = 14
 
-/**
- * Updates a Client's fiscal data from chat-worker.
- *
- * After the contact-client separation refactor, Client only holds fiscal data
- * (document, legalName, address, profession, maritalStatus, fiscalBirthDate).
- * Contact data (name, email, phone) is updated via Contact APIs, not here.
- *
- * For lead promotion (where document was missing), prefer the dedicated
- * /api/internal/contacts/:id/promote endpoint.
- */
 export function updateClientRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'PUT',
@@ -49,25 +39,19 @@ export function updateClientRoute(app: FastifyInstance) {
       const { id } = request.params
       const body = request.body
       const organizationId = request.organizationId!
-
       const tenantPrisma = createTenantClient(organizationId)
-
       const existing = await tenantPrisma.client.findFirst({
         where: { id, organizationId, deletedAt: null },
       })
-
       if (!existing) {
         return reply.status(404).send({
           success: false,
           error: { code: 'CLIENT_NOT_FOUND', message: 'Client not found' },
         })
       }
-
       const updateData: Prisma.ClientUpdateInput = {}
-
       if (body.document !== undefined) {
         const digits = stripNonDigits(body.document)
-
         if (digits.length !== CPF_LENGTH && digits.length !== CNPJ_LENGTH) {
           return reply.status(400).send({
             success: false,
@@ -78,38 +62,28 @@ export function updateClientRoute(app: FastifyInstance) {
             },
           })
         }
-
         const key = getEncryptionKey()
         const encrypted = encrypt(digits, key)
         updateData.documentEncrypted = JSON.stringify(encrypted)
         updateData.documentHash = hashDocument(digits)
         updateData.document = digits
       }
-
       if (body.address !== undefined) {
         updateData.address = body.address
       }
-
-      // birthDate (legacy field name) maps to Client.fiscalBirthDate
       if (body.birthDate !== undefined) {
         updateData.fiscalBirthDate = new Date(body.birthDate)
       }
-
       if (body.profession !== undefined) {
         updateData.profession = body.profession
       }
-
       if (body.maritalStatus !== undefined) {
         updateData.maritalStatus = body.maritalStatus
       }
-
-      // body.email is intentionally ignored — email lives on Contact, not Client.
-
       await tenantPrisma.client.update({
         where: { id },
         data: updateData,
       })
-
       return reply.status(200).send({
         success: true,
         data: { success: true, message: 'Dados do cliente atualizados' },

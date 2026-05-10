@@ -25,7 +25,6 @@ export class MongooseUnreadRepository implements UnreadRepository {
     )
       .lean()
       .exec()
-
     return results.map((r) => ({
       conversationId: String(r.conversationId),
       count: r.count,

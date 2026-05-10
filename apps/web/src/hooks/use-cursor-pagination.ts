@@ -18,7 +18,6 @@ export function useCursorPagination(
 ): UseCursorPaginationReturn {
   const [cursors, setCursors] = useState<string[]>([])
   const [pageSize, setPageSizeState] = useState(initialPageSize)
-
   return {
     currentCursor: cursors.at(-1),
     currentPage: cursors.length + 1,

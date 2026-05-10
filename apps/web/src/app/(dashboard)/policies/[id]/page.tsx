@@ -6,7 +6,6 @@ interface PolicyPageProps {
 
 export default async function PolicyPage({ params }: PolicyPageProps) {
   const { id } = await params
-
   return (
     <div className="space-y-6">
       <PolicyDetailContent policyId={id} />

@@ -49,7 +49,6 @@ export async function conversationRoutes(app: FastifyInstance): Promise<void> {
     ) => {
       const query = listQuerySchema.parse(request.query)
       const tenantId = request.organizationId
-
       const useCase = container.resolve(ListConversations)
       const result = await useCase.execute(
         {
@@ -60,7 +59,6 @@ export async function conversationRoutes(app: FastifyInstance): Promise<void> {
         },
         { cursor: query.cursor, limit: query.limit }
       )
-
       const channelIds = [...new Set(result.data.map((c) => c.channelId))]
       const channels = await Channel.find(
         { _id: { $in: channelIds }, tenantId },
@@ -69,13 +67,11 @@ export async function conversationRoutes(app: FastifyInstance): Promise<void> {
       const channelTypeMap = new Map<string, ChannelType>(
         channels.map((ch) => [String(ch._id), toChannelType(ch.type)])
       )
-
       const enriched: Array<ConversationData & { channelType: ChannelType }> =
         result.data.map((conv) => ({
           ...conv,
           channelType: channelTypeMap.get(conv.channelId) ?? 'WHATSAPP',
         }))
-
       return reply.send({
         success: true,
         data: enriched,
@@ -83,25 +79,20 @@ export async function conversationRoutes(app: FastifyInstance): Promise<void> {
       })
     }
   )
-
   app.get(
     '/chat/conversations/unread-counts',
     async (request: FastifyRequest, reply: FastifyReply) => {
       const tenantId = request.organizationId
       const { userId } = request.user
-
       const unreadRepo = container.resolve<UnreadRepository>('UnreadRepository')
       const counts = await unreadRepo.getUnreadCounts(tenantId, userId)
-
       const data: Record<string, number> = {}
       for (const entry of counts) {
         data[entry.conversationId] = entry.count
       }
-
       return reply.send({ success: true, data })
     }
   )
-
   app.get(
     '/chat/conversations/:id',
     async (
@@ -110,18 +101,15 @@ export async function conversationRoutes(app: FastifyInstance): Promise<void> {
     ) => {
       const { id } = conversationIdSchema.parse(request.params)
       const tenantId = request.organizationId
-
       try {
         const useCase = container.resolve(GetConversation)
         const result = await useCase.execute(id, tenantId)
-
         const channel = await Channel.findOne({
           _id: result.conversation.channelId,
           tenantId,
         })
           .lean()
           .exec()
-
         return reply.send({
           success: true,
           data: {
@@ -137,6 +125,5 @@ export async function conversationRoutes(app: FastifyInstance): Promise<void> {
       }
     }
   )
-
   await app.register(conversationActionRoutes)
 }

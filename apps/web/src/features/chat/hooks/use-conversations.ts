@@ -29,7 +29,6 @@ function buildConversationsUrl(filters: ConversationFilters): string {
 export function useConversations(socket: Socket | null) {
   const queryClient = useQueryClient()
   const [filters, setFilters] = useState<ConversationFilters>({})
-
   const query = useQuery({
     queryKey: [CONVERSATIONS_KEY, filters],
     queryFn: async (): Promise<ConversationListResponse> => {
@@ -46,11 +45,9 @@ export function useConversations(socket: Socket | null) {
     },
     staleTime: 60_000,
   })
-
   const handleConversationUpdated = useCallback(
     (payload: unknown) => {
       void queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_KEY] })
-
       if (isRecord(payload) && typeof payload['conversationId'] === 'string') {
         void queryClient.invalidateQueries({
           queryKey: [MESSAGES_KEY, payload['conversationId']],
@@ -59,16 +56,13 @@ export function useConversations(socket: Socket | null) {
     },
     [queryClient]
   )
-
   const handleIncomingMessage = useCallback(
     (payload: unknown) => {
       if (!isIncomingMessagePayload(payload)) return
-
       queryClient.setQueryData<ConversationListResponse>(
         [CONVERSATIONS_KEY, filters],
         (prev) => {
           if (!prev) return prev
-
           const updated = prev.data.map((conv) => {
             if (conv.id !== payload.conversationId) return conv
             return {
@@ -77,26 +71,21 @@ export function useConversations(socket: Socket | null) {
               lastMessageAt: payload.createdAt ?? conv.lastMessageAt,
             }
           })
-
           return { ...prev, data: updated }
         }
       )
     },
     [queryClient, filters]
   )
-
   useEffect(() => {
     if (!socket) return
-
     socket.on(SOCKET_EVENTS.CONVERSATION_UPDATED, handleConversationUpdated)
     socket.on(SOCKET_EVENTS.INCOMING_MESSAGE, handleIncomingMessage)
-
     return () => {
       socket.off(SOCKET_EVENTS.CONVERSATION_UPDATED, handleConversationUpdated)
       socket.off(SOCKET_EVENTS.INCOMING_MESSAGE, handleIncomingMessage)
     }
   }, [socket, handleConversationUpdated, handleIncomingMessage])
-
   const assignConversation = useMutation({
     mutationFn: async (id: string) => {
       const response = await chatApi.post<ConversationData>(
@@ -114,7 +103,6 @@ export function useConversations(socket: Socket | null) {
       toast.error('Erro ao atribuir conversa')
     },
   })
-
   const transferConversation = useMutation({
     mutationFn: async ({
       id,
@@ -143,7 +131,6 @@ export function useConversations(socket: Socket | null) {
       toast.error('Erro ao transferir conversa')
     },
   })
-
   const returnToQueue = useMutation({
     mutationFn: async (id: string) => {
       const response = await chatApi.post<ConversationData>(
@@ -161,7 +148,6 @@ export function useConversations(socket: Socket | null) {
       toast.error('Erro ao devolver conversa à fila')
     },
   })
-
   const returnToBot = useMutation({
     mutationFn: async (id: string) => {
       const response = await chatApi.post<ConversationData>(
@@ -179,7 +165,6 @@ export function useConversations(socket: Socket | null) {
       toast.error('Erro ao devolver conversa para a IA')
     },
   })
-
   const closeConversation = useMutation({
     mutationFn: async (id: string) => {
       const response = await chatApi.post<ConversationData>(
@@ -197,7 +182,6 @@ export function useConversations(socket: Socket | null) {
       toast.error('Erro ao encerrar conversa')
     },
   })
-
   return {
     conversations: query.data?.data ?? [],
     meta: query.data?.meta,
@@ -212,9 +196,6 @@ export function useConversations(socket: Socket | null) {
     closeConversation,
   }
 }
-
-// --- type guard ---
-
 interface IncomingMessagePayload {
   conversationId: string
   text: string | null

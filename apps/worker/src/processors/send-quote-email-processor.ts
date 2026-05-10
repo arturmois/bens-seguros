@@ -42,13 +42,11 @@ async function downloadPdf(
 ): Promise<Buffer> {
   const signedUrl = await storage.getSignedUrl(storageKey, 60)
   const response = await fetch(signedUrl)
-
   if (!response.ok) {
     throw new Error(
       `Failed to download PDF from storage: ${response.status} ${response.statusText}`
     )
   }
-
   const arrayBuffer = await response.arrayBuffer()
   return Buffer.from(arrayBuffer)
 }
@@ -70,9 +68,7 @@ async function processJob(
     branch,
     premiumFormatted,
   } = job.data
-
   const pdfBuffer = await downloadPdf(storage, storageKey)
-
   const html = quoteSentEmailHtml({
     clientName: recipientName,
     salespersonName,
@@ -80,7 +76,6 @@ async function processJob(
     branch,
     premiumFormatted,
   })
-
   await emailProvider.send({
     to: recipientEmail,
     subject: `Cotação de Seguro — ${branch}`,
@@ -88,12 +83,10 @@ async function processJob(
     ...(salespersonEmail ? { replyTo: salespersonEmail } : {}),
     attachments: [{ filename: 'cotacao.pdf', content: pdfBuffer }],
   })
-
   await prismaAdmin.proposal.update({
     where: { id: proposalId, organizationId },
     data: { sentToClientAt: new Date() },
   })
-
   logger.info(
     { proposalId, organizationId, recipientEmail },
     'Quote email sent successfully'
@@ -103,7 +96,6 @@ async function processJob(
 export function setupSendQuoteEmailProcessor(connection: ConnectionOptions) {
   const queue = new Queue<SendQuoteEmailJobData>(QUEUE_NAME, { connection })
   const storage = buildStorageProvider()
-
   let emailProvider: EmailProvider | null = null
   if (env.RESEND_API_KEY) {
     emailProvider = new ResendEmailProvider({
@@ -111,7 +103,6 @@ export function setupSendQuoteEmailProcessor(connection: ConnectionOptions) {
       fromAddress: env.RESEND_FROM_ADDRESS,
     })
   }
-
   const worker = new Worker<SendQuoteEmailJobData>(
     QUEUE_NAME,
     async (job: Job<SendQuoteEmailJobData>) => {
@@ -122,7 +113,6 @@ export function setupSendQuoteEmailProcessor(connection: ConnectionOptions) {
         )
         return
       }
-
       await processJob(job, emailProvider, storage)
     },
     {
@@ -132,10 +122,8 @@ export function setupSendQuoteEmailProcessor(connection: ConnectionOptions) {
       removeOnFail: { age: 86_400 },
     }
   )
-
   worker.on('failed', (job, err) => {
     logger.error({ jobId: job?.id, err }, 'Send-quote-email job failed')
   })
-
   return { worker, queue }
 }

@@ -40,13 +40,11 @@ export function QuickCreateContact({
   onCreated,
 }: QuickCreateContactProps) {
   const createMutation = useCreateContact()
-
   const form = useForm<QuickCreateValues>({
     resolver: zodResolver(QuickCreateSchema),
     mode: 'onBlur',
     defaultValues: EMPTY_VALUES,
   })
-
   function handleSubmit(values: QuickCreateValues) {
     createMutation.mutate(
       {
@@ -67,14 +65,11 @@ export function QuickCreateContact({
       }
     )
   }
-
   function handleOpenChange(next: boolean) {
     if (!next) form.reset(EMPTY_VALUES)
     onOpenChange(next)
   }
-
   const errors = form.formState.errors
-
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-sm">
@@ -84,7 +79,6 @@ export function QuickCreateContact({
             Apenas nome e telefone. CPF/CNPJ pode ser informado depois.
           </DialogDescription>
         </DialogHeader>
-
         <DialogPanel>
           <FormProvider {...form}>
             <form
@@ -112,7 +106,6 @@ export function QuickCreateContact({
             </form>
           </FormProvider>
         </DialogPanel>
-
         <DialogFooter>
           <Button
             type="button"

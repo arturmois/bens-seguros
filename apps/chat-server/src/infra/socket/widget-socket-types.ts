@@ -2,10 +2,6 @@ import { isRecord } from '@repo/shared'
 import type { Socket } from 'socket.io'
 import { z } from 'zod'
 
-// ---------------------------------------------------------------------------
-// Visitor token
-// ---------------------------------------------------------------------------
-
 export const visitorTokenSchema = z.object({
   conversationId: z.string(),
   contactId: z.string(),
@@ -14,10 +10,6 @@ export const visitorTokenSchema = z.object({
 })
 
 export type VisitorTokenPayload = z.infer<typeof visitorTokenSchema>
-
-// ---------------------------------------------------------------------------
-// Socket data helpers
-// ---------------------------------------------------------------------------
 
 export function getVisitorData(socket: Socket): VisitorTokenPayload {
   const visitor: unknown = socket.data['visitor']
@@ -31,10 +23,6 @@ export function getVisitorData(socket: Socket): VisitorTokenPayload {
     tenantId: String(visitor['tenantId']),
   }
 }
-
-// ---------------------------------------------------------------------------
-// Message validation
-// ---------------------------------------------------------------------------
 
 const MIN_TEXT_LENGTH = 1
 const MAX_TEXT_LENGTH = 4096

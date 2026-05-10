@@ -33,17 +33,14 @@ export function DateRangeFilterControl({
   const [to, setTo] = useState<Date | undefined>(
     value?.to ? parseISO(value.to) : undefined
   )
-
   function handlePreset(presetValue: string) {
     onCommit({ preset: presetValue })
     onClose()
   }
-
   function handleClear() {
     onCommit(undefined)
     onClose()
   }
-
   function handleCustomApply() {
     if (!from || !to) return
     onCommit({
@@ -53,7 +50,6 @@ export function DateRangeFilterControl({
     })
     onClose()
   }
-
   if (stage === 'presets') {
     return (
       <div
@@ -101,7 +97,6 @@ export function DateRangeFilterControl({
       </div>
     )
   }
-
   return (
     <div
       className="flex w-full flex-col"

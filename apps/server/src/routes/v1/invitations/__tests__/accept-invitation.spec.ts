@@ -55,7 +55,6 @@ beforeAll(async () => {
 afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
-
   vi.mocked(container.resolve).mockImplementation((token: unknown) => {
     if (token === 'InvitationRepository') return mockInvitationRepo
     if (typeof token === 'function') return mockAcceptUseCase
@@ -90,34 +89,28 @@ function mockSuccessfulSignIn() {
 describe('POST /api/v1/invitations/:id/accept — invitation lookup', () => {
   it('returns 404 when invitation is not found', async () => {
     mockInvitationRepo.findById.mockResolvedValue(null)
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations/nonexistent-id/accept',
       payload: { mode: 'login', password: 'Senha@123' },
     })
-
     expect(response.statusCode).toBe(404)
     expect(response.json().error.code).toBe('INVITATION_NOT_FOUND')
   })
-
   it('returns 404 when invitation is canceled', async () => {
     mockInvitationRepo.findById.mockResolvedValue({
       ...validInvitation,
       status: 'canceled',
     })
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations/invite-id-001/accept',
       payload: { mode: 'login', password: 'Senha@123' },
     })
-
     expect(response.statusCode).toBe(404)
     expect(response.json().error.code).toBe('INVITATION_NOT_FOUND')
   })
 })
-
 describe('POST /api/v1/invitations/:id/accept — body validation', () => {
   it('rejects missing body with error status', async () => {
     const response = await injectAs(app, {
@@ -127,7 +120,6 @@ describe('POST /api/v1/invitations/:id/accept — body validation', () => {
     })
     expect(response.statusCode).toBeGreaterThanOrEqual(400)
   })
-
   it('rejects invalid discriminated union mode', async () => {
     const response = await injectAs(app, {
       method: 'POST',
@@ -136,7 +128,6 @@ describe('POST /api/v1/invitations/:id/accept — body validation', () => {
     })
     expect(response.statusCode).toBeGreaterThanOrEqual(400)
   })
-
   it('rejects register mode with missing name', async () => {
     const response = await injectAs(app, {
       method: 'POST',
@@ -151,54 +142,45 @@ describe('POST /api/v1/invitations/:id/accept — login mode', () => {
   it('returns 200 on successful login', async () => {
     mockInvitationRepo.findById.mockResolvedValue(validInvitation)
     mockSuccessfulSignIn()
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations/invite-id-001/accept',
       payload: { mode: 'login', password: 'Senha@123' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data.organizationId).toBe('org-id-001')
     expect(body.data.role).toBe('COMMERCIAL')
   })
-
   it('returns 401 INVALID_CREDENTIALS when Better Auth returns INVALID_PASSWORD', async () => {
     mockInvitationRepo.findById.mockResolvedValue(validInvitation)
     mockAuth.api.signInEmail.mockResolvedValue({
       response: { error: { code: 'INVALID_PASSWORD' } },
       headers: makeSetCookieHeaders(),
     })
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations/invite-id-001/accept',
       payload: { mode: 'login', password: 'wrong' },
     })
-
     expect(response.statusCode).toBe(401)
     expect(response.json().error.code).toBe('INVALID_CREDENTIALS')
   })
-
   it('returns 403 EMAIL_NOT_VERIFIED when Better Auth returns EMAIL_NOT_VERIFIED', async () => {
     mockInvitationRepo.findById.mockResolvedValue(validInvitation)
     mockAuth.api.signInEmail.mockResolvedValue({
       response: { error: { code: 'EMAIL_NOT_VERIFIED' } },
       headers: makeSetCookieHeaders(),
     })
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations/invite-id-001/accept',
       payload: { mode: 'login', password: 'Senha@123' },
     })
-
     expect(response.statusCode).toBe(403)
     expect(response.json().error.code).toBe('EMAIL_NOT_VERIFIED')
   })
 })
-
 describe('POST /api/v1/invitations/:id/accept — register mode', () => {
   it('returns 200 on successful register, marks emailVerified, then signs in', async () => {
     const { prisma } = await import('@repo/db')
@@ -213,71 +195,57 @@ describe('POST /api/v1/invitations/:id/accept — register mode', () => {
       response: { user: { id: 'user-id-002' } },
       headers: makeSetCookieHeaders(['session=abc']),
     })
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations/invite-id-001/accept',
       payload: { mode: 'register', name: 'Daisy', password: 'Senha@123' },
     })
-
     expect(response.statusCode).toBe(200)
     expect(prisma.user.update).toHaveBeenCalledWith({
       where: { id: 'user-id-002' },
       data: { emailVerified: true },
     })
   })
-
   it('returns 409 EMAIL_ALREADY_EXISTS when Better Auth returns USER_ALREADY_EXISTS', async () => {
     mockInvitationRepo.findById.mockResolvedValue(validInvitation)
     mockAuth.api.signUpEmail.mockResolvedValue({
       response: { error: { code: 'USER_ALREADY_EXISTS' } },
       headers: makeSetCookieHeaders(),
     })
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations/invite-id-001/accept',
       payload: { mode: 'register', name: 'Daisy', password: 'Senha@123' },
     })
-
     expect(response.statusCode).toBe(409)
     expect(response.json().error.code).toBe('EMAIL_ALREADY_EXISTS')
   })
-
   it('returns 422 WEAK_PASSWORD when Better Auth returns INVALID_PASSWORD', async () => {
     mockInvitationRepo.findById.mockResolvedValue(validInvitation)
     mockAuth.api.signUpEmail.mockResolvedValue({
       response: { error: { code: 'INVALID_PASSWORD' } },
       headers: makeSetCookieHeaders(),
     })
-
-    // Schema requires 8+ chars; Better Auth rejects for an additional reason
-    // (rate limit, denylist, etc.) returning INVALID_PASSWORD in response.error.
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations/invite-id-001/accept',
       payload: { mode: 'register', name: 'Daisy', password: 'Senha@123' },
     })
-
     expect(response.statusCode).toBe(422)
     expect(response.json().error.code).toBe('WEAK_PASSWORD')
   })
-
   it('returns 422 REGISTRATION_FAILED when signUpEmail throws an unexpected error', async () => {
     mockInvitationRepo.findById.mockResolvedValue(validInvitation)
     mockAuth.api.signUpEmail.mockRejectedValue(new Error('network down'))
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations/invite-id-001/accept',
       payload: { mode: 'register', name: 'Daisy', password: 'Senha@123' },
     })
-
     expect(response.statusCode).toBe(422)
     expect(response.json().error.code).toBe('REGISTRATION_FAILED')
   })
 })
-
 describe('POST /api/v1/invitations/:id/accept — current-session mode', () => {
   it('returns 200 when session email matches invitation email', async () => {
     mockInvitationRepo.findById.mockResolvedValue(validInvitation)
@@ -291,45 +259,37 @@ describe('POST /api/v1/invitations/:id/accept — current-session mode', () => {
     mockAuth.api.setActiveOrganization.mockResolvedValue({
       headers: makeSetCookieHeaders(),
     })
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations/invite-id-001/accept',
       payload: { mode: 'current-session' },
     })
-
     expect(response.statusCode).toBe(200)
     expect(response.json().data.organizationId).toBe('org-id-001')
     expect(mockAuth.api.signUpEmail).not.toHaveBeenCalled()
     expect(mockAuth.api.signInEmail).not.toHaveBeenCalled()
   })
-
   it('returns 401 NO_SESSION when user is not logged in', async () => {
     mockInvitationRepo.findById.mockResolvedValue(validInvitation)
     mockAuth.api.getSession.mockResolvedValue(null)
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations/invite-id-001/accept',
       payload: { mode: 'current-session' },
     })
-
     expect(response.statusCode).toBe(401)
     expect(response.json().error.code).toBe('NO_SESSION')
   })
-
   it('returns 403 SESSION_EMAIL_MISMATCH when session belongs to a different user', async () => {
     mockInvitationRepo.findById.mockResolvedValue(validInvitation)
     mockAuth.api.getSession.mockResolvedValue({
       user: { id: 'user-id-other', email: 'someone-else@user.com' },
     })
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations/invite-id-001/accept',
       payload: { mode: 'current-session' },
     })
-
     expect(response.statusCode).toBe(403)
     expect(response.json().error.code).toBe('SESSION_EMAIL_MISMATCH')
   })

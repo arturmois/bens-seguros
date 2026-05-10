@@ -77,7 +77,6 @@ export function createReportClaimTool(
             'Registro de sinistro indisponível no momento. Um atendente vai ajudar.',
         }
       }
-
       try {
         const body = JSON.stringify({
           phoneOrDocument,
@@ -86,7 +85,6 @@ export function createReportClaimTool(
           ...(incidentLocation ? { incidentLocation } : {}),
           ...(insuranceType ? { insuranceType } : {}),
         })
-
         const path = '/api/internal/claims'
         const timestamp = Math.floor(Date.now() / 1000)
         const signature = signRequest({
@@ -97,7 +95,6 @@ export function createReportClaimTool(
           body,
           timestamp,
         })
-
         const response = await fetch(`${env.INTERNAL_API_URL}${path}`, {
           method: 'POST',
           headers: {
@@ -109,7 +106,6 @@ export function createReportClaimTool(
           body,
           signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         })
-
         if (!response.ok) {
           logger.error(
             { status: response.status, tenantId },
@@ -122,20 +118,16 @@ export function createReportClaimTool(
               'Tive um problema ao registrar o sinistro. Um atendente vai ajudar.',
           }
         }
-
         const json = (await response.json()) as InternalApiResponse
-
         if (!json.data.claimCreated && json.data.claimData) {
           await Conversation.updateOne(
             { _id: conversationId, tenantId },
             { $set: { 'metadata.claimData': json.data.claimData } }
           ).exec()
-
           const explanationText =
             'Não encontrei uma apólice ativa vinculada ao seu cadastro. ' +
             'Seus dados do sinistro foram salvos e vou transferir você para ' +
             'um corretor que poderá dar continuidade ao atendimento.'
-
           const botMessage = await Message.create({
             conversationId,
             tenantId,
@@ -145,7 +137,6 @@ export function createReportClaimTool(
             type: 'TEXT',
             status: 'DELIVERED',
           })
-
           await pubsubClient.publish(
             CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE,
             JSON.stringify({
@@ -163,16 +154,13 @@ export function createReportClaimTool(
                 botMessage.createdAt?.toISOString() ?? new Date().toISOString(),
             })
           )
-
           await escalateToHuman(conversationId, tenantId, pubsubClient)
-
           return {
             claimCreated: false,
             dataSaved: true,
             message: json.data.message,
           }
         }
-
         return {
           claimCreated: json.data.claimCreated,
           claimNumber: json.data.claimNumber,

@@ -19,16 +19,13 @@ export class ExportCommissionsCsv {
 
   async *generateCsvRows(filters: CommissionFilters): AsyncGenerator<string> {
     yield CSV_BOM + COMMISSION_CSV_HEADER
-
     let cursor: string | undefined
     let hasMore = true
-
     while (hasMore) {
       const result = await this.commissionRepo.findMany(filters, {
         limit: BATCH_SIZE,
         cursor,
       })
-
       for (const c of result.items) {
         yield [
           c.id,
@@ -41,7 +38,6 @@ export class ExportCommissionsCsv {
           c.createdAt.toISOString(),
         ].join(',') + '\n'
       }
-
       hasMore = result.items.length === BATCH_SIZE
       cursor = result.items.at(-1)?.id
     }

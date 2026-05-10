@@ -18,7 +18,6 @@ export function IssuePolicyCard({
   policyId,
 }: IssuePolicyCardProps) {
   const [sheetOpen, setSheetOpen] = useState(false)
-
   if (policyId) {
     return (
       <div className="bg-success/10 border-success/20 flex items-center gap-4 rounded-lg border p-4">
@@ -41,7 +40,6 @@ export function IssuePolicyCard({
       </div>
     )
   }
-
   return (
     <>
       <div className="bg-primary/10 border-primary/20 flex items-center gap-4 rounded-lg border p-4">
@@ -57,7 +55,6 @@ export function IssuePolicyCard({
         </div>
         <Button onClick={() => setSheetOpen(true)}>Emitir Apólice</Button>
       </div>
-
       <IssuePolicyDialog
         proposalId={proposalId}
         open={sheetOpen}

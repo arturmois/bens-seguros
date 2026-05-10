@@ -55,14 +55,12 @@ describe('GET /api/v1/invitations/:id/public', () => {
         makeMinimalUser({ name: 'Inviter Name' }) as unknown as Awaited<
           ReturnType<typeof prisma.user.findUnique>
         >
-      ) // inviter
-      .mockResolvedValueOnce(null) // existing user check
-
+      )
+      .mockResolvedValueOnce(null)
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/invitations/invite-id-001/public',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -72,7 +70,6 @@ describe('GET /api/v1/invitations/:id/public', () => {
     expect(body.data.inviterName).toBe('Inviter Name')
     expect(body.data.hasAccount).toBe(false)
   })
-
   it('returns 200 with hasAccount true when email already has an account', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.invitation.findUnique).mockResolvedValue(
@@ -85,23 +82,20 @@ describe('GET /api/v1/invitations/:id/public', () => {
         makeMinimalUser({ name: 'Inviter Name' }) as unknown as Awaited<
           ReturnType<typeof prisma.user.findUnique>
         >
-      ) // inviter
+      )
       .mockResolvedValueOnce(
         makeMinimalUser({ id: 'existing-user-id' }) as unknown as Awaited<
           ReturnType<typeof prisma.user.findUnique>
         >
-      ) // existing user
-
+      )
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/invitations/invite-id-001/public',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data.hasAccount).toBe(true)
   })
-
   it('returns fallback inviterName when inviter user is not found', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.invitation.findUnique).mockResolvedValue(
@@ -110,28 +104,23 @@ describe('GET /api/v1/invitations/:id/public', () => {
       >
     )
     vi.mocked(prisma.user.findUnique)
-      .mockResolvedValueOnce(null) // inviter not found
-      .mockResolvedValueOnce(null) // no existing user
-
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null)
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/invitations/invite-id-001/public',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data.inviterName).toBe('Um membro')
   })
-
   it('returns 404 when invitation is not found', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.invitation.findUnique).mockResolvedValue(null)
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/invitations/nonexistent-id/public',
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.success).toBe(false)

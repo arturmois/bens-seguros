@@ -50,16 +50,13 @@ export function DocumentUpload({
   const [selectedType, setSelectedType] = useState<DocumentType | ''>('')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const uploadDocument = useUploadDocument()
-
   const hasPendingFile = pendingFile !== null
   const branchHasSingleType =
     branch !== undefined && getDocumentTypesForBranch(branch).length === 1
-
   function clearPending() {
     setPendingFile(null)
     setSelectedType('')
   }
-
   const uploadFile = useCallback(
     (file: File, type: DocumentType) => {
       uploadDocument.mutate(
@@ -74,7 +71,6 @@ export function DocumentUpload({
     },
     [entityType, entityId, uploadDocument, onUploadSuccess]
   )
-
   const validateAndStage = useCallback(
     (file: File) => {
       if (file.size > MAX_FILE_SIZE_BYTES) {
@@ -83,27 +79,23 @@ export function DocumentUpload({
         )
         return
       }
-
       if (!isAllowedMimeType(file.type)) {
         toast.error(
           'Tipo de arquivo não permitido. Use imagens, PDF ou documentos Office.'
         )
         return
       }
-
       if (!branch || branchHasSingleType) {
         const types = branch ? getDocumentTypesForBranch(branch) : []
         const defaultType = types[0]?.value ?? 'OTHER'
         uploadFile(file, defaultType)
         return
       }
-
       setPendingFile(file)
       setSelectedType('')
     },
     [branch, branchHasSingleType, uploadFile]
   )
-
   function handleDrop(e: React.DragEvent) {
     e.preventDefault()
     setIsDragOver(false)
@@ -111,20 +103,16 @@ export function DocumentUpload({
     const file = e.dataTransfer.files[0]
     if (file) validateAndStage(file)
   }
-
   function handleFileInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (file) validateAndStage(file)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
-
   function handleConfirm() {
     if (!pendingFile || selectedType === '') return
     uploadFile(pendingFile, selectedType)
   }
-
   const isUploadingWithoutPending = uploadDocument.isPending && !hasPendingFile
-
   return (
     <div>
       <div
@@ -166,7 +154,6 @@ export function DocumentUpload({
           accept={ALLOWED_MIME_TYPES.join(',')}
           onChange={handleFileInputChange}
         />
-
         {isUploadingWithoutPending ? (
           <>
             <div className="size-8 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -186,7 +173,6 @@ export function DocumentUpload({
           </>
         )}
       </div>
-
       {hasPendingFile && branch && (
         <PendingFileCard
           file={pendingFile}

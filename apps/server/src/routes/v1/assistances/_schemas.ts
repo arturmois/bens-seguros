@@ -62,8 +62,6 @@ export const listAssistancesQuerySchema = z.object({
 
 export { idParam as idParamSchema }
 
-// --- Response schemas ---
-
 const assistanceSchema = z.object({
   id: z.string(),
   organizationId: z.string(),

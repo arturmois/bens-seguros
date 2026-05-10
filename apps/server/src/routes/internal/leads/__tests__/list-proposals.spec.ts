@@ -63,7 +63,6 @@ describe('GET /api/internal/proposals', () => {
       url: '/api/internal/proposals',
       query: { clientId: 'client-001' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -71,14 +70,12 @@ describe('GET /api/internal/proposals', () => {
     expect(body.data.proposals[0].id).toBe('proposal-001')
     expect(body.data.proposals[0].clientName).toBe('João Silva')
   })
-
   it('resolves clientId from phone when clientId is not provided', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/internal/proposals',
       query: { phone: '11999999999' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -88,46 +85,38 @@ describe('GET /api/internal/proposals', () => {
       })
     )
   })
-
   it('returns empty list when client is not found by phone', async () => {
     mockTenantPrisma.contact.findFirst.mockResolvedValue(null)
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/internal/proposals',
       query: { phone: '11000000000' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data.proposals).toHaveLength(0)
     expect(body.data.total).toBe(0)
   })
-
   it('returns 400 when neither clientId nor phone is provided', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/internal/proposals',
     })
-
     expect(response.statusCode).toBe(400)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('MISSING_PARAMS')
   })
-
   it('returns total matching proposals count', async () => {
     mockTenantPrisma.proposal.findMany.mockResolvedValue([
       makeProposal({ id: 'p-001' }),
       makeProposal({ id: 'p-002' }),
     ])
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/internal/proposals',
       query: { clientId: 'client-001' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data.total).toBe(2)

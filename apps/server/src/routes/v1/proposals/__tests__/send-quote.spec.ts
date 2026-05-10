@@ -119,13 +119,11 @@ afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
-
   mockStorage.upload.mockResolvedValue(undefined)
   mockStorage.getSignedUrl.mockResolvedValue(
     'https://cdn.example.com/cotacao.pdf'
   )
   mockDocumentRepo.upsertByStorageKey.mockResolvedValue(undefined)
-
   vi.mocked(prisma.contact.findFirst).mockResolvedValue({
     email: 'cliente@example.com',
     name: 'João Silva',
@@ -135,7 +133,6 @@ beforeEach(() => {
       ReturnType<typeof prisma.organization.findUnique>
     >
   )
-
   let callCount = 0
   vi.mocked(container.resolve).mockImplementation((token: unknown) => {
     if (token === 'StorageProvider') return mockStorage
@@ -143,10 +140,8 @@ beforeEach(() => {
     if (typeof token === 'function') {
       callCount++
       if (callCount === 1) {
-        // GetProposal
         return { execute: vi.fn().mockResolvedValue(makeProposal()) }
       }
-      // SendQuote.validate
       return { validate: vi.fn().mockResolvedValue(undefined) }
     }
     return null
@@ -159,13 +154,11 @@ describe('POST /api/v1/proposals/:id/send-quote', () => {
       method: 'POST',
       url: '/api/v1/proposals/p-001/send-quote',
     })
-
     expect(response.statusCode).toBe(202)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.message).toBeDefined()
   })
-
   it('returns 404 when proposal does not exist', async () => {
     const error = Object.assign(new Error('Proposal not found'), {
       code: 'PROPOSAL_NOT_FOUND',
@@ -178,17 +171,14 @@ describe('POST /api/v1/proposals/:id/send-quote', () => {
       }
       return null
     })
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/proposals/nonexistent/send-quote',
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.error.code).toBe('PROPOSAL_NOT_FOUND')
   })
-
   it('returns 422 when client has no email', async () => {
     const error = Object.assign(new Error('Client has no email'), {
       code: 'CLIENT_NO_EMAIL',
@@ -206,25 +196,20 @@ describe('POST /api/v1/proposals/:id/send-quote', () => {
       }
       return null
     })
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/proposals/p-001/send-quote',
     })
-
     expect(response.statusCode).toBe(422)
     const body = response.json()
     expect(body.error.code).toBe('CLIENT_NO_EMAIL')
   })
-
   it('returns 404 when organization does not exist', async () => {
     vi.mocked(prisma.organization.findUnique).mockResolvedValue(null)
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/proposals/p-001/send-quote',
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.error.code).toBe('ORGANIZATION_NOT_FOUND')

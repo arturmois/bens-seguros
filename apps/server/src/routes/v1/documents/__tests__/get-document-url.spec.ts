@@ -36,12 +36,10 @@ describe('GET /api/v1/documents/:id/url', () => {
     mockExecute.mockResolvedValue(
       'https://cdn.example.com/documents/doc-id-001.pdf'
     )
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/documents/doc-id-001/url',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -49,15 +47,12 @@ describe('GET /api/v1/documents/:id/url', () => {
       'https://cdn.example.com/documents/doc-id-001.pdf'
     )
   })
-
   it('returns 404 when document is not found', async () => {
     mockResolveError('DOCUMENT_NOT_FOUND', 'Document not found')
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/documents/nonexistent-id/url',
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.success).toBe(false)

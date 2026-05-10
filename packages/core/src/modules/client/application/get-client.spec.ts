@@ -49,22 +49,18 @@ describe('GetClient', () => {
     const clientData = makeClientWithMetrics({ activePolicyCount: 2 })
     const repo = makeRepo(clientData)
     const useCase = new GetClient(repo)
-
     const result = await useCase.execute({
       id: 'client-1',
       organizationId: 'org-1',
     })
-
     expect(repo.findByIdWithMetrics).toHaveBeenCalledWith('client-1', 'org-1')
     expect(result.id).toBe('client-1')
     expect(result.legalName).toBe('Maria Silva')
     expect(result.activePolicyCount).toBe(2)
   })
-
   it('throws ClientNotFoundError when client does not exist', async () => {
     const repo = makeRepo(null)
     const useCase = new GetClient(repo)
-
     await expect(
       useCase.execute({ id: 'missing-id', organizationId: 'org-1' })
     ).rejects.toThrow(ClientNotFoundError)

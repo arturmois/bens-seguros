@@ -29,12 +29,10 @@ export function createEscalateToHumanTool(
           detail: 'Conversa não está em atendimento por IA',
         }
       }
-
       await Conversation.updateOne(
         { _id: conversationId, tenantId, status: 'BOT_ACTIVE' },
         { $set: { status: 'WAITING_HUMAN' } }
       ).exec()
-
       const systemText = `Transferido para um atendente. Motivo: ${reason}`
       const systemMessage = await Message.create({
         conversationId,
@@ -44,7 +42,6 @@ export function createEscalateToHumanTool(
         type: 'TEXT',
         status: 'DELIVERED',
       })
-
       await pubsubClient.publish(
         CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE,
         JSON.stringify({
@@ -62,12 +59,10 @@ export function createEscalateToHumanTool(
             systemMessage.createdAt?.toISOString() ?? new Date().toISOString(),
         })
       )
-
       await pubsubClient.publish(
         CHAT_PUBSUB_CHANNELS.CONVERSATION_UPDATE,
         JSON.stringify({ tenantId, conversationId, status: 'WAITING_HUMAN' })
       )
-
       return { transferred: true, reason }
     },
   })

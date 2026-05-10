@@ -17,7 +17,6 @@ export function MessageInput({
   disabled,
 }: MessageInputProps) {
   const [inputValue, setInputValue] = useState('')
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (inputValue.trim()) {
@@ -25,12 +24,10 @@ export function MessageInput({
       setInputValue('')
     }
   }
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value)
     onEmitTyping()
   }
-
   return (
     <div className="border-border bg-card border-t p-2 md:p-3">
       <form onSubmit={handleSubmit} className="flex items-center gap-2">

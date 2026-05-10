@@ -15,8 +15,6 @@ export const notificationIdParamSchema = z.object({
   id: z.string().min(1),
 })
 
-// --- Response schemas ---
-
 const notificationSchema = z.object({
   id: z.string(),
   organizationId: z.string(),

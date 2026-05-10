@@ -7,7 +7,6 @@ import { NotificationDropdown } from './notification-dropdown'
 
 export function NotificationBell() {
   const { data: unreadCount } = useUnreadCount()
-
   return (
     <Popover>
       <PopoverTrigger

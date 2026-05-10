@@ -1,9 +1,5 @@
 import { TEST_ORG_ID, TEST_USER_ID } from './create-test-app.js'
 
-// ---------------------------------------------------------------------------
-// User
-// ---------------------------------------------------------------------------
-
 export function makeUserTermsStatus(overrides: Record<string, unknown> = {}) {
   return {
     id: TEST_USER_ID,
@@ -35,10 +31,6 @@ export function makeMinimalUser(overrides: Record<string, unknown> = {}) {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Organization
-// ---------------------------------------------------------------------------
-
 export function makeOrganization(overrides: Record<string, unknown> = {}) {
   return {
     id: TEST_ORG_ID,
@@ -61,10 +53,6 @@ export function makeUpdatedOrganization(
     ...overrides,
   })
 }
-
-// ---------------------------------------------------------------------------
-// Member
-// ---------------------------------------------------------------------------
 
 export function makeMember(overrides: Record<string, unknown> = {}) {
   return {
@@ -107,10 +95,6 @@ export function makeTenantMember(overrides: Record<string, unknown> = {}) {
     ...overrides,
   }
 }
-
-// ---------------------------------------------------------------------------
-// Invitation
-// ---------------------------------------------------------------------------
 
 export function makeInvitation(overrides: Record<string, unknown> = {}) {
   return {
@@ -158,10 +142,6 @@ export function makeCreatedInvitation(overrides: Record<string, unknown> = {}) {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Commission
-// ---------------------------------------------------------------------------
-
 export function makeCommission(overrides: Record<string, unknown> = {}) {
   return {
     id: 'commission-id-001',
@@ -187,10 +167,6 @@ export function makeCommission(overrides: Record<string, unknown> = {}) {
     ...overrides,
   }
 }
-
-// ---------------------------------------------------------------------------
-// Client
-// ---------------------------------------------------------------------------
 
 export function makeMinimalClient(overrides: Record<string, unknown> = {}) {
   return {
@@ -218,10 +194,6 @@ export function makeMinimalClient(overrides: Record<string, unknown> = {}) {
     ...overrides,
   }
 }
-
-// ---------------------------------------------------------------------------
-// Audit Log
-// ---------------------------------------------------------------------------
 
 export function makeAuditLog(overrides: Record<string, unknown> = {}) {
   return {

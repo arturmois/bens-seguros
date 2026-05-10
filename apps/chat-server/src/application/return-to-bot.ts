@@ -25,14 +25,12 @@ export class ReturnToBot {
       'BOT_ACTIVE',
       { assignedTo: null, assignedToName: null }
     )
-
     if (!updated) {
       throw ChatErrors.invalidTransition(
         'HUMAN_ACTIVE/WAITING_HUMAN',
         'voltar para IA (não encontrada ou estado alterado concorrentemente)'
       )
     }
-
     return updated
   }
 }

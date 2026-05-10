@@ -24,12 +24,10 @@ export function createChatTokenRoute(app: FastifyInstance) {
           error: { code: 'UNAUTHORIZED', message: 'Usuário não autenticado' },
         })
       }
-
       const userId = request.user.id
       const name = request.user.name
       const organizationId = request.organizationId
       const role = request.role
-
       const token = jwt.sign(
         { userId, organizationId, role, name },
         env.SOCKET_JWT_SECRET,
@@ -37,7 +35,6 @@ export function createChatTokenRoute(app: FastifyInstance) {
           expiresIn: '24h',
         }
       )
-
       return reply.send({ success: true, data: { token } })
     },
   })

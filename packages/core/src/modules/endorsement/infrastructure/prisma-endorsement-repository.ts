@@ -32,7 +32,6 @@ export class PrismaEndorsementRepository implements EndorsementRepository {
       },
       include: ENDORSEMENT_INCLUDE,
     })
-
     return EndorsementMapper.toDomain(row)
   }
 
@@ -55,7 +54,6 @@ export class PrismaEndorsementRepository implements EndorsementRepository {
       organizationId: filters.organizationId,
       ...(filters.policyId && { policyId: filters.policyId }),
     }
-
     const rows = await this.prisma.endorsement.findMany({
       where,
       include: ENDORSEMENT_INCLUDE,
@@ -63,10 +61,8 @@ export class PrismaEndorsementRepository implements EndorsementRepository {
       ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     })
-
     const hasNext = rows.length > page.limit
     const items = hasNext ? rows.slice(0, -1) : rows
-
     return {
       items: items.map(EndorsementMapper.toDomain),
       nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,

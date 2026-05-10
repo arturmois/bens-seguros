@@ -47,17 +47,14 @@ export function createCaptureLeadTool(
             'Captação de lead indisponível no momento. Um atendente vai ajudá-lo em breve.',
         }
       }
-
       const storedContact = await Contact.findOne({
         tenantId,
         whatsappPhone: contactPhone,
       }).lean()
-
       const authoritativeName =
         typeof storedContact?.name === 'string' && storedContact.name.length > 0
           ? storedContact.name
           : clientName
-
       try {
         const body = JSON.stringify({
           clientName: authoritativeName,
@@ -66,7 +63,6 @@ export function createCaptureLeadTool(
           notes: details ?? '',
           source,
         })
-
         const path = '/api/internal/leads'
         const timestamp = Math.floor(Date.now() / 1000)
         const signature = signRequest({
@@ -77,7 +73,6 @@ export function createCaptureLeadTool(
           body,
           timestamp,
         })
-
         const response = await fetch(`${env.INTERNAL_API_URL}${path}`, {
           method: 'POST',
           headers: {
@@ -89,7 +84,6 @@ export function createCaptureLeadTool(
           body,
           signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         })
-
         if (!response.ok) {
           logger.error(
             { status: response.status, tenantId },
@@ -101,9 +95,7 @@ export function createCaptureLeadTool(
               'Tive um problema ao registrar, mas anotei seus dados. Um atendente vai entrar em contato.',
           }
         }
-
         const json: unknown = await response.json()
-
         let proposalId: string | null = null
         let contactId: string | null = null
         if (
@@ -121,7 +113,6 @@ export function createCaptureLeadTool(
             contactId = data.contactId
           }
         }
-
         if (contactId) {
           try {
             await Contact.updateOne(
@@ -135,7 +126,6 @@ export function createCaptureLeadTool(
             )
           }
         }
-
         return {
           success: true,
           proposalId,

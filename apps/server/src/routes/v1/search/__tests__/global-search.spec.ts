@@ -58,13 +58,11 @@ describe('GET /api/v1/search', () => {
         client: { legalName: 'João Silva' },
       },
     ])
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/search',
       query: { q: 'João' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -75,14 +73,12 @@ describe('GET /api/v1/search', () => {
     expect(body.meta.query).toBe('João')
     expect(body.meta.totalResults).toBe(2)
   })
-
   it('returns 200 with empty results when no matches found', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/search',
       query: { q: 'noresult' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data.clients).toHaveLength(0)
@@ -91,33 +87,27 @@ describe('GET /api/v1/search', () => {
     expect(body.data.claims).toHaveLength(0)
     expect(body.meta.totalResults).toBe(0)
   })
-
   it('returns 400 when q param is missing', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/search',
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('returns 400 when q param is shorter than minimum length', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/search',
       query: { q: 'a' },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('queries all 4 entity types in parallel', async () => {
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/search',
       query: { q: 'test' },
     })
-
     expect(mockClientFindMany).toHaveBeenCalledOnce()
     expect(mockProposalFindMany).toHaveBeenCalledOnce()
     expect(mockPolicyFindMany).toHaveBeenCalledOnce()

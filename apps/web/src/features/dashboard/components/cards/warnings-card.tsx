@@ -32,12 +32,10 @@ export function WarningsCard({ data, isLoading }: WarningsCardProps) {
       </Card>
     )
   }
-
   const total = data?.total ?? 0
   const claimsOpen = data?.claimsOpen ?? 0
   const assistancesOpen = data?.assistancesOpen ?? 0
   const noneOpen = claimsOpen === 0 && assistancesOpen === 0
-
   return (
     <Card>
       <CardPanel className="flex items-start gap-4">

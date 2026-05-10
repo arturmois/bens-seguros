@@ -41,7 +41,6 @@ let pendingRequest: Promise<string> | null = null
 export async function getChatToken(): Promise<string> {
   if (cachedToken) return cachedToken
   if (pendingRequest) return pendingRequest
-
   pendingRequest = api
     .post<{ token: string }>('/api/v1/chat/token', {})
     .then((response) => {
@@ -53,7 +52,6 @@ export async function getChatToken(): Promise<string> {
       pendingRequest = null
       throw error
     })
-
   return pendingRequest
 }
 
@@ -67,35 +65,28 @@ export async function chatFetch<TData>(
   options?: RequestInit
 ): Promise<ChatApiResponse<TData>> {
   const token = await getChatToken()
-
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
     ...(options?.body ? { 'Content-Type': 'application/json' } : {}),
   }
-
   const res = await fetch(`${CHAT_SERVER_URL}${path}`, {
     ...options,
     headers,
   })
-
   if (res.status === 401) {
     clearChatToken()
     throw new ChatApiError(401, 'UNAUTHORIZED', 'Token expirado')
   }
-
   if (res.status === 204) {
     return { success: true, data: null as TData }
   }
-
   const body: unknown = await res.json()
-
   if (!res.ok) {
     if (isChatErrorResponse(body)) {
       throw new ChatApiError(res.status, body.error.code, body.error.message)
     }
     throw new ChatApiError(res.status, 'UNKNOWN_ERROR', 'Erro inesperado')
   }
-
   return body as ChatApiResponse<TData>
 }
 

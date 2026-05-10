@@ -77,14 +77,12 @@ describe('POST /api/v1/proposals', () => {
         branch: 'AUTO',
       },
     })
-
     expect(response.statusCode).toBe(201)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.id).toBe('p-001')
     expect(body.data.stage).toBe('CAPTURE')
   })
-
   it('calls use case with organizationId and salespersonId from request context', async () => {
     await injectAs(app, {
       method: 'POST',
@@ -95,7 +93,6 @@ describe('POST /api/v1/proposals', () => {
         branch: 'AUTO',
       },
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({
         organizationId: TEST_ORG_ID,
@@ -103,7 +100,6 @@ describe('POST /api/v1/proposals', () => {
       })
     )
   })
-
   it('returns 201 with proposal for ENDORSEMENT board type', async () => {
     const endorsement = makeProposal({
       boardType: 'ENDORSEMENT',
@@ -113,7 +109,6 @@ describe('POST /api/v1/proposals', () => {
     })
     const endorsementWithToJSON = { ...endorsement, toJSON: () => endorsement }
     mockExecute.mockResolvedValue(endorsementWithToJSON)
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/proposals',
@@ -124,26 +119,21 @@ describe('POST /api/v1/proposals', () => {
         endorsementReason: 'Cliente mudou de endereço',
       },
     })
-
     expect(response.statusCode).toBe(201)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.boardType).toBe('ENDORSEMENT')
   })
-
   it('returns non-2xx when required fields are missing', async () => {
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/proposals',
       payload: { boardType: 'NEW_INSURANCE' },
     })
-
     expect(response.statusCode).toBeGreaterThanOrEqual(400)
   })
-
   it('returns 422 on domain error', async () => {
     mockResolveError('SOURCE_POLICY_NOT_ELIGIBLE', 'Policy is not eligible')
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/proposals',
@@ -154,7 +144,6 @@ describe('POST /api/v1/proposals', () => {
         endorsementReason: 'Mudança de endereço',
       },
     })
-
     expect(response.statusCode).toBe(422)
     const body = response.json()
     expect(body.success).toBe(false)

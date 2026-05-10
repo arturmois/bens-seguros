@@ -28,20 +28,16 @@ export function CommissionActions({
   const [rejectOpen, setRejectOpen] = useState(false)
   const [reverseOpen, setReverseOpen] = useState(false)
   const [rejectionReason, setRejectionReason] = useState('')
-
   const approveCommercial = useApproveCommercial()
   const approveAdmin = useApproveAdmin()
   const reject = useRejectCommission()
   const pay = usePayCommission()
   const reverse = useReverseCommission()
-
   if (TERMINAL_COMMISSION_STATUSES.includes(currentStatus)) {
     return null
   }
-
   function handleRejectConfirm() {
     if (rejectionReason.trim().length === 0) return
-
     reject.mutate(
       { id: commissionId, reason: rejectionReason.trim() },
       {
@@ -52,13 +48,11 @@ export function CommissionActions({
       }
     )
   }
-
   function handleReverseConfirm() {
     reverse.mutate(commissionId, {
       onSuccess: () => setReverseOpen(false),
     })
   }
-
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-medium">Ações</h3>
@@ -79,7 +73,6 @@ export function CommissionActions({
             />
           </>
         )}
-
         {currentStatus === 'PENDING_ADMIN' && (
           <>
             <ActionButton
@@ -96,7 +89,6 @@ export function CommissionActions({
             />
           </>
         )}
-
         {currentStatus === 'APPROVED' && (
           <ActionButton
             label="Marcar como Paga"
@@ -105,7 +97,6 @@ export function CommissionActions({
             onClick={() => pay.mutate(commissionId)}
           />
         )}
-
         {currentStatus === 'PAID' && (
           <ActionButton
             label="Estornar"
@@ -115,7 +106,6 @@ export function CommissionActions({
           />
         )}
       </div>
-
       <RejectDialog
         open={rejectOpen}
         onOpenChange={setRejectOpen}
@@ -124,7 +114,6 @@ export function CommissionActions({
         onConfirm={handleRejectConfirm}
         isPending={reject.isPending}
       />
-
       <ReverseDialog
         open={reverseOpen}
         onOpenChange={setReverseOpen}
@@ -153,7 +142,6 @@ function ActionButton({
       'bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600',
     default: '',
   }
-
   return (
     <Button
       size="sm"

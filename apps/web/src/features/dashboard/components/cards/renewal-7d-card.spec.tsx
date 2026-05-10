@@ -13,16 +13,13 @@ describe('Renewal7dCard', () => {
     )
     expect(screen.getByTestId('renewal-7d-card-loading')).toBeTruthy()
   })
-
   it('renders count and formatted premium', () => {
     render(
       <Renewal7dCard count={7} premiumCents={2_345_000} isLoading={false} />
     )
     expect(screen.getByText('7')).toBeTruthy()
-    // formatCurrency uses pt-BR: R$ 23.450,00 (with non-breaking space and comma decimal)
     expect(screen.getByText(/R\$[\s\S]*23\.450,00/)).toBeTruthy()
   })
-
   it('links to /policies with filter=expiring-7d', () => {
     render(<Renewal7dCard count={7} premiumCents={0} isLoading={false} />)
     const link = screen.getByRole('link', { name: /renovações/i })

@@ -62,7 +62,6 @@ const proactiveAlerts = setupProactiveAlertsProcessor(
 )
 const sendQuoteEmail = setupSendQuoteEmailProcessor(connection)
 
-// Centralized Sentry error handler for BullMQ job failures
 const allWorkers = [
   auditArchive.worker,
   csvImport.worker,

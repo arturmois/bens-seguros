@@ -17,7 +17,6 @@ export class ReopenProposal {
     if (!proposal) {
       throw ProposalErrors.notFound(proposalId)
     }
-
     proposal.reopenFromLost()
     await this.proposalRepo.save(proposal)
   }

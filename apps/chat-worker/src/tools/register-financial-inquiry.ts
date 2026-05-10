@@ -46,14 +46,11 @@ export function createRegisterFinancialInquiryTool(
           inquiryDescription,
           collectedAt: new Date().toISOString(),
         }
-
         await Conversation.updateOne(
           { _id: conversationId, tenantId },
           { $set: { 'metadata.financialInquiry': financialInquiry } }
         ).exec()
-
         await escalateToHuman(conversationId, tenantId, pubsubClient)
-
         return {
           success: true,
           message:

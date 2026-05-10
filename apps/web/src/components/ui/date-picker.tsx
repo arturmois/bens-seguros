@@ -39,7 +39,6 @@ export function DatePicker({
   const [localError, setLocalError] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
   const skipSyncRef = React.useRef(false)
-
   React.useEffect(() => {
     if (skipSyncRef.current) {
       skipSyncRef.current = false
@@ -48,7 +47,6 @@ export function DatePicker({
     setTextValue(value ? formatDateToBR(value) : '')
     setLocalError(false)
   }, [value])
-
   React.useEffect(() => {
     if (!open) return
     function handleClickOutside(event: MouseEvent) {
@@ -61,12 +59,10 @@ export function DatePicker({
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [open])
-
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     setTextValue(event.target.value)
     setLocalError(false)
   }
-
   function handleBlur() {
     const trimmed = textValue.trim()
     if (!trimmed) {
@@ -87,7 +83,6 @@ export function DatePicker({
     setTextValue(formatDateToBR(parsed))
     onChange(parsed)
   }
-
   function handlePaste(event: React.ClipboardEvent<HTMLInputElement>) {
     const pasted = event.clipboardData.getData('text')
     if (!pasted) return
@@ -107,11 +102,9 @@ export function DatePicker({
       onChange(undefined)
     }
   }
-
   function handleFocus(event: React.FocusEvent<HTMLInputElement>) {
     if (value) event.target.select()
   }
-
   function handleCalendarSelect(date: Date | undefined) {
     if (!date) return
     setOpen(false)
@@ -119,7 +112,6 @@ export function DatePicker({
     setTextValue(formatDateToBR(date))
     onChange(date)
   }
-
   return (
     <div ref={containerRef} className={cn('relative', className)}>
       <InputMask

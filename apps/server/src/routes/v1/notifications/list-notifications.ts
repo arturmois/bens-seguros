@@ -29,7 +29,6 @@ export function listNotificationsRoute(app: FastifyInstance) {
         cursor,
         limit,
       })
-
       return reply.send({
         success: true,
         data: result.data,

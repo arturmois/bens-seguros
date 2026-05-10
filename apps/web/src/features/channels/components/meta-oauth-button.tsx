@@ -34,34 +34,28 @@ export function MetaOAuthButton({
   onSuccess,
 }: MetaOAuthButtonProps) {
   const { step, assets, startOAuth, handleCallback, reset } = useMetaOAuth()
-
   const isLoading = step === 'authenticating'
-
   useEffect(() => {
     function onMessage(event: MessageEvent) {
       if (!isMetaOAuthCallback(event.data)) return
       void handleCallback(event.data.code, event.data.state)
     }
-
     window.addEventListener('message', onMessage)
     return () => {
       window.removeEventListener('message', onMessage)
     }
   }, [handleCallback])
-
   useEffect(() => {
     if (step === 'selecting' && assets.length > 0) {
       onSuccess()
     }
   }, [step, assets, onSuccess])
-
   function handleClick() {
     if (step === 'error') {
       reset()
     }
     void startOAuth(channelType)
   }
-
   return (
     <Button
       variant="outline"

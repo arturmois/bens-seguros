@@ -48,10 +48,8 @@ export function AiAgentsTable() {
   )
   const [formOpen, setFormOpen] = useState(false)
   const [deletingAgent, setDeletingAgent] = useState<AiAgentData | null>(null)
-
   const debouncedSearch = useDebounce(filters.search, 300)
   const { data, isLoading, isError, refetch } = useAiAgents()
-
   const agents = useMemo<AiAgentData[]>(() => {
     const list = data ?? []
     return list.filter(
@@ -60,7 +58,6 @@ export function AiAgentsTable() {
         matchesSearch(agent, debouncedSearch)
     )
   }, [data, filters.active, debouncedSearch])
-
   const columnActions = useMemo(
     () => ({
       onEdit: (agent: AiAgentData) => {
@@ -84,12 +81,10 @@ export function AiAgentsTable() {
     }),
     []
   )
-
   const columns = useMemo(
     () => createAiAgentColumns(columnActions, role),
     [columnActions, role]
   )
-
   const table = useReactTable({
     data: agents,
     columns,
@@ -99,20 +94,16 @@ export function AiAgentsTable() {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   })
-
   function handleCreate() {
     setEditingAgent(undefined)
     setFormOpen(true)
   }
-
   function handleFilterChange(key: string, value: FilterValue) {
     filters.setFilter(key, value)
   }
-
   function handleColumnToggle(id: string, visible: boolean) {
     setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
-
   const totalAgents = data?.length ?? 0
   const emptyMessage =
     totalAgents === 0 ? 'Nenhum agente configurado' : 'Nenhum agente encontrado'
@@ -120,13 +111,11 @@ export function AiAgentsTable() {
     totalAgents === 0
       ? 'Crie seu primeiro agente de IA para automatizar atendimentos.'
       : 'Ajuste a busca ou os filtros para encontrar um agente existente.'
-
   if (isError) {
     return (
       <TableErrorState message="Erro ao carregar agentes." onRetry={refetch} />
     )
   }
-
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <UnifiedFilterBar
@@ -146,7 +135,6 @@ export function AiAgentsTable() {
           <span className="hidden sm:inline">Novo agente</span>
         </Button>
       </UnifiedFilterBar>
-
       <DataTable
         table={table}
         isLoading={isLoading}
@@ -156,7 +144,6 @@ export function AiAgentsTable() {
         columnVisibility={columnVisibility}
         onRowClick={columnActions.onEdit}
       />
-
       <MobileCardList
         data={agents}
         keyExtractor={(agent) => agent.id}
@@ -173,13 +160,11 @@ export function AiAgentsTable() {
           />
         )}
       />
-
       <AiAgentFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
         agent={editingAgent}
       />
-
       <DeleteAgentDialog
         open={deletingAgent !== null}
         onOpenChange={(open) => {

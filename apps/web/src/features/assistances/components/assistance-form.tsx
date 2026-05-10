@@ -62,14 +62,11 @@ function formatDateToISO(date: Date | undefined): string {
 export function AssistanceForm() {
   const router = useRouter()
   const createAssistance = useCreateAssistance()
-
   const form = useForm<AssistanceFormValues>({
     resolver: zodResolver(CreateAssistanceBody),
     defaultValues: EMPTY_ASSISTANCE_FORM_VALUES,
   })
-
   const [clientDisplayName, setClientDisplayName] = useState('')
-
   const handlePolicySelect = useCallback(
     (selection: { policyId: string; clientId: string; clientName: string }) => {
       form.setValue('policyId', selection.policyId, { shouldValidate: true })
@@ -78,20 +75,17 @@ export function AssistanceForm() {
     },
     [form]
   )
-
   function handleSubmit(values: AssistanceFormValues) {
     createAssistance.mutate(values, {
       onSuccess: () => router.push('/assistances'),
     })
   }
-
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
       <SectionHeader
         title="Dados"
         subtitle="Informações básicas da assistência."
       />
-
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField
           label="Apólice"
@@ -116,7 +110,6 @@ export function AssistanceForm() {
           />
         </FormField>
       </div>
-
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField
           label="Sinistro (opcional)"
@@ -160,10 +153,8 @@ export function AssistanceForm() {
           />
         </FormField>
       </div>
-
       <Separator />
       <SectionHeader title="Detalhes" subtitle="Descrição e localização." />
-
       <FormField
         label="Descrição"
         error={form.formState.errors.description?.message}
@@ -174,7 +165,6 @@ export function AssistanceForm() {
           {...form.register('description')}
         />
       </FormField>
-
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField
           label="Endereço"
@@ -195,7 +185,6 @@ export function AssistanceForm() {
           />
         </FormField>
       </div>
-
       <FormField
         label="Telefone do Prestador"
         error={form.formState.errors.providerPhone?.message}
@@ -205,13 +194,11 @@ export function AssistanceForm() {
           {...form.register('providerPhone')}
         />
       </FormField>
-
       <Separator />
       <SectionHeader
         title="Agendamento"
         subtitle="Data programada para a assistência."
       />
-
       <FormField
         label="Data Agendada"
         error={form.formState.errors.scheduledAt?.message}
@@ -227,9 +214,7 @@ export function AssistanceForm() {
           )}
         />
       </FormField>
-
       <Separator />
-
       <div className="flex justify-end gap-3">
         <Button
           type="button"

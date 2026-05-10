@@ -37,16 +37,12 @@ export function setupBullBoard(app: FastifyInstance) {
     port: redisInfo.port,
     ...(redisInfo.password ? { password: redisInfo.password } : {}),
   }
-
   const queues = QUEUE_NAMES.map(
     (name) => new BullMQAdapter(new Queue(name, { connection }))
   )
-
   const serverAdapter = new FastifyAdapter()
   serverAdapter.setBasePath('/admin/queues')
-
   createBullBoard({ queues, serverAdapter })
-
   app.register(serverAdapter.registerPlugin(), {
     prefix: '/admin/queues',
   })

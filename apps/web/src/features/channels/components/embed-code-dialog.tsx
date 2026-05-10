@@ -31,15 +31,12 @@ export function EmbedCodeDialog({
   channelId,
 }: EmbedCodeDialogProps) {
   const [copied, setCopied] = useState(false)
-
   const snippet = channelId ? buildEmbedSnippet(channelId) : ''
-
   const handleCopy = useCallback(async () => {
     await navigator.clipboard.writeText(snippet)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }, [snippet])
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
@@ -50,14 +47,12 @@ export function EmbedCodeDialog({
             chat.
           </DialogDescription>
         </DialogHeader>
-
         <div className="mt-4 space-y-4">
           <div className="bg-muted relative rounded-lg p-4">
             <pre className="text-foreground overflow-x-auto text-sm leading-relaxed">
               <code>{snippet}</code>
             </pre>
           </div>
-
           <div className="flex justify-end">
             <Button onClick={handleCopy} variant="outline" className="gap-2">
               {copied ? (

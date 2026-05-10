@@ -20,7 +20,6 @@ export function Providers({ children, nonce }: ProvidersProps) {
         },
       })
   )
-
   return (
     <NuqsAdapter>
       <ThemeProvider

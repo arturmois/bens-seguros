@@ -38,15 +38,12 @@ export function ClaimsByPriority({ data, isLoading }: ClaimsByPriorityProps) {
       </Card>
     )
   }
-
   const chartData = (data ?? []).map((d) => ({
     name: PRIORITY_CONFIG[d.priority]?.label ?? d.priority,
     value: d._count,
     color: PRIORITY_CONFIG[d.priority]?.color ?? 'var(--color-muted)',
   }))
-
   const total = chartData.reduce((sum, d) => sum + d.value, 0)
-
   if (total === 0) {
     return (
       <Card>
@@ -61,7 +58,6 @@ export function ClaimsByPriority({ data, isLoading }: ClaimsByPriorityProps) {
       </Card>
     )
   }
-
   return (
     <Card>
       <CardHeader>

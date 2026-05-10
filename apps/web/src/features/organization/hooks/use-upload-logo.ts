@@ -9,12 +9,8 @@ import { ORGANIZATION_KEY } from './use-organization'
 
 const ORGS_KEY = ['orgs'] as const
 
-/**
- * Upload stays manual because Orval does not handle multipart FormData uploads.
- */
 export function useUploadLogo() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData()
@@ -35,19 +31,16 @@ export function useUploadLogo() {
         toast.error('Erro ao enviar logo')
         return
       }
-
       if (error.code === 'FILE_TOO_LARGE') {
         toast.error('Arquivo excede o tamanho máximo de 2MB')
         return
       }
-
       if (error.code === 'INVALID_FILE_TYPE') {
         toast.error(
           'Tipo de arquivo inválido. Permitidos: JPEG, PNG, WebP, GIF'
         )
         return
       }
-
       toast.error('Erro ao enviar logo')
     },
   })

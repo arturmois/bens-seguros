@@ -18,7 +18,6 @@ type MobileView = 'list' | 'chat'
 export function ChatLayout() {
   const { user } = useAuth()
   const { socket, isConnected, onlineAgents } = useSocket()
-
   const {
     conversations,
     isLoading: isConversationsLoading,
@@ -31,16 +30,13 @@ export function ChatLayout() {
     returnToBot,
     closeConversation,
   } = useConversations(socket)
-
   const { unreadCounts } = useUnreadCounts(socket)
-
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
   >(null)
   const [mobileView, setMobileView] = useState<MobileView>('list')
   const [showProfile, setShowProfile] = useState(false)
   const [showTransferModal, setShowTransferModal] = useState(false)
-
   const {
     messages,
     contact,
@@ -55,14 +51,11 @@ export function ChatLayout() {
     isLoadingOlder,
     hasOlderMessages,
   } = useMessages(selectedConversationId, socket, user?.id)
-
   const currentUserId = user?.id ?? ''
-
   const activeConversation =
     conversationDetails ??
     conversations.find((c) => c.id === selectedConversationId) ??
     null
-
   const chatActionsValue = useMemo(
     () => ({
       assignConversation,
@@ -81,34 +74,27 @@ export function ChatLayout() {
       onlineAgents,
     ]
   )
-
   const handleSelectConversation = useCallback((id: string) => {
     setSelectedConversationId(id)
     setMobileView('chat')
     setShowProfile(false)
   }, [])
-
   const handleBack = useCallback(() => {
     setMobileView('list')
     setShowProfile(false)
   }, [])
-
   const handleOpenProfile = useCallback(() => {
     setShowProfile(true)
   }, [])
-
   const handleCloseProfile = useCallback(() => {
     setShowProfile(false)
   }, [])
-
   const handleOpenTransferModal = useCallback(() => {
     setShowTransferModal(true)
   }, [])
-
   const handleRetryConversations = useCallback(() => {
     setFilters({})
   }, [setFilters])
-
   const sharedLayoutProps = {
     conversations,
     activeConversation,
@@ -138,7 +124,6 @@ export function ChatLayout() {
     onCloseProfile: handleCloseProfile,
     onTransfer: handleOpenTransferModal,
   }
-
   return (
     <ChatActionsProvider value={chatActionsValue}>
       <div className="bg-background flex h-full w-full overflow-hidden">
@@ -146,10 +131,8 @@ export function ChatLayout() {
         <div className="fixed left-1/2 top-2 z-50 -translate-x-1/2">
           <WhatsappStatus isConnected={isConnected} />
         </div>
-
         <DesktopChatLayout {...sharedLayoutProps} />
         <MobileChatLayout {...sharedLayoutProps} mobileView={mobileView} />
-
         <TransferAgentModal
           open={showTransferModal}
           onOpenChange={setShowTransferModal}

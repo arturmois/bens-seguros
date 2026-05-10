@@ -22,7 +22,6 @@ export function NumberField({
 }): React.ReactElement {
   const generatedId = React.useId()
   const fieldId = id ?? generatedId
-
   return (
     <NumberFieldContext.Provider value={{ fieldId }}>
       <NumberFieldPrimitive.Root
@@ -112,13 +111,11 @@ export function NumberFieldScrubArea({
   label: string
 }): React.ReactElement {
   const context = React.useContext(NumberFieldContext)
-
   if (!context) {
     throw new Error(
       'NumberFieldScrubArea must be used within a NumberField component for accessibility.'
     )
   }
-
   return (
     <NumberFieldPrimitive.ScrubArea
       className={cn('flex cursor-ew-resize', className)}

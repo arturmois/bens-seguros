@@ -33,12 +33,9 @@ export function ResetPasswordForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isPending, setIsPending] = useState(false)
-
   const form = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
   })
-
-  // Invalid or expired token
   if (!token || error) {
     return (
       <div className="flex flex-col items-center text-center">
@@ -58,7 +55,6 @@ export function ResetPasswordForm() {
       </div>
     )
   }
-
   const onSubmit = async (data: ResetPasswordFormData) => {
     setIsPending(true)
     try {
@@ -78,7 +74,6 @@ export function ResetPasswordForm() {
       setIsPending(false)
     }
   }
-
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
@@ -115,7 +110,6 @@ export function ResetPasswordForm() {
           </p>
         )}
       </div>
-
       <div className="space-y-2">
         <Label htmlFor="confirmPassword" className="text-slate-400">
           Confirmar Nova Senha
@@ -149,7 +143,6 @@ export function ResetPasswordForm() {
           </p>
         )}
       </div>
-
       <Button
         type="submit"
         className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 w-full bg-gradient-to-r font-bold text-slate-900"

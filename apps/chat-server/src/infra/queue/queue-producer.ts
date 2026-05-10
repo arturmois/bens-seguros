@@ -21,7 +21,6 @@ export class QueueProducer {
     private readonly logger: AppLogger
   ) {
     this.queues = new Map()
-
     for (const queueName of Object.values(CHAT_QUEUES)) {
       this.queues.set(queueName, new Queue(queueName, { connection }))
     }
@@ -32,19 +31,16 @@ export class QueueProducer {
     data: Record<string, unknown>
   ): Promise<void> {
     const queue = this.queues.get(queueName)
-
     if (!queue) {
       this.logger.error({ queueName }, 'Queue not found')
       throw new Error(`Queue ${queueName} not registered`)
     }
-
     await queue.add(queueName, data, {
       attempts: DEFAULT_RETRY_OPTIONS.attempts,
       backoff: DEFAULT_RETRY_OPTIONS.backoff,
       removeOnComplete: { age: 3600 },
       removeOnFail: { age: 86_400 },
     })
-
     this.logger.debug({ queueName }, 'Job enqueued')
   }
 

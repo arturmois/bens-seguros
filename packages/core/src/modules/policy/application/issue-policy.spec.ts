@@ -85,7 +85,6 @@ function createProposalAtStage(
     commissionPercentageInCents: 1500,
     insurerId,
   })
-
   const stageOrder = [
     'CAPTURE',
     'QUOTE',
@@ -94,12 +93,9 @@ function createProposalAtStage(
     'PAYMENT',
     'POLICY_ISSUED',
   ] as const
-
   const targetIndex = stageOrder.indexOf(stage)
-  // Advance through stages; QUOTE requires details
   for (let i = 0; i < targetIndex; i++) {
     if (i === 1) {
-      // At QUOTE, must set details before advancing
       proposal.updateDetails(
         {
           branch: 'AUTO',
@@ -114,7 +110,6 @@ function createProposalAtStage(
     }
     proposal.advance()
   }
-
   return proposal
 }
 
@@ -171,7 +166,6 @@ describe('IssuePolicy', () => {
       contactRepo,
       onPolicyIssued
     )
-
     const result = await useCase.execute({
       organizationId: 'org-1',
       proposalId: proposal.id,
@@ -179,7 +173,6 @@ describe('IssuePolicy', () => {
       startDate: new Date('2024-01-01'),
       endDate: new Date('2025-01-01'),
     })
-
     expect(policyRepo.create).toHaveBeenCalledTimes(1)
     expect(policyRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({ clientId: 'c-1' })
@@ -187,7 +180,6 @@ describe('IssuePolicy', () => {
     expect(result.status).toBe('ACTIVE')
     expect(onPolicyIssued.execute).toHaveBeenCalledTimes(1)
   })
-
   it('throws ProposalNotFoundError when proposal does not exist', async () => {
     const policyRepo = createMockPolicyRepo()
     const proposalRepo = createMockProposalRepo(null)
@@ -199,7 +191,6 @@ describe('IssuePolicy', () => {
       contactRepo,
       onPolicyIssued
     )
-
     await expect(
       useCase.execute({
         organizationId: 'org-1',
@@ -211,7 +202,6 @@ describe('IssuePolicy', () => {
     ).rejects.toThrow(ProposalNotFoundError)
     expect(policyRepo.create).not.toHaveBeenCalled()
   })
-
   it('uses provided insurerId when given', async () => {
     const proposal = createProposalAtStage('POLICY_ISSUED')
     const policyRepo = createMockPolicyRepo()
@@ -224,7 +214,6 @@ describe('IssuePolicy', () => {
       contactRepo,
       onPolicyIssued
     )
-
     await useCase.execute({
       organizationId: 'org-1',
       proposalId: proposal.id,
@@ -233,12 +222,10 @@ describe('IssuePolicy', () => {
       endDate: new Date('2025-01-01'),
       insurerId: 'ins-override',
     })
-
     expect(policyRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({ insurerId: 'ins-override' })
     )
   })
-
   it('falls back to proposal insurerId when not provided', async () => {
     const proposal = createProposalAtStage('POLICY_ISSUED', 'ins-456')
     const policyRepo = createMockPolicyRepo()
@@ -251,7 +238,6 @@ describe('IssuePolicy', () => {
       contactRepo,
       onPolicyIssued
     )
-
     await useCase.execute({
       organizationId: 'org-1',
       proposalId: proposal.id,
@@ -259,15 +245,12 @@ describe('IssuePolicy', () => {
       startDate: new Date('2024-01-01'),
       endDate: new Date('2025-01-01'),
     })
-
     expect(policyRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({ insurerId: proposal.insurerId })
     )
   })
-
   it('throws PolicyMissingInsurerError when neither dto nor proposal has insurerId', async () => {
     const proposal = createProposalAtStage('POLICY_ISSUED')
-    // Proposal has no insurerId (null by default from Proposal.create)
     const policyRepo = createMockPolicyRepo()
     const proposalRepo = createMockProposalRepo(proposal)
     const contactRepo = createMockContactRepo()
@@ -278,7 +261,6 @@ describe('IssuePolicy', () => {
       contactRepo,
       onPolicyIssued
     )
-
     await expect(
       useCase.execute({
         organizationId: 'org-1',
@@ -291,7 +273,6 @@ describe('IssuePolicy', () => {
     ).rejects.toThrow(PolicyMissingInsurerError)
     expect(policyRepo.create).not.toHaveBeenCalled()
   })
-
   it('throws PolicyNotIssuableError when proposal is not at POLICY_ISSUED stage', async () => {
     const proposal = createProposalAtStage('CAPTURE')
     const policyRepo = createMockPolicyRepo()
@@ -304,7 +285,6 @@ describe('IssuePolicy', () => {
       contactRepo,
       onPolicyIssued
     )
-
     await expect(
       useCase.execute({
         organizationId: 'org-1',
@@ -316,7 +296,6 @@ describe('IssuePolicy', () => {
     ).rejects.toThrow(PolicyNotIssuableError)
     expect(policyRepo.create).not.toHaveBeenCalled()
   })
-
   it('throws ContactNotPromotedError when contact has no clientId', async () => {
     const proposal = createProposalAtStage('POLICY_ISSUED', 'ins-1')
     const policyRepo = createMockPolicyRepo()
@@ -331,7 +310,6 @@ describe('IssuePolicy', () => {
       contactRepo,
       onPolicyIssued
     )
-
     await expect(
       useCase.execute({
         organizationId: 'org-1',

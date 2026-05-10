@@ -32,10 +32,8 @@ export function Renewal7dCard({
       </Card>
     )
   }
-
   const safeCount = count ?? 0
   const safePremium = premiumCents ?? 0
-
   return (
     <Card>
       <Link

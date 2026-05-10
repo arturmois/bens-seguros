@@ -34,7 +34,6 @@ export function updateInternalProposalDetailsRoute(app: FastifyInstance) {
       const { details, premiumValueInCents, commissionBasisPoints } =
         request.body
       const organizationId = request.organizationId!
-
       if (!isInsuredObjectDetails(details)) {
         return reply.status(400).send({
           success: false,
@@ -45,7 +44,6 @@ export function updateInternalProposalDetailsRoute(app: FastifyInstance) {
           },
         })
       }
-
       try {
         await container
           .resolve(UpdateProposalDetails)
@@ -54,14 +52,12 @@ export function updateInternalProposalDetailsRoute(app: FastifyInstance) {
             premiumValueInCents,
             commissionBasisPoints,
           })
-
         return reply.status(200).send({
           success: true,
           data: { success: true, message: 'Detalhes da proposta atualizados' },
         })
       } catch (err: unknown) {
         const code = (err as { code?: string }).code
-
         if (code === 'PROPOSAL_NOT_FOUND') {
           return reply.status(404).send({
             success: false,
@@ -71,7 +67,6 @@ export function updateInternalProposalDetailsRoute(app: FastifyInstance) {
             },
           })
         }
-
         throw err
       }
     },

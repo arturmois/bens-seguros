@@ -43,9 +43,7 @@ export function UserMenu({ collapsed }: UserMenuProps) {
   const { user, logout } = useAuth()
   const { theme, setTheme } = useTheme()
   const [open, setOpen] = useState(false)
-
   if (!user) return null
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
@@ -82,7 +80,6 @@ export function UserMenu({ collapsed }: UserMenuProps) {
             {user.email}
           </div>
         </div>
-
         <div className="p-1">
           <Link
             href="/settings"
@@ -93,7 +90,6 @@ export function UserMenu({ collapsed }: UserMenuProps) {
             <span>Configurações</span>
           </Link>
         </div>
-
         <div className="border-t px-4 py-3">
           <p className="text-muted-foreground mb-2 text-xs font-medium">Tema</p>
           <div
@@ -121,7 +117,6 @@ export function UserMenu({ collapsed }: UserMenuProps) {
             ))}
           </div>
         </div>
-
         <div className="border-t p-1">
           <button
             type="button"

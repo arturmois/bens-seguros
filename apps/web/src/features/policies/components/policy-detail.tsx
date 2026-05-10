@@ -49,7 +49,6 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [showEndorsementSheet, setShowEndorsementSheet] = useState(false)
   const [cancelReason, setCancelReason] = useState('')
-
   function handleCancelConfirm() {
     if (!cancelReason.trim()) return
     cancelMutation.mutate(
@@ -62,7 +61,6 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
       }
     )
   }
-
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -72,7 +70,6 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
       </div>
     )
   }
-
   if (isError || !data?.data) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
@@ -98,9 +95,7 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
       </div>
     )
   }
-
   const policy = data.data
-
   return (
     <div className="space-y-6">
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
@@ -116,7 +111,6 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
         <span className="text-muted-foreground">/</span>
         <span className="text-muted-foreground">{policy.policyNumber}</span>
       </nav>
-
       <div className="flex items-start justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">
@@ -164,7 +158,6 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
           )}
         </div>
       </div>
-
       <PolicyInfoCard
         clientId={policy.clientId}
         clientName={policy.clientName}
@@ -176,18 +169,14 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
         endDate={policy.endDate}
         createdAt={policy.createdAt}
       />
-
       {policy.status === 'CANCELLED' && (
         <PolicyCancellationCard
           cancelledAt={policy.cancelledAt}
           cancelReason={policy.cancelReason}
         />
       )}
-
       <Separator />
-
       <PolicyTabs policyId={policyId} />
-
       <EndorsementProposalDialog
         open={showEndorsementSheet}
         onOpenChange={setShowEndorsementSheet}
@@ -196,7 +185,6 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
         clientName={policy.clientName}
         branch={policy.branch}
       />
-
       <Dialog
         open={showCancelDialog}
         onOpenChange={(open) => {

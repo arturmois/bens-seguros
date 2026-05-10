@@ -61,7 +61,6 @@ function parseRedisUrl(url: string): {
 
 const redisInfo = parseRedisUrl(REDIS_URL)
 
-// BullMQ needs plain connection options to avoid IORedis version mismatch
 const bullmqConnection = {
   host: redisInfo.host,
   port: redisInfo.port,
@@ -76,7 +75,6 @@ const DEFAULT_JOB_OPTIONS = {
   removeOnFail: { age: 86_400 },
 }
 
-// IORedis instance used only for pub/sub publishing
 const pubsubRedis = new IORedis(REDIS_URL, { maxRetriesPerRequest: null })
 
 function buildChannelEvents(
@@ -122,14 +120,12 @@ function buildChannelEvents(
     },
     onConnectionUpdate: (status: string, qr?: string) => {
       logger.info({ channelId, tenantId, status }, 'Channel connection update')
-
       if (status === 'QR_PENDING' && qr) {
         qrStateManager.emitQr(channelId, tenantId, qr).catch((err: unknown) => {
           logger.error({ err, channelId }, 'Failed to persist QR state')
         })
         return
       }
-
       if (status === 'CONNECTED') {
         qrStateManager
           .emitConnected(channelId, tenantId)
@@ -141,7 +137,6 @@ function buildChannelEvents(
           })
         return
       }
-
       qrStateManager
         .emitDisconnected(channelId, tenantId)
         .catch((err: unknown) => {
@@ -153,7 +148,6 @@ function buildChannelEvents(
     },
   }
 }
-
 function attachWorkerErrorLogger(worker: Worker, queue: string): void {
   worker.on('failed', (job, err) => {
     logger.error({ jobId: job?.id, queue, err }, 'Job failed')
@@ -171,25 +165,20 @@ const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000
 async function processMetaTokenRefresh(): Promise<void> {
   const now = new Date()
   const expiryThreshold = new Date(now.getTime() + SEVEN_DAYS_MS)
-
   const channels = await Channel.find({
     connectionMethod: 'oauth',
     status: 'CONNECTED',
     isActive: true,
     tokenExpiresAt: { $lt: expiryThreshold },
   })
-
   logger.info(
     { count: channels.length },
     'Meta token refresh: channels to process'
   )
-
   for (const channel of channels) {
     const channelId = String(channel._id)
     const tenantId = String(channel.tenantId)
-
     const rawToken = (channel.config as Record<string, unknown>)['metaToken']
-
     if (!isEncryptedField(rawToken)) {
       logger.warn(
         { channelId, tenantId },
@@ -197,7 +186,6 @@ async function processMetaTokenRefresh(): Promise<void> {
       )
       continue
     }
-
     let plainToken: string
     try {
       plainToken = decryptToken(rawToken)
@@ -209,10 +197,8 @@ async function processMetaTokenRefresh(): Promise<void> {
       await Channel.updateOne({ _id: channelId }, { status: 'TOKEN_EXPIRED' })
       continue
     }
-
     const appId = env.META_APP_ID
     const appSecret = env.META_APP_SECRET
-
     if (!appId || !appSecret) {
       logger.warn(
         { channelId, tenantId },
@@ -220,15 +206,11 @@ async function processMetaTokenRefresh(): Promise<void> {
       )
       continue
     }
-
     const url = `https://graph.facebook.com/v21.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${appId}&client_secret=${appSecret}&fb_exchange_token=${plainToken}`
-
     let newToken: string
     let newExpiresAt: Date
-
     try {
       const response = await fetch(url)
-
       if (!response.ok) {
         const body = await response.text()
         logger.warn(
@@ -238,11 +220,9 @@ async function processMetaTokenRefresh(): Promise<void> {
         await Channel.updateOne({ _id: channelId }, { status: 'TOKEN_EXPIRED' })
         continue
       }
-
       const data = (await response.json()) as Record<string, unknown>
       const accessToken = data['access_token']
       const expiresIn = data['expires_in']
-
       if (typeof accessToken !== 'string' || !accessToken) {
         logger.warn(
           { channelId, tenantId },
@@ -251,7 +231,6 @@ async function processMetaTokenRefresh(): Promise<void> {
         await Channel.updateOne({ _id: channelId }, { status: 'TOKEN_EXPIRED' })
         continue
       }
-
       newToken = accessToken
       newExpiresAt =
         typeof expiresIn === 'number'
@@ -265,9 +244,7 @@ async function processMetaTokenRefresh(): Promise<void> {
       await Channel.updateOne({ _id: channelId }, { status: 'TOKEN_EXPIRED' })
       continue
     }
-
     const encryptedToken = encryptToken(newToken)
-
     await Channel.updateOne(
       { _id: channelId },
       {
@@ -275,7 +252,6 @@ async function processMetaTokenRefresh(): Promise<void> {
         tokenExpiresAt: newExpiresAt,
       }
     )
-
     logger.info(
       { channelId, tenantId, expiresAt: newExpiresAt },
       'meta.token.refreshed'
@@ -286,9 +262,7 @@ async function processMetaTokenRefresh(): Promise<void> {
 async function bootstrap(): Promise<void> {
   logger.info('Connecting to MongoDB...')
   await connectMongoDB(env.MONGODB_URL)
-
   const qrStateManager = new QrStateManager(pubsubRedis)
-
   const aiBotQueue = new Queue(CHAT_QUEUES.AI_BOT, {
     connection: bullmqConnection,
   })
@@ -298,7 +272,6 @@ async function bootstrap(): Promise<void> {
   const autoCloseQueue = new Queue(CHAT_QUEUES.AUTO_CLOSE, {
     connection: bullmqConnection,
   })
-
   await autoCloseQueue.add(
     'auto-close',
     {},
@@ -308,7 +281,6 @@ async function bootstrap(): Promise<void> {
       jobId: 'auto-close-repeatable',
     }
   )
-
   const workerDefaults = {
     connection: bullmqConnection,
     lockDuration: 30_000,
@@ -317,35 +289,29 @@ async function bootstrap(): Promise<void> {
     removeOnComplete: { age: 3600 },
     removeOnFail: { age: 86_400 },
   }
-
   const sendWorker = new Worker(
     CHAT_QUEUES.SEND_MESSAGE,
     createSendMessageProcessor(BaileysManager, pubsubRedis),
     { ...workerDefaults, concurrency: 5 }
   )
-
   const sendMessageQueue = new Queue(CHAT_QUEUES.SEND_MESSAGE, {
     connection: bullmqConnection,
   })
-
   const incomingWorker = new Worker(
     CHAT_QUEUES.PROCESS_INCOMING,
     createIncomingMessageProcessor(pubsubRedis, aiBotQueue, sendMessageQueue),
     { ...workerDefaults, concurrency: 3 }
   )
-
   const aiBotWorker = new Worker(
     CHAT_QUEUES.AI_BOT,
     createAiBotProcessor(pubsubRedis, sendMessageQueue),
     { ...workerDefaults, concurrency: 5 }
   )
-
   const autoCloseWorker = new Worker(
     CHAT_QUEUES.AUTO_CLOSE,
     createAutoCloseProcessor(pubsubRedis),
     { ...workerDefaults, concurrency: 1 }
   )
-
   const connectChannelWorker = new Worker(
     CHAT_QUEUES.CONNECT_CHANNEL,
     createConnectChannelProcessor(BaileysManager, qrStateManager, (chId, tId) =>
@@ -353,7 +319,6 @@ async function bootstrap(): Promise<void> {
     ),
     { ...workerDefaults, concurrency: 2 }
   )
-
   const pairChannelWorker = new Worker(
     CHAT_QUEUES.PAIR_CHANNEL,
     createPairChannelProcessor(
@@ -365,7 +330,6 @@ async function bootstrap(): Promise<void> {
     ),
     { ...workerDefaults, concurrency: 1 }
   )
-
   const disconnectChannelWorker = new Worker(
     CHAT_QUEUES.DISCONNECT_CHANNEL,
     async (job) => {
@@ -377,7 +341,6 @@ async function bootstrap(): Promise<void> {
     },
     { ...workerDefaults, concurrency: 2 }
   )
-
   attachWorkerErrorLogger(sendWorker, CHAT_QUEUES.SEND_MESSAGE)
   attachWorkerErrorLogger(incomingWorker, CHAT_QUEUES.PROCESS_INCOMING)
   attachWorkerErrorLogger(aiBotWorker, CHAT_QUEUES.AI_BOT)
@@ -388,8 +351,6 @@ async function bootstrap(): Promise<void> {
     disconnectChannelWorker,
     CHAT_QUEUES.DISCONNECT_CHANNEL
   )
-
-  // Media migration: weekly cron to move old media to R2
   const mediaMigrationQueue = new Queue('chat-media-migration', {
     connection: bullmqConnection,
   })
@@ -404,8 +365,6 @@ async function bootstrap(): Promise<void> {
     { ...workerDefaults, concurrency: 1 }
   )
   attachWorkerErrorLogger(mediaMigrationWorker, 'chat-media-migration')
-
-  // Meta token refresh: daily cron at 3AM to refresh expiring OAuth tokens
   const metaTokenRefreshQueue = new Queue(CHAT_QUEUES.META_TOKEN_REFRESH, {
     connection: bullmqConnection,
   })
@@ -423,19 +382,14 @@ async function bootstrap(): Promise<void> {
     metaTokenRefreshWorker,
     CHAT_QUEUES.META_TOKEN_REFRESH
   )
-
   logger.info('Loading active Baileys channels...')
   await BaileysManager.loadActiveChannels((channelId, tenantId) =>
     buildChannelEvents(channelId, tenantId, incomingQueue, qrStateManager)
   )
-
   logger.info('Chat Worker started. Listening for jobs...')
-
   const gracefulShutdown = async (): Promise<void> => {
     logger.info('Shutting down chat worker...')
-
     await BaileysManager.disconnectAll()
-
     await Promise.all([
       sendWorker.close(),
       incomingWorker.close(),
@@ -447,28 +401,22 @@ async function bootstrap(): Promise<void> {
       mediaMigrationWorker.close(),
       metaTokenRefreshWorker.close(),
     ])
-
     await aiBotQueue.close()
     await sendMessageQueue.close()
     await incomingQueue.close()
     await autoCloseQueue.close()
     await mediaMigrationQueue.close()
     await metaTokenRefreshQueue.close()
-
     await disconnectMongoDB()
     await pubsubRedis.quit()
-
     if (env.SENTRY_DSN) {
       await Sentry.close(2000)
     }
-
     process.exit(0)
   }
-
   process.on('SIGTERM', gracefulShutdown)
   process.on('SIGINT', gracefulShutdown)
 }
-
 bootstrap().catch((err: unknown) => {
   logger.fatal({ err }, 'Chat worker bootstrap failed')
   if (env.SENTRY_DSN) {

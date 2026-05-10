@@ -46,7 +46,6 @@ export class ClientMapper {
 
   static toDomain(row: PrismaClientRecord): ClientData {
     let document = row.document
-
     if (row.documentEncrypted && row.documentEncrypted.length > 0) {
       try {
         const parsed: unknown = JSON.parse(row.documentEncrypted)
@@ -61,7 +60,6 @@ export class ClientMapper {
         )
       }
     }
-
     return {
       id: row.id,
       organizationId: row.organizationId,

@@ -22,11 +22,6 @@ interface ToolbarFilterSelectProps {
   readonly widthClass?: string
 }
 
-/**
- * Compact select used inside `TableToolbar` children for secondary
- * dimensions that have more than 4 options (too many for FilterTabs).
- * Always prepends the "all" sentinel entry.
- */
 export function ToolbarFilterSelect({
   value,
   onValueChange,
@@ -36,7 +31,6 @@ export function ToolbarFilterSelect({
   widthClass = 'w-[160px]',
 }: ToolbarFilterSelectProps) {
   const labelByValue = new Map(options.map((o) => [o.value, o.label]))
-
   return (
     <Select
       value={value}

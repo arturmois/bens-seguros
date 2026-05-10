@@ -54,12 +54,10 @@ describe('GET /api/v1/notifications', () => {
       data: [makeNotification()],
       nextCursor: null,
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/notifications',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -67,20 +65,16 @@ describe('GET /api/v1/notifications', () => {
     expect(body.data[0].title).toBe('Proposta atualizada')
     expect(body.meta.nextCursor).toBeNull()
   })
-
   it('returns 200 with empty list when no notifications exist', async () => {
     mockExecute.mockResolvedValue({ data: [], nextCursor: null })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/notifications',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data).toHaveLength(0)
   })
-
   it('returns 200 with nextCursor when more pages exist', async () => {
     const notifications = Array.from({ length: 2 }, (_, i) =>
       makeNotification({ id: `notif-id-00${i + 1}` })
@@ -89,40 +83,33 @@ describe('GET /api/v1/notifications', () => {
       data: notifications,
       nextCursor: 'notif-id-002',
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/notifications',
       query: { limit: '2' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.meta.nextCursor).toBe('notif-id-002')
   })
-
   it('filters by read status when query param is provided', async () => {
     mockExecute.mockResolvedValue({ data: [], nextCursor: null })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/notifications',
       query: { read: 'false' },
     })
-
     expect(response.statusCode).toBe(200)
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({ read: false })
     )
   })
-
   it('returns 400 when limit is out of range', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/notifications',
       query: { limit: '0' },
     })
-
     expect(response.statusCode).toBe(400)
   })
 })

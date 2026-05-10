@@ -37,7 +37,6 @@ describe('GetContact', () => {
     })
     expect(result.stage).toBe('LEAD')
   })
-
   it('lança ContactNotFound quando não existe', async () => {
     const repo = {
       findByIdWithStage: vi.fn(async () => null),

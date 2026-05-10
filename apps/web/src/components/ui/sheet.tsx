@@ -132,7 +132,6 @@ export function SheetHeader({
     ),
     'data-slot': 'sheet-header',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -158,7 +157,6 @@ export function SheetFooter({
     ),
     'data-slot': 'sheet-footer',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -210,7 +208,6 @@ export function SheetPanel({
     ),
     'data-slot': 'sheet-panel',
   }
-
   return (
     <ScrollArea scrollFade={scrollFade}>
       {useRender({

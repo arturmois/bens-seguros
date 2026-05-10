@@ -9,7 +9,6 @@ interface AgentPresence {
 
 type OrgPresenceMap = Map<string, AgentPresence>
 
-/** Tracks online agent presence per organization with automatic stale removal */
 export class PresenceTracker {
   private readonly orgs = new Map<string, OrgPresenceMap>()
   private intervalId: ReturnType<typeof setInterval> | null = null
@@ -45,19 +44,16 @@ export class PresenceTracker {
   removeAgent(orgId: string, userId: string): void {
     const orgMap = this.orgs.get(orgId)
     if (!orgMap) return
-
     orgMap.delete(userId)
     if (orgMap.size === 0) {
       this.orgs.delete(orgId)
     }
-
     this.broadcastStatus(orgId)
   }
 
   getOnlineAgents(orgId: string): Array<{ userId: string; name: string }> {
     const orgMap = this.orgs.get(orgId)
     if (!orgMap) return []
-
     return Array.from(orgMap.entries()).map(([userId, data]) => ({
       userId,
       name: data.name,
@@ -66,7 +62,6 @@ export class PresenceTracker {
 
   private removeStaleAgents(): void {
     const now = Date.now()
-
     for (const [orgId, orgMap] of this.orgs.entries()) {
       for (const [userId, data] of orgMap.entries()) {
         if (now - data.lastHeartbeat > CHAT_LIMITS.HEARTBEAT_TIMEOUT_MS) {
@@ -78,7 +73,6 @@ export class PresenceTracker {
           this.broadcastStatus(orgId)
         }
       }
-
       if (orgMap.size === 0) {
         this.orgs.delete(orgId)
       }

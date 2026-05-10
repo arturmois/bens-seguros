@@ -10,13 +10,11 @@ export function getSocket(token: string): Socket {
     socket.auth = { token }
     return socket
   }
-
   if (socket) {
     socket.auth = { token }
     socket.connect()
     return socket
   }
-
   socket = io(CHAT_SERVER_URL, {
     auth: { token },
     transports: ['websocket'],
@@ -24,7 +22,6 @@ export function getSocket(token: string): Socket {
     reconnectionDelay: 1_000,
     reconnectionAttempts: 10,
   })
-
   return socket
 }
 

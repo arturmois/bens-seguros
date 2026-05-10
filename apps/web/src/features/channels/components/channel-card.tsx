@@ -95,7 +95,6 @@ export function ChannelCard({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-
       <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
         <div>
           <div className="text-muted-foreground text-xs">Conexão</div>

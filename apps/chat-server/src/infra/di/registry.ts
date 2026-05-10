@@ -22,13 +22,11 @@ export function registerDependencies(
   const contactRepo = new MongooseContactRepository()
   const unreadRepo = new MongooseUnreadRepository()
   const queueProducer = new QueueProducer(queueConnection, logger)
-
   container.registerInstance('ConversationRepository', conversationRepo)
   container.registerInstance('MessageRepository', messageRepo)
   container.registerInstance('ContactRepository', contactRepo)
   container.registerInstance('UnreadRepository', unreadRepo)
   container.registerInstance('QueueProducer', queueProducer)
   container.registerInstance('Logger', logger)
-
   logger.info('DI container: all dependencies registered')
 }

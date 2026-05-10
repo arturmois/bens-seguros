@@ -28,7 +28,6 @@ export function ProposalExportButton({ filters }: ProposalExportButtonProps) {
     onSuccess: () => toast.success('Exportação concluída'),
     onError: () => toast.error('Erro ao exportar propostas'),
   })
-
   return (
     <Button
       variant="outline"

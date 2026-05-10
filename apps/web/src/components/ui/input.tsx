@@ -30,7 +30,6 @@ export function Input({
     props.type === 'file' &&
       'text-muted-foreground file:me-3 file:bg-transparent file:font-medium file:text-foreground file:text-sm'
   )
-
   return (
     <span
       className={

@@ -59,7 +59,6 @@ const STATUS_CONFIG: Record<
 export function ChannelStatusBadge({ status }: ChannelStatusBadgeProps) {
   const config = STATUS_CONFIG[status]
   const Icon = config.icon
-
   return (
     <Badge variant={config.variant}>
       <Icon

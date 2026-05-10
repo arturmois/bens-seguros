@@ -33,18 +33,14 @@ describe('GetEndorsement', () => {
     const repo = createMockRepo()
     vi.mocked(repo.findById).mockResolvedValue(mockEndorsement)
     const useCase = new GetEndorsement(repo)
-
     const result = await useCase.execute('end-1', 'org-1')
-
     expect(repo.findById).toHaveBeenCalledWith('end-1', 'org-1')
     expect(result.id).toBe('end-1')
   })
-
   it('throws EndorsementNotFoundError when not found', async () => {
     const repo = createMockRepo()
     vi.mocked(repo.findById).mockResolvedValue(null)
     const useCase = new GetEndorsement(repo)
-
     await expect(useCase.execute('end-999', 'org-1')).rejects.toThrow(
       EndorsementNotFoundError
     )

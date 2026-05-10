@@ -20,7 +20,6 @@ export function IdentificationFields() {
   const personType = useWatch({ control: form.control, name: 'personType' })
   const isCompany = personType === 'COMPANY'
   const errors = form.formState.errors
-
   return (
     <div className="space-y-4">
       <FormField label="Tipo" error={errors.personType?.message} required>
@@ -56,7 +55,6 @@ export function IdentificationFields() {
           )}
         />
       </FormField>
-
       <FormField
         label={isCompany ? 'CNPJ' : 'CPF'}
         error={errors.document?.message}
@@ -68,7 +66,6 @@ export function IdentificationFields() {
           {...form.register('document')}
         />
       </FormField>
-
       <FormField
         label={isCompany ? 'Razão social' : 'Nome legal'}
         error={errors.legalName?.message}

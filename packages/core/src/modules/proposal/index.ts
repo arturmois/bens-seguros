@@ -1,4 +1,3 @@
-// Domain
 export { StaticChecklistConfig } from './domain/checklist-config.js'
 export type {
   ChecklistConfigProvider,
@@ -46,7 +45,6 @@ export type {
   Stage,
 } from './domain/proposal.js'
 
-// Application
 export { ExportProposalsCsv } from './application/export-proposals-csv.js'
 export { AdvanceProposalStage } from './application/advance-proposal-stage.js'
 export { CompleteChecklistByAttachment } from './application/complete-checklist-by-attachment.js'
@@ -60,7 +58,6 @@ export { UpdateProposalDetails } from './application/update-proposal-details.js'
 export { UpdateProposalDates } from './application/update-proposal-dates.js'
 export { SendQuote } from './application/send-quote.js'
 
-// Infrastructure
 export { PrismaChecklistRepository } from './infrastructure/prisma-checklist-repository.js'
 export { PrismaProposalRepository } from './infrastructure/prisma-proposal-repository.js'
 export { ProposalMapper } from './infrastructure/proposal-mapper.js'

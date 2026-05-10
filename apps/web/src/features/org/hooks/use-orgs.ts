@@ -46,7 +46,6 @@ interface TenantApiResponse {
 function isTenantApiResponse(body: unknown): body is TenantApiResponse {
   if (typeof body !== 'object' || body === null) return false
   if (!('success' in body) || !('data' in body)) return false
-
   return body.success === true && Array.isArray(body.data)
 }
 
@@ -54,24 +53,19 @@ export function useOrgs() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { session, isAuthenticated } = useAuth()
-
   const orgsQuery = useQuery({
     queryKey: ['orgs'],
     queryFn: async (): Promise<Org[]> => {
       const res = await fetch(`${API_URL}/api/v1/tenants`, {
         credentials: 'include',
       })
-
       if (!res.ok) {
         return []
       }
-
       const body: unknown = await res.json()
-
       if (!isTenantApiResponse(body)) {
         return []
       }
-
       const orgs: Org[] = []
       for (const item of body.data) {
         if (!isRole(item.role)) continue
@@ -87,12 +81,9 @@ export function useOrgs() {
     },
     enabled: isAuthenticated,
   })
-
-  // Use session activeOrganizationId, fallback to cookie (session may be stale after login)
   const activeOrgId = session?.activeOrganizationId ?? getActiveOrgCookie()
   const activeOrg =
     orgsQuery.data?.find((org) => org.id === activeOrgId) ?? null
-
   const switchOrg = useCallback(
     async (organizationId: string) => {
       await authClient.organization.setActive({ organizationId })
@@ -103,7 +94,6 @@ export function useOrgs() {
     },
     [queryClient, router]
   )
-
   return {
     orgs: orgsQuery.data ?? [],
     activeOrg,

@@ -3,15 +3,12 @@ import { FipeClient } from './fipe-client.js'
 
 describe('FipeClient', () => {
   let client: FipeClient
-
   beforeEach(() => {
     client = new FipeClient('https://fipe.agger.com.br')
   })
-
   afterEach(() => {
     vi.restoreAllMocks()
   })
-
   it('searches models by name and year', async () => {
     const mockModels = [
       {
@@ -28,7 +25,6 @@ describe('FipeClient', () => {
       .mockResolvedValueOnce(
         new Response(JSON.stringify(mockModels), { status: 200 })
       )
-
     const result = await client.searchModels({ model: 'HB20', year: 2023 })
     expect(result).toEqual([
       {
@@ -39,21 +35,18 @@ describe('FipeClient', () => {
       },
     ])
   })
-
   it('returns empty array when search has no results', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(
         new Response(JSON.stringify({ token: 'mock-token' }), { status: 200 })
       )
       .mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 }))
-
     const result = await client.searchModels({
       model: 'XYZNONEXIST',
       year: 2023,
     })
     expect(result).toEqual([])
   })
-
   it('caches auth token across calls', async () => {
     const fetchSpy = vi
       .spyOn(globalThis, 'fetch')
@@ -62,11 +55,8 @@ describe('FipeClient', () => {
       )
       .mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 }))
-
     await client.searchModels({ model: 'A', year: 2023 })
     await client.searchModels({ model: 'B', year: 2023 })
-
-    // auth called once, search called twice = 3 total
     expect(fetchSpy).toHaveBeenCalledTimes(3)
   })
 })

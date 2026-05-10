@@ -32,8 +32,6 @@ export const listInsurersQuerySchema = z.object({
   sortOrder: z.enum(['asc', 'desc']).optional().default('asc'),
 })
 
-// --- Response schemas ---
-
 const insurerSchema = z.object({
   id: z.string(),
   organizationId: z.string(),

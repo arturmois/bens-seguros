@@ -9,10 +9,8 @@ import { hasPermission } from '@/lib/permissions'
 
 export function NewClientButton() {
   const { activeOrg } = useOrgs()
-
   if (!activeOrg) return null
   if (!hasPermission(activeOrg.role, 'clients:create')) return null
-
   return (
     <Button render={<Link href="/clients/new" />}>
       <Plus className="size-4 sm:mr-2" />

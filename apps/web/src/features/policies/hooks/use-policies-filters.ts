@@ -95,9 +95,7 @@ export function usePoliciesFilters() {
     },
     { history: 'push' }
   )
-
   const [touched, setTouched] = useState<boolean>(readTouchedFlag)
-
   const initialUrlHadAnyValue = useRef<boolean>(
     Boolean(
       state.statusIn?.length ||
@@ -114,32 +112,27 @@ export function usePoliciesFilters() {
       state.filter
     )
   )
-
   useEffect(() => {
     if (initialUrlHadAnyValue.current && !touched) {
       writeTouchedFlag()
       setTouched(true)
     }
   }, [touched])
-
   function markTouched() {
     if (touched) return
     writeTouchedFlag()
     setTouched(true)
   }
-
   const expiring7dRange = useMemo(() => {
     if (state.filter !== EXPIRING_7D_PRESET) return null
     return computeExpiring7dRange()
   }, [state.filter])
-
   const effectiveStatusIn = useMemo<readonly string[] | undefined>(() => {
     if (!touched && (state.statusIn === null || state.statusIn?.length === 0)) {
       return ['ACTIVE']
     }
     return state.statusIn ?? undefined
   }, [state.statusIn, touched])
-
   const endDateRangeValue = useMemo<DateRangeValue | undefined>(() => {
     if (expiring7dRange) {
       return {
@@ -157,7 +150,6 @@ export function usePoliciesFilters() {
     }
     return undefined
   }, [expiring7dRange, state.endDateFrom, state.endDateTo])
-
   const createdRangeValue = useMemo<DateRangeValue | undefined>(() => {
     if (!state.createdFrom && !state.createdTo) return undefined
     return {
@@ -166,7 +158,6 @@ export function usePoliciesFilters() {
       to: state.createdTo ?? undefined,
     }
   }, [state.createdFrom, state.createdTo])
-
   const values: Readonly<Record<string, FilterValue>> = useMemo(
     () => ({
       statusIn: effectiveStatusIn,
@@ -183,7 +174,6 @@ export function usePoliciesFilters() {
       createdRangeValue,
     ]
   )
-
   const apiParams = useMemo(
     () => ({
       statusIn: effectiveStatusIn?.length
@@ -217,7 +207,6 @@ export function usePoliciesFilters() {
       expiring7dRange,
     ]
   )
-
   function setFilter(key: string, value: FilterValue) {
     markTouched()
     if (key === 'statusIn' || key === 'branchIn' || key === 'boardTypeIn') {
@@ -234,12 +223,10 @@ export function usePoliciesFilters() {
       return
     }
   }
-
   function setSearch(next: string) {
     markTouched()
     void setState({ search: next })
   }
-
   function clearAll() {
     markTouched()
     void setState({
@@ -257,7 +244,6 @@ export function usePoliciesFilters() {
       createdTo: null,
     })
   }
-
   return {
     values,
     apiParams,

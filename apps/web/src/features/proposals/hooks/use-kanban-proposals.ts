@@ -46,7 +46,6 @@ export function useKanbanProposalsByStage(
         params.set('updatedAtFrom', filters.updatedAtFrom)
       if (filters.updatedAtTo) params.set('updatedAtTo', filters.updatedAtTo)
       if (cursor) params.set('cursor', cursor)
-
       const res = await api.get<ProposalData[]>(
         `/api/v1/proposals?${params.toString()}`
       )

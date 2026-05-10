@@ -12,20 +12,15 @@ function getChannelIdFromUrl(): string | null {
 export function App(): React.JSX.Element | null {
   const channelId = getChannelIdFromUrl()
   const [isOpen, setIsOpen] = useState(false)
-
   const widgetState = useWidgetState(channelId)
-
   const handleOpen = useCallback(() => {
     setIsOpen(true)
     window.parent.postMessage({ type: 'widget:open' }, '*')
   }, [])
-
   const handleClose = useCallback(() => {
     setIsOpen(false)
     window.parent.postMessage({ type: 'widget:close' }, '*')
   }, [])
-
-  // Listen for parent frame open/close commands
   useEffect(() => {
     function handleMessage(event: MessageEvent): void {
       if (typeof event.data !== 'object' || event.data === null) return
@@ -42,29 +37,22 @@ export function App(): React.JSX.Element | null {
         })
       }
     }
-
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
   }, [])
-
   if (!channelId) {
     return null
   }
-
   if (widgetState.phase === 'loading') {
     return null
   }
-
   if (widgetState.phase === 'error') {
     return null
   }
-
   const primaryColor = widgetState.config?.widgetColor ?? '#1f4b5f'
-
   if (!isOpen) {
     return <WidgetButton onClick={handleOpen} color={primaryColor} />
   }
-
   return (
     <WidgetContainer
       widgetState={widgetState}

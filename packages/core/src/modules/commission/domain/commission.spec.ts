@@ -14,7 +14,6 @@ describe('Commission Entity', () => {
     premiumValueInCents: 100000, // R$1000
     percentageInBasisPoints: 1500, // 15%
   }
-
   it('creates with PENDING_COMMERCIAL status and calculated value', () => {
     const commission = Commission.create(validProps)
     expect(commission.status).toBe('PENDING_COMMERCIAL')
@@ -24,13 +23,11 @@ describe('Commission Entity', () => {
     expect(commission.salespersonId).toBe('user-1')
     expect(commission.id).toBeTruthy()
   })
-
   it('advances from PENDING_COMMERCIAL to PENDING_ADMIN', () => {
     const commission = Commission.create(validProps)
     commission.approveByCommercial('user-2')
     expect(commission.status).toBe('PENDING_ADMIN')
   })
-
   it('advances from PENDING_ADMIN to APPROVED', () => {
     const commission = Commission.create(validProps)
     commission.approveByCommercial('user-2')
@@ -39,7 +36,6 @@ describe('Commission Entity', () => {
     expect(commission.approvedBy).toBe('admin-1')
     expect(commission.approvedAt).toBeInstanceOf(Date)
   })
-
   it('advances from APPROVED to PAID', () => {
     const commission = Commission.create(validProps)
     commission.approveByCommercial('user-2')
@@ -49,7 +45,6 @@ describe('Commission Entity', () => {
     expect(commission.paidAt).toBeInstanceOf(Date)
     expect(commission.approvedAt).toBeInstanceOf(Date)
   })
-
   it('rejects from PENDING_COMMERCIAL', () => {
     const commission = Commission.create(validProps)
     commission.reject('admin-1', 'Valores incorretos')
@@ -58,7 +53,6 @@ describe('Commission Entity', () => {
     expect(commission.rejectedBy).toBe('admin-1')
     expect(commission.rejectedAt).toBeInstanceOf(Date)
   })
-
   it('rejects from PENDING_ADMIN', () => {
     const commission = Commission.create(validProps)
     commission.approveByCommercial('user-2')
@@ -66,7 +60,6 @@ describe('Commission Entity', () => {
     expect(commission.status).toBe('REJECTED')
     expect(commission.rejectionReason).toBe('Sem orcamento')
   })
-
   it('cannot approve from REJECTED', () => {
     const commission = Commission.create(validProps)
     commission.reject('admin-1', 'reason')
@@ -74,7 +67,6 @@ describe('Commission Entity', () => {
       InvalidCommissionTransitionError
     )
   })
-
   it('cannot approve from PAID', () => {
     const commission = Commission.create(validProps)
     commission.approveByCommercial('u')
@@ -84,34 +76,29 @@ describe('Commission Entity', () => {
       InvalidCommissionTransitionError
     )
   })
-
   it('cannot pay from PENDING_COMMERCIAL', () => {
     const commission = Commission.create(validProps)
     expect(() => commission.markAsPaid()).toThrow(
       InvalidCommissionTransitionError
     )
   })
-
   it('creates reversal commission', () => {
     const original = Commission.create(validProps)
     original.approveByCommercial('u')
     original.approveByAdmin('a')
     original.markAsPaid()
-
     const reversal = Commission.createReversal(original)
     expect(reversal.isReversal).toBe(true)
     expect(reversal.originalCommissionId).toBe(original.id)
     expect(reversal.commissionValueInCents).toBe(-15000)
     expect(reversal.status).toBe('PENDING_COMMERCIAL')
   })
-
   it('cannot reverse unpaid commission', () => {
     const commission = Commission.create(validProps)
     expect(() => Commission.createReversal(commission)).toThrow(
       CommissionNotPaidError
     )
   })
-
   it('calculates with split percentage', () => {
     const commission = Commission.create({
       ...validProps,
@@ -119,7 +106,6 @@ describe('Commission Entity', () => {
     })
     expect(commission.commissionValueInCents).toBe(7500)
   })
-
   it('restores from persistence data', () => {
     const now = new Date()
     const commission = Commission.restore({
@@ -149,7 +135,6 @@ describe('Commission Entity', () => {
     expect(commission.commissionValueInCents).toBe(15000)
     expect(commission.approvedBy).toBe('admin-1')
   })
-
   it('serializes to JSON', () => {
     const commission = Commission.create(validProps)
     const json = commission.toJSON()
@@ -157,7 +142,6 @@ describe('Commission Entity', () => {
     expect(json.status).toBe('PENDING_COMMERCIAL')
     expect(json.commissionValueInCents).toBe(15000)
   })
-
   it('marks as reversed from PAID', () => {
     const commission = Commission.create(validProps)
     commission.approveByCommercial('u')
@@ -166,7 +150,6 @@ describe('Commission Entity', () => {
     commission.markAsReversed()
     expect(commission.status).toBe('REVERSED')
   })
-
   it('cannot mark as reversed from non-PAID status', () => {
     const commission = Commission.create(validProps)
     expect(() => commission.markAsReversed()).toThrow()

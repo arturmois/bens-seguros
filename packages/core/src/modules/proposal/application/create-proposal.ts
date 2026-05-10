@@ -56,15 +56,12 @@ export class CreateProposal {
       dto.boardType === 'ENDORSEMENT'
         ? await this.createEndorsementProposal(dto)
         : await this.createRenewalOrNewProposal(dto)
-
     if (!proposal.quoteValidUntil) {
       const validity = new Date(proposal.createdAt)
       validity.setDate(validity.getDate() + 15)
       proposal.updateQuoteValidity(validity)
     }
-
     await this.proposalRepo.save(proposal)
-
     const items = this.checklistConfig.getItems(proposal.stage, proposal.branch)
     if (items.length > 0) {
       await this.checklistRepo.createMany(
@@ -77,7 +74,6 @@ export class CreateProposal {
         }))
       )
     }
-
     return proposal
   }
 
@@ -85,7 +81,6 @@ export class CreateProposal {
     dto: Extract<CreateProposalDTO, { boardType: 'NEW_INSURANCE' | 'RENEWAL' }>
   ): Promise<Proposal> {
     let resolvedPolicyId = dto.renewalPolicyId ?? null
-
     if (
       dto.boardType === 'RENEWAL' &&
       dto.renewalPolicyNumber &&
@@ -99,7 +94,6 @@ export class CreateProposal {
         resolvedPolicyId = found.id
       }
     }
-
     return Proposal.create({
       ...dto,
       renewalPolicyId: resolvedPolicyId ?? undefined,
@@ -113,21 +107,17 @@ export class CreateProposal {
     if (!dto.sourcePolicyId) {
       throw ProposalErrors.sourcePolicyRequiredForEndorsement()
     }
-
     const policy = await this.policyRepo.findById(
       dto.sourcePolicyId,
       dto.organizationId
     )
-
     if (!policy || policy.status !== 'ACTIVE') {
       throw ProposalErrors.sourcePolicyNotEligible(dto.sourcePolicyId)
     }
-
     const contactId = await this.resolveEndorsementContactId(
       policy.clientId,
       dto.organizationId
     )
-
     return Proposal.create({
       organizationId: dto.organizationId,
       contactId,

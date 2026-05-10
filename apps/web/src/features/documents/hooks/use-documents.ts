@@ -37,20 +37,14 @@ interface UploadInput {
   readonly type?: DocumentType
 }
 
-/**
- * Upload stays manual because Orval does not handle multipart FormData uploads.
- */
 export function useUploadDocument() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({ entityType, entityId, file, type }: UploadInput) => {
       const formData = new FormData()
       formData.append('file', file)
-
       const params = new URLSearchParams({ entityType, entityId })
       if (type) params.set('type', type)
-
       const res = await fetch(
         `${API_URL}/api/v1/documents/upload?${params.toString()}`,
         {
@@ -59,12 +53,10 @@ export function useUploadDocument() {
           body: formData,
         }
       )
-
       if (res.status === 201) {
         const body = (await res.json()) as { success: true; data: DocumentData }
         return body.data
       }
-
       const errorBody = (await res.json()) as {
         success: false
         error: { code: string; message: string }
@@ -85,7 +77,6 @@ export function useUploadDocument() {
     },
   })
 }
-
 export function useDocumentUrl(id: string) {
   return useGetDocumentUrl(id, {
     query: {
@@ -97,7 +88,6 @@ export function useDocumentUrl(id: string) {
 
 export function useDeleteDocument() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: string) => {
       await deleteDocument(id)

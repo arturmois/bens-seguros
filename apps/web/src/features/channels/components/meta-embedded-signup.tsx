@@ -48,21 +48,17 @@ export function MetaEmbeddedSignup({
   })
   const phoneNumberIdRef = useRef<string | null>(null)
   const wabaIdRef = useRef<string | null>(null)
-
   const appId = process.env.NEXT_PUBLIC_META_APP_ID
   const configId = process.env.NEXT_PUBLIC_META_WA_CONFIG_ID
-
   useEffect(() => {
     if (!appId || !configId) {
       setState('error')
       return
     }
-
     if (window.FB) {
       setState('sdk-ready')
       return
     }
-
     window.fbAsyncInit = () => {
       window.FB?.init({
         appId,
@@ -72,18 +68,15 @@ export function MetaEmbeddedSignup({
       })
       setState('sdk-ready')
     }
-
     const script = document.createElement('script')
     script.src = 'https://connect.facebook.net/en_US/sdk.js'
     script.async = true
     script.defer = true
     document.body.appendChild(script)
-
     return () => {
       document.body.removeChild(script)
     }
   }, [appId, configId])
-
   useEffect(() => {
     function onSessionInfo(event: MessageEvent) {
       if (
@@ -93,7 +86,6 @@ export function MetaEmbeddedSignup({
       ) {
         return
       }
-
       const data = event.data as Record<string, unknown>
       if (
         typeof data['phone_number_id'] === 'string' &&
@@ -103,35 +95,28 @@ export function MetaEmbeddedSignup({
         wabaIdRef.current = data['waba_id']
       }
     }
-
     window.addEventListener('message', onSessionInfo)
     return () => {
       window.removeEventListener('message', onSessionInfo)
     }
   }, [])
-
   function handleStartSignup() {
     if (!window.FB || !configId) return
-
     setState('connecting')
-
     window.FB.login(
       (response) => {
         if (response.status !== 'connected' || !response.authResponse?.code) {
           setState('sdk-ready')
           return
         }
-
         const code = response.authResponse.code
         const phoneNumberId = phoneNumberIdRef.current
         const wabaId = wabaIdRef.current
-
         if (!phoneNumberId || !wabaId) {
           toast.error('Informações do número não recebidas. Tente novamente.')
           setState('sdk-ready')
           return
         }
-
         void chatApi
           .post<ConnectWhatsAppResult>('/meta/whatsapp/connect', {
             code,
@@ -160,7 +145,6 @@ export function MetaEmbeddedSignup({
       }
     )
   }
-
   if (state === 'error') {
     return (
       <div className="flex flex-col items-center gap-4 py-8 text-center">
@@ -173,7 +157,6 @@ export function MetaEmbeddedSignup({
       </div>
     )
   }
-
   if (state === 'loading-sdk') {
     return (
       <div className="flex flex-col items-center gap-3 py-8">
@@ -184,9 +167,7 @@ export function MetaEmbeddedSignup({
       </div>
     )
   }
-
   const isConnecting = state === 'connecting'
-
   return (
     <div className="flex flex-col items-center gap-6 py-6 text-center">
       <div className="flex flex-col items-center gap-2">
@@ -199,7 +180,6 @@ export function MetaEmbeddedSignup({
           redirecionado para o fluxo de cadastro do WhatsApp Business.
         </p>
       </div>
-
       <div className="flex gap-3">
         <Button
           variant="outline"

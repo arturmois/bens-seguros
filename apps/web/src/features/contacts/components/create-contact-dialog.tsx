@@ -30,7 +30,6 @@ export function CreateContactDialog({
   onCreated,
 }: CreateContactDialogProps) {
   const [isPending, setIsPending] = useState(false)
-
   return (
     <Dialog
       open={open}
@@ -46,7 +45,6 @@ export function CreateContactDialog({
             CPF/CNPJ é opcional — você pode promover a cliente depois.
           </DialogDescription>
         </DialogHeader>
-
         <DialogPanel>
           <ContactForm
             mode="create"
@@ -56,7 +54,6 @@ export function CreateContactDialog({
             onPendingChange={setIsPending}
           />
         </DialogPanel>
-
         <DialogFooter>
           <Button
             type="button"

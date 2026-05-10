@@ -38,9 +38,7 @@ export async function exportCommissionsRoute(app: FastifyInstance) {
         dateFrom,
         dateTo,
       })
-
       const readable = Readable.from(stream)
-
       return reply
         .header('Content-Type', 'text/csv; charset=utf-8')
         .header('Content-Disposition', 'attachment; filename="comissoes.csv"')

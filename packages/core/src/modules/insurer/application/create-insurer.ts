@@ -20,7 +20,6 @@ export class CreateInsurer {
     if (existing) {
       throw InsurerErrors.alreadyExists(dto.name)
     }
-
     return this.insurerRepo.create(dto)
   }
 }

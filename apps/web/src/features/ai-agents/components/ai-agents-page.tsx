@@ -9,7 +9,6 @@ export function AiAgentsPage() {
           Gerencie seus agentes de IA para automatizar atendimentos.
         </p>
       </div>
-
       <AiAgentsTable />
     </div>
   )

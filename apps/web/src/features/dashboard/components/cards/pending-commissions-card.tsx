@@ -25,7 +25,6 @@ export function PendingCommissionsCard({
         )
         .reduce((sum, c) => sum + (c._sum.commissionValueInCents ?? 0), 0)
     : 0
-
   return (
     <Link
       href="/commissions?filter=pending"

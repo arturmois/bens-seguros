@@ -46,7 +46,6 @@ export class PrismaPolicyRepository implements PolicyRepository {
         },
         include: POLICY_INCLUDE,
       })
-
       return PolicyMapper.toDomain(row)
     } catch (error: unknown) {
       if (
@@ -88,11 +87,9 @@ export class PrismaPolicyRepository implements PolicyRepository {
     const createdAt: Prisma.DateTimeFilter = {}
     if (filters.createdFrom) createdAt.gte = filters.createdFrom
     if (filters.createdTo) createdAt.lte = filters.createdTo
-
     const endDate: Prisma.DateTimeFilter = {}
     if (filters.endDateFrom) endDate.gte = filters.endDateFrom
     if (filters.endDateTo) endDate.lte = filters.endDateTo
-
     const where: Prisma.PolicyWhereInput = {
       organizationId: filters.organizationId,
       deletedAt: null,
@@ -129,7 +126,6 @@ export class PrismaPolicyRepository implements PolicyRepository {
         ],
       }),
     }
-
     const rows = await this.prisma.policy.findMany({
       where,
       include: POLICY_INCLUDE,
@@ -137,10 +133,8 @@ export class PrismaPolicyRepository implements PolicyRepository {
       ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     })
-
     const hasNext = rows.length > page.limit
     const items = hasNext ? rows.slice(0, -1) : rows
-
     return {
       items: items.map(PolicyMapper.toDomain),
       nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,
@@ -161,7 +155,6 @@ export class PrismaPolicyRepository implements PolicyRepository {
       },
       include: POLICY_INCLUDE,
     })
-
     return PolicyMapper.toDomain(row)
   }
 }

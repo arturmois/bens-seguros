@@ -1,10 +1,5 @@
 import { z } from 'zod'
 
-// Implementação nota: usar `.transform()` puro (sem `.pipe()`) faz com que o
-// `fastify-type-provider-zod` exponha apenas o tipo de entrada (`string`) na
-// OpenAPI, em vez de uma intersecção `string & T[]` que confunde geradores
-// como o Orval. A validação dos itens é feita dentro do transform via `ctx`.
-
 export function csvStringArray() {
   return z.string().transform((value, ctx) => {
     const parts = value

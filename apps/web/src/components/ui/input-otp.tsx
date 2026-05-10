@@ -64,7 +64,6 @@ export function InputOTPSlot({
   const inputOTPContext = useContext(OTPInputContext)
   const slot = inputOTPContext?.slots[index]
   const { char, hasFakeCaret, isActive } = slot ?? {}
-
   return (
     <div
       className={cn(

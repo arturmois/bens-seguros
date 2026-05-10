@@ -8,7 +8,6 @@ import { widgetSendMessageRoute } from './widget-send-message-route.js'
 
 export async function widgetRoutes(app: FastifyInstance): Promise<void> {
   app.addHook('onRequest', rateLimitHook)
-
   await app.register(widgetConfigRoute)
   await app.register(widgetCreateConversationRoute)
   await app.register(widgetSendMessageRoute)

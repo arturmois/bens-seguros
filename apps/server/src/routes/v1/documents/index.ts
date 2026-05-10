@@ -8,7 +8,6 @@ import { uploadDocumentRoute } from './upload-document.js'
 
 export async function documentRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
-
   uploadDocumentRoute(app)
   listDocumentsRoute(app)
   getDocumentUrlRoute(app)

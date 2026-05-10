@@ -92,7 +92,7 @@ function makeProposalAtPayment(): Proposal {
     branch: 'AUTO',
     boardType: 'NEW_INSURANCE',
   })
-  proposal.advance() // CAPTURE -> QUOTE
+  proposal.advance()
   proposal.updateDetails(
     {
       branch: 'AUTO',
@@ -104,9 +104,9 @@ function makeProposalAtPayment(): Proposal {
     150000,
     1500
   )
-  proposal.advance() // QUOTE -> PROTOCOL
-  proposal.advance() // PROTOCOL -> INSPECTION
-  proposal.advance() // INSPECTION -> PAYMENT
+  proposal.advance()
+  proposal.advance()
+  proposal.advance()
   return proposal
 }
 
@@ -129,13 +129,10 @@ describe('AdvanceProposalStage', () => {
       checklistConfig,
       contactRepo
     )
-
     const result = await useCase.execute(proposal.id, 'org-1')
-
     expect(result.stage).toBe('QUOTE')
     expect(repo.save).toHaveBeenCalledWith(proposal)
   })
-
   it('throws if proposal not found', async () => {
     const repo = createMockRepo(null)
     const checklistRepo = createMockChecklistRepo()
@@ -147,12 +144,10 @@ describe('AdvanceProposalStage', () => {
       checklistConfig,
       contactRepo
     )
-
     await expect(useCase.execute('xxx', 'org-1')).rejects.toThrow(
       'não encontrada'
     )
   })
-
   it('rejects advance from QUOTE without details', async () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
@@ -161,7 +156,7 @@ describe('AdvanceProposalStage', () => {
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
     })
-    proposal.advance() // CAPTURE -> QUOTE
+    proposal.advance()
     const repo = createMockRepo(proposal)
     const checklistRepo = createMockChecklistRepo(true)
     const checklistConfig = createMockChecklistConfig()
@@ -172,12 +167,10 @@ describe('AdvanceProposalStage', () => {
       checklistConfig,
       contactRepo
     )
-
     await expect(useCase.execute(proposal.id, 'org-1')).rejects.toThrow(
       ProposalDetailsRequiredError
     )
   })
-
   it('rejects advance when checklist has incomplete required items', async () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
@@ -186,8 +179,7 @@ describe('AdvanceProposalStage', () => {
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
     })
-    proposal.advance() // CAPTURE -> QUOTE
-    // Manually set details so the details guard passes
+    proposal.advance()
     proposal.updateDetails(
       {
         branch: 'AUTO',
@@ -209,15 +201,12 @@ describe('AdvanceProposalStage', () => {
       checklistConfig,
       contactRepo
     )
-
     await expect(useCase.execute(proposal.id, 'org-1')).rejects.toThrow(
       ChecklistIncompleteError
     )
   })
-
   it('advances proposal from PAYMENT to POLICY_ISSUED when contact is promoted', async () => {
     const proposal = makeProposalAtPayment()
-
     const repo = createMockRepo(proposal)
     const checklistRepo = createMockChecklistRepo(true)
     const checklistConfig = createMockChecklistConfig()
@@ -230,19 +219,14 @@ describe('AdvanceProposalStage', () => {
       checklistConfig,
       contactRepo
     )
-
     const result = await useCase.execute(proposal.id, 'org-1')
-
     expect(result.stage).toBe('POLICY_ISSUED')
     expect(repo.save).toHaveBeenCalledWith(proposal)
     expect(contactRepo.findById).toHaveBeenCalledWith('contact-1', 'org-1')
-    // Should NOT create checklist items for POLICY_ISSUED stage
     expect(checklistConfig.getItems).not.toHaveBeenCalled()
   })
-
   it('rejects advance from PAYMENT to POLICY_ISSUED when contact is not promoted', async () => {
     const proposal = makeProposalAtPayment()
-
     const repo = createMockRepo(proposal)
     const checklistRepo = createMockChecklistRepo(true)
     const checklistConfig = createMockChecklistConfig()
@@ -253,16 +237,13 @@ describe('AdvanceProposalStage', () => {
       checklistConfig,
       contactRepo
     )
-
     await expect(useCase.execute(proposal.id, 'org-1')).rejects.toThrow(
       ContactNotPromotedError
     )
     expect(repo.save).not.toHaveBeenCalled()
   })
-
   it('rejects advance from PAYMENT to POLICY_ISSUED when contact is missing', async () => {
     const proposal = makeProposalAtPayment()
-
     const repo = createMockRepo(proposal)
     const checklistRepo = createMockChecklistRepo(true)
     const checklistConfig = createMockChecklistConfig()
@@ -273,13 +254,11 @@ describe('AdvanceProposalStage', () => {
       checklistConfig,
       contactRepo
     )
-
     await expect(useCase.execute(proposal.id, 'org-1')).rejects.toThrow(
       ContactNotPromotedError
     )
     expect(repo.save).not.toHaveBeenCalled()
   })
-
   it('does not validate checklist when advancing from CAPTURE stage', async () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
@@ -288,7 +267,6 @@ describe('AdvanceProposalStage', () => {
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
     })
-    // Stage is CAPTURE; checklist repo would return canAdvance=false but should not be called
     const repo = createMockRepo(proposal)
     const checklistRepo = createMockChecklistRepo(false)
     const checklistConfig = createMockChecklistConfig()
@@ -299,13 +277,10 @@ describe('AdvanceProposalStage', () => {
       checklistConfig,
       contactRepo
     )
-
     const result = await useCase.execute(proposal.id, 'org-1')
-
     expect(result.stage).toBe('QUOTE')
     expect(checklistRepo.getSummary).not.toHaveBeenCalled()
   })
-
   it('does not check contact promotion when advancing to non-POLICY_ISSUED stages', async () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
@@ -314,7 +289,6 @@ describe('AdvanceProposalStage', () => {
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
     })
-    // CAPTURE -> QUOTE — no checklist or contact check
     const repo = createMockRepo(proposal)
     const checklistRepo = createMockChecklistRepo(true)
     const checklistConfig = createMockChecklistConfig()
@@ -325,9 +299,7 @@ describe('AdvanceProposalStage', () => {
       checklistConfig,
       contactRepo
     )
-
     await useCase.execute(proposal.id, 'org-1')
-
     expect(contactRepo.findById).not.toHaveBeenCalled()
   })
 })

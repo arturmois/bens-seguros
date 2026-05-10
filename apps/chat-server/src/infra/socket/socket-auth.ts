@@ -21,32 +21,27 @@ export interface SocketUserData {
 export function createSocketAuthMiddleware(logger: AppLogger) {
   return (socket: Socket, next: (err?: Error) => void): void => {
     const token = socket.handshake.auth['token']
-
     if (typeof token !== 'string') {
       logger.warn('Socket connection rejected: missing token')
       next(new Error('Token de autenticação ausente'))
       return
     }
-
     try {
       const decoded: unknown = jwt.verify(token, env.SOCKET_JWT_SECRET, {
         algorithms: ['HS256'],
       })
       const parsed = socketJwtPayloadSchema.safeParse(decoded)
-
       if (!parsed.success) {
         logger.warn('Socket connection rejected: invalid token payload')
         next(new Error('Token inválido'))
         return
       }
-
       const userData: SocketUserData = {
         userId: parsed.data.userId,
         organizationId: parsed.data.organizationId,
         role: parsed.data.role,
         name: parsed.data.name,
       }
-
       socket.data['user'] = userData
       next()
     } catch {

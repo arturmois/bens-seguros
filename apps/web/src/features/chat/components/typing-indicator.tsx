@@ -6,7 +6,6 @@ interface TypingIndicatorProps {
 
 export function TypingIndicator({ typingUser }: TypingIndicatorProps) {
   if (!typingUser) return null
-
   return (
     <div className="text-muted-foreground flex items-center gap-1.5 px-4 py-1 text-xs">
       <span>{typingUser} esta digitando</span>

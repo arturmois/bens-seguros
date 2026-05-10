@@ -19,7 +19,6 @@ export function ProposalActionButtons({
 }: ProposalActionButtonsProps) {
   const canAdvance = stage !== 'POLICY_ISSUED' && stage !== 'LOST'
   const canMarkLost = stage !== 'LOST' && stage !== 'POLICY_ISSUED'
-
   return (
     <>
       {canAdvance && (

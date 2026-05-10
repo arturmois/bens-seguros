@@ -10,14 +10,11 @@ export function OnboardingContent() {
   const searchParams = useSearchParams()
   const { orgs, isLoading } = useOrgs()
   const isNewOrg = searchParams.get('new') === 'true'
-
   useEffect(() => {
     if (!isLoading && orgs.length > 0 && !isNewOrg) {
       router.replace('/')
     }
   }, [isLoading, orgs.length, isNewOrg, router])
-
   if (isLoading) return null
-
   return <CreateOrgForm />
 }

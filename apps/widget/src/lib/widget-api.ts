@@ -2,10 +2,6 @@ import { z } from 'zod'
 
 import { CHAT_SERVER_URL } from './constants'
 
-// ---------------------------------------------------------------------------
-// Response schemas
-// ---------------------------------------------------------------------------
-
 const channelConfigSchema = z.object({
   channelId: z.string(),
   name: z.string(),
@@ -44,10 +40,6 @@ const sendMessageResponseSchema = z.object({
   id: z.string(),
 })
 
-// ---------------------------------------------------------------------------
-// API client
-// ---------------------------------------------------------------------------
-
 interface ApiResult {
   readonly success: boolean
   readonly data?: unknown
@@ -65,7 +57,6 @@ async function apiFetch(
   options: RequestInit = {}
 ): Promise<ApiResult> {
   const url = `${CHAT_SERVER_URL}/widget${path}`
-
   const response = await fetch(url, {
     ...options,
     headers: {
@@ -73,13 +64,10 @@ async function apiFetch(
       ...options.headers,
     },
   })
-
   const json: unknown = await response.json()
-
   if (isApiResponseShape(json)) {
     return json
   }
-
   return {
     success: false,
     error: { code: 'UNKNOWN', message: 'Resposta inesperada do servidor' },
@@ -90,19 +78,13 @@ function authHeaders(visitorToken: string): Record<string, string> {
   return { Authorization: `Bearer ${visitorToken}` }
 }
 
-// ---------------------------------------------------------------------------
-// Public API
-// ---------------------------------------------------------------------------
-
 export async function fetchChannelConfig(
   channelId: string
 ): Promise<ChannelConfig | null> {
   const result = await apiFetch(`/config/${channelId}`)
-
   if (!result.success || !result.data) {
     return null
   }
-
   const parsed = channelConfigSchema.safeParse(result.data)
   return parsed.success ? parsed.data : null
 }
@@ -117,11 +99,9 @@ export async function startConversation(params: {
     method: 'POST',
     body: JSON.stringify(params),
   })
-
   if (!result.success || !result.data) {
     return null
   }
-
   const parsed = conversationResponseSchema.safeParse(result.data)
   return parsed.success ? parsed.data : null
 }
@@ -135,11 +115,9 @@ export async function fetchMessages(
   const result = await apiFetch(`/conversations/${conversationId}${query}`, {
     headers: authHeaders(visitorToken),
   })
-
   if (!result.success || !result.data) {
     return null
   }
-
   const parsed = messagesResponseSchema.safeParse({
     data: result.data,
     meta: result.meta,
@@ -147,7 +125,6 @@ export async function fetchMessages(
   if (!parsed.success) {
     return null
   }
-
   return { messages: parsed.data.data, hasMore: parsed.data.meta.hasMore }
 }
 
@@ -161,11 +138,9 @@ export async function sendMessageRest(
     body: JSON.stringify({ text }),
     headers: authHeaders(visitorToken),
   })
-
   if (!result.success || !result.data) {
     return null
   }
-
   const parsed = sendMessageResponseSchema.safeParse(result.data)
   return parsed.success ? parsed.data : null
 }

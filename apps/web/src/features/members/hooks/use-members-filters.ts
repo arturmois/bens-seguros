@@ -39,9 +39,7 @@ export function useMembersFilters() {
     },
     { history: 'push' }
   )
-
   const [touched, setTouched] = useState<boolean>(readTouchedFlag)
-
   const initialUrlHadFilter = useRef(
     state.active !== null || (state.roleIn !== null && state.roleIn.length > 0)
   )
@@ -51,16 +49,13 @@ export function useMembersFilters() {
       setTouched(true)
     }
   }, [touched])
-
   function markTouched(): void {
     if (touched) return
     writeTouchedFlag()
     setTouched(true)
   }
-
   const effectiveActive: boolean | undefined =
     !touched && state.active === null ? true : (state.active ?? undefined)
-
   const values: Readonly<Record<string, FilterValue>> = useMemo(
     () => ({
       active: effectiveActive,
@@ -68,7 +63,6 @@ export function useMembersFilters() {
     }),
     [effectiveActive, state.roleIn]
   )
-
   function setFilter(key: string, value: FilterValue): void {
     if (key === 'active') {
       markTouched()
@@ -82,17 +76,14 @@ export function useMembersFilters() {
       return
     }
   }
-
   function setSearch(next: string): void {
     markTouched()
     void setState({ search: next })
   }
-
   function clearAll(): void {
     markTouched()
     void setState({ active: null, roleIn: null, search: '' })
   }
-
   return {
     active: effectiveActive,
     roleIn: state.roleIn ?? undefined,

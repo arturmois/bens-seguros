@@ -46,7 +46,6 @@ export function DashboardReportPdf({
   ranking,
 }: DashboardReportPdfProps) {
   const today = new Date().toLocaleDateString('pt-BR')
-
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -56,7 +55,6 @@ export function DashboardReportPdf({
           docTitle="RELATORIO GERENCIAL"
           docDate={today}
         />
-
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Indicadores — {period}</Text>
           <View style={styles.table}>
@@ -98,7 +96,6 @@ export function DashboardReportPdf({
             />
           </View>
         </View>
-
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Metricas Financeiras</Text>
           <View style={styles.table}>
@@ -134,9 +131,7 @@ export function DashboardReportPdf({
             </View>
           </View>
         </View>
-
         <RankingSection ranking={ranking} />
-
         <PdfFooter salespersonName={generatedBy} />
       </Page>
     </Document>

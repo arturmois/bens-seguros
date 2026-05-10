@@ -31,42 +31,34 @@ beforeEach(() => {
 describe('POST /api/v1/notifications/read-all', () => {
   it('returns 200 with count of marked notifications', async () => {
     mockExecute.mockResolvedValue({ count: 5 })
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/notifications/read-all',
       headers: { 'content-type': 'text/plain' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.count).toBe(5)
   })
-
   it('returns 200 with count zero when no unread notifications exist', async () => {
     mockExecute.mockResolvedValue({ count: 0 })
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/notifications/read-all',
       headers: { 'content-type': 'text/plain' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data.count).toBe(0)
   })
-
   it('calls use case with organization id and user id', async () => {
     mockExecute.mockResolvedValue({ count: 3 })
-
     await injectAs(app, {
       method: 'POST',
       url: '/api/v1/notifications/read-all',
       headers: { 'content-type': 'text/plain' },
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       expect.any(String),
       expect.any(String)

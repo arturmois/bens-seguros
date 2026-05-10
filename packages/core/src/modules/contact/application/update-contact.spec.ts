@@ -39,7 +39,6 @@ describe('UpdateContact', () => {
     })
     expect(result.name).toBe('Maria Silva')
   })
-
   it('rejeita quando contato não existe', async () => {
     const repo = {
       findById: vi.fn(async () => null),

@@ -17,7 +17,6 @@ export class UpdateInsurer {
     if (!current) {
       throw InsurerErrors.notFound(dto.id)
     }
-
     const duplicate = await this.insurerRepo.findByName(
       dto.name,
       dto.organizationId
@@ -25,7 +24,6 @@ export class UpdateInsurer {
     if (duplicate && duplicate.id !== dto.id) {
       throw InsurerErrors.alreadyExists(dto.name)
     }
-
     return this.insurerRepo.update(dto)
   }
 }

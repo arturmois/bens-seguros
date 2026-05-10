@@ -26,11 +26,9 @@ export class AssignConversation {
       input.agentId,
       input.agentName
     )
-
     if (!result) {
       throw ChatErrors.alreadyAssigned(input.conversationId)
     }
-
     return result
   }
 }

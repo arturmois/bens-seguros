@@ -58,12 +58,10 @@ describe('GET /api/v1/assistances', () => {
       total: 1,
       nextCursor: null,
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/assistances',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -71,92 +69,74 @@ describe('GET /api/v1/assistances', () => {
     expect(body.data[0].type).toBe('TOWING')
     expect(body.meta.nextCursor).toBeNull()
   })
-
   it('returns 200 with empty list when no assistances exist', async () => {
     mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/assistances',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data).toHaveLength(0)
   })
-
   it('returns 200 with filtered results when status is provided', async () => {
     mockExecute.mockResolvedValue({
       items: [makeAssistance({ status: 'COMPLETED' })],
       total: 1,
       nextCursor: null,
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/assistances',
       query: { status: 'COMPLETED' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data[0].status).toBe('COMPLETED')
   })
-
   it('returns 400 when status has an invalid value', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/assistances',
       query: { status: 'INVALID_STATUS' },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('returns 400 when limit is out of range', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/assistances',
       query: { limit: '0' },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('parses statusIn from CSV query', async () => {
     mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
-
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/assistances?statusIn=REQUESTED,DISPATCHED',
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({ statusIn: ['REQUESTED', 'DISPATCHED'] }),
       expect.anything()
     )
   })
-
   it('parses typeIn from CSV query', async () => {
     mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
-
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/assistances?typeIn=TOW_TRUCK,MECHANIC',
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({ typeIn: ['TOW_TRUCK', 'MECHANIC'] }),
       expect.anything()
     )
   })
-
   it('returns 400 when statusIn has an invalid value', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/assistances?statusIn=REQUESTED,INVALID',
     })
-
     expect(response.statusCode).toBe(400)
   })
 })

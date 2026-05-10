@@ -18,14 +18,12 @@ function isRole(value: string): value is Role {
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const { activeOrg, isLoading } = useOrgs()
   const router = useRouter()
-
   useEffect(() => {
     if (!isLoading && !activeOrg) {
       clearActiveOrgCookie()
       router.replace('/select-org')
     }
   }, [isLoading, activeOrg, router])
-
   if (isLoading || !activeOrg) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -33,10 +31,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       </div>
     )
   }
-
   const rawRole = activeOrg.role
   const role: Role = isRole(rawRole) ? rawRole : DEFAULT_ROLE
-
   return (
     <>
       <AppShell role={role}>{children}</AppShell>

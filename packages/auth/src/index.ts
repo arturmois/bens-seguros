@@ -58,7 +58,6 @@ export function createAuth(
   emailSenders?: AuthEmailSenders
 ) {
   const isProduction = env.NODE_ENV === 'production'
-
   const options = {
     database: prismaAdapter(prisma, { provider: 'postgresql' }),
     secret,
@@ -132,7 +131,6 @@ export function createAuth(
       }),
     ],
   } satisfies BetterAuthOptions
-
   return betterAuth({
     ...options,
     plugins: [

@@ -1,4 +1,3 @@
-// packages/core/src/modules/proposal/application/mark-proposal-lost.spec.ts
 import { describe, expect, it, vi } from 'vitest'
 import { Proposal } from '../domain/proposal.js'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
@@ -33,7 +32,6 @@ function makeProposal(
     branch: 'AUTO',
     boardType: 'NEW_INSURANCE',
   })
-  // Advance to desired stage
   const stages = [
     'CAPTURE',
     'QUOTE',
@@ -54,42 +52,33 @@ describe('MarkProposalLost', () => {
     const proposal = makeProposal('CAPTURE')
     const repo = createMockRepo(proposal)
     const useCase = new MarkProposalLost(repo)
-
     const result = await useCase.execute(
       proposal.id,
       'org-1',
       'Cliente desistiu'
     )
-
     expect(result.stage).toBe('LOST')
     expect(result.lostReason).toBe('Cliente desistiu')
     expect(repo.save).toHaveBeenCalledWith(proposal)
   })
-
   it('marks QUOTE proposal as lost', async () => {
     const proposal = makeProposal('QUOTE')
     const repo = createMockRepo(proposal)
     const useCase = new MarkProposalLost(repo)
-
     const result = await useCase.execute(proposal.id, 'org-1', 'Preco alto')
-
     expect(result.stage).toBe('LOST')
   })
-
   it('rejects marking POLICY_ISSUED as lost', async () => {
     const proposal = makeProposal('POLICY_ISSUED')
     const repo = createMockRepo(proposal)
     const useCase = new MarkProposalLost(repo)
-
     await expect(
       useCase.execute(proposal.id, 'org-1', 'reason')
     ).rejects.toThrow(InvalidStageTransitionError)
   })
-
   it('throws ProposalNotFoundError when proposal does not exist', async () => {
     const repo = createMockRepo(null)
     const useCase = new MarkProposalLost(repo)
-
     await expect(useCase.execute('missing', 'org-1', 'reason')).rejects.toThrow(
       ProposalNotFoundError
     )

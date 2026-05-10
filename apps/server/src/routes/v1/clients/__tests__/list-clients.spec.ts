@@ -54,12 +54,10 @@ describe('GET /api/v1/clients', () => {
       items: [makeClient()],
       nextCursor: null,
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/clients',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -67,115 +65,93 @@ describe('GET /api/v1/clients', () => {
     expect(body.data[0].legalName).toBe('João Silva')
     expect(body.meta.nextCursor).toBeNull()
   })
-
   it('returns 200 with empty list when no clients exist', async () => {
     mockExecute.mockResolvedValue({ items: [], nextCursor: null })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/clients',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data).toHaveLength(0)
   })
-
   it('passes hasActivePolicy filter to use case', async () => {
     mockExecute.mockResolvedValue({ items: [], nextCursor: null })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/clients',
       query: { hasActivePolicy: 'true' },
     })
-
     expect(response.statusCode).toBe(200)
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({ hasActivePolicy: true })
     )
   })
-
   it('passes search filter to use case', async () => {
     mockExecute.mockResolvedValue({ items: [], nextCursor: null })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/clients',
       query: { search: 'joao' },
     })
-
     expect(response.statusCode).toBe(200)
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({ search: 'joao' })
     )
   })
-
   it('returns 400 when sortBy has invalid value', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/clients',
       query: { sortBy: 'INVALID' },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('returns 200 with nextCursor when more pages exist', async () => {
     const cursor = 'cursor-abc'
     mockExecute.mockResolvedValue({
       items: [makeClient()],
       nextCursor: cursor,
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/clients',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.meta.nextCursor).toBe(cursor)
   })
-
   it('parses personTypeIn from CSV query param', async () => {
     mockExecute.mockResolvedValue({ items: [], nextCursor: null })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/clients',
       query: { personTypeIn: 'INDIVIDUAL,COMPANY' },
     })
-
     expect(response.statusCode).toBe(200)
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({ personTypeIn: ['INDIVIDUAL', 'COMPANY'] })
     )
   })
-
   it('passes hasActivePolicy=false correctly (regression: z.coerce.boolean bug)', async () => {
     mockExecute.mockResolvedValue({ items: [], nextCursor: null })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/clients',
       query: { hasActivePolicy: 'false' },
     })
-
     expect(response.statusCode).toBe(200)
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({ hasActivePolicy: false })
     )
   })
-
   it('returns 400 when personTypeIn has invalid value', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/clients',
       query: { personTypeIn: 'BOGUS' },
     })
-
     expect(response.statusCode).toBe(400)
   })
 })

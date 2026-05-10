@@ -24,29 +24,22 @@ export function ChatView({
     isLoadingMessages,
     loadMoreMessages,
   } = useWidgetSocket(conversationId, visitorToken)
-
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const prevMessageCountRef = useRef(0)
-
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (messages.length > prevMessageCountRef.current) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
     prevMessageCountRef.current = messages.length
   }, [messages.length])
-
-  // Handle scroll to top for loading more messages
   const handleScroll = (): void => {
     const container = messagesContainerRef.current
     if (!container) return
-
     if (container.scrollTop === 0 && hasMore && !isLoadingMessages) {
       void loadMoreMessages()
     }
   }
-
   return (
     <div
       style={{
@@ -83,7 +76,6 @@ export function ChatView({
             Carregando mensagens...
           </div>
         )}
-
         {hasMore && (
           <button
             type="button"
@@ -105,7 +97,6 @@ export function ChatView({
               : 'Carregar mensagens anteriores'}
           </button>
         )}
-
         {messages.map((msg) => (
           <MessageBubble
             key={msg.id}
@@ -113,7 +104,6 @@ export function ChatView({
             primaryColor={primaryColor}
           />
         ))}
-
         {/* Typing indicator */}
         {typing.isTyping && (
           <div
@@ -146,19 +136,13 @@ export function ChatView({
             </span>
           </div>
         )}
-
         <div ref={messagesEndRef} />
       </div>
-
       {/* Input area */}
       <MessageInput onSend={sendMessage} onTyping={emitTyping} />
     </div>
   )
 }
-
-// ---------------------------------------------------------------------------
-// Typing dot animation component
-// ---------------------------------------------------------------------------
 
 function TypingDot({ delay }: { readonly delay: number }): React.JSX.Element {
   return (

@@ -36,7 +36,6 @@ export function ContactProfile({
   const displayName = getDisplayName(contact, conversation)
   const phone = contact?.whatsappPhone ?? conversation.whatsappPhone
   const sourceChannel = contact?.source ?? conversation.channelType
-
   return (
     <div className="bg-card flex h-full flex-col">
       {/* Header */}
@@ -52,7 +51,6 @@ export function ContactProfile({
           <X className="h-5 w-5" />
         </Button>
       </div>
-
       {/* Content */}
       <div className="chat-scrollbar flex-1 overflow-y-auto">
         {/* Avatar & Name */}
@@ -92,15 +90,12 @@ export function ContactProfile({
               </p>
             )}
         </div>
-
         <Separator />
-
         {/* Contact Info */}
         <div className="space-y-4 px-4 py-4">
           <h4 className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
             Informações de contato
           </h4>
-
           {phone && (
             <div className="flex items-center gap-3">
               <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
@@ -112,7 +107,6 @@ export function ContactProfile({
               </div>
             </div>
           )}
-
           {contact?.email && (
             <div className="flex items-center gap-3">
               <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
@@ -126,7 +120,6 @@ export function ContactProfile({
               </div>
             </div>
           )}
-
           {sourceChannel && (
             <div className="flex items-center gap-3">
               <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
@@ -141,7 +134,6 @@ export function ContactProfile({
             </div>
           )}
         </div>
-
         {contact?.clientId && (
           <>
             <Separator />

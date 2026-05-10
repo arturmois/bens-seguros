@@ -25,9 +25,7 @@ interface AssistanceDetailProps {
 export function AssistanceDetail({ assistanceId }: AssistanceDetailProps) {
   const router = useRouter()
   const { data, isLoading, isError } = useAssistance(assistanceId)
-
   if (isLoading) return <DetailSkeleton />
-
   if (isError || !data) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
@@ -55,7 +53,6 @@ export function AssistanceDetail({ assistanceId }: AssistanceDetailProps) {
       </div>
     )
   }
-
   return (
     <div className="space-y-6">
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
@@ -73,7 +70,6 @@ export function AssistanceDetail({ assistanceId }: AssistanceDetailProps) {
           {getAssistanceTypeLabel(data.type)}
         </span>
       </nav>
-
       <DetailHeader assistance={data} />
       <Separator />
       <DetailInfoGrid assistance={data} />
@@ -83,7 +79,6 @@ export function AssistanceDetail({ assistanceId }: AssistanceDetailProps) {
         currentStatus={data.status}
       />
       <Separator />
-
       <Tabs defaultValue="documents">
         <TabsList>
           <TabsTab value="documents">Documentos</TabsTab>
@@ -123,7 +118,6 @@ function DetailInfoGrid({
     assistance.latitude && assistance.longitude
       ? `https://www.google.com/maps?q=${String(assistance.latitude)},${String(assistance.longitude)}`
       : null
-
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <InfoItem label="Endereço">

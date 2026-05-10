@@ -11,7 +11,6 @@ import { updateClaimStatusRoute } from './update-claim-status.js'
 
 export async function claimRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
-
   createClaimRoute(app)
   getClaimRoute(app)
   listClaimsRoute(app)

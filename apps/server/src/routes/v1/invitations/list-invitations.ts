@@ -23,14 +23,12 @@ export function listInvitationsRoute(app: FastifyInstance) {
       const { cursor, limit } = request.query
       const organizationId = request.organizationId!
       const now = new Date()
-
       const where = {
         organizationId,
         status: 'pending',
         expiresAt: { gt: now },
         ...(cursor ? { id: { gt: cursor } } : {}),
       } as const
-
       const [invitations, total] = await Promise.all([
         prisma.invitation.findMany({
           where,
@@ -41,10 +39,8 @@ export function listInvitationsRoute(app: FastifyInstance) {
           where: { organizationId, status: 'pending', expiresAt: { gt: now } },
         }),
       ])
-
       const hasMore = invitations.length > limit
       if (hasMore) invitations.pop()
-
       return reply.send({
         success: true,
         data: invitations,

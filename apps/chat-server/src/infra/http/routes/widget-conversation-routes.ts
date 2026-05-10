@@ -5,10 +5,6 @@ import { z } from 'zod'
 import { widgetAuthMiddleware } from '../middleware/widget-auth.js'
 import { isValidObjectId, MESSAGES_PER_PAGE } from './widget-helpers.js'
 
-// ---------------------------------------------------------------------------
-// Zod schemas
-// ---------------------------------------------------------------------------
-
 const conversationIdParamSchema = z.object({
   id: z.string().min(1),
 })
@@ -16,10 +12,6 @@ const conversationIdParamSchema = z.object({
 const messagesQuerySchema = z.object({
   before: z.string().optional(),
 })
-
-// ---------------------------------------------------------------------------
-// Plugin: GET /widget/conversations/:id  (list messages)
-// ---------------------------------------------------------------------------
 
 export async function widgetConversationRoutes(
   app: FastifyInstance
@@ -35,10 +27,8 @@ export async function widgetConversationRoutes(
           error: { code: 'INVALID_PARAMS', message: 'ID inválido' },
         })
       }
-
       const { id } = params.data
       const visitor = request.visitorData
-
       if (!visitor || visitor.conversationId !== id) {
         return reply.status(403).send({
           success: false,
@@ -48,32 +38,25 @@ export async function widgetConversationRoutes(
           },
         })
       }
-
       const query = messagesQuerySchema.safeParse(request.query)
       const before = query.success ? query.data.before : undefined
-
       const filter: Record<string, unknown> = {
         conversationId: id,
         tenantId: visitor.tenantId,
       }
-
       if (before && isValidObjectId(before)) {
         filter['_id'] = { $lt: before }
       }
-
       const messages = await Message.find(filter)
         .sort({ createdAt: -1 })
         .limit(MESSAGES_PER_PAGE + 1)
         .lean()
         .exec()
-
       const hasMore = messages.length > MESSAGES_PER_PAGE
       if (hasMore) {
         messages.pop()
       }
-
       messages.reverse()
-
       const data = messages.map((msg) => ({
         id: String(msg._id),
         conversationId: msg.conversationId,
@@ -84,7 +67,6 @@ export async function widgetConversationRoutes(
         status: msg.status,
         createdAt: msg.createdAt,
       }))
-
       return reply.send({
         success: true,
         data,

@@ -42,7 +42,6 @@ export function ClaimDetail({ claimId }: ClaimDetailProps) {
   const deleteClaim = useDeleteClaim()
   const [occurrenceFormOpen, setOccurrenceFormOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
-
   function handleConfirmDelete() {
     deleteClaim.mutate(claimId, {
       onSuccess: () => {
@@ -51,11 +50,9 @@ export function ClaimDetail({ claimId }: ClaimDetailProps) {
       },
     })
   }
-
   if (isLoading) {
     return <DetailSkeleton />
   }
-
   if (isError || !data) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
@@ -77,10 +74,8 @@ export function ClaimDetail({ claimId }: ClaimDetailProps) {
       </div>
     )
   }
-
   const claim = data
   const formattedNumber = formatClaimNumber(claim.claimNumber, claim.createdAt)
-
   return (
     <div className="space-y-6">
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
@@ -96,18 +91,14 @@ export function ClaimDetail({ claimId }: ClaimDetailProps) {
         <span className="text-muted-foreground">/</span>
         <span className="text-muted-foreground">{formattedNumber}</span>
       </nav>
-
       <ClaimDetailHeader
         formattedNumber={formattedNumber}
         status={claim.status}
         priority={claim.priority}
         onDelete={() => setDeleteOpen(true)}
       />
-
       <Separator />
-
       <ClaimInfoGrid claim={claim} />
-
       {claim.description && (
         <>
           <Separator />
@@ -117,13 +108,9 @@ export function ClaimDetail({ claimId }: ClaimDetailProps) {
           </div>
         </>
       )}
-
       <Separator />
-
       <ClaimStatusActions claimId={claimId} currentStatus={claim.status} />
-
       <Separator />
-
       <Tabs defaultValue="occurrences">
         <div className="flex items-center justify-between">
           <TabsList>
@@ -135,23 +122,19 @@ export function ClaimDetail({ claimId }: ClaimDetailProps) {
             Nova Ocorrência
           </Button>
         </div>
-
         <TabsContent value="occurrences" className="mt-4">
           <OccurrenceList claimId={claimId} />
         </TabsContent>
-
         <TabsContent value="documents" className="mt-4 space-y-4">
           <DocumentUpload entityType="CLAIM" entityId={claimId} />
           <DocumentList entityType="CLAIM" entityId={claimId} />
         </TabsContent>
       </Tabs>
-
       <OccurrenceForm
         claimId={claimId}
         open={occurrenceFormOpen}
         onOpenChange={setOccurrenceFormOpen}
       />
-
       <ConfirmDeleteDialog
         entityLabel="sinistro"
         open={deleteOpen}

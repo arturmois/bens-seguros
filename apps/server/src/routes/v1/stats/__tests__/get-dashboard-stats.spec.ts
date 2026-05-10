@@ -90,7 +90,6 @@ describe('GET /api/v1/stats/dashboard', () => {
       method: 'GET',
       url: '/api/v1/stats/dashboard',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -102,56 +101,47 @@ describe('GET /api/v1/stats/dashboard', () => {
       '30d'
     )
   })
-
   it('returns dashboard stats for specified preset', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/stats/dashboard',
       query: { preset: '7d' },
     })
-
     expect(response.statusCode).toBe(200)
     expect(vi.mocked(buildDashboardData)).toHaveBeenCalledWith(
       TEST_ORG_ID,
       '7d'
     )
   })
-
   it('returns cached data when cache hit occurs', async () => {
     const cached = makeDashboardData()
     mockCache.get.mockResolvedValue(cached)
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/stats/dashboard',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(vi.mocked(buildDashboardData)).not.toHaveBeenCalled()
   })
-
   it('stores result in cache after fetching fresh data', async () => {
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/stats/dashboard',
     })
-
     expect(mockCache.set).toHaveBeenCalledWith(
       expect.stringContaining(`dashboard:stats:${TEST_ORG_ID}`),
       expect.objectContaining({ activePolicies: 10 }),
       60
     )
   })
-
   it('rejects invalid preset value', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/stats/dashboard',
       query: { preset: 'invalid' },
     })
-
     expect(response.statusCode).toBeGreaterThanOrEqual(400)
   })
 })

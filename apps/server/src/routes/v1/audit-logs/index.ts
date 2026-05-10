@@ -5,6 +5,5 @@ import { listAuditLogsRoute } from './list-audit-logs.js'
 
 export async function auditLogRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
-
   listAuditLogsRoute(app)
 }

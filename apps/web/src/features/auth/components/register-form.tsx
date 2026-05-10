@@ -42,9 +42,7 @@ export function RegisterForm() {
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   })
-
   const acceptedTerms = form.watch('acceptedTerms')
-
   const onSubmit = (data: RegisterFormData) => {
     registerMutation.mutate(
       {
@@ -58,7 +56,6 @@ export function RegisterForm() {
       }
     )
   }
-
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
@@ -79,7 +76,6 @@ export function RegisterForm() {
           </p>
         )}
       </div>
-
       <div className="space-y-2">
         <Label htmlFor="email" className="text-slate-400">
           Email
@@ -98,7 +94,6 @@ export function RegisterForm() {
           </p>
         )}
       </div>
-
       <div className="space-y-2">
         <Label htmlFor="password" className="text-slate-400">
           Senha
@@ -134,7 +129,6 @@ export function RegisterForm() {
           <p className="text-xs text-slate-500">Mínimo de 8 caracteres</p>
         )}
       </div>
-
       <div className="space-y-2">
         <Label htmlFor="confirmPassword" className="text-slate-400">
           Confirmar Senha
@@ -168,7 +162,6 @@ export function RegisterForm() {
           </p>
         )}
       </div>
-
       <div className="space-y-2">
         <div className="flex items-start gap-3">
           <Checkbox
@@ -208,7 +201,6 @@ export function RegisterForm() {
           </p>
         )}
       </div>
-
       <Button
         type="submit"
         className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 w-full bg-gradient-to-r font-bold text-slate-900"

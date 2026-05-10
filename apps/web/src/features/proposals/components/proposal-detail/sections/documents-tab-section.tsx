@@ -22,11 +22,9 @@ export function DocumentsTabSection({
         <TabsTab value="checklist">Checklist</TabsTab>
         <TabsTab value="documents">Documentos</TabsTab>
       </TabsList>
-
       <TabsContent value="checklist" className="mt-4">
         <ProposalChecklistPanel proposalId={proposalId} />
       </TabsContent>
-
       <TabsContent value="documents" className="mt-4 space-y-4">
         <DocumentUpload
           entityType="PROPOSAL"

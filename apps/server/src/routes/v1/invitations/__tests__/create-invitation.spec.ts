@@ -47,7 +47,6 @@ const validBody = { email: 'newmember@user.com', role: 'COMMERCIAL' }
 describe('POST /api/v1/invitations', () => {
   it('returns 201 with created invitation on success', async () => {
     const { prisma } = await import('@repo/db')
-    // No existing member, no duplicate invitation
     vi.mocked(prisma.member.findFirst).mockResolvedValue(null)
     vi.mocked(prisma.invitation.findFirst).mockResolvedValue(null)
     vi.mocked(prisma.invitation.create).mockResolvedValue(
@@ -55,13 +54,11 @@ describe('POST /api/v1/invitations', () => {
         ReturnType<typeof prisma.invitation.create>
       >
     )
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations',
       payload: validBody,
     })
-
     expect(response.statusCode).toBe(201)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -69,7 +66,6 @@ describe('POST /api/v1/invitations', () => {
     expect(body.data.role).toBe('COMMERCIAL')
     expect(body.data.status).toBe('pending')
   })
-
   it('returns 409 when email is already an active member', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.member.findFirst).mockResolvedValue(
@@ -77,19 +73,16 @@ describe('POST /api/v1/invitations', () => {
         ReturnType<typeof prisma.member.findFirst>
       >
     )
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations',
       payload: validBody,
     })
-
     expect(response.statusCode).toBe(409)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('DUPLICATE_INVITATION')
   })
-
   it('returns 409 when there is already a pending invitation for the email', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.member.findFirst).mockResolvedValue(null)
@@ -98,44 +91,35 @@ describe('POST /api/v1/invitations', () => {
         ReturnType<typeof prisma.invitation.findFirst>
       >
     )
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations',
       payload: validBody,
     })
-
     expect(response.statusCode).toBe(409)
     const body = response.json()
     expect(body.error.code).toBe('DUPLICATE_INVITATION')
   })
-
   it('returns 403 when caller tries to invite someone with equal or higher role', async () => {
-    // COMMERCIAL (level 2) trying to invite an OWNER (level 5) — violation
-    // Use VIEWER role (level 1) trying to invite ADMIN (level 4)
     setTestContext({ role: 'VIEWER' })
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.member.findFirst).mockResolvedValue(null)
     vi.mocked(prisma.invitation.findFirst).mockResolvedValue(null)
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations',
       payload: { email: 'newmember@user.com', role: 'ADMIN' },
     })
-
     expect(response.statusCode).toBe(403)
     const body = response.json()
     expect(body.error.code).toBe('ROLE_HIERARCHY_VIOLATION')
   })
-
   it('returns 400 when email is invalid', async () => {
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations',
       payload: { email: 'not-an-email', role: 'COMMERCIAL' },
     })
-
     expect(response.statusCode).toBe(400)
   })
 })

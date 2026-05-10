@@ -93,14 +93,12 @@ afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
-
   mockDocumentRepo.findByEntity.mockResolvedValue([])
   mockDocumentRepo.upsertByStorageKey.mockResolvedValue(undefined)
   mockStorage.getSignedUrl.mockResolvedValue(
     'https://cdn.example.com/cotacao.pdf'
   )
   mockStorage.upload.mockResolvedValue(undefined)
-
   vi.mocked(container.resolve).mockImplementation((token: unknown) => {
     if (token === 'DocumentRepository') return mockDocumentRepo
     if (token === 'StorageProvider') return mockStorage
@@ -117,14 +115,12 @@ describe('POST /api/v1/proposals/:id/pdf', () => {
       method: 'POST',
       url: '/api/v1/proposals/p-001/pdf',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.url).toBe('https://cdn.example.com/cotacao.pdf')
     expect(body.data.cached).toBe(false)
   })
-
   it('returns cached=true when PDF already exists and force is not set', async () => {
     mockDocumentRepo.findByEntity.mockResolvedValue([
       {
@@ -136,18 +132,15 @@ describe('POST /api/v1/proposals/:id/pdf', () => {
     mockStorage.getSignedUrl.mockResolvedValue(
       'https://cdn.example.com/cached.pdf'
     )
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/proposals/p-001/pdf',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data.cached).toBe(true)
     expect(body.data.url).toBe('https://cdn.example.com/cached.pdf')
   })
-
   it('regenerates PDF when force=true even if cached version exists', async () => {
     mockDocumentRepo.findByEntity.mockResolvedValue([
       {
@@ -156,18 +149,15 @@ describe('POST /api/v1/proposals/:id/pdf', () => {
         storageKey: `organizations/${TEST_ORG_ID}/proposals/p-001/cotacao.pdf`,
       },
     ])
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/proposals/p-001/pdf',
       query: { force: 'true' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data.cached).toBe(false)
   })
-
   it('returns 404 when proposal does not exist', async () => {
     const error = Object.assign(new Error('Proposal not found'), {
       code: 'PROPOSAL_NOT_FOUND',
@@ -180,25 +170,20 @@ describe('POST /api/v1/proposals/:id/pdf', () => {
       }
       return null
     })
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/proposals/nonexistent/pdf',
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.error.code).toBe('PROPOSAL_NOT_FOUND')
   })
-
   it('returns 404 when organization does not exist', async () => {
     vi.mocked(prisma.organization.findUnique).mockResolvedValue(null)
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/proposals/p-001/pdf',
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.error.code).toBe('ORGANIZATION_NOT_FOUND')

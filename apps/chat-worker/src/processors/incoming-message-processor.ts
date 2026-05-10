@@ -21,10 +21,6 @@ import { processMessagingPlatformMessage } from './messaging-platform-processor.
 
 const logger = pino({ name: 'incoming-message-processor' })
 
-// ---------------------------------------------------------------------------
-// Job data types
-// ---------------------------------------------------------------------------
-
 export interface IncomingMessageJobData {
   readonly channelId: string
   readonly tenantId: string
@@ -60,10 +56,6 @@ type ProcessIncomingJobData =
   | MessagingPlatformJobData
   | MetaWhatsAppJobData
 
-// ---------------------------------------------------------------------------
-// Type guards
-// ---------------------------------------------------------------------------
-
 function isMessagingPlatformJob(
   data: ProcessIncomingJobData
 ): data is MessagingPlatformJobData {
@@ -79,10 +71,6 @@ function isMetaWhatsAppJob(
   return 'source' in data && data.source === 'META'
 }
 
-// ---------------------------------------------------------------------------
-// Factory
-// ---------------------------------------------------------------------------
-
 export function createIncomingMessageProcessor(
   pubsubClient: PubsubClient,
   aiBotQueue: Queue,
@@ -92,7 +80,6 @@ export function createIncomingMessageProcessor(
     job: Job<ProcessIncomingJobData>
   ): Promise<void> {
     const data = job.data
-
     if (isMessagingPlatformJob(data)) {
       await processMessagingPlatformMessage(
         data,
@@ -102,16 +89,13 @@ export function createIncomingMessageProcessor(
       )
       return
     }
-
     if (isMetaWhatsAppJob(data)) {
-      // Meta WhatsApp webhook data is passed through as-is for now
       logger.debug(
         { accountId: data.accountId, field: data.field },
         'Meta WhatsApp incoming (passthrough)'
       )
       return
     }
-
     await processBaileysMessage(
       data,
       pubsubClient,
@@ -120,10 +104,6 @@ export function createIncomingMessageProcessor(
     )
   }
 }
-
-// ---------------------------------------------------------------------------
-// Baileys message handler
-// ---------------------------------------------------------------------------
 
 async function processBaileysMessage(
   data: IncomingMessageJobData,
@@ -142,7 +122,6 @@ async function processBaileysMessage(
     externalId,
     timestamp,
   } = data
-
   const alreadyExists = await Message.findOne({ externalId, tenantId })
     .lean()
     .exec()
@@ -150,7 +129,6 @@ async function processBaileysMessage(
     logger.info({ externalId, tenantId }, 'Duplicate message, skipping')
     return
   }
-
   const channel = await Channel.findOne({ _id: channelId, tenantId })
     .lean()
     .exec()
@@ -161,9 +139,7 @@ async function processBaileysMessage(
     )
     return
   }
-
   const contactId = await upsertContact(tenantId, from, pushName)
-
   const command = detectClientCommand(text, type)
   if (command === 'CLOSE') {
     await handleClientCloseCommand({
@@ -180,7 +156,6 @@ async function processBaileysMessage(
     })
     return
   }
-
   const {
     id: conversationId,
     status: conversationStatus,
@@ -192,7 +167,6 @@ async function processBaileysMessage(
     phone: from,
     hasAiUser: Boolean(channel.aiAgentId),
   })
-
   const savedMessage = await Message.create({
     conversationId,
     tenantId,
@@ -204,7 +178,6 @@ async function processBaileysMessage(
     status: 'DELIVERED',
     externalId,
   })
-
   await publishMessageEvents(pubsubClient, {
     savedMessage,
     conversationId,
@@ -217,7 +190,6 @@ async function processBaileysMessage(
     conversationStatus,
     isNew,
   })
-
   if (conversationStatus === 'BOT_ACTIVE') {
     await enqueueAiBotJob(
       aiBotQueue,
@@ -226,16 +198,11 @@ async function processBaileysMessage(
       String(savedMessage._id)
     )
   }
-
   logger.info(
     { externalId, conversationId, tenantId, conversationStatus },
     'Incoming message processed'
   )
 }
-
-// ---------------------------------------------------------------------------
-// Client close command handler
-// ---------------------------------------------------------------------------
 
 interface HandleClientCloseCommandOptions {
   readonly tenantId: string
@@ -265,7 +232,6 @@ async function handleClientCloseCommand(
     pubsubClient,
     sendMessageQueue,
   } = options
-
   const open = await findOpenConversation(tenantId, channelId, contactId)
   if (!open) {
     logger.debug(
@@ -274,7 +240,6 @@ async function handleClientCloseCommand(
     )
     return
   }
-
   const savedClientMessage = await Message.create({
     conversationId: open.id,
     tenantId,
@@ -285,7 +250,6 @@ async function handleClientCloseCommand(
     status: 'DELIVERED',
     externalId,
   })
-
   await publishMessageEvents(pubsubClient, {
     savedMessage: savedClientMessage,
     conversationId: open.id,
@@ -298,7 +262,6 @@ async function handleClientCloseCommand(
     conversationStatus: open.status,
     isNew: false,
   })
-
   const closeResult = await closeConversationOnMongo(
     open.id,
     tenantId,
@@ -308,7 +271,6 @@ async function handleClientCloseCommand(
     },
     pubsubClient
   )
-
   if (!closeResult.closed) {
     logger.debug(
       { conversationId: open.id, tenantId },
@@ -316,7 +278,6 @@ async function handleClientCloseCommand(
     )
     return
   }
-
   const confirmationMessage = await Message.create({
     conversationId: open.id,
     tenantId,
@@ -325,7 +286,6 @@ async function handleClientCloseCommand(
     type: 'TEXT',
     status: 'PENDING',
   })
-
   try {
     await sendMessageQueue.add(
       'send-message',
@@ -350,7 +310,6 @@ async function handleClientCloseCommand(
     )
     throw err
   }
-
   logger.info(
     { conversationId: open.id, tenantId },
     'Client close command handled — conversation closed and confirmation enqueued'

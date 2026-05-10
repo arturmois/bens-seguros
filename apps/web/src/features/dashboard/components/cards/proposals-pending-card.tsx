@@ -90,9 +90,7 @@ export function ProposalsPendingCard({
       </Card>
     )
   }
-
   const safe = data ?? { total: 0, inDay: 0, warning: 0, critical: 0 }
-
   return (
     <Card>
       <CardPanel className="flex items-start gap-4">

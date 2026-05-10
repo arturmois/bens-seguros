@@ -30,18 +30,14 @@ export function TransferAgentModal({
   const { user } = useAuth()
   const { transferConversation, onlineAgents } = useChatActions()
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null)
-
   const availableAgents = onlineAgents.filter(
     (agent) => agent.userId !== user?.id
   )
-
   const selectedAgent = availableAgents.find(
     (agent) => agent.userId === selectedAgentId
   )
-
   function handleConfirmTransfer() {
     if (!conversationId || !selectedAgent) return
-
     transferConversation.mutate(
       {
         id: conversationId,
@@ -56,14 +52,12 @@ export function TransferAgentModal({
       }
     )
   }
-
   function handleOpenChange(nextOpen: boolean) {
     onOpenChange(nextOpen)
     if (!nextOpen) {
       setSelectedAgentId(null)
     }
   }
-
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
@@ -73,7 +67,6 @@ export function TransferAgentModal({
             Selecione o agente que irá assumir esta conversa.
           </DialogDescription>
         </DialogHeader>
-
         <div className="px-6 pb-4">
           {availableAgents.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-8">
@@ -120,7 +113,6 @@ export function TransferAgentModal({
             </div>
           )}
         </div>
-
         <DialogFooter>
           <Button variant="outline" onClick={() => handleOpenChange(false)}>
             Cancelar

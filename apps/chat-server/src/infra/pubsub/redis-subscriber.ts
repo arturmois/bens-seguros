@@ -12,10 +12,8 @@ export class RedisSubscriber {
 
   async subscribe(): Promise<void> {
     const channels = Object.values(CHAT_PUBSUB_CHANNELS)
-
     await this.redis.subscribe(...channels)
     this.logger.info({ channels }, 'Subscribed to Redis pub/sub channels')
-
     this.redis.on('message', (channel: string, rawMessage: string) => {
       this.handleMessage(channel, rawMessage)
     })
@@ -34,15 +32,12 @@ export class RedisSubscriber {
       this.logger.warn({ channel }, 'Failed to parse pub/sub message')
       return
     }
-
     const tenantId =
       typeof payload['tenantId'] === 'string' ? payload['tenantId'] : null
-
     if (!tenantId) {
       this.logger.warn({ channel }, 'Pub/sub message missing tenantId')
       return
     }
-
     this.routeMessage(channel, tenantId, payload)
   }
 
@@ -52,7 +47,6 @@ export class RedisSubscriber {
     payload: Record<string, unknown>
   ): void {
     const lobbyRoom = `tenant:${tenantId}:lobby`
-
     switch (channel) {
       case CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE: {
         const convId =
@@ -62,7 +56,6 @@ export class RedisSubscriber {
         const conversationRoom = convId
           ? `tenant:${tenantId}:conversation:${convId}`
           : null
-
         if (conversationRoom) {
           this.io
             .to(conversationRoom)
@@ -76,7 +69,6 @@ export class RedisSubscriber {
         }
         break
       }
-
       case CHAT_PUBSUB_CHANNELS.MESSAGE_STATUS: {
         const convId =
           typeof payload['conversationId'] === 'string'
@@ -89,22 +81,18 @@ export class RedisSubscriber {
         }
         break
       }
-
       case CHAT_PUBSUB_CHANNELS.CHANNEL_STATUS: {
         this.io.to(lobbyRoom).emit(SOCKET_EVENTS.CHANNEL_STATUS, payload)
         break
       }
-
       case CHAT_PUBSUB_CHANNELS.PAIRING_CODE_RESULT: {
         this.io.to(lobbyRoom).emit(SOCKET_EVENTS.PAIRING_CODE_RESULT, payload)
         break
       }
-
       case CHAT_PUBSUB_CHANNELS.CONVERSATION_UPDATE: {
         this.io.to(lobbyRoom).emit(SOCKET_EVENTS.CONVERSATION_UPDATED, payload)
         break
       }
-
       case CHAT_PUBSUB_CHANNELS.UNREAD_UPDATE: {
         const userId =
           typeof payload['userId'] === 'string' ? payload['userId'] : null
@@ -120,7 +108,6 @@ export class RedisSubscriber {
         }
         break
       }
-
       default:
         this.logger.warn({ channel }, 'Unknown pub/sub channel')
     }

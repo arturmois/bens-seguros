@@ -39,8 +39,6 @@ export function useContactsFilters() {
     },
     { history: 'push' }
   )
-
-  // Estado consolidado pra alimentar o UnifiedFilterBar
   const values: Readonly<Record<string, FilterValue>> = useMemo(() => {
     const range: DateRangeValue | undefined = state.createdAtPreset
       ? {
@@ -57,12 +55,9 @@ export function useContactsFilters() {
       createdAt: range,
     }
   }, [state])
-
-  // Derivação dos params da API a partir do estado
   const apiParams = useMemo(() => {
     let createdFrom: string | undefined
     let createdTo: string | undefined
-
     if (state.createdAtPreset && state.createdAtPreset !== CUSTOM_PRESET) {
       const preset = findPreset(state.createdAtPreset)
       if (preset) {
@@ -71,9 +66,6 @@ export function useContactsFilters() {
         createdTo = range.to.toISOString()
       }
     } else if (state.createdAtPreset === CUSTOM_PRESET) {
-      // The custom-range UI emits `yyyy-MM-dd` strings; expand to start/end of
-      // day so a "01/04 → 30/04" window covers the entire 30th and not just
-      // its midnight tick (z.coerce.date() parses bare dates as UTC midnight).
       if (state.createdAtFrom) {
         createdFrom = new Date(`${state.createdAtFrom}T00:00:00`).toISOString()
       }
@@ -81,7 +73,6 @@ export function useContactsFilters() {
         createdTo = new Date(`${state.createdAtTo}T23:59:59.999`).toISOString()
       }
     }
-
     return {
       stageIn: state.stageIn?.length ? state.stageIn.join(',') : undefined,
       sourceIn: state.sourceIn?.length ? state.sourceIn.join(',') : undefined,
@@ -94,7 +85,6 @@ export function useContactsFilters() {
       search: state.search || undefined,
     }
   }, [state])
-
   function setFilter(key: string, value: FilterValue) {
     if (key === 'createdAt') {
       const range = asDateRangeValue(value)
@@ -116,11 +106,9 @@ export function useContactsFilters() {
       return
     }
   }
-
   function setSearch(next: string) {
     void setState({ search: next })
   }
-
   function clearAll() {
     void setState({
       stageIn: null,
@@ -132,7 +120,6 @@ export function useContactsFilters() {
       createdAtTo: null,
     })
   }
-
   return {
     values,
     apiParams,

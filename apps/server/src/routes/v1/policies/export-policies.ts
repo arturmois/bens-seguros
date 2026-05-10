@@ -49,9 +49,7 @@ export function exportPoliciesRoute(app: FastifyInstance) {
         endDateTo,
         search,
       })
-
       const readable = Readable.from(stream)
-
       return reply
         .header('Content-Type', 'text/csv; charset=utf-8')
         .header('Content-Disposition', 'attachment; filename="apolices.csv"')

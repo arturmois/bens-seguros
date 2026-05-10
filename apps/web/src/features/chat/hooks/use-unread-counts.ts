@@ -12,7 +12,6 @@ const UNREAD_KEY = 'chat-unread-counts'
 
 export function useUnreadCounts(socket: Socket | null) {
   const queryClient = useQueryClient()
-
   const query = useQuery({
     queryKey: [UNREAD_KEY],
     queryFn: async (): Promise<Record<string, number>> => {
@@ -23,7 +22,6 @@ export function useUnreadCounts(socket: Socket | null) {
     },
     staleTime: 60_000,
   })
-
   const handleUnreadUpdate = useCallback(
     (payload: unknown) => {
       if (!isRecord(payload)) return
@@ -31,7 +29,6 @@ export function useUnreadCounts(socket: Socket | null) {
     },
     [queryClient]
   )
-
   useEffect(() => {
     if (!socket) return
     socket.on(SOCKET_EVENTS.UNREAD_UPDATE, handleUnreadUpdate)
@@ -39,6 +36,5 @@ export function useUnreadCounts(socket: Socket | null) {
       socket.off(SOCKET_EVENTS.UNREAD_UPDATE, handleUnreadUpdate)
     }
   }, [socket, handleUnreadUpdate])
-
   return { unreadCounts: query.data ?? {} }
 }

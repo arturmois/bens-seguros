@@ -12,9 +12,6 @@ interface ExportResponse {
   readonly url: string
 }
 
-/**
- * PDF export stays manual because it uses window.open on the response URL.
- */
 export function useExportDashboardPdf() {
   return useMutation({
     mutationFn: async (preset: DashboardPreset) => {

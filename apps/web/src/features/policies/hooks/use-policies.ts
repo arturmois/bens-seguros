@@ -35,7 +35,6 @@ export function usePolicy(id: string) {
 
 export function useIssuePolicy() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (values: {
       proposalId: string
@@ -74,7 +73,6 @@ export function usePolicyByProposal(proposalId: string) {
 
 export function useCancelPolicy() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) =>
       cancelPolicy(id, { reason }),

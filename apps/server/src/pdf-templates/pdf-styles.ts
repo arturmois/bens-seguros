@@ -19,7 +19,6 @@ export const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
   },
 
-  // Header
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -53,7 +52,6 @@ export const styles = StyleSheet.create({
     marginBottom: 2,
   },
 
-  // Section
   section: {
     marginBottom: 16,
   },
@@ -69,7 +67,6 @@ export const styles = StyleSheet.create({
     borderBottomColor: COLORS.border,
   },
 
-  // Grid
   row: {
     flexDirection: 'row',
     marginBottom: 6,
@@ -89,7 +86,6 @@ export const styles = StyleSheet.create({
     fontFamily: 'Helvetica-Bold',
   },
 
-  // Table
   table: {
     marginBottom: 8,
   },
@@ -130,7 +126,6 @@ export const styles = StyleSheet.create({
     textAlign: 'right',
   },
 
-  // Highlight box
   highlightBox: {
     backgroundColor: COLORS.background,
     borderWidth: 1,
@@ -150,7 +145,6 @@ export const styles = StyleSheet.create({
     color: COLORS.primary,
   },
 
-  // Footer
   footer: {
     position: 'absolute',
     bottom: 30,
@@ -173,14 +167,12 @@ export const styles = StyleSheet.create({
     color: COLORS.muted,
   },
 
-  // Divider
   divider: {
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
     marginVertical: 12,
   },
 
-  // Badge / tag
   badge: {
     backgroundColor: COLORS.accent,
     borderRadius: 10,

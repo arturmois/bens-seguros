@@ -40,14 +40,11 @@ export function CommissionsTable() {
   const router = useRouter()
   const pagination = useCursorPagination()
   const filters = useCommissionsFilters()
-
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
-
   const debouncedSearch = useDebounce(filters.search, 300)
-
   const filterFingerprint = JSON.stringify({
     ...filters.apiParams,
     search: debouncedSearch || undefined,
@@ -58,13 +55,11 @@ export function CommissionsTable() {
     lastFingerprint.current = filterFingerprint
     pagination.reset()
   }, [filterFingerprint, pagination])
-
   const sortId = sorting[0]?.id
   const sortBy = sortId && isSortBy(sortId) ? sortId : undefined
   const sortOrder: ListCommissionsSortOrder | undefined = sorting[0]?.desc
     ? 'desc'
     : 'asc'
-
   const { data, isLoading, isError, refetch } = useCommissions({
     search: debouncedSearch || undefined,
     statusIn: filters.apiParams.statusIn,
@@ -75,13 +70,10 @@ export function CommissionsTable() {
     sortBy,
     sortOrder,
   })
-
   const commissions: CommissionData[] = data?.data ?? []
   const total = data?.meta?.total ?? 0
   const nextCursor = data?.meta?.nextCursor ?? null
-
   const columns = useMemo(() => createCommissionColumns(), [])
-
   const table = useReactTable({
     data: commissions,
     columns,
@@ -97,15 +89,12 @@ export function CommissionsTable() {
     manualFiltering: true,
     rowCount: total,
   })
-
   function handleFilterChange(key: string, value: FilterValue) {
     filters.setFilter(key, value)
   }
-
   function handleColumnToggle(id: string, visible: boolean) {
     setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
-
   if (isError) {
     return (
       <TableErrorState
@@ -114,7 +103,6 @@ export function CommissionsTable() {
       />
     )
   }
-
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <UnifiedFilterBar
@@ -138,7 +126,6 @@ export function CommissionsTable() {
           }}
         />
       </UnifiedFilterBar>
-
       <DataTable
         table={table}
         isLoading={isLoading}
@@ -150,7 +137,6 @@ export function CommissionsTable() {
           router.push(`/commissions/${commission.id}`)
         }
       />
-
       <MobileCardList
         data={commissions}
         keyExtractor={(c) => c.id}
@@ -160,7 +146,6 @@ export function CommissionsTable() {
         emptyDescription="As comissões serão criadas automaticamente ao emitir apólices."
         renderCard={(commission) => <CommissionCard commission={commission} />}
       />
-
       <CursorPagination
         total={total}
         pageSize={pagination.pageSize}

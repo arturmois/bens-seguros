@@ -26,7 +26,6 @@ export function listInternalProposalsRoute(app: FastifyInstance) {
     handler: async (request, reply) => {
       const { clientId, phone, status } = request.query
       const organizationId = request.organizationId!
-
       if (!clientId && !phone) {
         return reply.status(400).send({
           success: false,
@@ -36,25 +35,19 @@ export function listInternalProposalsRoute(app: FastifyInstance) {
           },
         })
       }
-
       const tenantPrisma = createTenantClient(organizationId)
-
       const resolvedClientId = await resolveClientId(
         tenantPrisma,
         organizationId,
         clientId,
         phone
       )
-
       if (!resolvedClientId) {
         return reply.status(200).send({
           success: true,
           data: { proposals: [], total: 0 },
         })
       }
-
-      // Proposal links to Contact, and Contact may link to Client. Filter by
-      // contact.clientId to preserve the legacy "list proposals for a client" semantics.
       const where: Prisma.ProposalWhereInput = {
         organizationId,
         contact: { clientId: resolvedClientId },
@@ -65,14 +58,12 @@ export function listInternalProposalsRoute(app: FastifyInstance) {
       } else if (status === 'ACTIVE') {
         where.stage = { notIn: ['LOST', 'POLICY_ISSUED'] }
       }
-
       const proposals = await tenantPrisma.proposal.findMany({
         where,
         include: { contact: { select: { name: true } } },
         orderBy: { createdAt: 'desc' },
         take: MAX_PROPOSALS,
       })
-
       return reply.status(200).send({
         success: true,
         data: {

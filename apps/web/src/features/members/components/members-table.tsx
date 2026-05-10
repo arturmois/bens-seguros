@@ -64,15 +64,12 @@ export function MembersTable({
   const { data, isLoading, isError, refetch } = useMembers()
   const removeMember = useRemoveMember()
   const filters = useMembersFilters()
-
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
   const [memberToRemove, setMemberToRemove] = useState<MemberData | null>(null)
-
   const debouncedSearch = useDebounce(filters.search, 300)
-
   const members = useMemo<MemberData[]>(() => {
     const list = data ?? []
     return list.filter(
@@ -82,7 +79,6 @@ export function MembersTable({
         matchesSearch(member, debouncedSearch)
     )
   }, [data, filters.active, filters.roleIn, debouncedSearch])
-
   const columnActions = useMemo(
     () => ({
       canAct: (member: MemberData) =>
@@ -92,12 +88,10 @@ export function MembersTable({
     }),
     [canManage, currentUserId, currentUserRole]
   )
-
   const columns = useMemo(
     () => createMemberColumns(columnActions),
     [columnActions]
   )
-
   const table = useReactTable({
     data: members,
     columns,
@@ -107,22 +101,18 @@ export function MembersTable({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   })
-
   function handleFilterChange(key: string, value: FilterValue) {
     filters.setFilter(key, value)
   }
-
   function handleColumnToggle(id: string, visible: boolean) {
     setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
-
   function handleConfirmRemove() {
     if (!memberToRemove) return
     removeMember.mutate(memberToRemove.id, {
       onSuccess: () => setMemberToRemove(null),
     })
   }
-
   const totalMembers = data?.length ?? 0
   const emptyMessage =
     totalMembers === 0 ? 'Convide sua equipe!' : 'Nenhum membro encontrado'
@@ -130,13 +120,11 @@ export function MembersTable({
     totalMembers === 0
       ? 'Adicione membros para colaborar na gestão da sua corretora.'
       : 'Ajuste a busca ou os filtros para encontrar um membro existente.'
-
   if (isError) {
     return (
       <TableErrorState message="Erro ao carregar membros." onRetry={refetch} />
     )
   }
-
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <UnifiedFilterBar
@@ -153,7 +141,6 @@ export function MembersTable({
       >
         {headerAction}
       </UnifiedFilterBar>
-
       <DataTable
         table={table}
         isLoading={isLoading}
@@ -162,7 +149,6 @@ export function MembersTable({
         emptyDescription={emptyDescription}
         columnVisibility={columnVisibility}
       />
-
       <MobileCardList
         data={members}
         keyExtractor={(member) => member.id}
@@ -179,7 +165,6 @@ export function MembersTable({
           />
         )}
       />
-
       <ConfirmDeleteDialog
         entityLabel="membro"
         open={memberToRemove !== null}

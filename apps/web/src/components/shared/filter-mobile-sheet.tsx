@@ -48,15 +48,12 @@ export function FilterMobileSheet({
 }: FilterMobileSheetProps) {
   const [open, setOpen] = useState(false)
   const [editingKey, setEditingKey] = useState<string | null>(null)
-
   const editingFilter = editingKey
     ? filters.find((f) => f.key === editingKey)
     : null
-
   function handleClose() {
     setEditingKey(null)
   }
-
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger render={<Button variant="outline" />}>
@@ -73,7 +70,6 @@ export function FilterMobileSheet({
             {editingFilter ? editingFilter.label : 'Filtros'}
           </SheetTitle>
         </SheetHeader>
-
         {!editingFilter && (
           <div className="space-y-1">
             {filters
@@ -119,7 +115,6 @@ export function FilterMobileSheet({
             </div>
           </div>
         )}
-
         {editingFilter?.type === 'enum' && (
           <EnumFilterControl
             key={editingFilter.key}
@@ -130,7 +125,6 @@ export function FilterMobileSheet({
             onClose={handleClose}
           />
         )}
-
         {editingFilter?.type === 'dateRange' && (
           <DateRangeFilterControl
             key={editingFilter.key}
@@ -140,7 +134,6 @@ export function FilterMobileSheet({
             onClose={handleClose}
           />
         )}
-
         {editingFilter?.type === 'boolean' && (
           <BooleanFilterControl
             key={editingFilter.key}

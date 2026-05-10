@@ -58,11 +58,9 @@ function parseSnapshotDate(value: unknown): Date | null {
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
     return value
   }
-
   if (typeof value !== 'string') {
     return null
   }
-
   const parsed = new Date(value)
   return Number.isNaN(parsed.getTime()) ? null : parsed
 }
@@ -73,10 +71,8 @@ export function parseSourcePolicySnapshot(
   if (!isRecord(value)) {
     return null
   }
-
   const startDate = parseSnapshotDate(value.startDate)
   const endDate = parseSnapshotDate(value.endDate)
-
   if (
     typeof value.policyNumber !== 'string' ||
     typeof value.clientName !== 'string' ||
@@ -88,7 +84,6 @@ export function parseSourcePolicySnapshot(
   ) {
     return null
   }
-
   return {
     policyNumber: value.policyNumber,
     clientName: value.clientName,
@@ -202,17 +197,14 @@ export class Proposal {
     if (!isActiveStage(this.props.stage)) {
       throw new InvalidStageTransitionError(this.props.stage, 'avançar')
     }
-
     const currentIndex = STAGES.indexOf(this.props.stage)
     if (currentIndex === -1 || currentIndex >= STAGES.length - 1) {
       throw new InvalidStageTransitionError(this.props.stage, 'avançar')
     }
-
     const nextStage = STAGES[currentIndex + 1]
     if (!nextStage) {
       throw new InvalidStageTransitionError(this.props.stage, 'avançar')
     }
-
     this.props.stage = nextStage
     this.props.updatedAt = new Date()
   }
@@ -242,7 +234,6 @@ export class Proposal {
         'marcar como perda'
       )
     }
-
     this.props.stage = 'LOST'
     this.props.lostReason = reason
     this.props.updatedAt = new Date()

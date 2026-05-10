@@ -50,7 +50,6 @@ export function BreadcrumbLink({
     className: cn('transition-colors hover:text-foreground', className),
     'data-slot': 'breadcrumb-link',
   }
-
   return useRender({
     defaultTagName: 'a',
     props: mergeProps<'a'>(defaultProps, props),

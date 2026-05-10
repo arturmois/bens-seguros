@@ -27,11 +27,9 @@ export class AdvanceProposalStage {
     if (!proposal) {
       throw ProposalErrors.notFound(proposalId)
     }
-
     if (proposal.stage === 'QUOTE' && !proposal.details) {
       throw ProposalErrors.detailsRequired(proposalId)
     }
-
     if (proposal.stage !== 'CAPTURE') {
       const summary = await this.checklistRepo.getSummary(proposalId)
       if (!summary.canAdvance) {
@@ -41,14 +39,11 @@ export class AdvanceProposalStage {
         )
       }
     }
-
     if (proposal.stage === 'PAYMENT') {
       await this.assertContactIsPromoted(proposal.contactId, organizationId)
     }
-
     proposal.advance()
     await this.proposalRepo.save(proposal)
-
     if (proposal.stage !== 'POLICY_ISSUED' && proposal.stage !== 'LOST') {
       const newItems = this.checklistConfig.getItems(
         proposal.stage,
@@ -66,7 +61,6 @@ export class AdvanceProposalStage {
         )
       }
     }
-
     return proposal
   }
 

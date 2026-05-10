@@ -40,11 +40,7 @@ export class PrismaClaimRepository implements ClaimRepository {
 
   private async getNextViaRedis(organizationId: string): Promise<number> {
     const key = `${CLAIM_SEQ_KEY_PREFIX}${organizationId}`
-
-    // INCR is atomic — creates the key at 0 then increments to 1 if missing
     const next = await this.redis!.incr(key)
-
-    // If result is 1, the key was just created; initialize from DB to avoid gaps
     if (next === 1) {
       const aggregate = await this.prisma.claim.aggregate({
         where: { organizationId },
@@ -52,13 +48,11 @@ export class PrismaClaimRepository implements ClaimRepository {
       })
       const currentMax = aggregate._max.claimNumber ?? 0
       if (currentMax > 0) {
-        // Reset to currentMax so the next INCR returns currentMax + 1
         await this.redis!.set(key, String(currentMax))
         return this.redis!.incr(key)
       }
       // No existing claims — 1 is the correct first number
     }
-
     return next
   }
 
@@ -83,7 +77,6 @@ export class PrismaClaimRepository implements ClaimRepository {
 
   async create(data: CreateClaimInput): Promise<ClaimData> {
     const nextNumber = await this.getNextClaimNumber(data.organizationId)
-
     const row = await this.prisma.claim.create({
       data: {
         organizationId: data.organizationId,
@@ -100,7 +93,6 @@ export class PrismaClaimRepository implements ClaimRepository {
       },
       include: CLAIM_INCLUDE,
     })
-
     return ClaimMapper.toDomain(row)
   }
 
@@ -129,7 +121,6 @@ export class PrismaClaimRepository implements ClaimRepository {
             : filters.status
               ? { status: filters.status }
               : {}
-
     const where: Prisma.ClaimWhereInput = {
       organizationId: filters.organizationId,
       deletedAt: null,
@@ -148,7 +139,6 @@ export class PrismaClaimRepository implements ClaimRepository {
         ],
       }),
     }
-
     const [rows, total] = await Promise.all([
       this.prisma.claim.findMany({
         where,
@@ -159,10 +149,8 @@ export class PrismaClaimRepository implements ClaimRepository {
       }),
       this.prisma.claim.count({ where }),
     ])
-
     const hasNext = rows.length > page.limit
     const items = hasNext ? rows.slice(0, -1) : rows
-
     return {
       items: items.map(ClaimMapper.toDomain),
       total,
@@ -184,7 +172,6 @@ export class PrismaClaimRepository implements ClaimRepository {
       },
       include: CLAIM_INCLUDE,
     })
-
     return ClaimMapper.toDomain(row)
   }
 

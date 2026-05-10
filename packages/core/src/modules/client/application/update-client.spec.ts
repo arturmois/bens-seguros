@@ -40,13 +40,11 @@ describe('UpdateClient', () => {
   it('updates fiscal fields', async () => {
     const repo = makeRepo()
     const useCase = new UpdateClient(repo)
-
     const result = await useCase.execute({
       id: 'c-1',
       organizationId: 'org-1',
       profession: 'Engenheira',
     })
-
     expect(repo.findById).toHaveBeenCalledWith('c-1', 'org-1')
     expect(repo.update).toHaveBeenCalledWith(
       'c-1',
@@ -55,11 +53,9 @@ describe('UpdateClient', () => {
     )
     expect(result.profession).toBe('Engenheira')
   })
-
   it('throws ClientNotFoundError when client does not exist', async () => {
     const repo = makeRepo({ findById: vi.fn(async () => null) })
     const useCase = new UpdateClient(repo)
-
     await expect(
       useCase.execute({ id: 'missing', organizationId: 'org-1' })
     ).rejects.toThrow(/não encontrado/i)

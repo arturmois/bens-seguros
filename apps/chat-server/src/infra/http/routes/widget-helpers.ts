@@ -2,10 +2,6 @@ import { CHAT_LIMITS, isRecord } from '@repo/shared'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import type IORedis from 'ioredis'
 
-// ---------------------------------------------------------------------------
-// Rate limiter (Redis-backed, IP-based)
-// ---------------------------------------------------------------------------
-
 const MAX_REQUESTS_PER_MINUTE = CHAT_LIMITS.WIDGET_RATE_LIMIT_PER_MIN
 
 async function isRateLimited(redis: IORedis, ip: string): Promise<boolean> {
@@ -16,10 +12,6 @@ async function isRateLimited(redis: IORedis, ip: string): Promise<boolean> {
   }
   return count > MAX_REQUESTS_PER_MINUTE
 }
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 export const DEFAULT_WIDGET_COLOR = '#1f4b5f'
 export const DEFAULT_WELCOME_MESSAGE = 'Olá! Como podemos ajudar?'
@@ -51,22 +43,18 @@ export function getChannelConfig(config: unknown): {
       allowedOrigins: [],
     }
   }
-
   const widgetColor =
     typeof config['widgetColor'] === 'string'
       ? config['widgetColor']
       : DEFAULT_WIDGET_COLOR
-
   const welcomeMessage =
     typeof config['welcomeMessage'] === 'string'
       ? config['welcomeMessage']
       : DEFAULT_WELCOME_MESSAGE
-
   const rawOrigins = config['allowedOrigins']
   const allowedOrigins = Array.isArray(rawOrigins)
     ? rawOrigins.filter((o): o is string => typeof o === 'string')
     : []
-
   return { widgetColor, welcomeMessage, allowedOrigins }
 }
 
@@ -76,7 +64,6 @@ export function isValidOrigin(
 ): boolean {
   if (!requestOrigin) return false
   if (allowedOrigins.length === 0) return false
-  // '*' disables origin checking — use only for development or fully public widgets
   return allowedOrigins.some(
     (origin) => origin === '*' || requestOrigin === origin
   )

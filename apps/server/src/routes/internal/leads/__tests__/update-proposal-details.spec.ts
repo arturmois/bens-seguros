@@ -52,7 +52,6 @@ describe('PUT /api/internal/proposals/:id/details', () => {
       url: '/api/internal/proposals/p-001/details',
       payload: makeAutoDetails(),
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -63,7 +62,6 @@ describe('PUT /api/internal/proposals/:id/details', () => {
       expect.objectContaining({ premiumValueInCents: 150000 })
     )
   })
-
   it('returns 400 when details are missing the branch field', async () => {
     const response = await injectAs(app, {
       method: 'PUT',
@@ -74,12 +72,10 @@ describe('PUT /api/internal/proposals/:id/details', () => {
         commissionBasisPoints: 1000,
       },
     })
-
     expect(response.statusCode).toBe(400)
     const body = response.json()
     expect(body.error.code).toBe('INVALID_DETAILS')
   })
-
   it('returns 404 when proposal does not exist', async () => {
     const error = Object.assign(new Error('Proposal not found'), {
       code: 'PROPOSAL_NOT_FOUND',
@@ -90,28 +86,23 @@ describe('PUT /api/internal/proposals/:id/details', () => {
       }
       return null
     })
-
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/internal/proposals/nonexistent/details',
       payload: makeAutoDetails(),
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.error.code).toBe('PROPOSAL_NOT_FOUND')
   })
-
   it('returns 400 when body is missing details field', async () => {
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/internal/proposals/p-001/details',
       payload: { premiumValueInCents: 150000 },
     })
-
     expect(response.statusCode).toBeGreaterThanOrEqual(400)
   })
-
   it('accepts LIFE branch details', async () => {
     const response = await injectAs(app, {
       method: 'PUT',
@@ -122,7 +113,6 @@ describe('PUT /api/internal/proposals/:id/details', () => {
         commissionBasisPoints: 500,
       },
     })
-
     expect(response.statusCode).toBe(200)
     expect(mockExecute).toHaveBeenCalledWith(
       'p-001',

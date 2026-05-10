@@ -19,7 +19,6 @@ export function useEndorsements(filters: EndorsementFilters) {
     cursor: filters.cursor,
     limit: filters.limit ?? 20,
   }
-
   return useListEndorsements(params, {
     query: {
       select: (response) => ({
@@ -32,7 +31,6 @@ export function useEndorsements(filters: EndorsementFilters) {
 
 export function useCreateEndorsement() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (values: CreateEndorsementBody) => {
       return createEndorsement(values)

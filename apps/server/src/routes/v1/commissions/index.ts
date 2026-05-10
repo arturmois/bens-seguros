@@ -12,8 +12,6 @@ import { reverseCommissionRoute } from './reverse-commission.js'
 
 export async function commissionRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
-
-  // IMPORTANT: export route must be registered BEFORE /:id to avoid route conflict
   exportCommissionsRoute(app)
   listCommissionsRoute(app)
   getCommissionRoute(app)

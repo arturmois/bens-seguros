@@ -52,35 +52,29 @@ describe('DELETE /api/v1/invitations/:id', () => {
         ReturnType<typeof prisma.invitation.update>
       >
     )
-
     const response = await injectAs(app, {
       method: 'DELETE',
       url: '/api/v1/invitations/invite-id-001',
       headers: { 'content-type': 'text/plain' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.id).toBe('invite-id-001')
   })
-
   it('returns 404 when invitation is not found', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.invitation.findFirst).mockResolvedValue(null)
-
     const response = await injectAs(app, {
       method: 'DELETE',
       url: '/api/v1/invitations/nonexistent-id',
       headers: { 'content-type': 'text/plain' },
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('INVITATION_NOT_FOUND')
   })
-
   it('cancels the invitation with correct status update', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.invitation.findFirst).mockResolvedValue(
@@ -93,13 +87,11 @@ describe('DELETE /api/v1/invitations/:id', () => {
         ReturnType<typeof prisma.invitation.update>
       >
     )
-
     await injectAs(app, {
       method: 'DELETE',
       url: '/api/v1/invitations/invite-id-001',
       headers: { 'content-type': 'text/plain' },
     })
-
     expect(vi.mocked(prisma.invitation.update)).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 'invite-id-001' },

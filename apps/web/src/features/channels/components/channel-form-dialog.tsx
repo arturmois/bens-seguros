@@ -65,7 +65,6 @@ export function ChannelFormDialog({
   const updateChannel = useUpdateChannel()
   const isPending = createChannel.isPending || updateChannel.isPending
   const { data: aiAgents } = useAiAgents()
-
   const form = useForm<ChannelFormValues>({
     resolver: zodResolver(channelFormSchema),
     defaultValues: channel
@@ -77,12 +76,9 @@ export function ChannelFormDialog({
         }
       : buildEmptyChannelForm(),
   })
-
   const watchedChannelType = form.watch('channelType')
-
   useEffect(() => {
     if (!open) return
-
     if (channel) {
       const cfg = channel.config
       const cfgString = (key: string): string => {
@@ -109,10 +105,8 @@ export function ChannelFormDialog({
       })
       return
     }
-
     form.reset(buildEmptyChannelForm())
   }, [open, channel, form])
-
   function handleSubmit(values: ChannelFormValues) {
     if (isEditMode && channel) {
       updateChannel.mutate(
@@ -140,13 +134,11 @@ export function ChannelFormDialog({
       )
       return
     }
-
     const payload = buildCreatePayload(values)
     createChannel.mutate(payload, {
       onSuccess: () => onOpenChange(false),
     })
   }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
@@ -160,7 +152,6 @@ export function ChannelFormDialog({
               : 'Configure um novo canal de comunicação.'}
           </DialogDescription>
         </DialogHeader>
-
         <DialogPanel>
           <form
             id="channel-form"
@@ -173,7 +164,6 @@ export function ChannelFormDialog({
                 error={form.formState.errors.channelType?.message}
               />
             )}
-
             <FormField
               label="Nome"
               error={form.formState.errors.name?.message}
@@ -184,7 +174,6 @@ export function ChannelFormDialog({
                 {...form.register('name')}
               />
             </FormField>
-
             {watchedChannelType === 'WHATSAPP' && (
               <WhatsAppFields
                 control={form.control}
@@ -193,17 +182,14 @@ export function ChannelFormDialog({
                 isEditMode={isEditMode}
               />
             )}
-
             {watchedChannelType === 'WEB_CHAT' && (
               <WebChatFields register={form.register} />
             )}
-
             {isEditMode && (
               <ChannelAiAgentSelect control={form.control} agents={aiAgents} />
             )}
           </form>
         </DialogPanel>
-
         <DialogFooter>
           <Button
             type="button"

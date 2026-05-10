@@ -23,14 +23,12 @@ function resolveDateRange(
   toInput: string | null
 ): { from?: string; to?: string } {
   if (!preset) return {}
-
   if (preset !== CUSTOM_PRESET) {
     const found = findPreset(preset)
     if (!found) return {}
     const range = found.compute()
     return { from: range.from.toISOString(), to: range.to.toISOString() }
   }
-
   const from = fromInput
     ? new Date(`${fromInput}T00:00:00`).toISOString()
     : undefined
@@ -51,7 +49,6 @@ export function useCommissionsFilters() {
     },
     { history: 'push' }
   )
-
   const values: Readonly<Record<string, FilterValue>> = useMemo(() => {
     const createdAt: DateRangeValue | undefined = state.createdAtPreset
       ? {
@@ -65,7 +62,6 @@ export function useCommissionsFilters() {
       createdAt,
     }
   }, [state])
-
   const apiParams = useMemo(() => {
     const created = resolveDateRange(
       state.createdAtPreset,
@@ -79,7 +75,6 @@ export function useCommissionsFilters() {
       search: state.search || undefined,
     }
   }, [state])
-
   function setFilter(key: string, value: FilterValue): void {
     if (key === 'statusIn') {
       const arr = asEnumValue(value)
@@ -95,11 +90,9 @@ export function useCommissionsFilters() {
       })
     }
   }
-
   function setSearch(next: string): void {
     void setState({ search: next })
   }
-
   function clearAll(): void {
     void setState({
       statusIn: null,
@@ -109,7 +102,6 @@ export function useCommissionsFilters() {
       search: '',
     })
   }
-
   return {
     statusIn: state.statusIn ?? undefined,
     search: state.search,

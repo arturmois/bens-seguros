@@ -18,13 +18,11 @@ export class PayCommission {
     if (!data) {
       throw CommissionErrors.notFound(id)
     }
-
     const commission = Commission.restore({
       ...data,
       splitPercentage: data.splitPercentage ?? 10000,
     })
     commission.markAsPaid()
-
     return this.commissionRepo.update(commission)
   }
 }

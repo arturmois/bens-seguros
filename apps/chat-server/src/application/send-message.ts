@@ -37,20 +37,16 @@ export class SendMessage {
       input.conversationId,
       input.tenantId
     )
-
     if (!conversation) {
       throw ChatErrors.conversationNotFound(input.conversationId)
     }
-
     if (!conversation.whatsappPhone) {
       throw ChatErrors.invalidTransition(
         conversation.status,
         'enviar mensagem sem numero WhatsApp'
       )
     }
-
     const now = new Date()
-
     const message = await this.messageRepo.create({
       conversationId: input.conversationId,
       tenantId: input.tenantId,
@@ -66,7 +62,6 @@ export class SendMessage {
       externalId: null,
       createdAt: now,
     })
-
     await this.queueProducer.enqueue(CHAT_QUEUES.SEND_MESSAGE, {
       messageId: message.id,
       conversationId: conversation.id,
@@ -76,14 +71,12 @@ export class SendMessage {
       text: input.text,
       type: 'TEXT',
     })
-
     await this.conversationRepo.updateLastMessage(
       conversation.id,
       input.tenantId,
       input.text,
       now
     )
-
     return message
   }
 }

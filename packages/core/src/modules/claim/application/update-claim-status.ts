@@ -37,17 +37,14 @@ export class UpdateClaimStatus {
     if (!claim) {
       throw ClaimErrors.notFound(id)
     }
-
     const allowed = VALID_TRANSITIONS[claim.status]
     if (!allowed.includes(newStatus)) {
       throw ClaimErrors.invalidTransition(claim.status, newStatus)
     }
-
     const now = new Date()
     const resolvedAt =
       newStatus === 'APPROVED' || newStatus === 'REJECTED' ? now : undefined
     const closedAt = newStatus === 'COMPLETED' ? now : undefined
-
     return this.claimRepo.updateStatus(id, organizationId, {
       status: newStatus,
       resolvedAt,

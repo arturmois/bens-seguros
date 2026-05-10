@@ -16,16 +16,13 @@ export function getTermsStatusRoute(app: FastifyInstance) {
     },
     handler: async (request) => {
       const userId = request.user!.id
-
       const user = await prisma.user.findUniqueOrThrow({
         where: { id: userId },
         select: { termsVersion: true, privacyVersion: true },
       })
-
       const needsReAccept =
         user.termsVersion !== CURRENT_TERMS_VERSION ||
         user.privacyVersion !== CURRENT_PRIVACY_VERSION
-
       return {
         success: true as const,
         data: {

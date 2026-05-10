@@ -26,7 +26,6 @@ function toJson(value: unknown): Prisma.InputJsonValue | undefined {
 }
 
 function extractMeta(request: FastifyRequest) {
-  // organizationId guaranteed by tenantMiddleware preHandler
   return {
     organizationId: request.organizationId!,
     userId: request.user?.id,
@@ -34,10 +33,6 @@ function extractMeta(request: FastifyRequest) {
     userAgent: request.headers['user-agent'] ?? undefined,
   }
 }
-
-// logAudit already has its own try/catch with Pino logging.
-// The .catch() safety net prevents unhandled rejections if
-// toJson or extractMeta throw before reaching logAudit.
 
 export function auditCreate(ctx: AuditContext): void {
   logCreate({

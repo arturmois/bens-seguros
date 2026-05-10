@@ -24,7 +24,6 @@ export function uploadDocumentRoute(app: FastifyInstance) {
     preHandler: [requireAbility('create', 'Document')],
     handler: async (request, reply) => {
       const file = await request.file()
-
       if (!file) {
         return reply.status(400).send({
           success: false,
@@ -34,10 +33,8 @@ export function uploadDocumentRoute(app: FastifyInstance) {
           },
         })
       }
-
       const buffer = await file.toBuffer()
       const useCase = container.resolve(UploadDocument)
-
       try {
         const document = await useCase.execute({
           organizationId: request.organizationId!,

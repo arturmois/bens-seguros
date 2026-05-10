@@ -46,7 +46,7 @@ export class CsvImportError extends Error {
   }
 }
 
-export const MAX_IMPORT_FILE_SIZE = 5 * 1024 * 1024 // 5 MB
+export const MAX_IMPORT_FILE_SIZE = 5 * 1024 * 1024
 export const MAX_IMPORT_ROWS = 50_000
 export const IMPORT_BATCH_SIZE = 50
 export const MAX_IMPORT_ERRORS = 100

@@ -33,7 +33,6 @@ export const ENDORSEMENT_TYPE_LABELS: Record<EndorsementType, string> = {
   OTHER: 'Outro',
 }
 
-/** Safe lookup — Orval types `type` as plain string */
 export function getEndorsementTypeLabel(type: string): string {
   return (ENDORSEMENT_TYPE_LABELS as Record<string, string>)[type] ?? type
 }

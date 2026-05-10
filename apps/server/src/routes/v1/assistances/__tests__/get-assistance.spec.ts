@@ -56,12 +56,10 @@ const makeAssistance = () => ({
 describe('GET /api/v1/assistances/:id', () => {
   it('returns 200 with assistance data on valid id', async () => {
     mockExecute.mockResolvedValue(makeAssistance())
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/assistances/assistance-id-001',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -69,15 +67,12 @@ describe('GET /api/v1/assistances/:id', () => {
     expect(body.data.organizationId).toBe(TEST_ORG_ID)
     expect(body.data.status).toBe('REQUESTED')
   })
-
   it('returns 404 when assistance is not found', async () => {
     mockResolveError('ASSISTANCE_NOT_FOUND', 'Assistance not found')
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/assistances/nonexistent-id',
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.success).toBe(false)

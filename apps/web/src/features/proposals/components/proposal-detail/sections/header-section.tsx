@@ -32,7 +32,6 @@ export function HeaderSection({
   onSendQuote,
 }: HeaderSectionProps) {
   const showActions = proposal.stage !== 'CAPTURE' && proposal.stage !== 'LOST'
-
   return (
     <div className="flex flex-wrap items-center gap-3">
       <Badge

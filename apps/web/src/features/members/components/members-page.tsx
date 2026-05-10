@@ -24,23 +24,18 @@ export function MembersPage() {
   const { activeOrg } = useOrgs()
   const { data: members } = useMembers()
   const { data: invitations } = useInvitations()
-
   const [activeTab, setActiveTab] = useState<ActiveTab>('members')
   const [formOpen, setFormOpen] = useState(false)
-
   const userRole = activeOrg?.role ?? 'VIEWER'
   const canManage = isRoleAtLeast(userRole, ADMIN_LEVEL_ROLE)
-
   const membersCount = members?.length ?? 0
   const invitationsCount = invitations?.length ?? 0
-
   const inviteButton = canManage ? (
     <Button onClick={() => setFormOpen(true)}>
       <Plus className="mr-2 size-4" />
       Convidar
     </Button>
   ) : null
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -54,7 +49,6 @@ export function MembersPage() {
         </div>
         {activeTab === 'invitations' && inviteButton}
       </div>
-
       <TabBar
         activeTab={activeTab}
         onTabChange={setActiveTab}
@@ -62,7 +56,6 @@ export function MembersPage() {
         invitationsCount={invitationsCount}
         showInvitations={canManage}
       />
-
       {activeTab === 'members' && (
         <MembersTable
           canManage={canManage}
@@ -74,7 +67,6 @@ export function MembersPage() {
       {activeTab === 'invitations' && canManage && (
         <PendingInvitations canManage={canManage} />
       )}
-
       {canManage && (
         <InviteMemberDialog
           open={formOpen}

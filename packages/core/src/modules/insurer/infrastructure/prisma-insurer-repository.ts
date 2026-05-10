@@ -26,7 +26,6 @@ export class PrismaInsurerRepository implements InsurerRepository {
         active: data.active ?? true,
       },
     })
-
     return InsurerMapper.toDomain(row)
   }
 
@@ -64,10 +63,8 @@ export class PrismaInsurerRepository implements InsurerRepository {
         ],
       }),
     }
-
     const sortBy = page.sortBy ?? 'name'
     const sortOrder = page.sortOrder ?? 'asc'
-
     const primaryOrderBy: Prisma.InsurerOrderByWithRelationInput = (() => {
       switch (sortBy) {
         case 'code':
@@ -81,17 +78,14 @@ export class PrismaInsurerRepository implements InsurerRepository {
           return { name: sortOrder }
       }
     })()
-
     const rows = await this.prisma.insurer.findMany({
       where,
       take: page.limit + 1,
       ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
       orderBy: [primaryOrderBy, { id: sortOrder }],
     })
-
     const hasNext = rows.length > page.limit
     const items = hasNext ? rows.slice(0, -1) : rows
-
     return {
       items: items.map(InsurerMapper.toDomain),
       nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,
@@ -102,32 +96,25 @@ export class PrismaInsurerRepository implements InsurerRepository {
     const updateData: Prisma.InsurerUpdateInput = {
       name: data.name,
     }
-
     if (data.code !== undefined) {
       updateData.code = data.code
     }
-
     if (data.active !== undefined) {
       updateData.active = data.active
     }
-
     const result = await this.prisma.insurer.updateMany({
       where: { id: data.id, organizationId: data.organizationId },
       data: updateData,
     })
-
     if (result.count === 0) {
       throw InsurerErrors.notFound(data.id)
     }
-
     const row = await this.prisma.insurer.findFirst({
       where: { id: data.id, organizationId: data.organizationId },
     })
-
     if (!row) {
       throw InsurerErrors.notFound(data.id)
     }
-
     return InsurerMapper.toDomain(row)
   }
 }

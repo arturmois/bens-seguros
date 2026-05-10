@@ -4,7 +4,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { insurerListResponse, listInsurersQuerySchema } from './_schemas.js'
 
-const INSURER_CACHE_TTL = 86400 // 24h
+const INSURER_CACHE_TTL = 86400
 
 interface InsurerCacheData {
   items: {
@@ -50,7 +50,6 @@ export function listInsurersRoute(app: FastifyInstance) {
         sortBy === 'name' &&
         sortOrder === 'asc'
       const cacheKey = `cache:${organizationId}:insurers`
-
       const cacheService = canUseCache ? resolveCache() : null
       if (cacheService) {
         const cached = await cacheService.get<InsurerCacheData>(cacheKey)
@@ -62,13 +61,11 @@ export function listInsurersRoute(app: FastifyInstance) {
           })
         }
       }
-
       const useCase = container.resolve(ListInsurers)
       const result = await useCase.execute(
         { organizationId, active, search },
         { limit, cursor, sortBy, sortOrder }
       )
-
       if (cacheService) {
         await cacheService.set(
           cacheKey,
@@ -79,7 +76,6 @@ export function listInsurersRoute(app: FastifyInstance) {
           INSURER_CACHE_TTL
         )
       }
-
       return reply.send({
         success: true,
         data: result.items,

@@ -40,33 +40,28 @@ describe('LookupCep', () => {
   let cache: CacheService
   let provider: CepLookupProvider
   let useCase: LookupCep
-
   beforeEach(() => {
     cache = makeCache()
     provider = makeProvider()
     useCase = new LookupCep(provider, cache)
   })
-
   it('rejects CEPs with less than 8 digits', async () => {
     await expect(useCase.execute({ cep: '1234' })).rejects.toBeInstanceOf(
       InvalidCepError
     )
   })
-
   it('normalizes CEP by stripping non-digits before cache lookup', async () => {
     cache.get = vi.fn().mockResolvedValue(cached)
     const result = await useCase.execute({ cep: '01311-000' })
     expect(cache.get).toHaveBeenCalledWith('cep:01311000')
     expect(result).toEqual(cached)
   })
-
   it('returns cached AddressData on cache hit without calling provider', async () => {
     cache.get = vi.fn().mockResolvedValue(cached)
     const result = await useCase.execute({ cep: '01311000' })
     expect(result).toEqual(cached)
     expect(provider.lookup).not.toHaveBeenCalled()
   })
-
   it('fetches from provider on cache miss and caches the result for 30 days', async () => {
     provider.lookup = vi.fn().mockResolvedValue(cached)
     const result = await useCase.execute({ cep: '01311000' })
@@ -74,7 +69,6 @@ describe('LookupCep', () => {
     expect(provider.lookup).toHaveBeenCalledWith('01311000')
     expect(cache.set).toHaveBeenCalledWith('cep:01311000', cached, 2592000)
   })
-
   it('throws CepNotFoundError when provider returns null and does not cache', async () => {
     provider.lookup = vi.fn().mockResolvedValue(null)
     await expect(useCase.execute({ cep: '00000000' })).rejects.toBeInstanceOf(
@@ -82,7 +76,6 @@ describe('LookupCep', () => {
     )
     expect(cache.set).not.toHaveBeenCalled()
   })
-
   it('propagates CepProviderUnavailableError when provider throws', async () => {
     provider.lookup = vi
       .fn()

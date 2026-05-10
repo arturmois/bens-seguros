@@ -21,11 +21,9 @@ interface CommissionDetailProps {
 export function CommissionDetail({ commissionId }: CommissionDetailProps) {
   const router = useRouter()
   const { data, isLoading, isError } = useCommission(commissionId)
-
   if (isLoading) {
     return <DetailSkeleton />
   }
-
   if (isError || !data) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
@@ -51,7 +49,6 @@ export function CommissionDetail({ commissionId }: CommissionDetailProps) {
       </div>
     )
   }
-
   return (
     <div className="space-y-6">
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
@@ -67,25 +64,21 @@ export function CommissionDetail({ commissionId }: CommissionDetailProps) {
         <span className="text-muted-foreground">/</span>
         <span className="text-muted-foreground">Detalhes</span>
       </nav>
-
       <DetailHeader commission={data} />
       <Separator />
       <DetailInfoGrid commission={data} />
-
       {data.isReversal && data.originalCommissionId && (
         <>
           <Separator />
           <ReversalInfo originalCommissionId={data.originalCommissionId} />
         </>
       )}
-
       {data.rejectionReason && (
         <>
           <Separator />
           <RejectionInfo commission={data} />
         </>
       )}
-
       <Separator />
       <CommissionActions
         commissionId={commissionId}
@@ -117,7 +110,6 @@ function DetailInfoGrid({
   readonly commission: CommissionData
 }) {
   const percentageDisplay = `${(commission.percentageInBasisPoints / 100).toFixed(1)}%`
-
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <InfoItem

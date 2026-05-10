@@ -29,7 +29,6 @@ export class PrismaDocumentRepository implements DocumentRepository {
         createdBy: data.createdBy ?? null,
       },
     })
-
     return DocumentMapper.toDomain(row)
   }
 
@@ -56,7 +55,6 @@ export class PrismaDocumentRepository implements DocumentRepository {
         createdBy: data.createdBy ?? null,
       },
     })
-
     return DocumentMapper.toDomain(row)
   }
 
@@ -79,7 +77,6 @@ export class PrismaDocumentRepository implements DocumentRepository {
       where: { entityType, entityId, organizationId },
       orderBy: { createdAt: 'desc' },
     })
-
     return rows.map(DocumentMapper.toDomain)
   }
 

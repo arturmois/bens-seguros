@@ -30,7 +30,6 @@ export function ImportStepPreview({
   const { validationSummary } = preview
   const firstRow = preview.preview[0]
   const columns = firstRow ? Object.keys(firstRow) : []
-
   return (
     <div className="flex flex-col gap-4 overflow-hidden p-4">
       <div className="flex items-center gap-4 text-sm">
@@ -46,7 +45,6 @@ export function ImportStepPreview({
           {validationSummary.total} total
         </span>
       </div>
-
       {validationSummary.errors.length > 0 && (
         <div className="bg-destructive/10 rounded-md p-3">
           <p className="text-destructive text-sm font-medium">
@@ -69,7 +67,6 @@ export function ImportStepPreview({
           </ul>
         </div>
       )}
-
       <div className="overflow-auto rounded-md border">
         <Table>
           <TableHeader>
@@ -99,7 +96,6 @@ export function ImportStepPreview({
           </TableBody>
         </Table>
       </div>
-
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={onCancel} disabled={isConfirming}>
           Cancelar

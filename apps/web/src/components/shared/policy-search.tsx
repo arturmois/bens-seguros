@@ -47,7 +47,6 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
   const debouncedSearch = useDebounce(search, 300)
-
   const { data, isLoading } = useQuery({
     queryKey: ['policies-search', debouncedSearch],
     queryFn: async () => {
@@ -65,7 +64,6 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
     },
     enabled: debouncedSearch.length >= 2 && !selectedLabel,
   })
-
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       const target = event.target
@@ -77,11 +75,9 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
   useEffect(() => {
     setHighlightedIndex(-1)
   }, [data])
-
   const selectPolicy = useCallback(
     (policy: PolicySearchResult) => {
       const clientLabel = policy.clientName ? ` — ${policy.clientName}` : ''
@@ -97,10 +93,8 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
     },
     [onChange]
   )
-
   function handleKeyDown(e: React.KeyboardEvent) {
     if (!showResults || !data || data.length === 0) return
-
     if (e.key === 'ArrowDown') {
       e.preventDefault()
       setHighlightedIndex((prev) => (prev < data.length - 1 ? prev + 1 : 0))
@@ -118,7 +112,6 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
       setShowResults(false)
     }
   }
-
   const displayValue = value && selectedLabel ? selectedLabel : search
   const hasResults = showResults && data && data.length > 0
   const hasNoResults =
@@ -127,7 +120,6 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
     !isLoading &&
     data &&
     data.length === 0
-
   return (
     <div className="relative" ref={containerRef}>
       <Input

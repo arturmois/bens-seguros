@@ -1,4 +1,3 @@
-// packages/core/src/modules/notification/application/count-alerts-by-entity-type.spec.ts
 import { describe, expect, it, vi } from 'vitest'
 import type { NotificationRepository } from '../domain/notification-repository.js'
 import { CountAlertsByEntityType } from './count-alerts-by-entity-type.js'
@@ -24,9 +23,7 @@ describe('CountAlertsByEntityType', () => {
   it('returns alert counts grouped by entity type', async () => {
     const repo = createMockRepo()
     const useCase = new CountAlertsByEntityType(repo)
-
     const result = await useCase.execute('org-1', 'user-1')
-
     expect(result).toEqual({
       Policy: 3,
       Claim: 1,

@@ -4,10 +4,6 @@ import { prismaAdmin as prisma } from '@repo/db'
 import type { DashboardPreset } from './_schemas.js'
 import { presetToDays } from './_schemas.js'
 
-// NOTE: Uses global prisma (not tenantPrisma) because dashboard runs 19+
-// queries in Promise.all. TenantPrisma wraps each in a $transaction for RLS,
-// which exhausts the connection pool (P2028 timeout). All queries already
-// filter by organizationId — RLS is redundant here. (P3 #21 audit)
 type DbClient = typeof prisma
 
 export function calculateChangePercent(
@@ -88,7 +84,6 @@ export interface DashboardData {
   readonly averageTicket: MetricComparison
   readonly commissionsReceivable: number
   readonly ranking: readonly RankingEntry[]
-  // --- SCRUM-25 ---
   readonly newInsurance: MetricComparison
   readonly renewal7dPremiumCents: number
   readonly warnings: WarningsStats
@@ -323,7 +318,6 @@ export async function fetchNewInsuranceStats(
       },
     }),
   ])
-
   return {
     current,
     previous,
@@ -399,13 +393,11 @@ export async function fetchProposalsPendingByBucket(
 ): Promise<ProposalsPendingBuckets> {
   const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000)
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-
   const baseWhere = {
     organizationId: orgId,
     deletedAt: null,
     stage: { in: [...PENDING_STAGES] },
   }
-
   const [inDay, warning, critical] = await Promise.all([
     db.proposal.count({
       where: { ...baseWhere, updatedAt: { gte: threeDaysAgo } },
@@ -420,7 +412,6 @@ export async function fetchProposalsPendingByBucket(
       where: { ...baseWhere, updatedAt: { lt: sevenDaysAgo } },
     }),
   ])
-
   return { total: inDay + warning + critical, inDay, warning, critical }
 }
 
@@ -440,7 +431,6 @@ function buildComparisonMetrics(data: ComparisonData) {
     previousPremium,
     commissionsReceivable,
   ] = data
-
   const currentPendingCents =
     currentPendingCommissions._sum.commissionValueInCents ?? 0
   const previousPendingCents =
@@ -455,7 +445,6 @@ function buildComparisonMetrics(data: ComparisonData) {
     previousPremium._count > 0
       ? Math.round(previousPremiumCents / previousPremium._count)
       : 0
-
   return {
     comparison: {
       proposals: {
@@ -534,7 +523,6 @@ async function fetchRanking(
     ORDER BY COALESCE(SUM(p."premiumValueInCents"), 0) DESC
     LIMIT 10
   `
-
   return results.map((r) => ({
     salespersonId: r.salespersonId,
     salespersonName: r.salespersonName,
@@ -553,7 +541,6 @@ export async function buildDashboardData(
   db: DbClient = prisma
 ): Promise<DashboardData> {
   const ranges = buildDateRanges(preset)
-
   const [
     chartResults,
     comparisonData,
@@ -571,7 +558,6 @@ export async function buildDashboardData(
     fetchWarnings(orgId, db),
     fetchProposalsPendingByBucket(orgId, db, ranges.now),
   ])
-
   const [
     proposalsByStage,
     activePolicies,
@@ -582,7 +568,6 @@ export async function buildDashboardData(
     monthlyTrends,
     renewalsNext7Days,
   ] = chartResults
-
   return {
     proposalsByStage,
     activePolicies,

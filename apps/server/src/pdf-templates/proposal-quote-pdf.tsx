@@ -44,7 +44,6 @@ function ClientSection({ proposal }: { readonly proposal: ProposalProps }) {
   const maskedDoc = proposal.clientDocument
     ? maskDocument(proposal.clientDocument)
     : '—'
-
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Dados do Cliente</Text>
@@ -66,7 +65,6 @@ function CoverageSection({ proposal }: { readonly proposal: ProposalProps }) {
   const commissionPercent = (
     proposal.commissionPercentageInCents / 100
   ).toFixed(2)
-
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Condições Comerciais</Text>
@@ -114,7 +112,6 @@ function CoverageDatesSection({
   if (!proposal.coverageStartDate && !proposal.coverageEndDate) {
     return null
   }
-
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Vigência Proposta</Text>
@@ -144,7 +141,6 @@ function ValiditySection({ proposal }: { readonly proposal: ProposalProps }) {
   const validUntil = proposal.quoteValidUntil
     ? formatDate(proposal.quoteValidUntil)
     : '—'
-
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Validade da Cotação</Text>
@@ -182,19 +178,13 @@ export function ProposalQuotePdf({
           docDate={formatDate(proposal.createdAt)}
           docNumber={proposal.id.slice(0, 8).toUpperCase()}
         />
-
         <ClientSection proposal={proposal} />
-
         <CoverageSection proposal={proposal} />
-
         <CoverageDatesSection proposal={proposal} />
-
         {proposal.details ? (
           <InsuredObjectSection details={proposal.details} />
         ) : null}
-
         <ValiditySection proposal={proposal} />
-
         <PdfFooter
           salespersonName={proposal.salespersonName ?? organization.name}
           creci={organization.creci}

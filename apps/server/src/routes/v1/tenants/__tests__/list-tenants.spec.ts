@@ -46,12 +46,10 @@ describe('GET /api/v1/tenants', () => {
     vi.mocked(prisma.member.findMany).mockResolvedValue([
       makeTenantMember(),
     ] as unknown as Awaited<ReturnType<typeof prisma.member.findMany>>)
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/tenants',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -63,31 +61,25 @@ describe('GET /api/v1/tenants', () => {
       include: { organization: true },
     })
   })
-
   it('returns 200 with empty list when user has no memberships', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.member.findMany).mockResolvedValue(
       [] as unknown as Awaited<ReturnType<typeof prisma.member.findMany>>
     )
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/tenants',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data).toHaveLength(0)
   })
-
   it('returns 401 when user context is missing', async () => {
     setTestContext({ user: null })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/tenants',
     })
-
     expect(response.statusCode).toBe(401)
     const body = response.json()
     expect(body.success).toBe(false)

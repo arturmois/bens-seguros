@@ -39,7 +39,6 @@ export class ContactMapper {
     if (!clientId) return 'LEAD'
     if (activePolicyCount > 0) return 'CLIENT_ACTIVE'
     if (totalPolicyCount > 0) return 'CLIENT_INACTIVE'
-    // Promoted client without any policy yet (rare): treat as INACTIVE
     return 'CLIENT_INACTIVE'
   }
 

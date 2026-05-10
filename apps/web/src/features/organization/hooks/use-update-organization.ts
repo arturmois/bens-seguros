@@ -12,7 +12,6 @@ const ORGS_KEY = ['orgs'] as const
 
 export function useUpdateOrganization() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (payload: { name: string; slug: string }) => {
       return updateOrganization(payload)

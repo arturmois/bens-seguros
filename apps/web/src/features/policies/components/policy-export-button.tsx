@@ -28,7 +28,6 @@ export function PolicyExportButton({ filters }: PolicyExportButtonProps) {
     onSuccess: () => toast.success('Exportação concluída'),
     onError: () => toast.error('Erro ao exportar apólices'),
   })
-
   return (
     <Button
       variant="outline"

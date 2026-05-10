@@ -20,23 +20,19 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
   const { orgs, activeOrg, switchOrg } = useOrgs()
   const [open, setOpen] = useState(false)
   const router = useRouter()
-
   function handleSwitch(orgId: string) {
     setOpen(false)
     if (orgId !== activeOrg?.id) {
       switchOrg(orgId)
     }
   }
-
   function handleCreateNew() {
     setOpen(false)
     router.push('/onboarding?new=true')
   }
-
   if (!activeOrg) {
     return null
   }
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
@@ -103,7 +99,6 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
             </button>
           ))}
         </div>
-
         <div className="border-border mt-1 border-t pt-1">
           <button
             type="button"

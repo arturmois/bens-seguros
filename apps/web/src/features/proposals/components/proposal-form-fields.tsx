@@ -62,7 +62,6 @@ export function ProposalFormFields({
           </div>
         )}
       />
-
       <Controller
         control={control}
         name="branch"
@@ -101,7 +100,6 @@ export function ProposalFormFields({
           </div>
         )}
       />
-
       <Controller
         control={control}
         name="boardType"
@@ -140,7 +138,6 @@ export function ProposalFormFields({
           </div>
         )}
       />
-
       {boardType === 'RENEWAL' && (
         <Controller
           control={control}

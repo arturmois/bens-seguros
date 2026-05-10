@@ -43,7 +43,6 @@ export class MongooseMessageRepository implements MessageRepository {
       metadata: data.metadata,
       externalId: data.externalId,
     })
-
     return toMessageData(doc.toObject<MessageDocument>())
   }
 
@@ -53,11 +52,9 @@ export class MongooseMessageRepository implements MessageRepository {
     page: CursorPage
   ): Promise<Page<MessageData>> {
     const query: Record<string, unknown> = { conversationId, tenantId }
-
     if (page.cursor) {
       query['_id'] = { $lt: page.cursor }
     }
-
     const [docs, total] = await Promise.all([
       Message.find(query)
         .sort({ createdAt: -1, _id: -1 })
@@ -65,13 +62,9 @@ export class MongooseMessageRepository implements MessageRepository {
         .lean<MessageDocument[]>(),
       Message.countDocuments({ conversationId, tenantId }),
     ])
-
     const items = docs.map(toMessageData)
     const lastItem = items.at(-1)
-
-    // Query fetches newest-first for cursor pagination, but UI needs oldest-first (chronological)
     items.reverse()
-
     return {
       data: items,
       meta: {
@@ -116,7 +109,6 @@ export class MongooseMessageRepository implements MessageRepository {
       .sort({ createdAt: 1 })
       .limit(limit)
       .lean<MessageDocument[]>()
-
     return docs.map(toMessageData)
   }
 }

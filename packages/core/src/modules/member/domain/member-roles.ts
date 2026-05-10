@@ -1,5 +1,3 @@
-// Role definitions mirrored here to avoid cross-package dependency on @repo/auth.
-// The source of truth is packages/auth/src/roles.ts — keep these in sync.
 export const MEMBER_ROLES = {
   OWNER: 'OWNER',
   ADMIN: 'ADMIN',

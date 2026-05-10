@@ -41,7 +41,6 @@ async function upsertMessagingContact(
 ): Promise<string> {
   const { tenantId, senderId, source, name } = options
   const idField = source === 'MESSENGER' ? 'facebookId' : 'instagramId'
-
   const filter = { tenantId, [idField]: senderId }
   const update: Record<string, unknown> = {
     source,
@@ -50,13 +49,11 @@ async function upsertMessagingContact(
   if (name) {
     update['name'] = name
   }
-
   const contact = await Contact.findOneAndUpdate(
     filter,
     { $set: update },
     { upsert: true, new: true }
   ).exec()
-
   return String(contact._id)
 }
 
@@ -74,7 +71,6 @@ async function fetchMetaContactName(
     const data = parsed.success
       ? parsed.data
       : { name: undefined, error: undefined }
-
     if (!response.ok || data.error) {
       logger.warn(
         { senderId, error: data.error?.message },
@@ -82,7 +78,6 @@ async function fetchMetaContactName(
       )
       return undefined
     }
-
     return data.name
   } catch (err: unknown) {
     logger.warn({ err, senderId }, 'Exception fetching Meta contact name')
@@ -106,9 +101,7 @@ export async function processMessagingPlatformMessage(
     attachmentUrl,
     timestamp,
   } = data
-
   const channelType = source === 'MESSENGER' ? 'MESSENGER' : 'INSTAGRAM'
-
   const alreadyExists = await Message.findOne({ externalId: messageId })
     .lean()
     .exec()
@@ -119,7 +112,6 @@ export async function processMessagingPlatformMessage(
     )
     return
   }
-
   const channel = await Channel.findOne({
     type: channelType,
     isActive: true,
@@ -127,7 +119,6 @@ export async function processMessagingPlatformMessage(
   })
     .lean()
     .exec()
-
   if (!channel) {
     logger.warn(
       { accountId, channelType },
@@ -135,7 +126,6 @@ export async function processMessagingPlatformMessage(
     )
     return
   }
-
   const tenantId = String(channel.tenantId)
   const channelId = String(channel._id)
   const channelConfig = isRecord(channel.config) ? channel.config : undefined
@@ -143,7 +133,6 @@ export async function processMessagingPlatformMessage(
     typeof channelConfig?.['metaToken'] === 'string'
       ? channelConfig['metaToken']
       : undefined
-
   const idField = source === 'MESSENGER' ? 'facebookId' : 'instagramId'
   const existingContact = await Contact.findOne({
     tenantId,
@@ -151,21 +140,17 @@ export async function processMessagingPlatformMessage(
   })
     .lean()
     .exec()
-
   let contactName: string | undefined
   if (!existingContact && accessToken) {
     contactName = await fetchMetaContactName(senderId, accessToken)
   }
-
   const contactId = await upsertMessagingContact({
     tenantId,
     senderId,
     source,
     name: contactName,
   })
-
   const messageType = attachmentType ?? (text ? 'TEXT' : 'OTHER')
-
   const command = detectClientCommand(text, messageType)
   if (command === 'CLOSE') {
     await handleClientCloseCommandPlatform({
@@ -182,7 +167,6 @@ export async function processMessagingPlatformMessage(
     })
     return
   }
-
   const {
     id: conversationId,
     status: conversationStatus,
@@ -194,9 +178,7 @@ export async function processMessagingPlatformMessage(
     phone: senderId,
     hasAiUser: Boolean(channel.aiAgentId),
   })
-
   const senderName = existingContact?.name ?? contactName ?? senderId
-
   const savedMessage = await Message.create({
     conversationId,
     tenantId,
@@ -208,7 +190,6 @@ export async function processMessagingPlatformMessage(
     status: 'DELIVERED',
     externalId: messageId,
   })
-
   await publishMessageEvents(pubsubClient, {
     savedMessage,
     conversationId,
@@ -221,7 +202,6 @@ export async function processMessagingPlatformMessage(
     conversationStatus,
     isNew,
   })
-
   if (conversationStatus === 'BOT_ACTIVE') {
     await enqueueAiBotJob(
       aiBotQueue,
@@ -230,7 +210,6 @@ export async function processMessagingPlatformMessage(
       String(savedMessage._id)
     )
   }
-
   logger.info(
     {
       externalId: messageId,
@@ -242,10 +221,6 @@ export async function processMessagingPlatformMessage(
     'Messaging platform incoming message processed'
   )
 }
-
-// ---------------------------------------------------------------------------
-// Client close command handler
-// ---------------------------------------------------------------------------
 
 interface HandleClientCloseCommandPlatformOptions {
   readonly tenantId: string
@@ -275,7 +250,6 @@ async function handleClientCloseCommandPlatform(
     pubsubClient,
     sendMessageQueue,
   } = options
-
   const open = await findOpenConversation(tenantId, channelId, contactId)
   if (!open) {
     logger.debug(
@@ -284,7 +258,6 @@ async function handleClientCloseCommandPlatform(
     )
     return
   }
-
   const savedClientMessage = await Message.create({
     conversationId: open.id,
     tenantId,
@@ -295,7 +268,6 @@ async function handleClientCloseCommandPlatform(
     status: 'DELIVERED',
     externalId: messageId,
   })
-
   await publishMessageEvents(pubsubClient, {
     savedMessage: savedClientMessage,
     conversationId: open.id,
@@ -308,7 +280,6 @@ async function handleClientCloseCommandPlatform(
     conversationStatus: open.status,
     isNew: false,
   })
-
   const closeResult = await closeConversationOnMongo(
     open.id,
     tenantId,
@@ -318,7 +289,6 @@ async function handleClientCloseCommandPlatform(
     },
     pubsubClient
   )
-
   if (!closeResult.closed) {
     logger.debug(
       { conversationId: open.id, tenantId },
@@ -326,7 +296,6 @@ async function handleClientCloseCommandPlatform(
     )
     return
   }
-
   const confirmationMessage = await Message.create({
     conversationId: open.id,
     tenantId,
@@ -335,7 +304,6 @@ async function handleClientCloseCommandPlatform(
     type: 'TEXT',
     status: 'PENDING',
   })
-
   try {
     await sendMessageQueue.add(
       'send-message',
@@ -360,7 +328,6 @@ async function handleClientCloseCommandPlatform(
     )
     throw err
   }
-
   logger.info(
     { conversationId: open.id, tenantId },
     'Client close command handled (platform) — conversation closed and confirmation enqueued'

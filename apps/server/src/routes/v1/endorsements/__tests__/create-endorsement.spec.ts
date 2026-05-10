@@ -59,13 +59,11 @@ const validBody = {
 describe('POST /api/v1/endorsements', () => {
   it('returns 201 with endorsement data on valid request', async () => {
     mockExecute.mockResolvedValue(makeEndorsement())
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/endorsements',
       payload: validBody,
     })
-
     expect(response.statusCode).toBe(201)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -73,54 +71,44 @@ describe('POST /api/v1/endorsements', () => {
     expect(body.data.policyId).toBe('policy-id-001')
     expect(body.data.type).toBe('COVERAGE_CHANGE')
   })
-
   it('returns 400 when policyId is missing', async () => {
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/endorsements',
       payload: { ...validBody, policyId: undefined },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('returns 400 when description is missing', async () => {
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/endorsements',
       payload: { ...validBody, description: '' },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('returns 422 when source policy is not eligible', async () => {
     mockResolveError(
       'SOURCE_POLICY_NOT_ELIGIBLE',
       'Source policy is not eligible for endorsement'
     )
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/endorsements',
       payload: validBody,
     })
-
     expect(response.statusCode).toBe(422)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('SOURCE_POLICY_NOT_ELIGIBLE')
   })
-
   it('returns 404 when policy is not found', async () => {
     mockResolveError('POLICY_NOT_FOUND', 'Policy not found')
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/endorsements',
       payload: validBody,
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.error.code).toBe('POLICY_NOT_FOUND')

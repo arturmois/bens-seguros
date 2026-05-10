@@ -29,9 +29,7 @@ export function useAiAgentsFilters() {
     },
     { history: 'push' }
   )
-
   const [touched, setTouched] = useState<boolean>(readTouchedFlag)
-
   const initialUrlHadActive = useRef(state.active !== null)
   useEffect(() => {
     if (initialUrlHadActive.current && !touched) {
@@ -39,37 +37,30 @@ export function useAiAgentsFilters() {
       setTouched(true)
     }
   }, [touched])
-
   function markTouched(): void {
     if (touched) return
     writeTouchedFlag()
     setTouched(true)
   }
-
   const effectiveActive: boolean | undefined =
     !touched && state.active === null ? true : (state.active ?? undefined)
-
   const values: Readonly<Record<string, FilterValue>> = useMemo(
     () => ({ active: effectiveActive }),
     [effectiveActive]
   )
-
   function setFilter(key: string, value: FilterValue): void {
     if (key !== 'active') return
     markTouched()
     void setState({ active: asBooleanValue(value) ?? null })
   }
-
   function setSearch(next: string): void {
     markTouched()
     void setState({ search: next })
   }
-
   function clearAll(): void {
     markTouched()
     void setState({ active: null, search: '' })
   }
-
   return {
     active: effectiveActive,
     search: state.search,

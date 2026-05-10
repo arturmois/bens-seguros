@@ -105,7 +105,6 @@ function ResultGroup<TItem extends { readonly id: string }>({
   if (items.length === 0) return null
   const config = ENTITY_CONFIG[entityKey]
   const Icon = config.icon
-
   return (
     <CommandGroup>
       <CommandGroupLabel>{config.label}</CommandGroupLabel>
@@ -168,7 +167,6 @@ export function CommandPalette() {
   const [query, setQuery] = useState('')
   const router = useRouter()
   const { results, isLoading, isError } = useGlobalSearch(query)
-
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
@@ -179,7 +177,6 @@ export function CommandPalette() {
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
-
   const handleSelect = useCallback(
     (route: string) => {
       setOpen(false)
@@ -188,12 +185,10 @@ export function CommandPalette() {
     },
     [router]
   )
-
   const handleOpenChange = useCallback((nextOpen: boolean) => {
     setOpen(nextOpen)
     if (!nextOpen) setQuery('')
   }, [])
-
   const hasQuery = query.trim().length > 0
   const hasResults =
     results &&
@@ -201,7 +196,6 @@ export function CommandPalette() {
       results.proposals.length > 0 ||
       results.policies.length > 0 ||
       results.claims.length > 0)
-
   return (
     <CommandDialog open={open} onOpenChange={handleOpenChange}>
       <CommandDialogPopup>

@@ -46,8 +46,6 @@ export interface AuthResult {
   readonly cookies: readonly string[]
 }
 
-// Better Auth APIs may return errors as either thrown exceptions or as a
-// `response.error` field. Normalize both shapes into a string code.
 function extractAuthErrorCode(result: unknown): string | null {
   if (!result || typeof result !== 'object') return null
   const candidate = result as { response?: { error?: { code?: string } } }
@@ -93,7 +91,6 @@ function mapSignInError(code: string): InviteAuthError {
 export async function signUpAndSignIn(args: SignUpArgs): Promise<AuthResult> {
   const { auth, email, password, name, headers, logger } = args
   let userId: string
-
   try {
     const signUpResult = await auth.api.signUpEmail({
       body: { email, password, name },
@@ -112,14 +109,10 @@ export async function signUpAndSignIn(args: SignUpArgs): Promise<AuthResult> {
       'Falha ao criar conta. Tente novamente.'
     )
   }
-
-  // The invitation link itself is the email-verification step. Mark the user
-  // verified so signInEmail does not reject under requireEmailVerification.
   await prisma.user.update({
     where: { id: userId },
     data: { emailVerified: true },
   })
-
   const signInResult = await signInExisting({
     auth,
     email,

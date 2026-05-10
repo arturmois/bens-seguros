@@ -76,13 +76,11 @@ describe('PATCH /api/v1/proposals/:id/dates', () => {
         coverageEndDate: '2026-01-01',
       },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.id).toBe('p-001')
   })
-
   it('calls use case with id, organizationId, and date body', async () => {
     await injectAs(app, {
       method: 'PATCH',
@@ -92,7 +90,6 @@ describe('PATCH /api/v1/proposals/:id/dates', () => {
         coverageEndDate: '2026-06-01',
       },
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       'p-001',
       TEST_ORG_ID,
@@ -102,10 +99,8 @@ describe('PATCH /api/v1/proposals/:id/dates', () => {
       })
     )
   })
-
   it('returns 422 on INVALID_COVERAGE_DATES error', async () => {
     mockResolveError('INVALID_COVERAGE_DATES', 'Invalid coverage dates')
-
     const response = await injectAs(app, {
       method: 'PATCH',
       url: '/api/v1/proposals/p-001/dates',
@@ -114,33 +109,27 @@ describe('PATCH /api/v1/proposals/:id/dates', () => {
         coverageEndDate: '2025-01-01',
       },
     })
-
     expect(response.statusCode).toBe(422)
     const body = response.json()
     expect(body.error.code).toBe('INVALID_COVERAGE_DATES')
   })
-
   it('returns 404 when proposal does not exist', async () => {
     mockResolveError('PROPOSAL_NOT_FOUND', 'Proposal not found')
-
     const response = await injectAs(app, {
       method: 'PATCH',
       url: '/api/v1/proposals/nonexistent/dates',
       payload: { coverageStartDate: '2025-01-01' },
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.error.code).toBe('PROPOSAL_NOT_FOUND')
   })
-
   it('accepts empty body (all fields optional)', async () => {
     const response = await injectAs(app, {
       method: 'PATCH',
       url: '/api/v1/proposals/p-001/dates',
       payload: {},
     })
-
     expect(response.statusCode).toBe(200)
   })
 })

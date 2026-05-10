@@ -70,7 +70,6 @@ export function PaginationLink({
     'data-active': isActive,
     'data-slot': 'pagination-link',
   }
-
   return useRender({
     defaultTagName: 'a',
     props: mergeProps<'a'>(defaultProps, props),

@@ -41,11 +41,9 @@ export function findProposalInCache(
       pages: Array<{ data: ProposalData[] }>
     }>(queryKey)
     if (!cached) continue
-
     const found = cached.pages
       .flatMap((p) => p.data)
       .find((p) => p.id === proposalId)
-
     if (found) return { proposal: found, stage }
   }
   return undefined

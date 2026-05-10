@@ -16,7 +16,6 @@ export function ImportStepUpload({
 }: ImportStepUploadProps) {
   const [isDragging, setIsDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
-
   const handleFile = useCallback(
     (file: File) => {
       if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
@@ -25,7 +24,6 @@ export function ImportStepUpload({
     },
     [onFileSelect]
   )
-
   const handleDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault()
@@ -35,16 +33,13 @@ export function ImportStepUpload({
     },
     [handleFile]
   )
-
   const handleDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault()
     setIsDragging(true)
   }, [])
-
   const handleDragLeave = useCallback(() => {
     setIsDragging(false)
   }, [])
-
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0]
@@ -52,14 +47,12 @@ export function ImportStepUpload({
     },
     [handleFile]
   )
-
   const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
       inputRef.current?.click()
     }
   }, [])
-
   return (
     <div className="flex flex-col gap-4 p-4">
       <div
@@ -93,7 +86,6 @@ export function ImportStepUpload({
           aria-hidden="true"
         />
       </div>
-
       <div className="flex items-center gap-2">
         <FileText className="text-muted-foreground h-4 w-4" />
         <a

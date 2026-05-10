@@ -43,12 +43,10 @@ export function ProposalsByStage({ data, isLoading }: ProposalsByStageProps) {
       </Card>
     )
   }
-
   const chartData = STAGE_ORDER.map((stage) => ({
     stage: STAGE_LABELS[stage] ?? stage,
     count: data?.find((d) => d.stage === stage)?._count ?? 0,
   }))
-
   return (
     <Card>
       <CardHeader>

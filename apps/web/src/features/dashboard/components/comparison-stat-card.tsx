@@ -37,11 +37,9 @@ export function ComparisonStatCard({
       </Card>
     )
   }
-
   const hasHistory = comparison && comparison.previous > 0
   const isPositive = comparison ? comparison.changePercent >= 0 : true
   const showComparison = comparison && hasHistory
-
   return (
     <Card>
       <CardPanel className="flex items-center gap-4">

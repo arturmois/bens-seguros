@@ -41,28 +41,21 @@ export function FilterPopover({
   onChange,
 }: FilterPopoverProps) {
   const [open, setOpen] = useState(false)
-
-  // When an external editingKey arrives (chip click), open directly to the control
   const isExternalEdit = editingKey !== null
-
   function handleOpenChange(next: boolean) {
     setOpen(next)
     if (!next) onEditingKeyChange(null)
   }
-
   function handleSelectField(key: string) {
     onEditingKeyChange(key)
   }
-
   function handleClose() {
     setOpen(false)
     onEditingKeyChange(null)
   }
-
   const editingFilter = editingKey
     ? filters.find((f) => f.key === editingKey)
     : null
-
   return (
     <Popover open={open || isExternalEdit} onOpenChange={handleOpenChange}>
       <PopoverTrigger render={<Button variant="outline" />}>
@@ -93,7 +86,6 @@ export function FilterPopover({
               })}
           </div>
         )}
-
         {editingFilter?.type === 'enum' && (
           <EnumFilterControlAdapter
             key={editingFilter.key}
@@ -103,7 +95,6 @@ export function FilterPopover({
             onClose={handleClose}
           />
         )}
-
         {editingFilter?.type === 'dateRange' && (
           <DateRangeFilterControl
             key={editingFilter.key}
@@ -113,7 +104,6 @@ export function FilterPopover({
             onClose={handleClose}
           />
         )}
-
         {editingFilter?.type === 'boolean' && (
           <BooleanFilterControl
             key={editingFilter.key}

@@ -1,4 +1,3 @@
-// TODO: Add notification sound file at /public/sounds/notification.mp3
 let notificationSound: HTMLAudioElement | null = null
 
 export function playNotificationSound(): void {

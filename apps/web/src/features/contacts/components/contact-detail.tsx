@@ -25,7 +25,6 @@ export function ContactDetail({ contact }: ContactDetailProps) {
   const deleteMutation = useDeleteContact()
   const [promoteOpen, setPromoteOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
-
   function handleConfirmDelete() {
     deleteMutation.mutate(contact.id, {
       onSuccess: () => {
@@ -34,7 +33,6 @@ export function ContactDetail({ contact }: ContactDetailProps) {
       },
     })
   }
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -58,7 +56,6 @@ export function ContactDetail({ contact }: ContactDetailProps) {
             </span>
           </div>
         </div>
-
         <div className="flex flex-wrap gap-2">
           {!contact.clientId && (
             <Button onClick={() => setPromoteOpen(true)}>
@@ -79,7 +76,6 @@ export function ContactDetail({ contact }: ContactDetailProps) {
           </Button>
         </div>
       </div>
-
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
@@ -98,7 +94,6 @@ export function ContactDetail({ contact }: ContactDetailProps) {
             />
           </CardContent>
         </Card>
-
         {contact.clientId ? (
           <Card>
             <CardHeader>
@@ -133,7 +128,6 @@ export function ContactDetail({ contact }: ContactDetailProps) {
           </Card>
         )}
       </div>
-
       {contact.notes ? (
         <Card>
           <CardHeader>
@@ -144,14 +138,12 @@ export function ContactDetail({ contact }: ContactDetailProps) {
           </CardContent>
         </Card>
       ) : null}
-
       <PromoteContactDialog
         open={promoteOpen}
         onOpenChange={setPromoteOpen}
         contactId={contact.id}
         defaultLegalName={contact.name}
       />
-
       <ConfirmDeleteDialog
         entityLabel="contato"
         open={deleteOpen}

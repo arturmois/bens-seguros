@@ -28,7 +28,6 @@ export class PrismaClientRepository implements ClientRepository {
     const docPersistence = ClientMapper.documentToPersistence(data.document)
     const address: Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue =
       data.address === null ? Prisma.JsonNull : toInputJsonValue(data.address)
-
     try {
       const row = await this.prisma.client.create({
         data: {
@@ -74,7 +73,6 @@ export class PrismaClientRepository implements ClientRepository {
       where: { id, organizationId, deletedAt: null },
     })
     if (!row) return null
-
     const [policyCounts, contactCount] = await Promise.all([
       this.prisma.policy.groupBy({
         by: ['status'],
@@ -85,14 +83,12 @@ export class PrismaClientRepository implements ClientRepository {
         where: { clientId: id, organizationId, deletedAt: null },
       }),
     ])
-
     let active = 0
     let total = 0
     for (const c of policyCounts) {
       total += c._count._all
       if (c.status === 'ACTIVE') active += c._count._all
     }
-
     return ClientMapper.toWithMetrics(row, active, total, contactCount)
   }
 
@@ -114,36 +110,29 @@ export class PrismaClientRepository implements ClientRepository {
       organizationId: filters.organizationId,
       deletedAt: null,
     }
-
     if (filters.search) {
       where.OR = [
         { legalName: { contains: filters.search, mode: 'insensitive' } },
         { document: { contains: filters.search } },
       ]
     }
-
     if (filters.hasActivePolicy === true) {
       where.policies = { some: { status: 'ACTIVE', deletedAt: null } }
     } else if (filters.hasActivePolicy === false) {
       where.policies = { none: { status: 'ACTIVE', deletedAt: null } }
     }
-
     if (filters.personTypeIn?.length) {
       where.personType = { in: [...filters.personTypeIn] }
     }
-
     const sortBy = page.sortBy ?? 'createdAt'
     const sortOrder = page.sortOrder ?? 'desc'
-
     const rows = await this.prisma.client.findMany({
       where,
       orderBy: [{ [sortBy]: sortOrder }, { id: sortOrder }],
       take: page.limit + 1,
       ...(page.cursor && { cursor: { id: page.cursor }, skip: 1 }),
     })
-
     const ids = rows.map((r) => r.id)
-
     const [policyCounts, contactCounts] = await Promise.all([
       ids.length > 0
         ? this.prisma.policy.groupBy({
@@ -168,7 +157,6 @@ export class PrismaClientRepository implements ClientRepository {
           })
         : Promise.resolve([]),
     ])
-
     const policyMap = new Map<string, { active: number; total: number }>()
     for (const c of policyCounts) {
       const cur = policyMap.get(c.clientId) ?? { active: 0, total: 0 }
@@ -176,24 +164,20 @@ export class PrismaClientRepository implements ClientRepository {
       if (c.status === 'ACTIVE') cur.active += c._count._all
       policyMap.set(c.clientId, cur)
     }
-
     const contactMap = new Map<string, number>()
     for (const c of contactCounts) {
       if (c.clientId) contactMap.set(c.clientId, c._count._all)
     }
-
     const items = rows.map((row) => {
       const p = policyMap.get(row.id) ?? { active: 0, total: 0 }
       const cc = contactMap.get(row.id) ?? 0
       return ClientMapper.toWithMetrics(row, p.active, p.total, cc)
     })
-
     let nextCursor: string | null = null
     if (items.length > page.limit) {
       const popped = items.pop()
       nextCursor = popped?.id ?? null
     }
-
     return { items, nextCursor }
   }
 
@@ -203,7 +187,6 @@ export class PrismaClientRepository implements ClientRepository {
     data: UpdateClientPersistence
   ): Promise<ClientData> {
     const updateData: Prisma.ClientUpdateInput = {}
-
     if (data.legalName !== undefined) updateData.legalName = data.legalName
     if (data.personType !== undefined) updateData.personType = data.personType
     if (data.profession !== undefined) updateData.profession = data.profession
@@ -218,7 +201,6 @@ export class PrismaClientRepository implements ClientRepository {
         data.address === null ? Prisma.JsonNull : toInputJsonValue(data.address)
       updateData.address = address
     }
-
     const row = await this.prisma.client.update({
       where: { id, organizationId },
       data: updateData,
@@ -249,7 +231,6 @@ export class PrismaClientRepository implements ClientRepository {
           deletedAt: new Date(),
         },
       }),
-      // Anonymize audit log snapshots that may contain PII
       this.prisma.auditLog.updateMany({
         where: { entityType: 'Client', entityId: id, organizationId },
         data: { before: Prisma.DbNull, after: Prisma.DbNull },

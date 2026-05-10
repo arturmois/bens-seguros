@@ -19,7 +19,6 @@ import { createProposalColumns } from '../components/proposals-columns'
 export function useProposalsTable() {
   const filtersHook = useProposalsFilters()
   const pagination = useCursorPagination()
-
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
@@ -27,10 +26,8 @@ export function useProposalsTable() {
   const [lostDialogProposalId, setLostDialogProposalId] = useState<
     string | null
   >(null)
-
   const debouncedSearch = useDebounce(filtersHook.apiParams.search, 300)
   const { mutate: advanceMutate, isPending: isAdvancing } = useAdvanceProposal()
-
   const filterFingerprint = JSON.stringify({
     ...filtersHook.apiParams,
     search: debouncedSearch || undefined,
@@ -41,13 +38,11 @@ export function useProposalsTable() {
     lastFingerprint.current = filterFingerprint
     pagination.reset()
   }, [filterFingerprint, pagination])
-
   const sortId = sorting[0]?.id
   const sortBy: ListProposalsSortBy | undefined =
     sortId !== undefined && isProposalSortBy(sortId) ? sortId : undefined
   const sortOrder: ListProposalsSortOrder | undefined =
     sorting[0] !== undefined ? (sorting[0].desc ? 'desc' : 'asc') : undefined
-
   const { data, isLoading, isError, refetch } = useProposals({
     search: debouncedSearch || undefined,
     cursor: pagination.currentCursor,
@@ -62,7 +57,6 @@ export function useProposalsTable() {
     updatedAtFrom: filtersHook.apiParams.updatedAtFrom,
     updatedAtTo: filtersHook.apiParams.updatedAtTo,
   })
-
   const proposals: ProposalData[] = useMemo(
     () => [...(data?.data ?? [])],
     [data?.data]
@@ -70,7 +64,6 @@ export function useProposalsTable() {
   const nextCursor = data?.meta.nextCursor ?? null
   const knownTotal =
     (pagination.currentPage - 1) * pagination.pageSize + proposals.length
-
   const columnActions = useMemo(
     () => ({
       isAdvancing,
@@ -79,12 +72,10 @@ export function useProposalsTable() {
     }),
     [isAdvancing, advanceMutate]
   )
-
   const columns = useMemo(
     () => createProposalColumns(columnActions),
     [columnActions]
   )
-
   const table = useReactTable({
     data: proposals,
     columns,
@@ -99,11 +90,9 @@ export function useProposalsTable() {
     manualPagination: true,
     manualFiltering: true,
   })
-
   function handleColumnToggle(id: string, visible: boolean) {
     setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
-
   return {
     table,
     proposals,

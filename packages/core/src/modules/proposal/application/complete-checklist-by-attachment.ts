@@ -24,7 +24,6 @@ export class CompleteChecklistByAttachment {
     if (!proposal) {
       throw new ProposalNotFoundError(proposalId)
     }
-
     return this.checklistRepo.complete(itemId, proposalId, userId)
   }
 }

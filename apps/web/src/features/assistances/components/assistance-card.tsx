@@ -14,7 +14,6 @@ interface AssistanceCardProps {
 
 export function AssistanceCard({ assistance }: AssistanceCardProps) {
   const router = useRouter()
-
   return (
     <div
       className="bg-card active:bg-muted/50 cursor-pointer space-y-3 rounded-lg border p-4"
@@ -34,7 +33,6 @@ export function AssistanceCard({ assistance }: AssistanceCardProps) {
         </span>
         <AssistanceStatusBadge status={assistance.status} />
       </div>
-
       <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
         <div>
           <div className="text-muted-foreground text-xs">Cliente</div>

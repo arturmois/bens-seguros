@@ -1,4 +1,3 @@
-// Domain
 export type {
   PolicyData,
   PolicyFilters,
@@ -16,7 +15,6 @@ export {
   PolicyErrors,
 } from './domain/policy-errors.js'
 
-// Application
 export { ExportPoliciesCsv } from './application/export-policies-csv.js'
 export { IssuePolicy } from './application/issue-policy.js'
 export { ListPolicies } from './application/list-policies.js'
@@ -27,6 +25,5 @@ export { ParsePolicyImport } from './application/parse-policy-import.js'
 export { policyImportRowSchema } from './application/policy-import-schema.js'
 export type { PolicyImportRow } from './application/policy-import-schema.js'
 
-// Infrastructure
 export { PolicyMapper } from './infrastructure/policy-mapper.js'
 export { PrismaPolicyRepository } from './infrastructure/prisma-policy-repository.js'

@@ -29,10 +29,6 @@ import { connectWhatsAppEmbeddedSignup } from './meta-whatsapp-service.js'
 const META_OAUTH_SESSION_PREFIX = 'meta:oauth:'
 const META_OAUTH_SESSION_TTL = 600
 
-/**
- * Stored in Redis with tokens encrypted. The `longLivedToken` and each page
- * `accessToken` are JSON-serialised EncryptedField objects.
- */
 const metaOAuthSessionSchema = z.object({
   longLivedToken: z.string(),
   metaUserId: z.string(),
@@ -138,22 +134,14 @@ function getMetaRedis(): IORedis {
   return redisInstance
 }
 
-/**
- * Unauthenticated route: GET /meta/auth/callback
- * Meta redirects here after OAuth consent. Processes the code exchange
- * and redirects to the frontend with the sessionId.
- * Must be registered BEFORE the auth middleware in app.ts.
- */
 export async function metaCallbackRoute(app: FastifyInstance): Promise<void> {
   const redis = getMetaRedis()
-
   app.addHook('onClose', async () => {
     if (redisInstance) {
       await redisInstance.quit()
       redisInstance = null
     }
   })
-
   app.get(
     '/meta/auth/callback',
     async (
@@ -163,17 +151,13 @@ export async function metaCallbackRoute(app: FastifyInstance): Promise<void> {
       reply: FastifyReply
     ) => {
       const { code, state, error } = request.query as Record<string, string>
-
       const frontendUrl = env.FRONTEND_URL ?? 'http://localhost:3000'
-
       if (error || !code || !state) {
         const errorMsg = error ?? 'missing_params'
         return reply.redirect(
           `${frontendUrl}/settings?section=canais&meta_error=${encodeURIComponent(errorMsg)}`
         )
       }
-
-      // Prevent double-processing of the same authorization code
       const codeKey = `meta:code:${code.slice(-16)}`
       const alreadyUsed = await redis.set(codeKey, '1', 'EX', 300, 'NX')
       if (!alreadyUsed) {
@@ -182,22 +166,18 @@ export async function metaCallbackRoute(app: FastifyInstance): Promise<void> {
           `${frontendUrl}/settings?section=canais&meta_error=${encodeURIComponent('Código já utilizado. Tente conectar novamente.')}`
         )
       }
-
       try {
         const oauthState = validateState(state)
         const tenantId = oauthState.tenantId
-
         const shortLived = await exchangeCodeForToken(code)
         const longLived = await exchangeForLongLivedToken(
           shortLived.accessToken
         )
         const metaUserId = await getMetaUserId(longLived.accessToken)
         const pages = await fetchUserPages(longLived.accessToken)
-
         const sessionId = randomBytes(16).toString('hex')
         const { encryptedLongLivedToken, encryptedPages } =
           encryptSessionTokens(longLived.accessToken, pages)
-
         const session: MetaOAuthSession = {
           longLivedToken: encryptedLongLivedToken,
           metaUserId,
@@ -206,19 +186,16 @@ export async function metaCallbackRoute(app: FastifyInstance): Promise<void> {
           channelType: oauthState.channelType,
           pages: encryptedPages,
         }
-
         await redis.set(
           `${META_OAUTH_SESSION_PREFIX}${sessionId}`,
           JSON.stringify(session),
           'EX',
           META_OAUTH_SESSION_TTL
         )
-
         app.log.info(
           { tenantId, metaUserId, pageCount: pages.length },
           'Meta OAuth callback completed'
         )
-
         return reply.redirect(
           `${frontendUrl}/settings?section=canais&meta_session=${encodeURIComponent(sessionId)}&meta_channel_type=${oauthState.channelType}`
         )
@@ -232,11 +209,8 @@ export async function metaCallbackRoute(app: FastifyInstance): Promise<void> {
     }
   )
 }
-
 export async function metaRoutes(app: FastifyInstance): Promise<void> {
   const redis = getMetaRedis()
-
-  // GET /meta/auth/url — Generate Facebook Login URL + state
   app.get(
     '/meta/auth/url',
     async (
@@ -247,7 +221,6 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
     ) => {
       const { channelType } = authUrlQuerySchema.parse(request.query)
       const tenantId = request.organizationId
-
       try {
         const { url, state } = generateOAuthUrl(tenantId, channelType)
         app.log.info({ tenantId, channelType }, 'Meta OAuth URL generated')
@@ -268,8 +241,6 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
       }
     }
   )
-
-  // POST /meta/auth/callback — Exchange code for long-lived token, save session in Redis
   app.post(
     '/meta/auth/callback',
     async (
@@ -278,10 +249,8 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
     ) => {
       const { code, state } = authCallbackBodySchema.parse(request.body)
       const tenantId = request.organizationId
-
       try {
         const oauthState = validateState(state)
-
         if (oauthState.tenantId !== tenantId) {
           return reply.status(403).send({
             success: false,
@@ -291,18 +260,15 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
             },
           })
         }
-
         const shortLived = await exchangeCodeForToken(code)
         const longLived = await exchangeForLongLivedToken(
           shortLived.accessToken
         )
         const metaUserId = await getMetaUserId(longLived.accessToken)
         const pages = await fetchUserPages(longLived.accessToken)
-
         const sessionId = randomBytes(16).toString('hex')
         const { encryptedLongLivedToken, encryptedPages } =
           encryptSessionTokens(longLived.accessToken, pages)
-
         const session: MetaOAuthSession = {
           longLivedToken: encryptedLongLivedToken,
           metaUserId,
@@ -311,16 +277,13 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
           channelType: oauthState.channelType,
           pages: encryptedPages,
         }
-
         await redis.set(
           `${META_OAUTH_SESSION_PREFIX}${sessionId}`,
           JSON.stringify(session),
           'EX',
           META_OAUTH_SESSION_TTL
         )
-
         const rawAssets = mapPagesToAssets(pages)
-
         const assets = await Promise.all(
           rawAssets.map(async (asset) => {
             if (!asset.hasInstagram || !asset.instagramAccountId) return asset
@@ -333,12 +296,10 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
             return { ...asset, instagramUsername: username }
           })
         )
-
         app.log.info(
           { tenantId, metaUserId, pageCount: pages.length },
           'Meta OAuth callback completed'
         )
-
         return reply.send({
           success: true,
           data: { sessionId, assets, channelType: oauthState.channelType },
@@ -354,8 +315,6 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
       }
     }
   )
-
-  // GET /meta/assets — List Pages/Instagram from session
   app.get(
     '/meta/assets',
     async (
@@ -364,7 +323,6 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
     ) => {
       const tenantId = request.organizationId
       const sessionId = request.query.sessionId
-
       if (!sessionId || typeof sessionId !== 'string') {
         return reply.status(400).send({
           success: false,
@@ -374,7 +332,6 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
           },
         })
       }
-
       const raw = await redis.get(`${META_OAUTH_SESSION_PREFIX}${sessionId}`)
       if (!raw) {
         return reply.status(404).send({
@@ -385,9 +342,7 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
           },
         })
       }
-
       const session = metaOAuthSessionSchema.parse(JSON.parse(raw))
-
       if (session.tenantId !== tenantId) {
         return reply.status(403).send({
           success: false,
@@ -397,10 +352,8 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
           },
         })
       }
-
       const decrypted = decryptSessionTokens(session)
       const rawAssets = mapPagesToAssets(decrypted.pages)
-
       const assets = await Promise.all(
         rawAssets.map(async (asset) => {
           if (!asset.hasInstagram || !asset.instagramAccountId) return asset
@@ -413,15 +366,12 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
           return { ...asset, instagramUsername: username }
         })
       )
-
       return reply.send({
         success: true,
         data: { assets, channelType: session.channelType },
       })
     }
   )
-
-  // POST /meta/connect — Connect Page to channel, encrypt token, subscribe webhooks
   app.post(
     '/meta/connect',
     async (
@@ -430,7 +380,6 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
     ) => {
       const body = connectBodySchema.parse(request.body)
       const tenantId = request.organizationId
-
       const raw = await redis.get(
         `${META_OAUTH_SESSION_PREFIX}${body.sessionId}`
       )
@@ -443,9 +392,7 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
           },
         })
       }
-
       const session = metaOAuthSessionSchema.parse(JSON.parse(raw))
-
       if (session.tenantId !== tenantId) {
         return reply.status(403).send({
           success: false,
@@ -455,7 +402,6 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
           },
         })
       }
-
       const decrypted = decryptSessionTokens(session)
       const page = decrypted.pages.find((p) => p.id === body.pageId)
       if (!page) {
@@ -467,10 +413,8 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
           },
         })
       }
-
       try {
         const tokenExpiresAt = new Date(Date.now() + session.expiresIn * 1000)
-
         const channel = await connectMetaChannel({
           tenantId,
           channelType: body.channelType,
@@ -485,22 +429,17 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
             ? { instagramAccountId: page.instagramBusinessAccountId }
             : {}),
         })
-
         const webhookResult = await subscribePageToWebhooks(
           page.id,
           page.accessToken
         )
-
         if (!webhookResult.success) {
           app.log.warn(
             { tenantId, pageId: page.id, error: webhookResult.error },
             'Page webhook subscription failed — channel created but webhooks not subscribed'
           )
         }
-
-        // Invalidate session after use
         await redis.del(`${META_OAUTH_SESSION_PREFIX}${body.sessionId}`)
-
         app.log.info(
           {
             tenantId,
@@ -509,7 +448,6 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
           },
           'Meta channel connected'
         )
-
         return reply.status(201).send({
           success: true,
           data: {
@@ -531,8 +469,6 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
       }
     }
   )
-
-  // POST /meta/disconnect — Revoke + deactivate channel
   app.post(
     '/meta/disconnect',
     async (
@@ -541,9 +477,7 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
     ) => {
       const { channelId } = disconnectBodySchema.parse(request.body)
       const tenantId = request.organizationId
-
       const success = await disconnectMetaChannel(channelId, tenantId)
-
       if (!success) {
         return reply.status(404).send({
           success: false,
@@ -553,22 +487,17 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
           },
         })
       }
-
       app.log.info({ tenantId, channelId }, 'Meta channel disconnected')
-
       return reply.send({
         success: true,
         data: { channelId, status: 'DISCONNECTED' },
       })
     }
   )
-
-  // POST /meta/whatsapp/connect — Connect WhatsApp via Embedded Signup
   app.post(
     '/meta/whatsapp/connect',
     async (request: FastifyRequest, reply: FastifyReply) => {
       const parsed = whatsappConnectBodySchema.safeParse(request.body)
-
       if (!parsed.success) {
         return reply.status(400).send({
           success: false,
@@ -578,10 +507,8 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
           },
         })
       }
-
       const { code, phoneNumberId, wabaId, name } = parsed.data
       const tenantId = request.organizationId
-
       try {
         const result = await connectWhatsAppEmbeddedSignup({
           tenantId,
@@ -590,7 +517,6 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
           wabaId,
           name,
         })
-
         app.log.info(
           {
             event: 'meta.channel.connected',
@@ -601,7 +527,6 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
           },
           'WhatsApp channel connected via Embedded Signup'
         )
-
         return reply
           .status(201)
           .send({ success: true, data: { channel: result } })
@@ -618,8 +543,6 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
       }
     }
   )
-
-  // GET /meta/status/:channelId — Integration status
   app.get(
     '/meta/status/:channelId',
     async (
@@ -630,21 +553,16 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
     ) => {
       const { channelId } = channelIdParamsSchema.parse(request.params)
       const tenantId = request.organizationId
-
       const status = await getChannelMetaStatus(channelId, tenantId)
-
       if (!status) {
         return reply.status(404).send({
           success: false,
           error: { code: 'CHANNEL_NOT_FOUND', message: 'Canal não encontrado' },
         })
       }
-
       return reply.send({ success: true, data: status })
     }
   )
-
-  // POST /meta/reconnect/:channelId — Generate new OAuth URL for re-auth
   app.post(
     '/meta/reconnect/:channelId',
     async (
@@ -657,7 +575,6 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
       const { channelId } = channelIdParamsSchema.parse(request.params)
       const { channelType } = authUrlQuerySchema.parse(request.query)
       const tenantId = request.organizationId
-
       const existing = await getChannelMetaStatus(channelId, tenantId)
       if (!existing) {
         return reply.status(404).send({
@@ -665,7 +582,6 @@ export async function metaRoutes(app: FastifyInstance): Promise<void> {
           error: { code: 'CHANNEL_NOT_FOUND', message: 'Canal não encontrado' },
         })
       }
-
       try {
         const { url, state } = generateOAuthUrl(tenantId, channelType)
         app.log.info(

@@ -19,20 +19,16 @@ export function createAuthMiddleware(auth: Auth) {
         headers[key] = value.join(', ')
       }
     }
-
     const session = await auth.api.getSession({
       headers,
     })
-
     if (!session) {
       return reply.status(401).send({
         success: false,
         error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
       })
     }
-
     const { user: sessionUser } = session
-
     const user: AuthUser = {
       id: sessionUser.id,
       email: sessionUser.email,
@@ -41,12 +37,10 @@ export function createAuthMiddleware(auth: Auth) {
       image: sessionUser.image,
       isSuperAdmin: isSuperAdmin(sessionUser),
     }
-
     request.user = user
     request.session = session.session
   }
 }
-
 export function requireAuth(
   request: FastifyRequest,
   reply: FastifyReply,

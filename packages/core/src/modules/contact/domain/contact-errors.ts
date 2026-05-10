@@ -24,11 +24,6 @@ export class DocumentMismatchError extends Error {
   }
 }
 
-// Note: `ContactNotPromotedError` is intentionally defined in
-// `modules/proposal/domain/proposal-errors.ts` because the invariant ("contact
-// must be promoted before policy issuance") is enforced inside the proposal
-// stage transition, not on the Contact entity itself.
-
 export const ContactErrors = {
   notFound: (id: string) => new ContactNotFoundError(id),
   invalid: (reason: string) => new ContactInvalidError(reason),

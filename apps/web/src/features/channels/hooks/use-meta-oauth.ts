@@ -47,16 +47,13 @@ export function useMetaOAuth() {
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [assets, setAssets] = useState<MetaAsset[]>([])
   const popupRef = useRef<Window | null>(null)
-
   const startOAuth = useCallback(
     async (channelType: 'MESSENGER' | 'INSTAGRAM') => {
       setStep('authenticating')
-
       try {
         const { data } = await chatApi.get<AuthUrlResponse>(
           `/meta/auth/url?channelType=${channelType}`
         )
-
         const popup = window.open(
           data.url,
           'meta-oauth',
@@ -70,7 +67,6 @@ export function useMetaOAuth() {
     },
     []
   )
-
   const handleCallback = useCallback(async (code: string, state: string) => {
     try {
       const { data } = await chatApi.post<CallbackResponse>(
@@ -92,7 +88,6 @@ export function useMetaOAuth() {
       toast.error(msg)
     }
   }, [])
-
   const connectChannel = useCallback(
     async (input: {
       pageId: string
@@ -101,7 +96,6 @@ export function useMetaOAuth() {
       instagramAccountId?: string
     }) => {
       if (!sessionId) return
-
       setStep('connecting')
       try {
         const { data } = await chatApi.post<ConnectResponse>('/meta/connect', {
@@ -126,12 +120,10 @@ export function useMetaOAuth() {
     },
     [sessionId]
   )
-
   const handleRedirectSession = useCallback(
     async (redirectSessionId: string) => {
       setSessionId(redirectSessionId)
       setStep('selecting')
-
       try {
         const assetsResponse = await chatApi.get<AssetsResponse>(
           `/meta/assets?sessionId=${redirectSessionId}`
@@ -148,7 +140,6 @@ export function useMetaOAuth() {
     },
     []
   )
-
   const reset = useCallback(() => {
     setStep('idle')
     setSessionId(null)
@@ -157,7 +148,6 @@ export function useMetaOAuth() {
       popupRef.current.close()
     }
   }, [])
-
   return {
     step,
     assets,

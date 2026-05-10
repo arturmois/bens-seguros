@@ -1,6 +1,3 @@
-/**
- * Builds a minimal multipart/form-data body for a single file field.
- */
 export function buildMultipartBody(
   fieldName: string,
   filename: string,
@@ -16,10 +13,6 @@ export function buildMultipartBody(
   return Buffer.concat([Buffer.from(header), content, Buffer.from(footer)])
 }
 
-/**
- * Builds a minimal multipart/form-data body for a CSV file upload.
- * The field name is always "file" and the content-type is always "text/csv".
- */
 export function buildCsvMultipart(
   filename: string,
   content: string,

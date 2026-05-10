@@ -58,7 +58,6 @@ export function useKanbanDnd({
     null
   )
   const queryClient = useQueryClient()
-
   const handleDragStart = (event: DragStartEvent) => {
     const result = findProposalInCache(
       queryClient,
@@ -68,22 +67,18 @@ export function useKanbanDnd({
     )
     setActiveProposal(result?.proposal ?? null)
   }
-
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
     if (!over) {
       setActiveProposal(null)
       return
     }
-
     const proposalId = String(active.id)
     const rawTarget = String(over.data?.current?.stage ?? over.id)
-
     if (!isProposalStage(rawTarget)) {
       setActiveProposal(null)
       return
     }
-
     const targetStage = rawTarget
     const found = findProposalInCache(
       queryClient,
@@ -91,23 +86,16 @@ export function useKanbanDnd({
       filters,
       visibleStages
     )
-
     setActiveProposal(null)
-
     if (!found || found.stage === targetStage) return
-
     const { proposal, stage: sourceStage } = found
-
     if (sourceStage === 'POLICY_ISSUED') return
-
     if (targetStage === 'LOST') {
       onLostDrop(proposalId)
       return
     }
-
     if (!ADVANCE_TARGETS.has(targetStage)) return
     if (!isNextStage(sourceStage, targetStage, visibleStages)) return
-
     const movedProposal: ProposalData = { ...proposal, stage: targetStage }
     setOptimisticMove({
       proposalId,
@@ -115,7 +103,6 @@ export function useKanbanDnd({
       targetStage,
       proposal: movedProposal,
     })
-
     void api
       .post<ProposalData>(`/api/v1/proposals/${proposalId}/advance`, {})
       .then(() => {
@@ -134,29 +121,23 @@ export function useKanbanDnd({
         toast.error(message)
       })
   }
-
   function buildOptimisticProposals(
     stage: ProposalStage
   ): ProposalData[] | undefined {
     if (!optimisticMove) return undefined
-
     const queryKey = ['proposals', 'kanban', stage, filters]
     const cached = queryClient.getQueryData<{
       pages: Array<{ data: ProposalData[] }>
     }>(queryKey)
     const fetched = cached?.pages.flatMap((p) => p.data) ?? []
-
     if (stage === optimisticMove.sourceStage) {
       return fetched.filter((p) => p.id !== optimisticMove.proposalId)
     }
-
     if (stage === optimisticMove.targetStage) {
       return [optimisticMove.proposal, ...fetched]
     }
-
     return undefined
   }
-
   return {
     activeProposal,
     optimisticMove,

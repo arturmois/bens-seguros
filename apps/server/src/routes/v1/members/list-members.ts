@@ -5,7 +5,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { listMembersQuerySchema, memberListResponse } from './_schemas.js'
 
-const MEMBER_CACHE_TTL = 3600 // 1h
+const MEMBER_CACHE_TTL = 3600
 
 interface MemberListCache {
   readonly data: {
@@ -44,7 +44,6 @@ export function listMembersRoute(app: FastifyInstance) {
       const { cursor, limit } = request.query
       const organizationId = request.organizationId!
       const cacheKey = `cache:${organizationId}:members`
-
       const cacheService = resolveCache()
       if (cacheService && !cursor) {
         const cached = await cacheService.get<MemberListCache>(cacheKey)
@@ -52,13 +51,11 @@ export function listMembersRoute(app: FastifyInstance) {
           return reply.send({ success: true, ...cached })
         }
       }
-
       const where = {
         organizationId,
         active: true,
         ...(cursor ? { id: { gt: cursor } } : {}),
       } as const
-
       const [members, total] = await Promise.all([
         prisma.member.findMany({
           where,
@@ -68,10 +65,8 @@ export function listMembersRoute(app: FastifyInstance) {
         }),
         prisma.member.count({ where: { organizationId, active: true } }),
       ])
-
       const hasMore = members.length > limit
       if (hasMore) members.pop()
-
       const data = members.map((m) => ({
         id: m.id,
         userId: m.userId,
@@ -81,16 +76,13 @@ export function listMembersRoute(app: FastifyInstance) {
         active: m.active,
         createdAt: m.createdAt.toISOString(),
       }))
-
       const meta = {
         total,
         nextCursor: hasMore ? members[members.length - 1]?.id : null,
       }
-
       if (cacheService && !cursor) {
         await cacheService.set(cacheKey, { data, meta }, MEMBER_CACHE_TTL)
       }
-
       return reply.send({ success: true, data, meta })
     },
   })

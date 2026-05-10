@@ -14,7 +14,6 @@ describe('Proposal Entity', () => {
     branch: 'AUTO' as const,
     boardType: 'NEW_INSURANCE' as const,
   }
-
   it('creates a new proposal in CAPTURE stage', () => {
     const proposal = Proposal.create(validProps)
     expect(proposal.stage).toBe('CAPTURE')
@@ -28,44 +27,38 @@ describe('Proposal Entity', () => {
     expect(proposal.lostReason).toBeNull()
     expect(proposal.id).toBeTruthy()
   })
-
   it('advances from CAPTURE to QUOTE', () => {
     const proposal = Proposal.create(validProps)
     proposal.advance()
     expect(proposal.stage).toBe('QUOTE')
   })
-
   it('advances through all stages to POLICY_ISSUED', () => {
     const proposal = Proposal.create(validProps)
-    proposal.advance() // QUOTE
-    proposal.advance() // PROTOCOL
-    proposal.advance() // INSPECTION
-    proposal.advance() // PAYMENT
-    proposal.advance() // POLICY_ISSUED
+    proposal.advance()
+    proposal.advance()
+    proposal.advance()
+    proposal.advance()
+    proposal.advance()
     expect(proposal.stage).toBe('POLICY_ISSUED')
   })
-
   it('cannot advance beyond POLICY_ISSUED', () => {
     const proposal = Proposal.create(validProps)
     for (let i = 0; i < 5; i++) proposal.advance()
     expect(() => proposal.advance()).toThrow(InvalidStageTransitionError)
   })
-
   it('marks as lost with reason', () => {
     const proposal = Proposal.create(validProps)
-    proposal.advance() // QUOTE
+    proposal.advance()
     proposal.markAsLost('Cliente desistiu')
     expect(proposal.stage).toBe('LOST')
     expect(proposal.lostReason).toBe('Cliente desistiu')
   })
-
   it('can mark as lost from CAPTURE', () => {
     const proposal = Proposal.create(validProps)
     proposal.markAsLost('Sem interesse')
     expect(proposal.stage).toBe('LOST')
     expect(proposal.lostReason).toBe('Sem interesse')
   })
-
   it('cannot mark as lost from POLICY_ISSUED', () => {
     const proposal = Proposal.create(validProps)
     for (let i = 0; i < 5; i++) proposal.advance()
@@ -73,7 +66,6 @@ describe('Proposal Entity', () => {
       InvalidStageTransitionError
     )
   })
-
   it('cannot mark as lost from LOST', () => {
     const proposal = Proposal.create(validProps)
     proposal.markAsLost('reason')
@@ -81,13 +73,11 @@ describe('Proposal Entity', () => {
       InvalidStageTransitionError
     )
   })
-
   it('cannot advance from LOST', () => {
     const proposal = Proposal.create(validProps)
     proposal.markAsLost('reason')
     expect(() => proposal.advance()).toThrow(InvalidStageTransitionError)
   })
-
   it('restores from persistence data', () => {
     const now = new Date()
     const proposal = Proposal.restore({
@@ -123,7 +113,6 @@ describe('Proposal Entity', () => {
     expect(proposal.premiumValueInCents).toBe(50000)
     expect(proposal.commissionPercentageInCents).toBe(1500)
   })
-
   it('creates with optional premium and commission values', () => {
     const proposal = Proposal.create({
       ...validProps,
@@ -133,7 +122,6 @@ describe('Proposal Entity', () => {
     expect(proposal.premiumValueInCents).toBe(100000)
     expect(proposal.commissionPercentageInCents).toBe(2000)
   })
-
   it('creates with renewal policy reference', () => {
     const proposal = Proposal.create({
       ...validProps,
@@ -143,7 +131,6 @@ describe('Proposal Entity', () => {
     expect(proposal.boardType).toBe('RENEWAL')
     expect(proposal.renewalPolicyId).toBe('policy-1')
   })
-
   it('creates renewal with renewalPolicyNumber', () => {
     const proposal = Proposal.create({
       ...validProps,
@@ -154,7 +141,6 @@ describe('Proposal Entity', () => {
     expect(proposal.renewalPolicyNumber).toBe('POL-EXTERNAL-001')
     expect(proposal.renewalPolicyId).toBeNull()
   })
-
   it('creates endorsement proposals at QUOTE with source policy metadata', () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
@@ -175,14 +161,12 @@ describe('Proposal Entity', () => {
         insurerName: 'Porto',
       },
     })
-
     expect(proposal.stage).toBe('QUOTE')
     expect(proposal.boardType).toBe('ENDORSEMENT')
     expect(proposal.sourcePolicyId).toBe('policy-1')
     expect(proposal.endorsementType).toBe('COVERAGE_CHANGE')
     expect(proposal.sourcePolicySnapshot?.policyNumber).toBe('POL-001')
   })
-
   it('serializes to JSON', () => {
     const proposal = Proposal.create(validProps)
     const json = proposal.toJSON()
@@ -190,7 +174,6 @@ describe('Proposal Entity', () => {
     expect(json.stage).toBe('CAPTURE')
     expect(json.organizationId).toBe('org-1')
   })
-
   describe('updateDetails', () => {
     const autoDetails: AutoDetails = {
       branch: 'AUTO',
@@ -199,7 +182,6 @@ describe('Proposal Entity', () => {
       manufacturingYear: 2024,
       modelYear: 2025,
     }
-
     it('updates details with matching branch', () => {
       const proposal = Proposal.create(validProps)
       proposal.updateDetails(autoDetails, 150000, 1500)
@@ -207,9 +189,8 @@ describe('Proposal Entity', () => {
       expect(proposal.premiumValueInCents).toBe(150000)
       expect(proposal.commissionPercentageInCents).toBe(1500)
     })
-
     it('rejects details with mismatched branch', () => {
-      const proposal = Proposal.create(validProps) // branch: AUTO
+      const proposal = Proposal.create(validProps)
       const residentialDetails = {
         branch: 'RESIDENTIAL' as const,
         propertyType: 'Casa',

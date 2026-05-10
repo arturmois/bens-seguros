@@ -11,7 +11,6 @@ export function useSalespersonOptions(): {
   readonly isLoading: boolean
 } {
   const { data, isLoading } = useMembers()
-
   const options = useMemo<readonly FilterOption[]>(() => {
     const members = data ?? []
     return members.map((m) => ({
@@ -19,6 +18,5 @@ export function useSalespersonOptions(): {
       label: m.name ?? m.email,
     }))
   }, [data])
-
   return { options, isLoading }
 }

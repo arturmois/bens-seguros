@@ -33,7 +33,6 @@ export class CreateClient {
       input.organizationId
     )
     if (existing) throw ClientErrors.alreadyExists()
-
     return this.clientRepo.save({
       organizationId: input.organizationId,
       legalName: input.legalName,

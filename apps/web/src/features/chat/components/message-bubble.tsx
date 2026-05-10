@@ -32,7 +32,6 @@ function MessageStatusIcon({
 
 function MediaContent({ message }: { readonly message: MessageData }) {
   if (!message.mediaUrl) return null
-
   if (message.type === 'IMAGE') {
     return (
       <div className="mb-1 overflow-hidden rounded-lg">
@@ -46,7 +45,6 @@ function MediaContent({ message }: { readonly message: MessageData }) {
       </div>
     )
   }
-
   if (message.type === 'AUDIO') {
     return (
       <audio controls className="mb-1 max-w-full" preload="metadata">
@@ -54,7 +52,6 @@ function MediaContent({ message }: { readonly message: MessageData }) {
       </audio>
     )
   }
-
   if (message.type === 'VIDEO') {
     return (
       <video
@@ -66,7 +63,6 @@ function MediaContent({ message }: { readonly message: MessageData }) {
       </video>
     )
   }
-
   if (message.type === 'DOCUMENT') {
     return (
       <a
@@ -80,7 +76,6 @@ function MediaContent({ message }: { readonly message: MessageData }) {
       </a>
     )
   }
-
   return (
     <p className="text-muted-foreground text-xs italic">Mídia não suportada</p>
   )
@@ -103,9 +98,7 @@ export function MessageBubble({
       </div>
     )
   }
-
   const isSent = isFromCurrentUser
-
   return (
     <div
       className={cn(

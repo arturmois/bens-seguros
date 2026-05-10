@@ -50,25 +50,21 @@ beforeEach(() => {
 
 describe('POST /api/v1/proposals/:id/checklist/:itemId/complete', () => {
   it('returns 200 with completed checklist item', async () => {
-    // No body — omit content-type to avoid FST_ERR_CTP_EMPTY_JSON_BODY
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/proposals/p-001/checklist/item-001/complete',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.isCompleted).toBe(true)
     expect(body.data.id).toBe('item-001')
   })
-
   it('calls use case with itemId, proposalId, organizationId, and userId', async () => {
     await app.inject({
       method: 'POST',
       url: '/api/v1/proposals/p-001/checklist/item-001/complete',
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       'item-001',
       'p-001',
@@ -76,26 +72,21 @@ describe('POST /api/v1/proposals/:id/checklist/:itemId/complete', () => {
       TEST_USER_ID
     )
   })
-
   it('returns 404 when checklist item does not exist', async () => {
     mockResolveError('PROPOSAL_NOT_FOUND', 'Checklist item not found')
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/proposals/p-001/checklist/nonexistent/complete',
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.success).toBe(false)
   })
-
   it('returns completedBy and completedAt in response', async () => {
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/proposals/p-001/checklist/item-001/complete',
     })
-
     const body = response.json()
     expect(body.data.completedBy).toBe(TEST_USER_ID)
     expect(body.data.completedAt).toBeDefined()

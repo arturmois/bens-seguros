@@ -1,4 +1,3 @@
-// packages/core/src/modules/proposal/application/create-proposal.spec.ts
 import { describe, expect, it, vi } from 'vitest'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
 import type { ChecklistRepository } from '../domain/checklist-repository.js'
@@ -104,7 +103,6 @@ describe('CreateProposal', () => {
       createMockPolicyRepo(),
       createMockContactRepo()
     )
-
     const result = await useCase.execute({
       organizationId: 'org-1',
       contactId: 'c-1',
@@ -112,13 +110,11 @@ describe('CreateProposal', () => {
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
     })
-
     expect(result.stage).toBe('CAPTURE')
     expect(result.organizationId).toBe('org-1')
     expect(result.branch).toBe('AUTO')
     expect(repo.save).toHaveBeenCalledTimes(1)
   })
-
   it('creates checklist items when config returns items for stage/branch', async () => {
     const repo = createMockRepo()
     const checklistRepo = createMockChecklistRepo()
@@ -133,7 +129,6 @@ describe('CreateProposal', () => {
       createMockPolicyRepo(),
       createMockContactRepo()
     )
-
     await useCase.execute({
       organizationId: 'org-1',
       contactId: 'c-1',
@@ -141,7 +136,6 @@ describe('CreateProposal', () => {
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
     })
-
     expect(checklistConfig.getItems).toHaveBeenCalledWith('CAPTURE', 'AUTO')
     expect(checklistRepo.createMany).toHaveBeenCalledWith(
       expect.any(String),
@@ -152,7 +146,6 @@ describe('CreateProposal', () => {
       ]
     )
   })
-
   it('skips checklist creation when config returns no items', async () => {
     const repo = createMockRepo()
     const checklistRepo = createMockChecklistRepo()
@@ -164,7 +157,6 @@ describe('CreateProposal', () => {
       createMockPolicyRepo(),
       createMockContactRepo()
     )
-
     await useCase.execute({
       organizationId: 'org-1',
       contactId: 'c-1',
@@ -172,10 +164,8 @@ describe('CreateProposal', () => {
       branch: 'LIFE',
       boardType: 'NEW_INSURANCE',
     })
-
     expect(checklistRepo.createMany).not.toHaveBeenCalled()
   })
-
   it('creates endorsement proposal from an active source policy and copies snapshot data', async () => {
     const repo = createMockRepo()
     const checklistRepo = createMockChecklistRepo()
@@ -206,7 +196,6 @@ describe('CreateProposal', () => {
     })
     const oldestContact = makeContact('contact-oldest', 'client-1')
     const contactRepo = createMockContactRepo([oldestContact])
-
     const useCase = new CreateProposal(
       repo,
       checklistRepo,
@@ -214,7 +203,6 @@ describe('CreateProposal', () => {
       policyRepo,
       contactRepo
     )
-
     const result = await useCase.execute({
       organizationId: 'org-1',
       salespersonId: 'user-1',
@@ -223,7 +211,6 @@ describe('CreateProposal', () => {
       endorsementType: 'COVERAGE_CHANGE',
       endorsementReason: 'Adicionar cobertura para vidros',
     })
-
     expect(result.stage).toBe('QUOTE')
     expect(result.contactId).toBe('contact-oldest')
     expect(result.branch).toBe('AUTO')
@@ -236,7 +223,6 @@ describe('CreateProposal', () => {
       { limit: 1, sortBy: 'createdAt', sortOrder: 'asc' }
     )
   })
-
   it('rejects endorsement creation when source policy is not active', async () => {
     const useCase = new CreateProposal(
       createMockRepo(),
@@ -263,7 +249,6 @@ describe('CreateProposal', () => {
       }),
       createMockContactRepo()
     )
-
     await expect(
       useCase.execute({
         organizationId: 'org-1',
@@ -275,7 +260,6 @@ describe('CreateProposal', () => {
       })
     ).rejects.toThrow('A apólice de origem precisa estar em vigor')
   })
-
   it('rejects endorsement creation when source policy client has no contact', async () => {
     const policyRepo = createMockPolicyRepo({
       id: 'pol-1',
@@ -297,7 +281,6 @@ describe('CreateProposal', () => {
       insurerId: 'ins-1',
     })
     const contactRepo = createMockContactRepo([])
-
     const useCase = new CreateProposal(
       createMockRepo(),
       createMockChecklistRepo(),
@@ -305,7 +288,6 @@ describe('CreateProposal', () => {
       policyRepo,
       contactRepo
     )
-
     await expect(
       useCase.execute({
         organizationId: 'org-1',
@@ -317,7 +299,6 @@ describe('CreateProposal', () => {
       })
     ).rejects.toThrow('não tem contato vinculado')
   })
-
   it('sets quoteValidUntil to 15 days from creation', async () => {
     const repo = createMockRepo()
     const checklistRepo = createMockChecklistRepo()
@@ -329,7 +310,6 @@ describe('CreateProposal', () => {
       createMockPolicyRepo(),
       createMockContactRepo()
     )
-
     const result = await useCase.execute({
       organizationId: 'org-1',
       contactId: 'c-1',
@@ -337,14 +317,12 @@ describe('CreateProposal', () => {
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
     })
-
     expect(result.quoteValidUntil).toBeInstanceOf(Date)
     const diffMs =
       result.quoteValidUntil!.getTime() - result.createdAt.getTime()
     const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24))
     expect(diffDays).toBe(15)
   })
-
   it('resolves renewalPolicyId when renewalPolicyNumber matches an existing policy', async () => {
     const policyRepo = createMockPolicyRepo()
     const matchedPolicy: PolicyData = {
@@ -367,7 +345,6 @@ describe('CreateProposal', () => {
       insurerId: null,
     }
     vi.mocked(policyRepo.findByPolicyNumber).mockResolvedValue(matchedPolicy)
-
     const useCase = new CreateProposal(
       createMockRepo(),
       createMockChecklistRepo(),
@@ -375,7 +352,6 @@ describe('CreateProposal', () => {
       policyRepo,
       createMockContactRepo()
     )
-
     const result = await useCase.execute({
       organizationId: 'org-1',
       contactId: 'c-1',
@@ -384,7 +360,6 @@ describe('CreateProposal', () => {
       boardType: 'RENEWAL',
       renewalPolicyNumber: 'POL-2025-001',
     })
-
     expect(result.renewalPolicyNumber).toBe('POL-2025-001')
     expect(result.renewalPolicyId).toBe('pol-existing')
     expect(policyRepo.findByPolicyNumber).toHaveBeenCalledWith(
@@ -392,11 +367,9 @@ describe('CreateProposal', () => {
       'org-1'
     )
   })
-
   it('stores renewalPolicyNumber without link when policy number does not exist', async () => {
     const policyRepo = createMockPolicyRepo()
     vi.mocked(policyRepo.findByPolicyNumber).mockResolvedValue(null)
-
     const useCase = new CreateProposal(
       createMockRepo(),
       createMockChecklistRepo(),
@@ -404,7 +377,6 @@ describe('CreateProposal', () => {
       policyRepo,
       createMockContactRepo()
     )
-
     const result = await useCase.execute({
       organizationId: 'org-1',
       contactId: 'c-1',
@@ -413,11 +385,9 @@ describe('CreateProposal', () => {
       boardType: 'RENEWAL',
       renewalPolicyNumber: 'POL-EXTERNAL-999',
     })
-
     expect(result.renewalPolicyNumber).toBe('POL-EXTERNAL-999')
     expect(result.renewalPolicyId).toBeNull()
   })
-
   it('creates renewal without renewalPolicyNumber preserving current behavior', async () => {
     const useCase = new CreateProposal(
       createMockRepo(),
@@ -426,7 +396,6 @@ describe('CreateProposal', () => {
       createMockPolicyRepo(),
       createMockContactRepo()
     )
-
     const result = await useCase.execute({
       organizationId: 'org-1',
       contactId: 'c-1',
@@ -434,7 +403,6 @@ describe('CreateProposal', () => {
       branch: 'AUTO',
       boardType: 'RENEWAL',
     })
-
     expect(result.renewalPolicyNumber).toBeNull()
     expect(result.renewalPolicyId).toBeNull()
   })

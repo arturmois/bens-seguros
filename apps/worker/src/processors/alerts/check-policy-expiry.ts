@@ -17,23 +17,19 @@ export async function checkPoliciesExpiring(
   logger: Logger
 ): Promise<void> {
   const now = new Date()
-
   const managers = await prismaAdmin.member.findMany({
     where: {
       organizationId,
       role: { in: ['MANAGER', 'ADMIN', 'OWNER'] },
     },
   })
-
   for (const days of THRESHOLDS) {
     const targetDate = new Date(now)
     targetDate.setDate(targetDate.getDate() + days)
-
     const startOfDay = new Date(targetDate)
     startOfDay.setHours(0, 0, 0, 0)
     const endOfDay = new Date(targetDate)
     endOfDay.setHours(23, 59, 59, 999)
-
     const policies = await prismaAdmin.policy.findMany({
       where: {
         organizationId,
@@ -46,7 +42,6 @@ export async function checkPoliciesExpiring(
         client: true,
       },
     })
-
     for (const policy of policies) {
       const isDuplicate = await hasExistingAlert({
         organizationId,
@@ -54,19 +49,15 @@ export async function checkPoliciesExpiring(
         entityId: policy.id,
         type: 'POLICY_EXPIRING',
       })
-
       if (isDuplicate) {
         continue
       }
-
       const severity = severityForDays(days)
       const body = `Apolice ${policy.policyNumber} vence em ${days} dias`
       const title =
         severity === 'CRITICAL'
           ? 'Apolice vencendo em breve!'
           : 'Apolice expirando'
-
-      // Notify salesperson
       if (policy.salespersonId) {
         await notificationQueue.add(
           'notification',
@@ -84,8 +75,6 @@ export async function checkPoliciesExpiring(
           DEFAULT_JOB_OPTIONS
         )
       }
-
-      // Notify MANAGER/ADMIN/OWNER (excluding salesperson)
       for (const manager of managers) {
         if (manager.userId === policy.salespersonId) {
           continue
@@ -106,7 +95,6 @@ export async function checkPoliciesExpiring(
           DEFAULT_JOB_OPTIONS
         )
       }
-
       logger.info(
         { policyId: policy.id, days, severity },
         'Policy expiry alert enqueued'

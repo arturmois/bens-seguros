@@ -26,7 +26,6 @@ export function listInternalPoliciesRoute(app: FastifyInstance) {
     handler: async (request, reply) => {
       const { clientId, phone, branch } = request.query
       const organizationId = request.organizationId!
-
       if (!clientId && !phone) {
         return reply.status(400).send({
           success: false,
@@ -36,23 +35,19 @@ export function listInternalPoliciesRoute(app: FastifyInstance) {
           },
         })
       }
-
       const tenantPrisma = createTenantClient(organizationId)
-
       const resolvedClientId = await resolveClientId(
         tenantPrisma,
         organizationId,
         clientId,
         phone
       )
-
       if (!resolvedClientId) {
         return reply.status(200).send({
           success: true,
           data: { policies: [], total: 0 },
         })
       }
-
       const where: Prisma.PolicyWhereInput = {
         organizationId,
         clientId: resolvedClientId,
@@ -62,14 +57,12 @@ export function listInternalPoliciesRoute(app: FastifyInstance) {
       if (branch) {
         where.branch = branch as Prisma.PolicyWhereInput['branch']
       }
-
       const policies = await tenantPrisma.policy.findMany({
         where,
         include: { insurer: { select: { name: true } } },
         orderBy: { endDate: 'desc' },
         take: MAX_POLICIES,
       })
-
       return reply.status(200).send({
         success: true,
         data: {

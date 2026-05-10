@@ -115,7 +115,6 @@ function BentoCard({
 
 function WorkflowPills(): React.ReactElement {
   const stages = ['Cotação', 'Análise', 'Emissão'] as const
-
   return (
     <div className="mt-4 flex flex-wrap items-center gap-2">
       {stages.map((stage, index) => (

@@ -41,7 +41,6 @@ export function registerWidgetMessageEvents(
         }
         return
       }
-
       try {
         await handleWidgetMessage(visitor, data, ack, logger, redisPub)
       } catch (err: unknown) {
@@ -80,14 +79,12 @@ async function handleWidgetMessage(
     }
     return
   }
-
   const conversation = await Conversation.findOne({
     _id: visitor.conversationId,
     tenantId: visitor.tenantId,
   })
     .lean()
     .exec()
-
   if (!conversation) {
     if (typeof ack === 'function') {
       ack({
@@ -100,7 +97,6 @@ async function handleWidgetMessage(
     }
     return
   }
-
   if (conversation.status === 'CLOSED') {
     if (typeof ack === 'function') {
       ack({
@@ -113,9 +109,7 @@ async function handleWidgetMessage(
     }
     return
   }
-
   const now = new Date()
-
   const message = await Message.create({
     conversationId: visitor.conversationId,
     tenantId: visitor.tenantId,
@@ -126,12 +120,10 @@ async function handleWidgetMessage(
     type: 'TEXT',
     status: 'DELIVERED',
   })
-
   await Conversation.updateOne(
     { _id: visitor.conversationId, tenantId: visitor.tenantId },
     { $set: { lastMessageText: msgData.text, lastMessageAt: now } }
   )
-
   const messagePayload = JSON.stringify({
     tenantId: visitor.tenantId,
     conversationId: visitor.conversationId,
@@ -144,7 +136,6 @@ async function handleWidgetMessage(
     status: 'DELIVERED',
     createdAt: message.createdAt?.toISOString() ?? now.toISOString(),
   })
-
   await redisPub.publish(CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE, messagePayload)
   await redisPub.publish(
     CHAT_PUBSUB_CHANNELS.UNREAD_UPDATE,
@@ -154,7 +145,6 @@ async function handleWidgetMessage(
       userId: null,
     })
   )
-
   if (conversation.status === 'BOT_ACTIVE') {
     try {
       const queueProducer = container.resolve<QueueProducer>('QueueProducer')
@@ -170,7 +160,6 @@ async function handleWidgetMessage(
       )
     }
   }
-
   if (typeof ack === 'function') {
     ack({ success: true, data: { id: String(message._id) } })
   }
@@ -189,7 +178,6 @@ export function registerWidgetTypingEvents(
       userId: visitor.contactId,
       name: 'Visitante',
     })
-
     logger.debug(
       { conversationId: visitor.conversationId },
       'Widget visitor typing'

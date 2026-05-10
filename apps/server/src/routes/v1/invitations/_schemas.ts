@@ -19,8 +19,6 @@ export const listInvitationsQuerySchema = z.object({
 
 export { idParam as idParamSchema }
 
-// --- Response schemas ---
-
 const invitationSchema = z.object({
   id: z.string(),
   organizationId: z.string(),
@@ -38,8 +36,6 @@ export const invitationListResponse = paginatedResponse(invitationSchema)
 export const invitationDeleteResponse = successResponse(
   z.object({ id: z.string() })
 )
-
-// --- Public invitation schemas ---
 
 export const publicInvitationResponse = successResponse(
   z.object({

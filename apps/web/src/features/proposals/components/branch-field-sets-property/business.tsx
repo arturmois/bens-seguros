@@ -23,7 +23,6 @@ export function BusinessFields({
 }: BusinessFieldsProps) {
   const isCompanyClient = autoFill?.clientPersonType === 'COMPANY'
   const legalNameValue = useWatch({ control, name: 'legalName' })
-
   return (
     <>
       <FieldWrapper label="Razão Social" required>

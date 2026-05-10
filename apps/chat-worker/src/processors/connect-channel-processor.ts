@@ -19,7 +19,6 @@ function buildConnectionEvents(
   baseEventsFactory: () => BrokerEvents
 ): BrokerEvents {
   const baseEvents = baseEventsFactory()
-
   return {
     onMessage: baseEvents.onMessage,
     onStatusUpdate: baseEvents.onStatusUpdate,
@@ -30,7 +29,6 @@ function buildConnectionEvents(
         })
         return
       }
-
       if (status === 'CONNECTED') {
         qrStateManager
           .emitConnected(channelId, tenantId)
@@ -42,7 +40,6 @@ function buildConnectionEvents(
           })
         return
       }
-
       qrStateManager
         .emitDisconnected(channelId, tenantId)
         .catch((err: unknown) => {
@@ -64,34 +61,27 @@ export function createConnectChannelProcessor(
     job: Job<ConnectChannelJobData>
   ): Promise<void> {
     const { channelId, tenantId } = job.data
-
     logger.info({ channelId, tenantId }, 'Processing connect-channel job')
-
     const channel = await Channel.findOne({ _id: channelId, tenantId })
       .lean()
       .exec()
-
     if (!channel) {
       throw new UnrecoverableError(
         `Channel not found: channelId=${channelId} tenantId=${tenantId}`
       )
     }
-
     if (channel.brokerType !== 'BAILEYS') {
       throw new UnrecoverableError(
         `Channel ${channelId} is not a Baileys channel (type=${String(channel.brokerType)})`
       )
     }
-
     const events = buildConnectionEvents(
       qrStateManager,
       channelId,
       tenantId,
       () => buildEvents(channelId, tenantId)
     )
-
     await manager.connectChannel(channelId, tenantId, events)
-
     logger.info({ channelId, tenantId }, 'Channel connection initiated')
   }
 }

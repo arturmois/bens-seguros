@@ -17,7 +17,6 @@ function buildCutoffDate(): Date {
 export function createAutoCloseProcessor(pubsubClient: PubsubClient) {
   return async function processAutoClose(_job: Job): Promise<void> {
     const cutoff = buildCutoffDate()
-
     const staleConversations = await Conversation.find({
       updatedAt: { $lt: cutoff },
       status: { $ne: 'CLOSED' },
@@ -25,7 +24,6 @@ export function createAutoCloseProcessor(pubsubClient: PubsubClient) {
       .select('_id tenantId')
       .lean()
       .exec()
-
     logger.info(
       {
         count: staleConversations.length,
@@ -33,7 +31,6 @@ export function createAutoCloseProcessor(pubsubClient: PubsubClient) {
       },
       'Auto-close scan complete'
     )
-
     for (const conv of staleConversations) {
       try {
         await closeConversationOnMongo(

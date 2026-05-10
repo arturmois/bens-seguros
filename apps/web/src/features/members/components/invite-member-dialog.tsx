@@ -60,19 +60,15 @@ export function InviteMemberDialog({
   currentUserRole,
 }: InviteMemberDialogProps) {
   const inviteMember = useInviteMember()
-
   const form = useForm<InviteMemberFormValues>({
     resolver: zodResolver(CreateInvitationBody),
     defaultValues: DEFAULT_VALUES,
   })
-
   useEffect(() => {
     if (!open) return
     form.reset(DEFAULT_VALUES)
   }, [open, form])
-
   const availableRoles = getAssignableRolesForCaller(currentUserRole)
-
   function handleSubmit(values: InviteMemberFormValues) {
     inviteMember.mutate(values, {
       onSuccess: () => {
@@ -81,7 +77,6 @@ export function InviteMemberDialog({
       },
     })
   }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -91,7 +86,6 @@ export function InviteMemberDialog({
             Envie um convite por email para adicionar um novo membro à equipe.
           </DialogDescription>
         </DialogHeader>
-
         <DialogPanel>
           <form
             id="invite-member-form"
@@ -137,7 +131,6 @@ export function InviteMemberDialog({
             </FormField>
           </form>
         </DialogPanel>
-
         <DialogFooter>
           <Button
             type="button"

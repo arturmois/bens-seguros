@@ -29,9 +29,7 @@ export function listAuditLogsRoute(app: FastifyInstance) {
         cursor,
         limit,
       } = request.query
-
       const orgId = request.organizationId!
-
       const where: Prisma.AuditLogWhereInput = {
         organizationId: orgId,
         ...(entityTypeIn?.length
@@ -50,7 +48,6 @@ export function listAuditLogsRoute(app: FastifyInstance) {
             }
           : {}),
       }
-
       const [items, total] = await Promise.all([
         prisma.auditLog.findMany({
           where,
@@ -60,12 +57,9 @@ export function listAuditLogsRoute(app: FastifyInstance) {
         }),
         prisma.auditLog.count({ where }),
       ])
-
       const hasMore = items.length > limit
       if (hasMore) items.pop()
-
       const nextCursor = hasMore ? (items.at(-1)?.id ?? null) : null
-
       return reply.send({
         success: true,
         data: items,

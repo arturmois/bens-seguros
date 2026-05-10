@@ -65,21 +65,17 @@ function withWebChatDefaults(
 
 export async function channelRoutes(app: FastifyInstance): Promise<void> {
   await app.register(channelWebhookRoutes)
-
   app.get(
     '/chat/channels',
     async (request: FastifyRequest, reply: FastifyReply) => {
       const tenantId = request.organizationId
-
       const docs = await Channel.find({ tenantId, isActive: { $ne: false } })
         .sort({ createdAt: -1 })
         .lean<ChannelDocument[]>()
       const channels = docs.map(mapChannel)
-
       return reply.send({ success: true, data: channels })
     }
   )
-
   app.post(
     '/chat/channels',
     async (
@@ -90,11 +86,9 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
     ) => {
       const body = createChannelBodySchema.parse(request.body)
       const tenantId = request.organizationId
-
       const isWebChat = body.type === 'WEB_CHAT'
       const brokerType = isWebChat ? 'WEB_CHAT' : body.brokerType
       const config = isWebChat ? withWebChatDefaults(body.config) : body.config
-
       const channel = await Channel.create({
         tenantId,
         name: body.name,
@@ -104,14 +98,12 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
         ...(isWebChat ? { status: 'CONNECTED' } : {}),
         ...(config ? { config } : {}),
       })
-
       return reply.status(201).send({
         success: true,
         data: mapChannel(channel.toObject<ChannelDocument>()),
       })
     }
   )
-
   app.put(
     '/chat/channels/:id',
     async (
@@ -124,7 +116,6 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
       const { id } = channelIdSchema.parse(request.params)
       const body = updateChannelBodySchema.parse(request.body)
       const tenantId = request.organizationId
-
       if (body.aiAgentId) {
         const agent = await AiAgent.findOne({ _id: body.aiAgentId, tenantId })
           .lean()
@@ -139,24 +130,20 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
           })
         }
       }
-
       const channel = await Channel.findOneAndUpdate(
         { _id: id, tenantId },
         { $set: body },
         { new: true }
       ).lean<ChannelDocument>()
-
       if (!channel) {
         return reply.status(404).send(buildChannelNotFoundResponse(id))
       }
-
       return reply.send({
         success: true,
         data: mapChannel(channel),
       })
     }
   )
-
   app.delete(
     '/chat/channels/:id',
     async (
@@ -165,17 +152,14 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
     ) => {
       const { id } = channelIdSchema.parse(request.params)
       const tenantId = request.organizationId
-
       const channel = await Channel.findOneAndUpdate(
         { _id: id, tenantId },
         { $set: { isActive: false } },
         { new: true }
       ).lean<ChannelDocument>()
-
       if (!channel) {
         return reply.status(404).send(buildChannelNotFoundResponse(id))
       }
-
       if (channel.brokerType === 'BAILEYS') {
         const queueProducer = container.resolve<QueueProducer>('QueueProducer')
         await queueProducer.enqueue(CHAT_QUEUES.DISCONNECT_CHANNEL, {
@@ -183,14 +167,12 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
           tenantId,
         })
       }
-
       return reply.send({
         success: true,
         data: mapChannel(channel),
       })
     }
   )
-
   app.post(
     '/chat/channels/:id/connect',
     async (
@@ -199,13 +181,10 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
     ) => {
       const { id } = channelIdSchema.parse(request.params)
       const tenantId = request.organizationId
-
       const channel = await Channel.findOne({ _id: id, tenantId }).lean().exec()
-
       if (!channel) {
         return reply.status(404).send(buildChannelNotFoundResponse(id))
       }
-
       if (channel.brokerType !== 'BAILEYS') {
         return reply.status(400).send({
           success: false,
@@ -215,17 +194,14 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
           },
         })
       }
-
       const queueProducer = container.resolve<QueueProducer>('QueueProducer')
       await queueProducer.enqueue(CHAT_QUEUES.CONNECT_CHANNEL, {
         channelId: id,
         tenantId,
       })
-
       return reply.send({ success: true, data: { status: 'connecting' } })
     }
   )
-
   app.post(
     '/chat/channels/:id/pair',
     async (
@@ -238,13 +214,10 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
       const { id } = channelIdSchema.parse(request.params)
       const { phoneNumber } = pairChannelBodySchema.parse(request.body)
       const tenantId = request.organizationId
-
       const channel = await Channel.findOne({ _id: id, tenantId }).lean().exec()
-
       if (!channel) {
         return reply.status(404).send(buildChannelNotFoundResponse(id))
       }
-
       if (channel.brokerType !== 'BAILEYS') {
         return reply.status(400).send({
           success: false,
@@ -254,14 +227,12 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
           },
         })
       }
-
       const queueProducer = container.resolve<QueueProducer>('QueueProducer')
       await queueProducer.enqueue(CHAT_QUEUES.PAIR_CHANNEL, {
         channelId: id,
         tenantId,
         phoneNumber,
       })
-
       return reply.send({ success: true, data: { status: 'pairing' } })
     }
   )

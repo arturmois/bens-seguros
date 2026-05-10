@@ -48,11 +48,9 @@ export function CoreInfoSection({
           value={formatDate(proposal.updatedAt)}
         />
       </div>
-
       {proposal.stage === 'POLICY_ISSUED' && (
         <IssuePolicyCard proposalId={proposalId} policyId={existingPolicyId} />
       )}
-
       {proposal.renewalPolicyId ? (
         <RenewalPolicyCard policyId={proposal.renewalPolicyId} />
       ) : proposal.renewalPolicyNumber ? (

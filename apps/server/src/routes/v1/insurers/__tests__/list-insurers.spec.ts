@@ -46,12 +46,10 @@ describe('GET /api/v1/insurers', () => {
       items: [makeInsurer()],
       nextCursor: null,
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/insurers',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -59,20 +57,16 @@ describe('GET /api/v1/insurers', () => {
     expect(body.data[0].name).toBe('Porto Seguro')
     expect(body.meta.nextCursor).toBeNull()
   })
-
   it('returns 200 with empty list when no insurers exist', async () => {
     mockExecute.mockResolvedValue({ items: [], nextCursor: null })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/insurers',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data).toHaveLength(0)
   })
-
   it('returns 200 with nextCursor when more pages exist', async () => {
     const insurers = Array.from({ length: 2 }, (_, i) =>
       makeInsurer({ id: `insurer-id-00${i + 1}`, name: `Insurer ${i + 1}` })
@@ -81,82 +75,67 @@ describe('GET /api/v1/insurers', () => {
       items: insurers,
       nextCursor: 'insurer-id-002',
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/insurers',
       query: { limit: '2' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.meta.nextCursor).toBe('insurer-id-002')
   })
-
   it('returns 400 when limit is out of range', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/insurers',
       query: { limit: '0' },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('forwards active=true to the use case', async () => {
     mockExecute.mockResolvedValue({ items: [], nextCursor: null })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/insurers',
       query: { active: 'true' },
     })
-
     expect(response.statusCode).toBe(200)
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({ active: true }),
       expect.anything()
     )
   })
-
   it('forwards active=false to the use case', async () => {
     mockExecute.mockResolvedValue({ items: [], nextCursor: null })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/insurers',
       query: { active: 'false' },
     })
-
     expect(response.statusCode).toBe(200)
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({ active: false }),
       expect.anything()
     )
   })
-
   it('omits active when not provided', async () => {
     mockExecute.mockResolvedValue({ items: [], nextCursor: null })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/insurers',
     })
-
     expect(response.statusCode).toBe(200)
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({ active: undefined }),
       expect.anything()
     )
   })
-
   it('returns 400 when active is not "true" or "false"', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/insurers',
       query: { active: 'invalid' },
     })
-
     expect(response.statusCode).toBe(400)
   })
 })

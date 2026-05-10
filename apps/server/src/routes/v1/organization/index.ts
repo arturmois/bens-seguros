@@ -7,9 +7,7 @@ import { uploadLogoRoute } from './upload-logo.js'
 
 export async function organizationRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
-
   getOrganizationRoute(app)
-  // Static path /logo must come before any parametric paths
   uploadLogoRoute(app)
   updateOrganizationRoute(app)
 }

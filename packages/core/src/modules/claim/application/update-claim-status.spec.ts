@@ -44,157 +44,120 @@ function createMockRepo(data: ClaimData | null): ClaimRepository {
 }
 
 describe('UpdateClaimStatus', () => {
-  // Valid transitions
   it('transitions REGISTERED to IN_ANALYSIS', async () => {
     const repo = createMockRepo(makeClaimData({ status: 'REGISTERED' }))
     const useCase = new UpdateClaimStatus(repo)
-
     await useCase.execute('claim-1', 'org-1', 'IN_ANALYSIS')
-
     expect(repo.updateStatus).toHaveBeenCalledWith('claim-1', 'org-1', {
       status: 'IN_ANALYSIS',
       resolvedAt: undefined,
       closedAt: undefined,
     })
   })
-
   it('transitions IN_ANALYSIS to AWAITING_DOCUMENT', async () => {
     const repo = createMockRepo(makeClaimData({ status: 'IN_ANALYSIS' }))
     const useCase = new UpdateClaimStatus(repo)
-
     await useCase.execute('claim-1', 'org-1', 'AWAITING_DOCUMENT')
-
     expect(repo.updateStatus).toHaveBeenCalledWith('claim-1', 'org-1', {
       status: 'AWAITING_DOCUMENT',
       resolvedAt: undefined,
       closedAt: undefined,
     })
   })
-
   it('transitions IN_ANALYSIS to PENDING_INSPECTION', async () => {
     const repo = createMockRepo(makeClaimData({ status: 'IN_ANALYSIS' }))
     const useCase = new UpdateClaimStatus(repo)
-
     await useCase.execute('claim-1', 'org-1', 'PENDING_INSPECTION')
-
     expect(repo.updateStatus).toHaveBeenCalledWith('claim-1', 'org-1', {
       status: 'PENDING_INSPECTION',
       resolvedAt: undefined,
       closedAt: undefined,
     })
   })
-
   it('transitions IN_ANALYSIS to APPROVED and sets resolvedAt', async () => {
     const repo = createMockRepo(makeClaimData({ status: 'IN_ANALYSIS' }))
     const useCase = new UpdateClaimStatus(repo)
-
     await useCase.execute('claim-1', 'org-1', 'APPROVED')
-
     expect(repo.updateStatus).toHaveBeenCalledWith('claim-1', 'org-1', {
       status: 'APPROVED',
       resolvedAt: expect.any(Date),
       closedAt: undefined,
     })
   })
-
   it('transitions IN_ANALYSIS to REJECTED and sets resolvedAt', async () => {
     const repo = createMockRepo(makeClaimData({ status: 'IN_ANALYSIS' }))
     const useCase = new UpdateClaimStatus(repo)
-
     await useCase.execute('claim-1', 'org-1', 'REJECTED')
-
     expect(repo.updateStatus).toHaveBeenCalledWith('claim-1', 'org-1', {
       status: 'REJECTED',
       resolvedAt: expect.any(Date),
       closedAt: undefined,
     })
   })
-
   it('transitions AWAITING_DOCUMENT back to IN_ANALYSIS', async () => {
     const repo = createMockRepo(makeClaimData({ status: 'AWAITING_DOCUMENT' }))
     const useCase = new UpdateClaimStatus(repo)
-
     await useCase.execute('claim-1', 'org-1', 'IN_ANALYSIS')
-
     expect(repo.updateStatus).toHaveBeenCalledWith('claim-1', 'org-1', {
       status: 'IN_ANALYSIS',
       resolvedAt: undefined,
       closedAt: undefined,
     })
   })
-
   it('transitions PENDING_INSPECTION to APPROVED and sets resolvedAt', async () => {
     const repo = createMockRepo(makeClaimData({ status: 'PENDING_INSPECTION' }))
     const useCase = new UpdateClaimStatus(repo)
-
     await useCase.execute('claim-1', 'org-1', 'APPROVED')
-
     expect(repo.updateStatus).toHaveBeenCalledWith('claim-1', 'org-1', {
       status: 'APPROVED',
       resolvedAt: expect.any(Date),
       closedAt: undefined,
     })
   })
-
   it('transitions APPROVED to PAID', async () => {
     const repo = createMockRepo(makeClaimData({ status: 'APPROVED' }))
     const useCase = new UpdateClaimStatus(repo)
-
     await useCase.execute('claim-1', 'org-1', 'PAID')
-
     expect(repo.updateStatus).toHaveBeenCalledWith('claim-1', 'org-1', {
       status: 'PAID',
       resolvedAt: undefined,
       closedAt: undefined,
     })
   })
-
   it('transitions PAID to COMPLETED and sets closedAt', async () => {
     const repo = createMockRepo(makeClaimData({ status: 'PAID' }))
     const useCase = new UpdateClaimStatus(repo)
-
     await useCase.execute('claim-1', 'org-1', 'COMPLETED')
-
     expect(repo.updateStatus).toHaveBeenCalledWith('claim-1', 'org-1', {
       status: 'COMPLETED',
       resolvedAt: undefined,
       closedAt: expect.any(Date),
     })
   })
-
-  // Invalid transitions
   it('rejects REGISTERED to APPROVED', async () => {
     const repo = createMockRepo(makeClaimData({ status: 'REGISTERED' }))
     const useCase = new UpdateClaimStatus(repo)
-
     await expect(
       useCase.execute('claim-1', 'org-1', 'APPROVED')
     ).rejects.toThrow(InvalidClaimStatusTransitionError)
   })
-
   it('rejects COMPLETED to any status', async () => {
     const repo = createMockRepo(makeClaimData({ status: 'COMPLETED' }))
     const useCase = new UpdateClaimStatus(repo)
-
     await expect(
       useCase.execute('claim-1', 'org-1', 'IN_ANALYSIS')
     ).rejects.toThrow(InvalidClaimStatusTransitionError)
   })
-
   it('rejects REJECTED to any status', async () => {
     const repo = createMockRepo(makeClaimData({ status: 'REJECTED' }))
     const useCase = new UpdateClaimStatus(repo)
-
     await expect(
       useCase.execute('claim-1', 'org-1', 'IN_ANALYSIS')
     ).rejects.toThrow(InvalidClaimStatusTransitionError)
   })
-
-  // Not found
   it('throws ClaimNotFoundError when claim does not exist', async () => {
     const repo = createMockRepo(null)
     const useCase = new UpdateClaimStatus(repo)
-
     await expect(
       useCase.execute('missing', 'org-1', 'IN_ANALYSIS')
     ).rejects.toThrow(ClaimNotFoundError)

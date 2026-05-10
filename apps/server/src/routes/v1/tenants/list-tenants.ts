@@ -33,12 +33,10 @@ export function listTenantsRoute(app: FastifyInstance) {
           error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
         })
       }
-
       const members: MemberWithOrganization[] = await prisma.member.findMany({
         where: { userId: request.user.id, active: true },
         include: { organization: true },
       })
-
       return {
         success: true as const,
         data: members.map((member) => ({

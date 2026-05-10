@@ -33,8 +33,6 @@ export function updateOrganizationRoute(app: FastifyInstance) {
     handler: async (request, reply) => {
       const organizationId = request.organizationId!
       const body = request.body
-
-      // Check slug uniqueness (excluding current org)
       const existingOrg = await prisma.organization.findFirst({
         where: {
           slug: body.slug,
@@ -42,7 +40,6 @@ export function updateOrganizationRoute(app: FastifyInstance) {
         },
         select: { id: true },
       })
-
       if (existingOrg) {
         return reply.status(409).send({
           success: false,
@@ -52,12 +49,10 @@ export function updateOrganizationRoute(app: FastifyInstance) {
           },
         })
       }
-
       const before = await prisma.organization.findUnique({
         where: { id: organizationId },
         select: { name: true, slug: true },
       })
-
       const updated = await prisma.organization.update({
         where: { id: organizationId },
         data: { name: body.name, slug: body.slug },
@@ -69,7 +64,6 @@ export function updateOrganizationRoute(app: FastifyInstance) {
           createdAt: true,
         },
       })
-
       auditUpdate({
         request,
         entityType: 'Organization',
@@ -77,18 +71,15 @@ export function updateOrganizationRoute(app: FastifyInstance) {
         before,
         after: { name: body.name, slug: body.slug },
       })
-
       const cacheService = resolveCache()
       if (cacheService) {
         await cacheService.delete(`cache:${organizationId}:org`)
       }
-
       let logoUrl: string | null = null
       if (updated.logo) {
         const storage = container.resolve<StorageProvider>('StorageProvider')
         logoUrl = await storage.getSignedUrl(updated.logo)
       }
-
       return reply.send({
         success: true,
         data: {

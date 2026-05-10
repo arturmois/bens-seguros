@@ -7,7 +7,6 @@ import { listEndorsementsRoute } from './list-endorsements.js'
 
 export async function endorsementRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
-
   createEndorsementRoute(app)
   listEndorsementsRoute(app)
   getEndorsementRoute(app)

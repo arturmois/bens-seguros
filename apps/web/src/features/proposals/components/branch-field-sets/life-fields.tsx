@@ -15,7 +15,6 @@ import { Textarea } from '@/components/ui/textarea'
 import type { FieldHelperProps } from './types'
 import { FieldWrapper } from './field-wrapper'
 
-// WHO BMI classification thresholds (https://www.who.int/data/gho/data/themes/theme-details/GHO/body-mass-index)
 const BMI_UNDERWEIGHT_THRESHOLD = 18.5
 const BMI_NORMAL_THRESHOLD = 25
 const BMI_OVERWEIGHT_THRESHOLD = 30
@@ -51,10 +50,8 @@ const BMI_RANGES = [
 function BmiBadge({ control }: { readonly control: Control<FieldValues> }) {
   const height = useWatch({ control, name: 'heightInCentimeters' })
   const peso = useWatch({ control, name: 'weightKg' })
-
   const heightCm = Number(height)
   const weightKg = Number(peso)
-
   if (
     !heightCm ||
     !weightKg ||
@@ -65,13 +62,10 @@ function BmiBadge({ control }: { readonly control: Control<FieldValues> }) {
   ) {
     return null
   }
-
   const heightM = heightCm / 100
   const bmi = weightKg / (heightM * heightM)
   const range = BMI_RANGES.find((r) => bmi < r.max)
-
   if (!range) return null
-
   return (
     <div
       role="status"

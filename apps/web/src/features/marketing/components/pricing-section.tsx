@@ -67,7 +67,6 @@ const PLANS: readonly PlanConfig[] = [
 
 export function PricingSection(): React.ReactElement {
   const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly')
-
   return (
     <section id="precos" className="bg-white px-6 py-20">
       <div className="mx-auto max-w-6xl">

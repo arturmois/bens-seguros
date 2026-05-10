@@ -1,4 +1,3 @@
-// packages/core/src/modules/document/application/upload-document.spec.ts
 import { describe, expect, it, vi } from 'vitest'
 import type {
   DocumentRepository,
@@ -7,7 +6,6 @@ import type {
 import type { StorageProvider } from '../domain/storage-provider.js'
 import { UploadDocument } from './upload-document.js'
 
-// Mock validateFileContent to avoid real file-type detection
 vi.mock('./validate-file-content.js', () => ({
   validateFileContent: vi.fn().mockResolvedValue(undefined),
 }))
@@ -44,7 +42,6 @@ describe('UploadDocument', () => {
     const docRepo = createMockDocRepo()
     const useCase = new UploadDocument(storage, docRepo)
     const buffer = Buffer.from('fake-pdf-content')
-
     const result = await useCase.execute({
       organizationId: 'org-1',
       entityType: 'PROPOSAL',
@@ -53,7 +50,6 @@ describe('UploadDocument', () => {
       mimeType: 'application/pdf',
       buffer,
     })
-
     expect(storage.upload).toHaveBeenCalledWith(
       expect.stringContaining('org-1/PROPOSAL/prop-1/'),
       buffer,
@@ -71,12 +67,10 @@ describe('UploadDocument', () => {
     )
     expect(result.id).toBe('doc-1')
   })
-
   it('generates unique storage key with org/entity path', async () => {
     const storage = createMockStorage()
     const docRepo = createMockDocRepo()
     const useCase = new UploadDocument(storage, docRepo)
-
     await useCase.execute({
       organizationId: 'org-1',
       entityType: 'CLIENT',
@@ -85,7 +79,6 @@ describe('UploadDocument', () => {
       mimeType: 'image/jpeg',
       buffer: Buffer.from('jpg'),
     })
-
     const storageKey = vi.mocked(storage.upload).mock.calls[0]?.[0] as string
     expect(storageKey).toMatch(/^org-1\/CLIENT\/client-1\//)
     expect(storageKey).toContain('photo.jpg')

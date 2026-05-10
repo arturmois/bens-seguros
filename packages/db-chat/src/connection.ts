@@ -6,14 +6,11 @@ let pluginRegistered = false
 
 export async function connectMongoDB(uri: string): Promise<void> {
   if (isConnected) return
-
   if (!pluginRegistered) {
     mongoose.plugin(tenantScopePlugin)
     pluginRegistered = true
   }
-
   await mongoose.connect(uri)
-
   isConnected = true
 }
 

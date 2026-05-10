@@ -18,7 +18,6 @@ export function lgpdDeleteClientRoute(app: FastifyInstance) {
     },
     preHandler: [requireAbility('delete', 'Client')],
     handler: async (request, reply) => {
-      // LGPD deletion is irreversible — restrict to OWNER and ADMIN only
       if (request.role !== 'OWNER' && request.role !== 'ADMIN') {
         return reply.status(403).send({
           success: false,
@@ -28,7 +27,6 @@ export function lgpdDeleteClientRoute(app: FastifyInstance) {
           },
         })
       }
-
       const useCase = container.resolve(LgpdDeleteClient)
       try {
         await useCase.execute(request.params.id, request.organizationId!)

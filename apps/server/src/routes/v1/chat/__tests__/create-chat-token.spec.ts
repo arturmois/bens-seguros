@@ -28,7 +28,6 @@ beforeEach(() => {
   setTestContext()
 })
 
-// This route has no body — override content-type to avoid Fastify empty-body rejection
 const NO_BODY_HEADERS = { 'content-type': 'text/plain' }
 
 describe('POST /api/v1/chat/token', () => {
@@ -38,12 +37,10 @@ describe('POST /api/v1/chat/token', () => {
       url: '/api/v1/chat/token',
       headers: NO_BODY_HEADERS,
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(typeof body.data.token).toBe('string')
-
     const decoded = jwt.verify(
       body.data.token,
       'test-socket-secret-16'
@@ -53,7 +50,6 @@ describe('POST /api/v1/chat/token', () => {
     expect(decoded.role).toBe('OWNER')
     expect(decoded.name).toBe('Test User')
   })
-
   it('returns 401 when user has no id', async () => {
     setTestContext({
       user: {
@@ -65,42 +61,34 @@ describe('POST /api/v1/chat/token', () => {
         email: 'x@y.com',
       },
     })
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/chat/token',
       headers: NO_BODY_HEADERS,
     })
-
     expect(response.statusCode).toBe(401)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('UNAUTHORIZED')
   })
-
   it('returns 401 when organizationId is missing', async () => {
     setTestContext({ organizationId: null })
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/chat/token',
       headers: NO_BODY_HEADERS,
     })
-
     expect(response.statusCode).toBe(401)
     const body = response.json()
     expect(body.error.code).toBe('UNAUTHORIZED')
   })
-
   it('returns 401 when role is missing', async () => {
     setTestContext({ role: null })
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/chat/token',
       headers: NO_BODY_HEADERS,
     })
-
     expect(response.statusCode).toBe(401)
   })
 })

@@ -43,7 +43,6 @@ export function sendQuoteRoute(app: FastifyInstance) {
     handler: async (request, reply) => {
       const { id } = request.params
       const organizationId = request.organizationId!
-
       const getProposalUseCase = container.resolve(GetProposal)
       let proposal
       try {
@@ -51,12 +50,10 @@ export function sendQuoteRoute(app: FastifyInstance) {
       } catch (error) {
         return handleDomainError(error, reply)
       }
-
       const contact = await prisma.contact.findFirst({
         where: { id: proposal.contactId, organizationId },
         select: { email: true, name: true },
       })
-
       const sendQuoteUseCase = container.resolve(SendQuote)
       try {
         await sendQuoteUseCase.validate(
@@ -67,7 +64,6 @@ export function sendQuoteRoute(app: FastifyInstance) {
       } catch (error) {
         return handleDomainError(error, reply)
       }
-
       const org = await prisma.organization.findUnique({
         where: { id: organizationId },
         select: { id: true, name: true, logo: true },
@@ -81,13 +77,11 @@ export function sendQuoteRoute(app: FastifyInstance) {
           },
         })
       }
-
       const storage = container.resolve<StorageProvider>('StorageProvider')
       let logoUrl: string | null = null
       if (org.logo) {
         logoUrl = await storage.getSignedUrl(org.logo)
       }
-
       const buffer = Buffer.from(
         await renderToBuffer(
           ProposalQuotePdf({
@@ -96,10 +90,8 @@ export function sendQuoteRoute(app: FastifyInstance) {
           })
         )
       )
-
       const storageKey = `organizations/${organizationId}/proposals/${id}/cotacao.pdf`
       await storage.upload(storageKey, buffer, 'application/pdf')
-
       const documentRepo =
         container.resolve<DocumentRepository>('DocumentRepository')
       await documentRepo.upsertByStorageKey({
@@ -113,12 +105,10 @@ export function sendQuoteRoute(app: FastifyInstance) {
         storageKey,
         createdBy: request.user!.id,
       })
-
       const salesperson = await prisma.user.findUnique({
         where: { id: proposal.salespersonId },
         select: { name: true, email: true },
       })
-
       await enqueueSendQuoteEmail({
         proposalId: id,
         organizationId,
@@ -131,7 +121,6 @@ export function sendQuoteRoute(app: FastifyInstance) {
         branch: proposal.branch,
         premiumFormatted: formatCurrency(proposal.premiumValueInCents),
       })
-
       return reply.status(202).send({
         success: true,
         data: { message: 'Cotação sendo enviada' },

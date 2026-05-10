@@ -12,7 +12,6 @@ const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
 })
 
-// Nonce-based CSP requires dynamic rendering on every request
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
@@ -32,7 +31,6 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const nonce = (await headers()).get('x-nonce') ?? undefined
-
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body

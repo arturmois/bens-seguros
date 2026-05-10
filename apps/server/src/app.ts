@@ -60,7 +60,6 @@ import { tenantRoutes } from './routes/v1/tenants/index.js'
 
 export async function buildApp() {
   const redis = new IORedis(env.REDIS_URL)
-
   const app = Fastify({
     logger: {
       level: env.NODE_ENV === 'production' ? 'info' : 'debug',
@@ -71,20 +70,16 @@ export async function buildApp() {
     genReqId: () => crypto.randomUUID(),
     requestIdHeader: 'x-request-id',
   })
-
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
-
   app.addHook('onSend', async (request, reply) => {
     reply.header('x-request-id', request.id)
   })
-
   await app.register(cors, {
     origin: env.FRONTEND_URL,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   })
-
   await app.register(helmet, {
     contentSecurityPolicy: {
       directives: {
@@ -102,7 +97,6 @@ export async function buildApp() {
       preload: true,
     },
   })
-
   await app.register(rateLimit, {
     max: RATE_LIMITS.GLOBAL.max,
     timeWindow: `${String(RATE_LIMITS.GLOBAL.windowSeconds)} seconds`,
@@ -117,7 +111,6 @@ export async function buildApp() {
       },
     }),
   })
-
   await app.register(swagger, {
     openapi: {
       info: {
@@ -141,12 +134,9 @@ export async function buildApp() {
       return transformed
     },
   })
-
   await app.register(import('@scalar/fastify-api-reference'), {
     routePrefix: '/api/docs',
   })
-
-  // Relax CSP only for Scalar API docs (needs inline scripts/styles + CDN assets)
   const SCALAR_CSP = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' cdn.jsdelivr.net",
@@ -156,19 +146,14 @@ export async function buildApp() {
     "connect-src 'self' proxy.scalar.com",
     "worker-src 'self' blob:",
   ].join('; ')
-
   app.addHook('onSend', async (request, reply, payload) => {
     if (request.url.startsWith('/api/docs')) {
       void reply.header('content-security-policy', SCALAR_CSP)
     }
     return payload
   })
-
   await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } })
-
   registerDependencies(redis)
-
-  // Prevent caching on all API responses to avoid stale data in browsers
   app.addHook('onSend', async (request, reply, payload) => {
     if (request.url.startsWith('/api/')) {
       void reply.header(
@@ -179,38 +164,29 @@ export async function buildApp() {
     }
     return payload
   })
-
   applySecurityHeaders(app)
-
   app.get('/health', async (_request, reply) => {
     const errors: string[] = []
-
     try {
       await prisma.$queryRaw`SELECT 1`
     } catch {
       errors.push('PostgreSQL unreachable')
     }
-
     try {
       await redis.ping()
     } catch {
       errors.push('Redis unreachable')
     }
-
     if (errors.length > 0) {
       return reply.status(503).send({ status: 'degraded', errors })
     }
-
     return { status: 'ok' }
   })
-
-  // Serve local uploads in dev (production uses R2 presigned URLs)
   if (env.STORAGE_PROVIDER !== 'r2') {
     const { createReadStream, existsSync } = await import('node:fs')
     const { resolve, extname, sep } = await import('node:path')
     const uploadsDir = resolve('./uploads')
     const safeBase = uploadsDir + sep
-
     const MIME_MAP: Record<string, string> = {
       '.pdf': 'application/pdf',
       '.jpg': 'image/jpeg',
@@ -219,7 +195,6 @@ export async function buildApp() {
       '.webp': 'image/webp',
       '.gif': 'image/gif',
     }
-
     app.get<{ Params: { '*': string } }>(
       '/uploads/*',
       async (request, reply) => {
@@ -246,10 +221,6 @@ export async function buildApp() {
       }
     )
   }
-
-  // Better Auth integration
-  // CSRF protection: Better Auth enforces CSRF via sameSite: lax cookies and Origin header
-  // validation on all state-mutating requests. No separate CSRF token mechanism needed.
   const frontendUrl = env.FRONTEND_URL
   const cookieDomain = env.COOKIE_DOMAIN
   const resendApiKey = env.RESEND_API_KEY
@@ -298,9 +269,6 @@ export async function buildApp() {
         }
       : undefined
   )
-  // Error handler — must be registered BEFORE route plugins so it propagates
-  // into their encapsulated scopes. Fastify 5 does not apply error handlers
-  // retroactively to already-registered plugins.
   app.setErrorHandler((error: FastifyError, request, reply) => {
     if (hasZodFastifySchemaValidationErrors(error)) {
       const first = error.validation[0]
@@ -324,7 +292,6 @@ export async function buildApp() {
         },
       })
     }
-
     if (env.SENTRY_DSN) {
       Sentry.captureException(error, {
         extra: { url: request.url, method: request.method },
@@ -341,15 +308,10 @@ export async function buildApp() {
       },
     })
   })
-
   registerAuthRoutes(app, auth, redis)
-
-  // Public invitation routes (unauthenticated — accept/view invitations)
   await app.register(async (publicApp) => {
     publicInvitationRoutes(publicApp, auth)
   })
-
-  // API v1 routes (authenticated)
   const authMiddleware = createAuthMiddleware(auth)
   await app.register(async (authenticatedApp) => {
     authenticatedApp.addHook('preHandler', authMiddleware)
@@ -375,8 +337,6 @@ export async function buildApp() {
     await authenticatedApp.register(cepRoutes)
     await authenticatedApp.register(termsRoutes)
   })
-
-  // Internal API routes (HMAC-authenticated, no session required)
   await app.register(async (internalApp) => {
     await internalApp.register(rateLimit, {
       max: RATE_LIMITS.INTERNAL.max,
@@ -399,14 +359,11 @@ export async function buildApp() {
     await internalApp.register(internalLeadRoutes)
     await internalApp.register(internalContactRoutes)
   })
-
-  // Bull Board (owner-only, inside authenticated + tenant scope)
   await app.register(async (adminApp) => {
     adminApp.addHook('preHandler', authMiddleware)
     adminApp.addHook('preHandler', tenantMiddleware)
     adminApp.addHook('preHandler', requireAbility('manage', 'all'))
     setupBullBoard(adminApp)
   })
-
   return app
 }

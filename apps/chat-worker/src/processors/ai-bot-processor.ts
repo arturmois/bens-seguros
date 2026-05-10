@@ -54,8 +54,6 @@ function channelTypeToContactSource(channelType: ChannelType): ContactSource {
       return 'CHAT_WHATSAPP'
     case 'MESSENGER':
     case 'INSTAGRAM':
-      // TODO: introduce CHAT_MESSENGER / CHAT_INSTAGRAM enum values
-      // when Meta channels are wired into production.
       logger.warn(
         { channelType },
         'Meta channel mapped to MANUAL source — CHAT_MESSENGER/CHAT_INSTAGRAM enum not yet wired'
@@ -74,15 +72,11 @@ export function createAiBotProcessor(
 ) {
   return async function processAiBot(job: Job<AiBotJobData>): Promise<void> {
     const { conversationId, tenantId } = job.data
-
     const conversation = await Conversation.findById(conversationId)
       .lean()
       .exec()
     if (!conversation || conversation.status !== 'BOT_ACTIVE') return
-
     const channelId = String(conversation.channelId)
-
-    // Step 1: Get channel to find aiAgentId
     const channel = await Channel.findOne({ _id: channelId, tenantId })
       .lean()
       .exec()
@@ -94,8 +88,6 @@ export function createAiBotProcessor(
       )
       return
     }
-
-    // Step 2: Get agent by id
     const aiAgent = await AiAgent.findOne({
       _id: channel.aiAgentId,
       tenantId,
@@ -110,9 +102,7 @@ export function createAiBotProcessor(
       )
       return
     }
-
     const config = getAiAgentConfig(aiAgent as Record<string, unknown>)
-
     const unknownToolReferences = findUnknownToolReferences(
       config.systemPrompt,
       [...MANDATORY_TOOLS, ...CONFIGURABLE_TOOL_NAMES]
@@ -128,7 +118,6 @@ export function createAiBotProcessor(
         'AI agent system prompt references tool names that are not registered — model will not be able to call them'
       )
     }
-
     if (!isProviderConfigured(config.provider)) {
       logger.error(
         { conversationId, tenantId, provider: config.provider },
@@ -137,13 +126,11 @@ export function createAiBotProcessor(
       await escalateToHuman(conversationId, tenantId, pubsubClient)
       return
     }
-
     const botMessageCount = await Message.countDocuments({
       conversationId,
       tenantId,
       senderType: 'BOT',
     }).exec()
-
     if (botMessageCount >= config.maxResponsesPerConversation) {
       await escalateToHuman(conversationId, tenantId, pubsubClient)
       logger.info(
@@ -157,16 +144,13 @@ export function createAiBotProcessor(
       )
       return
     }
-
     const recentMessages = await Message.find({ conversationId })
       .sort({ createdAt: -1 })
       .limit(10)
       .lean()
       .exec()
-
     const channelName =
       typeof channel?.name === 'string' ? channel.name : 'WhatsApp'
-
     const chronologicalMessages = [...recentMessages].reverse()
     const lastMessage = chronologicalMessages.at(-1)
     const contactDoc = await Contact.findById(conversation.contactId)
@@ -178,14 +162,11 @@ export function createAiBotProcessor(
         : typeof lastMessage?.senderName === 'string'
           ? lastMessage.senderName
           : 'Cliente'
-
     const messages = buildConversationMessages(chronologicalMessages)
-
     const contactPhone =
       typeof conversation.whatsappPhone === 'string'
         ? conversation.whatsappPhone
         : ''
-
     const tools = {
       [ESCALATION_TOOL_NAME]: createEscalateToHumanTool(
         conversationId,
@@ -214,7 +195,6 @@ export function createAiBotProcessor(
       searchProposal: createSearchProposalTool(tenantId),
       searchPolicy: createSearchPolicyTool(tenantId),
     }
-
     const filteredTools = Object.fromEntries(
       Object.entries(tools).filter(
         ([name]) =>
@@ -222,14 +202,12 @@ export function createAiBotProcessor(
           config.enabledTools.includes(name)
       )
     )
-
     const systemPrompt = buildSystemPrompt(
       contactName,
       channelName,
       config.systemPrompt,
       config.enabledTools
     )
-
     let result: Awaited<ReturnType<typeof generateWithTools>>
     try {
       result = await generateWithTools({
@@ -249,7 +227,6 @@ export function createAiBotProcessor(
       await escalateToHuman(conversationId, tenantId, pubsubClient)
       return
     }
-
     const wasEscalated = result.toolResults.some((tr) => {
       if (tr.toolName === ESCALATION_TOOL_NAME) return true
       if (tr.toolName === 'registerFinancialInquiry') return true
@@ -259,7 +236,6 @@ export function createAiBotProcessor(
       }
       return false
     })
-
     if (wasEscalated) {
       logger.info(
         { conversationId, tenantId },
@@ -267,7 +243,6 @@ export function createAiBotProcessor(
       )
       return
     }
-
     const responseText = result.text
     if (!responseText) {
       logger.warn(
@@ -277,7 +252,6 @@ export function createAiBotProcessor(
       await escalateToHuman(conversationId, tenantId, pubsubClient)
       return
     }
-
     const savedMessage = await Message.create({
       conversationId,
       tenantId,
@@ -287,7 +261,6 @@ export function createAiBotProcessor(
       type: 'TEXT',
       status: 'PENDING',
     })
-
     await Conversation.updateOne(
       { _id: conversationId, tenantId },
       {
@@ -298,7 +271,6 @@ export function createAiBotProcessor(
         },
       }
     ).exec()
-
     await pubsubClient.publish(
       CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE,
       JSON.stringify({
@@ -316,7 +288,6 @@ export function createAiBotProcessor(
           savedMessage.createdAt?.toISOString() ?? new Date().toISOString(),
       })
     )
-
     await sendMessageQueue.add(
       CHAT_QUEUES.SEND_MESSAGE,
       {
@@ -330,7 +301,6 @@ export function createAiBotProcessor(
       },
       DEFAULT_JOB_OPTIONS
     )
-
     logger.info(
       {
         conversationId,

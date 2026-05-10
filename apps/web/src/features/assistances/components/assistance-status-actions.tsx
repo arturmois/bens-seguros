@@ -34,11 +34,8 @@ export function AssistanceStatusActions({
   const [confirmingStatus, setConfirmingStatus] =
     useState<AssistanceStatus | null>(null)
   const updateStatus = useUpdateAssistanceStatus()
-
   const allowedTransitions = VALID_ASSISTANCE_TRANSITIONS[currentStatus]
-
   if (allowedTransitions.length === 0) return null
-
   function handleConfirm() {
     if (!confirmingStatus) return
     updateStatus.mutate(
@@ -46,7 +43,6 @@ export function AssistanceStatusActions({
       { onSuccess: () => setConfirmingStatus(null) }
     )
   }
-
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-medium">Alterar Status</h3>
@@ -64,7 +60,6 @@ export function AssistanceStatusActions({
           </Button>
         ))}
       </div>
-
       <AlertDialog
         open={confirmingStatus !== null}
         onOpenChange={(open) => {

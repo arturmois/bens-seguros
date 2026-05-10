@@ -2,8 +2,6 @@ import { z } from 'zod'
 
 import { successResponse } from '../../shared/response.schema.js'
 
-// --- Response schemas ---
-
 const tenantItemSchema = z.object({
   id: z.string(),
   name: z.string(),

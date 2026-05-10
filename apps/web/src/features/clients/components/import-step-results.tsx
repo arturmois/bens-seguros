@@ -15,7 +15,6 @@ export function ImportStepResults({ status, onClose }: ImportStepResultsProps) {
   const { progress } = status
   const hasErrors = progress.errors.length > 0
   const isFailed = status.status === 'failed'
-
   return (
     <div className="flex flex-col gap-4 p-4">
       <div
@@ -32,7 +31,6 @@ export function ImportStepResults({ status, onClose }: ImportStepResultsProps) {
           {isFailed ? 'Importação falhou' : 'Importação concluída'}
         </span>
       </div>
-
       <div className="grid grid-cols-2 gap-3">
         <div className="flex items-center gap-2 rounded-md border p-3">
           <CheckCircle2 className="h-4 w-4 text-green-500" />
@@ -62,7 +60,6 @@ export function ImportStepResults({ status, onClose }: ImportStepResultsProps) {
           </div>
         </div>
       </div>
-
       {hasErrors && (
         <div className="bg-destructive/10 max-h-40 overflow-auto rounded-md p-3">
           <p className="text-destructive mb-1 text-sm font-medium">Erros:</p>
@@ -83,7 +80,6 @@ export function ImportStepResults({ status, onClose }: ImportStepResultsProps) {
           </ul>
         </div>
       )}
-
       <div className="flex justify-end">
         <Button onClick={onClose}>Fechar</Button>
       </div>

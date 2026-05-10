@@ -22,7 +22,6 @@ const NAV_LINKS = [
 export function MarketingNav(): React.ReactElement {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
-
   useEffect(() => {
     function handleScroll(): void {
       setScrolled(window.scrollY > 20)
@@ -30,7 +29,6 @@ export function MarketingNav(): React.ReactElement {
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
-
   return (
     <header
       className={`fixed left-0 right-0 top-0 z-50 transition-colors duration-300 ${
@@ -43,9 +41,7 @@ export function MarketingNav(): React.ReactElement {
         <Link href="/" aria-label="Bens Seguros - Página inicial">
           <Logo size="md" className="text-white" />
         </Link>
-
         <DesktopLinks />
-
         <div className="flex items-center gap-3">
           <DesktopActions />
           <MobileMenu open={open} onOpenChange={setOpen} />

@@ -24,9 +24,7 @@ export async function widgetConfigRoute(app: FastifyInstance): Promise<void> {
           error: { code: 'INVALID_PARAMS', message: 'channelId inválido' },
         })
       }
-
       const { channelId } = params.data
-
       if (!isValidObjectId(channelId)) {
         return reply.status(404).send({
           success: false,
@@ -36,7 +34,6 @@ export async function widgetConfigRoute(app: FastifyInstance): Promise<void> {
           },
         })
       }
-
       const channel = await Channel.findOne({
         _id: channelId,
         isActive: true,
@@ -44,7 +41,6 @@ export async function widgetConfigRoute(app: FastifyInstance): Promise<void> {
       })
         .lean()
         .exec()
-
       if (!channel) {
         return reply.status(404).send({
           success: false,
@@ -54,9 +50,7 @@ export async function widgetConfigRoute(app: FastifyInstance): Promise<void> {
           },
         })
       }
-
       const { widgetColor, welcomeMessage } = getChannelConfig(channel.config)
-
       return reply.send({
         success: true,
         data: {

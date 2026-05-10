@@ -50,7 +50,6 @@ export function MobileCardList<T>({
       </div>
     )
   }
-
   if (data.length === 0) {
     return (
       <div className="text-muted-foreground flex flex-col items-center gap-2 py-12 text-center text-sm md:hidden">
@@ -62,7 +61,6 @@ export function MobileCardList<T>({
       </div>
     )
   }
-
   return (
     <div className="space-y-3 md:hidden">
       {data.map((item, index) => (

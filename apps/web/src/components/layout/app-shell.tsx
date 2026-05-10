@@ -19,7 +19,6 @@ export function AppShell({ role, children }: AppShellProps) {
   })
   const [mobileOpen, setMobileOpen] = useState(false)
   const isMobile = useMediaQuery('max-md')
-
   const handleToggle = useCallback(() => {
     if (isMobile) {
       setMobileOpen((prev) => !prev)
@@ -27,9 +26,7 @@ export function AppShell({ role, children }: AppShellProps) {
       setCollapsed((prev) => !prev)
     }
   }, [isMobile])
-
   const handleMobileClose = useCallback(() => setMobileOpen(false), [])
-
   return (
     <div className="flex h-screen overflow-hidden">
       {isMobile ? (

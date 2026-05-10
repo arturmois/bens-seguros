@@ -1,4 +1,3 @@
-// Domain
 export {
   ClientAlreadyExistsError,
   ClientErrors,
@@ -19,7 +18,6 @@ export type {
   UpdateClientPersistence,
 } from './domain/client-repository.js'
 
-// Application
 export { ClientPresenter } from './application/client-presenter.js'
 export type {
   ClientDetail,
@@ -39,6 +37,5 @@ export { clientImportRowSchema } from './application/client-import-schema.js'
 export type { ClientImportRow } from './application/client-import-schema.js'
 export { ParseClientImport } from './application/parse-client-import.js'
 
-// Infrastructure
 export { ClientMapper } from './infrastructure/client-mapper.js'
 export { PrismaClientRepository } from './infrastructure/prisma-client-repository.js'

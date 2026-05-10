@@ -7,7 +7,6 @@ import { updateMemberRoleRoute } from './update-member-role.js'
 
 export async function memberRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
-
   listMembersRoute(app)
   updateMemberRoleRoute(app)
   deleteMemberRoute(app)

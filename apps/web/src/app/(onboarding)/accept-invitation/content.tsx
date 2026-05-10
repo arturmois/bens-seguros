@@ -15,8 +15,6 @@ import { Badge } from '@/components/ui/badge'
 import { setActiveOrgCookie } from '@/lib/org-cookie'
 import { useQueryClient } from '@tanstack/react-query'
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
 interface SessionRef {
   readonly userId: string
   readonly email: string
@@ -40,8 +38,6 @@ type PageState =
   | { kind: 'wrong-account'; invitation: InvitationData }
   | { kind: 'error'; variant: 'expired' | 'already_accepted' | 'not_found' }
 
-// ─── Constants ───────────────────────────────────────────────────────────────
-
 const ROLE_LABELS: Record<string, string> = {
   OWNER: 'Proprietário',
   ADMIN: 'Administrador',
@@ -51,8 +47,6 @@ const ROLE_LABELS: Record<string, string> = {
 }
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
-
-// ─── Zod Schemas ─────────────────────────────────────────────────────────────
 
 const registerSchema = z
   .object({
@@ -74,8 +68,6 @@ const loginSchema = z.object({
 
 type RegisterFormValues = z.infer<typeof registerSchema>
 type LoginFormValues = z.infer<typeof loginSchema>
-
-// ─── API Helpers ──────────────────────────────────────────────────────────────
 
 async function fetchInvitation(id: string): Promise<InvitationData> {
   const res = await fetch(`${API_BASE}/api/v1/invitations/${id}/public`)
@@ -184,15 +176,12 @@ function resolveAcceptError(err: unknown): AcceptErrorInfo {
   }
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
 interface InvitationHeaderProps {
   readonly invitation: InvitationData
 }
 
 function InvitationHeader({ invitation }: InvitationHeaderProps) {
   const roleLabel = ROLE_LABELS[invitation.role] ?? invitation.role
-
   return (
     <div className="mb-6 flex flex-col items-center gap-3 text-center">
       <div className="bg-primary/10 flex size-12 items-center justify-center rounded-full">
@@ -231,9 +220,7 @@ function InvitationRegisterForm({
     resolver: zodResolver(registerSchema),
     defaultValues: { terms: undefined },
   })
-
   const termsChecked = watch('terms')
-
   async function onSubmit(values: RegisterFormValues) {
     try {
       const result = await acceptInvitation(invitation.id, {
@@ -247,7 +234,6 @@ function InvitationRegisterForm({
       toast.error(info.title, { description: info.description })
     }
   }
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-1">
@@ -260,7 +246,6 @@ function InvitationRegisterForm({
           className="bg-muted cursor-not-allowed"
         />
       </div>
-
       <div className="space-y-1">
         <Label htmlFor="name">Nome completo</Label>
         <Input
@@ -274,7 +259,6 @@ function InvitationRegisterForm({
           <p className="text-destructive text-xs">{errors.name.message}</p>
         )}
       </div>
-
       <div className="space-y-1">
         <Label htmlFor="password">Senha</Label>
         <Input
@@ -288,7 +272,6 @@ function InvitationRegisterForm({
           <p className="text-destructive text-xs">{errors.password.message}</p>
         )}
       </div>
-
       <div className="space-y-1">
         <Label htmlFor="confirmPassword">Confirmar senha</Label>
         <Input
@@ -304,7 +287,6 @@ function InvitationRegisterForm({
           </p>
         )}
       </div>
-
       <div className="flex items-start gap-2 pt-1">
         <Checkbox
           id="terms"
@@ -329,7 +311,6 @@ function InvitationRegisterForm({
       {errors.terms && (
         <p className="text-destructive text-xs">{errors.terms.message}</p>
       )}
-
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
         Criar conta e entrar
@@ -354,7 +335,6 @@ function InvitationLoginForm({
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   })
-
   async function onSubmit(values: LoginFormValues) {
     try {
       const result = await acceptInvitation(invitation.id, {
@@ -367,7 +347,6 @@ function InvitationLoginForm({
       toast.error(info.title, { description: info.description })
     }
   }
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-1">
@@ -380,7 +359,6 @@ function InvitationLoginForm({
           className="bg-muted cursor-not-allowed"
         />
       </div>
-
       <div className="space-y-1">
         <Label htmlFor="password">Senha</Label>
         <Input
@@ -394,12 +372,10 @@ function InvitationLoginForm({
           <p className="text-destructive text-xs">{errors.password.message}</p>
         )}
       </div>
-
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
         Entrar e aceitar convite
       </Button>
-
       <div className="text-muted-foreground pt-1 text-center text-xs">
         <a href="/reset-password" className="hover:text-foreground underline">
           Esqueci minha senha
@@ -419,7 +395,6 @@ function InvitationAcceptAsCurrent({
   onSuccess,
 }: InvitationAcceptAsCurrentProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-
   async function handleAccept() {
     setIsSubmitting(true)
     try {
@@ -434,7 +409,6 @@ function InvitationAcceptAsCurrent({
       setIsSubmitting(false)
     }
   }
-
   return (
     <div className="space-y-4">
       <div className="bg-muted/50 rounded-md border p-3 text-sm">
@@ -460,7 +434,6 @@ interface InvitationWrongAccountProps {
 
 function InvitationWrongAccount({ invitation }: InvitationWrongAccountProps) {
   const sessionEmail = invitation.currentSession?.email ?? ''
-
   async function handleSignOut() {
     await fetch(`${API_BASE}/api/auth/sign-out`, {
       method: 'POST',
@@ -468,7 +441,6 @@ function InvitationWrongAccount({ invitation }: InvitationWrongAccountProps) {
     }).catch(() => null)
     window.location.reload()
   }
-
   return (
     <div className="space-y-4">
       <div className="border-destructive/40 bg-destructive/5 rounded-md border p-3 text-sm">
@@ -494,7 +466,6 @@ interface InvitationErrorProps {
 
 function InvitationError({ variant }: InvitationErrorProps) {
   const router = useRouter()
-
   const config = {
     expired: {
       title: 'Convite expirado',
@@ -513,9 +484,7 @@ function InvitationError({ variant }: InvitationErrorProps) {
       action: { label: 'Ir para login', href: '/login' },
     },
   } as const
-
   const { title, message, action } = config[variant]
-
   return (
     <div className="bg-card rounded-lg border p-8 text-center shadow-sm">
       <h2 className="text-lg font-semibold">{title}</h2>
@@ -529,21 +498,17 @@ function InvitationError({ variant }: InvitationErrorProps) {
   )
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
-
 export function AcceptInvitationContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const queryClient = useQueryClient()
   const invitationId = searchParams.get('id')
   const [state, setState] = useState<PageState>({ kind: 'loading' })
-
   useEffect(() => {
     if (!invitationId) {
       setState({ kind: 'error', variant: 'not_found' })
       return
     }
-
     fetchInvitation(invitationId)
       .then((invitation) => {
         if (invitation.currentSession) {
@@ -563,7 +528,6 @@ export function AcceptInvitationContent() {
         setState({ kind: 'error', variant: resolveErrorVariant(err) })
       })
   }, [invitationId])
-
   function handleSuccess(orgId: string) {
     setActiveOrgCookie(orgId)
     queryClient.clear()
@@ -572,7 +536,6 @@ export function AcceptInvitationContent() {
     })
     router.push('/dashboard')
   }
-
   if (state.kind === 'loading') {
     return (
       <div className="bg-card flex flex-col items-center rounded-lg border p-8 shadow-sm">
@@ -583,11 +546,9 @@ export function AcceptInvitationContent() {
       </div>
     )
   }
-
   if (state.kind === 'error') {
     return <InvitationError variant={state.variant} />
   }
-
   return (
     <div className="bg-card rounded-lg border p-8 shadow-sm">
       <InvitationHeader invitation={state.invitation} />

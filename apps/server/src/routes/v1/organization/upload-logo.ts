@@ -21,7 +21,7 @@ const MIME_TO_EXT: Record<string, string> = {
   'image/gif': 'gif',
 }
 
-const MAX_LOGO_SIZE = 2 * 1024 * 1024 // 2MB
+const MAX_LOGO_SIZE = 2 * 1024 * 1024
 
 function resolveCache(): CacheService | null {
   try {
@@ -44,9 +44,7 @@ export function uploadLogoRoute(app: FastifyInstance) {
     preHandler: [requireAbility('manage', 'Organization')],
     handler: async (request, reply) => {
       const organizationId = request.organizationId!
-
       const file = await request.file()
-
       if (!file) {
         return reply.status(400).send({
           success: false,
@@ -56,7 +54,6 @@ export function uploadLogoRoute(app: FastifyInstance) {
           },
         })
       }
-
       if (!ALLOWED_IMAGE_TYPES.has(file.mimetype)) {
         return reply.status(400).send({
           success: false,
@@ -67,9 +64,7 @@ export function uploadLogoRoute(app: FastifyInstance) {
           },
         })
       }
-
       const buffer = await file.toBuffer()
-
       if (buffer.length > MAX_LOGO_SIZE) {
         return reply.status(400).send({
           success: false,
@@ -79,15 +74,11 @@ export function uploadLogoRoute(app: FastifyInstance) {
           },
         })
       }
-
       const storage = container.resolve<StorageProvider>('StorageProvider')
-
-      // Delete old logo if it exists
       const currentOrg = await prisma.organization.findUnique({
         where: { id: organizationId },
         select: { logo: true },
       })
-
       if (currentOrg?.logo) {
         await storage.delete(currentOrg.logo).catch((err: unknown) => {
           request.log.warn(
@@ -96,12 +87,9 @@ export function uploadLogoRoute(app: FastifyInstance) {
           )
         })
       }
-
       const extension = MIME_TO_EXT[file.mimetype] ?? 'png'
       const storageKey = `organizations/${organizationId}/logo.${extension}`
-
       await storage.upload(storageKey, buffer, file.mimetype)
-
       const updated = await prisma.organization.update({
         where: { id: organizationId },
         data: { logo: storageKey },
@@ -113,7 +101,6 @@ export function uploadLogoRoute(app: FastifyInstance) {
           createdAt: true,
         },
       })
-
       auditUpdate({
         request,
         entityType: 'Organization',
@@ -121,14 +108,11 @@ export function uploadLogoRoute(app: FastifyInstance) {
         before: { logo: currentOrg?.logo },
         after: { logo: storageKey },
       })
-
       const cacheService = resolveCache()
       if (cacheService) {
         await cacheService.delete(`cache:${organizationId}:org`)
       }
-
       const logoUrl = await storage.getSignedUrl(storageKey)
-
       return reply.send({
         success: true,
         data: {

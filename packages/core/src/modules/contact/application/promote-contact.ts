@@ -37,9 +37,7 @@ export class PromoteContact {
       input.organizationId
     )
     if (!contact) throw ContactErrors.notFound(input.contactId)
-
     const incomingHash = hashDocument(input.document)
-
     if (contact.clientId) {
       const linkedClient = await this.clientRepo.findById(
         contact.clientId,
@@ -51,7 +49,6 @@ export class PromoteContact {
       if (linkedClient.documentHash === incomingHash) return linkedClient
       throw ContactErrors.documentMismatch()
     }
-
     const existing = await this.clientRepo.findByDocumentHash(
       incomingHash,
       input.organizationId
@@ -62,7 +59,6 @@ export class PromoteContact {
       })
       return existing
     }
-
     const legalName = input.legalName ?? contact.name
     const persistence: CreateClientPersistence = {
       organizationId: input.organizationId,

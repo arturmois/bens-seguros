@@ -41,16 +41,13 @@ describe('GET /api/v1/policies/export', () => {
       }
       return null
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/policies/export',
     })
-
     expect(response.statusCode).toBe(200)
     expect(response.headers['content-type']).toContain('text/csv')
   })
-
   it('returns CSV attachment header with correct filename', async () => {
     vi.mocked(container.resolve).mockImplementation((token: unknown) => {
       if (typeof token === 'function') {
@@ -58,17 +55,14 @@ describe('GET /api/v1/policies/export', () => {
       }
       return null
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/policies/export',
     })
-
     expect(response.headers['content-disposition']).toContain(
       'attachment; filename="apolices.csv"'
     )
   })
-
   it('streams CSV rows in response body', async () => {
     vi.mocked(container.resolve).mockImplementation((token: unknown) => {
       if (typeof token === 'function') {
@@ -84,17 +78,14 @@ describe('GET /api/v1/policies/export', () => {
       }
       return null
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/policies/export',
     })
-
     expect(response.statusCode).toBe(200)
     expect(response.body).toContain('Numero Apolice')
     expect(response.body).toContain('POL-2026-001')
   })
-
   it('passes filters to use case', async () => {
     const mockGenerateCsvRows = vi.fn().mockReturnValue(makeCsvGenerator())
     vi.mocked(container.resolve).mockImplementation((token: unknown) => {
@@ -103,18 +94,15 @@ describe('GET /api/v1/policies/export', () => {
       }
       return null
     })
-
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/policies/export',
       query: { status: 'ACTIVE', branch: 'AUTO' },
     })
-
     expect(mockGenerateCsvRows).toHaveBeenCalledWith(
       expect.objectContaining({ status: 'ACTIVE', branch: 'AUTO' })
     )
   })
-
   it('propagates statusIn, branchIn, boardTypeIn to export use case', async () => {
     const mockGenerateCsvRows = vi.fn().mockReturnValue(makeCsvGenerator())
     vi.mocked(container.resolve).mockImplementation((token: unknown) => {
@@ -123,12 +111,10 @@ describe('GET /api/v1/policies/export', () => {
       }
       return null
     })
-
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/policies/export?statusIn=ACTIVE,EXPIRED&branchIn=AUTO&boardTypeIn=RENEWAL',
     })
-
     expect(mockGenerateCsvRows).toHaveBeenCalledWith(
       expect.objectContaining({
         statusIn: ['ACTIVE', 'EXPIRED'],

@@ -30,7 +30,6 @@ vi.mock('@repo/db', async (importOriginal) => {
   }
 })
 
-// Mock storage provider so upload-logo can resolve it from container
 vi.mock('@repo/core', async (importOriginal) => {
   const mod = await importOriginal<typeof import('@repo/core')>()
   return {
@@ -65,19 +64,15 @@ beforeEach(() => {
 
 describe('PUT /api/v1/organization/logo', () => {
   it('rejects non-multipart requests with 4xx status', async () => {
-    // @fastify/multipart rejects non-multipart content-types with 406
     const response = await app.inject({
       method: 'PUT',
       url: '/api/v1/organization/logo',
       headers: { 'content-type': 'application/json' },
       payload: '{}',
     })
-
-    // 406 Not Acceptable from @fastify/multipart when wrong content-type
     expect(response.statusCode).toBeGreaterThanOrEqual(400)
     expect(response.statusCode).toBeLessThan(500)
   })
-
   it('returns 200 with logo URL on successful PNG upload', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.organization.findUnique).mockResolvedValue(
@@ -90,7 +85,6 @@ describe('PUT /api/v1/organization/logo', () => {
         ReturnType<typeof prisma.organization.update>
       >
     )
-
     const boundary = '----TestBoundary1234567890'
     const imageContent = Buffer.from('fake-png-image-data')
     const body = buildMultipartBody(
@@ -100,7 +94,6 @@ describe('PUT /api/v1/organization/logo', () => {
       imageContent,
       boundary
     )
-
     const response = await app.inject({
       method: 'PUT',
       url: '/api/v1/organization/logo',
@@ -110,13 +103,11 @@ describe('PUT /api/v1/organization/logo', () => {
       },
       payload: body,
     })
-
     expect(response.statusCode).toBe(200)
     const json = response.json()
     expect(json.success).toBe(true)
     expect(json.data.logo).toBe('https://cdn.example.com/logo.png')
   })
-
   it('returns 400 when file type is not an allowed image type', async () => {
     const boundary = '----TestBoundary9999'
     const fileContent = Buffer.from('console.log("malicious")')
@@ -127,7 +118,6 @@ describe('PUT /api/v1/organization/logo', () => {
       fileContent,
       boundary
     )
-
     const response = await app.inject({
       method: 'PUT',
       url: '/api/v1/organization/logo',
@@ -137,7 +127,6 @@ describe('PUT /api/v1/organization/logo', () => {
       },
       payload: body,
     })
-
     expect(response.statusCode).toBe(400)
     const json = response.json()
     expect(json.error.code).toBe('INVALID_FILE_TYPE')

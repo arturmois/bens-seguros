@@ -36,7 +36,6 @@ export function createBroker(
           'createBroker(BAILEYS): tenantId and channelId are required'
         )
       }
-
       return new BaileysBroker(tenantId, channelId)
     }
     case 'META':

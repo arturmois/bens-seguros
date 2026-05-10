@@ -57,7 +57,6 @@ export function useContact(id: string) {
 
 export function useCreateContact() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (data: CreateContactBody) => createContact(data),
     onSuccess: () => {
@@ -75,7 +74,6 @@ export function useCreateContact() {
 
 export function useUpdateContact() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateContactBody }) =>
       updateContact(id, data),
@@ -97,7 +95,6 @@ export function useUpdateContact() {
 
 export function useDeleteContact() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (id: string) => deleteContact(id),
     onSuccess: () => {
@@ -115,7 +112,6 @@ export function useDeleteContact() {
 
 export function usePromoteContact() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: PromoteContactBody }) =>
       promoteContact(id, data),

@@ -67,44 +67,36 @@ describe('GET /api/v1/proposals', () => {
       items: [makeProposal('p-001'), makeProposal('p-002')],
       nextCursor: null,
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/proposals',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data).toHaveLength(2)
     expect(body.meta.nextCursor).toBeNull()
   })
-
   it('returns pagination cursor in meta', async () => {
     mockExecute.mockResolvedValue({
       items: [makeProposal('p-001')],
       nextCursor: 'cursor-abc',
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/proposals',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.meta.nextCursor).toBe('cursor-abc')
   })
-
   it('passes filters to use case', async () => {
     mockExecute.mockResolvedValue({ items: [], nextCursor: null })
-
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/proposals',
       query: { stage: 'QUOTE', boardType: 'NEW_INSURANCE', search: 'auto' },
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({
         organizationId: TEST_ORG_ID,
@@ -115,82 +107,66 @@ describe('GET /api/v1/proposals', () => {
       expect.anything()
     )
   })
-
   it('returns empty array when no proposals found', async () => {
     mockExecute.mockResolvedValue({ items: [], nextCursor: null })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/proposals',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data).toEqual([])
   })
-
   it('parses stageIn from CSV query', async () => {
     mockExecute.mockResolvedValue({ items: [], nextCursor: null })
-
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/proposals',
       query: { stageIn: 'QUOTE,PROTOCOL' },
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({ stageIn: ['QUOTE', 'PROTOCOL'] }),
       expect.anything()
     )
   })
-
   it('parses branchIn from CSV query', async () => {
     mockExecute.mockResolvedValue({ items: [], nextCursor: null })
-
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/proposals',
       query: { branchIn: 'AUTO,RESIDENTIAL' },
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({ branchIn: ['AUTO', 'RESIDENTIAL'] }),
       expect.anything()
     )
   })
-
   it('parses salespersonIdIn from CSV query', async () => {
     mockExecute.mockResolvedValue({ items: [], nextCursor: null })
-
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/proposals',
       query: { salespersonIdIn: 'user-1,user-2' },
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({ salespersonIdIn: ['user-1', 'user-2'] }),
       expect.anything()
     )
   })
-
   it('rejects branchIn=INVALID with 400', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/proposals',
       query: { branchIn: 'INVALID' },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('rejects stageIn=INVALID with 400', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/proposals',
       query: { stageIn: 'INVALID' },
     })
-
     expect(response.statusCode).toBe(400)
   })
 })

@@ -36,14 +36,11 @@ export function exportDashboardPdfRoute(app: FastifyInstance) {
     handler: async (request, reply) => {
       const { preset } = request.query
       const orgId = request.organizationId!
-
       const data = await buildDashboardData(orgId, preset)
-
       const org = await prisma.organization.findUnique({
         where: { id: orgId },
         select: { id: true, name: true, logo: true },
       })
-
       if (!org) {
         return reply.status(404).send({
           success: false,
@@ -53,13 +50,11 @@ export function exportDashboardPdfRoute(app: FastifyInstance) {
           },
         })
       }
-
       const storage = container.resolve<StorageProvider>('StorageProvider')
       let logoUrl: string | null = null
       if (org.logo) {
         logoUrl = await storage.getSignedUrl(org.logo)
       }
-
       const buffer = Buffer.from(
         await renderToBuffer(
           DashboardReportPdf({
@@ -74,11 +69,9 @@ export function exportDashboardPdfRoute(app: FastifyInstance) {
           })
         )
       )
-
       const fileName = `relatorio-gerencial-${preset}.pdf`
       const storageKey = `organizations/${orgId}/reports/${fileName}`
       await storage.upload(storageKey, buffer, 'application/pdf')
-
       const documentRepo =
         container.resolve<DocumentRepository>('DocumentRepository')
       await documentRepo.upsertByStorageKey({
@@ -92,7 +85,6 @@ export function exportDashboardPdfRoute(app: FastifyInstance) {
         storageKey,
         createdBy: request.user!.id,
       })
-
       const url = await storage.getSignedUrl(storageKey)
       return reply.send({ success: true, data: { url } })
     },

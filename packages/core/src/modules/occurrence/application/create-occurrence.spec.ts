@@ -74,34 +74,28 @@ describe('CreateOccurrence', () => {
     const occurrenceRepo = makeOccurrenceRepo(occurrenceData)
     const claimRepo = makeClaimRepo(makeClaimData())
     const useCase = new CreateOccurrence(occurrenceRepo, claimRepo)
-
     const dto: CreateOccurrenceInput = {
       claimId: 'claim-1',
       organizationId: 'org-1',
       type: 'STATUS_CHANGE',
       description: 'Status alterado para Em Análise',
     }
-
     const result = await useCase.execute(dto)
-
     expect(claimRepo.findById).toHaveBeenCalledWith('claim-1', 'org-1')
     expect(occurrenceRepo.create).toHaveBeenCalledWith(dto)
     expect(result.organizationId).toBe('org-1')
     expect(result.claimId).toBe('claim-1')
   })
-
   it('rejects occurrence when claim does not belong to tenant', async () => {
     const occurrenceRepo = makeOccurrenceRepo(makeOccurrenceData())
     const claimRepo = makeClaimRepo(null)
     const useCase = new CreateOccurrence(occurrenceRepo, claimRepo)
-
     const dto: CreateOccurrenceInput = {
       claimId: 'claim-other-tenant',
       organizationId: 'org-1',
       type: 'NOTE',
       description: 'Tentativa de acesso cruzado',
     }
-
     await expect(useCase.execute(dto)).rejects.toThrow(
       OccurrenceClaimNotFoundError
     )
@@ -111,13 +105,11 @@ describe('CreateOccurrence', () => {
     )
     expect(occurrenceRepo.create).not.toHaveBeenCalled()
   })
-
   it('passes createdBy to repository', async () => {
     const occurrenceData = makeOccurrenceData({ createdBy: 'user-42' })
     const occurrenceRepo = makeOccurrenceRepo(occurrenceData)
     const claimRepo = makeClaimRepo(makeClaimData())
     const useCase = new CreateOccurrence(occurrenceRepo, claimRepo)
-
     const dto: CreateOccurrenceInput = {
       claimId: 'claim-1',
       organizationId: 'org-1',
@@ -125,20 +117,16 @@ describe('CreateOccurrence', () => {
       description: 'Documento enviado pelo segurado',
       createdBy: 'user-42',
     }
-
     const result = await useCase.execute(dto)
-
     expect(occurrenceRepo.create).toHaveBeenCalledWith(dto)
     expect(result.createdBy).toBe('user-42')
   })
-
   it('passes metadata to repository', async () => {
     const meta = { previousStatus: 'REGISTERED', newStatus: 'IN_ANALYSIS' }
     const occurrenceData = makeOccurrenceData({ metadata: meta })
     const occurrenceRepo = makeOccurrenceRepo(occurrenceData)
     const claimRepo = makeClaimRepo(makeClaimData())
     const useCase = new CreateOccurrence(occurrenceRepo, claimRepo)
-
     const dto: CreateOccurrenceInput = {
       claimId: 'claim-1',
       organizationId: 'org-1',
@@ -146,9 +134,7 @@ describe('CreateOccurrence', () => {
       description: 'Transição de status',
       metadata: meta,
     }
-
     const result = await useCase.execute(dto)
-
     expect(result.metadata).toEqual(meta)
   })
 })

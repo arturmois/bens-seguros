@@ -15,7 +15,6 @@ export function CommissionExportButton({
   filters,
 }: CommissionExportButtonProps) {
   const exportCsv = useExportCommissionsCsv()
-
   return (
     <Button
       variant="outline"

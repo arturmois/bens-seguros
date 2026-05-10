@@ -67,62 +67,49 @@ beforeEach(() => {
 
 describe('POST /api/v1/proposals/:id/advance', () => {
   it('returns 200 with advanced proposal', async () => {
-    // No body — omit content-type to avoid FST_ERR_CTP_EMPTY_JSON_BODY
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/proposals/p-001/advance',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.id).toBe('p-001')
     expect(body.data.stage).toBe('QUOTE')
   })
-
   it('calls use case with id and organizationId', async () => {
     await app.inject({
       method: 'POST',
       url: '/api/v1/proposals/p-001/advance',
     })
-
     expect(mockExecute).toHaveBeenCalledWith('p-001', TEST_ORG_ID)
   })
-
   it('returns 422 on INVALID_STAGE_TRANSITION error', async () => {
     mockResolveError('INVALID_STAGE_TRANSITION', 'Cannot advance from LOST')
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/proposals/p-001/advance',
     })
-
     expect(response.statusCode).toBe(422)
     const body = response.json()
     expect(body.error.code).toBe('INVALID_STAGE_TRANSITION')
   })
-
   it('returns 422 on CHECKLIST_INCOMPLETE error', async () => {
     mockResolveError('CHECKLIST_INCOMPLETE', 'Checklist not complete')
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/proposals/p-001/advance',
     })
-
     expect(response.statusCode).toBe(422)
     const body = response.json()
     expect(body.error.code).toBe('CHECKLIST_INCOMPLETE')
   })
-
   it('returns 404 when proposal does not exist', async () => {
     mockResolveError('PROPOSAL_NOT_FOUND', 'Proposal not found')
-
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/proposals/nonexistent/advance',
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.error.code).toBe('PROPOSAL_NOT_FOUND')

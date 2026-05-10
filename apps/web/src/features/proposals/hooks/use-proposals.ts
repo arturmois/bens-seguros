@@ -53,7 +53,6 @@ export function useProposal(id: string) {
 
 export function useCreateProposal() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (data: CreateProposalBody) => createProposal(data),
     onSuccess: () => {
@@ -70,7 +69,6 @@ export function useCreateProposal() {
 
 export function useAdvanceProposal() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (id: string) => advanceProposal(id),
     onSuccess: (_data, id) => {
@@ -87,7 +85,6 @@ export function useAdvanceProposal() {
     },
     onError: (error: Error) => {
       if (error instanceof ApiError && error.code === 'CONTACT_NOT_PROMOTED') {
-        // Caller handles this by opening PromoteContactDialog.
         return
       }
       const message =
@@ -104,7 +101,6 @@ interface MarkLostInput {
 
 export function useMarkProposalLost() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: ({ id, reason }: MarkLostInput) =>
       markProposalLost(id, { reason }),
@@ -125,7 +121,6 @@ export function useMarkProposalLost() {
 
 export function useUpdateProposalDetails() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: ({
       id,

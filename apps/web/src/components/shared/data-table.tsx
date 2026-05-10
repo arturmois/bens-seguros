@@ -13,13 +13,6 @@ import {
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 
-// Shared baseline row height. Forces every data table in the app to render
-// rows at 40px. Note that h- on <tr> behaves as a *minimum* — to actually
-// hit 40px, three things must align together:
-//   1. h-10 (row min-height) here
-//   2. p-1.5 on TableCell in components/ui/table.tsx
-//   3. size-7 on the action-menu Button in feature *-columns.tsx
-// Math: 28px (button) + 12px (vertical padding) = 40px.
 const ROW_BASELINE = 'h-10'
 
 interface DataTableProps<T> {
@@ -45,7 +38,6 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   'use no memo'
   const colCount = table.getVisibleLeafColumns().length
-
   return (
     <div className="hidden min-h-0 flex-1 overflow-auto rounded-md border md:flex md:flex-col">
       <Table>

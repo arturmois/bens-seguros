@@ -290,7 +290,6 @@ export function MenuSubPopup({
   alignOffset?: MenuPrimitive.Positioner.Props['alignOffset']
 }): React.ReactElement {
   const defaultAlignOffset = align !== 'center' ? -5 : undefined
-
   return (
     <MenuPopup
       align={align}

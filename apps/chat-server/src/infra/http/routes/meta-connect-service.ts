@@ -30,7 +30,6 @@ export async function connectMetaChannel(
   input: ConnectChannelInput
 ): Promise<ConnectResult> {
   const encryptedToken = encryptToken(input.pageAccessToken)
-
   const channel = await Channel.create({
     tenantId: input.tenantId,
     name: input.name,
@@ -51,7 +50,6 @@ export async function connectMetaChannel(
         : {}),
     },
   })
-
   return {
     channelId: String(channel._id),
     name: channel.name,
@@ -76,13 +74,11 @@ export async function subscribePageToWebhooks(
         }),
       }
     )
-
     const raw: unknown = await response.json()
     const data =
       typeof raw === 'object' && raw !== null
         ? (raw as Record<string, unknown>)
         : {}
-
     if (!response.ok) {
       const err =
         typeof data['error'] === 'object' && data['error'] !== null
@@ -96,7 +92,6 @@ export async function subscribePageToWebhooks(
             : 'Failed to subscribe page',
       }
     }
-
     return { success: true }
   } catch {
     return {
@@ -115,15 +110,12 @@ export async function disconnectMetaChannel(
     tenantId,
     isActive: true,
   })
-
   if (!channel) return false
-
   const config =
     typeof channel.config === 'object' && channel.config !== null
       ? (channel.config as Record<string, unknown>)
       : undefined
   const metaToken = config?.['metaToken']
-
   if (metaToken && isEncryptedField(metaToken)) {
     const plainToken = decryptToken(metaToken)
     await fetch(`${META_GRAPH_API}/me/permissions`, {
@@ -133,7 +125,6 @@ export async function disconnectMetaChannel(
       // Best effort — token may already be invalid
     })
   }
-
   await Channel.updateOne(
     { _id: channelId, tenantId },
     {
@@ -144,7 +135,6 @@ export async function disconnectMetaChannel(
       },
     }
   )
-
   return true
 }
 
@@ -161,14 +151,11 @@ export async function getChannelMetaStatus(
 ): Promise<ChannelMetaStatus | null> {
   const channel = await Channel.findOne({ _id: channelId, tenantId }).lean()
   if (!channel) return null
-
   const doc = channel as Record<string, unknown>
-
   const rawStatus = doc['status']
   const rawConnectionMethod = doc['connectionMethod']
   const rawTokenExpiresAt = doc['tokenExpiresAt']
   const rawScopes = doc['scopes']
-
   return {
     status: typeof rawStatus === 'string' ? rawStatus : 'UNKNOWN',
     connectionMethod:

@@ -9,7 +9,6 @@ export function isValidDate(day: number, month: number, year: number): boolean {
   if (day < 1) return false
   const currentYear = new Date().getFullYear()
   if (year < 1900 || year > currentYear + 10) return false
-
   const daysInMonth = [
     31,
     isLeapYear(year) ? 29 : 28,
@@ -43,7 +42,6 @@ export function parseFlexibleDate(input: string): Date | null {
   if (!input) return null
   const trimmed = input.trim()
   if (!trimmed) return null
-
   const digitsMatch = trimmed.match(DIGITS_ONLY)
   if (digitsMatch) {
     if (trimmed.length === 8) {
@@ -61,7 +59,6 @@ export function parseFlexibleDate(input: string): Date | null {
     }
     return null
   }
-
   const separated = trimmed.match(SEPARATED)
   if (!separated) return null
   const day = separated[1]
@@ -89,7 +86,6 @@ const VALID_MASK_CHARS = /[^\d/-]/g
 export function normalizeToMask(input: string): string {
   if (!input) return ''
   const cleaned = input.replace(VALID_MASK_CHARS, '').replace(/-/g, '/')
-
   if (DIGITS_ONLY.test(cleaned)) {
     if (cleaned.length === 8) {
       return `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`
@@ -99,7 +95,6 @@ export function normalizeToMask(input: string): string {
     }
     return cleaned
   }
-
   return cleaned.slice(0, 10)
 }
 

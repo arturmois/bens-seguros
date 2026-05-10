@@ -1,4 +1,3 @@
-/** PII redaction paths for Pino loggers */
 export const PII_REDACT_PATHS = [
   'cpf',
   'cnpj',
@@ -26,7 +25,6 @@ export const PII_REDACT_PATHS = [
   'req.body.birthDate',
   'req.headers.authorization',
   'req.headers.cookie',
-  // Meta OAuth tokens and secrets
   'metaToken',
   'access_token',
   'fb_exchange_token',
@@ -43,7 +41,6 @@ export const PII_REDACT_PATHS = [
   'req.body.access_token',
 ] as const
 
-/** Pino redact configuration to protect PII in logs */
 export const PINO_REDACT_CONFIG: { paths: string[]; censor: string } = {
   paths: [...PII_REDACT_PATHS],
   censor: '[REDACTED]',

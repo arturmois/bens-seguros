@@ -48,15 +48,12 @@ export function InsurerFormDialog({
   const createMutation = useCreateInsurerMutation()
   const updateMutation = useUpdateInsurerMutation()
   const isPending = createMutation.isPending || updateMutation.isPending
-
   const form = useForm<InsurerFormValues>({
     resolver: zodResolver(insurerFormSchema),
     defaultValues: DEFAULT_INSURER_FORM,
   })
-
   useEffect(() => {
     if (!open) return
-
     if (insurer) {
       form.reset({
         name: insurer.name,
@@ -65,10 +62,8 @@ export function InsurerFormDialog({
       })
       return
     }
-
     form.reset(DEFAULT_INSURER_FORM)
   }, [open, insurer, form])
-
   function handleSubmit(values: InsurerFormValues) {
     if (isEditMode && insurer) {
       updateMutation.mutate(
@@ -82,7 +77,6 @@ export function InsurerFormDialog({
       )
       return
     }
-
     createMutation.mutate(values, {
       onSuccess: (created) => {
         onSuccess?.(created)
@@ -90,7 +84,6 @@ export function InsurerFormDialog({
       },
     })
   }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -104,7 +97,6 @@ export function InsurerFormDialog({
               : 'Cadastre uma seguradora para uso em propostas, apólices e sinistros.'}
           </DialogDescription>
         </DialogHeader>
-
         <DialogPanel>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
@@ -121,7 +113,6 @@ export function InsurerFormDialog({
                 {...form.register('name')}
               />
             </FormField>
-
             <FormField
               label="Código"
               error={form.formState.errors.code?.message}
@@ -129,7 +120,6 @@ export function InsurerFormDialog({
             >
               <Input placeholder="Ex: PSEG" {...form.register('code')} />
             </FormField>
-
             {isEditMode && (
               <Controller
                 name="active"
@@ -150,7 +140,6 @@ export function InsurerFormDialog({
             )}
           </form>
         </DialogPanel>
-
         <DialogFooter>
           <Button
             type="button"

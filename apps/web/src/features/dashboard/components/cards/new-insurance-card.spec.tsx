@@ -11,7 +11,6 @@ describe('NewInsuranceCard', () => {
     render(<NewInsuranceCard data={undefined} isLoading preset="30d" />)
     expect(screen.getByTestId('new-insurance-card-loading')).toBeTruthy()
   })
-
   it('renders count and comparison badge', () => {
     render(
       <NewInsuranceCard
@@ -23,7 +22,6 @@ describe('NewInsuranceCard', () => {
     expect(screen.getByText('12')).toBeTruthy()
     expect(screen.getByText(/\+20%/)).toBeTruthy()
   })
-
   it('has a link to filtered policies page with boardType=NEW_INSURANCE', () => {
     render(
       <NewInsuranceCard
@@ -36,7 +34,6 @@ describe('NewInsuranceCard', () => {
     expect(link.getAttribute('href')).toContain('boardType=NEW_INSURANCE')
     expect(link.getAttribute('href')).toContain('createdFrom=')
   })
-
   it('hides comparison badge when previous is zero', () => {
     render(
       <NewInsuranceCard
@@ -45,7 +42,6 @@ describe('NewInsuranceCard', () => {
         preset="30d"
       />
     )
-    // No "vs anterior" text since no historical comparison
     expect(screen.queryByText(/vs anterior/i)).toBeNull()
   })
 })

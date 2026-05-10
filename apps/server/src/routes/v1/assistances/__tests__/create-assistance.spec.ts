@@ -63,13 +63,11 @@ const validBody = {
 describe('POST /api/v1/assistances', () => {
   it('returns 201 with assistance data on valid request', async () => {
     mockExecute.mockResolvedValue(makeAssistance())
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/assistances',
       payload: validBody,
     })
-
     expect(response.statusCode).toBe(201)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -77,46 +75,37 @@ describe('POST /api/v1/assistances', () => {
     expect(body.data.type).toBe('TOWING')
     expect(body.data.status).toBe('REQUESTED')
   })
-
   it('returns 400 when policyId is missing', async () => {
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/assistances',
       payload: { clientId: 'client-id-001', type: 'TOWING' },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('returns 400 when clientId is missing', async () => {
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/assistances',
       payload: { policyId: 'policy-id-001', type: 'TOWING' },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('returns 400 when type is missing', async () => {
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/assistances',
       payload: { policyId: 'policy-id-001', clientId: 'client-id-001' },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('returns 404 when policy is not found', async () => {
     mockResolveError('POLICY_NOT_FOUND', 'Policy not found')
-
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/assistances',
       payload: validBody,
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.error.code).toBe('POLICY_NOT_FOUND')

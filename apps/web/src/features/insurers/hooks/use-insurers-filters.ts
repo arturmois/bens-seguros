@@ -29,12 +29,7 @@ export function useInsurersFilters() {
     },
     { history: 'push' }
   )
-
   const [touched, setTouched] = useState<boolean>(readTouchedFlag)
-
-  // A URL that already carries ?active means the user (or the link author)
-  // has expressed intent — treat the session as touched so the default does
-  // not silently override their choice on the next render.
   const initialUrlHadActive = useRef(state.active !== null)
   useEffect(() => {
     if (initialUrlHadActive.current && !touched) {
@@ -42,21 +37,17 @@ export function useInsurersFilters() {
       setTouched(true)
     }
   }, [touched])
-
   function markTouched(): void {
     if (touched) return
     writeTouchedFlag()
     setTouched(true)
   }
-
   const effectiveActive: boolean | undefined =
     !touched && state.active === null ? true : (state.active ?? undefined)
-
   const values: Readonly<Record<string, FilterValue>> = useMemo(
     () => ({ active: effectiveActive }),
     [effectiveActive]
   )
-
   const apiParams = useMemo(
     () => ({
       active: effectiveActive,
@@ -64,23 +55,19 @@ export function useInsurersFilters() {
     }),
     [effectiveActive, state.search]
   )
-
   function setFilter(key: string, value: FilterValue): void {
     if (key !== 'active') return
     markTouched()
     void setState({ active: asBooleanValue(value) ?? null })
   }
-
   function setSearch(next: string): void {
     markTouched()
     void setState({ search: next })
   }
-
   function clearAll(): void {
     markTouched()
     void setState({ active: null, search: '' })
   }
-
   return {
     values,
     apiParams,

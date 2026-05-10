@@ -9,7 +9,6 @@ import { ImportDialog } from './import-dialog'
 
 export function ClientImportButton() {
   const [open, setOpen] = useState(false)
-
   return (
     <>
       <Button

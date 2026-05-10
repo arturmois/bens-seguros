@@ -29,15 +29,12 @@ export function DeleteAgentDialog({
 }: DeleteAgentDialogProps) {
   const deleteAgent = useDeleteAiAgent()
   const hasLinkedChannels = (agent?.linkedChannelCount ?? 0) > 0
-
   function handleDelete() {
     if (!agent) return
-
     deleteAgent.mutate(agent.id, {
       onSuccess: () => onOpenChange(false),
     })
   }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -62,7 +59,6 @@ export function DeleteAgentDialog({
             )}
           </DialogDescription>
         </DialogHeader>
-
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar

@@ -6,7 +6,6 @@ export async function tenantMiddleware(
   reply: FastifyReply
 ) {
   const organizationId = request.session?.activeOrganizationId
-
   if (!organizationId) {
     return reply.status(400).send({
       success: false,
@@ -16,14 +15,12 @@ export async function tenantMiddleware(
       },
     })
   }
-
   if (!request.user) {
     return reply.status(401).send({
       success: false,
       error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
     })
   }
-
   const member = await prisma.member.findUnique({
     where: {
       organizationId_userId: {
@@ -32,7 +29,6 @@ export async function tenantMiddleware(
       },
     },
   })
-
   if (!member || !member.active) {
     return reply.status(403).send({
       success: false,
@@ -42,7 +38,6 @@ export async function tenantMiddleware(
       },
     })
   }
-
   request.organizationId = organizationId
   request.role = member.role
   request.tenantPrisma = createTenantClient(organizationId)

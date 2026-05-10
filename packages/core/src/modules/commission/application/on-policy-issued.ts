@@ -21,7 +21,6 @@ export class OnPolicyIssued {
     if (data.commissionPercentageInBasisPoints <= 0) {
       return
     }
-
     const commission = Commission.create({
       organizationId: data.organizationId,
       policyId: data.policyId,
@@ -29,7 +28,6 @@ export class OnPolicyIssued {
       premiumValueInCents: data.premiumValueInCents,
       percentageInBasisPoints: data.commissionPercentageInBasisPoints,
     })
-
     await this.repo.save(commission)
   }
 }

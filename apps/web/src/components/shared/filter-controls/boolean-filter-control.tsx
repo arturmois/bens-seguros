@@ -26,7 +26,6 @@ export function BooleanFilterControl({
     onCommit(next)
     onClose()
   }
-
   return (
     <div className="flex w-full flex-col" data-slot="boolean-filter-control">
       <div className="border-b px-3 py-2">

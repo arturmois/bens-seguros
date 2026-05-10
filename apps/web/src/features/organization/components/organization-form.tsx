@@ -26,7 +26,6 @@ export function OrganizationForm({
   isReadOnly,
 }: OrganizationFormProps) {
   const updateOrganization = useUpdateOrganization()
-
   const form = useForm<OrganizationFormValues>({
     resolver: zodResolver(UpdateOrganizationBody),
     defaultValues: {
@@ -34,18 +33,15 @@ export function OrganizationForm({
       slug: organization.slug,
     },
   })
-
   useEffect(() => {
     form.reset({
       name: organization.name,
       slug: organization.slug,
     })
   }, [organization.name, organization.slug, form])
-
   function handleSubmit(values: OrganizationFormValues) {
     updateOrganization.mutate(values)
   }
-
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
       <FormField
@@ -59,7 +55,6 @@ export function OrganizationForm({
           {...form.register('name')}
         />
       </FormField>
-
       <FormField
         label="Slug"
         error={form.formState.errors.slug?.message}
@@ -72,7 +67,6 @@ export function OrganizationForm({
           {...form.register('slug')}
         />
       </FormField>
-
       {!isReadOnly && (
         <div className="pt-2">
           <Button type="submit" disabled={updateOrganization.isPending}>

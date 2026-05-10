@@ -41,9 +41,7 @@ function parseQuery(
     if (parts.length === 0) return '(min-width: 0px)'
     return parts.join(' and ')
   }
-
   if (query.startsWith('(')) return query
-
   const parts: string[] = []
   for (const segment of query.split(':')) {
     if (segment.startsWith('max-')) {
@@ -53,7 +51,6 @@ function parseQuery(
       parts.push(resolveMin(segment as Breakpoint))
     }
   }
-
   return parts.length > 0 ? parts.join(' and ') : query
 }
 
@@ -64,7 +61,6 @@ function getServerSnapshot(): boolean {
 export type MediaQueryInput = {
   min?: Breakpoint | number
   max?: Breakpoint | number
-  /** Touch-like input (finger). Use "fine" for mouse/trackpad. */
   pointer?: 'coarse' | 'fine'
 }
 
@@ -72,7 +68,6 @@ export function useMediaQuery(
   query: BreakpointQuery | MediaQueryInput | (string & {})
 ): boolean {
   const mediaQuery = parseQuery(query)
-
   const subscribe = useCallback(
     (callback: () => void) => {
       if (typeof window === 'undefined') return () => {}
@@ -82,12 +77,10 @@ export function useMediaQuery(
     },
     [mediaQuery]
   )
-
   const getSnapshot = useCallback(() => {
     if (typeof window === 'undefined') return false
     return window.matchMedia(mediaQuery).matches
   }, [mediaQuery])
-
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 }
 

@@ -1,9 +1,5 @@
 import type { WidgetMessage } from '../lib/widget-api'
 
-// ---------------------------------------------------------------------------
-// Sender type helpers
-// ---------------------------------------------------------------------------
-
 function isSenderType(value: string): value is WidgetMessage['senderType'] {
   return (
     value === 'CLIENT' ||
@@ -20,18 +16,10 @@ export function parseSenderType(value: unknown): WidgetMessage['senderType'] {
   return 'SYSTEM'
 }
 
-// ---------------------------------------------------------------------------
-// Typing state
-// ---------------------------------------------------------------------------
-
 export interface TypingState {
   readonly isTyping: boolean
   readonly name: string | null
 }
-
-// ---------------------------------------------------------------------------
-// Hook result
-// ---------------------------------------------------------------------------
 
 export interface UseWidgetSocketResult {
   readonly messages: WidgetMessage[]
@@ -43,10 +31,6 @@ export interface UseWidgetSocketResult {
   readonly emitTyping: () => void
   readonly loadMoreMessages: () => Promise<void>
 }
-
-// ---------------------------------------------------------------------------
-// Parse incoming socket message data into WidgetMessage
-// ---------------------------------------------------------------------------
 
 export function parseIncomingMessage(
   data: Record<string, unknown>

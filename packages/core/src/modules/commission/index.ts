@@ -1,4 +1,3 @@
-// Domain
 export { calculateCommissionValue } from './domain/commission-calculator.js'
 export {
   CommissionAlreadyPaidError,
@@ -20,7 +19,6 @@ export type {
 } from './domain/commission-types.js'
 export { Commission } from './domain/commission.js'
 
-// Application
 export { ApproveCommissionAdmin } from './application/approve-commission-admin.js'
 export { ApproveCommissionCommercial } from './application/approve-commission-commercial.js'
 export { CreateCommission } from './application/create-commission.js'
@@ -32,6 +30,5 @@ export { PayCommission } from './application/pay-commission.js'
 export { RejectCommission } from './application/reject-commission.js'
 export { ReverseCommission } from './application/reverse-commission.js'
 
-// Infrastructure
 export { CommissionMapper } from './infrastructure/commission-mapper.js'
 export { PrismaCommissionRepository } from './infrastructure/prisma-commission-repository.js'

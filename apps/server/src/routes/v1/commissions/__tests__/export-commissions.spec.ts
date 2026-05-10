@@ -41,16 +41,13 @@ describe('GET /api/v1/commissions/export', () => {
       }
       return null
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/commissions/export',
     })
-
     expect(response.statusCode).toBe(200)
     expect(response.headers['content-type']).toContain('text/csv')
   })
-
   it('returns CSV attachment header with correct filename', async () => {
     vi.mocked(container.resolve).mockImplementation((token: unknown) => {
       if (typeof token === 'function') {
@@ -58,17 +55,14 @@ describe('GET /api/v1/commissions/export', () => {
       }
       return null
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/commissions/export',
     })
-
     expect(response.headers['content-disposition']).toContain(
       'attachment; filename="comissoes.csv"'
     )
   })
-
   it('streams CSV rows in response body', async () => {
     vi.mocked(container.resolve).mockImplementation((token: unknown) => {
       if (typeof token === 'function') {
@@ -84,17 +78,14 @@ describe('GET /api/v1/commissions/export', () => {
       }
       return null
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/commissions/export',
     })
-
     expect(response.statusCode).toBe(200)
     expect(response.body).toContain('Vendedor')
     expect(response.body).toContain('João Silva')
   })
-
   it('passes filters to use case', async () => {
     const mockGenerateCsvRows = vi.fn().mockReturnValue(makeCsvGenerator())
     vi.mocked(container.resolve).mockImplementation((token: unknown) => {
@@ -103,13 +94,11 @@ describe('GET /api/v1/commissions/export', () => {
       }
       return null
     })
-
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/commissions/export',
       query: { status: 'APPROVED', salespersonId: 'user-id-001' },
     })
-
     expect(mockGenerateCsvRows).toHaveBeenCalledWith(
       expect.objectContaining({
         status: 'APPROVED',

@@ -31,11 +31,8 @@ function OrganizationSkeleton() {
 export function OrganizationPage() {
   const { data: organization, isLoading, isError, refetch } = useOrganization()
   const { activeOrg } = useOrgs()
-
   const isReadOnly = activeOrg?.role !== 'OWNER'
-
   if (isLoading) return <OrganizationSkeleton />
-
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12">
@@ -49,9 +46,7 @@ export function OrganizationPage() {
       </div>
     )
   }
-
   if (!organization) return null
-
   return (
     <div className="space-y-6">
       <div>
@@ -62,7 +57,6 @@ export function OrganizationPage() {
             : 'Gerencie as informações da sua organização.'}
         </p>
       </div>
-
       <div className="grid gap-8 lg:grid-cols-[1fr_280px]">
         <OrganizationForm organization={organization} isReadOnly={isReadOnly} />
         <LogoUpload organization={organization} isReadOnly={isReadOnly} />

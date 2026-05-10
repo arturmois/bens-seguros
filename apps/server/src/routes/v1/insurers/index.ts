@@ -7,7 +7,6 @@ import { updateInsurerRoute } from './update-insurer.js'
 
 export async function insurerRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
-
   createInsurerRoute(app)
   listInsurersRoute(app)
   updateInsurerRoute(app)

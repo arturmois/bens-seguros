@@ -28,9 +28,6 @@ vi.mock('sonner', () => ({
   toast: { error: vi.fn() },
 }))
 
-// @react-input/mask schedules native setTimeout calls that can fire after
-// jsdom is torn down — "window is not defined" crashes the run in CI. We
-// don't test mask behavior here, so mock it as a passthrough input.
 type InputMaskProps = ComponentPropsWithoutRef<'input'> & {
   component?: ElementType
   mask?: string
@@ -94,18 +91,14 @@ function getInputByName(name: string): HTMLInputElement {
 }
 
 describe('<AddressFieldsWithCep />', () => {
-  // Unmount rendered components between tests so InputMask's internal timers
-  // don't fire after jsdom teardown (was causing "window is not defined" in CI).
   afterEach(() => {
     cleanup()
   })
-
   beforeEach(() => {
     lookupMock.mockReset()
     vi.mocked(toast.error).mockReset()
     useCepLookupReturn = { lookup: lookupMock, isLoading: false, error: null }
   })
-
   it('triggers lookup on blur after 8 digits and autofills fields', async () => {
     lookupMock.mockResolvedValue({
       zipCode: '01311000',
@@ -115,14 +108,11 @@ describe('<AddressFieldsWithCep />', () => {
       state: 'SP',
       complement: null,
     })
-
     const user = userEvent.setup()
     render(<Harness />)
-
     const cep = getInputByName('cep')
     await user.type(cep, '01311000')
     fireEvent.blur(cep)
-
     await waitFor(() => {
       expect(getInputByName('street').value).toBe('Avenida Paulista')
     })
@@ -132,7 +122,6 @@ describe('<AddressFieldsWithCep />', () => {
     expect(getInputByName('number').value).toBe('')
     expect(getInputByName('complement').value).toBe('')
   })
-
   it('shows error toast and leaves fields untouched on not-found', async () => {
     lookupMock.mockResolvedValue(null)
     useCepLookupReturn = {
@@ -140,13 +129,11 @@ describe('<AddressFieldsWithCep />', () => {
       isLoading: false,
       error: { type: 'not-found' },
     }
-
     render(
       <Harness
         defaultValues={{ street: 'Rua Existente', city: 'Cidade Existente' }}
       />
     )
-
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
         expect.stringMatching(/CEP não encontrado/i)
@@ -155,7 +142,6 @@ describe('<AddressFieldsWithCep />', () => {
     expect(getInputByName('street').value).toBe('Rua Existente')
     expect(getInputByName('city').value).toBe('Cidade Existente')
   })
-
   it('overwrites existing values on a successful lookup', async () => {
     lookupMock.mockResolvedValue({
       zipCode: '01311000',
@@ -165,22 +151,18 @@ describe('<AddressFieldsWithCep />', () => {
       state: 'SP',
       complement: null,
     })
-
     const user = userEvent.setup()
     render(
       <Harness defaultValues={{ street: 'Rua Antiga', city: 'Outra Cidade' }} />
     )
-
     const cep = getInputByName('cep')
     await user.type(cep, '01311000')
     fireEvent.blur(cep)
-
     await waitFor(() => {
       expect(getInputByName('street').value).toBe('Avenida Paulista')
     })
     expect(getInputByName('city').value).toBe('São Paulo')
   })
-
   it('triggers lookup on completion (8 digits typed) without waiting for blur', async () => {
     lookupMock.mockResolvedValue({
       zipCode: '01311000',
@@ -190,12 +172,9 @@ describe('<AddressFieldsWithCep />', () => {
       state: 'SP',
       complement: null,
     })
-
     const user = userEvent.setup()
     render(<Harness />)
-
     await user.type(getInputByName('cep'), '01311000')
-
     await waitFor(() => expect(lookupMock).toHaveBeenCalledWith('01311000'))
   })
 })

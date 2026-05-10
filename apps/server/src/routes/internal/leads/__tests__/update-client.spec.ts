@@ -55,47 +55,39 @@ describe('PUT /api/internal/clients/:id', () => {
       url: '/api/internal/clients/client-001',
       payload: { email: 'novo@example.com' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.success).toBe(true)
     expect(mockTenantPrisma.client.update).toHaveBeenCalledOnce()
   })
-
   it('returns 404 when client does not exist', async () => {
     mockTenantPrisma.client.findFirst.mockResolvedValue(null)
-
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/internal/clients/nonexistent',
       payload: { email: 'novo@example.com' },
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.error.code).toBe('CLIENT_NOT_FOUND')
   })
-
   it('returns 400 when document has invalid length', async () => {
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/internal/clients/client-001',
       payload: { document: '123' },
     })
-
     expect(response.statusCode).toBe(400)
     const body = response.json()
     expect(body.error.code).toBe('INVALID_DOCUMENT')
   })
-
   it('persists fiscal document fields when a valid document is provided', async () => {
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/internal/clients/client-001',
       payload: { document: '123.456.789-09' },
     })
-
     expect(response.statusCode).toBe(200)
     expect(mockTenantPrisma.client.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -107,7 +99,6 @@ describe('PUT /api/internal/clients/:id', () => {
       })
     )
   })
-
   it('updates multiple fields in a single request', async () => {
     const response = await injectAs(app, {
       method: 'PUT',
@@ -118,7 +109,6 @@ describe('PUT /api/internal/clients/:id', () => {
         maritalStatus: 'MARRIED',
       },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data.message).toMatch(/atualizados/)

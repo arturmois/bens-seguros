@@ -62,24 +62,20 @@ export function OccurrenceForm({
   onOpenChange,
 }: OccurrenceFormProps) {
   const createOccurrence = useCreateOccurrence()
-
   const form = useForm<OccurrenceFormValues>({
     resolver: zodResolver(occurrenceFormSchema),
     defaultValues: EMPTY_VALUES,
   })
-
   useEffect(() => {
     if (!open) return
     form.reset(EMPTY_VALUES)
   }, [open, form])
-
   function handleSubmit(values: OccurrenceFormValues) {
     createOccurrence.mutate(
       { claimId, type: values.type, description: values.description },
       { onSuccess: () => onOpenChange(false) }
     )
   }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -89,7 +85,6 @@ export function OccurrenceForm({
             Registre uma nova ocorrência para este sinistro.
           </DialogDescription>
         </DialogHeader>
-
         <DialogPanel>
           <form
             id="occurrence-form"
@@ -132,7 +127,6 @@ export function OccurrenceForm({
                 )}
               />
             </FormField>
-
             <FormField
               label="Descrição"
               error={form.formState.errors.description?.message}
@@ -146,7 +140,6 @@ export function OccurrenceForm({
             </FormField>
           </form>
         </DialogPanel>
-
         <DialogFooter>
           <Button
             type="button"

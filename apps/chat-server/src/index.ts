@@ -47,14 +47,12 @@ const start = async (): Promise<void> => {
   const mongoUri = env.MONGODB_URL
   await connectMongoDB(mongoUri)
   logger.info('MongoDB connected')
-
   const redisUrl = env.REDIS_URL
   const redisPub = new IORedis(redisUrl)
   const redisSub = redisPub.duplicate()
   const redisSubscriber = new IORedis(redisUrl)
   const redisWidgetSub = new IORedis(redisUrl)
   const redisGeneral = new IORedis(redisUrl)
-
   const redisInfo = parseRedisUrl(redisUrl)
   const queueConnection = {
     host: redisInfo.host,
@@ -62,25 +60,19 @@ const start = async (): Promise<void> => {
     ...(redisInfo.password ? { password: redisInfo.password } : {}),
     maxRetriesPerRequest: null,
   }
-
   registerDependencies(queueConnection, logger)
-
   const { app, io, presence } = await buildChatApp({
     redisPub,
     redisSub,
     redisGeneral,
     redisWidgetSub,
   })
-
   const subscriber = new RedisSubscriber(redisSubscriber, io, logger)
   await subscriber.subscribe()
-
   const port = env.PORT ?? 3002
   const host = env.HOST
-
   await app.listen({ port, host })
   logger.info({ port, host }, 'Chat server running')
-
   const shutdown = async (): Promise<void> => {
     logger.info('Shutting down chat server...')
     presence.stop()
@@ -92,7 +84,6 @@ const start = async (): Promise<void> => {
     redisGeneral.disconnect()
     logger.info('Chat server shut down')
   }
-
   process.on('SIGTERM', () => void shutdown())
   process.on('SIGINT', () => void shutdown())
 }

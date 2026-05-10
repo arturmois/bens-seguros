@@ -41,15 +41,12 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
   const sendQuoteMutation = useSendQuote(proposalId)
   const [showLostDialog, setShowLostDialog] = useState(false)
   const [promoteOpen, setPromoteOpen] = useState(false)
-
   const proposalData = data?.data
   const contactId = proposalData?.contactId ?? ''
   const { data: contact } = useContact(contactId)
-
   if (isLoading) {
     return <DetailSkeleton />
   }
-
   if (isError || !proposalData) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
@@ -75,7 +72,6 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
       </div>
     )
   }
-
   const proposal = proposalData
   const isTerminalStage =
     proposal.stage === 'POLICY_ISSUED' || proposal.stage === 'LOST'
@@ -86,10 +82,8 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
     checklistData?.summary.canAdvance === false
   const canMarkLost =
     proposal.stage !== 'LOST' && proposal.stage !== 'POLICY_ISSUED'
-
   const willTransitionToPolicyIssued = proposal.stage === 'PAYMENT'
   const contactNeedsPromotion = !contact?.clientId
-
   function dispatchAdvance() {
     advanceMutation.mutate(proposal.id, {
       onError: (error) => {
@@ -102,7 +96,6 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
       },
     })
   }
-
   function handleAdvance() {
     if (willTransitionToPolicyIssued && contactNeedsPromotion) {
       setPromoteOpen(true)
@@ -110,7 +103,6 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
     }
     dispatchAdvance()
   }
-
   return (
     <div className="space-y-6">
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
@@ -130,7 +122,6 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
             : `Proposta`}
         </span>
       </nav>
-
       <HeaderSection
         proposalId={proposalId}
         proposal={proposal}
@@ -139,17 +130,13 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
         onGeneratePdf={() => pdfMutation.mutate()}
         onSendQuote={() => sendQuoteMutation.mutate()}
       />
-
       <Separator />
-
       <CoreInfoSection
         proposal={proposal}
         proposalId={proposalId}
         existingPolicyId={existingPolicy?.id}
       />
-
       <EndorsementSection proposal={proposal} />
-
       {proposal.stage === 'LOST' && proposal.lostReason && (
         <>
           <Separator />
@@ -161,15 +148,10 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
           </div>
         </>
       )}
-
       <Separator />
-
       <DatesSection proposal={proposal} />
-
       <InsuredObjectSection proposal={proposal} />
-
       <Separator />
-
       <ProposalStageActions
         canAdvance={canAdvance}
         canMarkLost={canMarkLost}
@@ -178,16 +160,12 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
         onAdvance={handleAdvance}
         onMarkLost={() => setShowLostDialog(true)}
       />
-
       <Separator />
-
       <DocumentsTabSection proposalId={proposalId} branch={proposal.branch} />
-
       <LostReasonDialog
         proposalId={showLostDialog ? proposalId : null}
         onClose={() => setShowLostDialog(false)}
       />
-
       {contactId && (
         <PromoteContactDialog
           open={promoteOpen}

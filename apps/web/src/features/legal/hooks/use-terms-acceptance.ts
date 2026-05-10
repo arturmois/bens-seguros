@@ -14,7 +14,6 @@ import {
 
 export function useTermsAcceptance() {
   const queryClient = useQueryClient()
-
   const status = useGetTermsStatus({
     query: {
       staleTime: 60_000,
@@ -22,7 +21,6 @@ export function useTermsAcceptance() {
       select: (response) => response.data.data,
     },
   })
-
   const accept = useMutation({
     mutationFn: async () => {
       return acceptTerms({
@@ -36,7 +34,6 @@ export function useTermsAcceptance() {
       })
     },
   })
-
   return {
     needsReAccept: status.data?.needsReAccept ?? false,
     isLoading: status.isLoading,

@@ -21,7 +21,6 @@ export function useChecklist(proposalId: string) {
 
 export function useCompleteChecklistItem(proposalId: string) {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (itemId: string) =>
       completeProposalChecklistItem(proposalId, itemId),

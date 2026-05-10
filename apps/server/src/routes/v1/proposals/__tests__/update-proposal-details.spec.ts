@@ -91,42 +91,35 @@ describe('PUT /api/v1/proposals/:id/details', () => {
       url: '/api/v1/proposals/p-001/details',
       payload: autoDetailsPayload,
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.id).toBe('p-001')
     expect(body.data.premiumValueInCents).toBe(150000)
   })
-
   it('calls use case with id, organizationId, and body', async () => {
     await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/proposals/p-001/details',
       payload: autoDetailsPayload,
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       'p-001',
       TEST_ORG_ID,
       expect.objectContaining({ premiumValueInCents: 150000 })
     )
   })
-
   it('returns 404 when proposal does not exist', async () => {
     mockResolveError('PROPOSAL_NOT_FOUND', 'Proposal not found')
-
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/proposals/nonexistent/details',
       payload: autoDetailsPayload,
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.error.code).toBe('PROPOSAL_NOT_FOUND')
   })
-
   it('returns non-2xx when details body is missing required fields', async () => {
     const response = await injectAs(app, {
       method: 'PUT',
@@ -136,10 +129,8 @@ describe('PUT /api/v1/proposals/:id/details', () => {
         commissionBasisPoints: 1000,
       },
     })
-
     expect(response.statusCode).toBeGreaterThanOrEqual(400)
   })
-
   it('accepts LIFE branch details', async () => {
     mockExecute.mockResolvedValue(
       makeProposal({
@@ -147,7 +138,6 @@ describe('PUT /api/v1/proposals/:id/details', () => {
         details: { branch: 'LIFE', occupation: 'Médico' },
       })
     )
-
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/proposals/p-001/details',
@@ -157,7 +147,6 @@ describe('PUT /api/v1/proposals/:id/details', () => {
         commissionBasisPoints: 500,
       },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data.branch).toBe('LIFE')

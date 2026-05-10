@@ -1,13 +1,3 @@
-/**
- * Manages WhatsApp connection state in Redis for each channel.
- *
- * Keys:
- *   whatsapp:state:{channelId}    — current state ('connected' | 'disconnected' | 'qr_pending')
- *   whatsapp:last_qr:{channelId}  — last raw QR string (TTL 60s, matches Baileys QR expiry)
- *
- * Pub/sub channels (existing):
- *   CHAT_PUBSUB_CHANNELS.CHANNEL_STATUS — broadcasts status changes to chat-server
- */
 import type IORedis from 'ioredis'
 import { Channel } from '@repo/db-chat'
 import { CHAT_PUBSUB_CHANNELS, WHATSAPP_STATE_KEYS } from '@repo/shared'
@@ -67,7 +57,6 @@ export class QrStateManager {
     ])
   }
 
-  /** Remove all Redis state for a deactivated channel */
   async clearState(channelId: string): Promise<void> {
     await Promise.all([
       this.redis.del(WHATSAPP_STATE_KEYS.state(channelId)),

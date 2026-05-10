@@ -27,9 +27,7 @@ export async function channelWebhookRoutes(
     ) => {
       const { pageId, token, channelType, metaAppId, metaAppSecret } =
         validateMetaBodySchema.parse(request.body)
-
       const result = await validateMetaCredentials(pageId, token, channelType)
-
       if (!result.valid) {
         return reply.status(422).send({
           success: false,
@@ -39,7 +37,6 @@ export async function channelWebhookRoutes(
           },
         })
       }
-
       if (metaAppId && metaAppSecret) {
         const appResult = await validateMetaAppCredentials(
           metaAppId,
@@ -55,7 +52,6 @@ export async function channelWebhookRoutes(
           })
         }
       }
-
       return reply.send({
         success: true,
         data: { name: result.name, username: result.username },

@@ -23,13 +23,11 @@ export function KanbanCardDraggable({
     transition,
     isDragging,
   } = useSortable({ id: proposal.id, data: { stage: proposal.stage } })
-
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
   }
-
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <KanbanCard proposal={proposal} onClick={onClick} />

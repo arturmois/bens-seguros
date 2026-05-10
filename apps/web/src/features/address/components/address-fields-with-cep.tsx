@@ -64,7 +64,6 @@ export function AddressFieldsWithCep({
   const { lookup, isLoading, error } = useCepLookup()
   const lastLookedUpRef = useRef<string | null>(null)
   const reportedErrorRef = useRef<CepLookupErrorType | null>(null)
-
   useEffect(() => {
     if (!error) {
       reportedErrorRef.current = null
@@ -74,22 +73,18 @@ export function AddressFieldsWithCep({
     reportedErrorRef.current = error.type
     toast.error(ERROR_MESSAGES[error.type])
   }, [error])
-
   const runLookup = async (raw: string): Promise<void> => {
     const digits = raw.replace(/\D/g, '')
     if (digits.length !== 8) return
     if (lastLookedUpRef.current === digits) return
     lastLookedUpRef.current = digits
-
     const data = await lookup(digits)
     if (!data) return
-
     setValue(names.street, data.street, { shouldDirty: true })
     setValue(names.neighborhood, data.neighborhood, { shouldDirty: true })
     setValue(names.city, data.city, { shouldDirty: true })
     setValue(names.state, data.state, { shouldDirty: true })
   }
-
   return (
     <>
       <FieldWrapper label="CEP" required={required?.cep}>
@@ -126,7 +121,6 @@ export function AddressFieldsWithCep({
           )}
         />
       </FieldWrapper>
-
       <FieldWrapper label="Logradouro">
         <Input
           placeholder="Rua, avenida, etc."
@@ -134,7 +128,6 @@ export function AddressFieldsWithCep({
           {...register(names.street)}
         />
       </FieldWrapper>
-
       <FieldWrapper label="Número">
         <Input
           placeholder="123"
@@ -142,7 +135,6 @@ export function AddressFieldsWithCep({
           {...register(names.number)}
         />
       </FieldWrapper>
-
       <FieldWrapper label="Complemento">
         <Input
           placeholder="Apto, bloco, etc."
@@ -150,7 +142,6 @@ export function AddressFieldsWithCep({
           {...register(names.complement)}
         />
       </FieldWrapper>
-
       <FieldWrapper label="Bairro">
         <Input
           placeholder="Bairro"
@@ -158,7 +149,6 @@ export function AddressFieldsWithCep({
           {...register(names.neighborhood)}
         />
       </FieldWrapper>
-
       <FieldWrapper label="Cidade">
         <Input
           placeholder="Cidade"
@@ -166,7 +156,6 @@ export function AddressFieldsWithCep({
           {...register(names.city)}
         />
       </FieldWrapper>
-
       <FieldWrapper label="Estado">
         <Input
           placeholder="UF"

@@ -48,7 +48,6 @@ export class PrismaAssistanceRepository implements AssistanceRepository {
       },
       include: ASSISTANCE_INCLUDE,
     })
-
     return AssistanceMapper.toDomain(row)
   }
 
@@ -77,7 +76,6 @@ export class PrismaAssistanceRepository implements AssistanceRepository {
             : filters.status
               ? { status: filters.status }
               : {}
-
     const where: Prisma.AssistanceWhereInput = {
       organizationId: filters.organizationId,
       ...statusWhere,
@@ -100,7 +98,6 @@ export class PrismaAssistanceRepository implements AssistanceRepository {
         ],
       }),
     }
-
     const [rows, total] = await Promise.all([
       this.prisma.assistance.findMany({
         where,
@@ -111,10 +108,8 @@ export class PrismaAssistanceRepository implements AssistanceRepository {
       }),
       this.prisma.assistance.count({ where }),
     ])
-
     const hasNext = rows.length > page.limit
     const items = hasNext ? rows.slice(0, -1) : rows
-
     return {
       items: items.map(AssistanceMapper.toDomain),
       total,
@@ -135,7 +130,6 @@ export class PrismaAssistanceRepository implements AssistanceRepository {
       },
       include: ASSISTANCE_INCLUDE,
     })
-
     return AssistanceMapper.toDomain(row)
   }
 }

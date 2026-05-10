@@ -25,12 +25,10 @@ function jsonResponse(body: unknown, init: ResponseInit = {}): Response {
 
 describe('ViaCepProvider', () => {
   let restoreFetch: (() => void) | undefined
-
   afterEach(() => {
     restoreFetch?.()
     restoreFetch = undefined
   })
-
   it('maps ViaCEP response to AddressData', async () => {
     restoreFetch = mockFetch(
       jsonResponse({
@@ -53,14 +51,12 @@ describe('ViaCepProvider', () => {
       complement: 'de 1578 ao fim - lado par',
     })
   })
-
   it('returns null when ViaCEP responds with { erro: true }', async () => {
     restoreFetch = mockFetch(jsonResponse({ erro: true }))
     const provider = new ViaCepProvider()
     const result = await provider.lookup('00000000')
     expect(result).toBeNull()
   })
-
   it('normalizes empty complement to null', async () => {
     restoreFetch = mockFetch(
       jsonResponse({
@@ -76,7 +72,6 @@ describe('ViaCepProvider', () => {
     const result = await provider.lookup('01311000')
     expect(result?.complement).toBeNull()
   })
-
   it('throws CepProviderUnavailableError on non-200 response', async () => {
     restoreFetch = mockFetch(new Response('bad gateway', { status: 502 }))
     const provider = new ViaCepProvider()
@@ -84,7 +79,6 @@ describe('ViaCepProvider', () => {
       CepProviderUnavailableError
     )
   })
-
   it('throws CepProviderUnavailableError on network failure', async () => {
     restoreFetch = mockFetch(async () => {
       throw new TypeError('fetch failed')
@@ -94,7 +88,6 @@ describe('ViaCepProvider', () => {
       CepProviderUnavailableError
     )
   })
-
   it('throws CepProviderUnavailableError on timeout (AbortError)', async () => {
     restoreFetch = mockFetch(async () => {
       const error = new Error('The operation was aborted')
@@ -106,7 +99,6 @@ describe('ViaCepProvider', () => {
       CepProviderUnavailableError
     )
   })
-
   it('throws CepProviderUnavailableError when ViaCEP returns a malformed UF', async () => {
     restoreFetch = mockFetch(
       jsonResponse({

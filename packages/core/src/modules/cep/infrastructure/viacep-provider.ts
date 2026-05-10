@@ -27,7 +27,6 @@ export class ViaCepProvider implements CepLookupProvider {
     const timeoutId = setTimeout(() => {
       controller.abort()
     }, TIMEOUT_MS)
-
     try {
       const response = await fetch(`${VIACEP_URL}/${cep}/json/`, {
         signal: controller.signal,
@@ -42,9 +41,6 @@ export class ViaCepProvider implements CepLookupProvider {
       if (rawBody.erro) {
         return null
       }
-      // Validate required fields before returning — if the upstream shape drifts
-      // we surface a clean provider-unavailable error rather than letting a
-      // malformed AddressData break the Zod response serialization downstream.
       if (typeof rawBody.uf !== 'string' || rawBody.uf.length !== 2) {
         throw new CepProviderUnavailableError()
       }

@@ -26,18 +26,14 @@ export class ReverseCommission {
     if (!data) {
       throw CommissionErrors.notFound(id)
     }
-
     const original = Commission.restore({
       ...data,
       splitPercentage: data.splitPercentage ?? 10000,
     })
-
     const reversal = Commission.createReversal(original)
     original.markAsReversed()
-
     const { savedOriginal, savedReversal } =
       await this.commissionRepo.reverseAtomic(original, reversal)
-
     return { reversal: savedReversal, original: savedOriginal }
   }
 }

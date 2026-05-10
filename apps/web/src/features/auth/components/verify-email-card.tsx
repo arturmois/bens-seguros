@@ -19,16 +19,12 @@ export function VerifyEmailCard() {
   const email = user?.email ?? emailFromQuery
   const [cooldown, setCooldown] = useState(0)
   const [isSending, setIsSending] = useState(false)
-
-  // If user is already verified, redirect to appropriate page
   useEffect(() => {
     if (!isLoading && user?.emailVerified) {
       const activeOrg = getActiveOrgCookie()
       router.replace(activeOrg ? '/dashboard' : '/onboarding')
     }
   }, [isLoading, user?.emailVerified, router])
-
-  // Countdown timer
   useEffect(() => {
     if (cooldown <= 0) return
     const timer = setInterval(() => {
@@ -36,7 +32,6 @@ export function VerifyEmailCard() {
     }, 1000)
     return () => clearInterval(timer)
   }, [cooldown])
-
   const handleResend = useCallback(async () => {
     if (!email || cooldown > 0) return
     setIsSending(true)
@@ -53,15 +48,12 @@ export function VerifyEmailCard() {
       setIsSending(false)
     }
   }, [email, cooldown])
-
   useEffect(() => {
     if (!isLoading && !email) {
       router.replace('/login')
     }
   }, [isLoading, email, router])
-
   if (!email) return null
-
   return (
     <div className="flex flex-col items-center text-center">
       <div className="mb-6 flex size-16 items-center justify-center rounded-full bg-white/[0.06]">

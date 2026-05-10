@@ -9,8 +9,6 @@ import { errorResponse, successResponse } from '../../shared/response.schema.js'
 
 export const insuredObjectDetails = insuredObjectDetailsSchema
 
-// ── Entity-specific enums ───────────────────────────────────────────
-
 export const PROPOSAL_STAGE_VALUES = [
   'CAPTURE',
   'QUOTE',
@@ -40,16 +38,12 @@ export const proposalSortByEnum = z.enum([
   'createdAt',
 ])
 
-// ── Param schemas ───────────────────────────────────────────────────
-
 export { idParam }
 
 export const checklistItemIdParam = z.object({
   id: z.string().min(1),
   itemId: z.string().min(1),
 })
-
-// ── Body schemas ────────────────────────────────────────────────────
 
 const createNewInsuranceOrRenewalProposalBody = z.object({
   contactId: z.string().min(1),
@@ -76,8 +70,6 @@ export const markLostBody = z.object({
   reason: z.string().min(1),
 })
 
-// ── Insured object details — re-exported from @repo/shared above ─────
-
 export const updateProposalDetailsBody = z.object({
   details: insuredObjectDetails,
   premiumValueInCents: z.number().int().min(0),
@@ -85,12 +77,9 @@ export const updateProposalDetailsBody = z.object({
   insurerId: z.string().optional().nullable(),
 })
 
-// ── Query schemas ───────────────────────────────────────────────────
-
 export const listProposalsQuery = paginationQuery().extend({
   stage: proposalStageEnum.optional(),
   contactId: z.string().optional(),
-  // clientId filters via contact.clientId (semantic kept for UX backward compat).
   clientId: z.string().optional(),
   salespersonId: z.string().optional(),
   insurerId: z.string().optional(),
@@ -110,8 +99,6 @@ export const listProposalsQuery = paginationQuery().extend({
   sortBy: proposalSortByEnum.optional().default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 })
-
-// ── Response schemas (typed for OpenAPI) ────────────────────────────
 
 const checklistItemSchema = z.object({
   id: z.string(),
@@ -170,7 +157,6 @@ const proposalDataSchema = z.object({
   sentToClientAt: z.coerce.date().nullable(),
   clientResponseAt: z.coerce.date().nullable(),
   quoteValidUntil: z.coerce.date().nullable(),
-  // Denormalized display fields (sourced from contact and its linked client).
   clientName: z.string().optional(),
   clientDocument: z.string().optional(),
   clientPersonType: z.string().optional(),

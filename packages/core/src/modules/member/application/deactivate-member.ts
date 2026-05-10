@@ -41,12 +41,10 @@ export class DeactivateMember {
 
   async execute(input: DeactivateMemberInput): Promise<void> {
     const { id, organizationId, callerUserId, callerRole } = input
-
     const member = await this.memberRepo.findById(id, organizationId)
     if (!member) throw new MemberNotFoundError(id)
     if (member.userId === callerUserId) throw new SelfRemovalError()
     assertCanManageRole(callerRole, toMemberRole(member.role))
-
     if (member.role === 'OWNER') {
       const ownerCount = await this.memberRepo.countByRole(
         organizationId,
@@ -54,7 +52,6 @@ export class DeactivateMember {
       )
       if (ownerCount <= 1) throw new LastOwnerError()
     }
-
     await this.memberRepo.deactivate(id, organizationId)
   }
 }

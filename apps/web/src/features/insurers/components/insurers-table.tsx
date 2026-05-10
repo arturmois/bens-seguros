@@ -49,7 +49,6 @@ export function InsurersTable() {
   const filters = useInsurersFilters()
   const { activeOrg } = useOrgs()
   const role = activeOrg?.role ?? 'VIEWER'
-
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
@@ -58,16 +57,13 @@ export function InsurersTable() {
     undefined
   )
   const [editOpen, setEditOpen] = useState(false)
-
   const debouncedSearch = useDebounce(filters.search, 300)
   const { mutate: updateInsurerMutate } = useUpdateInsurerMutation()
-
   const sortId = sorting[0]?.id
   const sortBy: ListInsurersSortBy | undefined =
     sortId !== undefined && isInsurerSortBy(sortId) ? sortId : undefined
   const sortOrder: ListInsurersSortOrder | undefined =
     sorting[0] !== undefined ? (sorting[0].desc ? 'desc' : 'asc') : undefined
-
   const { data, isLoading, isError, refetch } = useInsurers({
     active: toActiveParam(filters.apiParams.active),
     search: debouncedSearch || undefined,
@@ -76,7 +72,6 @@ export function InsurersTable() {
     sortBy,
     sortOrder,
   })
-
   const insurers: InsurerData[] = useMemo(
     () => [...(data?.data ?? [])],
     [data?.data]
@@ -84,7 +79,6 @@ export function InsurersTable() {
   const nextCursor = data?.meta?.nextCursor ?? null
   const knownTotal =
     (pagination.currentPage - 1) * pagination.pageSize + insurers.length
-
   const columnActions = useMemo(
     () => ({
       onEdit: (insurer: InsurerData) => {
@@ -104,12 +98,10 @@ export function InsurersTable() {
     }),
     [updateInsurerMutate]
   )
-
   const columns = useMemo(
     () => createInsurerColumns(columnActions, role),
     [columnActions, role]
   )
-
   const table = useReactTable({
     data: insurers,
     columns,
@@ -124,26 +116,21 @@ export function InsurersTable() {
     manualPagination: true,
     manualFiltering: true,
   })
-
   function handleSearchChange(value: string) {
     filters.setSearch(value)
     pagination.reset()
   }
-
   function handleFilterChange(key: string, value: FilterValue) {
     filters.setFilter(key, value)
     pagination.reset()
   }
-
   function handleClearAll() {
     filters.clearAll()
     pagination.reset()
   }
-
   function handleColumnToggle(id: string, visible: boolean) {
     setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
-
   const hasFilters =
     Boolean(debouncedSearch) || filters.apiParams.active === false
   const emptyMessage = hasFilters
@@ -152,7 +139,6 @@ export function InsurersTable() {
   const emptyDescription = hasFilters
     ? 'Ajuste a busca ou os filtros para encontrar um cadastro existente.'
     : 'Cadastre a primeira seguradora para liberar a operação.'
-
   if (isError) {
     return (
       <TableErrorState
@@ -161,7 +147,6 @@ export function InsurersTable() {
       />
     )
   }
-
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <UnifiedFilterBar
@@ -178,7 +163,6 @@ export function InsurersTable() {
       >
         <InsurerCreateButton />
       </UnifiedFilterBar>
-
       <DataTable
         table={table}
         isLoading={isLoading}
@@ -188,7 +172,6 @@ export function InsurersTable() {
         columnVisibility={columnVisibility}
         onRowClick={columnActions.onEdit}
       />
-
       <MobileCardList
         data={insurers}
         keyExtractor={(insurer) => insurer.id}
@@ -204,7 +187,6 @@ export function InsurersTable() {
           />
         )}
       />
-
       <CursorPagination
         total={knownTotal}
         pageSize={pagination.pageSize}
@@ -217,7 +199,6 @@ export function InsurersTable() {
           if (nextCursor) pagination.goToNext(nextCursor)
         }}
       />
-
       <InsurerFormDialog
         open={editOpen}
         onOpenChange={setEditOpen}

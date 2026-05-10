@@ -34,11 +34,7 @@ export function globalSearchRoute(app: FastifyInstance) {
       const isNumeric = !Number.isNaN(numericQuery)
       const branchMatch = toInsuranceBranch(q)
       const hasDocumentMatch = documentQuery.length >= 11
-
       const tenantDb = request.tenantPrisma!
-      // After the contact-client separation refactor, Client only holds fiscal
-      // data (legalName, document). Free-text name/email matching now happens
-      // through the related Contact records (clients have one or more contacts).
       const [clients, proposals, policies, claims] = await Promise.all([
         tenantDb.client.findMany({
           where: {
@@ -57,7 +53,6 @@ export function globalSearchRoute(app: FastifyInstance) {
                   },
                 },
               },
-              // Exact CPF/CNPJ match via hash (partial search not supported — field is encrypted)
               ...(hasDocumentMatch
                 ? [{ documentHash: hashDocument(documentQuery) }]
                 : []),
@@ -67,7 +62,6 @@ export function globalSearchRoute(app: FastifyInstance) {
           take: perEntity,
           orderBy: { legalName: 'asc' },
         }),
-
         tenantDb.proposal.findMany({
           where: {
             organizationId,
@@ -91,7 +85,6 @@ export function globalSearchRoute(app: FastifyInstance) {
           take: perEntity,
           orderBy: { createdAt: 'desc' },
         }),
-
         tenantDb.policy.findMany({
           where: {
             organizationId,
@@ -115,7 +108,6 @@ export function globalSearchRoute(app: FastifyInstance) {
           take: perEntity,
           orderBy: { createdAt: 'desc' },
         }),
-
         tenantDb.claim.findMany({
           where: {
             organizationId,
@@ -146,14 +138,11 @@ export function globalSearchRoute(app: FastifyInstance) {
           orderBy: { createdAt: 'desc' },
         }),
       ])
-
       const data = {
         clients: clients.map((c) => ({
           id: c.id,
           name: c.legalName,
           document: c.document,
-          // Client.type was removed; surface a generic value for back-compat
-          // until consumers migrate to the new Contact-based search responses.
           type: 'CLIENT',
         })),
         proposals: proposals.map((p) => ({
@@ -175,13 +164,11 @@ export function globalSearchRoute(app: FastifyInstance) {
           clientName: c.client.legalName,
         })),
       }
-
       const totalResults =
         data.clients.length +
         data.proposals.length +
         data.policies.length +
         data.claims.length
-
       return reply.send({
         success: true,
         data,

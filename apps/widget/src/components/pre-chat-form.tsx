@@ -27,18 +27,15 @@ export function PreChatForm({
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const formRef = useRef<HTMLFormElement>(null)
-
   const isNameValid = name.trim().length >= 2
   const isPhoneValid = isValidBrPhone(phone)
   const isFormValid = isNameValid && isPhoneValid
-
   const handlePhoneChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setPhone(formatBrPhone(e.target.value))
     },
     []
   )
-
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault()
@@ -51,23 +48,19 @@ export function PreChatForm({
     },
     [isFormValid, isSubmitting, name, phone, email, onSubmit]
   )
-
   const handleInputFocus = useCallback(
     (e: React.FocusEvent<HTMLInputElement>) => {
       e.currentTarget.style.borderColor = INPUT_FOCUS_COLOR
     },
     []
   )
-
   const handleInputBlur = useCallback(
     (e: React.FocusEvent<HTMLInputElement>) => {
       e.currentTarget.style.borderColor = 'var(--widget-border)'
     },
     []
   )
-
   const isEnabled = isFormValid && !isSubmitting
-
   return (
     <div
       style={{

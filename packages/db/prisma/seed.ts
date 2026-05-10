@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { PrismaPg } from '@prisma/adapter-pg'
 import {
   createCipheriv,
@@ -7,10 +6,6 @@ import {
   scryptSync,
 } from 'node:crypto'
 import { PrismaClient } from '../generated/client/client.js'
-
-// ---------------------------------------------------------------------------
-// Config — mirrors .env.example defaults so the seed can run standalone
-// ---------------------------------------------------------------------------
 
 const DATABASE_URL = process.env.DATABASE_URL
 if (!DATABASE_URL) {
@@ -30,10 +25,6 @@ const encryptionKeyBuffer = Buffer.from(ENCRYPTION_KEY, 'hex')
 const hmacKeyBuffer = HMAC_KEY
   ? Buffer.from(HMAC_KEY, 'utf8')
   : encryptionKeyBuffer
-
-// ---------------------------------------------------------------------------
-// Crypto helpers (mirrors packages/shared/src/crypto.ts — no @repo/env import)
-// ---------------------------------------------------------------------------
 
 interface EncryptedField {
   readonly ciphertext: string
@@ -80,10 +71,6 @@ function maskDocument(document: string): string {
   return `${masked}${visible}`
 }
 
-// ---------------------------------------------------------------------------
-// Password hashing — mirrors Better Auth v1.x scrypt format (salt:hash hex)
-// ---------------------------------------------------------------------------
-
 function hashPassword(password: string): string {
   const salt = randomBytes(16).toString('hex')
   const key = scryptSync(password.normalize('NFKC'), salt, 64, {
@@ -95,42 +82,27 @@ function hashPassword(password: string): string {
   return `${salt}:${key.toString('hex')}`
 }
 
-// ---------------------------------------------------------------------------
-// ID helpers
-// ---------------------------------------------------------------------------
-
 let idCounter = 0
 function stableId(prefix: string): string {
   idCounter++
   return `seed_${prefix}_${String(idCounter).padStart(3, '0')}`
 }
 
-// ---------------------------------------------------------------------------
-// Main seed
-// ---------------------------------------------------------------------------
-
 const adapter = new PrismaPg({ connectionString: DATABASE_URL })
 const prisma = new PrismaClient({ adapter })
 
 async function main() {
-  console.log('🌱 Seeding database...\n')
-
-  // Check if seed data already exists
+  console.warn('🌱 Seeding database...\n')
   const existingOrg = await prisma.organization.findUnique({
     where: { slug: 'corretora-exemplo' },
   })
   if (existingOrg) {
-    console.log(
+    console.warn(
       '⏭️  Seed data already exists (org "corretora-exemplo"). Skipping.\n' +
         '   To re-seed, delete the organization first or reset the database.'
     )
     return
   }
-
-  // =========================================================================
-  // 1. Organization
-  // =========================================================================
-
   const org = await prisma.organization.create({
     data: {
       id: stableId('org'),
@@ -144,16 +116,9 @@ async function main() {
       },
     },
   })
-
-  console.log(`  ✓ Organization: ${org.name} (${org.id})`)
-
-  // =========================================================================
-  // 2. Users + Accounts + Members
-  // =========================================================================
-
+  console.warn(`  ✓ Organization: ${org.name} (${org.id})`)
   const PASSWORD = 'Senha@123'
   const hashedPw = hashPassword(PASSWORD)
-
   const usersData = [
     {
       id: stableId('user'),
@@ -186,7 +151,6 @@ async function main() {
       role: 'VIEWER' as const,
     },
   ]
-
   for (const u of usersData) {
     await prisma.user.create({
       data: {
@@ -206,7 +170,6 @@ async function main() {
         },
       },
     })
-
     await prisma.member.create({
       data: {
         organizationId: org.id,
@@ -217,11 +180,8 @@ async function main() {
       },
     })
   }
-
   const ownerId = usersData[0]!.id
   const commercialId = usersData[3]!.id
-
-  // Set active organization in sessions (create one for the main test user)
   await prisma.session.create({
     data: {
       id: stableId('session'),
@@ -231,15 +191,9 @@ async function main() {
       activeOrganizationId: org.id,
     },
   })
-
-  console.log(
+  console.warn(
     `  ✓ Users: ${usersData.length} (all with password "${PASSWORD}")`
   )
-
-  // =========================================================================
-  // 3. Insurers
-  // =========================================================================
-
   const insurerNames = [
     'Porto Seguro',
     'Bradesco Seguros',
@@ -267,7 +221,6 @@ async function main() {
     'Kovr',
     'Pottencial',
   ]
-
   const insurers: Array<{ id: string; name: string }> = []
   for (const name of insurerNames) {
     const insurer = await prisma.insurer.create({
@@ -281,13 +234,7 @@ async function main() {
     })
     insurers.push(insurer)
   }
-
-  console.log(`  ✓ Insurers: ${insurers.length}`)
-
-  // =========================================================================
-  // 4. Clients (PF + PJ — fiscal data only)
-  // =========================================================================
-
+  console.warn(`  ✓ Insurers: ${insurers.length}`)
   interface ClientSeed {
     key: string
     legalName: string
@@ -298,9 +245,7 @@ async function main() {
     fiscalBirthDate?: Date
     address?: Record<string, string>
   }
-
   const clientsData: ClientSeed[] = [
-    // PF
     {
       key: 'client-1',
       legalName: 'Maria da Silva Santos',
@@ -331,7 +276,6 @@ async function main() {
       personType: 'INDIVIDUAL',
       fiscalBirthDate: new Date('1990-12-01'),
     },
-    // PJ
     {
       key: 'client-4',
       legalName: 'Tech Solutions Ltda',
@@ -351,12 +295,10 @@ async function main() {
       personType: 'COMPANY',
     },
   ]
-
   const clientIdByKey = new Map<string, string>()
   for (const c of clientsData) {
     const id = stableId('client')
     clientIdByKey.set(c.key, id)
-
     await prisma.client.create({
       data: {
         id,
@@ -373,15 +315,9 @@ async function main() {
       },
     })
   }
-
-  console.log(
+  console.warn(
     `  ✓ Clients: ${clientsData.length} (${clientsData.filter((c) => c.personType === 'INDIVIDUAL').length} PF, ${clientsData.filter((c) => c.personType === 'COMPANY').length} PJ)`
   )
-
-  // =========================================================================
-  // 4b. Contacts (5 leads frios + 9 vinculados a Clients)
-  // =========================================================================
-
   interface ContactSeed {
     key: string
     name: string
@@ -396,9 +332,7 @@ async function main() {
       | 'REFERRAL'
     clientKey: string | null
   }
-
   const contactsData: ContactSeed[] = [
-    // Leads frios (sem clientId) — 5
     {
       key: 'lead-1',
       name: 'Ana Beatriz',
@@ -436,7 +370,6 @@ async function main() {
       source: 'CHAT_WIDGET',
       clientKey: null,
     },
-    // PF linkados — 1 por Client PF (clients 1 e 2)
     {
       key: 'c1',
       name: 'Maria Silva',
@@ -452,7 +385,6 @@ async function main() {
       source: 'MANUAL',
       clientKey: 'client-2',
     },
-    // Pedro Henrique (client-3) unificado em 2 contatos (WhatsApp + Form)
     {
       key: 'c3a',
       name: 'Pedro (WhatsApp)',
@@ -467,7 +399,6 @@ async function main() {
       source: 'FORM_WEB',
       clientKey: 'client-3',
     },
-    // PJ Tech Solutions (client-4) — 2 representantes
     {
       key: 'c4-gerente',
       name: 'Diego (Gerente Tech Solutions)',
@@ -484,7 +415,6 @@ async function main() {
       source: 'MANUAL',
       clientKey: 'client-4',
     },
-    // PJ Construtora ABC (client-5) — 3 representantes
     {
       key: 'c5-diretor',
       name: 'Roberto (Diretor ABC)',
@@ -507,12 +437,10 @@ async function main() {
       clientKey: 'client-5',
     },
   ]
-
   const contactIdByKey = new Map<string, string>()
   for (const c of contactsData) {
     const id = stableId('contact')
     contactIdByKey.set(c.key, id)
-
     await prisma.contact.create({
       data: {
         id,
@@ -528,17 +456,11 @@ async function main() {
       },
     })
   }
-
   const contactsWithClient = contactsData.filter((c) => c.clientKey !== null)
   const contactsWithoutClient = contactsData.filter((c) => c.clientKey === null)
-  console.log(
+  console.warn(
     `  ✓ Contacts: ${contactsData.length} (${contactsWithoutClient.length} leads frios, ${contactsWithClient.length} vinculados a Clients)`
   )
-
-  // =========================================================================
-  // 5. Proposals (various stages and board types — now via Contact)
-  // =========================================================================
-
   const branches = [
     'AUTO',
     'RESIDENTIAL',
@@ -547,7 +469,6 @@ async function main() {
     'LIFE',
     'OTHER',
   ] as const
-
   type ProposalStageLiteral =
     | 'CAPTURE'
     | 'QUOTE'
@@ -556,21 +477,13 @@ async function main() {
     | 'PAYMENT'
     | 'POLICY_ISSUED'
     | 'LOST'
-
   interface ProposalSeed {
     contactKey: string
     stage: ProposalStageLiteral
     branchIndex: number
     premiumInCents: number
   }
-
-  // Distribuicao:
-  //  - 2 leads frios (CAPTURE/QUOTE) — Contact sem Client
-  //  - 3 em PROTOCOL/INSPECTION/PAYMENT — Contact com Client
-  //  - 3 em POLICY_ISSUED — Contact com Client (essas viram Policy)
-  //  - 1 LOST — Contact com Client
   const proposalsSeed: ProposalSeed[] = [
-    // Leads frios — Contact sem Client (exercitando o novo fluxo)
     {
       contactKey: 'lead-1',
       stage: 'CAPTURE',
@@ -583,7 +496,6 @@ async function main() {
       branchIndex: 1,
       premiumInCents: 240000,
     },
-    // Em andamento — Contact com Client
     {
       contactKey: 'c1',
       stage: 'PROTOCOL',
@@ -602,7 +514,6 @@ async function main() {
       branchIndex: 1,
       premiumInCents: 360000,
     },
-    // POLICY_ISSUED — viram Policy
     {
       contactKey: 'c4-gerente',
       stage: 'POLICY_ISSUED',
@@ -621,10 +532,8 @@ async function main() {
       branchIndex: 0,
       premiumInCents: 410000,
     },
-    // LOST — Contact com Client
     { contactKey: 'c2', stage: 'LOST', branchIndex: 0, premiumInCents: 200000 },
   ]
-
   interface ProposalRecord {
     id: string
     contactId: string
@@ -632,9 +541,7 @@ async function main() {
     branch: string
     premiumValueInCents: number
   }
-
   const proposals: ProposalRecord[] = []
-
   for (let i = 0; i < proposalsSeed.length; i++) {
     const seed = proposalsSeed[i]!
     const contactId = contactIdByKey.get(seed.contactKey)
@@ -644,7 +551,6 @@ async function main() {
     const branch = branches[seed.branchIndex % branches.length]!
     const insurer = insurers[i % insurers.length]!
     const stage = seed.stage
-
     const proposal = await prisma.proposal.create({
       data: {
         id: stableId('proposal'),
@@ -684,16 +590,12 @@ async function main() {
       premiumValueInCents: seed.premiumInCents,
     })
   }
-
-  // Renewal proposals (QUOTE) — usar contatos com Client (so faz sentido renovar de quem ja eh cliente)
   const renewalContactKeys = ['c4-gerente', 'c5-diretor'] as const
   for (const contactKey of renewalContactKeys) {
     const contactId = contactIdByKey.get(contactKey)
     if (!contactId) continue
-
     const branch = branches[Math.floor(Math.random() * branches.length)]!
     const premium = (Math.floor(Math.random() * 40) + 15) * 10000
-
     const proposal = await prisma.proposal.create({
       data: {
         id: stableId('proposal'),
@@ -718,24 +620,15 @@ async function main() {
       premiumValueInCents: premium,
     })
   }
-
-  console.log(`  ✓ Proposals: ${proposals.length}`)
-
-  // =========================================================================
-  // 6. Policies (from POLICY_ISSUED proposals + extras)
-  // =========================================================================
-
+  console.warn(`  ✓ Proposals: ${proposals.length}`)
   interface PolicyRecord {
     id: string
     clientId: string
     premiumValueInCents: number
     insurerId: string
   }
-
   const policies: PolicyRecord[] = []
   const issuedProposals = proposals.filter((p) => p.stage === 'POLICY_ISSUED')
-
-  // Helper: derive clientId from proposal via Contact
   async function resolveProposalClientId(
     proposalId: string
   ): Promise<string | null> {
@@ -745,16 +638,12 @@ async function main() {
     })
     return result?.contact?.clientId ?? null
   }
-
-  // Policies from issued proposals (skip if Contact has no Client linked)
   for (let i = 0; i < issuedProposals.length; i++) {
     const prop = issuedProposals[i]!
     const clientId = await resolveProposalClientId(prop.id)
-    if (!clientId) continue // Contact ainda nao foi promovido a Client
-
+    if (!clientId) continue
     const insurer = insurers[i % insurers.length]!
     const policyNumber = `POL-${String(2024000 + i + 1)}`
-
     const policy = await prisma.policy.create({
       data: {
         id: stableId('policy'),
@@ -783,27 +672,21 @@ async function main() {
       insurerId: insurer.id,
     })
   }
-
-  // Extra policies for clients that don't have one yet (1 by 1)
-  // Para cada Client sem Policy, criamos: Proposal POLICY_ISSUED via Contact -> Policy
   const clientsWithPolicies = new Set(policies.map((p) => p.clientId))
   const extraSeeds: Array<{ clientKey: string; contactKey: string }> = [
     { clientKey: 'client-2', contactKey: 'c2' },
     { clientKey: 'client-3', contactKey: 'c3b' },
   ]
-
   let extraIndex = 0
   for (const seed of extraSeeds) {
     const clientId = clientIdByKey.get(seed.clientKey)
     const contactId = contactIdByKey.get(seed.contactKey)
     if (!clientId || !contactId) continue
     if (clientsWithPolicies.has(clientId)) continue
-
     const insurer = insurers[(extraIndex + 2) % insurers.length]!
     const branch = branches[(extraIndex + 1) % branches.length]!
     const premium = (Math.floor(Math.random() * 40) + 10) * 10000
     const policyNumber = `POL-${String(2024100 + extraIndex + 1)}`
-
     const extraProposal = await prisma.proposal.create({
       data: {
         id: stableId('proposal'),
@@ -820,7 +703,6 @@ async function main() {
         coverageEndDate: new Date(Date.now() + 185 * 24 * 60 * 60 * 1000),
       },
     })
-
     const policy = await prisma.policy.create({
       data: {
         id: stableId('policy'),
@@ -854,16 +736,10 @@ async function main() {
     clientsWithPolicies.add(clientId)
     extraIndex++
   }
-
   const expiredCount = policies.length > 0 && extraSeeds.length > 0 ? 1 : 0
-  console.log(
+  console.warn(
     `  ✓ Policies: ${policies.length} (${policies.length - expiredCount} active, ${expiredCount} expired)`
   )
-
-  // =========================================================================
-  // 7. Claims (different statuses and priorities)
-  // =========================================================================
-
   const claimStatuses = [
     'REGISTERED',
     'IN_ANALYSIS',
@@ -871,9 +747,7 @@ async function main() {
     'APPROVED',
     'PAID',
   ] as const
-
   const claimPriorities = ['NORMAL', 'HIGH', 'URGENT'] as const
-
   const claimsDescriptions = [
     'Colisão traseira no estacionamento do shopping',
     'Infiltração no teto do apartamento causando danos no piso',
@@ -881,20 +755,16 @@ async function main() {
     'Queda de árvore sobre o veículo durante tempestade',
     'Incêndio parcial na cozinha do restaurante',
   ]
-
   interface ClaimRecord {
     id: string
     policyId: string
   }
-
   const claims: ClaimRecord[] = []
   const activePolicies = policies.slice(0, Math.min(5, policies.length))
-
   for (let i = 0; i < activePolicies.length; i++) {
     const policy = activePolicies[i]!
     const status = claimStatuses[i % claimStatuses.length]!
     const priority = claimPriorities[i % claimPriorities.length]!
-
     const claim = await prisma.claim.create({
       data: {
         id: stableId('claim'),
@@ -917,8 +787,6 @@ async function main() {
       },
     })
     claims.push({ id: claim.id, policyId: policy.id })
-
-    // Add occurrences
     await prisma.occurrence.create({
       data: {
         id: stableId('occurrence'),
@@ -929,7 +797,6 @@ async function main() {
         createdBy: ownerId,
       },
     })
-
     if (status !== 'REGISTERED') {
       await prisma.occurrence.create({
         data: {
@@ -944,13 +811,7 @@ async function main() {
       })
     }
   }
-
-  console.log(`  ✓ Claims: ${claims.length}`)
-
-  // =========================================================================
-  // 7b. Assistances (various statuses and types)
-  // =========================================================================
-
+  console.warn(`  ✓ Claims: ${claims.length}`)
   const assistanceStatuses = [
     'REQUESTED',
     'AWAITING_DOCUMENT',
@@ -959,7 +820,6 @@ async function main() {
     'IN_PROGRESS',
     'COMPLETED',
   ] as const
-
   const assistancesData = [
     {
       type: 'GUINCHO',
@@ -1047,14 +907,12 @@ async function main() {
       claimIndex: 1, // link to second claim
     },
   ]
-
   let assistancesCount = 0
   for (let i = 0; i < assistancesData.length; i++) {
     const a = assistancesData[i]!
     const policy = activePolicies[i % activePolicies.length]!
     const claimId =
       a.claimIndex !== null ? (claims[a.claimIndex]?.id ?? null) : null
-
     await prisma.assistance.create({
       data: {
         id: stableId('assistance'),
@@ -1079,13 +937,7 @@ async function main() {
     })
     assistancesCount++
   }
-
-  console.log(`  ✓ Assistances: ${assistancesCount}`)
-
-  // =========================================================================
-  // 8. Commissions (different statuses)
-  // =========================================================================
-
+  console.warn(`  ✓ Assistances: ${assistancesCount}`)
   const commissionStatuses = [
     'PENDING_COMMERCIAL',
     'PENDING_ADMIN',
@@ -1093,16 +945,14 @@ async function main() {
     'PAID',
     'REJECTED',
   ] as const
-
   let commissionsCount = 0
   for (let i = 0; i < policies.length; i++) {
     const policy = policies[i]!
     const status = commissionStatuses[i % commissionStatuses.length]!
-    const percentage = 1500 // 15% in basis points
+    const percentage = 1500
     const commissionValue = Math.floor(
       (policy.premiumValueInCents * percentage) / 10000
     )
-
     await prisma.commission.create({
       data: {
         id: stableId('commission'),
@@ -1129,13 +979,7 @@ async function main() {
     })
     commissionsCount++
   }
-
-  console.log(`  ✓ Commissions: ${commissionsCount}`)
-
-  // =========================================================================
-  // 9. Notifications
-  // =========================================================================
-
+  console.warn(`  ✓ Commissions: ${commissionsCount}`)
   const notificationTypes = [
     {
       type: 'CLAIM_OPENED',
@@ -1168,9 +1012,7 @@ async function main() {
       entityType: 'Commission',
     },
   ]
-
   for (const notif of notificationTypes) {
-    // Send to owner (unread)
     await prisma.notification.create({
       data: {
         id: stableId('notif'),
@@ -1183,8 +1025,6 @@ async function main() {
         read: false,
       },
     })
-
-    // Send to commercial (some read)
     await prisma.notification.create({
       data: {
         id: stableId('notif'),
@@ -1199,13 +1039,7 @@ async function main() {
       },
     })
   }
-
-  console.log(`  ✓ Notifications: ${notificationTypes.length * 2}`)
-
-  // =========================================================================
-  // 10. Audit log entries
-  // =========================================================================
-
+  console.warn(`  ✓ Notifications: ${notificationTypes.length * 2}`)
   const auditActions = [
     { action: 'CLIENT_CREATED', entityType: 'Client' },
     { action: 'PROPOSAL_CREATED', entityType: 'Proposal' },
@@ -1214,7 +1048,6 @@ async function main() {
     { action: 'CLAIM_CREATED', entityType: 'Claim' },
     { action: 'COMMISSION_APPROVED', entityType: 'Commission' },
   ]
-
   for (const audit of auditActions) {
     await prisma.auditLog.create({
       data: {
@@ -1228,21 +1061,15 @@ async function main() {
       },
     })
   }
-
-  console.log(`  ✓ Audit logs: ${auditActions.length}`)
-
-  // =========================================================================
-  // Summary
-  // =========================================================================
-
-  console.log('\n✅ Seed completed successfully!\n')
-  console.log('  Login credentials (all users):')
-  console.log(`    Password: ${PASSWORD}`)
-  console.log('    Users:')
+  console.warn(`  ✓ Audit logs: ${auditActions.length}`)
+  console.warn('\n✅ Seed completed successfully!\n')
+  console.warn('  Login credentials (all users):')
+  console.warn(`    Password: ${PASSWORD}`)
+  console.warn('    Users:')
   for (const u of usersData) {
-    console.log(`      ${u.email} (${u.role})`)
+    console.warn(`      ${u.email} (${u.role})`)
   }
-  console.log(`\n  Organization: ${org.name} (slug: ${org.slug})`)
+  console.warn(`\n  Organization: ${org.name} (slug: ${org.slug})`)
 }
 
 main()

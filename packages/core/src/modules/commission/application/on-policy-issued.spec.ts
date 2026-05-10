@@ -1,4 +1,3 @@
-// packages/core/src/modules/commission/application/on-policy-issued.spec.ts
 import { describe, expect, it, vi } from 'vitest'
 import type { CommissionRepository } from '../domain/commission-repository.js'
 import { OnPolicyIssued } from './on-policy-issued.js'
@@ -17,7 +16,6 @@ describe('OnPolicyIssued', () => {
   it('creates commission from policy data', async () => {
     const repo = createMockRepo()
     const useCase = new OnPolicyIssued(repo)
-
     await useCase.execute({
       organizationId: 'org-1',
       policyId: 'pol-1',
@@ -25,7 +23,6 @@ describe('OnPolicyIssued', () => {
       premiumValueInCents: 100000,
       commissionPercentageInBasisPoints: 1500,
     })
-
     expect(repo.save).toHaveBeenCalledTimes(1)
     const saved = vi.mocked(repo.save).mock.calls[0]?.[0]
     expect(saved?.organizationId).toBe('org-1')
@@ -36,11 +33,9 @@ describe('OnPolicyIssued', () => {
     expect(saved?.percentageInBasisPoints).toBe(1500)
     expect(saved?.commissionValueInCents).toBe(15000)
   })
-
   it('skips commission creation when percentage is zero', async () => {
     const repo = createMockRepo()
     const useCase = new OnPolicyIssued(repo)
-
     await useCase.execute({
       organizationId: 'org-1',
       policyId: 'pol-1',
@@ -48,14 +43,11 @@ describe('OnPolicyIssued', () => {
       premiumValueInCents: 100000,
       commissionPercentageInBasisPoints: 0,
     })
-
     expect(repo.save).not.toHaveBeenCalled()
   })
-
   it('skips commission creation when percentage is negative', async () => {
     const repo = createMockRepo()
     const useCase = new OnPolicyIssued(repo)
-
     await useCase.execute({
       organizationId: 'org-1',
       policyId: 'pol-1',
@@ -63,7 +55,6 @@ describe('OnPolicyIssued', () => {
       premiumValueInCents: 100000,
       commissionPercentageInBasisPoints: -100,
     })
-
     expect(repo.save).not.toHaveBeenCalled()
   })
 })

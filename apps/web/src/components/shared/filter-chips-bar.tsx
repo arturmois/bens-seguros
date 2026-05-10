@@ -85,7 +85,6 @@ interface ChipProps {
 function StaticChip({ filter, value, onEdit, onRemove }: ChipProps) {
   const labels =
     filter.type === 'enum' ? buildLabelMap(filter.options ?? []) : {}
-
   let display = '—'
   if (filter.type === 'enum' && Array.isArray(value)) {
     display = formatEnumDisplay(value, labels)
@@ -94,7 +93,6 @@ function StaticChip({ filter, value, onEdit, onRemove }: ChipProps) {
   } else if (filter.type === 'boolean' && typeof value === 'boolean') {
     display = formatBooleanDisplay(value)
   }
-
   return (
     <FilterChip
       label={filter.label}
@@ -125,9 +123,7 @@ function DynamicEnumChip({
     () => buildLabelMap(dynamic.options),
     [dynamic.options]
   )
-
   const display = Array.isArray(value) ? formatEnumDisplay(value, labels) : '—'
-
   return (
     <FilterChip
       label={filter.label}
@@ -155,7 +151,6 @@ export function FilterChipsBar({
 }: FilterChipsBarProps) {
   const active = getActiveFilters(filters, values)
   if (active.length === 0) return null
-
   return (
     <div
       className="flex flex-wrap items-center gap-1.5"

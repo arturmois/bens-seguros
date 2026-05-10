@@ -30,9 +30,7 @@ function formatDate(dateStr: string): string {
 
 export function EndorsementList({ policyId }: EndorsementListProps) {
   const { data, isLoading, isError, refetch } = useEndorsements({ policyId })
-
   if (isLoading) return <EndorsementListSkeleton />
-
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-8">
@@ -43,7 +41,6 @@ export function EndorsementList({ policyId }: EndorsementListProps) {
       </div>
     )
   }
-
   if (!data?.data || data.data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-8">
@@ -54,7 +51,6 @@ export function EndorsementList({ policyId }: EndorsementListProps) {
       </div>
     )
   }
-
   return (
     <div className="rounded-md border">
       <Table>

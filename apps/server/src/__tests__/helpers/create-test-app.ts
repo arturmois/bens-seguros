@@ -45,13 +45,11 @@ export async function createTestApp(
   const app = Fastify({ logger: false })
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
-
   app.decorateRequest('user', null)
   app.decorateRequest('session', null)
   app.decorateRequest('organizationId', null)
   app.decorateRequest('role', null)
   app.decorateRequest('tenantPrisma', null)
-
   app.addHook('onRequest', async (request) => {
     Object.assign(request, {
       user: _testContext.user,
@@ -61,10 +59,6 @@ export async function createTestApp(
       tenantPrisma: _testContext.tenantPrisma,
     })
   })
-
-  // Mirror production error handler so validation errors match the
-  // { success: false, error: { code, message } } envelope declared in route
-  // response schemas.
   app.setErrorHandler((error, _request, reply) => {
     if (hasZodFastifySchemaValidationErrors(error)) {
       const first = error.validation[0]
@@ -98,7 +92,6 @@ export async function createTestApp(
       },
     })
   })
-
   await registerRoutes(app)
   await app.ready()
   return app

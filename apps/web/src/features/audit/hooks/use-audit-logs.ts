@@ -16,7 +16,6 @@ export function useAuditLogs(filters: AuditLogFilters) {
     cursor: filters.cursor,
     limit: filters.limit ?? 30,
   }
-
   return useListAuditLogs<AuditLogsQueryData>(params, {
     query: {
       staleTime: 30_000,

@@ -55,7 +55,6 @@ export function Badge({
     className: cn(badgeVariants({ className, size, variant })),
     'data-slot': 'badge',
   }
-
   return useRender({
     defaultTagName: 'span',
     props: mergeProps<'span'>(defaultProps, props),

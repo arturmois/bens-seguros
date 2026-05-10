@@ -26,12 +26,10 @@ export function AuditTable() {
   'use no memo'
   const pagination = useCursorPagination(30)
   const filters = useAuditFilters()
-
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
   const [selectedEntry, setSelectedEntry] = useState<AuditLogData | null>(null)
-
   const filterFingerprint = JSON.stringify(filters.apiParams)
   const lastFingerprint = useRef(filterFingerprint)
   useEffect(() => {
@@ -39,7 +37,6 @@ export function AuditTable() {
     lastFingerprint.current = filterFingerprint
     pagination.reset()
   }, [filterFingerprint, pagination])
-
   const { data, isLoading, isError, refetch } = useAuditLogs({
     actionIn: filters.apiParams.actionIn,
     entityTypeIn: filters.apiParams.entityTypeIn,
@@ -48,21 +45,17 @@ export function AuditTable() {
     cursor: pagination.currentCursor,
     limit: pagination.pageSize,
   })
-
   const entries: AuditLogData[] = data?.data ?? []
   const total = data?.meta?.total ?? 0
   const nextCursor = data?.meta?.nextCursor ?? null
-
   const columnActions = useMemo(
     () => ({ onView: (entry: AuditLogData) => setSelectedEntry(entry) }),
     []
   )
-
   const columns = useMemo(
     () => createAuditColumns(columnActions),
     [columnActions]
   )
-
   const table = useReactTable({
     data: entries,
     columns,
@@ -73,15 +66,12 @@ export function AuditTable() {
     manualFiltering: true,
     rowCount: total,
   })
-
   function handleFilterChange(key: string, value: FilterValue) {
     filters.setFilter(key, value)
   }
-
   function handleColumnToggle(id: string, visible: boolean) {
     setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
-
   if (isError) {
     return (
       <TableErrorState
@@ -90,7 +80,6 @@ export function AuditTable() {
       />
     )
   }
-
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <UnifiedFilterBar
@@ -103,7 +92,6 @@ export function AuditTable() {
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
       />
-
       <DataTable
         table={table}
         isLoading={isLoading}
@@ -114,7 +102,6 @@ export function AuditTable() {
         columnVisibility={columnVisibility}
         onRowClick={(entry) => setSelectedEntry(entry)}
       />
-
       <MobileCardList
         data={entries}
         keyExtractor={(e) => e.id}
@@ -127,7 +114,6 @@ export function AuditTable() {
           <AuditCard entry={entry} onView={setSelectedEntry} />
         )}
       />
-
       <CursorPagination
         total={total}
         pageSize={pagination.pageSize}
@@ -140,7 +126,6 @@ export function AuditTable() {
           if (nextCursor) pagination.goToNext(nextCursor)
         }}
       />
-
       <AuditDetailModal
         entry={selectedEntry}
         open={selectedEntry !== null}

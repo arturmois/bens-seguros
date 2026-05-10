@@ -40,15 +40,12 @@ const SAVED: ClientData = {
 describe('CreateClient', () => {
   let repo: ClientRepository
   let useCase: CreateClient
-
   beforeEach(() => {
     repo = makeRepo()
     useCase = new CreateClient(repo)
   })
-
   it('rejeita criação se documento já existe na organização', async () => {
     vi.mocked(repo.findByDocumentHash).mockResolvedValue(SAVED)
-
     await expect(
       useCase.execute({
         organizationId: ORG,
@@ -57,20 +54,16 @@ describe('CreateClient', () => {
         personType: 'COMPANY',
       })
     ).rejects.toBeInstanceOf(ClientAlreadyExistsError)
-
     expect(repo.save).not.toHaveBeenCalled()
   })
-
   it('cria cliente com defaults quando campos opcionais ausentes', async () => {
     vi.mocked(repo.findByDocumentHash).mockResolvedValue(null)
     vi.mocked(repo.save).mockResolvedValue(SAVED)
-
     const result = await useCase.execute({
       organizationId: ORG,
       legalName: 'João Silva',
       document: '12345678901',
     })
-
     expect(repo.save).toHaveBeenCalledWith({
       organizationId: ORG,
       legalName: 'João Silva',
@@ -83,11 +76,9 @@ describe('CreateClient', () => {
     })
     expect(result).toBe(SAVED)
   })
-
   it('persiste todos os campos fiscais quando fornecidos', async () => {
     vi.mocked(repo.findByDocumentHash).mockResolvedValue(null)
     vi.mocked(repo.save).mockResolvedValue(SAVED)
-
     const birthDate = new Date('1990-05-10')
     await useCase.execute({
       organizationId: ORG,
@@ -99,7 +90,6 @@ describe('CreateClient', () => {
       address: { city: 'São Paulo' },
       fiscalBirthDate: birthDate,
     })
-
     expect(repo.save).toHaveBeenCalledWith({
       organizationId: ORG,
       legalName: 'João Silva',
@@ -111,17 +101,14 @@ describe('CreateClient', () => {
       fiscalBirthDate: birthDate,
     })
   })
-
   it('escopa busca de duplicata por organizationId', async () => {
     vi.mocked(repo.findByDocumentHash).mockResolvedValue(null)
     vi.mocked(repo.save).mockResolvedValue(SAVED)
-
     await useCase.execute({
       organizationId: 'org-A',
       legalName: 'X',
       document: '12345678901',
     })
-
     expect(repo.findByDocumentHash).toHaveBeenCalledWith(
       hashDocument('12345678901'),
       'org-A'

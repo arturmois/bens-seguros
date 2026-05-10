@@ -17,11 +17,9 @@ function buildOrderBy(
   sortOrder: SortOrder | undefined
 ): Prisma.CommissionOrderByWithRelationInput[] {
   const order = sortOrder === 'asc' ? 'asc' : 'desc'
-
   if (sortBy === 'salespersonName') {
     return [{ salesperson: { name: order } }, { id: 'desc' }]
   }
-
   const field = sortBy ?? 'createdAt'
   return [{ [field]: order }, { id: 'desc' }]
 }
@@ -109,7 +107,6 @@ export class PrismaCommissionRepository implements CommissionRepository {
         ],
       }),
     }
-
     const [rows, total] = await Promise.all([
       this.prisma.commission.findMany({
         where,
@@ -120,10 +117,8 @@ export class PrismaCommissionRepository implements CommissionRepository {
       }),
       this.prisma.commission.count({ where }),
     ])
-
     const hasNext = rows.length > page.limit
     const items = hasNext ? rows.slice(0, -1) : rows
-
     return {
       items: items.map(CommissionMapper.toData),
       total,
@@ -157,7 +152,6 @@ export class PrismaCommissionRepository implements CommissionRepository {
   ): Promise<ReverseAtomicResult> {
     const originalData = CommissionMapper.toPersistence(original.toJSON())
     const reversalData = CommissionMapper.toPersistence(reversal.toJSON())
-
     const [updatedOriginalRow, createdReversalRow] =
       await this.prisma.$transaction([
         this.prisma.commission.update({
@@ -201,7 +195,6 @@ export class PrismaCommissionRepository implements CommissionRepository {
           include: COMMISSION_INCLUDE,
         }),
       ])
-
     return {
       savedOriginal: CommissionMapper.toData(updatedOriginalRow),
       savedReversal: CommissionMapper.toData(createdReversalRow),

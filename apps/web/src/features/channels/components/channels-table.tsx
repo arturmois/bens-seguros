@@ -53,10 +53,8 @@ export function ChannelsTable({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
-
   const debouncedSearch = useDebounce(filters.search, 300)
   const { data, isLoading, isError, refetch } = useChannels()
-
   const channels = useMemo<ChannelData[]>(() => {
     const list = data ?? []
     return list.filter(
@@ -65,17 +63,14 @@ export function ChannelsTable({
         matchesSearch(channel, debouncedSearch)
     )
   }, [data, filters.statusIn, debouncedSearch])
-
   const columnActions = useMemo(
     () => ({ onEdit, onQrCode, onEmbed, onDeactivate }),
     [onEdit, onQrCode, onEmbed, onDeactivate]
   )
-
   const columns = useMemo(
     () => createChannelColumns(columnActions, role),
     [columnActions, role]
   )
-
   const table = useReactTable({
     data: channels,
     columns,
@@ -85,15 +80,12 @@ export function ChannelsTable({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   })
-
   function handleFilterChange(key: string, value: FilterValue) {
     filters.setFilter(key, value)
   }
-
   function handleColumnToggle(id: string, visible: boolean) {
     setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
   }
-
   const totalChannels = data?.length ?? 0
   const emptyMessage =
     totalChannels === 0 ? 'Nenhum canal conectado' : 'Nenhum canal encontrado'
@@ -101,13 +93,11 @@ export function ChannelsTable({
     totalChannels === 0
       ? 'Use o botão "Conectar canal" acima para começar a receber mensagens.'
       : 'Ajuste a busca ou os filtros para encontrar um canal existente.'
-
   if (isError) {
     return (
       <TableErrorState message="Erro ao carregar canais." onRetry={refetch} />
     )
   }
-
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <UnifiedFilterBar
@@ -124,7 +114,6 @@ export function ChannelsTable({
       >
         {headerAction}
       </UnifiedFilterBar>
-
       <DataTable
         table={table}
         isLoading={isLoading}
@@ -136,7 +125,6 @@ export function ChannelsTable({
         columnVisibility={columnVisibility}
         onRowClick={onEdit}
       />
-
       <MobileCardList
         data={channels}
         keyExtractor={(channel) => channel.id}

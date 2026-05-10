@@ -48,7 +48,6 @@ export class MongooseContactRepository implements ContactRepository {
     if (pushName !== undefined) updateFields['pushName'] = pushName
     if (profilePicUrl !== undefined)
       updateFields['profilePicUrl'] = profilePicUrl
-
     const doc = await Contact.findOneAndUpdate(
       { tenantId, whatsappPhone },
       {
@@ -57,8 +56,6 @@ export class MongooseContactRepository implements ContactRepository {
       },
       { upsert: true, returnDocument: 'after' }
     ).lean<ContactDocument>()
-
-    // upsert with returnDocument: 'after' always returns a document
     if (!doc) throw new Error('Upsert failed to return document')
     return toContactData(doc)
   }

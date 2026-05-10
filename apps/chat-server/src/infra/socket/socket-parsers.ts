@@ -1,4 +1,3 @@
-/** Type-safe parsers for Socket.IO event payloads */
 import { isRecord } from '@repo/shared'
 
 export function parseConversationId(data: unknown): string | null {

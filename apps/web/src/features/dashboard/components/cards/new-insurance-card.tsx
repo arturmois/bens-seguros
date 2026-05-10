@@ -50,11 +50,9 @@ export function NewInsuranceCard({
       </Card>
     )
   }
-
   const current = data?.current ?? 0
   const hasHistory = data !== undefined && data.previous > 0
   const isPositive = (data?.changePercent ?? 0) >= 0
-
   return (
     <Card>
       <Link

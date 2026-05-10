@@ -40,20 +40,15 @@ export function KanbanColumn({
   onCardClick,
 }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: stage })
-
   const { data, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useKanbanProposalsByStage(stage, filters)
-
   const fetchedProposals = data?.pages.flatMap((page) => page.data) ?? []
   const proposals = optimisticProposals ?? fetchedProposals
-
   const totalPremium = proposals.reduce(
     (sum, p) => sum + (p.premiumValueInCents ?? 0),
     0
   )
-
   const itemIds = proposals.map((p) => p.id)
-
   return (
     <div className="bg-muted/30 flex h-full w-[280px] shrink-0 flex-col rounded-xl border">
       <div className="flex items-center gap-2 border-b px-3 py-2.5">
@@ -76,7 +71,6 @@ export function KanbanColumn({
           {formatCurrency(totalPremium)}
         </div>
       )}
-
       <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
         <div
           ref={setNodeRef}
@@ -97,7 +91,6 @@ export function KanbanColumn({
               onClick={() => onCardClick(proposal)}
             />
           ))}
-
           {hasNextPage && (
             <Button
               variant="ghost"

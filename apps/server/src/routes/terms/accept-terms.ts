@@ -20,7 +20,6 @@ export function acceptTermsRoute(app: FastifyInstance) {
       const userId = request.user!.id
       const body = request.body
       const ipAddress = request.ip
-
       if (
         body.termsVersion !== CURRENT_TERMS_VERSION ||
         body.privacyVersion !== CURRENT_PRIVACY_VERSION
@@ -33,9 +32,7 @@ export function acceptTermsRoute(app: FastifyInstance) {
           },
         })
       }
-
       const now = new Date()
-
       await prisma.$transaction([
         prisma.user.update({
           where: { id: userId },
@@ -64,7 +61,6 @@ export function acceptTermsRoute(app: FastifyInstance) {
           },
         }),
       ])
-
       return {
         success: true as const,
         data: {

@@ -67,13 +67,11 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
   const { activeOrg } = useOrgs()
   const { data: client, isLoading, isError, refetch } = useClient(clientId)
   const deleteClient = useDeleteClient()
-
   const [deleteOpen, setDeleteOpen] = useState(false)
   const canLgpdDelete = hasPermission(
     activeOrg?.role ?? 'VIEWER',
     'clients:lgpd-delete'
   )
-
   function handleConfirmDelete() {
     deleteClient.mutate(clientId, {
       onSuccess: () => {
@@ -82,11 +80,9 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
       },
     })
   }
-
   if (isLoading) {
     return <DetailSkeleton />
   }
-
   if (isError || !client) {
     return (
       <div className="flex h-64 flex-col items-center justify-center gap-3">
@@ -110,7 +106,6 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
       </div>
     )
   }
-
   return (
     <div className="space-y-6">
       <PageBreadcrumb
@@ -120,7 +115,6 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
           { label: client.legalName },
         ]}
       />
-
       <div className="rounded-lg border p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-4">
@@ -154,9 +148,7 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
             )}
           </div>
         </div>
-
         <Separator className="my-6" />
-
         <div className="grid gap-4 sm:grid-cols-3">
           <DetailInfoItem label="Profissão" value={client.profession ?? '-'} />
           <DetailInfoItem
@@ -182,7 +174,6 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
           />
         </div>
       </div>
-
       <Tabs defaultValue="proposals">
         <TabsList>
           <TabsTab value="proposals">Propostas</TabsTab>
@@ -190,25 +181,20 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
           <TabsTab value="documents">Documentos</TabsTab>
           <TabsTab value="history">Histórico</TabsTab>
         </TabsList>
-
         <TabsContent value="proposals" className="mt-4">
           <ClientProposalsTab clientId={clientId} />
         </TabsContent>
-
         <TabsContent value="policies" className="mt-4">
           <ClientPoliciesTab clientId={clientId} />
         </TabsContent>
-
         <TabsContent value="documents" className="mt-4 space-y-4">
           <DocumentUpload entityType="CLIENT" entityId={clientId} />
           <DocumentList entityType="CLIENT" entityId={clientId} />
         </TabsContent>
-
         <TabsContent value="history" className="mt-4">
           <ClientHistoryTab clientId={clientId} />
         </TabsContent>
       </Tabs>
-
       <ConfirmDeleteDialog
         entityLabel="cliente"
         open={deleteOpen}

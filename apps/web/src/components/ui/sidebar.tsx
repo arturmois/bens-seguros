@@ -68,7 +68,6 @@ export function useSidebar(): SidebarContextProps {
   if (!context) {
     throw new Error('useSidebar must be used within a SidebarProvider.')
   }
-
   return context
 }
 
@@ -87,9 +86,6 @@ export function SidebarProvider({
 }): React.ReactElement {
   const isMobile = useMediaQuery('max-md')
   const [openMobile, setOpenMobile] = React.useState(false)
-
-  // This is the internal state of the sidebar.
-  // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(defaultOpen)
   const open = openProp ?? _open
   const setOpen = React.useCallback(
@@ -100,8 +96,6 @@ export function SidebarProvider({
       } else {
         _setOpen(openState)
       }
-
-      // This sets the cookie to keep the sidebar state.
       await cookieStore.set({
         expires: Date.now() + SIDEBAR_COOKIE_MAX_AGE * 1000,
         name: SIDEBAR_COOKIE_NAME,
@@ -111,13 +105,9 @@ export function SidebarProvider({
     },
     [setOpenProp, open]
   )
-
-  // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
   }, [isMobile, setOpen])
-
-  // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent): void => {
       if (
@@ -128,15 +118,10 @@ export function SidebarProvider({
         toggleSidebar()
       }
     }
-
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [toggleSidebar])
-
-  // We add a state so that we can do data-state="expanded" or "collapsed".
-  // This makes it easier to style the sidebar with Tailwind classes.
   const state = open ? 'expanded' : 'collapsed'
-
   const contextValue = React.useMemo<SidebarContextProps>(
     () => ({
       isMobile,
@@ -149,7 +134,6 @@ export function SidebarProvider({
     }),
     [state, open, setOpen, isMobile, openMobile, toggleSidebar]
   )
-
   return (
     <SidebarContext.Provider value={contextValue}>
       <div
@@ -186,7 +170,6 @@ export function Sidebar({
   collapsible?: 'offcanvas' | 'icon' | 'none'
 }): React.ReactElement {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
-
   if (collapsible === 'none') {
     return (
       <div
@@ -201,7 +184,6 @@ export function Sidebar({
       </div>
     )
   }
-
   if (isMobile) {
     return (
       <Sheet onOpenChange={setOpenMobile} open={openMobile} {...props}>
@@ -226,7 +208,6 @@ export function Sidebar({
       </Sheet>
     )
   }
-
   return (
     <div
       className="text-sidebar-foreground group peer hidden md:block"
@@ -254,7 +235,6 @@ export function Sidebar({
           side === 'left'
             ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
             : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
-          // Adjust the padding for floating and inset variants.
           variant === 'floating' || variant === 'inset'
             ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]'
             : 'group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l',
@@ -281,7 +261,6 @@ export function SidebarTrigger({
   ...props
 }: React.ComponentProps<typeof Button>): React.ReactElement {
   const { toggleSidebar } = useSidebar()
-
   return (
     <Button
       className={cn('size-7', className)}
@@ -306,7 +285,6 @@ export function SidebarRail({
   ...props
 }: React.ComponentProps<'button'>): React.ReactElement {
   const { toggleSidebar } = useSidebar()
-
   return (
     <button
       aria-label="Toggle Sidebar"
@@ -453,7 +431,6 @@ export function SidebarGroupLabel({
     'data-sidebar': 'group-label',
     'data-slot': 'sidebar-group-label',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps(defaultProps, props),
@@ -469,7 +446,6 @@ export function SidebarGroupAction({
   const defaultProps = {
     className: cn(
       "absolute top-3.5 right-3 flex aspect-square w-5 items-center justify-center rounded-lg p-0 text-sidebar-foreground outline-hidden ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg:not([class*='size-'])]:size-4 [&>svg]:shrink-0",
-      // Increases the hit area of the button on mobile.
       'after:absolute after:-inset-2 md:after:hidden',
       'group-data-[collapsible=icon]:hidden',
       className
@@ -477,7 +453,6 @@ export function SidebarGroupAction({
     'data-sidebar': 'group-action',
     'data-slot': 'sidebar-group-action',
   }
-
   return useRender({
     defaultTagName: 'button',
     props: mergeProps(defaultProps, props),
@@ -540,7 +515,6 @@ export function SidebarMenuButton({
   tooltip?: string | React.ComponentProps<typeof TooltipPopup>
 } & VariantProps<typeof sidebarMenuButtonVariants>): React.ReactElement {
   const { isMobile, state } = useSidebar()
-
   const defaultProps = {
     className: cn(sidebarMenuButtonVariants({ size, variant }), className),
     'data-active': isActive,
@@ -548,25 +522,20 @@ export function SidebarMenuButton({
     'data-size': size,
     'data-slot': 'sidebar-menu-button',
   }
-
   const buttonProps = mergeProps<'button'>(defaultProps, props)
-
   const buttonElement = useRender({
     defaultTagName: 'button',
     props: buttonProps,
     render,
   })
-
   if (!tooltip) {
     return buttonElement
   }
-
   if (typeof tooltip === 'string') {
     tooltip = {
       children: tooltip,
     }
   }
-
   return (
     <Tooltip>
       <TooltipTrigger
@@ -593,7 +562,6 @@ export function SidebarMenuAction({
   const defaultProps = {
     className: cn(
       "absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-lg p-0 text-sidebar-foreground outline-hidden ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg:not([class*='size-'])]:size-4 [&>svg]:shrink-0",
-      // Increases the hit area of the button on mobile.
       'after:absolute after:-inset-2 md:after:hidden',
       'peer-data-[size=sm]/menu-button:top-1',
       'peer-data-[size=default]/menu-button:top-1.5',
@@ -606,7 +574,6 @@ export function SidebarMenuAction({
     'data-sidebar': 'menu-action',
     'data-slot': 'sidebar-menu-action',
   }
-
   return useRender({
     defaultTagName: 'button',
     props: mergeProps<'button'>(defaultProps, props),
@@ -643,11 +610,9 @@ export function SidebarMenuSkeleton({
 }: React.ComponentProps<'div'> & {
   showIcon?: boolean
 }): React.ReactElement {
-  // Random width between 50 to 90%.
   const width = React.useMemo(() => {
     return `${Math.floor(Math.random() * 40) + 50}%`
   }, [])
-
   return (
     <div
       className={cn('flex h-8 items-center gap-2 rounded-lg px-2', className)}
@@ -730,7 +695,6 @@ export function SidebarMenuSubButton({
     'data-size': size,
     'data-slot': 'sidebar-menu-sub-button',
   }
-
   return useRender({
     defaultTagName: 'a',
     props: mergeProps<'a'>(defaultProps, props),

@@ -50,7 +50,6 @@ export function useClaim(id: string) {
 
 export function useCreateClaim() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (values: ClaimFormValues) => createClaim(values),
     onSuccess: () => {
@@ -67,7 +66,6 @@ export function useCreateClaim() {
 
 export function useUpdateClaimStatus() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: ClaimStatus }) =>
       updateClaimStatus(id, { status }),
@@ -90,7 +88,6 @@ export function useUpdateClaimStatus() {
 
 export function useDeleteClaim() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (id: string) => deleteClaim(id),
     onSuccess: () => {
@@ -116,7 +113,6 @@ export function useClaimOccurrences(claimId: string) {
 
 export function useCreateOccurrence() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: ({
       claimId,

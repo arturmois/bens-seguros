@@ -74,7 +74,6 @@ export function DrawerSwipeArea({
 }): React.ReactElement {
   const { position: contextPosition } = useContext(DrawerContext)
   const position = positionProp ?? contextPosition
-
   return (
     <DrawerPrimitive.SwipeArea
       className={cn(
@@ -152,7 +151,6 @@ export function DrawerPopup({
 }): React.ReactElement {
   const { position: contextPosition } = useContext(DrawerContext)
   const position = positionProp ?? contextPosition
-
   return (
     <DrawerPortal>
       <DrawerBackdrop />
@@ -241,7 +239,6 @@ export function DrawerHeader({
     ),
     'data-slot': 'drawer-header',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -271,7 +268,6 @@ export function DrawerFooter({
     ),
     'data-slot': 'drawer-footer',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -328,13 +324,11 @@ export function DrawerPanel({
     ),
     'data-slot': 'drawer-panel',
   }
-
   const content = useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
     render: allowSelection ? <DrawerContent render={render} /> : render,
   })
-
   if (scrollable) {
     return (
       <ScrollArea className="touch-auto" scrollFade={scrollFade}>
@@ -342,7 +336,6 @@ export function DrawerPanel({
       </ScrollArea>
     )
   }
-
   return content
 }
 
@@ -372,7 +365,6 @@ export function DrawerBar({
     ),
     'data-slot': 'drawer-bar',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -392,7 +384,6 @@ export function DrawerMenu({
     className: cn('-m-2 flex flex-col', className),
     'data-slot': 'drawer-menu',
   }
-
   return useRender({
     defaultTagName: 'nav',
     props: mergeProps<'nav'>(defaultProps, props),
@@ -419,7 +410,6 @@ export function DrawerMenuItem({
     disabled,
     type: 'button' as const,
   }
-
   return useRender({
     defaultTagName: 'button',
     props: mergeProps<'button'>(defaultProps, props),
@@ -436,7 +426,6 @@ export function DrawerMenuSeparator({
     className: cn('mx-2 my-1 h-px bg-border', className),
     'data-slot': 'drawer-menu-separator',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -453,7 +442,6 @@ export function DrawerMenuGroup({
     className: cn('flex flex-col', className),
     'data-slot': 'drawer-menu-group',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),
@@ -473,7 +461,6 @@ export function DrawerMenuGroupLabel({
     ),
     'data-slot': 'drawer-menu-group-label',
   }
-
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(defaultProps, props),

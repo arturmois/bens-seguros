@@ -27,7 +27,6 @@ export function useClientsFilters() {
     },
     { history: 'push' }
   )
-
   const values: Readonly<Record<string, FilterValue>> = useMemo(
     () => ({
       personTypeIn: state.personTypeIn ?? undefined,
@@ -35,7 +34,6 @@ export function useClientsFilters() {
     }),
     [state]
   )
-
   const apiParams = useMemo(
     () => ({
       personTypeIn: state.personTypeIn?.length
@@ -46,7 +44,6 @@ export function useClientsFilters() {
     }),
     [state]
   )
-
   function setFilter(key: string, value: FilterValue) {
     if (key === 'personTypeIn') {
       const arr = asEnumValue(value)
@@ -59,18 +56,15 @@ export function useClientsFilters() {
       return
     }
   }
-
   function setSearch(next: string) {
     void setState({ search: next })
   }
-
   function clearAll() {
     void setState({
       personTypeIn: null,
       hasActivePolicy: null,
     })
   }
-
   return {
     values,
     apiParams,

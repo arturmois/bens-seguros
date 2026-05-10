@@ -41,14 +41,12 @@ export function InsurerField({
   const [createdInsurer, setCreatedInsurer] =
     useState<ListInsurers200DataItem | null>(null)
   const insurers = insurersResponse?.data.data ?? []
-
   useEffect(() => {
     if (!dialogOpen) {
       setInsurerDialogOpen(false)
       setCreatedInsurer(null)
     }
   }, [dialogOpen])
-
   const visibleInsurers = useMemo(() => {
     if (!createdInsurer) return insurers
     if (insurers.some((insurer) => insurer.id === createdInsurer.id)) {
@@ -56,16 +54,13 @@ export function InsurerField({
     }
     return [createdInsurer, ...insurers]
   }, [createdInsurer, insurers])
-
   function handleInsurerCreated(insurer: ListInsurers200DataItem) {
     setCreatedInsurer(insurer)
     setValue('insurerId', insurer.id, { shouldValidate: true })
     setInsurerDialogOpen(false)
   }
-
   const showEmpty =
     !insurersLoading && !insurersError && visibleInsurers.length === 0
-
   return (
     <>
       <FormField label="Seguradora" error={error} required>
@@ -113,7 +108,6 @@ export function InsurerField({
                 </Select>
               )}
             />
-
             <div className="flex justify-end">
               <Button
                 type="button"
@@ -128,7 +122,6 @@ export function InsurerField({
           </div>
         )}
       </FormField>
-
       <InsurerFormDialog
         open={insurerDialogOpen}
         onOpenChange={setInsurerDialogOpen}

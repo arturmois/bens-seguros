@@ -17,8 +17,7 @@ export function tenantScopePlugin(schema: Schema): void {
   for (const op of TENANT_SCOPED_OPERATIONS) {
     schema.pre(op, function () {
       const tenantId = getCurrentTenantId()
-      if (!tenantId) return // No context = no enforcement (scripts, migrations, workers)
-
+      if (!tenantId) return
       const filter = this.getFilter()
       if (!filter['tenantId']) {
         this.where({ tenantId })

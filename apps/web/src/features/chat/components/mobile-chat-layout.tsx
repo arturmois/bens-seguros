@@ -95,7 +95,6 @@ export function MobileChatLayout({
           onRetry={onRetryConversations}
         />
       </div>
-
       <div
         className={cn(
           'absolute inset-0 z-20 transition-transform duration-300',
@@ -121,7 +120,6 @@ export function MobileChatLayout({
           onTransfer={onTransfer}
         />
       </div>
-
       <div
         className={cn(
           'bg-card absolute inset-0 z-30 transition-transform duration-300',

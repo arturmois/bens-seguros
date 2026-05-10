@@ -21,7 +21,6 @@ export async function authenticateForInvitation(
   args: AuthenticateForInvitationArgs
 ): Promise<AuthResult> {
   const { body, invitationEmail, auth, headers, logger } = args
-
   if (body.mode === 'register') {
     return signUpAndSignIn({
       auth,
@@ -32,7 +31,6 @@ export async function authenticateForInvitation(
       logger,
     })
   }
-
   if (body.mode === 'login') {
     return signInExisting({
       auth,
@@ -42,8 +40,6 @@ export async function authenticateForInvitation(
       logger,
     })
   }
-
-  // mode === 'current-session': reuse existing logged-in session
   const session = await readCurrentSession({ auth, headers, logger })
   if (!session) {
     throw new InviteAuthError(

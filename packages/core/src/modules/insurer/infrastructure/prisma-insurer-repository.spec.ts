@@ -4,7 +4,6 @@ import { PrismaInsurerRepository } from './prisma-insurer-repository.js'
 
 function createInsurerRow(): Insurer {
   const now = new Date('2026-04-03T00:00:00.000Z')
-
   return {
     id: 'insurer-1',
     organizationId: 'org-1',
@@ -24,9 +23,7 @@ describe('PrismaInsurerRepository', () => {
         findMany,
       },
     } as unknown as PrismaClient
-
     const repository = new PrismaInsurerRepository(prisma)
-
     await repository.findMany(
       {
         organizationId: 'org-1',
@@ -35,7 +32,6 @@ describe('PrismaInsurerRepository', () => {
       },
       { limit: 20 }
     )
-
     expect(findMany).toHaveBeenCalledWith({
       where: {
         organizationId: 'org-1',

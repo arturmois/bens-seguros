@@ -38,11 +38,9 @@ function isExpired(expiresAt: string): boolean {
 export function PendingInvitations({ canManage }: PendingInvitationsProps) {
   const { data: invitations, isLoading } = useInvitations()
   const revokeInvitation = useRevokeInvitation()
-
   if (isLoading) {
     return <InvitationsSkeleton />
   }
-
   if (!invitations || invitations.length === 0) {
     return (
       <Empty>
@@ -58,7 +56,6 @@ export function PendingInvitations({ canManage }: PendingInvitationsProps) {
       </Empty>
     )
   }
-
   function handleRevoke(invitation: InvitationData) {
     const confirmed = window.confirm(
       `Revogar o convite enviado para ${invitation.email}?`
@@ -66,7 +63,6 @@ export function PendingInvitations({ canManage }: PendingInvitationsProps) {
     if (!confirmed) return
     revokeInvitation.mutate(invitation.id)
   }
-
   return (
     <div className="divide-border divide-y rounded-lg border">
       {invitations.map((invitation) => (
@@ -101,7 +97,6 @@ function InvitationRow({
     addSuffix: true,
     locale: ptBR,
   })
-
   return (
     <div className="flex items-center justify-between gap-4 px-4 py-3">
       <div className="min-w-0 flex-1 space-y-1">

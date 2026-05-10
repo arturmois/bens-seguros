@@ -1,4 +1,3 @@
-// packages/core/src/modules/policy/application/cancel-policy.spec.ts
 import { describe, expect, it, vi } from 'vitest'
 import type {
   PolicyData,
@@ -53,9 +52,7 @@ describe('CancelPolicy', () => {
   it('cancels an active policy', async () => {
     const repo = createMockRepo(makePolicyData({ status: 'ACTIVE' }))
     const useCase = new CancelPolicy(repo)
-
     const result = await useCase.execute('pol-1', 'org-1', 'Cliente solicitou')
-
     expect(repo.cancel).toHaveBeenCalledWith(
       'pol-1',
       'org-1',
@@ -63,21 +60,17 @@ describe('CancelPolicy', () => {
     )
     expect(result.status).toBe('CANCELLED')
   })
-
   it('throws PolicyAlreadyCancelledError when policy is already cancelled', async () => {
     const repo = createMockRepo(makePolicyData({ status: 'CANCELLED' }))
     const useCase = new CancelPolicy(repo)
-
     await expect(useCase.execute('pol-1', 'org-1', 'reason')).rejects.toThrow(
       PolicyAlreadyCancelledError
     )
     expect(repo.cancel).not.toHaveBeenCalled()
   })
-
   it('throws PolicyNotFoundError when policy does not exist', async () => {
     const repo = createMockRepo(null)
     const useCase = new CancelPolicy(repo)
-
     await expect(useCase.execute('missing', 'org-1', 'reason')).rejects.toThrow(
       PolicyNotFoundError
     )

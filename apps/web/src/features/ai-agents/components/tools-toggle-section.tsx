@@ -29,7 +29,6 @@ export function ToolsToggleSection({
   defaultOpen = false,
 }: ToolsToggleSectionProps) {
   const enabledTools = useWatch({ control, name: 'enabledTools' })
-
   function handleToggle(toolName: string, enabled: boolean) {
     const current = enabledTools ?? []
     if (enabled) {
@@ -42,7 +41,6 @@ export function ToolsToggleSection({
       { shouldDirty: true }
     )
   }
-
   return (
     <Collapsible defaultOpen={defaultOpen}>
       <CollapsibleTrigger className="border-border flex w-full items-center justify-between rounded-lg border p-4">

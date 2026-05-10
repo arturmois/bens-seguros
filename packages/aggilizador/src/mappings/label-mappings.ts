@@ -1,7 +1,3 @@
-/**
- * Maps our English keys to Portuguese labels for each API field.
- * Used to match dynamic API responses back to our domain keys.
- */
 export const LABEL_TO_KEY: Record<string, Record<string, string>> = {
   Sexo: {
     MALE: 'Masculino',

@@ -62,7 +62,6 @@ export class MongooseConversationRepository implements ConversationRepository {
     page: CursorPage
   ): Promise<Page<ConversationData>> {
     const query: Record<string, unknown> = { tenantId: filters.tenantId }
-
     if (filters.status) {
       query['status'] = filters.status
     }
@@ -75,7 +74,6 @@ export class MongooseConversationRepository implements ConversationRepository {
     if (page.cursor) {
       query['_id'] = { $lt: page.cursor }
     }
-
     const [docs, total] = await Promise.all([
       Conversation.find(query)
         .sort({ updatedAt: -1, _id: -1 })
@@ -86,10 +84,8 @@ export class MongooseConversationRepository implements ConversationRepository {
         ...buildCountFilter(filters),
       }),
     ])
-
     const items = docs.map(toConversationData)
     const lastItem = items.at(-1)
-
     return {
       data: items,
       meta: {
@@ -116,7 +112,6 @@ export class MongooseConversationRepository implements ConversationRepository {
       closedAt: data.closedAt,
       closedBy: data.closedBy,
     })
-
     return toConversationData(doc.toObject<ConversationDocument>())
   }
 
@@ -127,7 +122,6 @@ export class MongooseConversationRepository implements ConversationRepository {
     fields?: Partial<ConversationData>
   ): Promise<ConversationData | null> {
     const updateFields: Record<string, unknown> = { status }
-
     if (fields?.assignedTo !== undefined)
       updateFields['assignedTo'] = fields.assignedTo
     if (fields?.assignedToName !== undefined)
@@ -136,13 +130,11 @@ export class MongooseConversationRepository implements ConversationRepository {
       updateFields['closedAt'] = fields.closedAt
     if (fields?.closedBy !== undefined)
       updateFields['closedBy'] = fields.closedBy
-
     const doc = await Conversation.findOneAndUpdate(
       { _id: id, tenantId },
       { $set: updateFields },
       { returnDocument: 'after' }
     ).lean<ConversationDocument>()
-
     if (!doc) return null
     return toConversationData(doc)
   }
@@ -157,9 +149,7 @@ export class MongooseConversationRepository implements ConversationRepository {
     const statusFilter = Array.isArray(fromStatus)
       ? { $in: fromStatus }
       : fromStatus
-
     const updateFields: Record<string, unknown> = { status: toStatus }
-
     if (fields?.assignedTo !== undefined)
       updateFields['assignedTo'] = fields.assignedTo
     if (fields?.assignedToName !== undefined)
@@ -168,13 +158,11 @@ export class MongooseConversationRepository implements ConversationRepository {
       updateFields['closedAt'] = fields.closedAt
     if (fields?.closedBy !== undefined)
       updateFields['closedBy'] = fields.closedBy
-
     const doc = await Conversation.findOneAndUpdate(
       { _id: id, tenantId, status: statusFilter },
       { $set: updateFields },
       { returnDocument: 'after' }
     ).lean<ConversationDocument>()
-
     if (!doc) return null
     return toConversationData(doc)
   }
@@ -201,7 +189,6 @@ export class MongooseConversationRepository implements ConversationRepository {
       },
       { returnDocument: 'after' }
     ).lean<ConversationDocument>()
-
     if (!doc) return null
     return toConversationData(doc)
   }
@@ -218,8 +205,6 @@ export class MongooseConversationRepository implements ConversationRepository {
     )
   }
 
-  // Cross-tenant by design: auto-close cron job processes all tenants' stale conversations.
-  // Each returned conversation includes tenantId for downstream tenant-scoped operations.
   async findStaleConversations(
     olderThan: Date,
     limit: number
@@ -230,7 +215,6 @@ export class MongooseConversationRepository implements ConversationRepository {
     })
       .limit(limit)
       .lean<ConversationDocument[]>()
-
     return docs.map(toConversationData)
   }
 }

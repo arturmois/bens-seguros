@@ -14,14 +14,12 @@ export async function checkCommissionsPending(
 ): Promise<void> {
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - PENDING_DAYS)
-
   const admins = await prismaAdmin.member.findMany({
     where: {
       organizationId,
       role: { in: ['ADMIN', 'OWNER'] },
     },
   })
-
   const commissions = await prismaAdmin.commission.findMany({
     where: {
       organizationId,
@@ -33,7 +31,6 @@ export async function checkCommissionsPending(
       policy: true,
     },
   })
-
   for (const commission of commissions) {
     const isDuplicate = await hasExistingAlert({
       organizationId,
@@ -41,18 +38,14 @@ export async function checkCommissionsPending(
       entityId: commission.id,
       type: 'COMMISSION_PENDING',
     })
-
     if (isDuplicate) {
       continue
     }
-
     const daysPending = Math.floor(
       (Date.now() - commission.createdAt.getTime()) / (1000 * 60 * 60 * 24)
     )
     const policyNumber = commission.policy?.policyNumber ?? 'N/A'
     const body = `Comissão da apólice ${policyNumber} pendente há ${daysPending} dias`
-
-    // Notify salesperson
     await notificationQueue.add(
       'notification',
       {
@@ -68,8 +61,6 @@ export async function checkCommissionsPending(
       },
       DEFAULT_JOB_OPTIONS
     )
-
-    // Notify ADMIN/OWNER
     for (const admin of admins) {
       if (admin.userId === commission.salespersonId) {
         continue
@@ -90,7 +81,6 @@ export async function checkCommissionsPending(
         DEFAULT_JOB_OPTIONS
       )
     }
-
     logger.info(
       { commissionId: commission.id, daysPending },
       'Commission pending alert enqueued'

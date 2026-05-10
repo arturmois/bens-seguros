@@ -42,7 +42,6 @@ export function HeaderActions({
   const { assignConversation, returnToQueue, closeConversation } =
     useChatActions()
   const [showCloseConfirm, setShowCloseConfirm] = useState(false)
-
   if (conversation.status === 'WAITING_HUMAN') {
     return (
       <Button
@@ -55,10 +54,8 @@ export function HeaderActions({
       </Button>
     )
   }
-
   if (conversation.status === 'HUMAN_ACTIVE') {
     const isCurrentAgent = conversation.assignedTo === currentUserId
-
     if (!isCurrentAgent) {
       return (
         <span className="text-muted-foreground text-xs">
@@ -66,7 +63,6 @@ export function HeaderActions({
         </span>
       )
     }
-
     return (
       <>
         <DropdownMenu>
@@ -101,7 +97,6 @@ export function HeaderActions({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
         <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -130,6 +125,5 @@ export function HeaderActions({
       </>
     )
   }
-
   return null
 }

@@ -54,36 +54,30 @@ describe('DELETE /api/v1/members/:id', () => {
       }) as unknown as Awaited<ReturnType<typeof prisma.member.findFirst>>
     )
     mockExecute.mockResolvedValue(undefined)
-
     const response = await injectAs(app, {
       method: 'DELETE',
       url: '/api/v1/members/member-id-001',
       headers: { 'content-type': 'text/plain' },
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.id).toBe('member-id-001')
   })
-
   it('returns 404 when member is not found', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.member.findFirst).mockResolvedValue(null)
     mockResolveError('MEMBER_NOT_FOUND', 'Member not found')
-
     const response = await injectAs(app, {
       method: 'DELETE',
       url: '/api/v1/members/nonexistent-id',
       headers: { 'content-type': 'text/plain' },
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('MEMBER_NOT_FOUND')
   })
-
   it('returns 422 when trying to remove the last owner', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.member.findFirst).mockResolvedValue(
@@ -93,18 +87,15 @@ describe('DELETE /api/v1/members/:id', () => {
       }) as unknown as Awaited<ReturnType<typeof prisma.member.findFirst>>
     )
     mockResolveError('LAST_OWNER', 'Cannot remove the last owner')
-
     const response = await injectAs(app, {
       method: 'DELETE',
       url: '/api/v1/members/member-id-001',
       headers: { 'content-type': 'text/plain' },
     })
-
     expect(response.statusCode).toBe(422)
     const body = response.json()
     expect(body.error.code).toBe('LAST_OWNER')
   })
-
   it('returns 422 when member tries to remove themselves', async () => {
     const { prisma } = await import('@repo/db')
     vi.mocked(prisma.member.findFirst).mockResolvedValue(
@@ -114,13 +105,11 @@ describe('DELETE /api/v1/members/:id', () => {
       }) as unknown as Awaited<ReturnType<typeof prisma.member.findFirst>>
     )
     mockResolveError('SELF_REMOVAL', 'Cannot remove yourself')
-
     const response = await injectAs(app, {
       method: 'DELETE',
       url: '/api/v1/members/member-id-001',
       headers: { 'content-type': 'text/plain' },
     })
-
     expect(response.statusCode).toBe(422)
     const body = response.json()
     expect(body.error.code).toBe('SELF_REMOVAL')

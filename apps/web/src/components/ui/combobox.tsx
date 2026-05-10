@@ -38,7 +38,6 @@ export function ComboboxChipsInput({
   ref?: React.Ref<HTMLInputElement>
 }): React.ReactElement {
   const sizeValue = (size ?? 'default') as 'sm' | 'default' | 'lg' | number
-
   return (
     <ComboboxPrimitive.Input
       className={cn(
@@ -73,7 +72,6 @@ export function ComboboxInput({
   clearProps?: ComboboxPrimitive.Clear.Props
 }): React.ReactElement {
   const sizeValue = (size ?? 'default') as 'sm' | 'default' | 'lg' | number
-
   return (
     <ComboboxPrimitive.InputGroup
       className="not-has-[>*.w-full]:w-fit text-foreground has-disabled:opacity-64 relative w-full"
@@ -169,7 +167,6 @@ export function ComboboxPopup({
 }): React.ReactElement {
   const { chipsRef } = React.useContext(ComboboxContext)
   const anchor = anchorProp ?? chipsRef
-
   return (
     <ComboboxPrimitive.Portal>
       <ComboboxPrimitive.Positioner
@@ -376,7 +373,6 @@ export function ComboboxChips({
   startAddon?: React.ReactNode
 }): React.ReactElement {
   const { chipsRef } = React.useContext(ComboboxContext)
-
   return (
     <ComboboxPrimitive.Chips
       className={cn(

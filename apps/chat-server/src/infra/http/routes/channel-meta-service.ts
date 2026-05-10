@@ -3,8 +3,6 @@ import { z } from 'zod'
 
 export const META_GRAPH_API = 'https://graph.facebook.com/v21.0'
 
-// --- Zod schemas for Meta API responses (P2-24) ---
-
 const metaErrorDetailSchema = z.object({
   message: z.string(),
   type: z.string().optional(),
@@ -59,34 +57,28 @@ export async function validateMetaCredentials(
       const response = await fetch(url)
       const raw: unknown = await response.json()
       const parsed = metaConversationsResponseSchema.safeParse(raw)
-
       if (!response.ok || (parsed.success && parsed.data.error)) {
         const message = parsed.success
           ? (parsed.data.error?.message ?? 'Token ou Page ID inválido')
           : 'Token ou Page ID inválido'
         return { valid: false, error: message }
       }
-
       return { valid: true, name: `Page ${pageId}` }
     }
-
     const fields = 'id,name,username'
     const url = `${META_GRAPH_API}/${pageId}?fields=${fields}&access_token=${token}`
     const response = await fetch(url)
     const raw: unknown = await response.json()
     const parsed = metaPageFieldsResponseSchema.safeParse(raw)
-
     if (!response.ok || (parsed.success && parsed.data.error)) {
       const message = parsed.success
         ? (parsed.data.error?.message ?? 'Token ou Page ID inválido')
         : 'Token ou Page ID inválido'
       return { valid: false, error: message }
     }
-
     if (!parsed.success) {
       return { valid: false, error: 'Resposta inesperada da API do Meta' }
     }
-
     return {
       valid: true,
       name: parsed.data.name ?? String(parsed.data.id ?? pageId),
@@ -105,10 +97,8 @@ async function registerAppWebhookSubscription(
   if (!verifyToken) {
     return { success: false, error: 'META_WEBHOOK_VERIFY_TOKEN not configured' }
   }
-
   const callbackUrl =
     env.CHAT_WEBHOOK_PUBLIC_URL ?? `${env.CHAT_SERVER_URL}/chat/webhook/meta`
-
   try {
     const response = await fetch(
       `${META_GRAPH_API}/${metaAppId}/subscriptions`,
@@ -124,10 +114,8 @@ async function registerAppWebhookSubscription(
         }),
       }
     )
-
     const raw: unknown = await response.json()
     const parsed = metaSubscriptionResponseSchema.safeParse(raw)
-
     if (!response.ok) {
       const message = parsed.success
         ? (parsed.data.error?.message ??
@@ -135,7 +123,6 @@ async function registerAppWebhookSubscription(
         : 'Failed to register app webhook subscription'
       return { success: false, error: message }
     }
-
     return { success: true }
   } catch {
     return {
@@ -161,17 +148,14 @@ async function subscribePageToWebhooks(
         }),
       }
     )
-
     const raw: unknown = await response.json()
     const parsed = metaSubscriptionResponseSchema.safeParse(raw)
-
     if (!response.ok) {
       const message = parsed.success
         ? (parsed.data.error?.message ?? 'Failed to subscribe page to webhooks')
         : 'Failed to subscribe page to webhooks'
       return { success: false, error: message }
     }
-
     return { success: true }
   } catch {
     return {
@@ -195,14 +179,12 @@ export async function autoRegisterWebhook(
     typeof config['metaPageId'] === 'string' ? config['metaPageId'] : undefined
   const metaToken =
     typeof config['metaToken'] === 'string' ? config['metaToken'] : undefined
-
   if (!metaAppId || !metaAppSecret) {
     return {
       appSubscription: 'skipped: missing appId or appSecret',
       pageSubscription: 'skipped',
     }
   }
-
   const appResult = await registerAppWebhookSubscription(
     metaAppId,
     metaAppSecret
@@ -210,7 +192,6 @@ export async function autoRegisterWebhook(
   const appSubscription = appResult.success
     ? 'registered'
     : `failed: ${appResult.error}`
-
   let pageSubscription = 'skipped'
   if (channelType === 'MESSENGER' && metaPageId && metaToken) {
     const pageResult = await subscribePageToWebhooks(metaPageId, metaToken)
@@ -218,7 +199,6 @@ export async function autoRegisterWebhook(
       ? 'subscribed'
       : `failed: ${pageResult.error}`
   }
-
   return { appSubscription, pageSubscription }
 }
 
@@ -233,11 +213,9 @@ export async function validateMetaAppCredentials(
         Authorization: `Bearer ${metaAppId}|${metaAppSecret}`,
       },
     })
-
     if (!response.ok) {
       return { valid: false, error: 'App ID ou App Secret inválido' }
     }
-
     return { valid: true }
   } catch {
     return { valid: false, error: 'Falha ao validar credenciais do App' }

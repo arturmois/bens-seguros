@@ -41,9 +41,7 @@ export function DocumentList({ entityType, entityId }: DocumentListProps) {
     entityId
   )
   const [deletingDocId, setDeletingDocId] = useState<string | null>(null)
-
   if (isLoading) return <DocumentListSkeleton />
-
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-8">
@@ -54,7 +52,6 @@ export function DocumentList({ entityType, entityId }: DocumentListProps) {
       </div>
     )
   }
-
   if (!data || data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-8">
@@ -65,7 +62,6 @@ export function DocumentList({ entityType, entityId }: DocumentListProps) {
       </div>
     )
   }
-
   return (
     <>
       <div className="divide-y rounded-md border">
@@ -77,7 +73,6 @@ export function DocumentList({ entityType, entityId }: DocumentListProps) {
           />
         ))}
       </div>
-
       <DeleteDocumentDialog
         open={deletingDocId !== null}
         onOpenChange={(open) => {
@@ -100,7 +95,6 @@ function DocumentRow({
   return (
     <div className="flex items-center gap-3 px-4 py-3">
       <File className="text-muted-foreground size-5 shrink-0" />
-
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{document.fileName}</p>
         <div className="mt-1 flex flex-wrap items-center gap-2">
@@ -113,7 +107,6 @@ function DocumentRow({
           </span>
         </div>
       </div>
-
       <div className="flex shrink-0 items-center gap-1">
         <ViewDocumentButton
           documentId={document.id}
@@ -144,7 +137,6 @@ function ViewDocumentButton({
   readonly fileName: string
 }) {
   const [isLoading, setIsLoading] = useState(false)
-
   async function handleView() {
     setIsLoading(true)
     try {
@@ -158,7 +150,6 @@ function ViewDocumentButton({
       setIsLoading(false)
     }
   }
-
   return (
     <Button
       variant="ghost"
@@ -180,7 +171,6 @@ function DownloadDocumentButton({
   readonly fileName: string
 }) {
   const [isLoading, setIsLoading] = useState(false)
-
   async function handleDownload() {
     setIsLoading(true)
     try {
@@ -201,7 +191,6 @@ function DownloadDocumentButton({
       setIsLoading(false)
     }
   }
-
   return (
     <Button
       variant="ghost"
@@ -227,12 +216,10 @@ function DeleteDocumentDialog({
   readonly onDeleted: () => void
 }) {
   const deleteDocument = useDeleteDocument()
-
   function handleConfirm() {
     if (!documentId) return
     deleteDocument.mutate(documentId, { onSuccess: onDeleted })
   }
-
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>

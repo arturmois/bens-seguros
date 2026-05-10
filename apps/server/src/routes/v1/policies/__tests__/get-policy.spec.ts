@@ -55,44 +55,35 @@ const makePolicy = (overrides: Partial<Record<string, unknown>> = {}) => ({
 describe('GET /api/v1/policies/:id', () => {
   it('returns 200 with policy data on valid id', async () => {
     mockExecute.mockResolvedValue(makePolicy())
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/policies/policy-id-001',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.id).toBe('policy-id-001')
     expect(body.data.policyNumber).toBe('POL-2026-001')
   })
-
   it('calls use case with id and organizationId', async () => {
     mockExecute.mockResolvedValue(makePolicy())
-
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/policies/policy-id-001',
     })
-
     expect(mockExecute).toHaveBeenCalledWith('policy-id-001', TEST_ORG_ID)
   })
-
   it('returns 404 when policy does not exist', async () => {
     mockResolveError('POLICY_NOT_FOUND', 'Policy not found')
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/policies/nonexistent-id',
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('POLICY_NOT_FOUND')
   })
-
   it('returns policy with optional relational fields when present', async () => {
     mockExecute.mockResolvedValue(
       makePolicy({
@@ -101,12 +92,10 @@ describe('GET /api/v1/policies/:id', () => {
         salespersonName: 'Vendedor Test',
       })
     )
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/policies/policy-id-001',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data.clientName).toBe('João Silva')

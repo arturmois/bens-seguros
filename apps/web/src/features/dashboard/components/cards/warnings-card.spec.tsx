@@ -11,7 +11,6 @@ describe('WarningsCard', () => {
     render(<WarningsCard data={undefined} isLoading />)
     expect(screen.getByTestId('warnings-card-loading')).toBeTruthy()
   })
-
   it('renders total and 2 breakdown links', () => {
     render(
       <WarningsCard
@@ -20,16 +19,13 @@ describe('WarningsCard', () => {
       />
     )
     expect(screen.getByText('8')).toBeTruthy()
-
     const claimsLink = screen.getByRole('link', { name: /5 sinistros/i })
     expect(claimsLink.getAttribute('href')).toBe('/claims?statusGroup=open')
-
     const assistLink = screen.getByRole('link', { name: /3 assistências/i })
     expect(assistLink.getAttribute('href')).toBe(
       '/assistances?statusGroup=open'
     )
   })
-
   it('hides assistances link when count is zero', () => {
     render(
       <WarningsCard
@@ -39,7 +35,6 @@ describe('WarningsCard', () => {
     )
     expect(screen.queryByRole('link', { name: /assistências/i })).toBeNull()
   })
-
   it('shows empty state when total is zero', () => {
     render(
       <WarningsCard

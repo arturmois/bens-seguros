@@ -14,7 +14,6 @@ export function ImportStepProcessing({ status }: ImportStepProcessingProps) {
   const processed = status?.progress.processed ?? 0
   const total = status?.progress.total ?? 1
   const percentage = total > 0 ? Math.round((processed / total) * 100) : 0
-
   return (
     <div className="flex flex-col items-center gap-6 p-8">
       <Loader2 className="text-primary h-12 w-12 animate-spin" />

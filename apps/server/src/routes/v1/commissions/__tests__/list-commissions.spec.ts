@@ -60,12 +60,10 @@ describe('GET /api/v1/commissions', () => {
       total: 1,
       nextCursor: null,
     })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/commissions',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -74,45 +72,36 @@ describe('GET /api/v1/commissions', () => {
     expect(body.meta.total).toBe(1)
     expect(body.meta.nextCursor).toBeNull()
   })
-
   it('returns 200 with empty list when no commissions exist', async () => {
     mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/commissions',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.data).toHaveLength(0)
     expect(body.meta.total).toBe(0)
   })
-
   it('passes status filter to use case', async () => {
     mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
-
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/commissions',
       query: { status: 'APPROVED' },
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({ status: 'APPROVED' }),
       expect.any(Object)
     )
   })
-
   it('passes salespersonId and search filters to use case', async () => {
     mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
-
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/commissions',
       query: { salespersonId: 'user-id-001', search: 'João' },
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({
         salespersonId: 'user-id-001',
@@ -121,37 +110,30 @@ describe('GET /api/v1/commissions', () => {
       expect.any(Object)
     )
   })
-
   it('returns 400 when status has invalid value', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/commissions',
       query: { status: 'INVALID_STATUS' },
     })
-
     expect(response.statusCode).toBe(400)
   })
-
   it('parses statusIn from CSV query', async () => {
     mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
-
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/commissions?statusIn=APPROVED,PAID',
     })
-
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({ statusIn: ['APPROVED', 'PAID'] }),
       expect.any(Object)
     )
   })
-
   it('returns 400 when statusIn has an invalid value', async () => {
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/commissions?statusIn=APPROVED,INVALID',
     })
-
     expect(response.statusCode).toBe(400)
   })
 })

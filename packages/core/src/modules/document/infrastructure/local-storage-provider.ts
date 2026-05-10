@@ -18,7 +18,6 @@ export class LocalStorageProvider implements StorageProvider {
     const filePath = join(UPLOADS_DIR, key)
     await mkdir(dirname(filePath), { recursive: true })
     await writeFile(filePath, buffer)
-
     return { storageKey: key }
   }
 

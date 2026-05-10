@@ -11,24 +11,19 @@ export function MessageInput({
 }: MessageInputProps): React.JSX.Element {
   const [text, setText] = useState('')
   const lastTypingEmitRef = useRef(0)
-
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault()
       const trimmed = text.trim()
       if (!trimmed) return
-
       onSend(trimmed)
       setText('')
     },
     [text, onSend]
   )
-
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setText(e.target.value)
-
-      // Throttle typing events to 1 per second
       const now = Date.now()
       if (now - lastTypingEmitRef.current > 1000) {
         lastTypingEmitRef.current = now
@@ -37,23 +32,19 @@ export function MessageInput({
     },
     [onTyping]
   )
-
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault()
         const trimmed = text.trim()
         if (!trimmed) return
-
         onSend(trimmed)
         setText('')
       }
     },
     [text, onSend]
   )
-
   const hasText = text.trim().length > 0
-
   return (
     <form
       onSubmit={handleSubmit}

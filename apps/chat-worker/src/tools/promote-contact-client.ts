@@ -22,19 +22,10 @@ export interface PromoteContactResult {
   readonly message: string
 }
 
-/**
- * Calls the server's internal API to promote a Contact to a Client by document.
- * Returns the new clientId on success.
- *
- * Designed to be called from chat-worker tools/handlers that capture CPF/CNPJ
- * during a conversation. The MongoDB Contact must already carry pgContactId
- * (populated by capture-lead when the lead was first created).
- */
 export async function promoteContactInPostgres(
   input: PromoteContactInput
 ): Promise<PromoteContactResult> {
   const { tenantId, pgContactId, document, legalName, personType } = input
-
   if (!env.INTERNAL_API_URL || !env.INTERNAL_API_SECRET) {
     logger.warn(
       { tenantId },
@@ -42,7 +33,6 @@ export async function promoteContactInPostgres(
     )
     return { success: false, message: 'Internal API not configured' }
   }
-
   try {
     const path = `/api/internal/contacts/${pgContactId}/promote`
     const body = JSON.stringify({ document, legalName, personType })
@@ -55,7 +45,6 @@ export async function promoteContactInPostgres(
       body,
       timestamp,
     })
-
     const response = await fetch(`${env.INTERNAL_API_URL}${path}`, {
       method: 'POST',
       headers: {
@@ -67,7 +56,6 @@ export async function promoteContactInPostgres(
       body,
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     })
-
     if (!response.ok) {
       logger.error(
         { status: response.status, tenantId, pgContactId },
@@ -78,9 +66,7 @@ export async function promoteContactInPostgres(
         message: `API responded with status ${String(response.status)}`,
       }
     }
-
     const json: unknown = await response.json()
-
     let clientId: string | undefined
     if (
       typeof json === 'object' &&
@@ -93,7 +79,6 @@ export async function promoteContactInPostgres(
     ) {
       clientId = json.data.clientId
     }
-
     if (!clientId) {
       logger.warn(
         { tenantId, pgContactId },
@@ -101,7 +86,6 @@ export async function promoteContactInPostgres(
       )
       return { success: false, message: 'Resposta da API sem clientId' }
     }
-
     return {
       success: true,
       clientId,

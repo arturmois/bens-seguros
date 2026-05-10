@@ -25,15 +25,12 @@ const SUPPORTED_MEDIA_TYPES = new Set(['IMAGE'])
 function parseConfig(config: Record<string, unknown>): InstagramConfig {
   const metaPageId = config['metaPageId']
   const metaToken = config['metaToken']
-
   if (typeof metaPageId !== 'string' || metaPageId.length === 0) {
     throw new Error('InstagramBroker: metaPageId is required in channel config')
   }
-
   if (typeof metaToken !== 'string' || metaToken.length === 0) {
     throw new Error('InstagramBroker: metaToken is required in channel config')
   }
-
   return { metaPageId, metaToken }
 }
 
@@ -62,7 +59,6 @@ export class InstagramBroker implements Broker {
   async sendMessage(payload: MessagePayload): Promise<MessageResult> {
     const url = `${META_API_BASE}/${this.config.metaPageId}/messages`
     const body = this.buildRequestBody(payload)
-
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -72,13 +68,11 @@ export class InstagramBroker implements Broker {
         },
         body: JSON.stringify(body),
       })
-
       const json: unknown = await response.json()
       const parsed = instagramSendResponseSchema.safeParse(json)
       const data = parsed.success
         ? parsed.data
         : { message_id: undefined, error: undefined }
-
       if (!response.ok || data.error) {
         const errorCode =
           data.error?.message ?? `HTTP_${String(response.status)}`
@@ -88,7 +82,6 @@ export class InstagramBroker implements Broker {
         )
         return { externalId: '', status: 'FAILED', errorCode }
       }
-
       const externalId = data.message_id ?? ''
       return { externalId, status: 'SENT' }
     } catch (err: unknown) {
@@ -104,14 +97,12 @@ export class InstagramBroker implements Broker {
 
   private buildRequestBody(payload: MessagePayload): Record<string, unknown> {
     const recipient = { id: payload.to }
-
     if (payload.type === 'TEXT') {
       return {
         recipient,
         message: { text: payload.text ?? '' },
       }
     }
-
     if (!SUPPORTED_MEDIA_TYPES.has(payload.type)) {
       this.logger.warn(
         { type: payload.type, recipientId: payload.to },
@@ -122,7 +113,6 @@ export class InstagramBroker implements Broker {
         message: { text: payload.text ?? '[Unsupported media type]' },
       }
     }
-
     return {
       recipient,
       message: {

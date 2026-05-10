@@ -4,8 +4,6 @@ import type {
   InvitationRepository,
 } from '../domain/invitation-repository.js'
 
-// Allowed role values at the infrastructure boundary.
-// Mirrors the Prisma Role enum without importing the runtime value.
 const VALID_ROLES: ReadonlySet<string> = new Set([
   'OWNER',
   'ADMIN',
@@ -50,8 +48,6 @@ export class PrismaInvitationRepository implements InvitationRepository {
   ): Promise<void> {
     const memberRole = toRole(role)
     await this.prisma.$transaction([
-      // upsert handles both new member and reactivation of soft-deleted member.
-      // Composite unique key (organizationId, userId) drives the match.
       this.prisma.member.upsert({
         where: { organizationId_userId: { organizationId, userId } },
         create: { organizationId, userId, role: memberRole },

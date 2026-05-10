@@ -22,20 +22,9 @@ if (env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma
 }
 
-/**
- * Admin Prisma client that bypasses RLS.
- *
- * Connects with DATABASE_ADMIN_URL (superuser role) when available.
- * Used by DI container repos and worker jobs that need cross-tenant
- * or no-tenant access. Falls back to regular `prisma` if no admin URL is set.
- *
- * The regular `prisma` (app_user with RLS) continues to be used by
- * `createTenantClient` for defense-in-depth queries.
- */
 function createAdminPrismaClient(): PrismaClient {
   const adminUrl = env.DATABASE_ADMIN_URL
   if (!adminUrl) return prisma
-
   const adapter = new PrismaPg({
     connectionString: adminUrl,
     max: 5,

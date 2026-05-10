@@ -33,7 +33,6 @@ const ProposalKanban = dynamic(
 
 export function EndorsementsContent() {
   const filters = useProposalsFilters()
-
   return (
     <div className="flex flex-col gap-4">
       <UnifiedFilterBar

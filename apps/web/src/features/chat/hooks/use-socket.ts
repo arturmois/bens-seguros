@@ -22,7 +22,6 @@ export function useSocket(): UseSocketReturn {
   const lastEventTimestampRef = useRef<number>(Date.now())
   const [isConnected, setIsConnected] = useState(false)
   const [onlineAgents, setOnlineAgents] = useState<AgentPresence[]>([])
-
   const handleAgentStatusUpdate = useCallback((data: unknown) => {
     if (!isAgentStatusPayload(data)) return
     const agents: AgentPresence[] = data.agents.map((agent) => ({
@@ -32,39 +31,30 @@ export function useSocket(): UseSocketReturn {
     }))
     setOnlineAgents(agents)
   }, [])
-
   const handleConnect = useCallback(() => {
     setIsConnected(true)
     void requestNotificationPermission()
   }, [])
-
   const handleDisconnect = useCallback(() => {
     setIsConnected(false)
   }, [])
-
   useEffect(() => {
     let mounted = true
-
     async function connect(): Promise<void> {
       try {
         const token = await getChatToken()
         if (!mounted) return
-
         const sock = getSocket(token)
         socketRef.current = sock
-
         sock.on('connect', handleConnect)
         sock.on('disconnect', handleDisconnect)
         sock.on(SOCKET_EVENTS.AGENT_STATUS_UPDATE, handleAgentStatusUpdate)
-
         sock.on(SOCKET_EVENTS.INCOMING_MESSAGE, () => {
           lastEventTimestampRef.current = Date.now()
         })
-
         sock.on(SOCKET_EVENTS.CONVERSATION_UPDATED, () => {
           lastEventTimestampRef.current = Date.now()
         })
-
         sock.io.on('reconnect_attempt', () => {
           clearChatToken()
           void getChatToken().then((freshToken) => {
@@ -73,7 +63,6 @@ export function useSocket(): UseSocketReturn {
             }
           })
         })
-
         heartbeatRef.current = setInterval(() => {
           if (sock.connected) {
             sock.emit(SOCKET_EVENTS.AGENT_HEARTBEAT)
@@ -83,17 +72,13 @@ export function useSocket(): UseSocketReturn {
         // Token fetch failed; connection will not be established
       }
     }
-
     void connect()
-
     return () => {
       mounted = false
-
       if (heartbeatRef.current) {
         clearInterval(heartbeatRef.current)
         heartbeatRef.current = null
       }
-
       const sock = socketRef.current
       if (sock) {
         sock.off('connect', handleConnect)
@@ -102,17 +87,12 @@ export function useSocket(): UseSocketReturn {
         sock.off(SOCKET_EVENTS.INCOMING_MESSAGE)
         sock.off(SOCKET_EVENTS.CONVERSATION_UPDATED)
       }
-
       disconnectSocket()
       socketRef.current = null
     }
   }, [handleConnect, handleDisconnect, handleAgentStatusUpdate])
-
   return { socket: socketRef.current, isConnected, onlineAgents }
 }
-
-// --- type guards ---
-
 interface AgentStatusPayload {
   agents: ReadonlyArray<{ userId: string; name: string }>
 }

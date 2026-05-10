@@ -29,7 +29,6 @@ export function ClientSparkline({ clientId, data }: ClientSparklineProps) {
   const last = points[points.length - 1]?.value ?? 0
   const isPositive = last >= first
   const color = isPositive ? '#22c55e' : '#ef4444'
-
   return (
     <AreaChart width={60} height={24} data={points}>
       <Area

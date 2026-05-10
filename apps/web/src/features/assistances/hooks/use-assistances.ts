@@ -60,7 +60,6 @@ export function useAssistance(id: string) {
 
 export function useCreateAssistance() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (values: AssistanceFormValues) => createAssistance(values),
     onSuccess: () => {
@@ -75,7 +74,6 @@ export function useCreateAssistance() {
 
 export function useUpdateAssistanceStatus() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: AssistanceStatus }) =>
       updateAssistanceStatus(id, { status }),

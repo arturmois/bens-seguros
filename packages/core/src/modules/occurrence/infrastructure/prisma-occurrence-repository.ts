@@ -26,7 +26,6 @@ export class PrismaOccurrenceRepository implements OccurrenceRepository {
         createdBy: data.createdBy ?? null,
       },
     })
-
     const createdByName = await this.resolveUserName(row.createdBy)
     return OccurrenceMapper.toDomain(row, createdByName)
   }
@@ -39,11 +38,9 @@ export class PrismaOccurrenceRepository implements OccurrenceRepository {
       where: { claimId, organizationId },
       orderBy: { createdAt: 'desc' },
     })
-
     const userIds = rows
       .map((r) => r.createdBy)
       .filter((id): id is string => id !== null)
-
     const userNameMap = await this.resolveUserNames(userIds)
     return rows.map((row) =>
       OccurrenceMapper.toDomain(
@@ -72,13 +69,11 @@ export class PrismaOccurrenceRepository implements OccurrenceRepository {
     if (userIds.length === 0) {
       return new Map()
     }
-
     const uniqueIds = [...new Set(userIds)]
     const users = await this.prisma.user.findMany({
       where: { id: { in: uniqueIds } },
       select: { id: true, name: true },
     })
-
     return new Map(users.map((u) => [u.id, u.name]))
   }
 }

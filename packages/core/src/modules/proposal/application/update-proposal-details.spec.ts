@@ -32,17 +32,14 @@ describe('UpdateProposalDetails', () => {
     })
     const repo = createMockRepo(proposal)
     const useCase = new UpdateProposalDetails(repo)
-
     await useCase.execute(proposal.id, 'org-1', {
       details: autoDetails,
       premiumValueInCents: 150000,
       commissionBasisPoints: 1500,
     })
-
     expect(proposal.details).toEqual(autoDetails)
     expect(repo.save).toHaveBeenCalledWith(proposal)
   })
-
   it('throws if proposal not found', async () => {
     const repo = createMockRepo(null)
     const useCase = new UpdateProposalDetails(repo)
@@ -54,7 +51,6 @@ describe('UpdateProposalDetails', () => {
       })
     ).rejects.toThrow('não encontrada')
   })
-
   it('throws InvalidStageTransitionError when proposal is LOST', async () => {
     const proposal = Proposal.create({
       organizationId: 'org-1',
@@ -66,7 +62,6 @@ describe('UpdateProposalDetails', () => {
     proposal.markAsLost('cliente desistiu')
     const repo = createMockRepo(proposal)
     const useCase = new UpdateProposalDetails(repo)
-
     await expect(
       useCase.execute(proposal.id, 'org-1', {
         details: autoDetails,

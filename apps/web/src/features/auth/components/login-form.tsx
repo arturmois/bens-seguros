@@ -28,7 +28,6 @@ export function LoginForm() {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   })
-
   const onSubmit = (data: LoginFormData) => {
     login.mutate(
       { ...data, invitationId },
@@ -37,7 +36,6 @@ export function LoginForm() {
       }
     )
   }
-
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
@@ -58,7 +56,6 @@ export function LoginForm() {
           </p>
         )}
       </div>
-
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="password" className="text-slate-400">
@@ -100,7 +97,6 @@ export function LoginForm() {
           </p>
         )}
       </div>
-
       <Button
         type="submit"
         className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 w-full bg-gradient-to-r font-bold text-slate-900"

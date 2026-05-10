@@ -1,6 +1,5 @@
 export { container, inject, injectable, singleton } from './container.js'
 
-// Shared utilities
 export { NoopCacheService, RedisCacheService } from './shared/cache-service.js'
 export type { CacheService } from './shared/cache-service.js'
 
@@ -31,7 +30,6 @@ export {
   CURRENT_TERMS_VERSION,
 } from './shared/legal-constants.js'
 
-// Domain modules
 export * from './modules/assistance/index.js'
 export {
   logApprove,

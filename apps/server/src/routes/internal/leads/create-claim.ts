@@ -48,13 +48,11 @@ export function createInternalClaimRoute(app: FastifyInstance) {
       } = request.body
       const organizationId = request.organizationId!
       const tenantPrisma = createTenantClient(organizationId)
-
       const client = await findClient(
         tenantPrisma,
         organizationId,
         phoneOrDocument
       )
-
       if (!client) {
         return reply.status(201).send({
           success: true,
@@ -74,7 +72,6 @@ export function createInternalClaimRoute(app: FastifyInstance) {
           },
         })
       }
-
       const policyWhere: Prisma.PolicyWhereInput = {
         organizationId,
         clientId: client.id,
@@ -83,12 +80,10 @@ export function createInternalClaimRoute(app: FastifyInstance) {
       if (insuranceType) {
         policyWhere.branch = insuranceType as Prisma.PolicyWhereInput['branch']
       }
-
       const policy = await tenantPrisma.policy.findFirst({
         where: policyWhere,
         orderBy: { endDate: 'desc' },
       })
-
       if (!policy) {
         return reply.status(201).send({
           success: true,
@@ -110,7 +105,6 @@ export function createInternalClaimRoute(app: FastifyInstance) {
           },
         })
       }
-
       const claim = await container.resolve(CreateClaim).execute({
         organizationId,
         policyId: policy.id,
@@ -121,7 +115,6 @@ export function createInternalClaimRoute(app: FastifyInstance) {
         incidentDate: incidentDate ? new Date(incidentDate) : undefined,
         incidentLocation,
       })
-
       return reply.status(201).send({
         success: true,
         data: {
@@ -135,14 +128,12 @@ export function createInternalClaimRoute(app: FastifyInstance) {
     },
   })
 }
-
 async function findClient(
   tenantPrisma: ReturnType<typeof createTenantClient>,
   organizationId: string,
   phoneOrDocument: string
 ): Promise<ResolvedClient | null> {
   const baseClient = { organizationId, deletedAt: null }
-
   if (isDocument(phoneOrDocument)) {
     const digits = stripNonDigits(phoneOrDocument)
     const client = await tenantPrisma.client.findFirst({
@@ -151,9 +142,6 @@ async function findClient(
     })
     return client ?? null
   }
-
-  // Phone lives on Contact (not Client) after the refactor. Look up the contact
-  // by phone, then return its linked client (if promoted).
   const contact = await tenantPrisma.contact.findFirst({
     where: { organizationId, phone: phoneOrDocument, deletedAt: null },
     select: {

@@ -39,22 +39,17 @@ export function createLeadRoute(app: FastifyInstance) {
       const body = request.body
       const organizationId = request.organizationId!
       const tenantPrisma = createTenantClient(organizationId)
-
       try {
         const member = await tenantPrisma.member.findFirst({
           where: { organizationId, active: true },
           orderBy: { createdAt: 'asc' },
         })
-
         if (!member) {
           return reply.status(400).send({
             success: false,
             error: { code: 'NO_MEMBER', message: 'No active member in org' },
           })
         }
-
-        // Look up Contact by phone (no Client creation — clients are only created
-        // on promotion via /api/internal/contacts/:id/promote with a real document).
         const existingContact = await tenantPrisma.contact.findFirst({
           where: {
             organizationId,
@@ -62,7 +57,6 @@ export function createLeadRoute(app: FastifyInstance) {
             deletedAt: null,
           },
         })
-
         let contactId: string
         let contactName: string
         if (existingContact) {
@@ -81,9 +75,7 @@ export function createLeadRoute(app: FastifyInstance) {
           contactId = contact.id
           contactName = contact.name
         }
-
         const branch = INSURANCE_TYPE_TO_BRANCH[body.insuranceType] ?? 'OTHER'
-
         const useCase = container.resolve(CreateProposal)
         const proposal = await useCase.execute({
           organizationId,
@@ -92,7 +84,6 @@ export function createLeadRoute(app: FastifyInstance) {
           branch,
           boardType: 'NEW_INSURANCE',
         })
-
         return reply.status(201).send({
           success: true,
           data: {

@@ -15,7 +15,6 @@ export function WidgetContainer({
   primaryColor,
 }: WidgetContainerProps): React.JSX.Element {
   const channelName = widgetState.config?.name ?? 'Chat'
-
   return (
     <div
       style={{
@@ -105,7 +104,6 @@ export function WidgetContainer({
           </svg>
         </button>
       </div>
-
       {/* Body */}
       <div
         style={{
@@ -130,7 +128,6 @@ export function WidgetContainer({
           />
         )}
       </div>
-
       {/* Footer */}
       <div
         style={{

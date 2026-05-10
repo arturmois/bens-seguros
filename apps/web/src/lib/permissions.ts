@@ -32,11 +32,9 @@ export function hasPermission(role: Role, permission: string): boolean {
   const resource = parts[0]
   const action = parts[1]
   if (!resource || !action) return false
-
   const subject = SUBJECT_MAP[resource]
   const caslAction = ACTION_MAP[action]
   if (!subject || !caslAction) return false
-
   const ability = defineAbilitiesFor(role)
   return ability.can(caslAction, subject)
 }

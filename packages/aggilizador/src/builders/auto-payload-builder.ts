@@ -11,17 +11,11 @@ import type {
 import type { AutoQuoteInput } from '../types/auto.js'
 import { boolToApi, formatDateToApi, formatPhone } from './formatters.js'
 
-/**
- * Transforms typed AutoQuoteInput into the raw JSON payloads
- * expected by the Aggilizador API.
- */
 export class AutoPayloadBuilder {
   constructor(private readonly registry: EnumRegistry) {}
 
-  /** Builds the POST /Auto/Contact request body. */
   async buildContactPayload(input: AutoQuoteInput): Promise<ApiContactPayload> {
     const insured = await this.buildInsured(input)
-
     return {
       CalculationType: 1,
       Id: null,
@@ -31,7 +25,6 @@ export class AutoPayloadBuilder {
     }
   }
 
-  /** Builds the POST /Auto submit request body. */
   async buildSubmitPayload(
     input: AutoQuoteInput,
     id: string
@@ -44,7 +37,6 @@ export class AutoPayloadBuilder {
         this.buildInsurance(input),
         this.buildDriver(input),
       ])
-
     return {
       Id: id,
       OnlineId: null,
@@ -77,7 +69,6 @@ export class AutoPayloadBuilder {
 
   private async buildInsured(input: AutoQuoteInput): Promise<ApiInsured> {
     const { insured } = input
-
     const [sexo, estadoCivil, relacao] = await Promise.all([
       this.registry.resolve('Sexo', insured.gender),
       this.registry.resolve('EstadoCivil', insured.maritalStatus),
@@ -86,7 +77,6 @@ export class AutoPayloadBuilder {
         input.mainDriver.relationship
       ),
     ])
-
     return {
       CpfCnpj: insured.cpf,
       NomeCompleto: insured.fullName,
@@ -105,13 +95,11 @@ export class AutoPayloadBuilder {
 
   private async buildVehicle(input: AutoQuoteInput): Promise<ApiVehicle> {
     const { vehicle } = input
-
     const [combustivel, rastreador, antifurto] = await Promise.all([
       this.registry.resolve('Combustivel', vehicle.fuelType),
       this.registry.resolve('Rastreador', vehicle.tracker),
       this.registry.resolve('Antifurto', vehicle.antitheft),
     ])
-
     return {
       NumeroChassi: vehicle.chassisNumber ?? '',
       Placa: vehicle.licensePlate ?? '',
@@ -141,7 +129,6 @@ export class AutoPayloadBuilder {
     input: AutoQuoteInput
   ): Promise<ApiQuestionnaire> {
     const { questionnaire } = input
-
     const [
       tipoResidencia,
       garagemResidencia,
@@ -155,7 +142,6 @@ export class AutoPayloadBuilder {
       this.registry.resolve('GaragemEstudo', questionnaire.studyGarage),
       this.registry.resolve('UsoVeiculo', questionnaire.vehicleUsage),
     ])
-
     return {
       TipoResidencia: tipoResidencia,
       VeiculosResidencia: '1',
@@ -177,9 +163,7 @@ export class AutoPayloadBuilder {
 
   private async buildInsurance(input: AutoQuoteInput): Promise<ApiInsurance> {
     const { insurance } = input
-
     const tipoSeguro = await this.registry.resolve('TipoSeguro', insurance.type)
-
     return {
       Banco: '',
       Bonus: insurance.bonus ?? '0',
@@ -201,12 +185,10 @@ export class AutoPayloadBuilder {
 
   private async buildDriver(input: AutoQuoteInput): Promise<ApiDriver> {
     const { mainDriver } = input
-
     const [sexo, estadoCivil] = await Promise.all([
       this.registry.resolve('Sexo', mainDriver.gender),
       this.registry.resolve('EstadoCivil', mainDriver.maritalStatus),
     ])
-
     return {
       CpfCnpj: mainDriver.cpf,
       NomeCompleto: mainDriver.fullName,

@@ -48,16 +48,12 @@ export async function fetchUserPages(
 ): Promise<MetaPage[]> {
   const fields = 'id,name,access_token,instagram_business_account'
   const url = `${META_GRAPH_API}/me/accounts?fields=${fields}&access_token=${userAccessToken}&limit=100`
-
   const response = await fetch(url)
   const raw: unknown = await response.json()
-
   if (!response.ok) {
     throw new Error('Failed to fetch user pages from Meta')
   }
-
   const parsed = pagesResponseSchema.parse(raw)
-
   return parsed.data.map((page) => ({
     id: page.id,
     name: page.name,
@@ -81,9 +77,7 @@ export async function getInstagramUsername(
 ): Promise<string | null> {
   const url = `${META_GRAPH_API}/${instagramAccountId}?fields=username&access_token=${pageAccessToken}`
   const response = await fetch(url)
-
   if (!response.ok) return null
-
   const data = (await response.json()) as Record<string, unknown>
   const username = data['username']
   return typeof username === 'string' ? username : null

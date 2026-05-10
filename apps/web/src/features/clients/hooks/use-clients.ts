@@ -56,7 +56,6 @@ export function useClient(id: string) {
 
 export function useDeleteClient() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (id: string) => deleteClient(id),
     onSuccess: () => {
@@ -74,7 +73,6 @@ export function useDeleteClient() {
 
 export function useCreateClient() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (values: ClientFormValues) => createClient(values),
     onSuccess: () => {

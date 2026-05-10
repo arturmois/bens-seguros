@@ -41,7 +41,6 @@ describe('CreateContact', () => {
     expect(result.clientId).toBeNull()
     expect(repo.save).toHaveBeenCalledTimes(1)
   })
-
   it('rejects when name is empty', async () => {
     const repo = createMockRepo()
     const useCase = new CreateContact(repo)

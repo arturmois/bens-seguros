@@ -38,7 +38,6 @@ export function useMessages(
 ): UseMessagesReturn {
   const queryClient = useQueryClient()
   const lastTypingEmitRef = useRef<number>(0)
-
   const query = useQuery({
     queryKey: [MESSAGES_KEY, conversationId],
     queryFn: async (): Promise<ConversationWithDetails> => {
@@ -50,30 +49,22 @@ export function useMessages(
     staleTime: 60_000,
     enabled: conversationId !== null && conversationId.length > 0,
   })
-
   const { typingUser } = useMessageSocketHandlers(
     conversationId,
     socket,
     queryClient
   )
-
-  // Subscribe/unsubscribe to conversation room + mark as read
   useEffect(() => {
     if (!socket?.connected || !conversationId) return
-
     socket.emit(SOCKET_EVENTS.SUBSCRIBE_CONVERSATION, { conversationId })
-
     void chatApi.post(`/chat/conversations/${conversationId}/read`, {})
-
     return () => {
       socket.emit(SOCKET_EVENTS.UNSUBSCRIBE_CONVERSATION, { conversationId })
     }
   }, [socket, conversationId])
-
   const sendMessage = useCallback(
     (text: string) => {
       if (!socket?.connected || !conversationId || !text.trim()) return
-
       const optimisticMessage: MessageData = {
         id: `temp-${Date.now()}`,
         conversationId,
@@ -88,7 +79,6 @@ export function useMessages(
         externalId: null,
         createdAt: new Date().toISOString(),
       }
-
       queryClient.setQueryData<ConversationWithDetails>(
         [MESSAGES_KEY, conversationId],
         (prev) => {
@@ -102,7 +92,6 @@ export function useMessages(
           }
         }
       )
-
       socket.emit(
         SOCKET_EVENTS.SEND_MESSAGE,
         { conversationId, text: text.trim() },
@@ -115,7 +104,6 @@ export function useMessages(
             )
             return
           }
-
           replaceOptimisticId(
             queryClient,
             conversationId,
@@ -127,18 +115,13 @@ export function useMessages(
     },
     [socket, conversationId, queryClient]
   )
-
-  // Emit typing start (debounced)
   const emitTyping = useCallback(() => {
     if (!socket?.connected || !conversationId) return
-
     const now = Date.now()
     if (now - lastTypingEmitRef.current < CHAT_LIMITS.TYPING_DEBOUNCE_MS) return
-
     lastTypingEmitRef.current = now
     socket.emit(SOCKET_EVENTS.TYPING_START, { conversationId })
   }, [socket, conversationId])
-
   const sendMessageWithTypingReset = useCallback(
     (text: string) => {
       lastTypingEmitRef.current = 0
@@ -146,10 +129,8 @@ export function useMessages(
     },
     [sendMessage]
   )
-
   const [hasOlderMessages, setHasOlderMessages] = useState(true)
   const [isLoadingOlder, setIsLoadingOlder] = useState(false)
-
   const loadOlderMessages = useCallback(async () => {
     if (!conversationId || isLoadingOlder || !hasOlderMessages) return
     const currentMessages = queryClient.getQueryData<ConversationWithDetails>([
@@ -158,7 +139,6 @@ export function useMessages(
     ])
     const oldestMessage = currentMessages?.messages.data[0]
     if (!oldestMessage) return
-
     setIsLoadingOlder(true)
     try {
       const response = await chatApi.get<ConversationWithDetails>(
@@ -186,7 +166,6 @@ export function useMessages(
       setIsLoadingOlder(false)
     }
   }, [conversationId, queryClient, isLoadingOlder, hasOlderMessages])
-
   const rawMessages = query.data?.messages.data ?? []
   const messages = useMemo(() => {
     const seen = new Set<string>()
@@ -196,7 +175,6 @@ export function useMessages(
       return true
     })
   }, [rawMessages])
-
   return {
     messages,
     contact: query.data?.contact ?? null,
@@ -212,9 +190,6 @@ export function useMessages(
     hasOlderMessages,
   }
 }
-
-// --- helpers ---
-
 function markOptimisticFailed(
   queryClient: ReturnType<typeof useQueryClient>,
   conversationId: string,
@@ -267,8 +242,6 @@ function replaceOptimisticId(
     }
   )
 }
-
-// --- type guards ---
 
 interface SendMessageAck {
   success: boolean

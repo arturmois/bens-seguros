@@ -27,15 +27,12 @@ export function DeactivateChannelDialog({
   channel,
 }: DeactivateChannelDialogProps) {
   const deactivateChannel = useDeactivateChannel()
-
   function handleDeactivate() {
     if (!channel) return
-
     deactivateChannel.mutate(channel.id, {
       onSuccess: () => onOpenChange(false),
     })
   }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -46,7 +43,6 @@ export function DeactivateChannelDialog({
             serão encerradas.
           </DialogDescription>
         </DialogHeader>
-
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar

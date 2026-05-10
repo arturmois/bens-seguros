@@ -49,12 +49,10 @@ const makeEndorsement = () => ({
 describe('GET /api/v1/endorsements/:id', () => {
   it('returns 200 with endorsement data on valid id', async () => {
     mockExecute.mockResolvedValue(makeEndorsement())
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/endorsements/endorsement-id-001',
     })
-
     expect(response.statusCode).toBe(200)
     const body = response.json()
     expect(body.success).toBe(true)
@@ -62,15 +60,12 @@ describe('GET /api/v1/endorsements/:id', () => {
     expect(body.data.organizationId).toBe(TEST_ORG_ID)
     expect(body.data.policyId).toBe('policy-id-001')
   })
-
   it('returns 404 when endorsement is not found', async () => {
     mockResolveError('ENDORSEMENT_NOT_FOUND', 'Endorsement not found')
-
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/endorsements/nonexistent-id',
     })
-
     expect(response.statusCode).toBe(404)
     const body = response.json()
     expect(body.success).toBe(false)

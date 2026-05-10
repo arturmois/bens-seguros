@@ -48,8 +48,6 @@ export async function rejectCommissionRoute(app: FastifyInstance) {
           entityId: id,
           after: { status: commission.status, rejectionReason: reason },
         })
-
-        // Notify salesperson about rejection
         if (commission.salespersonId) {
           const salesperson = await prisma.user.findUnique({
             where: { id: commission.salespersonId },
@@ -87,7 +85,6 @@ export async function rejectCommissionRoute(app: FastifyInstance) {
             })
           }
         }
-
         return reply.send({ success: true, data: commission })
       } catch (error) {
         return handleDomainError(error, reply)

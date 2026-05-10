@@ -28,7 +28,6 @@ export function CancelPolicyDialog({
 }: CancelPolicyDialogProps) {
   const [reason, setReason] = useState('')
   const cancelMutation = useCancelPolicy()
-
   function handleConfirm() {
     if (!policy || !reason.trim()) return
     cancelMutation.mutate(
@@ -41,14 +40,12 @@ export function CancelPolicyDialog({
       }
     )
   }
-
   function handleOpenChange(open: boolean) {
     if (!open) {
       onClose()
       setReason('')
     }
   }
-
   return (
     <Dialog open={Boolean(policy)} onOpenChange={handleOpenChange}>
       <DialogContent>

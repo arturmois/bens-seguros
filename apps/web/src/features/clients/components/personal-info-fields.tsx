@@ -31,9 +31,7 @@ export function PersonalInfoFields() {
   const form = useFormContext<ClientFormValues>()
   const personType = useWatch({ control: form.control, name: 'personType' })
   if (personType === 'COMPANY') return null
-
   const errors = form.formState.errors
-
   return (
     <div className="space-y-4">
       <FormField label="Profissão" error={errors.profession?.message}>
@@ -42,7 +40,6 @@ export function PersonalInfoFields() {
           {...form.register('profession')}
         />
       </FormField>
-
       <FormField label="Estado civil" error={errors.maritalStatus?.message}>
         <Controller
           control={form.control}
@@ -74,7 +71,6 @@ export function PersonalInfoFields() {
           )}
         />
       </FormField>
-
       <FormField
         label="Data de nascimento"
         error={errors.fiscalBirthDate?.message}

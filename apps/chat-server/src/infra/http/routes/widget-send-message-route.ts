@@ -29,10 +29,8 @@ export async function widgetSendMessageRoute(
           error: { code: 'INVALID_PARAMS', message: 'ID inválido' },
         })
       }
-
       const { id } = params.data
       const visitor = request.visitorData
-
       if (!visitor || visitor.conversationId !== id) {
         return reply.status(403).send({
           success: false,
@@ -42,7 +40,6 @@ export async function widgetSendMessageRoute(
           },
         })
       }
-
       const bodyParsed = sendMessageBodySchema.safeParse(request.body)
       if (!bodyParsed.success) {
         return reply.status(400).send({
@@ -53,16 +50,13 @@ export async function widgetSendMessageRoute(
           },
         })
       }
-
       const { text } = bodyParsed.data
-
       const conversation = await Conversation.findOne({
         _id: id,
         tenantId: visitor.tenantId,
       })
         .lean()
         .exec()
-
       if (!conversation) {
         return reply.status(404).send({
           success: false,
@@ -72,7 +66,6 @@ export async function widgetSendMessageRoute(
           },
         })
       }
-
       if (conversation.status === 'CLOSED') {
         return reply.status(422).send({
           success: false,
@@ -82,9 +75,7 @@ export async function widgetSendMessageRoute(
           },
         })
       }
-
       const now = new Date()
-
       const message = await Message.create({
         conversationId: id,
         tenantId: visitor.tenantId,
@@ -95,12 +86,10 @@ export async function widgetSendMessageRoute(
         type: 'TEXT',
         status: 'DELIVERED',
       })
-
       await Conversation.updateOne(
         { _id: id, tenantId: visitor.tenantId },
         { $set: { lastMessageText: text, lastMessageAt: now } }
       )
-
       const redisPub = app.redisPub
       if (redisPub) {
         const messagePayload = JSON.stringify({
@@ -115,12 +104,10 @@ export async function widgetSendMessageRoute(
           status: 'DELIVERED',
           createdAt: message.createdAt?.toISOString() ?? now.toISOString(),
         })
-
         await redisPub.publish(
           CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE,
           messagePayload
         )
-
         await redisPub.publish(
           CHAT_PUBSUB_CHANNELS.UNREAD_UPDATE,
           JSON.stringify({
@@ -130,7 +117,6 @@ export async function widgetSendMessageRoute(
           })
         )
       }
-
       if (conversation.status === 'BOT_ACTIVE') {
         const queueProducer = container.resolve<QueueProducer>('QueueProducer')
         await queueProducer.enqueue(CHAT_QUEUES.AI_BOT, {
@@ -139,7 +125,6 @@ export async function widgetSendMessageRoute(
           messageId: String(message._id),
         })
       }
-
       return reply.status(201).send({
         success: true,
         data: { id: String(message._id) },

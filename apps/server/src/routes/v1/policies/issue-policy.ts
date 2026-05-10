@@ -45,8 +45,6 @@ export function issuePolicyRoute(app: FastifyInstance) {
           entityId: policy.id,
           after: policy,
         })
-
-        // Fire-and-forget PDF generation
         const orgId = request.organizationId!
         const userId = request.user!.id
         void generatePolicySummaryPdf(policy.id, orgId, userId).catch(
@@ -57,7 +55,6 @@ export function issuePolicyRoute(app: FastifyInstance) {
             )
           }
         )
-
         return reply.status(201).send({ success: true, data: policy })
       } catch (error) {
         return handleDomainError(error, reply)
@@ -75,19 +72,16 @@ async function generatePolicySummaryPdf(
     container.resolve<DocumentRepository>('DocumentRepository')
   const storage = container.resolve<StorageProvider>('StorageProvider')
   const getPolicyUseCase = container.resolve(GetPolicy)
-
   const policy = await getPolicyUseCase.execute(policyId, organizationId)
   const org = await prisma.organization.findUnique({
     where: { id: organizationId },
     select: { id: true, name: true, logo: true },
   })
   if (!org) return
-
   let logoUrl: string | null = null
   if (org.logo) {
     logoUrl = await storage.getSignedUrl(org.logo)
   }
-
   const buffer = Buffer.from(
     await renderToBuffer(
       PolicySummaryPdf({
@@ -96,10 +90,8 @@ async function generatePolicySummaryPdf(
       })
     )
   )
-
   const storageKey = `organizations/${organizationId}/policies/${policyId}/apolice.pdf`
   await storage.upload(storageKey, buffer, 'application/pdf')
-
   await documentRepo.upsertByStorageKey({
     organizationId,
     entityType: 'POLICY',

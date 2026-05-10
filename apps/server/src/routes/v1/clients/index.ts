@@ -11,9 +11,6 @@ import { updateClientRoute } from './update-client.js'
 
 export async function clientRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
-
-  // Order matters: static paths (export, import) must be registered
-  // BEFORE parametric paths (/:id) to avoid route conflicts.
   exportClientsRoute(app)
   importClientsRoutes(app)
   createClientRoute(app)

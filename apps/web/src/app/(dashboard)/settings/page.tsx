@@ -29,7 +29,6 @@ export default async function SettingsPage({
 }: SettingsPageProps) {
   const params = await searchParams
   const section = params.section ?? 'canais'
-
   return (
     <SettingsLayout activeSection={section}>
       <SettingsContent section={section} />

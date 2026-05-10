@@ -52,41 +52,33 @@ describe('SendQuote', () => {
     const proposal = createTestProposal()
     const repo = createMockRepo(proposal)
     const useCase = new SendQuote(repo)
-
     const result = await useCase.validate(
       'proposal-1',
       'org-1',
       'client@example.com'
     )
-
     expect(result).toBe(proposal)
     expect(repo.findById).toHaveBeenCalledWith('proposal-1', 'org-1')
   })
-
   it('rejects when proposal not found', async () => {
     const repo = createMockRepo(null)
     const useCase = new SendQuote(repo)
-
     await expect(
       useCase.validate('nonexistent', 'org-1', 'client@example.com')
     ).rejects.toThrow(ProposalNotFoundError)
   })
-
   it('rejects when client has no email', async () => {
     const proposal = createTestProposal()
     const repo = createMockRepo(proposal)
     const useCase = new SendQuote(repo)
-
     await expect(useCase.validate('proposal-1', 'org-1', null)).rejects.toThrow(
       ClientHasNoEmailError
     )
   })
-
   it('rejects when proposal is LOST', async () => {
     const proposal = createTestProposal('LOST')
     const repo = createMockRepo(proposal)
     const useCase = new SendQuote(repo)
-
     await expect(
       useCase.validate('proposal-1', 'org-1', 'client@example.com')
     ).rejects.toThrow(CannotSendQuoteForLostProposalError)

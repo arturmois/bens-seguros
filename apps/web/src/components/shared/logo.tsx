@@ -16,7 +16,6 @@ export function Logo({
   className = '',
 }: LogoProps): React.ReactElement {
   const { icon, text } = SIZES[size]
-
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
       <svg

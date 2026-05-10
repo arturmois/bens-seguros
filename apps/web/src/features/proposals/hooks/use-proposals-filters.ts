@@ -32,14 +32,12 @@ function resolveDateRange(
   toInput: string | null
 ): { from?: string; to?: string } {
   if (!preset) return {}
-
   if (preset !== CUSTOM_PRESET) {
     const found = findPreset(preset)
     if (!found) return {}
     const range = found.compute()
     return { from: range.from.toISOString(), to: range.to.toISOString() }
   }
-
   const from = fromInput
     ? new Date(`${fromInput}T00:00:00`).toISOString()
     : undefined
@@ -66,7 +64,6 @@ export function useProposalsFilters() {
     },
     { history: 'push' }
   )
-
   const values: Readonly<Record<string, FilterValue>> = useMemo(() => {
     const createdAt: DateRangeValue | undefined = state.createdAtPreset
       ? {
@@ -90,7 +87,6 @@ export function useProposalsFilters() {
       updatedAt,
     }
   }, [state])
-
   const apiParams = useMemo(() => {
     const created = resolveDateRange(
       state.createdAtPreset,
@@ -115,7 +111,6 @@ export function useProposalsFilters() {
       search: state.search || undefined,
     }
   }, [state])
-
   function setFilter(key: string, value: FilterValue) {
     if (key === 'createdAt') {
       const range = asDateRangeValue(value)
@@ -141,15 +136,12 @@ export function useProposalsFilters() {
       return
     }
   }
-
   function setSearch(next: string) {
     void setState({ search: next })
   }
-
   function setView(next: ViewMode) {
     void setState({ view: next })
   }
-
   function clearAll() {
     void setState({
       stageIn: null,
@@ -163,7 +155,6 @@ export function useProposalsFilters() {
       updatedAtTo: null,
     })
   }
-
   return {
     view: state.view,
     search: state.search,

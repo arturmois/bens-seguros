@@ -7,7 +7,6 @@ import { listInvitationsRoute } from './list-invitations.js'
 
 export async function invitationRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
-
   listInvitationsRoute(app)
   createInvitationRoute(app)
   deleteInvitationRoute(app)

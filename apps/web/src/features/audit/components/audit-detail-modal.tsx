@@ -38,7 +38,6 @@ export function AuditDetailModal({
   onClose,
 }: AuditDetailModalProps) {
   if (!entry) return null
-
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent>

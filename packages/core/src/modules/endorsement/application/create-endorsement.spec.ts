@@ -32,7 +32,6 @@ describe('CreateEndorsement', () => {
   it('delegates to repository with correct data', async () => {
     const repo = createMockRepo()
     const useCase = new CreateEndorsement(repo)
-
     const input: CreateEndorsementInput = {
       organizationId: 'org-1',
       policyId: 'pol-1',
@@ -43,9 +42,7 @@ describe('CreateEndorsement', () => {
       changes: { coverage: 'fire+flood' },
       createdBy: 'user-1',
     }
-
     const result = await useCase.execute(input)
-
     expect(repo.create).toHaveBeenCalledTimes(1)
     expect(repo.create).toHaveBeenCalledWith(input)
     expect(result.organizationId).toBe('org-1')

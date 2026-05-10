@@ -1,5 +1,5 @@
 const COOKIE_NAME = 'bens-active-org'
-const MAX_AGE = 60 * 60 * 24 * 30 // 30 days
+const MAX_AGE = 60 * 60 * 24 * 30
 
 export function setActiveOrgCookie(organizationId: string) {
   const secure = globalThis.location?.protocol === 'https:' ? ';secure' : ''
