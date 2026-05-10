@@ -1,4 +1,3 @@
-import type { Role } from '@repo/auth/roles'
 import { container, DeactivateMember, type CacheService } from '@repo/core'
 import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
@@ -32,7 +31,7 @@ export function deleteMemberRoute(app: FastifyInstance) {
       try {
         const { id } = request.params
         const organizationId = request.organizationId!
-        const callerRole = request.role! as Role
+        const callerRole = request.role!
         const callerUserId = request.user!.id
         const before = await prisma.member.findFirst({
           where: { id, organizationId, active: true },

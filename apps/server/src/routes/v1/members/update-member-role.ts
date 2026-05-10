@@ -1,4 +1,3 @@
-import type { Role } from '@repo/auth/roles'
 import { container, UpdateMemberRole, type CacheService } from '@repo/core'
 import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
@@ -38,7 +37,7 @@ export function updateMemberRoleRoute(app: FastifyInstance) {
         const { id } = request.params
         const { role: newRole } = request.body
         const organizationId = request.organizationId!
-        const callerRole = request.role! as Role
+        const callerRole = request.role!
         const callerUserId = request.user!.id
         const updateMemberRole = container.resolve(UpdateMemberRole)
         const before = await prisma.member.findFirst({

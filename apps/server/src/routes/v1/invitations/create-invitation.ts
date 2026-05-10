@@ -27,11 +27,6 @@ function resolveCache(): CacheService | null {
   }
 }
 
-function toRole(value: string): Role {
-  if (value in ROLE_HIERARCHY) return value as Role
-  throw new RoleHierarchyError()
-}
-
 function assertCanManageRole(callerRole: Role, targetRole: Role): void {
   if (ROLE_HIERARCHY[callerRole] <= ROLE_HIERARCHY[targetRole]) {
     throw new RoleHierarchyError()
@@ -63,7 +58,7 @@ export function createInvitationRoute(app: FastifyInstance) {
       const organizationId = request.organizationId!
       const callerRole = request.role!
       try {
-        assertCanManageRole(callerRole, toRole(role))
+        assertCanManageRole(callerRole, role)
         const existingMember = await prisma.member.findFirst({
           where: {
             organizationId,
