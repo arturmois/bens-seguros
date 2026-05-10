@@ -1,9 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import type {
-  InsurerRepository,
-  InsurerData,
-} from '../domain/insurer-repository.js'
+import type { CacheService } from '../../../shared/cache-service.js'
 import { InsurerAlreadyExistsError } from '../domain/insurer-errors.js'
+import type {
+  InsurerData,
+  InsurerRepository,
+} from '../domain/insurer-repository.js'
 import { CreateInsurer } from './create-insurer.js'
 
 function makeInsurerData(overrides: Partial<InsurerData> = {}): InsurerData {
@@ -36,10 +37,19 @@ function createMockRepo(existingByName: InsurerData | null): InsurerRepository {
   }
 }
 
+function createMockCache(): CacheService {
+  return {
+    get: vi.fn(),
+    set: vi.fn(),
+    delete: vi.fn().mockResolvedValue(undefined),
+  }
+}
+
 describe('CreateInsurer', () => {
-  it('creates insurer when name is unique', async () => {
+  it('creates insurer and invalidates cache when name is unique', async () => {
     const repo = createMockRepo(null)
-    const useCase = new CreateInsurer(repo)
+    const cache = createMockCache()
+    const useCase = new CreateInsurer(repo, cache)
     const result = await useCase.execute({
       organizationId: 'org-1',
       name: 'Allianz',
@@ -50,14 +60,17 @@ describe('CreateInsurer', () => {
       name: 'Allianz',
     })
     expect(result.name).toBe('Allianz')
+    expect(vi.mocked(cache.delete)).toHaveBeenCalledWith('cache:org-1:insurers')
   })
-  it('throws InsurerAlreadyExistsError when name already exists', async () => {
+  it('throws InsurerAlreadyExistsError and does not invalidate cache when name exists', async () => {
     const existing = makeInsurerData({ name: 'Porto Seguro' })
     const repo = createMockRepo(existing)
-    const useCase = new CreateInsurer(repo)
+    const cache = createMockCache()
+    const useCase = new CreateInsurer(repo, cache)
     await expect(
       useCase.execute({ organizationId: 'org-1', name: 'Porto Seguro' })
     ).rejects.toThrow(InsurerAlreadyExistsError)
     expect(repo.create).not.toHaveBeenCalled()
+    expect(vi.mocked(cache.delete)).not.toHaveBeenCalled()
   })
 })

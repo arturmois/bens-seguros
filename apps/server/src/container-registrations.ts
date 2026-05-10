@@ -13,11 +13,11 @@ import {
   CreateAssistance,
   CreateClaim,
   CreateClient,
-  CreateInvitation,
   CreateCommission,
   CreateContact,
   CreateEndorsement,
   CreateInsurer,
+  CreateInvitation,
   CreateOccurrence,
   CreateProposal,
   DeactivateMember,
@@ -352,13 +352,13 @@ export function registerDependencies(redis: Redis | null = null) {
     useFactory: () => new BuildDashboardSnapshot(dashboardRepo, cacheService),
   })
   container.register(CreateInsurer, {
-    useFactory: () => new CreateInsurer(insurerRepo),
+    useFactory: () => new CreateInsurer(insurerRepo, cacheService),
   })
   container.register(ListInsurers, {
-    useFactory: () => new ListInsurers(insurerRepo),
+    useFactory: () => new ListInsurers(insurerRepo, cacheService),
   })
   container.register(UpdateInsurer, {
-    useFactory: () => new UpdateInsurer(insurerRepo),
+    useFactory: () => new UpdateInsurer(insurerRepo, cacheService),
   })
   container.register(CreateCommission, {
     useFactory: () => new CreateCommission(commissionRepo),
@@ -390,10 +390,10 @@ export function registerDependencies(redis: Redis | null = null) {
   const memberRepo = new PrismaMemberRepository(prismaAdmin)
   container.register('MemberRepository', { useValue: memberRepo })
   container.register(UpdateMemberRole, {
-    useFactory: () => new UpdateMemberRole(memberRepo),
+    useFactory: () => new UpdateMemberRole(memberRepo, cacheService),
   })
   container.register(DeactivateMember, {
-    useFactory: () => new DeactivateMember(memberRepo),
+    useFactory: () => new DeactivateMember(memberRepo, cacheService),
   })
   container.register(ListUserTenants, {
     useFactory: () => new ListUserTenants(memberRepo),
@@ -404,7 +404,7 @@ export function registerDependencies(redis: Redis | null = null) {
   const invitationRepo = new PrismaInvitationRepository(prismaAdmin)
   container.register('InvitationRepository', { useValue: invitationRepo })
   container.register(AcceptInvitation, {
-    useFactory: () => new AcceptInvitation(invitationRepo),
+    useFactory: () => new AcceptInvitation(invitationRepo, cacheService),
   })
   container.register(CancelInvitation, {
     useFactory: () => new CancelInvitation(invitationRepo),

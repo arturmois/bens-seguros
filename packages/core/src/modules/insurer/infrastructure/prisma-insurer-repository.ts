@@ -1,16 +1,16 @@
-import { injectable, inject } from 'tsyringe'
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
+import { inject, injectable } from 'tsyringe'
 import type { CursorPage, Page } from '../../../shared/pagination.js'
+import { InsurerErrors } from '../domain/insurer-errors.js'
 import type {
-  InsurerRepository,
+  CreateInsurerInput,
   InsurerData,
   InsurerFilters,
+  InsurerRepository,
   InsurerSortField,
-  CreateInsurerInput,
   UpdateInsurerInput,
 } from '../domain/insurer-repository.js'
-import { InsurerErrors } from '../domain/insurer-errors.js'
 import { InsurerMapper } from './insurer-mapper.js'
 
 @injectable()

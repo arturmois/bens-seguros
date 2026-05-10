@@ -1,9 +1,9 @@
-import { injectable, inject } from 'tsyringe'
 import { randomUUID } from 'node:crypto'
+import { inject, injectable } from 'tsyringe'
 import type {
-  DocumentRepository,
   DocumentData,
   DocumentEntityType,
+  DocumentRepository,
   DocumentType,
 } from '../domain/document-repository.js'
 import type { StorageProvider } from '../domain/storage-provider.js'

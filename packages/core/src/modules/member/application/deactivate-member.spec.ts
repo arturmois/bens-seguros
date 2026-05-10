@@ -1,14 +1,15 @@
 import { describe, expect, it, vi } from 'vitest'
-import type {
-  MemberRepository,
-  MemberRecord,
-} from '../domain/member-repository.js'
+import type { CacheService } from '../../../shared/cache-service.js'
 import {
-  MemberNotFoundError,
-  SelfRemovalError,
-  RoleHierarchyError,
   LastOwnerError,
+  MemberNotFoundError,
+  RoleHierarchyError,
+  SelfRemovalError,
 } from '../domain/member-errors.js'
+import type {
+  MemberRecord,
+  MemberRepository,
+} from '../domain/member-repository.js'
 import { DeactivateMember } from './deactivate-member.js'
 
 const baseMember: MemberRecord = {
@@ -31,11 +32,20 @@ function createMockRepo(): MemberRepository {
   }
 }
 
+function createMockCache(): CacheService {
+  return {
+    get: vi.fn(),
+    set: vi.fn(),
+    delete: vi.fn().mockResolvedValue(undefined),
+  }
+}
+
 describe('DeactivateMember', () => {
-  it('deactivates member successfully', async () => {
+  it('deactivates member and invalidates cache successfully', async () => {
     const repo = createMockRepo()
     vi.mocked(repo.findById).mockResolvedValue(baseMember)
-    const useCase = new DeactivateMember(repo)
+    const cache = createMockCache()
+    const useCase = new DeactivateMember(repo, cache)
     await useCase.execute({
       id: 'mem-1',
       organizationId: 'org-1',
@@ -43,11 +53,12 @@ describe('DeactivateMember', () => {
       callerRole: 'ADMIN',
     })
     expect(repo.deactivate).toHaveBeenCalledWith('mem-1', 'org-1')
+    expect(vi.mocked(cache.delete)).toHaveBeenCalledWith('cache:org-1:members')
   })
   it('throws MemberNotFoundError when member does not exist', async () => {
     const repo = createMockRepo()
     vi.mocked(repo.findById).mockResolvedValue(null)
-    const useCase = new DeactivateMember(repo)
+    const useCase = new DeactivateMember(repo, createMockCache())
     await expect(
       useCase.execute({
         id: 'mem-999',
@@ -63,7 +74,7 @@ describe('DeactivateMember', () => {
       ...baseMember,
       userId: 'user-self',
     })
-    const useCase = new DeactivateMember(repo)
+    const useCase = new DeactivateMember(repo, createMockCache())
     await expect(
       useCase.execute({
         id: 'mem-1',
@@ -76,7 +87,7 @@ describe('DeactivateMember', () => {
   it('throws RoleHierarchyError when caller cannot manage target role', async () => {
     const repo = createMockRepo()
     vi.mocked(repo.findById).mockResolvedValue({ ...baseMember, role: 'ADMIN' })
-    const useCase = new DeactivateMember(repo)
+    const useCase = new DeactivateMember(repo, createMockCache())
     await expect(
       useCase.execute({
         id: 'mem-1',
@@ -90,7 +101,7 @@ describe('DeactivateMember', () => {
     const repo = createMockRepo()
     vi.mocked(repo.findById).mockResolvedValue({ ...baseMember, role: 'OWNER' })
     vi.mocked(repo.countByRole).mockResolvedValue(1)
-    const useCase = new DeactivateMember(repo)
+    const useCase = new DeactivateMember(repo, createMockCache())
     await expect(
       useCase.execute({
         id: 'mem-1',

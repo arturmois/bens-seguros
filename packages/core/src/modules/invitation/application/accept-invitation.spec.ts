@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import type { CacheService } from '../../../shared/cache-service.js'
 import {
   AlreadyMemberError,
   InvitationAlreadyAcceptedError,
@@ -33,12 +34,21 @@ function createMockRepo(): InvitationRepository {
   }
 }
 
+function createMockCache(): CacheService {
+  return {
+    get: vi.fn(),
+    set: vi.fn(),
+    delete: vi.fn().mockResolvedValue(undefined),
+  }
+}
+
 describe('AcceptInvitation', () => {
-  it('accepts invitation and creates member', async () => {
+  it('accepts invitation, creates member, and invalidates members cache', async () => {
     const repo = createMockRepo()
     vi.mocked(repo.findById).mockResolvedValue(validInvitation)
     vi.mocked(repo.isMember).mockResolvedValue(false)
-    const useCase = new AcceptInvitation(repo)
+    const cache = createMockCache()
+    const useCase = new AcceptInvitation(repo, cache)
     const result = await useCase.execute({
       invitationId: 'inv-1',
       userId: 'user-1',
@@ -53,11 +63,12 @@ describe('AcceptInvitation', () => {
     )
     expect(result.organizationId).toBe('org-1')
     expect(result.role).toBe('COMMERCIAL')
+    expect(vi.mocked(cache.delete)).toHaveBeenCalledWith('cache:org-1:members')
   })
   it('throws InvitationNotFoundError when invitation does not exist', async () => {
     const repo = createMockRepo()
     vi.mocked(repo.findById).mockResolvedValue(null)
-    const useCase = new AcceptInvitation(repo)
+    const useCase = new AcceptInvitation(repo, createMockCache())
     await expect(
       useCase.execute({ invitationId: 'inv-999', userId: 'user-1' })
     ).rejects.toThrow(InvitationNotFoundError)
@@ -68,7 +79,7 @@ describe('AcceptInvitation', () => {
       ...validInvitation,
       status: 'canceled',
     })
-    const useCase = new AcceptInvitation(repo)
+    const useCase = new AcceptInvitation(repo, createMockCache())
     await expect(
       useCase.execute({ invitationId: 'inv-1', userId: 'user-1' })
     ).rejects.toThrow(InvitationNotFoundError)
@@ -79,7 +90,7 @@ describe('AcceptInvitation', () => {
       ...validInvitation,
       status: 'accepted',
     })
-    const useCase = new AcceptInvitation(repo)
+    const useCase = new AcceptInvitation(repo, createMockCache())
     await expect(
       useCase.execute({ invitationId: 'inv-1', userId: 'user-1' })
     ).rejects.toThrow(InvitationAlreadyAcceptedError)
@@ -90,7 +101,7 @@ describe('AcceptInvitation', () => {
       ...validInvitation,
       expiresAt: new Date(Date.now() - 86400000),
     })
-    const useCase = new AcceptInvitation(repo)
+    const useCase = new AcceptInvitation(repo, createMockCache())
     await expect(
       useCase.execute({ invitationId: 'inv-1', userId: 'user-1' })
     ).rejects.toThrow(InvitationExpiredError)
@@ -99,7 +110,7 @@ describe('AcceptInvitation', () => {
     const repo = createMockRepo()
     vi.mocked(repo.findById).mockResolvedValue(validInvitation)
     vi.mocked(repo.isMember).mockResolvedValue(true)
-    const useCase = new AcceptInvitation(repo)
+    const useCase = new AcceptInvitation(repo, createMockCache())
     await expect(
       useCase.execute({ invitationId: 'inv-1', userId: 'user-1' })
     ).rejects.toThrow(AlreadyMemberError)

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import type {
-  DocumentRepository,
   DocumentData,
+  DocumentRepository,
 } from '../domain/document-repository.js'
 import type { StorageProvider } from '../domain/storage-provider.js'
 import { UploadDocument } from './upload-document.js'

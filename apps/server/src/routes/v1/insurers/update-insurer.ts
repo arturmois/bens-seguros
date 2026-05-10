@@ -1,4 +1,4 @@
-import { container, UpdateInsurer, type CacheService } from '@repo/core'
+import { container, UpdateInsurer } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
@@ -10,14 +10,6 @@ import {
   insurerDetailResponse,
   updateInsurerBodySchema,
 } from './_schemas.js'
-
-function resolveCache(): CacheService | null {
-  try {
-    return container.resolve<CacheService>('CacheService')
-  } catch {
-    return null
-  }
-}
 
 export function updateInsurerRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -46,10 +38,6 @@ export function updateInsurerRoute(app: FastifyInstance) {
           entityId: insurer.id,
           after: insurer,
         })
-        const cacheService = resolveCache()
-        if (cacheService) {
-          await cacheService.delete(`cache:${request.organizationId!}:insurers`)
-        }
         return reply.send({ success: true, data: insurer })
       } catch (error) {
         return handleDomainError(error, reply)

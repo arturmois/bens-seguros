@@ -1,7 +1,7 @@
-import { injectable, inject } from 'tsyringe'
+import { inject, injectable } from 'tsyringe'
+import { DocumentErrors } from '../domain/document-errors.js'
 import type { DocumentRepository } from '../domain/document-repository.js'
 import type { StorageProvider } from '../domain/storage-provider.js'
-import { DocumentErrors } from '../domain/document-errors.js'
 
 @injectable()
 export class DeleteDocument {

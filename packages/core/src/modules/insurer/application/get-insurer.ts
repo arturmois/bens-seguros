@@ -1,9 +1,9 @@
-import { injectable, inject } from 'tsyringe'
-import type {
-  InsurerRepository,
-  InsurerData,
-} from '../domain/insurer-repository.js'
+import { inject, injectable } from 'tsyringe'
 import { InsurerErrors } from '../domain/insurer-errors.js'
+import type {
+  InsurerData,
+  InsurerRepository,
+} from '../domain/insurer-repository.js'
 
 @injectable()
 export class GetInsurer {

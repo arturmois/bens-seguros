@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import type {
-  EndorsementRepository,
-  EndorsementData,
-} from '../domain/endorsement-repository.js'
 import { EndorsementNotFoundError } from '../domain/endorsement-errors.js'
+import type {
+  EndorsementData,
+  EndorsementRepository,
+} from '../domain/endorsement-repository.js'
 import { GetEndorsement } from './get-endorsement.js'
 
 const mockEndorsement: EndorsementData = {

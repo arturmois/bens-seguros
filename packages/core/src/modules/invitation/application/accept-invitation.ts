@@ -1,4 +1,5 @@
 import { inject, injectable } from 'tsyringe'
+import type { CacheService } from '../../../shared/cache-service.js'
 import {
   AlreadyMemberError,
   InvitationAlreadyAcceptedError,
@@ -19,7 +20,8 @@ export interface AcceptInvitationInput {
 export class AcceptInvitation {
   constructor(
     @inject('InvitationRepository')
-    private readonly invitationRepo: InvitationRepository
+    private readonly invitationRepo: InvitationRepository,
+    @inject('CacheService') private readonly cache: CacheService
   ) {}
 
   async execute(input: AcceptInvitationInput): Promise<AcceptInvitationResult> {
@@ -47,6 +49,7 @@ export class AcceptInvitation {
       invitation.organizationId,
       invitation.role
     )
+    await this.cache.delete(`cache:${invitation.organizationId}:members`)
     return {
       organizationId: invitation.organizationId,
       role: invitation.role,

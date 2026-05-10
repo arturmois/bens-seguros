@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
+import { DocumentNotFoundError } from '../domain/document-errors.js'
 import type {
-  DocumentRepository,
   DocumentData,
+  DocumentRepository,
 } from '../domain/document-repository.js'
 import type { StorageProvider } from '../domain/storage-provider.js'
-import { DocumentNotFoundError } from '../domain/document-errors.js'
 import { DeleteDocument } from './delete-document.js'
 
 function makeDocumentData(overrides: Partial<DocumentData> = {}): DocumentData {

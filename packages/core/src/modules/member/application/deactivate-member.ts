@@ -1,16 +1,17 @@
-import { injectable, inject } from 'tsyringe'
-import {
-  MEMBER_ROLE_HIERARCHY,
-  isMemberRole,
-  type MemberRole,
-} from '../domain/member-roles.js'
-import type { MemberRepository } from '../domain/member-repository.js'
+import { inject, injectable } from 'tsyringe'
+import type { CacheService } from '../../../shared/cache-service.js'
 import {
   LastOwnerError,
   MemberNotFoundError,
   RoleHierarchyError,
   SelfRemovalError,
 } from '../domain/member-errors.js'
+import type { MemberRepository } from '../domain/member-repository.js'
+import {
+  MEMBER_ROLE_HIERARCHY,
+  isMemberRole,
+  type MemberRole,
+} from '../domain/member-roles.js'
 
 function toMemberRole(value: string): MemberRole {
   if (isMemberRole(value)) return value
@@ -36,7 +37,8 @@ export interface DeactivateMemberInput {
 @injectable()
 export class DeactivateMember {
   constructor(
-    @inject('MemberRepository') private readonly memberRepo: MemberRepository
+    @inject('MemberRepository') private readonly memberRepo: MemberRepository,
+    @inject('CacheService') private readonly cache: CacheService
   ) {}
 
   async execute(input: DeactivateMemberInput): Promise<void> {
@@ -53,5 +55,6 @@ export class DeactivateMember {
       if (ownerCount <= 1) throw new LastOwnerError()
     }
     await this.memberRepo.deactivate(id, organizationId)
+    await this.cache.delete(`cache:${organizationId}:members`)
   }
 }

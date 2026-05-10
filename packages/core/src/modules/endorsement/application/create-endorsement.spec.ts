@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import type {
-  EndorsementRepository,
   CreateEndorsementInput,
   EndorsementData,
+  EndorsementRepository,
 } from '../domain/endorsement-repository.js'
 import { CreateEndorsement } from './create-endorsement.js'
 

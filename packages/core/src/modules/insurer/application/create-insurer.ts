@@ -1,15 +1,18 @@
-import { injectable, inject } from 'tsyringe'
-import type {
-  InsurerRepository,
-  InsurerData,
-  CreateInsurerInput,
-} from '../domain/insurer-repository.js'
+import { inject, injectable } from 'tsyringe'
+import type { CacheService } from '../../../shared/cache-service.js'
 import { InsurerErrors } from '../domain/insurer-errors.js'
+import type {
+  CreateInsurerInput,
+  InsurerData,
+  InsurerRepository,
+} from '../domain/insurer-repository.js'
 
 @injectable()
 export class CreateInsurer {
   constructor(
-    @inject('InsurerRepository') private readonly insurerRepo: InsurerRepository
+    @inject('InsurerRepository')
+    private readonly insurerRepo: InsurerRepository,
+    @inject('CacheService') private readonly cache: CacheService
   ) {}
 
   async execute(dto: CreateInsurerInput): Promise<InsurerData> {
@@ -20,6 +23,8 @@ export class CreateInsurer {
     if (existing) {
       throw InsurerErrors.alreadyExists(dto.name)
     }
-    return this.insurerRepo.create(dto)
+    const created = await this.insurerRepo.create(dto)
+    await this.cache.delete(`cache:${dto.organizationId}:insurers`)
+    return created
   }
 }

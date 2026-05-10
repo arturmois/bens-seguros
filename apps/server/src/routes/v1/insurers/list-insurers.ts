@@ -1,31 +1,8 @@
-import { container, ListInsurers, type CacheService } from '@repo/core'
+import { container, ListInsurers } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { insurerListResponse, listInsurersQuerySchema } from './_schemas.js'
-
-const INSURER_CACHE_TTL = 86400
-
-interface InsurerCacheData {
-  items: {
-    id: string
-    organizationId: string
-    name: string
-    code: string | null
-    active: boolean
-    createdAt: Date
-    updatedAt: Date
-  }[]
-  nextCursor: string | null | undefined
-}
-
-function resolveCache(): CacheService | null {
-  try {
-    return container.resolve<CacheService>('CacheService')
-  } catch {
-    return null
-  }
-}
 
 export function listInsurersRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -40,42 +17,12 @@ export function listInsurersRoute(app: FastifyInstance) {
     },
     preHandler: [requireAbility('read', 'Insurer')],
     handler: async (request, reply) => {
-      const organizationId = request.organizationId!
       const { active, search, cursor, limit, sortBy, sortOrder } = request.query
-      const canUseCache =
-        active === undefined &&
-        search === undefined &&
-        cursor === undefined &&
-        limit === 20 &&
-        sortBy === 'name' &&
-        sortOrder === 'asc'
-      const cacheKey = `cache:${organizationId}:insurers`
-      const cacheService = canUseCache ? resolveCache() : null
-      if (cacheService) {
-        const cached = await cacheService.get<InsurerCacheData>(cacheKey)
-        if (cached) {
-          return reply.send({
-            success: true,
-            data: cached.items,
-            meta: { nextCursor: cached.nextCursor },
-          })
-        }
-      }
       const useCase = container.resolve(ListInsurers)
       const result = await useCase.execute(
-        { organizationId, active, search },
+        { organizationId: request.organizationId!, active, search },
         { limit, cursor, sortBy, sortOrder }
       )
-      if (cacheService) {
-        await cacheService.set(
-          cacheKey,
-          {
-            items: result.items,
-            nextCursor: result.nextCursor,
-          },
-          INSURER_CACHE_TTL
-        )
-      }
       return reply.send({
         success: true,
         data: result.items,

@@ -1,4 +1,4 @@
-import { container, UpdateMemberRole, type CacheService } from '@repo/core'
+import { container, UpdateMemberRole } from '@repo/core'
 import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
@@ -10,14 +10,6 @@ import {
   idParamSchema,
   memberUpdateResponse,
 } from './_schemas.js'
-
-function resolveCache(): CacheService | null {
-  try {
-    return container.resolve<CacheService>('CacheService')
-  } catch {
-    return null
-  }
-}
 
 export function updateMemberRoleRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -58,10 +50,6 @@ export function updateMemberRoleRoute(app: FastifyInstance) {
           before: { role: before?.role },
           after: { role: newRole },
         })
-        const cacheService = resolveCache()
-        if (cacheService) {
-          await cacheService.delete(`cache:${organizationId}:members`)
-        }
         return reply.send({ success: true, data: updated })
       } catch (error) {
         return handleDomainError(error, reply)
