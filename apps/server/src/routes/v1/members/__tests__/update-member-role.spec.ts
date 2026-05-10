@@ -16,20 +16,7 @@ import {
   mockResolve,
   mockResolveError,
 } from '../../../../__tests__/helpers/mock-use-case.js'
-import { makeMinimalMember } from '../../../../__tests__/helpers/factories.js'
 import { updateMemberRoleRoute } from '../update-member-role.js'
-
-vi.mock('@repo/db', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('@repo/db')>()
-  return {
-    ...mod,
-    prisma: {
-      member: {
-        findFirst: vi.fn(),
-      },
-    },
-  }
-})
 
 const mockExecute = vi.fn()
 let app: Awaited<ReturnType<typeof createTestApp>>
@@ -54,13 +41,10 @@ const makeUpdatedMember = () => ({
 
 describe('PUT /api/v1/members/:id/role', () => {
   it('returns 200 with updated member data on success', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findFirst).mockResolvedValue(
-      makeMinimalMember({ role: 'COMMERCIAL' }) as unknown as Awaited<
-        ReturnType<typeof prisma.member.findFirst>
-      >
-    )
-    mockExecute.mockResolvedValue(makeUpdatedMember())
+    mockExecute.mockResolvedValue({
+      member: makeUpdatedMember(),
+      before: { role: 'COMMERCIAL' },
+    })
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/members/member-id-001/role',
@@ -72,8 +56,6 @@ describe('PUT /api/v1/members/:id/role', () => {
     expect(body.data.role).toBe('ADMIN')
   })
   it('returns 404 when member is not found', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findFirst).mockResolvedValue(null)
     mockResolveError('MEMBER_NOT_FOUND', 'Member not found')
     const response = await injectAs(app, {
       method: 'PUT',
@@ -85,12 +67,6 @@ describe('PUT /api/v1/members/:id/role', () => {
     expect(body.error.code).toBe('MEMBER_NOT_FOUND')
   })
   it('returns 403 when caller lacks permission to assign role', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findFirst).mockResolvedValue(
-      makeMinimalMember({ role: 'ADMIN' }) as unknown as Awaited<
-        ReturnType<typeof prisma.member.findFirst>
-      >
-    )
     mockResolveError('ROLE_HIERARCHY_VIOLATION', 'Role hierarchy violation')
     const response = await injectAs(app, {
       method: 'PUT',

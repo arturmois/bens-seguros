@@ -16,20 +16,7 @@ import {
   mockResolve,
   mockResolveError,
 } from '../../../../__tests__/helpers/mock-use-case.js'
-import { makeMinimalMember } from '../../../../__tests__/helpers/factories.js'
 import { deleteMemberRoute } from '../delete-member.js'
-
-vi.mock('@repo/db', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('@repo/db')>()
-  return {
-    ...mod,
-    prisma: {
-      member: {
-        findFirst: vi.fn(),
-      },
-    },
-  }
-})
 
 const mockExecute = vi.fn()
 let app: Awaited<ReturnType<typeof createTestApp>>
@@ -46,14 +33,9 @@ beforeEach(() => {
 
 describe('DELETE /api/v1/members/:id', () => {
   it('returns 200 with deactivated member id on success', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findFirst).mockResolvedValue(
-      makeMinimalMember({
-        role: 'ADMIN',
-        userId: 'other-user-id',
-      }) as unknown as Awaited<ReturnType<typeof prisma.member.findFirst>>
-    )
-    mockExecute.mockResolvedValue(undefined)
+    mockExecute.mockResolvedValue({
+      before: { role: 'ADMIN', userId: 'other-user-id' },
+    })
     const response = await injectAs(app, {
       method: 'DELETE',
       url: '/api/v1/members/member-id-001',
@@ -65,8 +47,6 @@ describe('DELETE /api/v1/members/:id', () => {
     expect(body.data.id).toBe('member-id-001')
   })
   it('returns 404 when member is not found', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findFirst).mockResolvedValue(null)
     mockResolveError('MEMBER_NOT_FOUND', 'Member not found')
     const response = await injectAs(app, {
       method: 'DELETE',
@@ -79,13 +59,6 @@ describe('DELETE /api/v1/members/:id', () => {
     expect(body.error.code).toBe('MEMBER_NOT_FOUND')
   })
   it('returns 422 when trying to remove the last owner', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findFirst).mockResolvedValue(
-      makeMinimalMember({
-        role: 'OWNER',
-        userId: 'other-user-id',
-      }) as unknown as Awaited<ReturnType<typeof prisma.member.findFirst>>
-    )
     mockResolveError('LAST_OWNER', 'Cannot remove the last owner')
     const response = await injectAs(app, {
       method: 'DELETE',
@@ -97,13 +70,6 @@ describe('DELETE /api/v1/members/:id', () => {
     expect(body.error.code).toBe('LAST_OWNER')
   })
   it('returns 422 when member tries to remove themselves', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findFirst).mockResolvedValue(
-      makeMinimalMember({
-        role: 'ADMIN',
-        userId: 'own-user-id',
-      }) as unknown as Awaited<ReturnType<typeof prisma.member.findFirst>>
-    )
     mockResolveError('SELF_REMOVAL', 'Cannot remove yourself')
     const response = await injectAs(app, {
       method: 'DELETE',

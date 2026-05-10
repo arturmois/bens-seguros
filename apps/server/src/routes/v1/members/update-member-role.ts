@@ -1,5 +1,4 @@
 import { container, UpdateMemberRole } from '@repo/core'
-import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
@@ -32,11 +31,7 @@ export function updateMemberRoleRoute(app: FastifyInstance) {
         const callerRole = request.role!
         const callerUserId = request.user!.id
         const updateMemberRole = container.resolve(UpdateMemberRole)
-        const before = await prisma.member.findFirst({
-          where: { id, organizationId, active: true },
-          select: { role: true },
-        })
-        const updated = await updateMemberRole.execute({
+        const { member, before } = await updateMemberRole.execute({
           id,
           organizationId,
           callerUserId,
@@ -47,10 +42,10 @@ export function updateMemberRoleRoute(app: FastifyInstance) {
           request,
           entityType: 'Member',
           entityId: id,
-          before: { role: before?.role },
+          before,
           after: { role: newRole },
         })
-        return reply.send({ success: true, data: updated })
+        return reply.send({ success: true, data: member })
       } catch (error) {
         return handleDomainError(error, reply)
       }

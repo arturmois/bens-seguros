@@ -1,17 +1,17 @@
 'use client'
 
-import Link from 'next/link'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { toast } from 'sonner'
-import { Eye, EyeOff } from 'lucide-react'
-import { useAuth } from '@/features/auth/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useAuth } from '@/features/auth/hooks/use-auth'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Eye, EyeOff } from 'lucide-react'
+import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -48,7 +48,7 @@ export function LoginForm() {
           id="email"
           placeholder="seu@email.com"
           autoComplete="email"
-          className="border-white/10 bg-white/[0.04] text-slate-100 placeholder:text-slate-500"
+          className="bg-white/4 border-white/10 text-slate-100 placeholder:text-slate-500"
         />
         {form.formState.errors.email && (
           <p role="alert" className="text-destructive text-sm">
@@ -74,7 +74,7 @@ export function LoginForm() {
             type={showPassword ? 'text' : 'password'}
             id="password"
             autoComplete="current-password"
-            className="border-white/10 bg-white/[0.04] text-slate-100 placeholder:text-slate-500"
+            className="bg-white/4 border-white/10 text-slate-100 placeholder:text-slate-500"
           />
           <Button
             type="button"

@@ -1,5 +1,4 @@
 import { container, DeactivateMember } from '@repo/core'
-import { prisma } from '@repo/db'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
@@ -25,12 +24,8 @@ export function deleteMemberRoute(app: FastifyInstance) {
         const organizationId = request.organizationId!
         const callerRole = request.role!
         const callerUserId = request.user!.id
-        const before = await prisma.member.findFirst({
-          where: { id, organizationId, active: true },
-          select: { role: true, userId: true },
-        })
         const deactivateMember = container.resolve(DeactivateMember)
-        await deactivateMember.execute({
+        const { before } = await deactivateMember.execute({
           id,
           organizationId,
           callerUserId,
@@ -40,7 +35,7 @@ export function deleteMemberRoute(app: FastifyInstance) {
           request,
           entityType: 'Member',
           entityId: id,
-          before: { role: before?.role, userId: before?.userId },
+          before,
         })
         return reply.send({ success: true, data: { id } })
       } catch (error) {

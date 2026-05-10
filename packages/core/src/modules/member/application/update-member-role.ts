@@ -38,6 +38,11 @@ export interface UpdateMemberRoleInput {
   readonly newRole: string
 }
 
+export interface UpdateMemberRoleResult {
+  readonly member: MemberRecord
+  readonly before: { readonly role: string }
+}
+
 @injectable()
 export class UpdateMemberRole {
   constructor(
@@ -45,7 +50,7 @@ export class UpdateMemberRole {
     @inject('CacheService') private readonly cache: CacheService
   ) {}
 
-  async execute(input: UpdateMemberRoleInput): Promise<MemberRecord> {
+  async execute(input: UpdateMemberRoleInput): Promise<UpdateMemberRoleResult> {
     const { id, organizationId, callerUserId, callerRole, newRole } = input
     const member = await this.memberRepo.findById(id, organizationId)
     if (!member) throw new MemberNotFoundError(id)
@@ -65,6 +70,6 @@ export class UpdateMemberRole {
       newRole
     )
     await this.cache.delete(`cache:${organizationId}:members`)
-    return updated
+    return { member: updated, before: { role: member.role } }
   }
 }

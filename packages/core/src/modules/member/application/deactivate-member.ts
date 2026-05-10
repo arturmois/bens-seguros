@@ -34,6 +34,10 @@ export interface DeactivateMemberInput {
   readonly callerRole: MemberRole
 }
 
+export interface DeactivateMemberResult {
+  readonly before: { readonly role: string; readonly userId: string }
+}
+
 @injectable()
 export class DeactivateMember {
   constructor(
@@ -41,7 +45,7 @@ export class DeactivateMember {
     @inject('CacheService') private readonly cache: CacheService
   ) {}
 
-  async execute(input: DeactivateMemberInput): Promise<void> {
+  async execute(input: DeactivateMemberInput): Promise<DeactivateMemberResult> {
     const { id, organizationId, callerUserId, callerRole } = input
     const member = await this.memberRepo.findById(id, organizationId)
     if (!member) throw new MemberNotFoundError(id)
@@ -56,5 +60,6 @@ export class DeactivateMember {
     }
     await this.memberRepo.deactivate(id, organizationId)
     await this.cache.delete(`cache:${organizationId}:members`)
+    return { before: { role: member.role, userId: member.userId } }
   }
 }

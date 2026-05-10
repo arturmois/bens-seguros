@@ -58,7 +58,8 @@ describe('UpdateMemberRole', () => {
       newRole: 'MANAGER',
     })
     expect(repo.updateRole).toHaveBeenCalledWith('mem-1', 'org-1', 'MANAGER')
-    expect(result.role).toBe('MANAGER')
+    expect(result.member.role).toBe('MANAGER')
+    expect(result.before.role).toBe('COMMERCIAL')
     expect(vi.mocked(cache.delete)).toHaveBeenCalledWith('cache:org-1:members')
   })
   it('throws MemberNotFoundError when member does not exist', async () => {
