@@ -1,12 +1,10 @@
-import { CreateClaim, claimOpenedEmail, container } from '@repo/core'
-import { prismaAdmin as prisma } from '@repo/db'
+import { container, CreateClaim } from '@repo/core'
 import { env } from '@repo/env'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { auditCreate } from '../../../services/audit-logger.js'
-import { enqueueNotifications } from '../../../services/notification-enqueuer.js'
 import { handleDomainError } from '../handle-domain-error.js'
 import { claimDetailResponse, createClaimBodySchema } from './_schemas.js'
 
@@ -25,48 +23,16 @@ export function createClaimRoute(app: FastifyInstance) {
     handler: async (request, reply) => {
       const useCase = container.resolve(CreateClaim)
       try {
-        const claim = await useCase.execute({
-          organizationId: request.organizationId!,
-          ...request.body,
-        })
-        const managers = await prisma.member.findMany({
-          where: {
+        const claim = await useCase.execute(
+          {
             organizationId: request.organizationId!,
-            role: { in: ['ADMIN', 'MANAGER', 'OWNER'] },
-            userId: { not: request.user!.id },
+            ...request.body,
           },
-          include: { user: true },
-        })
-        const frontendUrl = env.FRONTEND_URL
-        const notifItems = managers.map((m) => ({
-          notification: {
-            organizationId: request.organizationId!,
-            userId: m.userId,
-            type: 'CLAIM_OPENED',
-            title: 'Novo sinistro aberto',
-            body: `Sinistro #${String(claim.claimNumber)} aberto`,
-            entityType: 'Claim',
-            entityId: claim.id,
-          },
-          email: m.user.email
-            ? {
-                to: m.user.email,
-                subject: `Novo sinistro #${String(claim.claimNumber)}`,
-                html: claimOpenedEmail({
-                  userName: m.user.name,
-                  claimNumber: String(claim.claimNumber),
-                  clientName: 'N/A',
-                  priority: String(claim.priority ?? 'NORMAL'),
-                  frontendUrl,
-                }),
-              }
-            : undefined,
-        }))
-        if (notifItems.length > 0) {
-          enqueueNotifications(notifItems).catch((err: unknown) => {
-            request.log.error({ err }, 'Failed to enqueue claim notifications')
-          })
-        }
+          {
+            creatorUserId: request.user!.id,
+            frontendUrl: env.FRONTEND_URL,
+          }
+        )
         auditCreate({
           request,
           entityType: 'Claim',

@@ -1,6 +1,7 @@
 import type { PrismaClient, Role } from '@repo/db'
 import { inject, injectable } from 'tsyringe'
 import type {
+  MemberContact,
   MemberListPage,
   MemberRecord,
   MemberRepository,
@@ -99,6 +100,27 @@ export class PrismaMemberRepository implements MemberRepository {
       select: { id: true },
     })
     return found !== null
+  }
+
+  async findContactsByRoles(
+    organizationId: string,
+    roles: readonly string[],
+    excludeUserId?: string
+  ): Promise<MemberContact[]> {
+    const rows = await this.prisma.member.findMany({
+      where: {
+        organizationId,
+        active: true,
+        role: { in: roles.map(toPrismaRole) },
+        ...(excludeUserId ? { userId: { not: excludeUserId } } : {}),
+      },
+      include: { user: { select: { id: true, email: true, name: true } } },
+    })
+    return rows.map((row) => ({
+      userId: row.userId,
+      email: row.user.email,
+      name: row.user.name,
+    }))
   }
 
   async listActive(

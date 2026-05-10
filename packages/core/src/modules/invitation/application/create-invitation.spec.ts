@@ -29,6 +29,7 @@ function makeMocks() {
     listOrganizationsForUser: vi.fn(),
     listActive: vi.fn(),
     existsActiveByEmail: vi.fn().mockResolvedValue(false),
+    findContactsByRoles: vi.fn(),
   }
   const orgRepo: OrganizationRepository = {
     findById: vi.fn().mockResolvedValue({

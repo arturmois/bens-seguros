@@ -7,6 +7,7 @@ export {
   MarkNotificationAsRead,
 } from './application/mark-as-read.js'
 
+export type { NotificationDispatcher } from './domain/notification-dispatcher.js'
 export { NotificationNotFoundError } from './domain/notification-errors.js'
 export type { NotificationRepository } from './domain/notification-repository.js'
 export type {

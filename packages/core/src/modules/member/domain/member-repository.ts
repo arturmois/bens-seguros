@@ -6,6 +6,12 @@ export interface MemberRecord {
   readonly active: boolean
 }
 
+export interface MemberContact {
+  readonly userId: string
+  readonly email: string | null
+  readonly name: string | null
+}
+
 export interface OrganizationMembership {
   readonly id: string
   readonly name: string
@@ -45,4 +51,9 @@ export interface MemberRepository {
     options: { limit: number; cursor?: string }
   ): Promise<MemberListPage>
   existsActiveByEmail(organizationId: string, email: string): Promise<boolean>
+  findContactsByRoles(
+    organizationId: string,
+    roles: readonly string[],
+    excludeUserId?: string
+  ): Promise<MemberContact[]>
 }

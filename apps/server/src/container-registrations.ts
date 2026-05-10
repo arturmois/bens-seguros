@@ -112,6 +112,7 @@ import {
 import { prismaAdmin } from '@repo/db'
 import { env } from '@repo/env'
 import type { Redis } from 'ioredis'
+import { BullmqNotificationDispatcher } from './services/bullmq-notification-dispatcher.js'
 
 export function registerDependencies(redis: Redis | null = null) {
   const cacheService = redis
@@ -275,7 +276,12 @@ export function registerDependencies(redis: Redis | null = null) {
     useFactory: () => new ParsePolicyImport(policyRepo),
   })
   container.register(CreateClaim, {
-    useFactory: () => new CreateClaim(claimRepo),
+    useFactory: (c) =>
+      new CreateClaim(
+        claimRepo,
+        c.resolve('MemberRepository'),
+        c.resolve('NotificationDispatcher')
+      ),
   })
   container.register(ListClaims, {
     useFactory: () => new ListClaims(claimRepo),
@@ -389,6 +395,9 @@ export function registerDependencies(redis: Redis | null = null) {
   })
   const memberRepo = new PrismaMemberRepository(prismaAdmin)
   container.register('MemberRepository', { useValue: memberRepo })
+  container.register('NotificationDispatcher', {
+    useValue: new BullmqNotificationDispatcher(),
+  })
   container.register(UpdateMemberRole, {
     useFactory: () => new UpdateMemberRole(memberRepo, cacheService),
   })

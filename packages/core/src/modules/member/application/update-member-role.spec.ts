@@ -29,6 +29,7 @@ function createMockRepo(): MemberRepository {
     listOrganizationsForUser: vi.fn(),
     listActive: vi.fn(),
     existsActiveByEmail: vi.fn(),
+    findContactsByRoles: vi.fn(),
   }
 }
 

@@ -16,22 +16,6 @@ import {
 import { mockResolve } from '../../../../__tests__/helpers/mock-use-case.js'
 import { createClaimRoute } from '../create-claim.js'
 
-vi.mock('@repo/db', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('@repo/db')>()
-  const mockPrisma = {
-    member: { findMany: vi.fn().mockResolvedValue([]) },
-  }
-  return {
-    ...mod,
-    prisma: mockPrisma,
-    prismaAdmin: mockPrisma,
-  }
-})
-
-vi.mock('../../../../services/notification-enqueuer.js', () => ({
-  enqueueNotifications: vi.fn().mockResolvedValue(undefined),
-}))
-
 const mockExecute = vi.fn()
 let app: Awaited<ReturnType<typeof createTestApp>>
 
@@ -112,7 +96,7 @@ describe('POST /api/v1/claims', () => {
     expect(body.data.estimatedValueInCents).toBe(500000)
     expect(body.data.priority).toBe('HIGH')
   })
-  it('passes organizationId to use case', async () => {
+  it('passes organizationId and notify context to use case', async () => {
     mockExecute.mockResolvedValue(makeClaim())
     await injectAs(app, {
       method: 'POST',
@@ -120,7 +104,8 @@ describe('POST /api/v1/claims', () => {
       payload: validBody,
     })
     expect(mockExecute).toHaveBeenCalledWith(
-      expect.objectContaining({ organizationId: TEST_ORG_ID })
+      expect.objectContaining({ organizationId: TEST_ORG_ID }),
+      expect.objectContaining({ creatorUserId: expect.any(String) })
     )
   })
   it('returns 400 when required field description is missing', async () => {
