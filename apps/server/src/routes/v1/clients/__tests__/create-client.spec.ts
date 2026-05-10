@@ -52,6 +52,9 @@ const SAVED_CLIENT = {
   createdAt: new Date('2026-05-03T00:00:00Z'),
   updatedAt: new Date('2026-05-03T00:00:00Z'),
   deletedAt: null,
+  activePolicyCount: 0,
+  totalPolicyCount: 0,
+  contactCount: 0,
 }
 
 describe('POST /api/v1/clients', () => {

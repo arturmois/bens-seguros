@@ -25,19 +25,13 @@ export function createClientRoute(app: FastifyInstance) {
           organizationId: request.organizationId!,
           ...request.body,
         })
-        const enriched = {
-          ...created,
-          activePolicyCount: 0,
-          totalPolicyCount: 0,
-          contactCount: 0,
-        }
         auditCreate({
           request,
           entityType: 'Client',
           entityId: created.id,
-          after: enriched,
+          after: created,
         })
-        return reply.code(201).send({ success: true, data: enriched })
+        return reply.code(201).send({ success: true, data: created })
       } catch (error) {
         return handleDomainError(error, reply)
       }

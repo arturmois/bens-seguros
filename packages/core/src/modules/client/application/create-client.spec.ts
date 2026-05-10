@@ -74,7 +74,12 @@ describe('CreateClient', () => {
       address: null,
       fiscalBirthDate: null,
     })
-    expect(result).toBe(SAVED)
+    expect(result).toEqual({
+      ...SAVED,
+      activePolicyCount: 0,
+      totalPolicyCount: 0,
+      contactCount: 0,
+    })
   })
   it('persiste todos os campos fiscais quando fornecidos', async () => {
     vi.mocked(repo.findByDocumentHash).mockResolvedValue(null)

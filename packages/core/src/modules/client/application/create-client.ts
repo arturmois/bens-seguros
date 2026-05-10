@@ -2,8 +2,8 @@ import { inject, injectable } from 'tsyringe'
 import { hashDocument } from '@repo/shared'
 import { ClientErrors } from '../domain/client-errors.js'
 import type {
-  ClientData,
   ClientRepository,
+  ClientWithMetrics,
   MaritalStatus,
   PersonType,
 } from '../domain/client-repository.js'
@@ -26,14 +26,14 @@ export class CreateClient {
     private readonly clientRepo: ClientRepository
   ) {}
 
-  async execute(input: CreateClientInput): Promise<ClientData> {
+  async execute(input: CreateClientInput): Promise<ClientWithMetrics> {
     const documentHash = hashDocument(input.document)
     const existing = await this.clientRepo.findByDocumentHash(
       documentHash,
       input.organizationId
     )
     if (existing) throw ClientErrors.alreadyExists()
-    return this.clientRepo.save({
+    const saved = await this.clientRepo.save({
       organizationId: input.organizationId,
       legalName: input.legalName,
       document: input.document,
@@ -43,5 +43,11 @@ export class CreateClient {
       address: input.address ?? null,
       fiscalBirthDate: input.fiscalBirthDate ?? null,
     })
+    return {
+      ...saved,
+      activePolicyCount: 0,
+      totalPolicyCount: 0,
+      contactCount: 0,
+    }
   }
 }
