@@ -11,21 +11,20 @@ import {
   createTestApp,
   injectAs,
   setTestContext,
+  TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
+import { mockResolve } from '../../../../__tests__/helpers/mock-use-case.js'
 import { globalSearchRoute } from '../global-search.js'
 
-const mockClientFindMany = vi.fn()
-const mockProposalFindMany = vi.fn()
-const mockPolicyFindMany = vi.fn()
-const mockClaimFindMany = vi.fn()
+vi.mock('@repo/core', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('@repo/core')>()
+  return {
+    ...mod,
+    container: { resolve: vi.fn() },
+  }
+})
 
-const mockTenantPrisma = {
-  client: { findMany: mockClientFindMany },
-  proposal: { findMany: mockProposalFindMany },
-  policy: { findMany: mockPolicyFindMany },
-  claim: { findMany: mockClaimFindMany },
-}
-
+const mockExecute = vi.fn()
 let app: Awaited<ReturnType<typeof createTestApp>>
 
 beforeAll(async () => {
@@ -34,30 +33,33 @@ beforeAll(async () => {
 afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
-  setTestContext({ tenantPrisma: mockTenantPrisma })
-  mockClientFindMany.mockResolvedValue([])
-  mockProposalFindMany.mockResolvedValue([])
-  mockPolicyFindMany.mockResolvedValue([])
-  mockClaimFindMany.mockResolvedValue([])
+  setTestContext()
+  mockResolve(mockExecute)
+  mockExecute.mockResolvedValue({
+    clients: [],
+    proposals: [],
+    policies: [],
+    claims: [],
+  })
 })
 
 describe('GET /api/v1/search', () => {
   it('returns 200 with search results across all entities', async () => {
-    mockClientFindMany.mockResolvedValue([
-      {
-        id: 'client-001',
-        legalName: 'João Silva',
-        document: '123.456.789-00',
-      },
-    ])
-    mockPolicyFindMany.mockResolvedValue([
-      {
-        id: 'policy-001',
-        policyNumber: 'POL-001',
-        branch: 'AUTO',
-        client: { legalName: 'João Silva' },
-      },
-    ])
+    mockExecute.mockResolvedValue({
+      clients: [
+        { id: 'client-001', name: 'João Silva', document: '123.456.789-00' },
+      ],
+      proposals: [],
+      policies: [
+        {
+          id: 'policy-001',
+          policyNumber: 'POL-001',
+          branch: 'AUTO',
+          clientName: 'João Silva',
+        },
+      ],
+      claims: [],
+    })
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/search',
@@ -67,9 +69,8 @@ describe('GET /api/v1/search', () => {
     const body = response.json()
     expect(body.success).toBe(true)
     expect(body.data.clients).toHaveLength(1)
-    expect(body.data.proposals).toHaveLength(0)
+    expect(body.data.clients[0].type).toBe('CLIENT')
     expect(body.data.policies).toHaveLength(1)
-    expect(body.data.claims).toHaveLength(0)
     expect(body.meta.query).toBe('João')
     expect(body.meta.totalResults).toBe(2)
   })
@@ -102,15 +103,12 @@ describe('GET /api/v1/search', () => {
     })
     expect(response.statusCode).toBe(400)
   })
-  it('queries all 4 entity types in parallel', async () => {
+  it('forwards organizationId, query, and limit to the use case', async () => {
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/search',
-      query: { q: 'test' },
+      query: { q: 'test', limit: '20' },
     })
-    expect(mockClientFindMany).toHaveBeenCalledOnce()
-    expect(mockProposalFindMany).toHaveBeenCalledOnce()
-    expect(mockPolicyFindMany).toHaveBeenCalledOnce()
-    expect(mockClaimFindMany).toHaveBeenCalledOnce()
+    expect(mockExecute).toHaveBeenCalledWith(TEST_ORG_ID, 'test', 20)
   })
 })
