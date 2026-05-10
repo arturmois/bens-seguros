@@ -1,27 +1,9 @@
-import { container, type CacheService, type StorageProvider } from '@repo/core'
-import { prisma } from '@repo/db'
+import { container, GetOrganization } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { errorResponse } from '../../shared/response.schema.js'
+import { handleDomainError } from '../handle-domain-error.js'
 import { organizationDetailResponse } from './_schemas.js'
-
-const ORG_CACHE_TTL = 3600
-
-interface OrgCacheData {
-  id: string
-  name: string
-  slug: string
-  logoKey: string | null
-  createdAt: string
-}
-
-function resolveCache(): CacheService | null {
-  try {
-    return container.resolve<CacheService>('CacheService')
-  } catch {
-    return null
-  }
-}
 
 export function getOrganizationRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -34,77 +16,22 @@ export function getOrganizationRoute(app: FastifyInstance) {
       response: { 200: organizationDetailResponse, 404: errorResponse },
     },
     handler: async (request, reply) => {
-      const organizationId = request.organizationId!
-      const cacheKey = `cache:${organizationId}:org`
-      const cacheService = resolveCache()
-      if (cacheService) {
-        const cached = await cacheService.get<OrgCacheData>(cacheKey)
-        if (cached) {
-          let logoUrl: string | null = null
-          if (cached.logoKey) {
-            const storage =
-              container.resolve<StorageProvider>('StorageProvider')
-            logoUrl = await storage.getSignedUrl(cached.logoKey)
-          }
-          return reply.send({
-            success: true,
-            data: {
-              id: cached.id,
-              name: cached.name,
-              slug: cached.slug,
-              logo: logoUrl,
-              createdAt: cached.createdAt,
-            },
-          })
-        }
-      }
-      const org = await prisma.organization.findUnique({
-        where: { id: organizationId },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          logo: true,
-          createdAt: true,
-        },
-      })
-      if (!org) {
-        return reply.status(404).send({
-          success: false,
-          error: {
-            code: 'ORGANIZATION_NOT_FOUND',
-            message: 'Organização não encontrada',
+      const useCase = container.resolve(GetOrganization)
+      try {
+        const view = await useCase.execute(request.organizationId!)
+        return reply.send({
+          success: true,
+          data: {
+            id: view.id,
+            name: view.name,
+            slug: view.slug,
+            logo: view.logo,
+            createdAt: view.createdAt.toISOString(),
           },
         })
+      } catch (error) {
+        return handleDomainError(error, reply)
       }
-      if (cacheService) {
-        await cacheService.set(
-          cacheKey,
-          {
-            id: org.id,
-            name: org.name,
-            slug: org.slug,
-            logoKey: org.logo,
-            createdAt: org.createdAt.toISOString(),
-          } satisfies OrgCacheData,
-          ORG_CACHE_TTL
-        )
-      }
-      let logoUrl: string | null = null
-      if (org.logo) {
-        const storage = container.resolve<StorageProvider>('StorageProvider')
-        logoUrl = await storage.getSignedUrl(org.logo)
-      }
-      return reply.send({
-        success: true,
-        data: {
-          id: org.id,
-          name: org.name,
-          slug: org.slug,
-          logo: logoUrl,
-          createdAt: org.createdAt.toISOString(),
-        },
-      })
     },
   })
 }

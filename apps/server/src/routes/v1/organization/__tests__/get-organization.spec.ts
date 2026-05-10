@@ -13,21 +13,21 @@ import {
   setTestContext,
   TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
-import { makeOrganization } from '../../../../__tests__/helpers/factories.js'
+import {
+  mockResolve,
+  mockResolveError,
+} from '../../../../__tests__/helpers/mock-use-case.js'
 import { getOrganizationRoute } from '../get-organization.js'
 
-vi.mock('@repo/db', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('@repo/db')>()
+vi.mock('@repo/core', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('@repo/core')>()
   return {
     ...mod,
-    prisma: {
-      organization: {
-        findUnique: vi.fn(),
-      },
-    },
+    container: { resolve: vi.fn() },
   }
 })
 
+const mockExecute = vi.fn()
 let app: Awaited<ReturnType<typeof createTestApp>>
 
 beforeAll(async () => {
@@ -37,16 +37,18 @@ afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
+  mockResolve(mockExecute)
 })
 
 describe('GET /api/v1/organization', () => {
   it('returns 200 with organization data', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.organization.findUnique).mockResolvedValue(
-      makeOrganization() as unknown as Awaited<
-        ReturnType<typeof prisma.organization.findUnique>
-      >
-    )
+    mockExecute.mockResolvedValue({
+      id: TEST_ORG_ID,
+      name: 'Corretora Exemplo',
+      slug: 'corretora-exemplo',
+      logo: null,
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+    })
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/organization',
@@ -60,8 +62,7 @@ describe('GET /api/v1/organization', () => {
     expect(body.data.logo).toBeNull()
   })
   it('returns 404 when organization is not found', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.organization.findUnique).mockResolvedValue(null)
+    mockResolveError('ORGANIZATION_NOT_FOUND', 'Organization not found')
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/organization',
@@ -71,16 +72,15 @@ describe('GET /api/v1/organization', () => {
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('ORGANIZATION_NOT_FOUND')
   })
-  it('queries prisma with current organization id', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.organization.findUnique).mockResolvedValue(
-      makeOrganization() as unknown as Awaited<
-        ReturnType<typeof prisma.organization.findUnique>
-      >
-    )
+  it('forwards organizationId to the use case', async () => {
+    mockExecute.mockResolvedValue({
+      id: TEST_ORG_ID,
+      name: 'Corretora Exemplo',
+      slug: 'corretora-exemplo',
+      logo: null,
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+    })
     await injectAs(app, { method: 'GET', url: '/api/v1/organization' })
-    expect(vi.mocked(prisma.organization.findUnique)).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: TEST_ORG_ID } })
-    )
+    expect(mockExecute).toHaveBeenCalledWith(TEST_ORG_ID)
   })
 })

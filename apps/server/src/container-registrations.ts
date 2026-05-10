@@ -65,12 +65,16 @@ import {
   PrismaContactRepository,
   PrismaDocumentRepository,
   PrismaEndorsementRepository,
+  GetOrganization,
   GlobalSearch,
   ListAuditLogs,
   ListUserTenants,
   PrismaAuditLogRepository,
   PrismaInsurerRepository,
+  PrismaOrganizationRepository,
   PrismaSearchRepository,
+  UpdateOrganization,
+  UploadOrganizationLogo,
   PrismaInvitationRepository,
   PrismaMemberRepository,
   PrismaNotificationRepository,
@@ -101,10 +105,10 @@ import { env } from '@repo/env'
 import type { Redis } from 'ioredis'
 
 export function registerDependencies(redis: Redis | null = null) {
-  if (redis) {
-    const cacheService = new RedisCacheService(redis)
-    container.register('CacheService', { useValue: cacheService })
-  }
+  const cacheService = redis
+    ? new RedisCacheService(redis)
+    : new NoopCacheService()
+  container.register('CacheService', { useValue: cacheService })
   const cepCache = redis ? new RedisCacheService(redis) : new NoopCacheService()
   container.register('CepCacheService', { useValue: cepCache })
   container.register('CepLookupProvider', { useClass: ViaCepProvider })
@@ -128,6 +132,7 @@ export function registerDependencies(redis: Redis | null = null) {
   const documentRepo = new PrismaDocumentRepository(prismaAdmin)
   const auditLogRepo = new PrismaAuditLogRepository(prismaAdmin)
   const searchRepo = new PrismaSearchRepository(prismaAdmin)
+  const organizationRepo = new PrismaOrganizationRepository(prismaAdmin)
   const insurerRepo = new PrismaInsurerRepository(prismaAdmin)
   const commissionRepo = new PrismaCommissionRepository(prismaAdmin)
   const storageProvider =
@@ -148,6 +153,7 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register('DocumentRepository', { useValue: documentRepo })
   container.register('AuditLogRepository', { useValue: auditLogRepo })
   container.register('SearchRepository', { useValue: searchRepo })
+  container.register('OrganizationRepository', { useValue: organizationRepo })
   container.register('InsurerRepository', { useValue: insurerRepo })
   container.register('CommissionRepository', { useValue: commissionRepo })
   container.register('StorageProvider', { useValue: storageProvider })
@@ -314,6 +320,22 @@ export function registerDependencies(redis: Redis | null = null) {
   })
   container.register(GlobalSearch, {
     useFactory: () => new GlobalSearch(searchRepo),
+  })
+  container.register(GetOrganization, {
+    useFactory: () =>
+      new GetOrganization(organizationRepo, cacheService, storageProvider),
+  })
+  container.register(UpdateOrganization, {
+    useFactory: () =>
+      new UpdateOrganization(organizationRepo, cacheService, storageProvider),
+  })
+  container.register(UploadOrganizationLogo, {
+    useFactory: () =>
+      new UploadOrganizationLogo(
+        organizationRepo,
+        cacheService,
+        storageProvider
+      ),
   })
   container.register(CreateInsurer, {
     useFactory: () => new CreateInsurer(insurerRepo),

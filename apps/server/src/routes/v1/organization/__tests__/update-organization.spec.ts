@@ -11,24 +11,23 @@ import {
   createTestApp,
   injectAs,
   setTestContext,
+  TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
-import { makeOrganization } from '../../../../__tests__/helpers/factories.js'
+import {
+  mockResolve,
+  mockResolveError,
+} from '../../../../__tests__/helpers/mock-use-case.js'
 import { updateOrganizationRoute } from '../update-organization.js'
 
-vi.mock('@repo/db', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('@repo/db')>()
+vi.mock('@repo/core', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('@repo/core')>()
   return {
     ...mod,
-    prisma: {
-      organization: {
-        findFirst: vi.fn(),
-        findUnique: vi.fn(),
-        update: vi.fn(),
-      },
-    },
+    container: { resolve: vi.fn() },
   }
 })
 
+const mockExecute = vi.fn()
 let app: Awaited<ReturnType<typeof createTestApp>>
 
 beforeAll(async () => {
@@ -38,28 +37,23 @@ afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
+  mockResolve(mockExecute)
 })
 
 const validBody = { name: 'Corretora Atualizada', slug: 'corretora-atualizada' }
 
 describe('PUT /api/v1/organization', () => {
   it('returns 200 with updated organization data', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.organization.findFirst).mockResolvedValue(null)
-    vi.mocked(prisma.organization.findUnique).mockResolvedValue(
-      makeOrganization({
+    mockExecute.mockResolvedValue({
+      view: {
+        id: TEST_ORG_ID,
         name: 'Corretora Atualizada',
         slug: 'corretora-atualizada',
-      }) as unknown as Awaited<
-        ReturnType<typeof prisma.organization.findUnique>
-      >
-    )
-    vi.mocked(prisma.organization.update).mockResolvedValue(
-      makeOrganization({
-        name: 'Corretora Atualizada',
-        slug: 'corretora-atualizada',
-      }) as unknown as Awaited<ReturnType<typeof prisma.organization.update>>
-    )
+        logo: null,
+        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      },
+      before: { name: 'Corretora Original', slug: 'corretora-original' },
+    })
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/organization',
@@ -72,12 +66,7 @@ describe('PUT /api/v1/organization', () => {
     expect(body.data.slug).toBe('corretora-atualizada')
   })
   it('returns 409 when slug is taken by another organization', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.organization.findFirst).mockResolvedValue(
-      makeOrganization({ id: 'other-org-id' }) as unknown as Awaited<
-        ReturnType<typeof prisma.organization.findFirst>
-      >
-    )
+    mockResolveError('SLUG_CONFLICT', 'Slug already taken')
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/organization',
@@ -111,5 +100,27 @@ describe('PUT /api/v1/organization', () => {
       headers: { 'content-type': 'text/plain' },
     })
     expect(response.statusCode).toBe(400)
+  })
+  it('forwards organizationId, name and slug to the use case', async () => {
+    mockExecute.mockResolvedValue({
+      view: {
+        id: TEST_ORG_ID,
+        name: validBody.name,
+        slug: validBody.slug,
+        logo: null,
+        createdAt: new Date(),
+      },
+      before: { name: 'old', slug: 'old' },
+    })
+    await injectAs(app, {
+      method: 'PUT',
+      url: '/api/v1/organization',
+      payload: validBody,
+    })
+    expect(mockExecute).toHaveBeenCalledWith({
+      organizationId: TEST_ORG_ID,
+      name: validBody.name,
+      slug: validBody.slug,
+    })
   })
 })

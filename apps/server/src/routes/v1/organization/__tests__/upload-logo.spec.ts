@@ -12,39 +12,24 @@ import type { FastifyInstance } from 'fastify'
 import {
   createTestApp,
   setTestContext,
+  TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
-import { makeUpdatedOrganization } from '../../../../__tests__/helpers/factories.js'
+import {
+  mockResolve,
+  mockResolveError,
+} from '../../../../__tests__/helpers/mock-use-case.js'
 import { buildMultipartBody } from '../../../../__tests__/helpers/multipart.js'
 import { uploadLogoRoute } from '../upload-logo.js'
-
-vi.mock('@repo/db', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('@repo/db')>()
-  return {
-    ...mod,
-    prisma: {
-      organization: {
-        findUnique: vi.fn(),
-        update: vi.fn(),
-      },
-    },
-  }
-})
 
 vi.mock('@repo/core', async (importOriginal) => {
   const mod = await importOriginal<typeof import('@repo/core')>()
   return {
     ...mod,
-    container: {
-      resolve: vi.fn().mockReturnValue({
-        delete: vi.fn().mockResolvedValue(undefined),
-        upload: vi.fn().mockResolvedValue(undefined),
-        getSignedUrl: vi
-          .fn()
-          .mockResolvedValue('https://cdn.example.com/logo.png'),
-      }),
-    },
+    container: { resolve: vi.fn() },
   }
 })
+
+const mockExecute = vi.fn()
 
 async function registerRoute(app: FastifyInstance) {
   await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } })
@@ -60,6 +45,7 @@ afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
+  mockResolve(mockExecute)
 })
 
 describe('PUT /api/v1/organization/logo', () => {
@@ -74,17 +60,16 @@ describe('PUT /api/v1/organization/logo', () => {
     expect(response.statusCode).toBeLessThan(500)
   })
   it('returns 200 with logo URL on successful PNG upload', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.organization.findUnique).mockResolvedValue(
-      makeUpdatedOrganization({ logo: null }) as unknown as Awaited<
-        ReturnType<typeof prisma.organization.findUnique>
-      >
-    )
-    vi.mocked(prisma.organization.update).mockResolvedValue(
-      makeUpdatedOrganization() as unknown as Awaited<
-        ReturnType<typeof prisma.organization.update>
-      >
-    )
+    mockExecute.mockResolvedValue({
+      view: {
+        id: TEST_ORG_ID,
+        name: 'Corretora Atualizada',
+        slug: 'corretora-atualizada',
+        logo: 'https://cdn.example.com/logo.png',
+        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      },
+      previousLogoKey: null,
+    })
     const boundary = '----TestBoundary1234567890'
     const imageContent = Buffer.from('fake-png-image-data')
     const body = buildMultipartBody(
@@ -109,6 +94,7 @@ describe('PUT /api/v1/organization/logo', () => {
     expect(json.data.logo).toBe('https://cdn.example.com/logo.png')
   })
   it('returns 400 when file type is not an allowed image type', async () => {
+    mockResolveError('INVALID_LOGO_FILE_TYPE', 'Unsupported logo MIME type')
     const boundary = '----TestBoundary9999'
     const fileContent = Buffer.from('console.log("malicious")')
     const body = buildMultipartBody(
@@ -129,6 +115,6 @@ describe('PUT /api/v1/organization/logo', () => {
     })
     expect(response.statusCode).toBe(400)
     const json = response.json()
-    expect(json.error.code).toBe('INVALID_FILE_TYPE')
+    expect(json.error.code).toBe('INVALID_LOGO_FILE_TYPE')
   })
 })
