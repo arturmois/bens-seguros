@@ -68,6 +68,7 @@ export function defineAbilitiesFor(role: Role): AppAbility {
       break
     case 'MANAGER':
       can('manage', OPERATIONAL_SUBJECTS)
+      cannot('lgpd-delete', 'Client')
       can('manage', 'Commission')
       can('approve', 'Commission')
       can('read', 'Notification')

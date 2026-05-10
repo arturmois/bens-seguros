@@ -16,17 +16,8 @@ export function lgpdDeleteClientRoute(app: FastifyInstance) {
       operationId: 'lgpdDeleteClient',
       params: idParamSchema,
     },
-    preHandler: [requireAbility('delete', 'Client')],
+    preHandler: [requireAbility('lgpd-delete', 'Client')],
     handler: async (request, reply) => {
-      if (request.role !== 'OWNER' && request.role !== 'ADMIN') {
-        return reply.status(403).send({
-          success: false,
-          error: {
-            code: 'FORBIDDEN',
-            message: 'Apenas OWNER e ADMIN podem executar exclusão LGPD',
-          },
-        })
-      }
       const useCase = container.resolve(LgpdDeleteClient)
       try {
         await useCase.execute(request.params.id, request.organizationId!)

@@ -41,4 +41,25 @@ describe('CASL Abilities', () => {
     expect(ability.can('update', 'Client')).toBe(false)
     expect(ability.can('delete', 'Client')).toBe(false)
   })
+  it('only OWNER and ADMIN can lgpd-delete Client', () => {
+    expect(defineAbilitiesFor('OWNER').can('lgpd-delete', 'Client')).toBe(true)
+    expect(defineAbilitiesFor('ADMIN').can('lgpd-delete', 'Client')).toBe(true)
+    expect(defineAbilitiesFor('MANAGER').can('lgpd-delete', 'Client')).toBe(
+      false
+    )
+    expect(defineAbilitiesFor('COMMERCIAL').can('lgpd-delete', 'Client')).toBe(
+      false
+    )
+    expect(defineAbilitiesFor('VIEWER').can('lgpd-delete', 'Client')).toBe(
+      false
+    )
+  })
+  it('MANAGER retains other Client permissions despite lgpd-delete denial', () => {
+    const ability = defineAbilitiesFor('MANAGER')
+    expect(ability.can('create', 'Client')).toBe(true)
+    expect(ability.can('read', 'Client')).toBe(true)
+    expect(ability.can('update', 'Client')).toBe(true)
+    expect(ability.can('delete', 'Client')).toBe(true)
+    expect(ability.can('lgpd-delete', 'Client')).toBe(false)
+  })
 })

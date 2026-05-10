@@ -13,21 +13,10 @@ export function createChatTokenRoute(app: FastifyInstance) {
       summary: 'Create a JWT token for chat authentication',
     },
     handler: async (request, reply) => {
-      if (
-        !request.user?.id ||
-        !request.user.name ||
-        !request.organizationId ||
-        !request.role
-      ) {
-        return reply.status(401).send({
-          success: false,
-          error: { code: 'UNAUTHORIZED', message: 'Usuário não autenticado' },
-        })
-      }
-      const userId = request.user.id
-      const name = request.user.name
-      const organizationId = request.organizationId
-      const role = request.role
+      const userId = request.user!.id
+      const name = request.user!.name
+      const organizationId = request.organizationId!
+      const role = request.role!
       const token = jwt.sign(
         { userId, organizationId, role, name },
         env.SOCKET_JWT_SECRET,

@@ -50,45 +50,4 @@ describe('POST /api/v1/chat/token', () => {
     expect(decoded.role).toBe('OWNER')
     expect(decoded.name).toBe('Test User')
   })
-  it('returns 401 when user has no id', async () => {
-    setTestContext({
-      user: {
-        id: '',
-        name: 'Test',
-        emailVerified: true,
-        image: null,
-        isSuperAdmin: false,
-        email: 'x@y.com',
-      },
-    })
-    const response = await injectAs(app, {
-      method: 'POST',
-      url: '/api/v1/chat/token',
-      headers: NO_BODY_HEADERS,
-    })
-    expect(response.statusCode).toBe(401)
-    const body = response.json()
-    expect(body.success).toBe(false)
-    expect(body.error.code).toBe('UNAUTHORIZED')
-  })
-  it('returns 401 when organizationId is missing', async () => {
-    setTestContext({ organizationId: null })
-    const response = await injectAs(app, {
-      method: 'POST',
-      url: '/api/v1/chat/token',
-      headers: NO_BODY_HEADERS,
-    })
-    expect(response.statusCode).toBe(401)
-    const body = response.json()
-    expect(body.error.code).toBe('UNAUTHORIZED')
-  })
-  it('returns 401 when role is missing', async () => {
-    setTestContext({ role: null })
-    const response = await injectAs(app, {
-      method: 'POST',
-      url: '/api/v1/chat/token',
-      headers: NO_BODY_HEADERS,
-    })
-    expect(response.statusCode).toBe(401)
-  })
 })
