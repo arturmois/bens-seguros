@@ -24,12 +24,6 @@
 | `DEPLOY-TUTORIAL.md`     | Tutorial passo a passo de deploy em producao                      |
 | `MULTI-CHANNEL-SETUP.md` | Configuracao dos canais: Web Chat, Messenger, Instagram, WhatsApp |
 
-## Auditoria
-
-| Documento                   | Descricao                                                     |
-| --------------------------- | ------------------------------------------------------------- |
-| `AUDITORIA-PRE-PRODUCAO.md` | Auditoria pre-producao (21 items P3 pendentes pos-lancamento) |
-
 ## Backlog e Planejamento
 
 Tudo em `plans/`:
