@@ -2,7 +2,7 @@ import { inject, injectable } from 'tsyringe'
 import { Contact, type CreateContactInput } from '../domain/contact.js'
 import type {
   ContactRepository,
-  ContactData,
+  ContactWithStage,
 } from '../domain/contact-repository.js'
 
 @injectable()
@@ -12,10 +12,10 @@ export class CreateContact {
     private readonly contactRepo: ContactRepository
   ) {}
 
-  async execute(input: CreateContactInput): Promise<ContactData> {
+  async execute(input: CreateContactInput): Promise<ContactWithStage> {
     const contact = Contact.create(input)
     const json = contact.toJSON()
-    return this.contactRepo.save({
+    const saved = await this.contactRepo.save({
       id: json.id,
       organizationId: json.organizationId,
       name: json.name,
@@ -30,5 +30,6 @@ export class CreateContact {
       consentLgpd: json.consentLgpd,
       birthDate: json.birthDate,
     })
+    return { ...saved, stage: 'LEAD', activePolicyCount: 0 }
   }
 }

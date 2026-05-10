@@ -41,10 +41,7 @@ export function createContactRoute(app: FastifyInstance) {
           birthDate: request.body.birthDate,
           socialMedia: request.body.socialMedia,
         })
-        return reply.status(201).send({
-          success: true,
-          data: { ...contact, stage: 'LEAD', activePolicyCount: 0 },
-        })
+        return reply.status(201).send({ success: true, data: contact })
       } catch (error) {
         return handleDomainError(error, reply)
       }

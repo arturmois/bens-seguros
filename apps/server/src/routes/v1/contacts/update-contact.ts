@@ -1,4 +1,4 @@
-import { container, GetContact, UpdateContact } from '@repo/core'
+import { container, UpdateContact } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
@@ -42,12 +42,7 @@ export function updateContactRoute(app: FastifyInstance) {
           socialMedia: request.body.socialMedia,
           salespersonId: request.body.salespersonId,
         })
-        const getUseCase = container.resolve(GetContact)
-        const withStage = await getUseCase.execute({
-          id: updated.id,
-          organizationId: updated.organizationId,
-        })
-        return reply.send({ success: true, data: withStage })
+        return reply.send({ success: true, data: updated })
       } catch (error) {
         return handleDomainError(error, reply)
       }

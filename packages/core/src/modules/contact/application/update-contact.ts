@@ -3,7 +3,7 @@ import { Contact } from '../domain/contact.js'
 import { ContactErrors } from '../domain/contact-errors.js'
 import type {
   ContactRepository,
-  ContactData,
+  ContactWithStage,
 } from '../domain/contact-repository.js'
 
 export interface UpdateContactInput {
@@ -25,7 +25,7 @@ export class UpdateContact {
     @inject('ContactRepository') private readonly repo: ContactRepository
   ) {}
 
-  async execute(input: UpdateContactInput): Promise<ContactData> {
+  async execute(input: UpdateContactInput): Promise<ContactWithStage> {
     const found = await this.repo.findById(input.id, input.organizationId)
     if (!found) throw ContactErrors.notFound(input.id)
     const restored = Contact.restore(found)
@@ -40,7 +40,7 @@ export class UpdateContact {
       salespersonId: input.salespersonId,
     })
     const json = restored.toJSON()
-    return this.repo.update(input.id, input.organizationId, {
+    await this.repo.update(input.id, input.organizationId, {
       name: json.name,
       phone: json.phone,
       email: json.email,
@@ -50,5 +50,11 @@ export class UpdateContact {
       birthDate: json.birthDate,
       salespersonId: json.salespersonId,
     })
+    const enriched = await this.repo.findByIdWithStage(
+      input.id,
+      input.organizationId
+    )
+    if (!enriched) throw ContactErrors.notFound(input.id)
+    return enriched
   }
 }
