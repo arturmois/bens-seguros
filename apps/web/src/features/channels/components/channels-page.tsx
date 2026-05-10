@@ -1,33 +1,24 @@
 'use client'
 
-import { Globe, Plus } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { toast } from 'sonner'
+import { useCallback, useState } from 'react'
 
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/menu'
-
-import { ChannelIcon } from '@/features/chat/components/channel-icon'
 import { useOrgs } from '@/features/org/hooks/use-orgs'
 import { hasPermission } from '@/lib/permissions'
+
 import { useChannels } from '../hooks/use-channels'
 import { useMetaOAuth } from '../hooks/use-meta-oauth'
+import { useMetaOAuthRedirect } from '../hooks/use-meta-oauth-redirect'
 import type { ChannelData } from '../types'
 import { ChannelFormDialog } from './channel-form-dialog'
 import { ChannelQrDialog } from './channel-qr-dialog'
 import { ChannelsTable } from './channels-table'
+import { ConnectChannelMenu } from './connect-channel-menu'
 import { DeactivateChannelDialog } from './deactivate-channel-dialog'
 import { EmbedCodeDialog } from './embed-code-dialog'
 import { MetaAssetSelect } from './meta-asset-select'
@@ -54,36 +45,22 @@ export function ChannelsPage() {
   const [assetSelectOpen, setAssetSelectOpen] = useState(false)
   const [whatsAppMethodOpen, setWhatsAppMethodOpen] = useState(false)
   const [embeddedSignupOpen, setEmbeddedSignupOpen] = useState(false)
-  const searchParams = useSearchParams()
   const messengerOAuth = useMetaOAuth()
   const instagramOAuth = useMetaOAuth()
   const activeOAuth =
     activeOAuthChannel === 'MESSENGER' ? messengerOAuth : instagramOAuth
-  const hasProcessedRef = useRef(false)
-  useEffect(() => {
-    if (hasProcessedRef.current) return
-    const metaSession = searchParams.get('meta_session')
-    const metaChannelType = searchParams.get('meta_channel_type') as
-      | 'MESSENGER'
-      | 'INSTAGRAM'
-      | null
-    const metaError = searchParams.get('meta_error')
-    if (metaError) {
-      hasProcessedRef.current = true
-      toast.error(`Erro na autenticação Meta: ${metaError}`)
-      window.history.replaceState({}, '', '/settings?section=canais')
-      return
-    }
-    if (metaSession && metaChannelType) {
-      hasProcessedRef.current = true
-      const oauth =
-        metaChannelType === 'MESSENGER' ? messengerOAuth : instagramOAuth
-      oauth.handleRedirectSession(metaSession)
-      setActiveOAuthChannel(metaChannelType)
-      setAssetSelectOpen(true)
-      window.history.replaceState({}, '', '/settings?section=canais')
-    }
-  }, [searchParams, messengerOAuth, instagramOAuth])
+  useMetaOAuthRedirect({
+    onSuccess: useCallback(
+      (session, channelType) => {
+        const oauth =
+          channelType === 'MESSENGER' ? messengerOAuth : instagramOAuth
+        oauth.handleRedirectSession(session)
+        setActiveOAuthChannel(channelType)
+        setAssetSelectOpen(true)
+      },
+      [messengerOAuth, instagramOAuth]
+    ),
+  })
   const handleEdit = useCallback((channel: ChannelData) => {
     setEditingChannel(channel)
     setFormOpen(true)
@@ -119,22 +96,10 @@ export function ChannelsPage() {
     })
   }
   const headerAction = canManage ? (
-    <DropdownMenu>
-      <DropdownMenuTrigger render={<Button />}>
-        <Plus className="size-4" />
-        Conectar canal
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setWhatsAppMethodOpen(true)}>
-          <ChannelIcon channelType="WHATSAPP" size={16} />
-          WhatsApp
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleWebChatConnect}>
-          <Globe className="size-4" />
-          Web Chat
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <ConnectChannelMenu
+      onWhatsAppClick={() => setWhatsAppMethodOpen(true)}
+      onWebChatClick={handleWebChatConnect}
+    />
   ) : null
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-6">
