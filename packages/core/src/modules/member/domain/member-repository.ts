@@ -44,4 +44,5 @@ export interface MemberRepository {
     organizationId: string,
     options: { limit: number; cursor?: string }
   ): Promise<MemberListPage>
+  existsActiveByEmail(organizationId: string, email: string): Promise<boolean>
 }

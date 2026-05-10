@@ -11,25 +11,36 @@ import {
   createTestApp,
   injectAs,
   setTestContext,
+  TEST_ORG_ID,
+  TEST_USER_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
 import {
-  makeCreatedInvitation,
-  makeMinimalMember,
-  makeInvitation,
-} from '../../../../__tests__/helpers/factories.js'
+  mockResolve,
+  mockResolveError,
+} from '../../../../__tests__/helpers/mock-use-case.js'
 import { createInvitationRoute } from '../create-invitation.js'
 
-vi.mock('@repo/db', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('@repo/db')>()
+vi.mock('@repo/core', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('@repo/core')>()
   return {
     ...mod,
-    prisma: {
-      member: { findFirst: vi.fn() },
-      invitation: { findFirst: vi.fn(), create: vi.fn() },
-      organization: { findUnique: vi.fn() },
-    },
+    container: { resolve: vi.fn() },
   }
 })
+
+const mockExecute = vi.fn()
+
+const sampleInvitation = {
+  id: 'inv-1',
+  email: 'newmember@user.com',
+  organizationId: TEST_ORG_ID,
+  role: 'COMMERCIAL',
+  status: 'pending',
+  expiresAt: new Date('2026-12-31'),
+  inviterId: TEST_USER_ID,
+  createdAt: new Date('2026-01-01'),
+  updatedAt: new Date('2026-01-01'),
+}
 
 let app: Awaited<ReturnType<typeof createTestApp>>
 
@@ -40,20 +51,14 @@ afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext({ role: 'OWNER' })
+  mockResolve(mockExecute)
 })
 
 const validBody = { email: 'newmember@user.com', role: 'COMMERCIAL' }
 
 describe('POST /api/v1/invitations', () => {
   it('returns 201 with created invitation on success', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findFirst).mockResolvedValue(null)
-    vi.mocked(prisma.invitation.findFirst).mockResolvedValue(null)
-    vi.mocked(prisma.invitation.create).mockResolvedValue(
-      makeCreatedInvitation() as unknown as Awaited<
-        ReturnType<typeof prisma.invitation.create>
-      >
-    )
+    mockExecute.mockResolvedValue(sampleInvitation)
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations',
@@ -62,57 +67,37 @@ describe('POST /api/v1/invitations', () => {
     expect(response.statusCode).toBe(201)
     const body = response.json()
     expect(body.success).toBe(true)
+    expect(body.data.id).toBe('inv-1')
     expect(body.data.email).toBe('newmember@user.com')
-    expect(body.data.role).toBe('COMMERCIAL')
     expect(body.data.status).toBe('pending')
   })
-  it('returns 409 when email is already an active member', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findFirst).mockResolvedValue(
-      makeMinimalMember({ id: 'member-id-001' }) as unknown as Awaited<
-        ReturnType<typeof prisma.member.findFirst>
-      >
-    )
+  it('returns 409 when email already has an active member or invitation', async () => {
+    mockResolveError('DUPLICATE_INVITATION', 'Already invited')
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations',
       payload: validBody,
     })
     expect(response.statusCode).toBe(409)
-    const body = response.json()
-    expect(body.success).toBe(false)
-    expect(body.error.code).toBe('DUPLICATE_INVITATION')
+    expect(response.json().error.code).toBe('DUPLICATE_INVITATION')
   })
-  it('returns 409 when there is already a pending invitation for the email', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findFirst).mockResolvedValue(null)
-    vi.mocked(prisma.invitation.findFirst).mockResolvedValue(
-      makeInvitation({ id: 'existing-invite-id' }) as unknown as Awaited<
-        ReturnType<typeof prisma.invitation.findFirst>
-      >
-    )
+  it('returns 403 when caller role cannot manage target role', async () => {
+    mockResolveError('ROLE_HIERARCHY_VIOLATION', 'Insufficient role')
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/invitations',
       payload: validBody,
-    })
-    expect(response.statusCode).toBe(409)
-    const body = response.json()
-    expect(body.error.code).toBe('DUPLICATE_INVITATION')
-  })
-  it('returns 403 when caller tries to invite someone with equal or higher role', async () => {
-    setTestContext({ role: 'VIEWER' })
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findFirst).mockResolvedValue(null)
-    vi.mocked(prisma.invitation.findFirst).mockResolvedValue(null)
-    const response = await injectAs(app, {
-      method: 'POST',
-      url: '/api/v1/invitations',
-      payload: { email: 'newmember@user.com', role: 'ADMIN' },
     })
     expect(response.statusCode).toBe(403)
-    const body = response.json()
-    expect(body.error.code).toBe('ROLE_HIERARCHY_VIOLATION')
+    expect(response.json().error.code).toBe('ROLE_HIERARCHY_VIOLATION')
+  })
+  it('returns 400 when role is invalid', async () => {
+    const response = await injectAs(app, {
+      method: 'POST',
+      url: '/api/v1/invitations',
+      payload: { email: 'a@b.com', role: 'OWNER' },
+    })
+    expect(response.statusCode).toBe(400)
   })
   it('returns 400 when email is invalid', async () => {
     const response = await injectAs(app, {
@@ -121,5 +106,21 @@ describe('POST /api/v1/invitations', () => {
       payload: { email: 'not-an-email', role: 'COMMERCIAL' },
     })
     expect(response.statusCode).toBe(400)
+  })
+  it('forwards organizationId, callerRole, inviterUserId, inviterName to the use case', async () => {
+    mockExecute.mockResolvedValue(sampleInvitation)
+    await injectAs(app, {
+      method: 'POST',
+      url: '/api/v1/invitations',
+      payload: validBody,
+    })
+    expect(mockExecute).toHaveBeenCalledWith({
+      organizationId: TEST_ORG_ID,
+      email: 'newmember@user.com',
+      role: 'COMMERCIAL',
+      callerRole: 'OWNER',
+      inviterUserId: TEST_USER_ID,
+      inviterName: 'Test User',
+    })
   })
 })

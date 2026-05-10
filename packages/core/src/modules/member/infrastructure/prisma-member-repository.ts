@@ -1,9 +1,9 @@
-import { injectable, inject } from 'tsyringe'
 import type { PrismaClient, Role } from '@repo/db'
+import { inject, injectable } from 'tsyringe'
 import type {
   MemberListPage,
-  MemberRepository,
   MemberRecord,
+  MemberRepository,
   OrganizationMembership,
 } from '../domain/member-repository.js'
 import { MEMBER_ROLES, type MemberRole } from '../domain/member-roles.js'
@@ -88,6 +88,17 @@ export class PrismaMemberRepository implements MemberRepository {
       logo: row.organization.logo,
       role: row.role,
     }))
+  }
+
+  async existsActiveByEmail(
+    organizationId: string,
+    email: string
+  ): Promise<boolean> {
+    const found = await this.prisma.member.findFirst({
+      where: { organizationId, active: true, user: { email } },
+      select: { id: true },
+    })
+    return found !== null
   }
 
   async listActive(

@@ -11,6 +11,7 @@ function makeMocks() {
     deactivate: vi.fn(),
     listOrganizationsForUser: vi.fn(),
     listActive: vi.fn(),
+    existsActiveByEmail: vi.fn(),
   }
   const cache: CacheService = {
     get: vi.fn(),

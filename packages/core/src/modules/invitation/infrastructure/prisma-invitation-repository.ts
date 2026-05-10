@@ -1,5 +1,6 @@
 import type { PrismaClient, Role } from '@repo/db'
 import type {
+  CreateInvitationInput,
   InvitationDetail,
   InvitationListPage,
   InvitationPublicView,
@@ -123,6 +124,46 @@ export class PrismaInvitationRepository implements InvitationRepository {
       inviterId: updated.inviterId,
       createdAt: updated.createdAt,
       updatedAt: updated.updatedAt,
+    }
+  }
+
+  async existsActiveByEmail(
+    organizationId: string,
+    email: string
+  ): Promise<boolean> {
+    const found = await this.prisma.invitation.findFirst({
+      where: {
+        organizationId,
+        email,
+        status: 'pending',
+        expiresAt: { gt: new Date() },
+      },
+      select: { id: true },
+    })
+    return found !== null
+  }
+
+  async create(input: CreateInvitationInput): Promise<InvitationDetail> {
+    const row = await this.prisma.invitation.create({
+      data: {
+        organizationId: input.organizationId,
+        email: input.email,
+        role: toRole(input.role),
+        status: 'pending',
+        expiresAt: input.expiresAt,
+        inviterId: input.inviterId,
+      },
+    })
+    return {
+      id: row.id,
+      email: row.email,
+      organizationId: row.organizationId,
+      role: row.role,
+      status: row.status,
+      expiresAt: row.expiresAt,
+      inviterId: row.inviterId,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
     }
   }
 

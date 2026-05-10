@@ -53,4 +53,14 @@ export interface InvitationRepository {
     organizationId: string
   ): Promise<InvitationDetail | null>
   findByIdPublic(id: string): Promise<InvitationPublicView | null>
+  existsActiveByEmail(organizationId: string, email: string): Promise<boolean>
+  create(input: CreateInvitationInput): Promise<InvitationDetail>
+}
+
+export interface CreateInvitationInput {
+  organizationId: string
+  email: string
+  role: string
+  inviterId: string
+  expiresAt: Date
 }

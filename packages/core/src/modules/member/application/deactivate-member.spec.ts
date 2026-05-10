@@ -27,6 +27,7 @@ function createMockRepo(): MemberRepository {
     deactivate: vi.fn(),
     listOrganizationsForUser: vi.fn(),
     listActive: vi.fn(),
+    existsActiveByEmail: vi.fn(),
   }
 }
 

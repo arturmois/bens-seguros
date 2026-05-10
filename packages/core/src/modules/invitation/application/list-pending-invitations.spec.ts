@@ -10,6 +10,8 @@ function createMockRepo(): InvitationRepository {
     listPending: vi.fn(),
     cancelPending: vi.fn(),
     findByIdPublic: vi.fn(),
+    existsActiveByEmail: vi.fn(),
+    create: vi.fn(),
   }
 }
 
