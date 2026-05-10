@@ -33,7 +33,7 @@ export function listMembersRoute(app: FastifyInstance) {
           email: item.email,
           role: item.role,
           active: item.active,
-          createdAt: item.createdAt.toISOString(),
+          createdAt: item.createdAt,
         })),
         meta: { total: result.total, nextCursor: result.nextCursor },
       })

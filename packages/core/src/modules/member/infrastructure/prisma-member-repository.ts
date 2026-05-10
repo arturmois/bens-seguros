@@ -166,7 +166,7 @@ export class PrismaMemberRepository implements MemberRepository {
       email: row.user.email,
       role: row.role,
       active: row.active,
-      createdAt: row.createdAt,
+      createdAt: row.createdAt.toISOString(),
     }))
     const nextCursor = hasMore ? (items.at(-1)?.id ?? null) : null
     return { items, total, nextCursor }

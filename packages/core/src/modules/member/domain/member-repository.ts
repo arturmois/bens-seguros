@@ -27,7 +27,7 @@ export interface MemberListItem {
   readonly email: string
   readonly role: string
   readonly active: boolean
-  readonly createdAt: Date
+  readonly createdAt: string
 }
 
 export interface MemberListPage {
