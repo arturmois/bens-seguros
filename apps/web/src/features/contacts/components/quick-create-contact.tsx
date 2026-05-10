@@ -1,8 +1,9 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { InputMask } from '@react-input/mask'
 import { Loader2 } from 'lucide-react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { FormField } from '@/components/shared/form-field'
@@ -17,12 +18,19 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { PHONE_MASK } from '@/lib/masks'
 
 import { useCreateContact } from '../hooks/use-contacts'
 
 const QuickCreateSchema = z.object({
   name: z.string().trim().min(1, 'Nome é obrigatório'),
-  phone: z.string().trim().min(1, 'Telefone é obrigatório'),
+  phone: z
+    .string()
+    .trim()
+    .refine(
+      (value) => value.replace(/\D/g, '').length === 13,
+      'Telefone incompleto'
+    ),
 })
 type QuickCreateValues = z.infer<typeof QuickCreateSchema>
 
@@ -98,9 +106,19 @@ export function QuickCreateContact({
                 error={errors.phone?.message}
                 required
               >
-                <Input
-                  placeholder="+55 (11) 99999-9999"
-                  {...form.register('phone')}
+                <Controller
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <InputMask
+                      component={Input}
+                      mask={PHONE_MASK.mask}
+                      replacement={PHONE_MASK.replacement}
+                      placeholder="+55 (11) 99999-9999"
+                      {...field}
+                      value={String(field.value ?? '')}
+                    />
+                  )}
                 />
               </FormField>
             </form>
