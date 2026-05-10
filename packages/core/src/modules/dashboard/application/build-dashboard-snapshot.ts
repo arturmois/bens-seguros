@@ -1,4 +1,5 @@
 import { inject, injectable } from 'tsyringe'
+import { cacheAside } from '../../../shared/cache-aside.js'
 import type { CacheService } from '../../../shared/cache-service.js'
 import type { DashboardRepository } from '../domain/dashboard-repository.js'
 import type {
@@ -20,16 +21,11 @@ export class BuildDashboardSnapshot {
     organizationId: string,
     preset: DashboardPreset
   ): Promise<DashboardSnapshot> {
-    const cacheKey = `dashboard:stats:${organizationId}:${preset}`
-    const cached = await this.cache.get<DashboardSnapshot>(cacheKey)
-    if (cached) {
-      return cached
-    }
-    const snapshot = await this.dashboardRepo.getSnapshot(
-      organizationId,
-      preset
+    return cacheAside(
+      this.cache,
+      `dashboard:stats:${organizationId}:${preset}`,
+      DASHBOARD_CACHE_TTL_SECONDS,
+      () => this.dashboardRepo.getSnapshot(organizationId, preset)
     )
-    await this.cache.set(cacheKey, snapshot, DASHBOARD_CACHE_TTL_SECONDS)
-    return snapshot
   }
 }

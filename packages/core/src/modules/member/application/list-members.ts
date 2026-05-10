@@ -1,4 +1,5 @@
 import { inject, injectable } from 'tsyringe'
+import { cacheAside } from '../../../shared/cache-aside.js'
 import type { CacheService } from '../../../shared/cache-service.js'
 import type {
   MemberListPage,
@@ -27,15 +28,14 @@ export class ListMembers {
         cursor: input.cursor,
       })
     }
-    const cacheKey = `cache:${input.organizationId}:members`
-    const cached = await this.cache.get<MemberListPage>(cacheKey)
-    if (cached) {
-      return cached
-    }
-    const fresh = await this.memberRepo.listActive(input.organizationId, {
-      limit: input.limit,
-    })
-    await this.cache.set(cacheKey, fresh, MEMBER_LIST_CACHE_TTL_SECONDS)
-    return fresh
+    return cacheAside(
+      this.cache,
+      `cache:${input.organizationId}:members`,
+      MEMBER_LIST_CACHE_TTL_SECONDS,
+      () =>
+        this.memberRepo.listActive(input.organizationId, {
+          limit: input.limit,
+        })
+    )
   }
 }
