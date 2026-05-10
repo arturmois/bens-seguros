@@ -1,26 +1,27 @@
 'use client'
 
-import { Globe, MessageCircle } from 'lucide-react'
+import { Globe, Plus } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/menu'
 
 import { ChannelIcon } from '@/features/chat/components/channel-icon'
+import { useOrgs } from '@/features/org/hooks/use-orgs'
+import { hasPermission } from '@/lib/permissions'
 import { useChannels } from '../hooks/use-channels'
 import { useMetaOAuth } from '../hooks/use-meta-oauth'
 import type { ChannelData } from '../types'
@@ -36,6 +37,10 @@ import { WhatsAppMethodDialog } from './whatsapp-method-dialog'
 type ActiveOAuthChannel = 'MESSENGER' | 'INSTAGRAM' | null
 
 export function ChannelsPage() {
+  const { activeOrg } = useOrgs()
+  const role = activeOrg?.role ?? 'VIEWER'
+  const canManage = hasPermission(role, 'settings:manage')
+
   const { refetch } = useChannels()
 
   const [formOpen, setFormOpen] = useState(false)
@@ -59,7 +64,6 @@ export function ChannelsPage() {
   const activeOAuth =
     activeOAuthChannel === 'MESSENGER' ? messengerOAuth : instagramOAuth
 
-  // Handle redirect from Meta OAuth callback (GET /meta/auth/callback → redirect here with meta_session)
   const hasProcessedRef = useRef(false)
 
   useEffect(() => {
@@ -112,16 +116,6 @@ export function ChannelsPage() {
     setEmbedChannelId(channel.id)
   }, [])
 
-  function handleMessengerSuccess() {
-    setActiveOAuthChannel('MESSENGER')
-    setAssetSelectOpen(true)
-  }
-
-  function handleInstagramSuccess() {
-    setActiveOAuthChannel('INSTAGRAM')
-    setAssetSelectOpen(true)
-  }
-
   function handleAssetCancel() {
     setAssetSelectOpen(false)
     setActiveOAuthChannel(null)
@@ -141,8 +135,27 @@ export function ChannelsPage() {
     })
   }
 
+  const headerAction = canManage ? (
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<Button />}>
+        <Plus className="size-4" />
+        Conectar canal
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setWhatsAppMethodOpen(true)}>
+          <ChannelIcon channelType="WHATSAPP" size={16} />
+          WhatsApp
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleWebChatConnect}>
+          <Globe className="size-4" />
+          Web Chat
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  ) : null
+
   return (
-    <div className="space-y-8">
+    <div className="flex min-h-0 flex-1 flex-col gap-6">
       <div>
         <h2 className="text-lg font-semibold tracking-tight">Canais</h2>
         <p className="text-muted-foreground text-sm">
@@ -150,38 +163,13 @@ export function ChannelsPage() {
         </p>
       </div>
 
-      <section aria-labelledby="connect-channels-heading">
-        <h3
-          id="connect-channels-heading"
-          className="text-muted-foreground mb-4 text-sm font-medium"
-        >
-          Conectar novo canal
-        </h3>
-        <ChannelCards
-          onWhatsAppConnect={() => setWhatsAppMethodOpen(true)}
-          onMessengerSuccess={handleMessengerSuccess}
-          onInstagramSuccess={handleInstagramSuccess}
-          onWebChatConnect={handleWebChatConnect}
-        />
-      </section>
-
-      <section
-        aria-labelledby="connected-channels-heading"
-        className="flex min-h-0 flex-1 flex-col"
-      >
-        <h3
-          id="connected-channels-heading"
-          className="text-muted-foreground mb-4 text-sm font-medium"
-        >
-          Canais conectados
-        </h3>
-        <ChannelsTable
-          onEdit={handleEdit}
-          onQrCode={handleQrCode}
-          onEmbed={handleEmbed}
-          onDeactivate={handleDeactivate}
-        />
-      </section>
+      <ChannelsTable
+        onEdit={handleEdit}
+        onQrCode={handleQrCode}
+        onEmbed={handleEmbed}
+        onDeactivate={handleDeactivate}
+        headerAction={headerAction}
+      />
 
       <ChannelFormDialog
         open={formOpen}
@@ -251,96 +239,6 @@ export function ChannelsPage() {
           />
         </DialogContent>
       </Dialog>
-    </div>
-  )
-}
-
-interface ChannelCardsProps {
-  readonly onWhatsAppConnect: () => void
-  readonly onMessengerSuccess: () => void
-  readonly onInstagramSuccess: () => void
-  readonly onWebChatConnect: () => void
-}
-
-function ChannelCards({
-  onWhatsAppConnect,
-  // onMessengerSuccess,
-  // onInstagramSuccess,
-  onWebChatConnect,
-}: ChannelCardsProps) {
-  return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <Card>
-        <CardHeader>
-          <div className="mb-2">
-            <ChannelIcon channelType="WHATSAPP" size={28} />
-          </div>
-          <CardTitle className="text-base">WhatsApp</CardTitle>
-          <CardDescription>
-            Conecte via QR code ou código de pareamento.
-          </CardDescription>
-        </CardHeader>
-        <CardFooter>
-          <Button variant="outline" size="sm" onClick={onWhatsAppConnect}>
-            <ChannelIcon channelType="WHATSAPP" size={16} />
-            Conectar
-          </Button>
-        </CardFooter>
-      </Card>
-
-      {/* <Card>
-        <CardHeader>
-          <div className="mb-2">
-            <ChannelIcon channelType="MESSENGER" size={28} />
-          </div>
-          <CardTitle className="text-base">Messenger</CardTitle>
-          <CardDescription>
-            Conecte sua página do Facebook via OAuth.
-          </CardDescription>
-        </CardHeader>
-        <CardFooter>
-          <MetaOAuthButton
-            channelType="MESSENGER"
-            onSuccess={onMessengerSuccess}
-          />
-        </CardFooter>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="mb-2">
-            <ChannelIcon channelType="INSTAGRAM" size={28} />
-          </div>
-          <CardTitle className="text-base">Instagram</CardTitle>
-          <CardDescription>
-            Conecte sua conta do Instagram via OAuth.
-          </CardDescription>
-        </CardHeader>
-        <CardFooter>
-          <MetaOAuthButton
-            channelType="INSTAGRAM"
-            onSuccess={onInstagramSuccess}
-          />
-        </CardFooter>
-      </Card> */}
-
-      <Card>
-        <CardHeader>
-          <div className="mb-2">
-            <Globe size={28} className="text-muted-foreground" />
-          </div>
-          <CardTitle className="text-base">Web Chat</CardTitle>
-          <CardDescription>
-            Adicione um widget de chat ao seu site.
-          </CardDescription>
-        </CardHeader>
-        <CardFooter>
-          <Button variant="outline" size="sm" onClick={onWebChatConnect}>
-            <MessageCircle className="size-4" />
-            Configurar
-          </Button>
-        </CardFooter>
-      </Card>
     </div>
   )
 }

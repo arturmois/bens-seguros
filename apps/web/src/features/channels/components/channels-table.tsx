@@ -7,6 +7,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { MessageCircle } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 
 import { DataTable } from '@/components/shared/data-table'
@@ -34,6 +35,7 @@ interface ChannelsTableProps {
   readonly onQrCode: (channel: ChannelData) => void
   readonly onEmbed: (channel: ChannelData) => void
   readonly onDeactivate: (channel: ChannelData) => void
+  readonly headerAction?: ReactNode
 }
 
 export function ChannelsTable({
@@ -41,6 +43,7 @@ export function ChannelsTable({
   onQrCode,
   onEmbed,
   onDeactivate,
+  headerAction,
 }: ChannelsTableProps) {
   'use no memo'
   const { activeOrg } = useOrgs()
@@ -96,7 +99,7 @@ export function ChannelsTable({
     totalChannels === 0 ? 'Nenhum canal conectado' : 'Nenhum canal encontrado'
   const emptyDescription =
     totalChannels === 0
-      ? 'Conecte seu primeiro canal acima para começar a receber mensagens.'
+      ? 'Use o botão "Conectar canal" acima para começar a receber mensagens.'
       : 'Ajuste a busca ou os filtros para encontrar um canal existente.'
 
   if (isError) {
@@ -118,7 +121,9 @@ export function ChannelsTable({
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnToggle}
         hideableColumns={HIDEABLE_COLUMNS}
-      />
+      >
+        {headerAction}
+      </UnifiedFilterBar>
 
       <DataTable
         table={table}
