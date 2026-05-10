@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
+import type { MemberRepository } from '../../member/domain/member-repository.js'
+import type { NotificationDispatcher } from '../../notification/domain/notification-dispatcher.js'
 import {
   CommissionNotFoundError,
   InvalidCommissionTransitionError,
@@ -8,6 +10,24 @@ import type {
   CommissionRepository,
 } from '../domain/commission-repository.js'
 import { RejectCommission } from './reject-commission.js'
+
+function createMockMemberRepo(): MemberRepository {
+  return {
+    findById: vi.fn(),
+    countByRole: vi.fn(),
+    updateRole: vi.fn(),
+    deactivate: vi.fn(),
+    listOrganizationsForUser: vi.fn(),
+    listActive: vi.fn(),
+    existsActiveByEmail: vi.fn(),
+    findContactsByRoles: vi.fn(),
+    findContactByUserId: vi.fn().mockResolvedValue(null),
+  }
+}
+
+function createMockDispatcher(): NotificationDispatcher {
+  return { dispatch: vi.fn().mockResolvedValue(undefined) }
+}
 
 function makeCommissionData(
   overrides: Partial<CommissionData> = {}
@@ -57,7 +77,11 @@ describe('RejectCommission', () => {
   it('rejects commission from PENDING_COMMERCIAL status', async () => {
     const data = makeCommissionData({ status: 'PENDING_COMMERCIAL' })
     const repo = createMockRepo(data)
-    const useCase = new RejectCommission(repo)
+    const useCase = new RejectCommission(
+      repo,
+      createMockMemberRepo(),
+      createMockDispatcher()
+    )
     await useCase.execute({
       id: 'comm-1',
       organizationId: 'org-1',
@@ -73,7 +97,11 @@ describe('RejectCommission', () => {
   it('rejects commission from PENDING_ADMIN status', async () => {
     const data = makeCommissionData({ status: 'PENDING_ADMIN' })
     const repo = createMockRepo(data)
-    const useCase = new RejectCommission(repo)
+    const useCase = new RejectCommission(
+      repo,
+      createMockMemberRepo(),
+      createMockDispatcher()
+    )
     await useCase.execute({
       id: 'comm-1',
       organizationId: 'org-1',
@@ -86,7 +114,11 @@ describe('RejectCommission', () => {
   })
   it('throws CommissionNotFoundError when commission does not exist', async () => {
     const repo = createMockRepo(null)
-    const useCase = new RejectCommission(repo)
+    const useCase = new RejectCommission(
+      repo,
+      createMockMemberRepo(),
+      createMockDispatcher()
+    )
     await expect(
       useCase.execute({
         id: 'missing',
@@ -99,7 +131,11 @@ describe('RejectCommission', () => {
   it('throws InvalidCommissionTransitionError when commission is already PAID', async () => {
     const data = makeCommissionData({ status: 'PAID' })
     const repo = createMockRepo(data)
-    const useCase = new RejectCommission(repo)
+    const useCase = new RejectCommission(
+      repo,
+      createMockMemberRepo(),
+      createMockDispatcher()
+    )
     await expect(
       useCase.execute({
         id: 'comm-1',
@@ -112,7 +148,11 @@ describe('RejectCommission', () => {
   it('throws InvalidCommissionTransitionError when commission is APPROVED', async () => {
     const data = makeCommissionData({ status: 'APPROVED' })
     const repo = createMockRepo(data)
-    const useCase = new RejectCommission(repo)
+    const useCase = new RejectCommission(
+      repo,
+      createMockMemberRepo(),
+      createMockDispatcher()
+    )
     await expect(
       useCase.execute({
         id: 'comm-1',

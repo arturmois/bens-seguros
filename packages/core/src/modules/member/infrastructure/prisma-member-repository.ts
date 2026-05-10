@@ -123,6 +123,22 @@ export class PrismaMemberRepository implements MemberRepository {
     }))
   }
 
+  async findContactByUserId(
+    organizationId: string,
+    userId: string
+  ): Promise<MemberContact | null> {
+    const row = await this.prisma.member.findFirst({
+      where: { organizationId, userId, active: true },
+      include: { user: { select: { id: true, email: true, name: true } } },
+    })
+    if (!row) return null
+    return {
+      userId: row.userId,
+      email: row.user.email,
+      name: row.user.name,
+    }
+  }
+
   async listActive(
     organizationId: string,
     options: { limit: number; cursor?: string }

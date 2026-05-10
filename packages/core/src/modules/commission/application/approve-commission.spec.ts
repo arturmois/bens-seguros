@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
+import type { MemberRepository } from '../../member/domain/member-repository.js'
+import type { NotificationDispatcher } from '../../notification/domain/notification-dispatcher.js'
 import {
   CommissionNotFoundError,
   InvalidCommissionTransitionError,
@@ -9,6 +11,24 @@ import type {
 } from '../domain/commission-repository.js'
 import { ApproveCommissionAdmin } from './approve-commission-admin.js'
 import { ApproveCommissionCommercial } from './approve-commission-commercial.js'
+
+function createMockMemberRepo(): MemberRepository {
+  return {
+    findById: vi.fn(),
+    countByRole: vi.fn(),
+    updateRole: vi.fn(),
+    deactivate: vi.fn(),
+    listOrganizationsForUser: vi.fn(),
+    listActive: vi.fn(),
+    existsActiveByEmail: vi.fn(),
+    findContactsByRoles: vi.fn(),
+    findContactByUserId: vi.fn().mockResolvedValue(null),
+  }
+}
+
+function createMockDispatcher(): NotificationDispatcher {
+  return { dispatch: vi.fn().mockResolvedValue(undefined) }
+}
 
 function makeCommissionData(
   overrides: Partial<CommissionData> = {}
@@ -84,7 +104,11 @@ describe('ApproveCommissionAdmin', () => {
   it('advances commission from PENDING_ADMIN to APPROVED with approver info', async () => {
     const data = makeCommissionData({ status: 'PENDING_ADMIN' })
     const repo = createMockRepo(data)
-    const useCase = new ApproveCommissionAdmin(repo)
+    const useCase = new ApproveCommissionAdmin(
+      repo,
+      createMockMemberRepo(),
+      createMockDispatcher()
+    )
     await useCase.execute('comm-1', 'org-1', 'admin-1')
     expect(repo.update).toHaveBeenCalledTimes(1)
     const savedCommission = vi.mocked(repo.update).mock.calls[0]?.[0]
@@ -94,7 +118,11 @@ describe('ApproveCommissionAdmin', () => {
   })
   it('throws CommissionNotFoundError when commission does not exist', async () => {
     const repo = createMockRepo(null)
-    const useCase = new ApproveCommissionAdmin(repo)
+    const useCase = new ApproveCommissionAdmin(
+      repo,
+      createMockMemberRepo(),
+      createMockDispatcher()
+    )
     await expect(useCase.execute('missing', 'org-1', 'user-1')).rejects.toThrow(
       CommissionNotFoundError
     )
@@ -102,7 +130,11 @@ describe('ApproveCommissionAdmin', () => {
   it('throws InvalidCommissionTransitionError when status is not PENDING_ADMIN', async () => {
     const data = makeCommissionData({ status: 'PENDING_COMMERCIAL' })
     const repo = createMockRepo(data)
-    const useCase = new ApproveCommissionAdmin(repo)
+    const useCase = new ApproveCommissionAdmin(
+      repo,
+      createMockMemberRepo(),
+      createMockDispatcher()
+    )
     await expect(useCase.execute('comm-1', 'org-1', 'user-1')).rejects.toThrow(
       InvalidCommissionTransitionError
     )

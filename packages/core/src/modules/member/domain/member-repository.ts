@@ -56,4 +56,8 @@ export interface MemberRepository {
     roles: readonly string[],
     excludeUserId?: string
   ): Promise<MemberContact[]>
+  findContactByUserId(
+    organizationId: string,
+    userId: string
+  ): Promise<MemberContact | null>
 }

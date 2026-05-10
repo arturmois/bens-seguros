@@ -373,10 +373,20 @@ export function registerDependencies(redis: Redis | null = null) {
     useFactory: () => new ApproveCommissionCommercial(commissionRepo),
   })
   container.register(ApproveCommissionAdmin, {
-    useFactory: () => new ApproveCommissionAdmin(commissionRepo),
+    useFactory: (c) =>
+      new ApproveCommissionAdmin(
+        commissionRepo,
+        c.resolve('MemberRepository'),
+        c.resolve('NotificationDispatcher')
+      ),
   })
   container.register(RejectCommission, {
-    useFactory: () => new RejectCommission(commissionRepo),
+    useFactory: (c) =>
+      new RejectCommission(
+        commissionRepo,
+        c.resolve('MemberRepository'),
+        c.resolve('NotificationDispatcher')
+      ),
   })
   container.register(PayCommission, {
     useFactory: () => new PayCommission(commissionRepo),
