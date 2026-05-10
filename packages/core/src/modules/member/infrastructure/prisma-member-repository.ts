@@ -3,6 +3,7 @@ import type { PrismaClient, Role } from '@repo/db'
 import type {
   MemberRepository,
   MemberRecord,
+  OrganizationMembership,
 } from '../domain/member-repository.js'
 import { MEMBER_ROLES, type MemberRole } from '../domain/member-roles.js'
 
@@ -70,5 +71,21 @@ export class PrismaMemberRepository implements MemberRepository {
       where: { id, organizationId },
       data: { active: false },
     })
+  }
+
+  async listOrganizationsForUser(
+    userId: string
+  ): Promise<OrganizationMembership[]> {
+    const rows = await this.prisma.member.findMany({
+      where: { userId, active: true },
+      include: { organization: true },
+    })
+    return rows.map((row) => ({
+      id: row.organization.id,
+      name: row.organization.name,
+      slug: row.organization.slug,
+      logo: row.organization.logo,
+      role: row.role,
+    }))
   }
 }

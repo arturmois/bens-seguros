@@ -25,6 +25,7 @@ function createMockRepo(): MemberRepository {
     countByRole: vi.fn(),
     updateRole: vi.fn(),
     deactivate: vi.fn(),
+    listOrganizationsForUser: vi.fn(),
   }
 }
 

@@ -6,6 +6,14 @@ export interface MemberRecord {
   readonly active: boolean
 }
 
+export interface OrganizationMembership {
+  readonly id: string
+  readonly name: string
+  readonly slug: string
+  readonly logo: string | null
+  readonly role: string
+}
+
 export interface MemberRepository {
   findById(id: string, organizationId: string): Promise<MemberRecord | null>
   countByRole(organizationId: string, role: string): Promise<number>
@@ -15,4 +23,5 @@ export interface MemberRepository {
     role: string
   ): Promise<MemberRecord>
   deactivate(id: string, organizationId: string): Promise<void>
+  listOrganizationsForUser(userId: string): Promise<OrganizationMembership[]>
 }

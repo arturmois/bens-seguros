@@ -66,6 +66,7 @@ import {
   PrismaDocumentRepository,
   PrismaEndorsementRepository,
   ListAuditLogs,
+  ListUserTenants,
   PrismaAuditLogRepository,
   PrismaInsurerRepository,
   PrismaInvitationRepository,
@@ -350,6 +351,9 @@ export function registerDependencies(redis: Redis | null = null) {
   })
   container.register(DeactivateMember, {
     useFactory: () => new DeactivateMember(memberRepo),
+  })
+  container.register(ListUserTenants, {
+    useFactory: () => new ListUserTenants(memberRepo),
   })
   const invitationRepo = new PrismaInvitationRepository(prismaAdmin)
   container.register('InvitationRepository', { useValue: invitationRepo })
