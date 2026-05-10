@@ -6,6 +6,7 @@ export {
   AlreadyMemberError,
   InvitationAlreadyAcceptedError,
   InvitationExpiredError,
+  InvitationNotFoundError,
 } from './domain/invitation-errors.js'
 export {
   assertCanManageRole,

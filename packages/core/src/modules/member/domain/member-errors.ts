@@ -37,11 +37,3 @@ export class DuplicateInvitationError extends Error {
     this.name = 'DuplicateInvitationError'
   }
 }
-
-export class InvitationNotFoundError extends Error {
-  readonly code = 'INVITATION_NOT_FOUND' as const
-  constructor(id: string) {
-    super(`Invitation ${id} not found`)
-    this.name = 'InvitationNotFoundError'
-  }
-}

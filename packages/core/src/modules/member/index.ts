@@ -24,5 +24,4 @@ export {
   RoleHierarchyError,
   SelfRemovalError,
   DuplicateInvitationError,
-  InvitationNotFoundError,
 } from './domain/member-errors.js'
