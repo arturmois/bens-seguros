@@ -313,35 +313,11 @@ export class Proposal {
   get branch(): Branch {
     return this.props.branch
   }
-  get details(): InsuredObjectDetails | null {
-    return this.props.details
-  }
   get premiumValueInCents(): number {
     return this.props.premiumValueInCents
   }
   get commissionPercentageInCents(): number {
     return this.props.commissionPercentageInCents
-  }
-  get lostReason(): string | null {
-    return this.props.lostReason
-  }
-  get renewalPolicyId(): string | null {
-    return this.props.renewalPolicyId
-  }
-  get renewalPolicyNumber(): string | null {
-    return this.props.renewalPolicyNumber
-  }
-  get sourcePolicyId(): string | null {
-    return this.props.sourcePolicyId
-  }
-  get endorsementType(): string | null {
-    return this.props.endorsementType
-  }
-  get endorsementReason(): string | null {
-    return this.props.endorsementReason
-  }
-  get sourcePolicySnapshot(): SourcePolicySnapshot | null {
-    return this.props.sourcePolicySnapshot
   }
   get insurerId(): string | null {
     return this.props.insurerId
@@ -349,17 +325,11 @@ export class Proposal {
   get createdAt(): Date {
     return this.props.createdAt
   }
-  get updatedAt(): Date {
-    return this.props.updatedAt
-  }
   get clientName(): string | undefined {
     return this.props.clientName
   }
   get clientDocument(): string | undefined {
     return this.props.clientDocument
-  }
-  get clientPersonType(): string | undefined {
-    return this.props.clientPersonType
   }
   get salespersonName(): string | undefined {
     return this.props.salespersonName
@@ -372,12 +342,6 @@ export class Proposal {
   }
   get coverageEndDate(): Date | null {
     return this.props.coverageEndDate
-  }
-  get sentToClientAt(): Date | null {
-    return this.props.sentToClientAt
-  }
-  get clientResponseAt(): Date | null {
-    return this.props.clientResponseAt
   }
   get quoteValidUntil(): Date | null {
     return this.props.quoteValidUntil

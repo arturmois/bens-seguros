@@ -66,7 +66,7 @@ describe('UpdateProposalDates', () => {
     const result = await useCase.execute('proposal-1', 'org-1', {
       clientResponseAt: responseDate,
     })
-    expect(result.clientResponseAt).toEqual(responseDate)
+    expect(result.toJSON().clientResponseAt).toEqual(responseDate)
     expect(repo.save).toHaveBeenCalledWith(proposal)
   })
   it('updates quoteValidUntil', async () => {
@@ -117,7 +117,7 @@ describe('UpdateProposalDates', () => {
     })
     expect(result.coverageStartDate).toEqual(start)
     expect(result.coverageEndDate).toEqual(end)
-    expect(result.clientResponseAt).toEqual(responseDate)
+    expect(result.toJSON().clientResponseAt).toEqual(responseDate)
     expect(result.quoteValidUntil).toEqual(newExpiry)
     expect(repo.save).toHaveBeenCalledTimes(1)
   })

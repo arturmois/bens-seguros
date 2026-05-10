@@ -40,12 +40,14 @@ describe('ProposalMapper', () => {
       deletedAt: null,
       sourcePolicySnapshot: persisted.sourcePolicySnapshot,
     } as never)
-    expect(restored.sourcePolicySnapshot?.startDate).toBeInstanceOf(Date)
-    expect(restored.sourcePolicySnapshot?.endDate).toBeInstanceOf(Date)
-    expect(restored.sourcePolicySnapshot?.startDate.toISOString()).toBe(
-      '2026-02-01T00:00:00.000Z'
+    expect(restored.toJSON().sourcePolicySnapshot?.startDate).toBeInstanceOf(
+      Date
     )
-    expect(restored.sourcePolicySnapshot?.endDate.toISOString()).toBe(
+    expect(restored.toJSON().sourcePolicySnapshot?.endDate).toBeInstanceOf(Date)
+    expect(
+      restored.toJSON().sourcePolicySnapshot?.startDate.toISOString()
+    ).toBe('2026-02-01T00:00:00.000Z')
+    expect(restored.toJSON().sourcePolicySnapshot?.endDate.toISOString()).toBe(
       '2027-02-01T00:00:00.000Z'
     )
   })
@@ -80,6 +82,6 @@ describe('ProposalMapper', () => {
       createdAt: new Date('2026-02-01T00:00:00.000Z'),
       updatedAt: new Date('2026-02-01T00:00:00.000Z'),
     } as never)
-    expect(restored.sourcePolicySnapshot).toBeNull()
+    expect(restored.toJSON().sourcePolicySnapshot).toBeNull()
   })
 })

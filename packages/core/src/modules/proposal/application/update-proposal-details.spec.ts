@@ -37,7 +37,7 @@ describe('UpdateProposalDetails', () => {
       premiumValueInCents: 150000,
       commissionBasisPoints: 1500,
     })
-    expect(proposal.details).toEqual(autoDetails)
+    expect(proposal.toJSON().details).toEqual(autoDetails)
     expect(repo.save).toHaveBeenCalledWith(proposal)
   })
   it('throws if proposal not found', async () => {

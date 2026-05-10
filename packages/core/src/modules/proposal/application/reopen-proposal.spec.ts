@@ -33,7 +33,7 @@ describe('ReopenProposal', () => {
     vi.mocked(repo.save).mockResolvedValue(undefined)
     await useCase.execute(proposal.id, 'org-1')
     expect(proposal.stage).toBe('CAPTURE')
-    expect(proposal.lostReason).toBeNull()
+    expect(proposal.toJSON().lostReason).toBeNull()
     expect(repo.save).toHaveBeenCalledWith(proposal)
   })
   it('reopens a LOST endorsement proposal back to QUOTE', async () => {
@@ -61,7 +61,7 @@ describe('ReopenProposal', () => {
     vi.mocked(repo.save).mockResolvedValue(undefined)
     await useCase.execute(proposal.id, 'org-1')
     expect(proposal.stage).toBe('QUOTE')
-    expect(proposal.lostReason).toBeNull()
+    expect(proposal.toJSON().lostReason).toBeNull()
     expect(repo.save).toHaveBeenCalledWith(proposal)
   })
   it('throws when proposal is not LOST', async () => {

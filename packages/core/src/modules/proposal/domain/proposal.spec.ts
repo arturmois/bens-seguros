@@ -24,7 +24,7 @@ describe('Proposal Entity', () => {
     expect(proposal.boardType).toBe('NEW_INSURANCE')
     expect(proposal.premiumValueInCents).toBe(0)
     expect(proposal.commissionPercentageInCents).toBe(0)
-    expect(proposal.lostReason).toBeNull()
+    expect(proposal.toJSON().lostReason).toBeNull()
     expect(proposal.id).toBeTruthy()
   })
   it('advances from CAPTURE to QUOTE', () => {
@@ -51,13 +51,13 @@ describe('Proposal Entity', () => {
     proposal.advance()
     proposal.markAsLost('Cliente desistiu')
     expect(proposal.stage).toBe('LOST')
-    expect(proposal.lostReason).toBe('Cliente desistiu')
+    expect(proposal.toJSON().lostReason).toBe('Cliente desistiu')
   })
   it('can mark as lost from CAPTURE', () => {
     const proposal = Proposal.create(validProps)
     proposal.markAsLost('Sem interesse')
     expect(proposal.stage).toBe('LOST')
-    expect(proposal.lostReason).toBe('Sem interesse')
+    expect(proposal.toJSON().lostReason).toBe('Sem interesse')
   })
   it('cannot mark as lost from POLICY_ISSUED', () => {
     const proposal = Proposal.create(validProps)
@@ -129,7 +129,7 @@ describe('Proposal Entity', () => {
       renewalPolicyId: 'policy-1',
     })
     expect(proposal.boardType).toBe('RENEWAL')
-    expect(proposal.renewalPolicyId).toBe('policy-1')
+    expect(proposal.toJSON().renewalPolicyId).toBe('policy-1')
   })
   it('creates renewal with renewalPolicyNumber', () => {
     const proposal = Proposal.create({
@@ -138,8 +138,8 @@ describe('Proposal Entity', () => {
       renewalPolicyNumber: 'POL-EXTERNAL-001',
     })
     expect(proposal.boardType).toBe('RENEWAL')
-    expect(proposal.renewalPolicyNumber).toBe('POL-EXTERNAL-001')
-    expect(proposal.renewalPolicyId).toBeNull()
+    expect(proposal.toJSON().renewalPolicyNumber).toBe('POL-EXTERNAL-001')
+    expect(proposal.toJSON().renewalPolicyId).toBeNull()
   })
   it('creates endorsement proposals at QUOTE with source policy metadata', () => {
     const proposal = Proposal.create({
@@ -163,9 +163,9 @@ describe('Proposal Entity', () => {
     })
     expect(proposal.stage).toBe('QUOTE')
     expect(proposal.boardType).toBe('ENDORSEMENT')
-    expect(proposal.sourcePolicyId).toBe('policy-1')
-    expect(proposal.endorsementType).toBe('COVERAGE_CHANGE')
-    expect(proposal.sourcePolicySnapshot?.policyNumber).toBe('POL-001')
+    expect(proposal.toJSON().sourcePolicyId).toBe('policy-1')
+    expect(proposal.toJSON().endorsementType).toBe('COVERAGE_CHANGE')
+    expect(proposal.toJSON().sourcePolicySnapshot?.policyNumber).toBe('POL-001')
   })
   it('serializes to JSON', () => {
     const proposal = Proposal.create(validProps)
@@ -185,7 +185,7 @@ describe('Proposal Entity', () => {
     it('updates details with matching branch', () => {
       const proposal = Proposal.create(validProps)
       proposal.updateDetails(autoDetails, 150000, 1500)
-      expect(proposal.details).toEqual(autoDetails)
+      expect(proposal.toJSON().details).toEqual(autoDetails)
       expect(proposal.premiumValueInCents).toBe(150000)
       expect(proposal.commissionPercentageInCents).toBe(1500)
     })

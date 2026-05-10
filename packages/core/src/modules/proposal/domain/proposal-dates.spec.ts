@@ -70,11 +70,11 @@ describe('Proposal date properties and methods', () => {
       )
     })
     it('updates updatedAt when setting coverage dates', () => {
-      const before = proposal.updatedAt
+      const before = proposal.toJSON().updatedAt
       const start = new Date('2026-06-01T00:00:00.000Z')
       const end = new Date('2027-06-01T00:00:00.000Z')
       proposal.updateCoverageDates(start, end)
-      expect(proposal.updatedAt.getTime()).toBeGreaterThanOrEqual(
+      expect(proposal.toJSON().updatedAt.getTime()).toBeGreaterThanOrEqual(
         before.getTime()
       )
     })
@@ -83,16 +83,16 @@ describe('Proposal date properties and methods', () => {
     it('sets sentToClientAt to current date', () => {
       const beforeCall = new Date()
       proposal.markAsSentToClient()
-      expect(proposal.sentToClientAt).not.toBeNull()
-      expect(proposal.sentToClientAt!.getTime()).toBeGreaterThanOrEqual(
-        beforeCall.getTime()
-      )
+      expect(proposal.toJSON().sentToClientAt).not.toBeNull()
+      expect(
+        proposal.toJSON().sentToClientAt!.getTime()
+      ).toBeGreaterThanOrEqual(beforeCall.getTime())
     })
     it('overwrites previous sentToClientAt on resend', () => {
       proposal.markAsSentToClient()
-      const firstSentAt = proposal.sentToClientAt
+      const firstSentAt = proposal.toJSON().sentToClientAt
       proposal.markAsSentToClient()
-      const secondSentAt = proposal.sentToClientAt
+      const secondSentAt = proposal.toJSON().sentToClientAt
       expect(secondSentAt).not.toBeNull()
       expect(firstSentAt).not.toBeNull()
       expect(secondSentAt!.getTime()).toBeGreaterThanOrEqual(
@@ -100,9 +100,9 @@ describe('Proposal date properties and methods', () => {
       )
     })
     it('updates updatedAt when marking as sent', () => {
-      const before = proposal.updatedAt
+      const before = proposal.toJSON().updatedAt
       proposal.markAsSentToClient()
-      expect(proposal.updatedAt.getTime()).toBeGreaterThanOrEqual(
+      expect(proposal.toJSON().updatedAt.getTime()).toBeGreaterThanOrEqual(
         before.getTime()
       )
     })
@@ -111,13 +111,13 @@ describe('Proposal date properties and methods', () => {
     it('sets clientResponseAt to the given date', () => {
       const responseDate = new Date('2026-06-15T10:00:00.000Z')
       proposal.updateClientResponse(responseDate)
-      expect(proposal.clientResponseAt).toEqual(responseDate)
+      expect(proposal.toJSON().clientResponseAt).toEqual(responseDate)
     })
     it('updates updatedAt when setting client response', () => {
-      const before = proposal.updatedAt
+      const before = proposal.toJSON().updatedAt
       const responseDate = new Date('2026-06-15T10:00:00.000Z')
       proposal.updateClientResponse(responseDate)
-      expect(proposal.updatedAt.getTime()).toBeGreaterThanOrEqual(
+      expect(proposal.toJSON().updatedAt.getTime()).toBeGreaterThanOrEqual(
         before.getTime()
       )
     })
@@ -129,10 +129,10 @@ describe('Proposal date properties and methods', () => {
       expect(proposal.quoteValidUntil).toEqual(validUntil)
     })
     it('updates updatedAt when setting quote validity', () => {
-      const before = proposal.updatedAt
+      const before = proposal.toJSON().updatedAt
       const validUntil = new Date('2026-06-30T23:59:59.000Z')
       proposal.updateQuoteValidity(validUntil)
-      expect(proposal.updatedAt.getTime()).toBeGreaterThanOrEqual(
+      expect(proposal.toJSON().updatedAt.getTime()).toBeGreaterThanOrEqual(
         before.getTime()
       )
     })
@@ -163,8 +163,8 @@ describe('Proposal date properties and methods', () => {
       })
       expect(created.coverageStartDate).toBeNull()
       expect(created.coverageEndDate).toBeNull()
-      expect(created.sentToClientAt).toBeNull()
-      expect(created.clientResponseAt).toBeNull()
+      expect(created.toJSON().sentToClientAt).toBeNull()
+      expect(created.toJSON().clientResponseAt).toBeNull()
       expect(created.quoteValidUntil).toBeNull()
     })
     it('accepts quoteValidUntil in CreateProposalInput', () => {

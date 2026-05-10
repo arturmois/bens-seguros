@@ -215,8 +215,8 @@ describe('CreateProposal', () => {
     expect(result.contactId).toBe('contact-oldest')
     expect(result.branch).toBe('AUTO')
     expect(result.insurerId).toBe('ins-1')
-    expect(result.sourcePolicySnapshot?.policyNumber).toBe('POL-001')
-    expect(result.sourcePolicySnapshot?.insurerId).toBe('ins-1')
+    expect(result.toJSON().sourcePolicySnapshot?.policyNumber).toBe('POL-001')
+    expect(result.toJSON().sourcePolicySnapshot?.insurerId).toBe('ins-1')
     expect(checklistConfig.getItems).toHaveBeenCalledWith('QUOTE', 'AUTO')
     expect(contactRepo.findMany).toHaveBeenCalledWith(
       { organizationId: 'org-1', clientId: 'client-1' },
@@ -360,8 +360,8 @@ describe('CreateProposal', () => {
       boardType: 'RENEWAL',
       renewalPolicyNumber: 'POL-2025-001',
     })
-    expect(result.renewalPolicyNumber).toBe('POL-2025-001')
-    expect(result.renewalPolicyId).toBe('pol-existing')
+    expect(result.toJSON().renewalPolicyNumber).toBe('POL-2025-001')
+    expect(result.toJSON().renewalPolicyId).toBe('pol-existing')
     expect(policyRepo.findByPolicyNumber).toHaveBeenCalledWith(
       'POL-2025-001',
       'org-1'
@@ -385,8 +385,8 @@ describe('CreateProposal', () => {
       boardType: 'RENEWAL',
       renewalPolicyNumber: 'POL-EXTERNAL-999',
     })
-    expect(result.renewalPolicyNumber).toBe('POL-EXTERNAL-999')
-    expect(result.renewalPolicyId).toBeNull()
+    expect(result.toJSON().renewalPolicyNumber).toBe('POL-EXTERNAL-999')
+    expect(result.toJSON().renewalPolicyId).toBeNull()
   })
   it('creates renewal without renewalPolicyNumber preserving current behavior', async () => {
     const useCase = new CreateProposal(
@@ -403,7 +403,7 @@ describe('CreateProposal', () => {
       branch: 'AUTO',
       boardType: 'RENEWAL',
     })
-    expect(result.renewalPolicyNumber).toBeNull()
-    expect(result.renewalPolicyId).toBeNull()
+    expect(result.toJSON().renewalPolicyNumber).toBeNull()
+    expect(result.toJSON().renewalPolicyId).toBeNull()
   })
 })

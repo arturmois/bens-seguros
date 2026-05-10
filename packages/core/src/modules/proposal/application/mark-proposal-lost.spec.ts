@@ -58,7 +58,7 @@ describe('MarkProposalLost', () => {
       'Cliente desistiu'
     )
     expect(result.stage).toBe('LOST')
-    expect(result.lostReason).toBe('Cliente desistiu')
+    expect(result.toJSON().lostReason).toBe('Cliente desistiu')
     expect(repo.save).toHaveBeenCalledWith(proposal)
   })
   it('marks QUOTE proposal as lost', async () => {
