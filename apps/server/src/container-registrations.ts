@@ -65,11 +65,13 @@ import {
   PrismaContactRepository,
   PrismaDocumentRepository,
   PrismaEndorsementRepository,
+  BuildDashboardSnapshot,
   GetOrganization,
   GlobalSearch,
   ListAuditLogs,
   ListUserTenants,
   PrismaAuditLogRepository,
+  PrismaDashboardRepository,
   PrismaInsurerRepository,
   PrismaOrganizationRepository,
   PrismaSearchRepository,
@@ -133,6 +135,7 @@ export function registerDependencies(redis: Redis | null = null) {
   const auditLogRepo = new PrismaAuditLogRepository(prismaAdmin)
   const searchRepo = new PrismaSearchRepository(prismaAdmin)
   const organizationRepo = new PrismaOrganizationRepository(prismaAdmin)
+  const dashboardRepo = new PrismaDashboardRepository(prismaAdmin)
   const insurerRepo = new PrismaInsurerRepository(prismaAdmin)
   const commissionRepo = new PrismaCommissionRepository(prismaAdmin)
   const storageProvider =
@@ -154,6 +157,7 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register('AuditLogRepository', { useValue: auditLogRepo })
   container.register('SearchRepository', { useValue: searchRepo })
   container.register('OrganizationRepository', { useValue: organizationRepo })
+  container.register('DashboardRepository', { useValue: dashboardRepo })
   container.register('InsurerRepository', { useValue: insurerRepo })
   container.register('CommissionRepository', { useValue: commissionRepo })
   container.register('StorageProvider', { useValue: storageProvider })
@@ -336,6 +340,9 @@ export function registerDependencies(redis: Redis | null = null) {
         cacheService,
         storageProvider
       ),
+  })
+  container.register(BuildDashboardSnapshot, {
+    useFactory: () => new BuildDashboardSnapshot(dashboardRepo, cacheService),
   })
   container.register(CreateInsurer, {
     useFactory: () => new CreateInsurer(insurerRepo),

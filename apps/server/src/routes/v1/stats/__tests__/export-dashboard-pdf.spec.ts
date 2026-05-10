@@ -23,36 +23,29 @@ vi.mock('@react-pdf/renderer', async (importOriginal) => {
   }
 })
 
-vi.mock('@repo/db', () => {
-  const mock = {
-    organization: {
-      findUnique: vi.fn().mockResolvedValue({
-        id: 'org-test-00000000-0000-0000-0000-000000000001',
-        name: 'Corretora Exemplo',
-        logo: null,
-        slug: 'corretora-exemplo',
-        active: true,
-        metadata: {},
-        createdAt: new Date('2025-01-01'),
-        updatedAt: new Date('2025-01-01'),
-      }),
-    },
+vi.mock('@repo/core', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('@repo/core')>()
+  return {
+    ...mod,
+    container: { resolve: vi.fn() },
   }
-  return { prisma: mock, prismaAdmin: mock }
 })
-
-vi.mock('../stats-helpers.js', () => ({
-  buildDashboardData: vi.fn(),
-}))
 
 vi.mock('../../../pdf-templates/dashboard-report-pdf.js', () => ({
   DashboardReportPdf: vi.fn().mockReturnValue(null),
 }))
 
-import { prisma } from '@repo/db'
-import { buildDashboardData } from '../stats-helpers.js'
+const mockBuildSnapshotExecute = vi.fn()
+const mockGetOrgExecute = vi.fn()
+const mockStorage = {
+  getSignedUrl: vi.fn(),
+  upload: vi.fn(),
+}
+const mockDocumentRepo = {
+  upsertByStorageKey: vi.fn(),
+}
 
-const makeDashboardData = () => ({
+const makeSnapshot = () => ({
   proposalsByStage: [],
   activePolicies: 5,
   expiringPolicies: 1,
@@ -77,14 +70,13 @@ const makeDashboardData = () => ({
   proposalsPending: { total: 0, inDay: 0, warning: 0, critical: 0 },
 })
 
-const mockStorage = {
-  getSignedUrl: vi.fn(),
-  upload: vi.fn(),
-}
-
-const mockDocumentRepo = {
-  upsertByStorageKey: vi.fn(),
-}
+const makeOrgView = () => ({
+  id: TEST_ORG_ID,
+  name: 'Corretora Exemplo',
+  slug: 'corretora-exemplo',
+  logo: null,
+  createdAt: new Date('2025-01-01'),
+})
 
 let app: Awaited<ReturnType<typeof createTestApp>>
 
@@ -95,17 +87,8 @@ afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
-  vi.mocked(buildDashboardData).mockResolvedValue(makeDashboardData())
-  vi.mocked(prisma.organization.findUnique).mockResolvedValue({
-    id: TEST_ORG_ID,
-    name: 'Corretora Exemplo',
-    logo: null,
-    slug: 'corretora-exemplo',
-    active: true,
-    metadata: {},
-    createdAt: new Date('2025-01-01'),
-    updatedAt: new Date('2025-01-01'),
-  })
+  mockBuildSnapshotExecute.mockResolvedValue(makeSnapshot())
+  mockGetOrgExecute.mockResolvedValue(makeOrgView())
   mockStorage.getSignedUrl.mockResolvedValue(
     'https://cdn.example.com/relatorio.pdf'
   )
@@ -114,6 +97,15 @@ beforeEach(() => {
   vi.mocked(container.resolve).mockImplementation((token: unknown) => {
     if (token === 'StorageProvider') return mockStorage
     if (token === 'DocumentRepository') return mockDocumentRepo
+    if (typeof token === 'function') {
+      const useCaseName = token.name
+      if (useCaseName === 'BuildDashboardSnapshot') {
+        return { execute: mockBuildSnapshotExecute }
+      }
+      if (useCaseName === 'GetOrganization') {
+        return { execute: mockGetOrgExecute }
+      }
+    }
     return null
   })
 })
@@ -140,8 +132,11 @@ describe('POST /api/v1/stats/dashboard/pdf', () => {
       'application/pdf'
     )
   })
-  it('returns 404 when organization does not exist', async () => {
-    vi.mocked(prisma.organization.findUnique).mockResolvedValue(null)
+  it('returns 404 when GetOrganization throws OrganizationNotFoundError', async () => {
+    const error = Object.assign(new Error('Organização não encontrada'), {
+      code: 'ORGANIZATION_NOT_FOUND',
+    })
+    mockGetOrgExecute.mockRejectedValue(error)
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/stats/dashboard/pdf',
@@ -150,16 +145,13 @@ describe('POST /api/v1/stats/dashboard/pdf', () => {
     const body = response.json()
     expect(body.error.code).toBe('ORGANIZATION_NOT_FOUND')
   })
-  it('calls buildDashboardData with correct orgId and preset', async () => {
+  it('calls BuildDashboardSnapshot with correct orgId and preset', async () => {
     await app.inject({
       method: 'POST',
       url: '/api/v1/stats/dashboard/pdf',
       query: { preset: '7d' },
     })
-    expect(vi.mocked(buildDashboardData)).toHaveBeenCalledWith(
-      TEST_ORG_ID,
-      '7d'
-    )
+    expect(mockBuildSnapshotExecute).toHaveBeenCalledWith(TEST_ORG_ID, '7d')
   })
   it('saves document reference via DocumentRepository', async () => {
     await app.inject({

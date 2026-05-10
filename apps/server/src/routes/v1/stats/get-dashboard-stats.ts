@@ -1,4 +1,4 @@
-import { container, type CacheService } from '@repo/core'
+import { BuildDashboardSnapshot, container } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
@@ -7,7 +7,6 @@ import {
   dashboardStatsQuerySchema,
   dashboardStatsResponse,
 } from './_schemas.js'
-import { buildDashboardData, type DashboardData } from './stats-helpers.js'
 
 export function getDashboardStatsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -23,15 +22,8 @@ export function getDashboardStatsRoute(app: FastifyInstance) {
     preHandler: [requireAbility('read', 'Client')],
     handler: async (request, reply) => {
       const { preset } = request.query
-      const orgId = request.organizationId!
-      const cache = container.resolve<CacheService>('CacheService')
-      const cacheKey = `dashboard:stats:${orgId}:${preset}`
-      const cached = await cache.get<DashboardData>(cacheKey)
-      if (cached) {
-        return reply.send({ success: true, data: cached })
-      }
-      const data = await buildDashboardData(orgId, preset)
-      await cache.set(cacheKey, data, 60)
+      const useCase = container.resolve(BuildDashboardSnapshot)
+      const data = await useCase.execute(request.organizationId!, preset)
       return reply.send({ success: true, data })
     },
   })

@@ -7,22 +7,26 @@ import {
   afterAll,
   beforeEach,
 } from 'vitest'
-import { container } from '@repo/core'
 import {
   createTestApp,
   injectAs,
   setTestContext,
   TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
+import { mockResolve } from '../../../../__tests__/helpers/mock-use-case.js'
 import { getDashboardStatsRoute } from '../get-dashboard-stats.js'
 
-vi.mock('../stats-helpers.js', () => ({
-  buildDashboardData: vi.fn(),
-}))
+vi.mock('@repo/core', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('@repo/core')>()
+  return {
+    ...mod,
+    container: { resolve: vi.fn() },
+  }
+})
 
-import { buildDashboardData } from '../stats-helpers.js'
+const mockExecute = vi.fn()
 
-const makeDashboardData = () => ({
+const makeSnapshot = () => ({
   proposalsByStage: [{ stage: 'CAPTURE', _count: 5 }],
   activePolicies: 10,
   expiringPolicies: 2,
@@ -61,11 +65,6 @@ const makeDashboardData = () => ({
   proposalsPending: { total: 0, inDay: 0, warning: 0, critical: 0 },
 })
 
-const mockCache = {
-  get: vi.fn(),
-  set: vi.fn(),
-}
-
 let app: Awaited<ReturnType<typeof createTestApp>>
 
 beforeAll(async () => {
@@ -75,13 +74,8 @@ afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
-  mockCache.get.mockResolvedValue(null)
-  mockCache.set.mockResolvedValue(undefined)
-  vi.mocked(buildDashboardData).mockResolvedValue(makeDashboardData())
-  vi.mocked(container.resolve).mockImplementation((token: unknown) => {
-    if (token === 'CacheService') return mockCache
-    return null
-  })
+  mockResolve(mockExecute)
+  mockExecute.mockResolvedValue(makeSnapshot())
 })
 
 describe('GET /api/v1/stats/dashboard', () => {
@@ -96,45 +90,15 @@ describe('GET /api/v1/stats/dashboard', () => {
     expect(body.data.activePolicies).toBe(10)
     expect(body.data.proposalsByStage).toHaveLength(1)
     expect(body.data.ranking).toHaveLength(1)
-    expect(vi.mocked(buildDashboardData)).toHaveBeenCalledWith(
-      TEST_ORG_ID,
-      '30d'
-    )
+    expect(mockExecute).toHaveBeenCalledWith(TEST_ORG_ID, '30d')
   })
-  it('returns dashboard stats for specified preset', async () => {
-    const response = await injectAs(app, {
+  it('forwards custom preset to the use case', async () => {
+    await injectAs(app, {
       method: 'GET',
       url: '/api/v1/stats/dashboard',
       query: { preset: '7d' },
     })
-    expect(response.statusCode).toBe(200)
-    expect(vi.mocked(buildDashboardData)).toHaveBeenCalledWith(
-      TEST_ORG_ID,
-      '7d'
-    )
-  })
-  it('returns cached data when cache hit occurs', async () => {
-    const cached = makeDashboardData()
-    mockCache.get.mockResolvedValue(cached)
-    const response = await injectAs(app, {
-      method: 'GET',
-      url: '/api/v1/stats/dashboard',
-    })
-    expect(response.statusCode).toBe(200)
-    const body = response.json()
-    expect(body.success).toBe(true)
-    expect(vi.mocked(buildDashboardData)).not.toHaveBeenCalled()
-  })
-  it('stores result in cache after fetching fresh data', async () => {
-    await injectAs(app, {
-      method: 'GET',
-      url: '/api/v1/stats/dashboard',
-    })
-    expect(mockCache.set).toHaveBeenCalledWith(
-      expect.stringContaining(`dashboard:stats:${TEST_ORG_ID}`),
-      expect.objectContaining({ activePolicies: 10 }),
-      60
-    )
+    expect(mockExecute).toHaveBeenCalledWith(TEST_ORG_ID, '7d')
   })
   it('rejects invalid preset value', async () => {
     const response = await injectAs(app, {
