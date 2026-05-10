@@ -11,7 +11,6 @@ function makeRepo(): ProposalRepository {
   return {
     save: vi.fn(),
     findById: vi.fn(),
-    findByIdOrFail: vi.fn(),
     listForView: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
   }
 }

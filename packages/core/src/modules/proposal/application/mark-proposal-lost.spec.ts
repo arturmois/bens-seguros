@@ -11,9 +11,6 @@ function createMockRepo(proposal: Proposal | null): ProposalRepository {
   return {
     save: vi.fn(),
     findById: vi.fn().mockResolvedValue(proposal),
-    findByIdOrFail: proposal
-      ? vi.fn().mockResolvedValue(proposal)
-      : vi.fn().mockRejectedValue(new ProposalNotFoundError('test')),
     listForView: vi.fn(),
   }
 }

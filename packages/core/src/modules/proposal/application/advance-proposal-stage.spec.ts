@@ -12,7 +12,6 @@ import {
   ChecklistIncompleteError,
   ContactNotPromotedError,
   ProposalDetailsRequiredError,
-  ProposalNotFoundError,
 } from '../domain/proposal-errors.js'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
 import { Proposal } from '../domain/proposal.js'
@@ -22,9 +21,6 @@ function createMockRepo(proposal: Proposal | null): ProposalRepository {
   return {
     save: vi.fn(),
     findById: vi.fn().mockResolvedValue(proposal),
-    findByIdOrFail: proposal
-      ? vi.fn().mockResolvedValue(proposal)
-      : vi.fn().mockRejectedValue(new ProposalNotFoundError('test')),
     listForView: vi.fn(),
   }
 }

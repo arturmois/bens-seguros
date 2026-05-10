@@ -40,7 +40,6 @@ export interface ProposalCursorPage {
 export interface ProposalRepository {
   save(proposal: Proposal): Promise<void>
   findById(id: string, organizationId: string): Promise<Proposal | null>
-  findByIdOrFail(id: string, organizationId: string): Promise<Proposal>
   listForView(
     filters: ProposalFilters,
     page: ProposalCursorPage

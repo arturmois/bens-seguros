@@ -15,10 +15,13 @@ export class SendQuote {
     organizationId: string,
     clientEmail: string | null
   ): Promise<Proposal> {
-    const proposal = await this.proposalRepo.findByIdOrFail(
+    const proposal = await this.proposalRepo.findById(
       proposalId,
       organizationId
     )
+    if (!proposal) {
+      throw ProposalErrors.notFound(proposalId)
+    }
     if (!clientEmail) {
       throw ProposalErrors.clientHasNoEmail()
     }

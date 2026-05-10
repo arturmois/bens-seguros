@@ -2,6 +2,7 @@ import type {
   ChecklistItemData,
   ChecklistRepository,
 } from '../domain/checklist-repository.js'
+import { ProposalNotFoundError } from '../domain/proposal-errors.js'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
 
 export class CompleteChecklistByAttachment {
@@ -16,7 +17,13 @@ export class CompleteChecklistByAttachment {
     organizationId: string,
     userId: string
   ): Promise<ChecklistItemData> {
-    await this.proposalRepo.findByIdOrFail(proposalId, organizationId)
+    const proposal = await this.proposalRepo.findById(
+      proposalId,
+      organizationId
+    )
+    if (!proposal) {
+      throw new ProposalNotFoundError(proposalId)
+    }
     return this.checklistRepo.complete(itemId, proposalId, userId)
   }
 }

@@ -2,7 +2,6 @@ import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
 import { inject, injectable } from 'tsyringe'
 import { isInsuredObjectDetails } from '../domain/insured-object-details.js'
-import { ProposalErrors } from '../domain/proposal-errors.js'
 import type {
   ProposalListItem,
   ProposalListPage,
@@ -60,12 +59,6 @@ export class PrismaProposalRepository implements ProposalRepository {
       include: PROPOSAL_INCLUDE,
     })
     return row ? ProposalMapper.toDomain(row) : null
-  }
-
-  async findByIdOrFail(id: string, organizationId: string): Promise<Proposal> {
-    const found = await this.findById(id, organizationId)
-    if (!found) throw ProposalErrors.notFound(id)
-    return found
   }
 
   async listForView(

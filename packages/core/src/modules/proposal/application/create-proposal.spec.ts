@@ -16,7 +16,6 @@ function createMockRepo(): ProposalRepository {
   return {
     save: vi.fn(),
     findById: vi.fn(),
-    findByIdOrFail: vi.fn(),
     listForView: vi.fn(),
   }
 }

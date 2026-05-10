@@ -20,10 +20,13 @@ export class AdvanceProposalStage {
   ) {}
 
   async execute(proposalId: string, organizationId: string): Promise<Proposal> {
-    const proposal = await this.proposalRepo.findByIdOrFail(
+    const proposal = await this.proposalRepo.findById(
       proposalId,
       organizationId
     )
+    if (!proposal) {
+      throw ProposalErrors.notFound(proposalId)
+    }
     await this.assertCanAdvance(proposal, organizationId)
     proposal.advance()
     await this.proposalRepo.save(proposal)

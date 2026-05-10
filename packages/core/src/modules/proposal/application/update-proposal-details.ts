@@ -23,10 +23,13 @@ export class UpdateProposalDetails {
     organizationId: string,
     dto: UpdateProposalDetailsDTO
   ): Promise<Proposal> {
-    const proposal = await this.proposalRepo.findByIdOrFail(
+    const proposal = await this.proposalRepo.findById(
       proposalId,
       organizationId
     )
+    if (!proposal) {
+      throw ProposalErrors.notFound(proposalId)
+    }
     if (proposal.isLost()) {
       throw ProposalErrors.invalidTransition('LOST', 'editar detalhes')
     }

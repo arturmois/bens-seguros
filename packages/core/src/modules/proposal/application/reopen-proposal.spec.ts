@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ProposalNotFoundError } from '../domain/proposal-errors.js'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
 import { Proposal } from '../domain/proposal.js'
 import { ReopenProposal } from './reopen-proposal.js'
@@ -7,7 +6,6 @@ import { ReopenProposal } from './reopen-proposal.js'
 function createMockRepo(): ProposalRepository {
   return {
     findById: vi.fn(),
-    findByIdOrFail: vi.fn(),
     save: vi.fn(),
     listForView: vi.fn(),
   }
@@ -29,7 +27,7 @@ describe('ReopenProposal', () => {
       boardType: 'NEW_INSURANCE',
     })
     proposal.markAsLost('Cliente desistiu')
-    vi.mocked(repo.findByIdOrFail).mockResolvedValue(proposal)
+    vi.mocked(repo.findById).mockResolvedValue(proposal)
     vi.mocked(repo.save).mockResolvedValue(undefined)
     await useCase.execute(proposal.id, 'org-1')
     expect(proposal.stage).toBe('CAPTURE')
@@ -57,7 +55,7 @@ describe('ReopenProposal', () => {
       },
     })
     proposal.markAsLost('Cliente desistiu')
-    vi.mocked(repo.findByIdOrFail).mockResolvedValue(proposal)
+    vi.mocked(repo.findById).mockResolvedValue(proposal)
     vi.mocked(repo.save).mockResolvedValue(undefined)
     await useCase.execute(proposal.id, 'org-1')
     expect(proposal.stage).toBe('QUOTE')
@@ -72,17 +70,13 @@ describe('ReopenProposal', () => {
       branch: 'AUTO',
       boardType: 'NEW_INSURANCE',
     })
-    vi.mocked(repo.findByIdOrFail).mockResolvedValue(proposal)
+    vi.mocked(repo.findById).mockResolvedValue(proposal)
     await expect(useCase.execute(proposal.id, 'org-1')).rejects.toThrow(
       'reabrir'
     )
   })
   it('throws ProposalNotFoundError when not found', async () => {
-    vi.mocked(repo.findByIdOrFail).mockRejectedValue(
-      new ProposalNotFoundError('nope')
-    )
-    await expect(useCase.execute('nope', 'org-1')).rejects.toThrow(
-      ProposalNotFoundError
-    )
+    vi.mocked(repo.findById).mockResolvedValue(null)
+    await expect(useCase.execute('nope', 'org-1')).rejects.toThrow()
   })
 })

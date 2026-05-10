@@ -1,9 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { AutoDetails } from '../domain/insured-object-details.js'
-import {
-  InvalidStageTransitionError,
-  ProposalNotFoundError,
-} from '../domain/proposal-errors.js'
+import { InvalidStageTransitionError } from '../domain/proposal-errors.js'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
 import { Proposal } from '../domain/proposal.js'
 import { UpdateProposalDetails } from './update-proposal-details.js'
@@ -20,9 +17,6 @@ function createMockRepo(proposal: Proposal | null): ProposalRepository {
   return {
     save: vi.fn(),
     findById: vi.fn().mockResolvedValue(proposal),
-    findByIdOrFail: proposal
-      ? vi.fn().mockResolvedValue(proposal)
-      : vi.fn().mockRejectedValue(new ProposalNotFoundError('test')),
     listForView: vi.fn(),
   }
 }
