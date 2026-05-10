@@ -36,6 +36,7 @@ export function listContactsRoute(app: FastifyInstance) {
           createdFrom: request.query.createdFrom,
           createdTo: request.query.createdTo,
           search: request.query.search,
+          clientId: request.query.clientId,
           cursor: request.query.cursor,
           limit: request.query.limit,
           sortBy: request.query.sortBy,

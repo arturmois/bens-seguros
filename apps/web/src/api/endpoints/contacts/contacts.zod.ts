@@ -90,6 +90,7 @@ export const ListContactsQueryParams = zod.object({
   createdFrom: zod.string().datetime({}).optional(),
   createdTo: zod.string().datetime({}).optional(),
   search: zod.string().optional(),
+  clientId: zod.string().optional(),
   cursor: zod.string().optional(),
   limit: zod
     .number()

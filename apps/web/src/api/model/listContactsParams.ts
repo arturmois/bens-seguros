@@ -21,6 +21,7 @@ export type ListContactsParams = {
   createdFrom?: string
   createdTo?: string
   search?: string
+  clientId?: string
   cursor?: string
   /**
    * @minimum 1

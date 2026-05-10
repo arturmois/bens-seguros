@@ -1,7 +1,7 @@
 'use client'
 
 import { ArrowLeft, Calendar, RefreshCw, Trash2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -22,6 +22,7 @@ import { formatDocument } from '@/lib/masks'
 import { hasPermission } from '@/lib/permissions'
 import { useClient, useDeleteClient } from '../hooks/use-clients'
 import { PERSON_TYPE_BADGE_VARIANT, PERSON_TYPE_LABELS } from '../lib/constants'
+import { ClientContactsTab } from './client-contacts-tab'
 import { DetailSkeleton } from './client-detail-skeleton'
 import { ClientHistoryTab } from './client-history-tab'
 import { ClientPoliciesTab } from './client-policies-tab'
@@ -30,6 +31,20 @@ import { LgpdDeleteDialogTrigger } from './lgpd-delete-dialog'
 
 interface ClientDetailContentProps {
   readonly clientId: string
+}
+
+const TAB_VALUES = [
+  'propostas',
+  'apolices',
+  'contatos',
+  'documentos',
+  'historico',
+] as const
+type TabValue = (typeof TAB_VALUES)[number]
+const DEFAULT_TAB: TabValue = 'propostas'
+
+function isTabValue(value: string | null): value is TabValue {
+  return value !== null && (TAB_VALUES as readonly string[]).includes(value)
 }
 
 function formatAddress(
@@ -64,10 +79,18 @@ function formatAddress(
 
 export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { activeOrg } = useOrgs()
   const { data: client, isLoading, isError, refetch } = useClient(clientId)
   const deleteClient = useDeleteClient()
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const tabParam = searchParams.get('tab')
+  const activeTab: TabValue = isTabValue(tabParam) ? tabParam : DEFAULT_TAB
+  function handleTabChange(value: string) {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('tab', value)
+    router.replace(`?${params.toString()}`, { scroll: false })
+  }
   const canLgpdDelete = hasPermission(
     activeOrg?.role ?? 'VIEWER',
     'clients:lgpd-delete'
@@ -174,24 +197,28 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
           />
         </div>
       </div>
-      <Tabs defaultValue="proposals">
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList>
-          <TabsTab value="proposals">Propostas</TabsTab>
-          <TabsTab value="policies">Apólices</TabsTab>
-          <TabsTab value="documents">Documentos</TabsTab>
-          <TabsTab value="history">Histórico</TabsTab>
+          <TabsTab value="propostas">Propostas</TabsTab>
+          <TabsTab value="apolices">Apólices</TabsTab>
+          <TabsTab value="contatos">Contatos</TabsTab>
+          <TabsTab value="documentos">Documentos</TabsTab>
+          <TabsTab value="historico">Histórico</TabsTab>
         </TabsList>
-        <TabsContent value="proposals" className="mt-4">
+        <TabsContent value="propostas" className="mt-4">
           <ClientProposalsTab clientId={clientId} />
         </TabsContent>
-        <TabsContent value="policies" className="mt-4">
+        <TabsContent value="apolices" className="mt-4">
           <ClientPoliciesTab clientId={clientId} />
         </TabsContent>
-        <TabsContent value="documents" className="mt-4 space-y-4">
+        <TabsContent value="contatos" className="mt-4">
+          <ClientContactsTab clientId={clientId} />
+        </TabsContent>
+        <TabsContent value="documentos" className="mt-4 space-y-4">
           <DocumentUpload entityType="CLIENT" entityId={clientId} />
           <DocumentList entityType="CLIENT" entityId={clientId} />
         </TabsContent>
-        <TabsContent value="history" className="mt-4">
+        <TabsContent value="historico" className="mt-4">
           <ClientHistoryTab clientId={clientId} />
         </TabsContent>
       </Tabs>

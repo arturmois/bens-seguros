@@ -20,6 +20,7 @@ export interface ListContactsInput {
   createdFrom?: Date
   createdTo?: Date
   search?: string
+  clientId?: string
   cursor?: string
   limit: number
   sortBy?: ContactSortField
@@ -46,6 +47,7 @@ export class ListContacts {
         createdFrom: input.createdFrom,
         createdTo: input.createdTo,
         search: input.search,
+        clientId: input.clientId,
       },
       {
         cursor: input.cursor,

@@ -46,6 +46,7 @@ export class PrismaAuditLogRepository implements AuditLogRepository {
       ...(filters.actionIn?.length
         ? { action: { in: [...filters.actionIn] } }
         : filters.action && { action: filters.action }),
+      ...(filters.entityId ? { entityId: filters.entityId } : {}),
       ...(filters.userId ? { userId: filters.userId } : {}),
       ...(filters.dateFrom || filters.dateTo
         ? {

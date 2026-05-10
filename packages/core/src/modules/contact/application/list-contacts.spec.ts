@@ -63,4 +63,17 @@ describe('ListContacts', () => {
       expect.anything()
     )
   })
+  it('passa clientId quando fornecido', async () => {
+    const repo = makeRepo()
+    const useCase = new ListContacts(repo)
+    await useCase.execute({
+      organizationId: 'org-1',
+      clientId: 'client-42',
+      limit: 10,
+    })
+    expect(repo.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ clientId: 'client-42' }),
+      expect.anything()
+    )
+  })
 })

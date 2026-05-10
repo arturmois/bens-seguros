@@ -8,6 +8,7 @@
 export type ListAuditLogsParams = {
   entityType?: string
   entityTypeIn?: string
+  entityId?: string
   action?: string
   actionIn?: string
   userId?: string

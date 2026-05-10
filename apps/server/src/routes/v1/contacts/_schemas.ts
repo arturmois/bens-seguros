@@ -86,6 +86,7 @@ export const listContactsQuery = z.object({
   createdFrom: z.coerce.date().optional(),
   createdTo: z.coerce.date().optional(),
   search: z.string().optional(),
+  clientId: z.string().optional(),
   cursor: z.string().optional(),
   limit: z.coerce.number().int().min(1).max(100).default(20),
   sortBy: z.enum(['createdAt', 'updatedAt', 'name']).default('createdAt'),

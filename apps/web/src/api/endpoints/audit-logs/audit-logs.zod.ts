@@ -15,6 +15,7 @@ export const listAuditLogsQueryLimitMax = 100
 export const ListAuditLogsQueryParams = zod.object({
   entityType: zod.string().optional(),
   entityTypeIn: zod.string().optional(),
+  entityId: zod.string().optional(),
   action: zod.string().optional(),
   actionIn: zod.string().optional(),
   userId: zod.string().optional(),

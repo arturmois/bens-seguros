@@ -12,6 +12,7 @@ const SUBJECT_MAP: Record<string, Subject> = {
   endorsements: 'Endorsement',
   assistances: 'Assistance',
   documents: 'Document',
+  contacts: 'Contact',
   users: 'Member',
   settings: 'Organization',
   audit: 'AuditLog',

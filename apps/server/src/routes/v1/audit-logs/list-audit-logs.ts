@@ -20,6 +20,7 @@ export function listAuditLogsRoute(app: FastifyInstance) {
       const {
         entityType,
         entityTypeIn,
+        entityId,
         action,
         actionIn,
         userId,
@@ -34,6 +35,7 @@ export function listAuditLogsRoute(app: FastifyInstance) {
           organizationId: request.organizationId!,
           entityType,
           entityTypeIn,
+          entityId,
           action,
           actionIn,
           userId,

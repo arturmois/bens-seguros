@@ -18,6 +18,7 @@ export interface AuditLogFilters {
   organizationId: string
   entityType?: string
   entityTypeIn?: readonly string[]
+  entityId?: string
   action?: string
   actionIn?: readonly string[]
   userId?: string

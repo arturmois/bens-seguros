@@ -126,6 +126,22 @@ describe('PrismaAuditLogRepository', () => {
       })
     )
   })
+  it('filters by entityId when provided', async () => {
+    const { prisma, findMany } = makePrisma([], 0)
+    const repo = new PrismaAuditLogRepository(prisma)
+    await repo.list(
+      { organizationId: 'org-1', entityType: 'Client', entityId: 'client-42' },
+      { limit: 30 }
+    )
+    expect(findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          entityType: 'Client',
+          entityId: 'client-42',
+        }),
+      })
+    )
+  })
   it('builds open-ended createdAt range when only dateFrom is provided', async () => {
     const { prisma, findMany } = makePrisma([], 0)
     const repo = new PrismaAuditLogRepository(prisma)
