@@ -19,6 +19,17 @@ export interface InvitationListPage {
   readonly nextCursor: string | null
 }
 
+export interface InvitationPublicView {
+  readonly id: string
+  readonly email: string
+  readonly role: string
+  readonly status: string
+  readonly expiresAt: Date
+  readonly organizationName: string
+  readonly inviterName: string
+  readonly hasAccount: boolean
+}
+
 export interface AcceptInvitationResult {
   readonly organizationId: string
   readonly role: string
@@ -41,4 +52,5 @@ export interface InvitationRepository {
     id: string,
     organizationId: string
   ): Promise<InvitationDetail | null>
+  findByIdPublic(id: string): Promise<InvitationPublicView | null>
 }

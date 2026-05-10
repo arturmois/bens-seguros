@@ -2,6 +2,7 @@ import type { PrismaClient, Role } from '@repo/db'
 import type {
   InvitationDetail,
   InvitationListPage,
+  InvitationPublicView,
   InvitationRecord,
   InvitationRepository,
 } from '../domain/invitation-repository.js'
@@ -122,6 +123,34 @@ export class PrismaInvitationRepository implements InvitationRepository {
       inviterId: updated.inviterId,
       createdAt: updated.createdAt,
       updatedAt: updated.updatedAt,
+    }
+  }
+
+  async findByIdPublic(id: string): Promise<InvitationPublicView | null> {
+    const invitation = await this.prisma.invitation.findUnique({
+      where: { id },
+      include: { organization: { select: { name: true } } },
+    })
+    if (!invitation) return null
+    const [inviter, existingUser] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id: invitation.inviterId },
+        select: { name: true },
+      }),
+      this.prisma.user.findUnique({
+        where: { email: invitation.email },
+        select: { id: true },
+      }),
+    ])
+    return {
+      id: invitation.id,
+      email: invitation.email,
+      role: invitation.role,
+      status: invitation.status,
+      expiresAt: invitation.expiresAt,
+      organizationName: invitation.organization.name,
+      inviterName: inviter?.name ?? 'Um membro',
+      hasAccount: existingUser !== null,
     }
   }
 }

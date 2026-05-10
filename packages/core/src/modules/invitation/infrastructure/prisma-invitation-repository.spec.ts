@@ -93,6 +93,69 @@ describe('PrismaInvitationRepository.listPending', () => {
   })
 })
 
+describe('PrismaInvitationRepository.findByIdPublic', () => {
+  function makePrismaForPublic() {
+    const findUnique = vi.fn()
+    const findUniqueUser = vi.fn()
+    const prisma = {
+      invitation: { findUnique },
+      user: { findUnique: findUniqueUser },
+    } as unknown as PrismaClient
+    return { prisma, findUnique, findUniqueUser }
+  }
+  it('returns null when invitation does not exist', async () => {
+    const { prisma, findUnique } = makePrismaForPublic()
+    findUnique.mockResolvedValue(null)
+    const repo = new PrismaInvitationRepository(prisma)
+    const result = await repo.findByIdPublic('missing')
+    expect(result).toBeNull()
+  })
+  it('joins organization, inviter and existing user; falls back inviterName to "Um membro"', async () => {
+    const { prisma, findUnique, findUniqueUser } = makePrismaForPublic()
+    findUnique.mockResolvedValue({
+      id: 'inv-1',
+      email: 'a@b.com',
+      role: 'COMMERCIAL',
+      status: 'pending',
+      expiresAt: new Date('2026-12-31'),
+      inviterId: 'user-9',
+      organization: { name: 'Corretora X' },
+    })
+    findUniqueUser.mockResolvedValueOnce(null).mockResolvedValueOnce(null)
+    const repo = new PrismaInvitationRepository(prisma)
+    const result = await repo.findByIdPublic('inv-1')
+    expect(result).toEqual({
+      id: 'inv-1',
+      email: 'a@b.com',
+      role: 'COMMERCIAL',
+      status: 'pending',
+      expiresAt: new Date('2026-12-31'),
+      organizationName: 'Corretora X',
+      inviterName: 'Um membro',
+      hasAccount: false,
+    })
+  })
+  it('returns inviter name and hasAccount=true when both lookups succeed', async () => {
+    const { prisma, findUnique, findUniqueUser } = makePrismaForPublic()
+    findUnique.mockResolvedValue({
+      id: 'inv-1',
+      email: 'a@b.com',
+      role: 'COMMERCIAL',
+      status: 'pending',
+      expiresAt: new Date(),
+      inviterId: 'user-9',
+      organization: { name: 'Org' },
+    })
+    findUniqueUser
+      .mockResolvedValueOnce({ name: 'Carlos' })
+      .mockResolvedValueOnce({ id: 'user-42' })
+    const repo = new PrismaInvitationRepository(prisma)
+    const result = await repo.findByIdPublic('inv-1')
+    expect(result?.inviterName).toBe('Carlos')
+    expect(result?.hasAccount).toBe(true)
+  })
+})
+
 describe('PrismaInvitationRepository.cancelPending', () => {
   let mocks: ReturnType<typeof makePrisma>
   beforeEach(() => {

@@ -27,6 +27,7 @@ function createMockRepo(): InvitationRepository {
     acceptAndCreateMember: vi.fn(),
     listPending: vi.fn(),
     cancelPending: vi.fn(),
+    findByIdPublic: vi.fn(),
   }
 }
 

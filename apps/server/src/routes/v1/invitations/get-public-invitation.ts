@@ -1,9 +1,10 @@
 import type { Auth } from '@repo/auth'
-import { prisma } from '@repo/db'
+import { container, GetPublicInvitation } from '@repo/core'
 import { RATE_LIMITS } from '@repo/shared'
 import type { FastifyInstance, FastifyRequest } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { errorResponse } from '../../shared/response.schema.js'
+import { handleDomainError } from '../handle-domain-error.js'
 import { readCurrentSession } from './_better-auth-helpers.js'
 import { idParamSchema, publicInvitationResponse } from './_schemas.js'
 
@@ -37,50 +38,33 @@ export function getPublicInvitationRoute(app: FastifyInstance, auth: Auth) {
     },
     handler: async (request, reply) => {
       const { id } = request.params
-      const invitation = await prisma.invitation.findUnique({
-        where: { id },
-        include: {
-          organization: { select: { name: true } },
-        },
-      })
-      if (!invitation) {
-        return reply.status(404).send({
-          success: false,
-          error: {
-            code: 'INVITATION_NOT_FOUND',
-            message: 'Convite não encontrado',
+      const useCase = container.resolve(GetPublicInvitation)
+      try {
+        const [view, currentSession] = await Promise.all([
+          useCase.execute(id),
+          readCurrentSession({
+            auth,
+            headers: buildSessionHeaders(request),
+            logger: request.log,
+          }),
+        ])
+        return reply.send({
+          success: true,
+          data: {
+            id: view.id,
+            email: view.email,
+            role: view.role,
+            status: view.status,
+            expiresAt: view.expiresAt,
+            organizationName: view.organizationName,
+            inviterName: view.inviterName,
+            hasAccount: view.hasAccount,
+            currentSession,
           },
         })
+      } catch (error) {
+        return handleDomainError(error, reply)
       }
-      const [inviter, existingUser, currentSession] = await Promise.all([
-        prisma.user.findUnique({
-          where: { id: invitation.inviterId },
-          select: { name: true },
-        }),
-        prisma.user.findUnique({
-          where: { email: invitation.email },
-          select: { id: true },
-        }),
-        readCurrentSession({
-          auth,
-          headers: buildSessionHeaders(request),
-          logger: request.log,
-        }),
-      ])
-      return reply.send({
-        success: true,
-        data: {
-          id: invitation.id,
-          email: invitation.email,
-          role: invitation.role,
-          status: invitation.status,
-          expiresAt: invitation.expiresAt,
-          organizationName: invitation.organization.name,
-          inviterName: inviter?.name ?? 'Um membro',
-          hasAccount: !!existingUser,
-          currentSession,
-        },
-      })
     },
   })
 }
