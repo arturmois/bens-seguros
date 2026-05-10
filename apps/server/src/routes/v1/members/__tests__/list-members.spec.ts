@@ -11,21 +11,29 @@ import {
   createTestApp,
   injectAs,
   setTestContext,
+  TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
-import { makeMember } from '../../../../__tests__/helpers/factories.js'
+import { mockResolve } from '../../../../__tests__/helpers/mock-use-case.js'
 import { listMembersRoute } from '../list-members.js'
 
-vi.mock('@repo/db', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('@repo/db')>()
+vi.mock('@repo/core', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('@repo/core')>()
   return {
     ...mod,
-    prisma: {
-      member: {
-        findMany: vi.fn(),
-        count: vi.fn(),
-      },
-    },
+    container: { resolve: vi.fn() },
   }
+})
+
+const mockExecute = vi.fn()
+
+const sampleItem = (id = 'member-1') => ({
+  id,
+  userId: 'user-1',
+  name: 'Carlos',
+  email: 'carlos@user.com',
+  role: 'OWNER',
+  active: true,
+  createdAt: new Date('2026-01-01T00:00:00.000Z'),
 })
 
 let app: Awaited<ReturnType<typeof createTestApp>>
@@ -37,15 +45,16 @@ afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
+  mockResolve(mockExecute)
 })
 
 describe('GET /api/v1/members', () => {
   it('returns 200 with paginated member list', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findMany).mockResolvedValue([
-      makeMember(),
-    ] as unknown as Awaited<ReturnType<typeof prisma.member.findMany>>)
-    vi.mocked(prisma.member.count).mockResolvedValue(1)
+    mockExecute.mockResolvedValue({
+      items: [sampleItem()],
+      total: 1,
+      nextCursor: null,
+    })
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/members',
@@ -59,11 +68,7 @@ describe('GET /api/v1/members', () => {
     expect(body.meta.nextCursor).toBeNull()
   })
   it('returns 200 with empty list when no active members', async () => {
-    const { prisma } = await import('@repo/db')
-    vi.mocked(prisma.member.findMany).mockResolvedValue(
-      [] as unknown as Awaited<ReturnType<typeof prisma.member.findMany>>
-    )
-    vi.mocked(prisma.member.count).mockResolvedValue(0)
+    mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/members',
@@ -73,16 +78,12 @@ describe('GET /api/v1/members', () => {
     expect(body.data).toHaveLength(0)
     expect(body.meta.total).toBe(0)
   })
-  it('returns nextCursor when more pages exist', async () => {
-    const { prisma } = await import('@repo/db')
-    const members = [
-      makeMember({ id: 'member-id-001' }),
-      makeMember({ id: 'member-id-002' }),
-    ]
-    vi.mocked(prisma.member.findMany).mockResolvedValue(
-      members as unknown as Awaited<ReturnType<typeof prisma.member.findMany>>
-    )
-    vi.mocked(prisma.member.count).mockResolvedValue(2)
+  it('forwards nextCursor from the use case', async () => {
+    mockExecute.mockResolvedValue({
+      items: [sampleItem('member-id-001')],
+      total: 2,
+      nextCursor: 'member-id-001',
+    })
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/members',
@@ -99,5 +100,18 @@ describe('GET /api/v1/members', () => {
       query: { limit: '0' },
     })
     expect(response.statusCode).toBe(400)
+  })
+  it('forwards organizationId, limit and cursor to the use case', async () => {
+    mockExecute.mockResolvedValue({ items: [], total: 0, nextCursor: null })
+    await injectAs(app, {
+      method: 'GET',
+      url: '/api/v1/members',
+      query: { limit: '20', cursor: 'member-id-100' },
+    })
+    expect(mockExecute).toHaveBeenCalledWith({
+      organizationId: TEST_ORG_ID,
+      limit: 20,
+      cursor: 'member-id-100',
+    })
   })
 })

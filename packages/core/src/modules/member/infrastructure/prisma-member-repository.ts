@@ -1,6 +1,7 @@
 import { injectable, inject } from 'tsyringe'
 import type { PrismaClient, Role } from '@repo/db'
 import type {
+  MemberListPage,
   MemberRepository,
   MemberRecord,
   OrganizationMembership,
@@ -87,5 +88,38 @@ export class PrismaMemberRepository implements MemberRepository {
       logo: row.organization.logo,
       role: row.role,
     }))
+  }
+
+  async listActive(
+    organizationId: string,
+    options: { limit: number; cursor?: string }
+  ): Promise<MemberListPage> {
+    const where = {
+      organizationId,
+      active: true,
+      ...(options.cursor ? { id: { gt: options.cursor } } : {}),
+    }
+    const [rows, total] = await Promise.all([
+      this.prisma.member.findMany({
+        where,
+        include: { user: { select: { name: true, email: true } } },
+        orderBy: { id: 'asc' },
+        take: options.limit + 1,
+      }),
+      this.prisma.member.count({ where: { organizationId, active: true } }),
+    ])
+    const hasMore = rows.length > options.limit
+    if (hasMore) rows.pop()
+    const items = rows.map((row) => ({
+      id: row.id,
+      userId: row.userId,
+      name: row.user.name,
+      email: row.user.email,
+      role: row.role,
+      active: row.active,
+      createdAt: row.createdAt,
+    }))
+    const nextCursor = hasMore ? (items.at(-1)?.id ?? null) : null
+    return { items, total, nextCursor }
   }
 }

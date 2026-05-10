@@ -69,6 +69,7 @@ import {
   GetOrganization,
   GlobalSearch,
   ListAuditLogs,
+  ListMembers,
   ListUserTenants,
   PrismaAuditLogRepository,
   PrismaDashboardRepository,
@@ -390,6 +391,9 @@ export function registerDependencies(redis: Redis | null = null) {
   })
   container.register(ListUserTenants, {
     useFactory: () => new ListUserTenants(memberRepo),
+  })
+  container.register(ListMembers, {
+    useFactory: () => new ListMembers(memberRepo, cacheService),
   })
   const invitationRepo = new PrismaInvitationRepository(prismaAdmin)
   container.register('InvitationRepository', { useValue: invitationRepo })

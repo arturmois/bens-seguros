@@ -3,7 +3,10 @@ export type { UpdateMemberRoleInput } from './application/update-member-role.js'
 export { DeactivateMember } from './application/deactivate-member.js'
 export type { DeactivateMemberInput } from './application/deactivate-member.js'
 export { ListUserTenants } from './application/list-user-tenants.js'
+export { ListMembers } from './application/list-members.js'
 export type {
+  MemberListItem,
+  MemberListPage,
   MemberRepository,
   MemberRecord,
   OrganizationMembership,
