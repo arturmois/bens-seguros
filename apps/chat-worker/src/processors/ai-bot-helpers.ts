@@ -1,9 +1,14 @@
-import type { CoreMessage } from 'ai'
 import type { AIProvider } from '@repo/ai'
-import { env } from '@repo/env'
 import { Conversation, Message } from '@repo/db-chat'
-import { CHAT_PUBSUB_CHANNELS, CHAT_LIMITS } from '@repo/shared'
+import { env } from '@repo/env'
+import { CHAT_LIMITS, CHAT_PUBSUB_CHANNELS } from '@repo/shared'
+import type { CoreMessage } from 'ai'
+import { CONFIGURABLE_TOOL_NAMES } from '../tools/tool-registry.js'
 import type { PubsubClient } from '../types/pubsub-client.js'
+
+const CONFIGURABLE_TOOL_SET: ReadonlySet<string> = new Set(
+  CONFIGURABLE_TOOL_NAMES
+)
 
 export const DEFAULT_SYSTEM_PROMPT =
   'Voce e um assistente de uma corretora de seguros. Responda de forma educada e profissional em portugues brasileiro. Se o cliente quiser falar com um atendente humano, diga que vai transferi-lo.'
@@ -46,7 +51,10 @@ export function getAiAgentConfig(doc: Record<string, unknown>): AiAgentConfig {
         ? doc['maxResponsesPerConversation']
         : CHAT_LIMITS.MAX_AI_RESPONSES_PER_CONVERSATION,
     enabledTools: Array.isArray(doc['enabledTools'])
-      ? doc['enabledTools'].filter((t): t is string => typeof t === 'string')
+      ? doc['enabledTools'].filter(
+          (t): t is string =>
+            typeof t === 'string' && CONFIGURABLE_TOOL_SET.has(t)
+        )
       : [],
   }
 }
@@ -84,16 +92,8 @@ const TOOL_PROMPT_DESCRIPTIONS: Record<string, string> = {
   captureLead: 'registrar interesse do cliente em um seguro e criar proposta',
   searchClient:
     'buscar cliente por telefone ou CPF/CNPJ (verificar se ja tem cadastro)',
-  updateClientData:
-    'atualizar dados cadastrais (CPF, email, endereco, nascimento)',
-  reportClaim:
-    'registrar sinistro/urgencia (cria no sistema se tiver apolice, senao salva e transfere)',
-  registerFinancialInquiry:
-    'registrar duvida financeira e transferir para especialista',
   collectInsuredAssetData:
     'salvar dados do bem segurado na proposta (veiculo, imovel, etc.)',
-  searchProposal: 'consultar propostas existentes do cliente',
-  searchPolicy: 'consultar apolices ativas do cliente',
 }
 
 const TOOL_CALL_PATTERN = /`([a-z][a-zA-Z0-9_]*)\s*\(/g

@@ -18,15 +18,10 @@ The agent acts as an assistant for a Brazilian insurance brokerage. It responds 
 
 ## Ferramentas Disponiveis
 
-| Ferramenta                 | Quando Usar                                               |
-| -------------------------- | --------------------------------------------------------- |
-| `escalateToHuman`          | Cliente pede humano, tema sensivel, voce nao resolve      |
-| `listProducts`             | Listar tipos de seguro com coberturas e dados necessarios |
-| `searchClient`             | Verificar se cliente ja tem cadastro (inicio da conversa) |
-| `captureLead`              | Registrar interesse e criar proposta de seguro            |
-| `updateClientData`         | Completar CPF, email, endereco, nascimento do cliente     |
-| `collectInsuredAssetData`  | Registrar dados do bem (veiculo, imovel, vida)            |
-| `searchProposal`           | Verificar propostas em andamento do cliente               |
-| `searchPolicy`             | Verificar apolices ativas do cliente                      |
-| `reportClaim`              | Registrar sinistro (cria automatico se tiver apolice)     |
-| `registerFinancialInquiry` | Registrar duvida de pagamento/boleto e transferir         |
+| Ferramenta                | Quando Usar                                               |
+| ------------------------- | --------------------------------------------------------- |
+| `escalateToHuman`         | Cliente pede humano, tema sensivel, voce nao resolve      |
+| `listProducts`            | Listar tipos de seguro com coberturas e dados necessarios |
+| `searchClient`            | Verificar se cliente ja tem cadastro (inicio da conversa) |
+| `captureLead`             | Registrar interesse e criar proposta de seguro            |
+| `collectInsuredAssetData` | Registrar dados do bem (veiculo, imovel, vida)            |

@@ -15,16 +15,11 @@ import { createCaptureLeadTool } from '../tools/capture-lead.js'
 import { createCollectInsuredAssetDataTool } from '../tools/collect-insured-asset-data.js'
 import { createEscalateToHumanTool } from '../tools/escalate-to-human.js'
 import { createListProductsTool } from '../tools/list-products.js'
-import { createRegisterFinancialInquiryTool } from '../tools/register-financial-inquiry.js'
-import { createReportClaimTool } from '../tools/report-claim.js'
 import { createSearchClientTool } from '../tools/search-client.js'
-import { createSearchPolicyTool } from '../tools/search-policy.js'
-import { createSearchProposalTool } from '../tools/search-proposal.js'
 import {
   CONFIGURABLE_TOOL_NAMES,
   MANDATORY_TOOLS,
 } from '../tools/tool-registry.js'
-import { createUpdateClientDataTool } from '../tools/update-client-data.js'
 import type { PubsubClient } from '../types/pubsub-client.js'
 import {
   type AiBotJobData,
@@ -180,20 +175,7 @@ export function createAiBotProcessor(
         channelTypeToContactSource(channel.type)
       ),
       searchClient: createSearchClientTool(tenantId),
-      updateClientData: createUpdateClientDataTool(tenantId),
-      reportClaim: createReportClaimTool(
-        conversationId,
-        tenantId,
-        pubsubClient
-      ),
-      registerFinancialInquiry: createRegisterFinancialInquiryTool(
-        conversationId,
-        tenantId,
-        pubsubClient
-      ),
       collectInsuredAssetData: createCollectInsuredAssetDataTool(tenantId),
-      searchProposal: createSearchProposalTool(tenantId),
-      searchPolicy: createSearchPolicyTool(tenantId),
     }
     const filteredTools = Object.fromEntries(
       Object.entries(tools).filter(
@@ -227,15 +209,9 @@ export function createAiBotProcessor(
       await escalateToHuman(conversationId, tenantId, pubsubClient)
       return
     }
-    const wasEscalated = result.toolResults.some((tr) => {
-      if (tr.toolName === ESCALATION_TOOL_NAME) return true
-      if (tr.toolName === 'registerFinancialInquiry') return true
-      if (tr.toolName === 'reportClaim') {
-        const claimResult = tr.result as { claimCreated?: boolean } | undefined
-        return claimResult?.claimCreated === false
-      }
-      return false
-    })
+    const wasEscalated = result.toolResults.some(
+      (tr) => tr.toolName === ESCALATION_TOOL_NAME
+    )
     if (wasEscalated) {
       logger.info(
         { conversationId, tenantId },

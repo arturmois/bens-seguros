@@ -23,34 +23,9 @@ export const TOOL_REGISTRY: readonly ToolRegistryEntry[] = [
     description: 'Encontra cliente por telefone ou CPF/CNPJ',
   },
   {
-    name: 'updateClientData',
-    label: 'Atualizar dados do cliente',
-    description: 'Atualiza informações cadastrais do cliente',
-  },
-  {
-    name: 'reportClaim',
-    label: 'Registrar sinistro',
-    description: 'Registra ocorrência de sinistro ou emergência',
-  },
-  {
-    name: 'registerFinancialInquiry',
-    label: 'Consulta financeira',
-    description: 'Registra dúvida financeira e escala para atendente',
-  },
-  {
     name: 'collectInsuredAssetData',
     label: 'Coletar dados do bem',
     description: 'Salva detalhes do bem segurado para cotação',
-  },
-  {
-    name: 'searchProposal',
-    label: 'Buscar proposta',
-    description: 'Encontra propostas existentes no sistema',
-  },
-  {
-    name: 'searchPolicy',
-    label: 'Buscar apólice',
-    description: 'Consulta apólices ativas por cliente ou ramo',
   },
 ] as const
 
