@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { ListPolicies } from './list-policies.js'
 import type { PolicyRepository } from '../domain/policy-repository.js'
+import { ListPolicies } from './list-policies.js'
 
 describe('ListPolicies', () => {
   function makeMockRepo() {

@@ -1,8 +1,11 @@
-import { describe, it, expect, vi } from 'vitest'
-import { UpdateProposalDates } from './update-proposal-dates.js'
-import { Proposal } from '../domain/proposal.js'
+import { describe, expect, it, vi } from 'vitest'
+import {
+  InvalidCoverageDatesError,
+  ProposalNotFoundError,
+} from '../domain/proposal-errors.js'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
-import { InvalidCoverageDatesError } from '../domain/proposal-errors.js'
+import { Proposal } from '../domain/proposal.js'
+import { UpdateProposalDates } from './update-proposal-dates.js'
 
 function createTestProposal(): Proposal {
   return Proposal.restore({
@@ -39,6 +42,9 @@ function createMockRepo(proposal: Proposal | null): ProposalRepository {
   return {
     save: vi.fn(),
     findById: vi.fn().mockResolvedValue(proposal),
+    findByIdOrFail: proposal
+      ? vi.fn().mockResolvedValue(proposal)
+      : vi.fn().mockRejectedValue(new ProposalNotFoundError('test')),
     listForView: vi.fn(),
   }
 }

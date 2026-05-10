@@ -1,21 +1,22 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { ProposalRepository } from '../domain/proposal-repository.js'
-import type { ChecklistRepository } from '../domain/checklist-repository.js'
-import type { ChecklistConfigProvider } from '../domain/checklist-config.js'
-import type {
-  PolicyData,
-  PolicyRepository,
-} from '../../policy/domain/policy-repository.js'
 import type {
   ContactRepository,
   ContactWithStage,
 } from '../../contact/domain/contact-repository.js'
+import type {
+  PolicyData,
+  PolicyRepository,
+} from '../../policy/domain/policy-repository.js'
+import type { ChecklistConfigProvider } from '../domain/checklist-config.js'
+import type { ChecklistRepository } from '../domain/checklist-repository.js'
+import type { ProposalRepository } from '../domain/proposal-repository.js'
 import { CreateProposal } from './create-proposal.js'
 
 function createMockRepo(): ProposalRepository {
   return {
     save: vi.fn(),
     findById: vi.fn(),
+    findByIdOrFail: vi.fn(),
     listForView: vi.fn(),
   }
 }

@@ -1,18 +1,19 @@
-import { injectable, inject } from 'tsyringe'
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
-import { parseSourcePolicySnapshot } from '../domain/proposal.js'
-import type { Proposal } from '../domain/proposal.js'
+import { inject, injectable } from 'tsyringe'
+import { isInsuredObjectDetails } from '../domain/insured-object-details.js'
+import { ProposalErrors } from '../domain/proposal-errors.js'
 import type {
   ProposalListItem,
   ProposalListPage,
 } from '../domain/proposal-list-item.js'
 import type {
-  ProposalRepository,
-  ProposalFilters,
   ProposalCursorPage,
+  ProposalFilters,
+  ProposalRepository,
 } from '../domain/proposal-repository.js'
-import { isInsuredObjectDetails } from '../domain/insured-object-details.js'
+import type { Proposal } from '../domain/proposal.js'
+import { parseSourcePolicySnapshot } from '../domain/proposal.js'
 import { ProposalMapper } from './proposal-mapper.js'
 
 const PROPOSAL_INCLUDE = {
@@ -59,6 +60,12 @@ export class PrismaProposalRepository implements ProposalRepository {
       include: PROPOSAL_INCLUDE,
     })
     return row ? ProposalMapper.toDomain(row) : null
+  }
+
+  async findByIdOrFail(id: string, organizationId: string): Promise<Proposal> {
+    const found = await this.findById(id, organizationId)
+    if (!found) throw ProposalErrors.notFound(id)
+    return found
   }
 
   async listForView(

@@ -1,17 +1,20 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Proposal } from '../domain/proposal.js'
-import type { ProposalRepository } from '../domain/proposal-repository.js'
 import type {
-  ChecklistRepository,
   ChecklistItemData,
+  ChecklistRepository,
 } from '../domain/checklist-repository.js'
 import { ProposalNotFoundError } from '../domain/proposal-errors.js'
+import type { ProposalRepository } from '../domain/proposal-repository.js'
+import { Proposal } from '../domain/proposal.js'
 import { CompleteChecklistByAttachment } from './complete-checklist-by-attachment.js'
 
 function createMockProposalRepo(proposal: Proposal | null): ProposalRepository {
   return {
     save: vi.fn(),
     findById: vi.fn().mockResolvedValue(proposal),
+    findByIdOrFail: proposal
+      ? vi.fn().mockResolvedValue(proposal)
+      : vi.fn().mockRejectedValue(new ProposalNotFoundError('test')),
     listForView: vi.fn(),
   }
 }

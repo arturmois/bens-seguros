@@ -1,6 +1,5 @@
 import { inject, injectable } from 'tsyringe'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
-import { ProposalErrors } from '../domain/proposal-errors.js'
 import type { Proposal } from '../domain/proposal.js'
 
 interface UpdateProposalDatesDTO {
@@ -22,13 +21,10 @@ export class UpdateProposalDates {
     organizationId: string,
     dto: UpdateProposalDatesDTO
   ): Promise<Proposal> {
-    const proposal = await this.proposalRepo.findById(
+    const proposal = await this.proposalRepo.findByIdOrFail(
       proposalId,
       organizationId
     )
-    if (!proposal) {
-      throw ProposalErrors.notFound(proposalId)
-    }
     this.applyCoverageDates(proposal, dto)
     if (dto.clientResponseAt !== undefined) {
       proposal.updateClientResponse(dto.clientResponseAt)

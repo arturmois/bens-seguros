@@ -3,7 +3,6 @@ import type {
   ChecklistRepository,
   ChecklistSummary,
 } from '../domain/checklist-repository.js'
-import { ProposalNotFoundError } from '../domain/proposal-errors.js'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
 
 export class ListChecklistItems {
@@ -19,13 +18,7 @@ export class ListChecklistItems {
     items: ChecklistItemData[]
     summary: ChecklistSummary
   }> {
-    const proposal = await this.proposalRepo.findById(
-      proposalId,
-      organizationId
-    )
-    if (!proposal) {
-      throw new ProposalNotFoundError(proposalId)
-    }
+    await this.proposalRepo.findByIdOrFail(proposalId, organizationId)
     const [items, summary] = await Promise.all([
       this.checklistRepo.findByProposal(proposalId),
       this.checklistRepo.getSummary(proposalId),

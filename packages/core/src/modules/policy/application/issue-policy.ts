@@ -34,13 +34,10 @@ export class IssuePolicy {
   ) {}
 
   async execute(dto: IssuePolicyDTO): Promise<PolicyData> {
-    const proposal = await this.proposalRepo.findById(
+    const proposal = await this.proposalRepo.findByIdOrFail(
       dto.proposalId,
       dto.organizationId
     )
-    if (!proposal) {
-      throw ProposalErrors.notFound(dto.proposalId)
-    }
     if (proposal.stage !== 'POLICY_ISSUED') {
       throw PolicyErrors.notIssuable(dto.proposalId)
     }

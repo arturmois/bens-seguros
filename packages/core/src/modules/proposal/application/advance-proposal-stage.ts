@@ -20,48 +20,62 @@ export class AdvanceProposalStage {
   ) {}
 
   async execute(proposalId: string, organizationId: string): Promise<Proposal> {
-    const proposal = await this.proposalRepo.findById(
+    const proposal = await this.proposalRepo.findByIdOrFail(
       proposalId,
       organizationId
     )
-    if (!proposal) {
-      throw ProposalErrors.notFound(proposalId)
-    }
+    await this.assertCanAdvance(proposal, organizationId)
+    proposal.advance()
+    await this.proposalRepo.save(proposal)
+    await this.regenerateChecklistIfNeeded(proposal, organizationId)
+    return proposal
+  }
+
+  private async assertCanAdvance(
+    proposal: Proposal,
+    organizationId: string
+  ): Promise<void> {
     if (proposal.needsDetailsToAdvance()) {
-      throw ProposalErrors.detailsRequired(proposalId)
+      throw ProposalErrors.detailsRequired(proposal.id)
     }
     if (proposal.requiresChecklistToAdvance()) {
-      const summary = await this.checklistRepo.getSummary(proposalId)
-      if (!summary.canAdvance) {
-        throw ProposalErrors.checklistIncomplete(
-          proposalId,
-          summary.required - summary.requiredCompleted
-        )
-      }
+      await this.assertChecklistComplete(proposal.id)
     }
     if (proposal.requiresPromotedContact()) {
       await this.assertContactIsPromoted(proposal.contactId, organizationId)
     }
-    proposal.advance()
-    await this.proposalRepo.save(proposal)
-    if (proposal.acceptsNewChecklistItems()) {
-      const newItems = this.checklistConfig.getItems(
-        proposal.stage,
-        proposal.branch
-      )
-      if (newItems.length > 0) {
-        await this.checklistRepo.createMany(
-          proposalId,
-          organizationId,
-          newItems.map((i) => ({
-            itemKey: i.itemKey,
-            label: i.label,
-            isRequired: i.isRequired,
-          }))
-        )
-      }
+  }
+
+  private async assertChecklistComplete(proposalId: string): Promise<void> {
+    const summary = await this.checklistRepo.getSummary(proposalId)
+    if (summary.canAdvance) {
+      return
     }
-    return proposal
+    throw ProposalErrors.checklistIncomplete(
+      proposalId,
+      summary.required - summary.requiredCompleted
+    )
+  }
+
+  private async regenerateChecklistIfNeeded(
+    proposal: Proposal,
+    organizationId: string
+  ): Promise<void> {
+    if (!proposal.acceptsNewChecklistItems()) return
+    const newItems = this.checklistConfig.getItems(
+      proposal.stage,
+      proposal.branch
+    )
+    if (newItems.length === 0) return
+    await this.checklistRepo.createMany(
+      proposal.id,
+      organizationId,
+      newItems.map((i) => ({
+        itemKey: i.itemKey,
+        label: i.label,
+        isRequired: i.isRequired,
+      }))
+    )
   }
 
   private async assertContactIsPromoted(

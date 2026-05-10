@@ -1,26 +1,30 @@
-import { describe, it, expect, vi } from 'vitest'
-import { AdvanceProposalStage } from './advance-proposal-stage.js'
-import { Proposal } from '../domain/proposal.js'
-import type { ProposalRepository } from '../domain/proposal-repository.js'
-import type {
-  ChecklistRepository,
-  ChecklistSummary,
-} from '../domain/checklist-repository.js'
-import type { ChecklistConfigProvider } from '../domain/checklist-config.js'
+import { describe, expect, it, vi } from 'vitest'
 import type {
   ContactData,
   ContactRepository,
 } from '../../contact/domain/contact-repository.js'
+import type { ChecklistConfigProvider } from '../domain/checklist-config.js'
+import type {
+  ChecklistRepository,
+  ChecklistSummary,
+} from '../domain/checklist-repository.js'
 import {
-  ProposalDetailsRequiredError,
   ChecklistIncompleteError,
   ContactNotPromotedError,
+  ProposalDetailsRequiredError,
+  ProposalNotFoundError,
 } from '../domain/proposal-errors.js'
+import type { ProposalRepository } from '../domain/proposal-repository.js'
+import { Proposal } from '../domain/proposal.js'
+import { AdvanceProposalStage } from './advance-proposal-stage.js'
 
 function createMockRepo(proposal: Proposal | null): ProposalRepository {
   return {
     save: vi.fn(),
     findById: vi.fn().mockResolvedValue(proposal),
+    findByIdOrFail: proposal
+      ? vi.fn().mockResolvedValue(proposal)
+      : vi.fn().mockRejectedValue(new ProposalNotFoundError('test')),
     listForView: vi.fn(),
   }
 }

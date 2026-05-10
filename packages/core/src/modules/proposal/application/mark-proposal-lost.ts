@@ -1,7 +1,6 @@
-import { injectable, inject } from 'tsyringe'
-import type { Proposal } from '../domain/proposal.js'
+import { inject, injectable } from 'tsyringe'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
-import { ProposalErrors } from '../domain/proposal-errors.js'
+import type { Proposal } from '../domain/proposal.js'
 
 @injectable()
 export class MarkProposalLost {
@@ -15,13 +14,10 @@ export class MarkProposalLost {
     organizationId: string,
     reason: string
   ): Promise<Proposal> {
-    const proposal = await this.proposalRepo.findById(
+    const proposal = await this.proposalRepo.findByIdOrFail(
       proposalId,
       organizationId
     )
-    if (!proposal) {
-      throw ProposalErrors.notFound(proposalId)
-    }
     proposal.markAsLost(reason)
     await this.proposalRepo.save(proposal)
     return proposal

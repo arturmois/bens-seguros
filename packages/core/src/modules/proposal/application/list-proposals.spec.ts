@@ -1,16 +1,17 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { ListProposals } from './list-proposals.js'
 import type {
   ProposalCursorPage,
   ProposalFilters,
   ProposalRepository,
 } from '../domain/proposal-repository.js'
+import { ListProposals } from './list-proposals.js'
 
 function makeRepo(): ProposalRepository {
   return {
     save: vi.fn(),
     findById: vi.fn(),
+    findByIdOrFail: vi.fn(),
     listForView: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
   }
 }

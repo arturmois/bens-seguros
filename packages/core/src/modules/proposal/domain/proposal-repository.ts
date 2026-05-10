@@ -1,5 +1,5 @@
 import type { ProposalListPage } from './proposal-list-item.js'
-import type { Branch, Proposal, Stage, BoardType } from './proposal.js'
+import type { BoardType, Branch, Proposal, Stage } from './proposal.js'
 
 export type ProposalSortField =
   | 'clientName'
@@ -40,6 +40,7 @@ export interface ProposalCursorPage {
 export interface ProposalRepository {
   save(proposal: Proposal): Promise<void>
   findById(id: string, organizationId: string): Promise<Proposal | null>
+  findByIdOrFail(id: string, organizationId: string): Promise<Proposal>
   listForView(
     filters: ProposalFilters,
     page: ProposalCursorPage

@@ -1,12 +1,12 @@
-import { describe, it, expect, vi } from 'vitest'
-import { SendQuote } from './send-quote.js'
-import { Proposal } from '../domain/proposal.js'
-import type { ProposalRepository } from '../domain/proposal-repository.js'
+import { describe, expect, it, vi } from 'vitest'
 import {
-  ClientHasNoEmailError,
   CannotSendQuoteForLostProposalError,
+  ClientHasNoEmailError,
   ProposalNotFoundError,
 } from '../domain/proposal-errors.js'
+import type { ProposalRepository } from '../domain/proposal-repository.js'
+import { Proposal } from '../domain/proposal.js'
+import { SendQuote } from './send-quote.js'
 
 function createTestProposal(stage: Proposal['stage'] = 'QUOTE'): Proposal {
   return Proposal.restore({
@@ -43,6 +43,9 @@ function createMockRepo(proposal: Proposal | null): ProposalRepository {
   return {
     save: vi.fn(),
     findById: vi.fn().mockResolvedValue(proposal),
+    findByIdOrFail: proposal
+      ? vi.fn().mockResolvedValue(proposal)
+      : vi.fn().mockRejectedValue(new ProposalNotFoundError('test')),
     listForView: vi.fn(),
   }
 }
@@ -58,7 +61,7 @@ describe('SendQuote', () => {
       'client@example.com'
     )
     expect(result).toBe(proposal)
-    expect(repo.findById).toHaveBeenCalledWith('proposal-1', 'org-1')
+    expect(repo.findByIdOrFail).toHaveBeenCalledWith('proposal-1', 'org-1')
   })
   it('rejects when proposal not found', async () => {
     const repo = createMockRepo(null)
