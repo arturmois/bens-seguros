@@ -1,34 +1,22 @@
 'use client'
 
-import { useState } from 'react'
-import {
-  ArrowLeft,
-  Calendar,
-  MapPin,
-  Plus,
-  RefreshCw,
-  Shield,
-  Trash2,
-  User,
-} from 'lucide-react'
+import { ArrowLeft, Plus, RefreshCw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 import { ConfirmDeleteDialog } from '@/components/shared/confirm-delete-dialog'
-import { DetailInfoItem } from '@/components/shared/detail-info-item'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs'
+import { DocumentList } from '@/features/documents/components/document-list'
+import { DocumentUpload } from '@/features/documents/components/document-upload'
 
 import { useClaim, useDeleteClaim } from '../hooks/use-claims'
 import { formatClaimNumber } from '../lib/constants'
-import { formatDate } from '@/lib/formatters'
-import type { ClaimData, ClaimPriority, ClaimStatus } from '../lib/types'
-import { ClaimPriorityBadge } from './claim-priority-badge'
-import { DocumentList } from '@/features/documents/components/document-list'
-import { DocumentUpload } from '@/features/documents/components/document-upload'
+import { ClaimDetailHeader } from './claim-detail-header'
+import { ClaimDetailSkeleton } from './claim-detail-skeleton'
+import { ClaimInfoGrid } from './claim-info-grid'
 import { ClaimStatusActions } from './claim-status-actions'
-import { ClaimStatusBadge } from './claim-status-badge'
 import { OccurrenceForm } from './occurrence-form'
 import { OccurrenceList } from './occurrence-list'
 
@@ -51,7 +39,7 @@ export function ClaimDetail({ claimId }: ClaimDetailProps) {
     })
   }
   if (isLoading) {
-    return <DetailSkeleton />
+    return <ClaimDetailSkeleton />
   }
   if (isError || !data) {
     return (
@@ -142,106 +130,6 @@ export function ClaimDetail({ claimId }: ClaimDetailProps) {
         onConfirm={handleConfirmDelete}
         isPending={deleteClaim.isPending}
       />
-    </div>
-  )
-}
-
-function ClaimDetailHeader({
-  formattedNumber,
-  status,
-  priority,
-  onDelete,
-}: {
-  readonly formattedNumber: string
-  readonly status: ClaimStatus
-  readonly priority: ClaimPriority
-  readonly onDelete: () => void
-}) {
-  return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-xl font-semibold">{formattedNumber}</h2>
-        <ClaimStatusBadge status={status} />
-        <ClaimPriorityBadge priority={priority} />
-      </div>
-      <Button variant="destructive" onClick={onDelete}>
-        <Trash2 className="mr-2 h-4 w-4" />
-        Excluir
-      </Button>
-    </div>
-  )
-}
-
-function ClaimInfoGrid({ claim }: { readonly claim: ClaimData }) {
-  return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <DetailInfoItem
-        icon={<User className="h-4 w-4" />}
-        label="Cliente"
-        value={claim.clientName ?? claim.clientId}
-      />
-      <DetailInfoItem
-        icon={<Shield className="h-4 w-4" />}
-        label="Apólice"
-        value={claim.policyNumber ?? claim.policyId}
-      />
-      <DetailInfoItem
-        icon={<Shield className="h-4 w-4" />}
-        label="Seguradora"
-        value={claim.insurerName ?? claim.insurerId ?? '-'}
-      />
-      <DetailInfoItem
-        icon={<User className="h-4 w-4" />}
-        label="Responsável"
-        value={claim.assignedToName ?? claim.assignedToId ?? '-'}
-      />
-      <DetailInfoItem
-        icon={<Calendar className="h-4 w-4" />}
-        label="Data de Registro"
-        value={formatDate(claim.reportedAt)}
-      />
-      <DetailInfoItem
-        icon={<Calendar className="h-4 w-4" />}
-        label="Data do Incidente"
-        value={claim.incidentDate ? formatDate(claim.incidentDate) : '-'}
-      />
-      <DetailInfoItem
-        icon={<MapPin className="h-4 w-4" />}
-        label="Local do Incidente"
-        value={claim.incidentLocation ?? '-'}
-      />
-      <DetailInfoItem
-        icon={<Calendar className="h-4 w-4" />}
-        label="Resolvido em"
-        value={claim.resolvedAt ? formatDate(claim.resolvedAt) : '-'}
-      />
-      <DetailInfoItem
-        icon={<Calendar className="h-4 w-4" />}
-        label="Encerrado em"
-        value={claim.closedAt ? formatDate(claim.closedAt) : '-'}
-      />
-    </div>
-  )
-}
-
-function DetailSkeleton() {
-  return (
-    <div className="space-y-6">
-      <Skeleton className="h-8 w-48" />
-      <div className="flex gap-2">
-        <Skeleton className="h-6 w-24" />
-        <Skeleton className="h-6 w-20" />
-        <Skeleton className="h-6 w-16" />
-      </div>
-      <Skeleton className="h-px w-full" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 9 }).map((_, i) => (
-          <div key={`detail-skel-${String(i)}`} className="space-y-1">
-            <Skeleton className="h-3 w-20" />
-            <Skeleton className="h-5 w-32" />
-          </div>
-        ))}
-      </div>
     </div>
   )
 }

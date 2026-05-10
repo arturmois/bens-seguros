@@ -99,7 +99,7 @@ export function LoginForm() {
       </div>
       <Button
         type="submit"
-        className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 w-full bg-gradient-to-r font-bold text-slate-900"
+        className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 bg-linear-to-r w-full font-bold text-slate-900"
         disabled={login.isPending}
       >
         {login.isPending ? 'Entrando...' : 'Entrar'}
