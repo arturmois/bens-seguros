@@ -1,4 +1,4 @@
-import { prisma } from '@repo/db'
+import { container, ListPendingInvitations } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
@@ -21,33 +21,26 @@ export function listInvitationsRoute(app: FastifyInstance) {
     preHandler: [requireAbility('read', 'Invitation')],
     handler: async (request, reply) => {
       const { cursor, limit } = request.query
-      const organizationId = request.organizationId!
-      const now = new Date()
-      const where = {
-        organizationId,
-        status: 'pending',
-        expiresAt: { gt: now },
-        ...(cursor ? { id: { gt: cursor } } : {}),
-      } as const
-      const [invitations, total] = await Promise.all([
-        prisma.invitation.findMany({
-          where,
-          orderBy: { id: 'asc' as const },
-          take: limit + 1,
-        }),
-        prisma.invitation.count({
-          where: { organizationId, status: 'pending', expiresAt: { gt: now } },
-        }),
-      ])
-      const hasMore = invitations.length > limit
-      if (hasMore) invitations.pop()
+      const useCase = container.resolve(ListPendingInvitations)
+      const result = await useCase.execute({
+        organizationId: request.organizationId!,
+        limit,
+        cursor,
+      })
       return reply.send({
         success: true,
-        data: invitations,
-        meta: {
-          total,
-          nextCursor: hasMore ? invitations[invitations.length - 1]?.id : null,
-        },
+        data: result.items.map((item) => ({
+          id: item.id,
+          email: item.email,
+          organizationId: item.organizationId,
+          role: item.role,
+          status: item.status,
+          expiresAt: item.expiresAt,
+          inviterId: item.inviterId,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+        })),
+        meta: { total: result.total, nextCursor: result.nextCursor },
       })
     },
   })

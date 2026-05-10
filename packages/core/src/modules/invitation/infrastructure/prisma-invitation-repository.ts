@@ -1,5 +1,7 @@
 import type { PrismaClient, Role } from '@repo/db'
 import type {
+  InvitationDetail,
+  InvitationListPage,
   InvitationRecord,
   InvitationRepository,
 } from '../domain/invitation-repository.js'
@@ -58,5 +60,68 @@ export class PrismaInvitationRepository implements InvitationRepository {
         data: { status: 'accepted' },
       }),
     ])
+  }
+
+  async listPending(
+    organizationId: string,
+    options: { limit: number; cursor?: string }
+  ): Promise<InvitationListPage> {
+    const now = new Date()
+    const baseWhere = {
+      organizationId,
+      status: 'pending',
+      expiresAt: { gt: now },
+    } as const
+    const where = options.cursor
+      ? { ...baseWhere, id: { gt: options.cursor } }
+      : baseWhere
+    const [rows, total] = await Promise.all([
+      this.prisma.invitation.findMany({
+        where,
+        orderBy: { id: 'asc' },
+        take: options.limit + 1,
+      }),
+      this.prisma.invitation.count({ where: baseWhere }),
+    ])
+    const hasMore = rows.length > options.limit
+    if (hasMore) rows.pop()
+    const items: InvitationDetail[] = rows.map((row) => ({
+      id: row.id,
+      email: row.email,
+      organizationId: row.organizationId,
+      role: row.role,
+      status: row.status,
+      expiresAt: row.expiresAt,
+      inviterId: row.inviterId,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    }))
+    const nextCursor = hasMore ? (items.at(-1)?.id ?? null) : null
+    return { items, total, nextCursor }
+  }
+
+  async cancelPending(
+    id: string,
+    organizationId: string
+  ): Promise<InvitationDetail | null> {
+    const row = await this.prisma.invitation.findFirst({
+      where: { id, organizationId, status: 'pending' },
+    })
+    if (!row) return null
+    const updated = await this.prisma.invitation.update({
+      where: { id },
+      data: { status: 'canceled' },
+    })
+    return {
+      id: updated.id,
+      email: updated.email,
+      organizationId: updated.organizationId,
+      role: updated.role,
+      status: updated.status,
+      expiresAt: updated.expiresAt,
+      inviterId: updated.inviterId,
+      createdAt: updated.createdAt,
+      updatedAt: updated.updatedAt,
+    }
   }
 }

@@ -66,10 +66,12 @@ import {
   PrismaDocumentRepository,
   PrismaEndorsementRepository,
   BuildDashboardSnapshot,
+  CancelInvitation,
   GetOrganization,
   GlobalSearch,
   ListAuditLogs,
   ListMembers,
+  ListPendingInvitations,
   ListUserTenants,
   PrismaAuditLogRepository,
   PrismaDashboardRepository,
@@ -399,6 +401,12 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register('InvitationRepository', { useValue: invitationRepo })
   container.register(AcceptInvitation, {
     useFactory: () => new AcceptInvitation(invitationRepo),
+  })
+  container.register(CancelInvitation, {
+    useFactory: () => new CancelInvitation(invitationRepo),
+  })
+  container.register(ListPendingInvitations, {
+    useFactory: () => new ListPendingInvitations(invitationRepo),
   })
   const notificationRepo = new PrismaNotificationRepository(prismaAdmin)
   container.register('NotificationRepository', { useValue: notificationRepo })

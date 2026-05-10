@@ -7,6 +7,18 @@ export interface InvitationRecord {
   readonly expiresAt: Date
 }
 
+export interface InvitationDetail extends InvitationRecord {
+  readonly inviterId: string
+  readonly createdAt: Date
+  readonly updatedAt: Date
+}
+
+export interface InvitationListPage {
+  readonly items: readonly InvitationDetail[]
+  readonly total: number
+  readonly nextCursor: string | null
+}
+
 export interface AcceptInvitationResult {
   readonly organizationId: string
   readonly role: string
@@ -21,4 +33,12 @@ export interface InvitationRepository {
     organizationId: string,
     role: string
   ): Promise<void>
+  listPending(
+    organizationId: string,
+    options: { limit: number; cursor?: string }
+  ): Promise<InvitationListPage>
+  cancelPending(
+    id: string,
+    organizationId: string
+  ): Promise<InvitationDetail | null>
 }
