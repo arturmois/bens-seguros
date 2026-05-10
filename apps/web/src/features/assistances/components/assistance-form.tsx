@@ -9,24 +9,17 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { FormField } from '@/components/shared/form-field'
-import { PolicySearch } from '@/components/shared/policy-search'
 
 import type { z } from 'zod'
 
 import { CreateAssistanceBody } from '@/api/endpoints/assistances/assistances.zod'
 
-import { ASSISTANCE_TYPE_OPTIONS } from '../lib/constants'
 import { useCreateAssistance } from '../hooks/use-assistances'
+import { formatDateToISO, parseDateString } from '../lib/date-helpers'
+import { AssistanceFormDataSection } from './assistance-form-data-section'
 
 type AssistanceFormValues = z.infer<typeof CreateAssistanceBody>
 
@@ -40,23 +33,6 @@ const EMPTY_ASSISTANCE_FORM_VALUES: AssistanceFormValues = {
   providerName: '',
   providerPhone: '',
   scheduledAt: '',
-}
-
-function parseDateString(value: string | undefined): Date | undefined {
-  if (!value) return undefined
-  const date = value.includes('T')
-    ? new Date(value)
-    : new Date(`${value}T00:00:00Z`)
-  if (Number.isNaN(date.getTime())) return undefined
-  return date
-}
-
-function formatDateToISO(date: Date | undefined): string {
-  if (!date) return ''
-  const year = date.getUTCFullYear()
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
-  const day = String(date.getUTCDate()).padStart(2, '0')
-  return `${year}-${month}-${day}T00:00:00.000Z`
 }
 
 export function AssistanceForm() {
@@ -86,73 +62,11 @@ export function AssistanceForm() {
         title="Dados"
         subtitle="Informações básicas da assistência."
       />
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FormField
-          label="Apólice"
-          error={form.formState.errors.policyId?.message}
-          required
-        >
-          <PolicySearch
-            value={form.watch('policyId')}
-            onChange={handlePolicySelect}
-          />
-        </FormField>
-        <FormField
-          label="Cliente"
-          error={form.formState.errors.clientId?.message}
-          required
-        >
-          <Input
-            placeholder="Preenchido automaticamente pela apólice"
-            value={clientDisplayName}
-            readOnly
-            disabled
-          />
-        </FormField>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FormField
-          label="Sinistro (opcional)"
-          error={form.formState.errors.claimId?.message}
-        >
-          <Input placeholder="ID do sinistro" {...form.register('claimId')} />
-        </FormField>
-        <FormField
-          label="Tipo"
-          error={form.formState.errors.type?.message}
-          required
-        >
-          <Controller
-            name="type"
-            control={form.control}
-            render={({ field }) => (
-              <Select
-                value={field.value}
-                onValueChange={(v) => {
-                  if (v !== null) field.onChange(v)
-                }}
-                items={ASSISTANCE_TYPE_OPTIONS}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o tipo">
-                    {(value: string) =>
-                      ASSISTANCE_TYPE_OPTIONS.find((opt) => opt.value === value)
-                        ?.label ?? null
-                    }
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {ASSISTANCE_TYPE_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </FormField>
-      </div>
+      <AssistanceFormDataSection
+        form={form}
+        clientDisplayName={clientDisplayName}
+        onPolicySelect={handlePolicySelect}
+      />
       <Separator />
       <SectionHeader title="Detalhes" subtitle="Descrição e localização." />
       <FormField
