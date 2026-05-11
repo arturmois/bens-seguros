@@ -33,7 +33,7 @@ const sampleItem = (id = 'member-1') => ({
   email: 'carlos@user.com',
   role: 'OWNER',
   active: true,
-  createdAt: new Date('2026-01-01T00:00:00.000Z'),
+  createdAt: '2026-01-01T00:00:00.000Z',
 })
 
 let app: Awaited<ReturnType<typeof createTestApp>>
