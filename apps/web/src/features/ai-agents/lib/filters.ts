@@ -4,12 +4,18 @@ import type { FilterDefinition } from '@/components/shared/filter-types'
 
 import type { AiAgentData } from '../types'
 
+const STATUS_OPTIONS = [
+  { value: 'true', label: 'Ativo' },
+  { value: 'false', label: 'Inativo' },
+] as const
+
 export const AI_AGENT_FILTERS: readonly FilterDefinition[] = [
   {
     key: 'active',
     label: 'Status',
     icon: Check,
-    type: 'boolean',
+    type: 'enum',
+    options: STATUS_OPTIONS,
   },
 ] as const
 

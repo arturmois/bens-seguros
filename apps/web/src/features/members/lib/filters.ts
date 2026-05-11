@@ -4,6 +4,11 @@ import type { FilterDefinition } from '@/components/shared/filter-types'
 
 import type { MemberData } from '../types'
 
+const STATUS_OPTIONS = [
+  { value: 'true', label: 'Ativo' },
+  { value: 'false', label: 'Inativo' },
+] as const
+
 const ROLE_OPTIONS = [
   { value: 'OWNER', label: 'Proprietário' },
   { value: 'ADMIN', label: 'Administrador' },
@@ -17,7 +22,8 @@ export const MEMBER_FILTERS: readonly FilterDefinition[] = [
     key: 'active',
     label: 'Status',
     icon: Check,
-    type: 'boolean',
+    type: 'enum',
+    options: STATUS_OPTIONS,
   },
   {
     key: 'roleIn',

@@ -1,7 +1,7 @@
 'use client'
 
 import { parseAsArrayOf, parseAsString, useQueryStates } from 'nuqs'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo } from 'react'
 
 import type {
   ListPoliciesBoardType,
@@ -13,7 +13,6 @@ import type {
   FilterValue,
 } from '@/components/shared/filter-types'
 
-const TOUCHED_FLAG_KEY = 'policies-filters-touched'
 const EXPIRING_7D_PRESET = 'expiring-7d'
 const EXPIRING_7D_DAYS = 7
 
@@ -61,16 +60,6 @@ function asBoardType(v: string | null): ListPoliciesBoardType | undefined {
   return v !== null && isOneOf(BOARD_TYPE_VALUES, v) ? v : undefined
 }
 
-function readTouchedFlag(): boolean {
-  if (typeof window === 'undefined') return true
-  return window.sessionStorage.getItem(TOUCHED_FLAG_KEY) === 'true'
-}
-
-function writeTouchedFlag(): void {
-  if (typeof window === 'undefined') return
-  window.sessionStorage.setItem(TOUCHED_FLAG_KEY, 'true')
-}
-
 function computeExpiring7dRange(): { from: string; to: string } {
   const now = new Date()
   const to = new Date(now.getTime() + EXPIRING_7D_DAYS * 24 * 60 * 60 * 1000)
@@ -95,44 +84,11 @@ export function usePoliciesFilters() {
     },
     { history: 'push' }
   )
-  const [touched, setTouched] = useState<boolean>(readTouchedFlag)
-  const initialUrlHadAnyValue = useRef<boolean>(
-    Boolean(
-      state.statusIn?.length ||
-      state.branchIn?.length ||
-      state.boardTypeIn?.length ||
-      state.status ||
-      state.branch ||
-      state.boardType ||
-      state.search ||
-      state.endDateFrom ||
-      state.endDateTo ||
-      state.createdFrom ||
-      state.createdTo ||
-      state.filter
-    )
-  )
-  useEffect(() => {
-    if (initialUrlHadAnyValue.current && !touched) {
-      writeTouchedFlag()
-      setTouched(true)
-    }
-  }, [touched])
-  function markTouched() {
-    if (touched) return
-    writeTouchedFlag()
-    setTouched(true)
-  }
   const expiring7dRange = useMemo(() => {
     if (state.filter !== EXPIRING_7D_PRESET) return null
     return computeExpiring7dRange()
   }, [state.filter])
-  const effectiveStatusIn = useMemo<readonly string[] | undefined>(() => {
-    if (!touched && (state.statusIn === null || state.statusIn?.length === 0)) {
-      return ['ACTIVE']
-    }
-    return state.statusIn ?? undefined
-  }, [state.statusIn, touched])
+  const statusIn = state.statusIn ?? undefined
   const endDateRangeValue = useMemo<DateRangeValue | undefined>(() => {
     if (expiring7dRange) {
       return {
@@ -160,14 +116,14 @@ export function usePoliciesFilters() {
   }, [state.createdFrom, state.createdTo])
   const values: Readonly<Record<string, FilterValue>> = useMemo(
     () => ({
-      statusIn: effectiveStatusIn,
+      statusIn,
       branchIn: state.branchIn ?? undefined,
       boardTypeIn: state.boardTypeIn ?? undefined,
       endDateRange: endDateRangeValue,
       createdRange: createdRangeValue,
     }),
     [
-      effectiveStatusIn,
+      statusIn,
       state.branchIn,
       state.boardTypeIn,
       endDateRangeValue,
@@ -176,9 +132,7 @@ export function usePoliciesFilters() {
   )
   const apiParams = useMemo(
     () => ({
-      statusIn: effectiveStatusIn?.length
-        ? [...effectiveStatusIn].join(',')
-        : undefined,
+      statusIn: statusIn?.length ? [...statusIn].join(',') : undefined,
       branchIn: state.branchIn?.length ? state.branchIn.join(',') : undefined,
       boardTypeIn: state.boardTypeIn?.length
         ? state.boardTypeIn.join(',')
@@ -193,7 +147,7 @@ export function usePoliciesFilters() {
       createdTo: state.createdTo || undefined,
     }),
     [
-      effectiveStatusIn,
+      statusIn,
       state.branchIn,
       state.boardTypeIn,
       state.status,
@@ -208,7 +162,6 @@ export function usePoliciesFilters() {
     ]
   )
   function setFilter(key: string, value: FilterValue) {
-    markTouched()
     if (key === 'statusIn' || key === 'branchIn' || key === 'boardTypeIn') {
       const arr = asEnumValue(value)
       void setState({ [key]: arr && arr.length > 0 ? [...arr] : null })
@@ -224,11 +177,9 @@ export function usePoliciesFilters() {
     }
   }
   function setSearch(next: string) {
-    markTouched()
     void setState({ search: next })
   }
   function clearAll() {
-    markTouched()
     void setState({
       statusIn: null,
       branchIn: null,

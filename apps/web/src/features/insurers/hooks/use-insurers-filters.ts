@@ -1,71 +1,49 @@
 'use client'
 
-import { parseAsBoolean, parseAsString, useQueryStates } from 'nuqs'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { parseAsArrayOf, parseAsString, useQueryStates } from 'nuqs'
+import { useMemo } from 'react'
 
 import type { FilterValue } from '@/components/shared/filter-types'
 
-const TOUCHED_FLAG_KEY = 'insurers-filters-touched'
-
-function asBooleanValue(v: FilterValue): boolean | undefined {
-  return typeof v === 'boolean' ? v : undefined
+function asEnumValue(v: FilterValue): readonly string[] | undefined {
+  return Array.isArray(v) ? v : undefined
 }
 
-function readTouchedFlag(): boolean {
-  if (typeof window === 'undefined') return true
-  return window.sessionStorage.getItem(TOUCHED_FLAG_KEY) === 'true'
-}
-
-function writeTouchedFlag(): void {
-  if (typeof window === 'undefined') return
-  window.sessionStorage.setItem(TOUCHED_FLAG_KEY, 'true')
+function toBoolean(arr: readonly string[] | null): boolean | undefined {
+  if (!arr || arr.length !== 1) return undefined
+  return arr[0] === 'true'
 }
 
 export function useInsurersFilters() {
   const [state, setState] = useQueryStates(
     {
-      active: parseAsBoolean,
+      active: parseAsArrayOf(parseAsString),
       search: parseAsString.withDefault(''),
     },
     { history: 'push' }
   )
-  const [touched, setTouched] = useState<boolean>(readTouchedFlag)
-  const initialUrlHadActive = useRef(state.active !== null)
-  useEffect(() => {
-    if (initialUrlHadActive.current && !touched) {
-      writeTouchedFlag()
-      setTouched(true)
-    }
-  }, [touched])
-  function markTouched(): void {
-    if (touched) return
-    writeTouchedFlag()
-    setTouched(true)
-  }
-  const effectiveActive: boolean | undefined =
-    !touched && state.active === null ? true : (state.active ?? undefined)
+  const activeArray = state.active ?? undefined
+  const active = useMemo(() => toBoolean(state.active), [state.active])
   const values: Readonly<Record<string, FilterValue>> = useMemo(
-    () => ({ active: effectiveActive }),
-    [effectiveActive]
+    () => ({ active: activeArray }),
+    [activeArray]
   )
   const apiParams = useMemo(
     () => ({
-      active: effectiveActive,
+      active,
       search: state.search || undefined,
     }),
-    [effectiveActive, state.search]
+    [active, state.search]
   )
   function setFilter(key: string, value: FilterValue): void {
     if (key !== 'active') return
-    markTouched()
-    void setState({ active: asBooleanValue(value) ?? null })
+    const arr = asEnumValue(value)
+    void setState({ active: arr && arr.length > 0 ? [...arr] : null })
   }
   function setSearch(next: string): void {
-    markTouched()
     void setState({ search: next })
   }
   function clearAll(): void {
-    markTouched()
     void setState({ active: null, search: '' })
   }
   return {
