@@ -73,10 +73,11 @@ describe('POST /api/v1/clients', () => {
     expect(body.data.totalPolicyCount).toBe(0)
     expect(body.data.contactCount).toBe(0)
   })
-  it('retorna 409 quando documento já existe', async () => {
+  it('retorna 409 com details.existingClientId quando documento já existe', async () => {
     mockResolveError(
       'CLIENT_ALREADY_EXISTS',
-      'Já existe cliente com este documento na organização'
+      'Já existe cliente com este documento na organização',
+      { existingClientId: 'client-existing-42' }
     )
     const response = await injectAs(app, {
       method: 'POST',
@@ -87,6 +88,9 @@ describe('POST /api/v1/clients', () => {
     const body = response.json()
     expect(body.success).toBe(false)
     expect(body.error.code).toBe('CLIENT_ALREADY_EXISTS')
+    expect(body.error.details).toEqual({
+      existingClientId: 'client-existing-42',
+    })
   })
   it('retorna 400 quando legalName ausente (validação Zod)', async () => {
     const response = await injectAs(app, {

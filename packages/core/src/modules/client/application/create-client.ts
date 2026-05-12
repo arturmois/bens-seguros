@@ -32,7 +32,7 @@ export class CreateClient {
       documentHash,
       input.organizationId
     )
-    if (existing) throw ClientErrors.alreadyExists()
+    if (existing) throw ClientErrors.alreadyExists(existing.id)
     const saved = await this.clientRepo.save({
       organizationId: input.organizationId,
       legalName: input.legalName,

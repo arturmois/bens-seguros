@@ -5,7 +5,8 @@ export class ApiError extends Error {
   constructor(
     public readonly status: number,
     public readonly code: string,
-    message: string
+    message: string,
+    public readonly details?: Record<string, unknown>
   ) {
     super(message)
     this.name = 'ApiError'
@@ -20,7 +21,11 @@ export interface ApiResponse<TData> {
 
 interface ApiErrorResponse {
   success: false
-  error: { code: string; message: string }
+  error: {
+    code: string
+    message: string
+    details?: Record<string, unknown>
+  }
 }
 
 function isErrorResponse(body: unknown): body is ApiErrorResponse {
@@ -63,7 +68,12 @@ async function request<TData>(
   const body: unknown = await res.json()
   if (!res.ok) {
     if (isErrorResponse(body)) {
-      throw new ApiError(res.status, body.error.code, body.error.message)
+      throw new ApiError(
+        res.status,
+        body.error.code,
+        body.error.message,
+        body.error.details
+      )
     }
     throw new ApiError(res.status, 'UNKNOWN_ERROR', 'Erro inesperado')
   }

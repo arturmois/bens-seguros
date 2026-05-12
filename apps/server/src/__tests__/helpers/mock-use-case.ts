@@ -8,8 +8,12 @@ export function mockResolve(mockExecute: ReturnType<typeof vi.fn>) {
   })
 }
 
-export function mockResolveError(code: string, message = 'Test error') {
-  const error = Object.assign(new Error(message), { code })
+export function mockResolveError(
+  code: string,
+  message = 'Test error',
+  details?: Record<string, unknown>
+) {
+  const error = Object.assign(new Error(message), { code, details })
   vi.mocked(container.resolve).mockImplementation((token: unknown) => {
     if (typeof token === 'function') {
       return { execute: vi.fn().mockRejectedValue(error) }

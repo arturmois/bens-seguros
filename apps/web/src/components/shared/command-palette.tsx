@@ -36,7 +36,7 @@ import type {
 } from './command-palette.types'
 
 const QUICK_ACTIONS = [
-  { label: 'Novo Cliente', icon: UserPlus, route: '/clients/new' },
+  { label: 'Novo Cliente', icon: UserPlus, route: '/clients' },
   { label: 'Nova Proposta', icon: FilePlus, route: '/proposals/new' },
   { label: 'Dashboard', icon: LayoutDashboard, route: '/' },
   { label: 'Configurações', icon: Settings, route: '/settings' },

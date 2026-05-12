@@ -1,5 +1,7 @@
 'use client'
 
+import { InputMask } from '@react-input/mask'
+import { useEffect, useRef } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 
 import { FormField } from '@/components/shared/form-field'
@@ -11,63 +13,109 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { CNPJ_MASK, CPF_MASK } from '@/lib/masks'
 
 import { PERSON_TYPE_OPTIONS } from '../lib/constants'
 import type { ClientFormValues } from '../lib/types'
+import { isValidCnpj, isValidCpf } from '../lib/validation'
 
 export function IdentificationFields() {
   const form = useFormContext<ClientFormValues>()
   const personType = useWatch({ control: form.control, name: 'personType' })
   const isCompany = personType === 'COMPANY'
+  const documentValue = useWatch({ control: form.control, name: 'document' })
+  const isDocumentValid = isCompany
+    ? isValidCnpj(documentValue ?? '')
+    : isValidCpf(documentValue ?? '')
+  const documentDirty = Boolean(form.formState.dirtyFields.document)
+  const hasDocumentError = Boolean(form.formState.errors.document)
+  const showValidChip = documentDirty && !hasDocumentError && isDocumentValid
   const errors = form.formState.errors
+  const documentMask = isCompany ? CNPJ_MASK : CPF_MASK
+  const autoFocusedRef = useRef(false)
+  useEffect(() => {
+    if (!isDocumentValid) {
+      autoFocusedRef.current = false
+      return
+    }
+    if (autoFocusedRef.current) return
+    const legalName = form.getValues('legalName')
+    if (legalName && legalName.length > 0) return
+    autoFocusedRef.current = true
+    form.setFocus('legalName')
+  }, [isDocumentValid, form])
   return (
     <div className="space-y-4">
       <FormField label="Tipo" error={errors.personType?.message} required>
-        <Controller
-          control={form.control}
-          name="personType"
-          render={({ field }) => (
-            <Select
-              value={field.value ?? 'INDIVIDUAL'}
-              onValueChange={(value) => {
-                if (value !== null) field.onChange(value)
-              }}
-              items={PERSON_TYPE_OPTIONS}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione">
-                  {(value: string | null) => {
-                    const item = PERSON_TYPE_OPTIONS.find(
-                      (option) => option.value === value
-                    )
-                    return item?.label ?? null
-                  }}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {PERSON_TYPE_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
+        {(id) => (
+          <Controller
+            control={form.control}
+            name="personType"
+            render={({ field }) => (
+              <Select
+                value={field.value ?? 'INDIVIDUAL'}
+                onValueChange={(value) => {
+                  if (value !== null) {
+                    field.onChange(value)
+                    form.setValue('document', '', { shouldDirty: false })
+                    form.clearErrors('document')
+                  }
+                }}
+                items={PERSON_TYPE_OPTIONS}
+              >
+                <SelectTrigger id={id}>
+                  <SelectValue placeholder="Selecione">
+                    {(value: string | null) => {
+                      const item = PERSON_TYPE_OPTIONS.find(
+                        (option) => option.value === value
+                      )
+                      return item?.label ?? null
+                    }}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {PERSON_TYPE_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        )}
       </FormField>
       <FormField
         label={isCompany ? 'CNPJ' : 'CPF'}
         error={errors.document?.message}
+        hint={showValidChip ? '✓ válido' : undefined}
         required
       >
-        <Input
-          placeholder="Apenas números"
-          inputMode="numeric"
-          {...form.register('document')}
-        />
+        {(id) => (
+          <Controller
+            control={form.control}
+            name="document"
+            render={({ field }) => (
+              <InputMask
+                id={id}
+                component={Input}
+                mask={documentMask.mask}
+                replacement={documentMask.replacement}
+                placeholder={
+                  isCompany ? '00.000.000/0000-00' : '000.000.000-00'
+                }
+                inputMode="numeric"
+                aria-invalid={errors.document ? 'true' : undefined}
+                aria-describedby={errors.document ? `${id}-error` : undefined}
+                {...field}
+                value={typeof field.value === 'string' ? field.value : ''}
+              />
+            )}
+          />
+        )}
       </FormField>
       <FormField
-        label={isCompany ? 'Razão social' : 'Nome legal'}
+        label={isCompany ? 'Razão social' : 'Nome completo'}
         error={errors.legalName?.message}
         required
       >

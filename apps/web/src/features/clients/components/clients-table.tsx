@@ -39,6 +39,7 @@ import { ClientCard } from './client-card'
 import { ClientExportButton } from './client-export-button'
 import { ClientImportButton } from './client-import-button'
 import { createClientColumns } from './clients-columns'
+import { CreateClientDialog } from './create-client-dialog'
 import { NewClientButton } from './new-client-button'
 
 function toHasActivePolicyParam(
@@ -64,6 +65,7 @@ export function ClientsContent() {
     DEFAULT_COLUMN_VISIBILITY
   )
   const [deletingClientId, setDeletingClientId] = useState<string | null>(null)
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const debouncedSearch = useDebounce(filters.search, 300)
   const deleteClient = useDeleteClient()
   const sortId = sorting[0]?.id
@@ -163,7 +165,7 @@ export function ClientsContent() {
       >
         <ClientImportButton />
         <ClientExportButton filters={apiFilters} />
-        <NewClientButton />
+        <NewClientButton onClick={() => setCreateDialogOpen(true)} />
       </UnifiedFilterBar>
       <DataTable
         table={table}
@@ -204,6 +206,14 @@ export function ClientsContent() {
         }}
         onConfirm={handleConfirmDelete}
         isPending={deleteClient.isPending}
+      />
+      <CreateClientDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onCreated={(id) => {
+          setCreateDialogOpen(false)
+          router.push(`/clients/${id}`)
+        }}
       />
     </div>
   )

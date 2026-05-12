@@ -8,13 +8,16 @@ export class ClientNotFoundError extends Error {
 
 export class ClientAlreadyExistsError extends Error {
   readonly code = 'CLIENT_ALREADY_EXISTS' as const
-  constructor() {
+  readonly details: { readonly existingClientId: string }
+  constructor(existingClientId: string) {
     super('Já existe cliente com este documento na organização')
     this.name = 'ClientAlreadyExistsError'
+    this.details = { existingClientId }
   }
 }
 
 export const ClientErrors = {
   notFound: (id: string) => new ClientNotFoundError(id),
-  alreadyExists: () => new ClientAlreadyExistsError(),
+  alreadyExists: (existingClientId: string) =>
+    new ClientAlreadyExistsError(existingClientId),
 }

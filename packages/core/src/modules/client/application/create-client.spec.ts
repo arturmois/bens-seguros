@@ -44,16 +44,23 @@ describe('CreateClient', () => {
     repo = makeRepo()
     useCase = new CreateClient(repo)
   })
-  it('rejeita criação se documento já existe na organização', async () => {
+  it('rejeita criação se documento já existe na organização e inclui id do existente', async () => {
     vi.mocked(repo.findByDocumentHash).mockResolvedValue(SAVED)
-    await expect(
-      useCase.execute({
+    let caughtError: unknown = null
+    try {
+      await useCase.execute({
         organizationId: ORG,
         legalName: 'Acme Ltda',
         document: '12345678000190',
         personType: 'COMPANY',
       })
-    ).rejects.toBeInstanceOf(ClientAlreadyExistsError)
+    } catch (error) {
+      caughtError = error
+    }
+    expect(caughtError).toBeInstanceOf(ClientAlreadyExistsError)
+    expect((caughtError as ClientAlreadyExistsError).details).toEqual({
+      existingClientId: 'client-1',
+    })
     expect(repo.save).not.toHaveBeenCalled()
   })
   it('cria cliente com defaults quando campos opcionais ausentes', async () => {

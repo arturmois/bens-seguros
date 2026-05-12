@@ -1,6 +1,7 @@
 'use client'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 import {
@@ -21,6 +22,7 @@ import type {
 import { extractErrorMessage } from '@/lib/extract-error-message'
 
 import type { ClientFilters, ClientFormValues } from '../lib/types'
+import { extractExistingClientId } from '../lib/validation'
 
 interface ClientsQueryData {
   readonly data: ListClients200DataItem[]
@@ -72,6 +74,7 @@ export function useDeleteClient() {
 }
 
 export function useCreateClient() {
+  const router = useRouter()
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (values: ClientFormValues) => createClient(values),
@@ -82,6 +85,16 @@ export function useCreateClient() {
       toast.success('Cliente criado com sucesso')
     },
     onError: (error) => {
+      const existingId = extractExistingClientId(error)
+      if (existingId) {
+        toast.error('Já existe um cliente com este documento', {
+          action: {
+            label: 'Abrir cliente existente',
+            onClick: () => router.push(`/clients/${existingId}`),
+          },
+        })
+        return
+      }
       const message = extractErrorMessage(error, 'Erro ao criar cliente')
       toast.error(message)
     },

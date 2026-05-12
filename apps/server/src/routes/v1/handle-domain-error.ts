@@ -3,6 +3,7 @@ import type { FastifyReply } from 'fastify'
 interface DomainErrorLike {
   readonly code: string
   readonly message: string
+  readonly details?: Record<string, unknown>
 }
 
 const CODE_TO_STATUS: Record<string, number> = {
@@ -75,10 +76,19 @@ export function handleDomainError(
   if (isDomainError(error)) {
     const status = CODE_TO_STATUS[error.code]
     if (status) {
-      return reply.status(status).send({
+      const payload: {
+        success: false
+        error: {
+          code: string
+          message: string
+          details?: Record<string, unknown>
+        }
+      } = {
         success: false,
         error: { code: error.code, message: error.message },
-      })
+      }
+      if (error.details) payload.error.details = error.details
+      return reply.status(status).send(payload)
     }
   }
   throw error

@@ -29,12 +29,21 @@ export async function customFetch<T>(
       body !== null &&
       'error' in body &&
       typeof (body as Record<string, unknown>).error === 'object'
-        ? (body as { error: { code: string; message: string } }).error
+        ? (
+            body as {
+              error: {
+                code: string
+                message: string
+                details?: Record<string, unknown>
+              }
+            }
+          ).error
         : null
     throw new ApiError(
       response.status,
       err?.code ?? 'UNKNOWN_ERROR',
-      err?.message ?? 'Erro inesperado'
+      err?.message ?? 'Erro inesperado',
+      err?.details
     )
   }
   return { data: body, status: response.status, headers: response.headers } as T

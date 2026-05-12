@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
 import { inject, injectable } from 'tsyringe'
+import { hashDocument } from '@repo/shared'
 import { ClientErrors } from '../domain/client-errors.js'
 import type {
   ClientData,
@@ -49,7 +50,18 @@ export class PrismaClientRepository implements ClientRepository {
         e instanceof Prisma.PrismaClientKnownRequestError &&
         e.code === 'P2002'
       ) {
-        throw ClientErrors.alreadyExists()
+        // Race condition: another request inserted the same document concurrently.
+        // Look up the existing client to surface its ID to the caller.
+        const documentHash = hashDocument(data.document)
+        const conflict = await this.prisma.client.findFirst({
+          where: {
+            organizationId: data.organizationId,
+            documentHash,
+          },
+          select: { id: true },
+        })
+        if (!conflict) throw e
+        throw ClientErrors.alreadyExists(conflict.id)
       }
       throw e
     }
