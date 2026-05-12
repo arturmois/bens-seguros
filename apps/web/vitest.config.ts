@@ -7,6 +7,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: ['src/**/*.spec.{ts,tsx}'],
+    setupFiles: ['./vitest.setup.ts'],
   },
   esbuild: {
     jsx: 'automatic',
