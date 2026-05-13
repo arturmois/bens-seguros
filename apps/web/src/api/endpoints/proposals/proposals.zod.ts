@@ -1845,3 +1845,27 @@ export const CompleteProposalChecklistItemResponse = zod.object({
     createdAt: zod.string().datetime({}),
   }),
 })
+
+/**
+ * @summary Unmark a checklist item (revert completion)
+ */
+
+export const UncompleteProposalChecklistItemParams = zod.object({
+  id: zod.string().min(1),
+  itemId: zod.string().min(1),
+})
+
+export const UncompleteProposalChecklistItemResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    proposalId: zod.string(),
+    itemKey: zod.string(),
+    label: zod.string(),
+    isRequired: zod.boolean(),
+    isCompleted: zod.boolean(),
+    completedAt: zod.string().datetime({}).nullable(),
+    completedBy: zod.string().nullable(),
+    createdAt: zod.string().datetime({}),
+  }),
+})

@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify'
 import { tenantMiddleware } from '../../../middlewares/tenant-middleware.js'
 import { advanceProposalRoute } from './advance-proposal.js'
 import { completeChecklistItemRoute } from './complete-checklist-item.js'
+import { uncompleteChecklistItemRoute } from './uncomplete-checklist-item.js'
 import { createProposalRoute } from './create-proposal.js'
 import { exportProposalsRoute } from './export-proposals.js'
 import { generateProposalPdfRoute } from './generate-proposal-pdf.js'
@@ -31,4 +32,5 @@ export async function proposalRoutes(app: FastifyInstance) {
   updateProposalObservationsRoute(app)
   getProposalChecklistRoute(app)
   completeChecklistItemRoute(app)
+  uncompleteChecklistItemRoute(app)
 }

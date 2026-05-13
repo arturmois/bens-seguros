@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import {
   useGetProposalChecklist,
   completeProposalChecklistItem,
+  uncompleteProposalChecklistItem,
   getGetProposalChecklistQueryKey,
 } from '@/api/endpoints/proposals/proposals'
 
@@ -31,6 +32,22 @@ export function useCompleteChecklistItem(proposalId: string) {
     },
     onError: () => {
       toast.error('Erro ao completar item do checklist')
+    },
+  })
+}
+
+export function useUncompleteChecklistItem(proposalId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (itemId: string) =>
+      uncompleteProposalChecklistItem(proposalId, itemId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: getGetProposalChecklistQueryKey(proposalId),
+      })
+    },
+    onError: () => {
+      toast.error('Erro ao desmarcar item do checklist')
     },
   })
 }

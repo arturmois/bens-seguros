@@ -51,6 +51,7 @@ export type {
 export { ExportProposalsCsv } from './application/export-proposals-csv.js'
 export { AdvanceProposalStage } from './application/advance-proposal-stage.js'
 export { CompleteChecklistByAttachment } from './application/complete-checklist-by-attachment.js'
+export { UncompleteChecklistItem } from './application/uncomplete-checklist-item.js'
 export { CreateProposal } from './application/create-proposal.js'
 export { GetProposal } from './application/get-proposal.js'
 export { ListChecklistItems } from './application/list-checklist-items.js'

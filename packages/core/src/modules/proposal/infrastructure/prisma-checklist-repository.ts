@@ -106,6 +106,22 @@ export class PrismaChecklistRepository implements ChecklistRepository {
     return toData(updated)
   }
 
+  async uncomplete(id: string, proposalId: string): Promise<ChecklistItemData> {
+    const item = await this.prisma.proposalChecklistItem.findFirst({
+      where: { id, proposalId },
+    })
+    if (!item) {
+      throw new Error(
+        `Checklist item ${id} not found for proposal ${proposalId}`
+      )
+    }
+    const updated = await this.prisma.proposalChecklistItem.update({
+      where: { id },
+      data: { isCompleted: false, completedAt: null, completedBy: null },
+    })
+    return toData(updated)
+  }
+
   async getSummary(proposalId: string): Promise<ChecklistSummary> {
     const rows = await this.prisma.proposalChecklistItem.findMany({
       where: { proposalId },

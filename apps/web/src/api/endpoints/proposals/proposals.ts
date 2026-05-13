@@ -49,6 +49,8 @@ import type {
   SendQuote202,
   SendQuote404,
   SendQuote422,
+  UncompleteProposalChecklistItem200,
+  UncompleteProposalChecklistItem404,
   UpdateProposalDates200,
   UpdateProposalDates400,
   UpdateProposalDates404,
@@ -2090,6 +2092,126 @@ export const useCompleteProposalChecklistItem = <
 > => {
   return useMutation(
     getCompleteProposalChecklistItemMutationOptions(options),
+    queryClient
+  )
+}
+/**
+ * @summary Unmark a checklist item (revert completion)
+ */
+export type uncompleteProposalChecklistItemResponse200 = {
+  data: UncompleteProposalChecklistItem200
+  status: 200
+}
+
+export type uncompleteProposalChecklistItemResponse404 = {
+  data: UncompleteProposalChecklistItem404
+  status: 404
+}
+
+export type uncompleteProposalChecklistItemResponseSuccess =
+  uncompleteProposalChecklistItemResponse200 & {
+    headers: Headers
+  }
+export type uncompleteProposalChecklistItemResponseError =
+  uncompleteProposalChecklistItemResponse404 & {
+    headers: Headers
+  }
+
+export type uncompleteProposalChecklistItemResponse =
+  | uncompleteProposalChecklistItemResponseSuccess
+  | uncompleteProposalChecklistItemResponseError
+
+export const getUncompleteProposalChecklistItemUrl = (
+  id: string,
+  itemId: string
+) => {
+  return `/api/v1/proposals/${id}/checklist/${itemId}/complete`
+}
+
+export const uncompleteProposalChecklistItem = async (
+  id: string,
+  itemId: string,
+  options?: RequestInit
+): Promise<uncompleteProposalChecklistItemResponse> => {
+  return customFetch<uncompleteProposalChecklistItemResponse>(
+    getUncompleteProposalChecklistItemUrl(id, itemId),
+    {
+      ...options,
+      method: 'DELETE',
+    }
+  )
+}
+
+export const getUncompleteProposalChecklistItemMutationOptions = <
+  TError = UncompleteProposalChecklistItem404,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof uncompleteProposalChecklistItem>>,
+    TError,
+    { id: string; itemId: string },
+    TContext
+  >
+  request?: SecondParameter<typeof customFetch>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof uncompleteProposalChecklistItem>>,
+  TError,
+  { id: string; itemId: string },
+  TContext
+> => {
+  const mutationKey = ['uncompleteProposalChecklistItem']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof uncompleteProposalChecklistItem>>,
+    { id: string; itemId: string }
+  > = (props) => {
+    const { id, itemId } = props ?? {}
+
+    return uncompleteProposalChecklistItem(id, itemId, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type UncompleteProposalChecklistItemMutationResult = NonNullable<
+  Awaited<ReturnType<typeof uncompleteProposalChecklistItem>>
+>
+
+export type UncompleteProposalChecklistItemMutationError =
+  UncompleteProposalChecklistItem404
+
+/**
+ * @summary Unmark a checklist item (revert completion)
+ */
+export const useUncompleteProposalChecklistItem = <
+  TError = UncompleteProposalChecklistItem404,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof uncompleteProposalChecklistItem>>,
+      TError,
+      { id: string; itemId: string },
+      TContext
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof uncompleteProposalChecklistItem>>,
+  TError,
+  { id: string; itemId: string },
+  TContext
+> => {
+  return useMutation(
+    getUncompleteProposalChecklistItemMutationOptions(options),
     queryClient
   )
 }

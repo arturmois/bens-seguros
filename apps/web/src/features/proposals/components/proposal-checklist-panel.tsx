@@ -11,7 +11,11 @@ import {
 } from '@/components/ui/progress'
 import { Spinner } from '@/components/ui/spinner'
 
-import { useChecklist, useCompleteChecklistItem } from '../hooks/use-checklist'
+import {
+  useChecklist,
+  useCompleteChecklistItem,
+  useUncompleteChecklistItem,
+} from '../hooks/use-checklist'
 import type { ChecklistItem } from '../lib/constants'
 
 interface ProposalChecklistPanelProps {
@@ -20,13 +24,13 @@ interface ProposalChecklistPanelProps {
 
 interface ChecklistItemRowProps {
   item: ChecklistItem
-  onComplete: (id: string) => void
+  onToggle: (item: ChecklistItem) => void
   isPending: boolean
 }
 
 function ChecklistItemRow({
   item,
-  onComplete,
+  onToggle,
   isPending,
 }: ChecklistItemRowProps) {
   return (
@@ -34,15 +38,13 @@ function ChecklistItemRow({
       <Checkbox
         id={item.id}
         checked={item.isCompleted}
-        disabled={item.isCompleted || isPending}
-        onCheckedChange={() => {
-          if (!item.isCompleted) onComplete(item.id)
-        }}
+        disabled={isPending}
+        onCheckedChange={() => onToggle(item)}
         className="mt-0.5"
       />
       <label
         htmlFor={item.id}
-        className={`flex flex-1 items-center gap-2 text-sm leading-tight ${item.isCompleted ? 'cursor-default' : 'cursor-pointer'}`}
+        className="flex flex-1 cursor-pointer items-center gap-2 text-sm leading-tight"
       >
         <span
           className={
@@ -66,6 +68,15 @@ export function ProposalChecklistPanel({
 }: ProposalChecklistPanelProps) {
   const { data, isLoading, isError } = useChecklist(proposalId)
   const completeMutation = useCompleteChecklistItem(proposalId)
+  const uncompleteMutation = useUncompleteChecklistItem(proposalId)
+  const isPending = completeMutation.isPending || uncompleteMutation.isPending
+  function handleToggle(item: ChecklistItem) {
+    if (item.isCompleted) {
+      uncompleteMutation.mutate(item.id)
+    } else {
+      completeMutation.mutate(item.id)
+    }
+  }
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -131,8 +142,8 @@ export function ProposalChecklistPanel({
               <ChecklistItemRow
                 key={item.id}
                 item={item}
-                onComplete={completeMutation.mutate}
-                isPending={completeMutation.isPending}
+                onToggle={handleToggle}
+                isPending={isPending}
               />
             ))}
           </div>
@@ -148,8 +159,8 @@ export function ProposalChecklistPanel({
               <ChecklistItemRow
                 key={item.id}
                 item={item}
-                onComplete={completeMutation.mutate}
-                isPending={completeMutation.isPending}
+                onToggle={handleToggle}
+                isPending={isPending}
               />
             ))}
           </div>

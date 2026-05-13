@@ -8,6 +8,7 @@ import {
   CancelInvitation,
   CancelPolicy,
   CompleteChecklistByAttachment,
+  UncompleteChecklistItem,
   container,
   CountAlertsByEntityType,
   CountUnreadNotifications,
@@ -269,6 +270,9 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register(CompleteChecklistByAttachment, {
     useFactory: () =>
       new CompleteChecklistByAttachment(checklistRepo, proposalRepo),
+  })
+  container.register(UncompleteChecklistItem, {
+    useFactory: () => new UncompleteChecklistItem(checklistRepo, proposalRepo),
   })
   container.register(OnPolicyIssued, {
     useFactory: () => new OnPolicyIssued(commissionRepo),

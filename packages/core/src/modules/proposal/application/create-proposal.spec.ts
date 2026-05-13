@@ -26,6 +26,7 @@ function createMockChecklistRepo(): ChecklistRepository {
     findByProposal: vi.fn(),
     findById: vi.fn(),
     complete: vi.fn(),
+    uncomplete: vi.fn(),
     getSummary: vi.fn(),
   }
 }

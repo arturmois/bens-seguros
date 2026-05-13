@@ -33,6 +33,7 @@ function createMockChecklistRepo(): ChecklistRepository {
     findByProposal: vi.fn(),
     findById: vi.fn(),
     complete: vi.fn().mockResolvedValue(completedItem),
+    uncomplete: vi.fn(),
     getSummary: vi.fn(),
   }
 }
