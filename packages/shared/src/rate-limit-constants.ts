@@ -11,4 +11,5 @@ export const RATE_LIMITS = {
   INTERNAL: { max: 20, windowSeconds: 60 },
   MESSAGE: { max: 10, windowMs: 1_000 },
   GLOBAL: { max: 100, windowSeconds: 60 },
+  VEHICLE_LOOKUP: { max: 30, windowSeconds: 60 },
 } as const

@@ -1,6 +1,7 @@
 import {
   AcceptInvitation,
   AdvanceProposalStage,
+  ApiBrasilLookupProvider,
   ApproveCommissionAdmin,
   ApproveCommissionCommercial,
   BuildDashboardSnapshot,
@@ -61,6 +62,7 @@ import {
   ListUserTenants,
   LocalStorageProvider,
   LookupCep,
+  LookupVehicleByPlate,
   MarkAllNotificationsAsRead,
   MarkNotificationAsRead,
   MarkProposalLost,
@@ -129,6 +131,22 @@ export function registerDependencies(redis: Redis | null = null) {
       new LookupCep(
         c.resolve('CepLookupProvider'),
         c.resolve('CepCacheService')
+      ),
+  })
+  const vehicleLookupCache = redis
+    ? new RedisCacheService(redis)
+    : new NoopCacheService()
+  container.register('VehicleLookupCacheService', {
+    useValue: vehicleLookupCache,
+  })
+  container.register('VehicleLookupProvider', {
+    useClass: ApiBrasilLookupProvider,
+  })
+  container.register(LookupVehicleByPlate, {
+    useFactory: (c) =>
+      new LookupVehicleByPlate(
+        c.resolve('VehicleLookupProvider'),
+        c.resolve('VehicleLookupCacheService')
       ),
   })
   const clientRepo = new PrismaClientRepository(prismaAdmin)

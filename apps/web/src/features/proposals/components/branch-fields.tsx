@@ -33,6 +33,7 @@ interface BranchFieldsProps {
   readonly defaultPremium?: number
   readonly defaultCommission?: number
   readonly autoFill?: AutoFillData
+  readonly proposalId?: string
   readonly onSubmit: (data: {
     details: InsuredObjectDetails
     premiumValueInCents: number
@@ -60,6 +61,7 @@ export function BranchFields({
   defaultPremium,
   defaultCommission,
   autoFill,
+  proposalId,
   onSubmit,
   isLoading,
 }: BranchFieldsProps) {
@@ -97,6 +99,8 @@ export function BranchFields({
           register={form.register}
           control={form.control}
           setValue={form.setValue}
+          getValues={form.getValues}
+          proposalId={proposalId}
           autoFill={autoFill}
         />
       </div>

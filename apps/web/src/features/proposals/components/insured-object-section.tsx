@@ -57,6 +57,7 @@ export function InsuredObjectSection({ proposal }: InsuredObjectSectionProps) {
             clientDocument: proposal.clientDocument,
             clientPersonType: proposal.clientPersonType,
           }}
+          proposalId={proposal.id}
           onSubmit={handleSubmit}
           isLoading={updateMutation.isPending}
         />

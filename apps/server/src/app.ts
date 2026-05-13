@@ -57,6 +57,7 @@ import { statsRoutes } from './routes/v1/stats/index.js'
 import { internalContactRoutes } from './routes/internal/contacts/index.js'
 import { internalLeadRoutes } from './routes/internal/leads/index.js'
 import { tenantRoutes } from './routes/v1/tenants/index.js'
+import { vehicleRoutes } from './routes/v1/vehicles/index.js'
 
 export async function buildApp() {
   const redis = new IORedis(env.REDIS_URL)
@@ -335,6 +336,7 @@ export async function buildApp() {
     await authenticatedApp.register(notificationRoutes)
     await authenticatedApp.register(searchRoutes)
     await authenticatedApp.register(cepRoutes)
+    await authenticatedApp.register(vehicleRoutes)
     await authenticatedApp.register(termsRoutes)
   })
   await app.register(async (internalApp) => {

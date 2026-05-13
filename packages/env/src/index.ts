@@ -56,6 +56,8 @@ export const env = createEnv({
     BAILEYS_LOG_LEVEL: z
       .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
       .default('warn'),
+    APIBRASIL_DEVICE_TOKEN: z.string().min(1).optional(),
+    APIBRASIL_BEARER_TOKEN: z.string().min(1).optional(),
   },
   clientPrefix: 'NEXT_PUBLIC_',
   client: {
