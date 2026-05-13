@@ -71,7 +71,9 @@ export const listContactsQuerySortByDefault = `createdAt`
 export const listContactsQuerySortOrderDefault = `desc`
 
 export const ListContactsQueryParams = zod.object({
-  stage: zod.enum(['LEAD', 'CLIENT_ACTIVE', 'CLIENT_INACTIVE']).optional(),
+  stage: zod
+    .enum(['LEAD', 'CLIENT_NEW', 'CLIENT_ACTIVE', 'CLIENT_INACTIVE'])
+    .optional(),
   source: zod
     .enum([
       'MANUAL',
@@ -132,7 +134,12 @@ export const ListContactsResponse = zod.object({
       createdAt: zod.string().datetime({}),
       updatedAt: zod.string().datetime({}),
       deletedAt: zod.string().datetime({}).nullable(),
-      stage: zod.enum(['LEAD', 'CLIENT_ACTIVE', 'CLIENT_INACTIVE']),
+      stage: zod.enum([
+        'LEAD',
+        'CLIENT_NEW',
+        'CLIENT_ACTIVE',
+        'CLIENT_INACTIVE',
+      ]),
       activePolicyCount: zod.number(),
     })
   ),
@@ -175,7 +182,7 @@ export const GetContactResponse = zod.object({
     createdAt: zod.string().datetime({}),
     updatedAt: zod.string().datetime({}),
     deletedAt: zod.string().datetime({}).nullable(),
-    stage: zod.enum(['LEAD', 'CLIENT_ACTIVE', 'CLIENT_INACTIVE']),
+    stage: zod.enum(['LEAD', 'CLIENT_NEW', 'CLIENT_ACTIVE', 'CLIENT_INACTIVE']),
     activePolicyCount: zod.number(),
   }),
 })
@@ -225,7 +232,7 @@ export const UpdateContactResponse = zod.object({
     createdAt: zod.string().datetime({}),
     updatedAt: zod.string().datetime({}),
     deletedAt: zod.string().datetime({}).nullable(),
-    stage: zod.enum(['LEAD', 'CLIENT_ACTIVE', 'CLIENT_INACTIVE']),
+    stage: zod.enum(['LEAD', 'CLIENT_NEW', 'CLIENT_ACTIVE', 'CLIENT_INACTIVE']),
     activePolicyCount: zod.number(),
   }),
 })

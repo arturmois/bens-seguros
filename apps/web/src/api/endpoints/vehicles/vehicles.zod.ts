@@ -13,7 +13,6 @@ export const lookupVehicleBodyChassiMin = 17
 export const lookupVehicleBodyChassiMax = 17
 
 export const lookupVehicleBodyChassiRegExp = new RegExp('^[A-HJ-NPR-Z0-9]{17}$')
-export const lookupVehicleBodyProposalIdRegExp = new RegExp('^[cC][^\\s-]{8,}$')
 
 export const LookupVehicleBody = zod.object({
   plate: zod.string().optional(),
@@ -23,7 +22,7 @@ export const LookupVehicleBody = zod.object({
     .max(lookupVehicleBodyChassiMax)
     .regex(lookupVehicleBodyChassiRegExp)
     .optional(),
-  proposalId: zod.string().regex(lookupVehicleBodyProposalIdRegExp).optional(),
+  proposalId: zod.string().min(1).optional(),
 })
 
 export const LookupVehicleResponse = zod.object({

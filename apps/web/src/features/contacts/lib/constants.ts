@@ -11,6 +11,7 @@ export const CONTACT_SOURCE_LABELS: Record<ContactSource, string> = {
 
 export const STAGE_LABELS: Record<ContactStage, string> = {
   LEAD: 'Lead',
+  CLIENT_NEW: 'Cliente novo',
   CLIENT_ACTIVE: 'Cliente ativo',
   CLIENT_INACTIVE: 'Ex-cliente',
 }
@@ -31,6 +32,7 @@ export const CONTACT_SOURCE_OPTIONS: readonly SelectOption<ContactSource>[] = [
 
 export const CONTACT_STAGE_OPTIONS: readonly SelectOption<ContactStage>[] = [
   { value: 'LEAD', label: STAGE_LABELS.LEAD },
+  { value: 'CLIENT_NEW', label: STAGE_LABELS.CLIENT_NEW },
   { value: 'CLIENT_ACTIVE', label: STAGE_LABELS.CLIENT_ACTIVE },
   { value: 'CLIENT_INACTIVE', label: STAGE_LABELS.CLIENT_INACTIVE },
 ] as const

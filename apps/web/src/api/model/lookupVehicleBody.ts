@@ -13,6 +13,6 @@ export type LookupVehicleBody = {
    * @pattern ^[A-HJ-NPR-Z0-9]{17}$
    */
   chassi?: string
-  /** @pattern ^[cC][^\s-]{8,}$ */
+  /** @minLength 1 */
   proposalId?: string
 }

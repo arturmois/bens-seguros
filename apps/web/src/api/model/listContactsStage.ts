@@ -10,6 +10,7 @@ export type ListContactsStage =
 
 export const ListContactsStage = {
   LEAD: 'LEAD',
+  CLIENT_NEW: 'CLIENT_NEW',
   CLIENT_ACTIVE: 'CLIENT_ACTIVE',
   CLIENT_INACTIVE: 'CLIENT_INACTIVE',
 } as const

@@ -10,6 +10,7 @@ export type ListContacts200DataItemStage =
 
 export const ListContacts200DataItemStage = {
   LEAD: 'LEAD',
+  CLIENT_NEW: 'CLIENT_NEW',
   CLIENT_ACTIVE: 'CLIENT_ACTIVE',
   CLIENT_INACTIVE: 'CLIENT_INACTIVE',
 } as const

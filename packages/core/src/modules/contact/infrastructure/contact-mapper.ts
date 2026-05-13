@@ -39,7 +39,7 @@ export class ContactMapper {
     if (!clientId) return 'LEAD'
     if (activePolicyCount > 0) return 'CLIENT_ACTIVE'
     if (totalPolicyCount > 0) return 'CLIENT_INACTIVE'
-    return 'CLIENT_INACTIVE'
+    return 'CLIENT_NEW'
   }
 
   static toWithStage(

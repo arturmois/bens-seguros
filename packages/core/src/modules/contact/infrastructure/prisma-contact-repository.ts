@@ -129,7 +129,9 @@ export class PrismaContactRepository implements ContactRepository {
     if (stages) {
       const includesLead = stages.includes('LEAD')
       const includesClient =
-        stages.includes('CLIENT_ACTIVE') || stages.includes('CLIENT_INACTIVE')
+        stages.includes('CLIENT_NEW') ||
+        stages.includes('CLIENT_ACTIVE') ||
+        stages.includes('CLIENT_INACTIVE')
       if (includesLead && !includesClient) {
         where.clientId = null
       } else if (!includesLead && includesClient) {
@@ -187,10 +189,12 @@ export class PrismaContactRepository implements ContactRepository {
         : null
     if (effectiveStages) {
       const includesLead = effectiveStages.includes('LEAD')
+      const includesNew = effectiveStages.includes('CLIENT_NEW')
       const includesActive = effectiveStages.includes('CLIENT_ACTIVE')
       const includesInactive = effectiveStages.includes('CLIENT_INACTIVE')
       const allowedStages = new Set<ContactWithStage['stage']>()
       if (includesLead) allowedStages.add('LEAD')
+      if (includesNew) allowedStages.add('CLIENT_NEW')
       if (includesActive) allowedStages.add('CLIENT_ACTIVE')
       if (includesInactive) allowedStages.add('CLIENT_INACTIVE')
       items = items.filter((i) => allowedStages.has(i.stage))

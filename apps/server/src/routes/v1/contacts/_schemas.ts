@@ -4,6 +4,7 @@ import { csvEnumArray, csvStringArray } from '../../shared/csv-array.schema.js'
 
 export const CONTACT_STAGES = [
   'LEAD',
+  'CLIENT_NEW',
   'CLIENT_ACTIVE',
   'CLIENT_INACTIVE',
 ] as const

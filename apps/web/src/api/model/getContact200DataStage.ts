@@ -10,6 +10,7 @@ export type GetContact200DataStage =
 
 export const GetContact200DataStage = {
   LEAD: 'LEAD',
+  CLIENT_NEW: 'CLIENT_NEW',
   CLIENT_ACTIVE: 'CLIENT_ACTIVE',
   CLIENT_INACTIVE: 'CLIENT_INACTIVE',
 } as const

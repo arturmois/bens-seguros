@@ -1,6 +1,10 @@
 import type { ContactSource } from './contact.js'
 
-export type ContactStage = 'LEAD' | 'CLIENT_ACTIVE' | 'CLIENT_INACTIVE'
+export type ContactStage =
+  | 'LEAD'
+  | 'CLIENT_NEW'
+  | 'CLIENT_ACTIVE'
+  | 'CLIENT_INACTIVE'
 
 export interface ContactData {
   id: string
