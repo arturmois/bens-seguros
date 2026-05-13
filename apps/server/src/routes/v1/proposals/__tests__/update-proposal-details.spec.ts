@@ -41,6 +41,7 @@ const makeProposal = (overrides: Partial<Record<string, unknown>> = {}) => {
       modelYear: 2023,
     },
     lostReason: null,
+    observations: null,
     renewalPolicyId: null,
     renewalPolicyNumber: null,
     sourcePolicyId: null,

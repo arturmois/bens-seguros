@@ -59,6 +59,7 @@ export { MarkProposalLost } from './application/mark-proposal-lost.js'
 export { ReopenProposal } from './application/reopen-proposal.js'
 export { UpdateProposalDetails } from './application/update-proposal-details.js'
 export { UpdateProposalDates } from './application/update-proposal-dates.js'
+export { UpdateProposalObservations } from './application/update-proposal-observations.js'
 export { SendQuote } from './application/send-quote.js'
 
 export { PrismaChecklistRepository } from './infrastructure/prisma-checklist-repository.js'

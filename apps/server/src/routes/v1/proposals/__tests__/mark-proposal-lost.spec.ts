@@ -35,6 +35,7 @@ const makeProposal = (overrides: Partial<Record<string, unknown>> = {}) => {
     commissionPercentageInCents: 1000,
     details: null,
     lostReason: 'Cliente escolheu outra seguradora',
+    observations: null,
     renewalPolicyId: null,
     renewalPolicyNumber: null,
     sourcePolicyId: null,

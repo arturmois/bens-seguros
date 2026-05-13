@@ -57,6 +57,10 @@ import type {
   UpdateProposalDetails400,
   UpdateProposalDetails404,
   UpdateProposalDetailsBody,
+  UpdateProposalObservations200,
+  UpdateProposalObservations404,
+  UpdateProposalObservations422,
+  UpdateProposalObservationsBody,
 } from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
@@ -1616,6 +1620,134 @@ export const useUpdateProposalDetails = <
 > => {
   return useMutation(
     getUpdateProposalDetailsMutationOptions(options),
+    queryClient
+  )
+}
+/**
+ * @summary Update proposal observations
+ */
+export type updateProposalObservationsResponse200 = {
+  data: UpdateProposalObservations200
+  status: 200
+}
+
+export type updateProposalObservationsResponse404 = {
+  data: UpdateProposalObservations404
+  status: 404
+}
+
+export type updateProposalObservationsResponse422 = {
+  data: UpdateProposalObservations422
+  status: 422
+}
+
+export type updateProposalObservationsResponseSuccess =
+  updateProposalObservationsResponse200 & {
+    headers: Headers
+  }
+export type updateProposalObservationsResponseError = (
+  | updateProposalObservationsResponse404
+  | updateProposalObservationsResponse422
+) & {
+  headers: Headers
+}
+
+export type updateProposalObservationsResponse =
+  | updateProposalObservationsResponseSuccess
+  | updateProposalObservationsResponseError
+
+export const getUpdateProposalObservationsUrl = (id: string) => {
+  return `/api/v1/proposals/${id}/observations`
+}
+
+export const updateProposalObservations = async (
+  id: string,
+  updateProposalObservationsBody: UpdateProposalObservationsBody,
+  options?: RequestInit
+): Promise<updateProposalObservationsResponse> => {
+  return customFetch<updateProposalObservationsResponse>(
+    getUpdateProposalObservationsUrl(id),
+    {
+      ...options,
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...options?.headers },
+      body: JSON.stringify(updateProposalObservationsBody),
+    }
+  )
+}
+
+export const getUpdateProposalObservationsMutationOptions = <
+  TError = UpdateProposalObservations404 | UpdateProposalObservations422,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateProposalObservations>>,
+    TError,
+    { id: string; data: UpdateProposalObservationsBody },
+    TContext
+  >
+  request?: SecondParameter<typeof customFetch>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateProposalObservations>>,
+  TError,
+  { id: string; data: UpdateProposalObservationsBody },
+  TContext
+> => {
+  const mutationKey = ['updateProposalObservations']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateProposalObservations>>,
+    { id: string; data: UpdateProposalObservationsBody }
+  > = (props) => {
+    const { id, data } = props ?? {}
+
+    return updateProposalObservations(id, data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type UpdateProposalObservationsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateProposalObservations>>
+>
+export type UpdateProposalObservationsMutationBody =
+  UpdateProposalObservationsBody
+export type UpdateProposalObservationsMutationError =
+  | UpdateProposalObservations404
+  | UpdateProposalObservations422
+
+/**
+ * @summary Update proposal observations
+ */
+export const useUpdateProposalObservations = <
+  TError = UpdateProposalObservations404 | UpdateProposalObservations422,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof updateProposalObservations>>,
+      TError,
+      { id: string; data: UpdateProposalObservationsBody },
+      TContext
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof updateProposalObservations>>,
+  TError,
+  { id: string; data: UpdateProposalObservationsBody },
+  TContext
+> => {
+  return useMutation(
+    getUpdateProposalObservationsMutationOptions(options),
     queryClient
   )
 }

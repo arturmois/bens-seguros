@@ -11,6 +11,7 @@ import {
   getListProposalsQueryKey,
   markProposalLost,
   updateProposalDetails,
+  updateProposalObservations,
   useGetProposal,
   useListProposals,
 } from '@/api/endpoints/proposals/proposals'
@@ -139,6 +140,34 @@ export function useUpdateProposalDetails() {
     },
     onError: () => {
       toast.error('Erro ao salvar dados')
+    },
+  })
+}
+
+export function useUpdateProposalObservations() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      id,
+      observations,
+    }: {
+      id: string
+      observations: string | null
+    }) => updateProposalObservations(id, { observations }),
+    onSuccess: (_data, { id }) => {
+      toast.success('Observações atualizadas')
+      void queryClient.invalidateQueries({
+        queryKey: getGetProposalQueryKey(id),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: getListProposalsQueryKey(),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: ['proposals', 'kanban'],
+      })
+    },
+    onError: () => {
+      toast.error('Erro ao atualizar observações')
     },
   })
 }

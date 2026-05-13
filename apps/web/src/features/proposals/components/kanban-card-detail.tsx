@@ -27,6 +27,7 @@ import {
 } from '../lib/constants'
 import { IssuePolicyCard } from './issue-policy-card'
 import { ProposalChecklistPanel } from './proposal-checklist-panel'
+import { ProposalObservations } from './proposal-observations'
 import { ProposalStageActions } from './proposal-stage-actions'
 
 interface KanbanCardDetailProps {
@@ -145,6 +146,11 @@ function KanbanCardDetailBody({
         advancePending={advanceMutation.isPending}
         onAdvance={handleAdvance}
         onMarkLost={() => {}}
+      />
+      <ProposalObservations
+        key={proposal.id}
+        proposalId={proposal.id}
+        initialValue={proposal.observations}
       />
       {proposal.stage === 'POLICY_ISSUED' && (
         <IssuePolicySection proposalId={proposal.id} />

@@ -4,23 +4,23 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
-import type { AdvanceProposal200DataBoardType } from './advanceProposal200DataBoardType'
-import type { AdvanceProposal200DataBranch } from './advanceProposal200DataBranch'
-import type { AdvanceProposal200DataDetails } from './advanceProposal200DataDetails'
-import type { AdvanceProposal200DataSourcePolicySnapshot } from './advanceProposal200DataSourcePolicySnapshot'
-import type { AdvanceProposal200DataStage } from './advanceProposal200DataStage'
+import type { UpdateProposalObservations200DataBoardType } from './updateProposalObservations200DataBoardType'
+import type { UpdateProposalObservations200DataBranch } from './updateProposalObservations200DataBranch'
+import type { UpdateProposalObservations200DataDetails } from './updateProposalObservations200DataDetails'
+import type { UpdateProposalObservations200DataSourcePolicySnapshot } from './updateProposalObservations200DataSourcePolicySnapshot'
+import type { UpdateProposalObservations200DataStage } from './updateProposalObservations200DataStage'
 
-export type AdvanceProposal200Data = {
+export type UpdateProposalObservations200Data = {
   id: string
   organizationId: string
   contactId: string
   salespersonId: string
-  stage: AdvanceProposal200DataStage
-  boardType: AdvanceProposal200DataBoardType
-  branch: AdvanceProposal200DataBranch
+  stage: UpdateProposalObservations200DataStage
+  boardType: UpdateProposalObservations200DataBoardType
+  branch: UpdateProposalObservations200DataBranch
   premiumValueInCents: number
   commissionPercentageInCents: number
-  details: AdvanceProposal200DataDetails
+  details: UpdateProposalObservations200DataDetails
   /** @nullable */
   lostReason: string | null
   /** @nullable */
@@ -36,7 +36,7 @@ export type AdvanceProposal200Data = {
   /** @nullable */
   endorsementReason: string | null
   /** @nullable */
-  sourcePolicySnapshot: AdvanceProposal200DataSourcePolicySnapshot
+  sourcePolicySnapshot: UpdateProposalObservations200DataSourcePolicySnapshot
   /** @nullable */
   insurerId: string | null
   /** @nullable */

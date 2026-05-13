@@ -32,6 +32,7 @@ const makeProposal = (id: string) => {
     commissionPercentageInCents: 0,
     details: null,
     lostReason: null,
+    observations: null,
     renewalPolicyId: null,
     renewalPolicyNumber: null,
     sourcePolicyId: null,

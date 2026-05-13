@@ -51,6 +51,43 @@ describe('ProposalMapper', () => {
       '2027-02-01T00:00:00.000Z'
     )
   })
+  it('roundtrips a non-null observation through persistence and domain', () => {
+    const proposal = Proposal.create({
+      organizationId: 'org-1',
+      contactId: 'client-1',
+      salespersonId: 'user-1',
+      branch: 'AUTO',
+      boardType: 'NEW_INSURANCE',
+    })
+    proposal.updateObservations('note')
+    const persisted = ProposalMapper.toPersistence(proposal)
+    expect(persisted.observations).toBe('note')
+    const restored = ProposalMapper.toDomain({
+      ...persisted,
+      details: null,
+      deletedAt: null,
+      sourcePolicySnapshot: null,
+    } as never)
+    expect(restored.observations).toBe('note')
+  })
+  it('roundtrips a null observation through persistence and domain', () => {
+    const proposal = Proposal.create({
+      organizationId: 'org-1',
+      contactId: 'client-1',
+      salespersonId: 'user-1',
+      branch: 'AUTO',
+      boardType: 'NEW_INSURANCE',
+    })
+    const persisted = ProposalMapper.toPersistence(proposal)
+    expect(persisted.observations).toBeNull()
+    const restored = ProposalMapper.toDomain({
+      ...persisted,
+      details: null,
+      deletedAt: null,
+      sourcePolicySnapshot: null,
+    } as never)
+    expect(restored.observations).toBeNull()
+  })
   it('drops invalid source policy snapshot payloads from persistence', () => {
     const restored = ProposalMapper.toDomain({
       id: 'prop-1',

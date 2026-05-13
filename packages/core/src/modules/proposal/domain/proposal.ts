@@ -113,6 +113,7 @@ export interface ProposalProps {
   commissionPercentageInCents: number
   details: InsuredObjectDetails | null
   lostReason: string | null
+  observations: string | null
   renewalPolicyId: string | null
   renewalPolicyNumber: string | null
   sourcePolicyId: string | null
@@ -171,6 +172,7 @@ export class Proposal {
       commissionPercentageInCents: input.commissionPercentageInCents ?? 0,
       details: null,
       lostReason: null,
+      observations: null,
       renewalPolicyId: input.renewalPolicyId ?? null,
       renewalPolicyNumber: input.renewalPolicyNumber ?? null,
       sourcePolicyId: input.sourcePolicyId ?? null,
@@ -267,6 +269,11 @@ export class Proposal {
     this.props.updatedAt = new Date()
   }
 
+  updateObservations(observations: string | null): void {
+    this.props.observations = observations
+    this.props.updatedAt = new Date()
+  }
+
   updateQuoteValidity(date: Date): void {
     this.props.quoteValidUntil = date
     this.props.updatedAt = new Date()
@@ -321,6 +328,9 @@ export class Proposal {
   }
   get insurerId(): string | null {
     return this.props.insurerId
+  }
+  get observations(): string | null {
+    return this.props.observations
   }
   get createdAt(): Date {
     return this.props.createdAt

@@ -266,6 +266,7 @@ export const UpdateProposalDatesResponse = zod.object({
       ])
       .nullable(),
     lostReason: zod.string().nullable(),
+    observations: zod.string().nullable(),
     renewalPolicyId: zod.string().nullable(),
     renewalPolicyNumber: zod.string().nullable(),
     sourcePolicyId: zod.string().nullable(),
@@ -549,6 +550,7 @@ export const ListProposalsResponse = zod.object({
         ])
         .nullable(),
       lostReason: zod.string().nullable(),
+      observations: zod.string().nullable(),
       renewalPolicyId: zod.string().nullable(),
       renewalPolicyNumber: zod.string().nullable(),
       sourcePolicyId: zod.string().nullable(),
@@ -753,6 +755,7 @@ export const GetProposalResponse = zod.object({
       ])
       .nullable(),
     lostReason: zod.string().nullable(),
+    observations: zod.string().nullable(),
     renewalPolicyId: zod.string().nullable(),
     renewalPolicyNumber: zod.string().nullable(),
     sourcePolicyId: zod.string().nullable(),
@@ -953,6 +956,7 @@ export const AdvanceProposalResponse = zod.object({
       ])
       .nullable(),
     lostReason: zod.string().nullable(),
+    observations: zod.string().nullable(),
     renewalPolicyId: zod.string().nullable(),
     renewalPolicyNumber: zod.string().nullable(),
     sourcePolicyId: zod.string().nullable(),
@@ -1157,6 +1161,7 @@ export const MarkProposalLostResponse = zod.object({
       ])
       .nullable(),
     lostReason: zod.string().nullable(),
+    observations: zod.string().nullable(),
     renewalPolicyId: zod.string().nullable(),
     renewalPolicyNumber: zod.string().nullable(),
     sourcePolicyId: zod.string().nullable(),
@@ -1525,6 +1530,231 @@ export const UpdateProposalDetailsResponse = zod.object({
       ])
       .nullable(),
     lostReason: zod.string().nullable(),
+    observations: zod.string().nullable(),
+    renewalPolicyId: zod.string().nullable(),
+    renewalPolicyNumber: zod.string().nullable(),
+    sourcePolicyId: zod.string().nullable(),
+    endorsementType: zod.string().nullable(),
+    endorsementReason: zod.string().nullable(),
+    sourcePolicySnapshot: zod
+      .object({
+        policyNumber: zod.string(),
+        clientName: zod.string(),
+        startDate: zod.string().datetime({}),
+        endDate: zod.string().datetime({}),
+        status: zod.enum(['ACTIVE', 'CANCELLED', 'EXPIRED']),
+        insurerId: zod.string().nullable(),
+        insurerName: zod.string().nullable(),
+      })
+      .nullable(),
+    insurerId: zod.string().nullable(),
+    deletedAt: zod.string().datetime({}).nullable(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+    coverageStartDate: zod.string().datetime({}).nullable(),
+    coverageEndDate: zod.string().datetime({}).nullable(),
+    sentToClientAt: zod.string().datetime({}).nullable(),
+    clientResponseAt: zod.string().datetime({}).nullable(),
+    quoteValidUntil: zod.string().datetime({}).nullable(),
+    clientName: zod.string().optional(),
+    clientDocument: zod.string().optional(),
+    clientPersonType: zod.string().optional(),
+    salespersonName: zod.string().optional(),
+    insurerName: zod.string().optional(),
+  }),
+})
+
+/**
+ * @summary Update proposal observations
+ */
+
+export const UpdateProposalObservationsParams = zod.object({
+  id: zod.string().min(1),
+})
+
+export const updateProposalObservationsBodyObservationsMax = 2000
+
+export const UpdateProposalObservationsBody = zod.object({
+  observations: zod
+    .string()
+    .max(updateProposalObservationsBodyObservationsMax)
+    .nullable(),
+})
+
+export const updateProposalObservationsResponseDataDetailsOneManufacturingYearMin = 1900
+export const updateProposalObservationsResponseDataDetailsOneManufacturingYearMax = 2100
+
+export const updateProposalObservationsResponseDataDetailsOneModelYearMin = 1900
+export const updateProposalObservationsResponseDataDetailsOneModelYearMax = 2100
+
+export const updateProposalObservationsResponseDataDetailsTwoStateMin = 2
+export const updateProposalObservationsResponseDataDetailsTwoStateMax = 2
+
+export const updateProposalObservationsResponseDataDetailsThreeStateMin = 2
+export const updateProposalObservationsResponseDataDetailsThreeStateMax = 2
+
+export const updateProposalObservationsResponseDataDetailsFourStateMin = 2
+export const updateProposalObservationsResponseDataDetailsFourStateMax = 2
+
+export const updateProposalObservationsResponseDataDetailsFiveMonthlyIncomeCentsMin = 0
+
+export const updateProposalObservationsResponseDataDetailsFiveHeightInCentimetersMin = 100
+export const updateProposalObservationsResponseDataDetailsFiveHeightInCentimetersMax = 250
+
+export const updateProposalObservationsResponseDataDetailsFiveWeightInGramsMin = 20000
+export const updateProposalObservationsResponseDataDetailsFiveWeightInGramsMax = 300000
+
+export const UpdateProposalObservationsResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    contactId: zod.string(),
+    salespersonId: zod.string(),
+    stage: zod.enum([
+      'CAPTURE',
+      'QUOTE',
+      'PROTOCOL',
+      'INSPECTION',
+      'PAYMENT',
+      'POLICY_ISSUED',
+      'LOST',
+    ]),
+    boardType: zod.enum(['NEW_INSURANCE', 'RENEWAL', 'ENDORSEMENT']),
+    branch: zod.enum([
+      'AUTO',
+      'RESIDENTIAL',
+      'CONDOMINIUM',
+      'BUSINESS',
+      'LIFE',
+      'OTHER',
+    ]),
+    premiumValueInCents: zod.number(),
+    commissionPercentageInCents: zod.number(),
+    details: zod
+      .union([
+        zod.object({
+          branch: zod.enum(['AUTO']),
+          brand: zod.string().min(1),
+          model: zod.string().min(1),
+          manufacturingYear: zod
+            .number()
+            .min(
+              updateProposalObservationsResponseDataDetailsOneManufacturingYearMin
+            )
+            .max(
+              updateProposalObservationsResponseDataDetailsOneManufacturingYearMax
+            ),
+          modelYear: zod
+            .number()
+            .min(updateProposalObservationsResponseDataDetailsOneModelYearMin)
+            .max(updateProposalObservationsResponseDataDetailsOneModelYearMax),
+          licensePlate: zod.string().optional(),
+          vin: zod.string().optional(),
+          color: zod.string().optional(),
+          fuelType: zod.string().optional(),
+          vehicleUsage: zod.string().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['RESIDENTIAL']),
+          propertyType: zod.string().min(1),
+          propertyUsage: zod.string().min(1),
+          cep: zod.string().min(1),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(updateProposalObservationsResponseDataDetailsTwoStateMin)
+            .max(updateProposalObservationsResponseDataDetailsTwoStateMax)
+            .optional(),
+          construction: zod.string().optional(),
+          areaM2: zod.number().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['CONDOMINIUM']),
+          condominiumName: zod.string().min(1),
+          unitCount: zod.number().min(1),
+          cep: zod.string().min(1),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(updateProposalObservationsResponseDataDetailsThreeStateMin)
+            .max(updateProposalObservationsResponseDataDetailsThreeStateMax)
+            .optional(),
+          constructionYear: zod.number().optional(),
+          floorCount: zod.number().optional(),
+          blockCount: zod.number().optional(),
+          elevatorCount: zod.number().optional(),
+          employeeCount: zod.number().optional(),
+          hasSecurityEquipment: zod.boolean().optional(),
+          securityEquipmentDetails: zod.string().optional(),
+          hasFireEquipment: zod.boolean().optional(),
+          fireEquipmentDetails: zod.string().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['BUSINESS']),
+          legalName: zod.string().min(1),
+          cnpj: zod.string().min(1),
+          businessActivity: zod.string().min(1),
+          cep: zod.string().optional(),
+          street: zod.string().optional(),
+          number: zod.string().optional(),
+          complement: zod.string().optional(),
+          neighborhood: zod.string().optional(),
+          city: zod.string().optional(),
+          state: zod
+            .string()
+            .min(updateProposalObservationsResponseDataDetailsFourStateMin)
+            .max(updateProposalObservationsResponseDataDetailsFourStateMax)
+            .optional(),
+          areaM2: zod.number().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['LIFE']),
+          occupation: zod.string().min(1),
+          monthlyIncomeCents: zod
+            .number()
+            .min(
+              updateProposalObservationsResponseDataDetailsFiveMonthlyIncomeCentsMin
+            )
+            .optional(),
+          isSmoker: zod.boolean().optional(),
+          extremeSports: zod.boolean().optional(),
+          heightInCentimeters: zod
+            .number()
+            .min(
+              updateProposalObservationsResponseDataDetailsFiveHeightInCentimetersMin
+            )
+            .max(
+              updateProposalObservationsResponseDataDetailsFiveHeightInCentimetersMax
+            )
+            .optional(),
+          weightInGrams: zod
+            .number()
+            .min(
+              updateProposalObservationsResponseDataDetailsFiveWeightInGramsMin
+            )
+            .max(
+              updateProposalObservationsResponseDataDetailsFiveWeightInGramsMax
+            )
+            .optional(),
+          beneficiaries: zod.string().optional(),
+        }),
+        zod.object({
+          branch: zod.enum(['OTHER']),
+          description: zod.string().min(1),
+        }),
+      ])
+      .nullable(),
+    lostReason: zod.string().nullable(),
+    observations: zod.string().nullable(),
     renewalPolicyId: zod.string().nullable(),
     renewalPolicyNumber: zod.string().nullable(),
     sourcePolicyId: zod.string().nullable(),

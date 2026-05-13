@@ -78,6 +78,28 @@ describe('Proposal Entity', () => {
     proposal.markAsLost('reason')
     expect(() => proposal.advance()).toThrow(InvalidStageTransitionError)
   })
+  it('starts with null observations', () => {
+    const proposal = Proposal.create(validProps)
+    expect(proposal.observations).toBeNull()
+  })
+  it('updates observations to a value', () => {
+    const proposal = Proposal.create(validProps)
+    proposal.updateObservations('Cliente pediu desconto de 10%')
+    expect(proposal.observations).toBe('Cliente pediu desconto de 10%')
+  })
+  it('clears observations when set to null', () => {
+    const proposal = Proposal.create(validProps)
+    proposal.updateObservations('initial')
+    proposal.updateObservations(null)
+    expect(proposal.observations).toBeNull()
+  })
+  it('updateObservations bumps updatedAt', async () => {
+    const proposal = Proposal.create(validProps)
+    const before = proposal.toJSON().updatedAt.getTime()
+    await new Promise((r) => setTimeout(r, 5))
+    proposal.updateObservations('note')
+    expect(proposal.toJSON().updatedAt.getTime()).toBeGreaterThan(before)
+  })
   it('restores from persistence data', () => {
     const now = new Date()
     const proposal = Proposal.restore({
@@ -92,6 +114,7 @@ describe('Proposal Entity', () => {
       commissionPercentageInCents: 1500,
       details: null,
       lostReason: null,
+      observations: null,
       renewalPolicyId: null,
       renewalPolicyNumber: null,
       sourcePolicyId: null,

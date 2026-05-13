@@ -20,6 +20,7 @@ import { BRANCH_LABELS } from '../../lib/constants'
 import { InsuredObjectSection } from '../insured-object-section'
 import { LostReasonDialog } from '../lost-reason-dialog'
 import { DetailSkeleton } from '../proposal-detail-helpers'
+import { ProposalObservations } from '../proposal-observations'
 import { ProposalStageActions } from '../proposal-stage-actions'
 import { CoreInfoSection } from './sections/core-info-section'
 import { DatesSection } from './sections/dates-section'
@@ -150,6 +151,11 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
       )}
       <Separator />
       <DatesSection proposal={proposal} />
+      <ProposalObservations
+        key={proposalId}
+        proposalId={proposalId}
+        initialValue={proposal.observations}
+      />
       <InsuredObjectSection proposal={proposal} />
       <Separator />
       <ProposalStageActions

@@ -17,6 +17,7 @@ function createTestProposal(): Proposal {
     commissionPercentageInCents: 1500,
     details: null,
     lostReason: null,
+    observations: null,
     renewalPolicyId: null,
     renewalPolicyNumber: null,
     sourcePolicyId: null,

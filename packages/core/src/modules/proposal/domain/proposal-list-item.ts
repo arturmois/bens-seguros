@@ -18,6 +18,7 @@ export interface ProposalListItem {
   commissionPercentageInCents: number
   details: InsuredObjectDetails | null
   lostReason: string | null
+  observations: string | null
   renewalPolicyId: string | null
   renewalPolicyNumber: string | null
   sourcePolicyId: string | null

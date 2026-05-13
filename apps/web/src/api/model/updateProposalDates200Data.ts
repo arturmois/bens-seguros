@@ -24,6 +24,8 @@ export type UpdateProposalDates200Data = {
   /** @nullable */
   lostReason: string | null
   /** @nullable */
+  observations: string | null
+  /** @nullable */
   renewalPolicyId: string | null
   /** @nullable */
   renewalPolicyNumber: string | null

@@ -21,6 +21,7 @@ function createTestProposal(stage: Proposal['stage'] = 'QUOTE'): Proposal {
     commissionPercentageInCents: 1000,
     details: null,
     lostReason: null,
+    observations: null,
     renewalPolicyId: null,
     renewalPolicyNumber: null,
     sourcePolicyId: null,

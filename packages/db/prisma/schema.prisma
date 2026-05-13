@@ -345,6 +345,7 @@ model Proposal {
   premiumValueInCents         Int               @default(0)
   commissionPercentageInCents Int               @default(0)
   lostReason                  String?
+  observations                String?
   renewalPolicyId             String?
   renewalPolicyNumber         String?
   sourcePolicyId              String?

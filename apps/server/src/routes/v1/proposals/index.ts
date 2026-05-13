@@ -13,6 +13,7 @@ import { reopenProposalRoute } from './reopen-proposal.js'
 import { sendQuoteRoute } from './send-quote.js'
 import { updateProposalDatesRoute } from './update-proposal-dates.js'
 import { updateProposalDetailsRoute } from './update-proposal-details.js'
+import { updateProposalObservationsRoute } from './update-proposal-observations.js'
 
 export async function proposalRoutes(app: FastifyInstance) {
   app.addHook('preHandler', tenantMiddleware)
@@ -27,6 +28,7 @@ export async function proposalRoutes(app: FastifyInstance) {
   markProposalLostRoute(app)
   reopenProposalRoute(app)
   updateProposalDetailsRoute(app)
+  updateProposalObservationsRoute(app)
   getProposalChecklistRoute(app)
   completeChecklistItemRoute(app)
 }

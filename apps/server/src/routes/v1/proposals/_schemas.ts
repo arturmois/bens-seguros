@@ -77,6 +77,10 @@ export const updateProposalDetailsBody = z.object({
   insurerId: z.string().optional().nullable(),
 })
 
+export const updateProposalObservationsBody = z.object({
+  observations: z.string().max(2000).nullable(),
+})
+
 export const listProposalsQuery = paginationQuery().extend({
   stage: proposalStageEnum.optional(),
   contactId: z.string().optional(),
@@ -142,6 +146,7 @@ const proposalDataSchema = z.object({
   commissionPercentageInCents: z.number(),
   details: insuredObjectDetails.nullable(),
   lostReason: z.string().nullable(),
+  observations: z.string().nullable(),
   renewalPolicyId: z.string().nullable(),
   renewalPolicyNumber: z.string().nullable(),
   sourcePolicyId: z.string().nullable(),
