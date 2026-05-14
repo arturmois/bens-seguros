@@ -28,7 +28,7 @@ import { CreateContactBody as CreateContactBaseSchema } from '@/api/endpoints/co
 
 import { useCreateContact, useUpdateContact } from '../hooks/use-contacts'
 
-import { PHONE_MASK } from '@/lib/masks'
+import { formatPhoneForMask, PHONE_MASK } from '@/lib/masks'
 
 const emptyToUndef = (value: unknown) =>
   typeof value === 'string' && value.trim() === '' ? undefined : value
@@ -79,7 +79,7 @@ function buildDefaultValues(initial?: ContactWithStage): CreateContactValues {
   if (!initial) return EMPTY_FORM_VALUES
   return {
     name: initial.name,
-    phone: initial.phone ?? '',
+    phone: formatPhoneForMask(initial.phone),
     email: initial.email ?? '',
     source: initial.source,
     consentLgpd: initial.consentLgpd,

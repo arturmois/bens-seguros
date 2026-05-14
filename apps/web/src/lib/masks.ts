@@ -1,3 +1,5 @@
+import { format } from '@react-input/mask'
+
 export const CPF_MASK = {
   mask: '___.___.___-__',
   replacement: { _: /\d/ },
@@ -46,4 +48,13 @@ export function formatDocument(raw: string): string {
 
 export function stripDocument(formatted: string): string {
   return formatted.replace(/\D/g, '').slice(0, 14)
+}
+
+export function formatPhoneForMask(raw: string | null | undefined): string {
+  if (!raw) return ''
+  const digits = raw.replace(/\D/g, '')
+  if (!digits) return ''
+  const withoutCountry =
+    digits.length > 11 && digits.startsWith('55') ? digits.slice(2) : digits
+  return format(withoutCountry, PHONE_MASK)
 }
