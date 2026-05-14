@@ -97,8 +97,7 @@ function makeProposalAtPayment(): Proposal {
   proposal.updateDetails(
     {
       branch: 'AUTO',
-      brand: 'Toyota',
-      model: 'Corolla',
+      vehicle: 'Toyota Corolla',
       manufacturingYear: 2020,
       modelYear: 2021,
     },
@@ -184,8 +183,7 @@ describe('AdvanceProposalStage', () => {
     proposal.updateDetails(
       {
         branch: 'AUTO',
-        brand: 'Toyota',
-        model: 'Corolla',
+        vehicle: 'Toyota Corolla',
         manufacturingYear: 2020,
         modelYear: 2021,
       },

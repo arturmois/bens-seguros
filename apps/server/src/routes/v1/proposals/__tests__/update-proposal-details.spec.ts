@@ -35,8 +35,7 @@ const makeProposal = (overrides: Partial<Record<string, unknown>> = {}) => {
     commissionPercentageInCents: 1000,
     details: {
       branch: 'AUTO',
-      brand: 'Toyota',
-      model: 'Corolla',
+      vehicle: 'Toyota Corolla',
       manufacturingYear: 2022,
       modelYear: 2023,
     },
@@ -65,8 +64,7 @@ const makeProposal = (overrides: Partial<Record<string, unknown>> = {}) => {
 const autoDetailsPayload = {
   details: {
     branch: 'AUTO',
-    brand: 'Toyota',
-    model: 'Corolla',
+    vehicle: 'Toyota Corolla',
     manufacturingYear: 2022,
     modelYear: 2023,
   },

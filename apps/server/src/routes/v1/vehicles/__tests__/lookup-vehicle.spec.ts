@@ -30,8 +30,7 @@ beforeEach(() => {
 
 const RESULT = {
   data: {
-    brand: 'FIAT',
-    model: 'MOBI EASY 1.0',
+    vehicle: 'FIAT MOBI EASY 1.0',
     manufacturingYear: 2019,
     modelYear: 2020,
     color: 'BRANCO',
@@ -53,7 +52,7 @@ describe('POST /api/v1/vehicles/lookup', () => {
     expect(res.statusCode).toBe(200)
     const body = res.json()
     expect(body.success).toBe(true)
-    expect(body.data.brand).toBe('FIAT')
+    expect(body.data.vehicle).toBe('FIAT MOBI EASY 1.0')
     expect(body.meta.source).toBe('provider')
   })
 

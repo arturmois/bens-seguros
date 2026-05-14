@@ -16,8 +16,7 @@ import type { VehicleLookupProvider } from '../domain/vehicle-lookup-provider.js
 import type { CacheService } from '../../../shared/cache-service.js'
 
 const DATA: VehicleData = {
-  brand: 'FIAT',
-  model: 'MOBI EASY 1.0',
+  vehicle: 'FIAT MOBI EASY 1.0',
   manufacturingYear: 2019,
   modelYear: 2020,
   color: 'BRANCO',

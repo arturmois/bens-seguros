@@ -14,8 +14,7 @@ export type Branch = (typeof BRANCH_VALUES)[number]
 
 const autoDetailsSchema = z.object({
   branch: z.literal('AUTO'),
-  brand: z.string().min(1),
-  model: z.string().min(1),
+  vehicle: z.string().trim().min(1, 'Veículo é obrigatório').max(100),
   manufacturingYear: z.number().int().min(1900).max(2100),
   modelYear: z.number().int().min(1900).max(2100),
   licensePlate: z.string().optional(),

@@ -53,8 +53,7 @@ export function AutoFields({
       filled++
     }
 
-    setIfEmpty('brand', data.brand)
-    setIfEmpty('model', data.model)
+    setIfEmpty('vehicle', data.vehicle)
     setIfEmpty('manufacturingYear', data.manufacturingYear)
     setIfEmpty('modelYear', data.modelYear)
     setIfEmpty('color', data.color)
@@ -93,11 +92,8 @@ export function AutoFields({
 
   return (
     <div aria-busy={lookup.isPending}>
-      <FieldWrapper label="Marca" required>
-        <Input placeholder="Ex: Volkswagen" {...register('brand')} />
-      </FieldWrapper>
-      <FieldWrapper label="Modelo" required>
-        <Input placeholder="Ex: Gol 1.6" {...register('model')} />
+      <FieldWrapper label="Veículo" required>
+        <Input placeholder="Ex: Volkswagen Gol 1.6" {...register('vehicle')} />
       </FieldWrapper>
       <FieldWrapper label="Ano Fabricação" required>
         <Input

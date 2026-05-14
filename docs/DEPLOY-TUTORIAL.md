@@ -374,6 +374,26 @@ docker compose -f docker-compose.prod.yml ps
 
 Todos os containers devem estar `healthy` ou `running`. Deploys subsequentes via CI/CD rodam a migration automaticamente.
 
+### 2.9.1 Backfills pontuais (rodar 1x apos deploy de feature)
+
+Scripts em `packages/db/scripts/` migram dados quando uma feature altera o shape de `Proposal.details` (que e JSON). Sao idempotentes — podem rodar mais de uma vez sem efeito, mas o objetivo e rodar uma unica vez no deploy correspondente. Sempre validar com `--dry-run` primeiro.
+
+| Script                      | Deploy alvo | Descricao                                                                              |
+| --------------------------- | ----------- | -------------------------------------------------------------------------------------- |
+| `backfill-vehicle-field.ts` | SCRUM-70    | Funde `details.brand` + `details.model` em `details.vehicle` em propostas AUTO antigas |
+
+Exemplo de execucao via container:
+
+```bash
+# Dry-run (so loga, nao escreve)
+docker compose -f docker-compose.prod.yml exec -T server \
+  pnpm --filter @repo/db exec tsx scripts/backfill-vehicle-field.ts --dry-run
+
+# Apply
+docker compose -f docker-compose.prod.yml exec -T server \
+  pnpm --filter @repo/db exec tsx scripts/backfill-vehicle-field.ts
+```
+
 ### 2.10 Configurar backup automatico
 
 Na VPS como deploy:

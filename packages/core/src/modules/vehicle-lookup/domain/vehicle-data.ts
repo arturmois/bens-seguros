@@ -8,8 +8,7 @@ export type FuelType =
   | 'OTHER'
 
 export interface VehicleData {
-  readonly brand: string
-  readonly model: string
+  readonly vehicle: string
   readonly manufacturingYear: number
   readonly modelYear: number
   readonly color: string | null

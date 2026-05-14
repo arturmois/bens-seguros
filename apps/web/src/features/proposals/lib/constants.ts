@@ -20,8 +20,7 @@ export type ChecklistSummary = GetProposalChecklist200DataSummary
 
 export interface AutoDetails {
   branch: 'AUTO'
-  brand: string
-  model: string
+  vehicle: string
   manufacturingYear: number
   modelYear: number
   licensePlate?: string

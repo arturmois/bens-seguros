@@ -53,19 +53,18 @@ function AutoSection({ details }: { readonly details: AutoDetails }) {
   return (
     <>
       <View style={styles.row}>
-        <FieldRow label="Marca" value={details.brand} />
-        <FieldRow label="Modelo" value={details.model} />
-      </View>
-      <View style={styles.row}>
+        <FieldRow label="Veículo" value={details.vehicle} />
         <FieldRow label="Ano Fab." value={details.manufacturingYear} />
+      </View>
+      <View style={styles.row}>
         <FieldRow label="Ano Modelo" value={details.modelYear} />
-      </View>
-      <View style={styles.row}>
         <FieldRow label="Placa" value={details.licensePlate} />
-        <FieldRow label="Cor" value={details.color} />
       </View>
       <View style={styles.row}>
+        <FieldRow label="Cor" value={details.color} />
         <FieldRow label="Combustível" value={details.fuelType} />
+      </View>
+      <View style={styles.row}>
         <FieldRow label="Uso" value={details.vehicleUsage} />
       </View>
     </>

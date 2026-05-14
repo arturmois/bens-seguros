@@ -9,8 +9,7 @@ export function buildDetails(
     case 'AUTO':
       return {
         branch,
-        brand: String(fields.brand ?? ''),
-        model: String(fields.model ?? ''),
+        vehicle: String(fields.vehicle ?? '').trim(),
         manufacturingYear: Number(fields.manufacturingYear) || 0,
         modelYear: Number(fields.modelYear) || 0,
         licensePlate: fields.licensePlate

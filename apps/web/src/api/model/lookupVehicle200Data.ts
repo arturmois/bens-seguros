@@ -7,8 +7,7 @@
 import type { LookupVehicle200DataFuelType } from './lookupVehicle200DataFuelType'
 
 export type LookupVehicle200Data = {
-  brand: string
-  model: string
+  vehicle: string
   manufacturingYear: number
   modelYear: number
   /** @nullable */

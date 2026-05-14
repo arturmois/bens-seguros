@@ -41,8 +41,7 @@ const fuelTypeSchema = z.enum([
 ])
 
 export const vehicleDataSchema = z.object({
-  brand: z.string(),
-  model: z.string(),
+  vehicle: z.string(),
   manufacturingYear: z.number().int(),
   modelYear: z.number().int(),
   color: z.string().nullable(),

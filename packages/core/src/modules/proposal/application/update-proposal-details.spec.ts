@@ -7,8 +7,7 @@ import { UpdateProposalDetails } from './update-proposal-details.js'
 
 const autoDetails: AutoDetails = {
   branch: 'AUTO',
-  brand: 'Toyota',
-  model: 'Corolla',
+  vehicle: 'Toyota Corolla',
   manufacturingYear: 2024,
   modelYear: 2025,
 }

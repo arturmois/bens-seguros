@@ -22,8 +22,7 @@ let app: Awaited<ReturnType<typeof createTestApp>>
 const makeAutoDetails = () => ({
   details: {
     branch: 'AUTO',
-    brand: 'Toyota',
-    model: 'Corolla',
+    vehicle: 'Toyota Corolla',
     manufacturingYear: 2022,
     modelYear: 2023,
   },
@@ -67,7 +66,7 @@ describe('PUT /api/internal/proposals/:id/details', () => {
       method: 'PUT',
       url: '/api/internal/proposals/p-001/details',
       payload: {
-        details: { brand: 'Toyota' },
+        details: { vehicle: 'Toyota Corolla' },
         premiumValueInCents: 150000,
         commissionBasisPoints: 1000,
       },

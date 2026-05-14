@@ -101,6 +101,8 @@ export const UpdateProposalDatesBody = zod.object({
   quoteValidUntil: zod.string().datetime({}).optional(),
 })
 
+export const updateProposalDatesResponseDataDetailsOneVehicleMax = 100
+
 export const updateProposalDatesResponseDataDetailsOneManufacturingYearMin = 1900
 export const updateProposalDatesResponseDataDetailsOneManufacturingYearMax = 2100
 
@@ -155,8 +157,10 @@ export const UpdateProposalDatesResponse = zod.object({
       .union([
         zod.object({
           branch: zod.enum(['AUTO']),
-          brand: zod.string().min(1),
-          model: zod.string().min(1),
+          vehicle: zod
+            .string()
+            .min(1)
+            .max(updateProposalDatesResponseDataDetailsOneVehicleMax),
           manufacturingYear: zod
             .number()
             .min(updateProposalDatesResponseDataDetailsOneManufacturingYearMin)
@@ -384,6 +388,8 @@ export const ListProposalsQueryParams = zod.object({
     .default(listProposalsQuerySortOrderDefault),
 })
 
+export const listProposalsResponseDataItemDetailsOneVehicleMax = 100
+
 export const listProposalsResponseDataItemDetailsOneManufacturingYearMin = 1900
 export const listProposalsResponseDataItemDetailsOneManufacturingYearMax = 2100
 
@@ -439,8 +445,10 @@ export const ListProposalsResponse = zod.object({
         .union([
           zod.object({
             branch: zod.enum(['AUTO']),
-            brand: zod.string().min(1),
-            model: zod.string().min(1),
+            vehicle: zod
+              .string()
+              .min(1)
+              .max(listProposalsResponseDataItemDetailsOneVehicleMax),
             manufacturingYear: zod
               .number()
               .min(listProposalsResponseDataItemDetailsOneManufacturingYearMin)
@@ -596,6 +604,8 @@ export const GetProposalParams = zod.object({
   id: zod.string().min(1),
 })
 
+export const getProposalResponseDataDetailsOneVehicleMax = 100
+
 export const getProposalResponseDataDetailsOneManufacturingYearMin = 1900
 export const getProposalResponseDataDetailsOneManufacturingYearMax = 2100
 
@@ -650,8 +660,10 @@ export const GetProposalResponse = zod.object({
       .union([
         zod.object({
           branch: zod.enum(['AUTO']),
-          brand: zod.string().min(1),
-          model: zod.string().min(1),
+          vehicle: zod
+            .string()
+            .min(1)
+            .max(getProposalResponseDataDetailsOneVehicleMax),
           manufacturingYear: zod
             .number()
             .min(getProposalResponseDataDetailsOneManufacturingYearMin)
@@ -797,6 +809,8 @@ export const AdvanceProposalParams = zod.object({
   id: zod.string().min(1),
 })
 
+export const advanceProposalResponseDataDetailsOneVehicleMax = 100
+
 export const advanceProposalResponseDataDetailsOneManufacturingYearMin = 1900
 export const advanceProposalResponseDataDetailsOneManufacturingYearMax = 2100
 
@@ -851,8 +865,10 @@ export const AdvanceProposalResponse = zod.object({
       .union([
         zod.object({
           branch: zod.enum(['AUTO']),
-          brand: zod.string().min(1),
-          model: zod.string().min(1),
+          vehicle: zod
+            .string()
+            .min(1)
+            .max(advanceProposalResponseDataDetailsOneVehicleMax),
           manufacturingYear: zod
             .number()
             .min(advanceProposalResponseDataDetailsOneManufacturingYearMin)
@@ -1002,6 +1018,8 @@ export const MarkProposalLostBody = zod.object({
   reason: zod.string().min(1),
 })
 
+export const markProposalLostResponseDataDetailsOneVehicleMax = 100
+
 export const markProposalLostResponseDataDetailsOneManufacturingYearMin = 1900
 export const markProposalLostResponseDataDetailsOneManufacturingYearMax = 2100
 
@@ -1056,8 +1074,10 @@ export const MarkProposalLostResponse = zod.object({
       .union([
         zod.object({
           branch: zod.enum(['AUTO']),
-          brand: zod.string().min(1),
-          model: zod.string().min(1),
+          vehicle: zod
+            .string()
+            .min(1)
+            .max(markProposalLostResponseDataDetailsOneVehicleMax),
           manufacturingYear: zod
             .number()
             .min(markProposalLostResponseDataDetailsOneManufacturingYearMin)
@@ -1216,6 +1236,8 @@ export const UpdateProposalDetailsParams = zod.object({
   id: zod.string().min(1),
 })
 
+export const updateProposalDetailsBodyDetailsOneVehicleMax = 100
+
 export const updateProposalDetailsBodyDetailsOneManufacturingYearMin = 1900
 export const updateProposalDetailsBodyDetailsOneManufacturingYearMax = 2100
 
@@ -1248,8 +1270,10 @@ export const UpdateProposalDetailsBody = zod.object({
   details: zod.union([
     zod.object({
       branch: zod.enum(['AUTO']),
-      brand: zod.string().min(1),
-      model: zod.string().min(1),
+      vehicle: zod
+        .string()
+        .min(1)
+        .max(updateProposalDetailsBodyDetailsOneVehicleMax),
       manufacturingYear: zod
         .number()
         .min(updateProposalDetailsBodyDetailsOneManufacturingYearMin)
@@ -1361,6 +1385,8 @@ export const UpdateProposalDetailsBody = zod.object({
   insurerId: zod.string().nullish(),
 })
 
+export const updateProposalDetailsResponseDataDetailsOneVehicleMax = 100
+
 export const updateProposalDetailsResponseDataDetailsOneManufacturingYearMin = 1900
 export const updateProposalDetailsResponseDataDetailsOneManufacturingYearMax = 2100
 
@@ -1415,8 +1441,10 @@ export const UpdateProposalDetailsResponse = zod.object({
       .union([
         zod.object({
           branch: zod.enum(['AUTO']),
-          brand: zod.string().min(1),
-          model: zod.string().min(1),
+          vehicle: zod
+            .string()
+            .min(1)
+            .max(updateProposalDetailsResponseDataDetailsOneVehicleMax),
           manufacturingYear: zod
             .number()
             .min(
@@ -1581,6 +1609,8 @@ export const UpdateProposalObservationsBody = zod.object({
     .nullable(),
 })
 
+export const updateProposalObservationsResponseDataDetailsOneVehicleMax = 100
+
 export const updateProposalObservationsResponseDataDetailsOneManufacturingYearMin = 1900
 export const updateProposalObservationsResponseDataDetailsOneManufacturingYearMax = 2100
 
@@ -1635,8 +1665,10 @@ export const UpdateProposalObservationsResponse = zod.object({
       .union([
         zod.object({
           branch: zod.enum(['AUTO']),
-          brand: zod.string().min(1),
-          model: zod.string().min(1),
+          vehicle: zod
+            .string()
+            .min(1)
+            .max(updateProposalObservationsResponseDataDetailsOneVehicleMax),
           manufacturingYear: zod
             .number()
             .min(

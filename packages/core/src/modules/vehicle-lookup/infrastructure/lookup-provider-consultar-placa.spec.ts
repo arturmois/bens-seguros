@@ -57,8 +57,7 @@ describe('LookupProviderConsultarPlaca', () => {
 
     const result = await provider.lookup({ plate: 'AAA0000' })
 
-    expect(result.brand).toBe('HYUNDAI')
-    expect(result.model).toBe('HYUNDAI/HB20 1.0M COMFOR')
+    expect(result.vehicle).toBe('HYUNDAI HYUNDAI/HB20 1.0M COMFOR')
     expect(result.manufacturingYear).toBe(2014)
     expect(result.modelYear).toBe(2015)
     expect(result.color).toBe('BRANCA')

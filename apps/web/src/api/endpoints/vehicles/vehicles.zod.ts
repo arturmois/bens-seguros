@@ -28,8 +28,7 @@ export const LookupVehicleBody = zod.object({
 export const LookupVehicleResponse = zod.object({
   success: zod.literal(true),
   data: zod.object({
-    brand: zod.string(),
-    model: zod.string(),
+    vehicle: zod.string(),
     manufacturingYear: zod.number(),
     modelYear: zod.number(),
     color: zod.string().nullable(),

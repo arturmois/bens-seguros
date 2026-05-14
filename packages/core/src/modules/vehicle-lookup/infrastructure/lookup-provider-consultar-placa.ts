@@ -155,9 +155,10 @@ export class LookupProviderConsultarPlaca implements VehicleLookupProvider {
     raw: z.infer<typeof dadosVeiculoSchema>,
     input: VehicleLookupInput
   ): VehicleData {
+    const brand = (raw.marca ?? '').toUpperCase()
+    const model = (raw.modelo ?? '').toUpperCase()
     return {
-      brand: (raw.marca ?? '').toUpperCase(),
-      model: (raw.modelo ?? '').toUpperCase(),
+      vehicle: `${brand} ${model}`.replace(/\s+/g, ' ').trim(),
       manufacturingYear: this.toYear(raw.ano_fabricacao),
       modelYear: this.toYear(raw.ano_modelo ?? raw.ano_fabricacao),
       color: raw.cor ? raw.cor.toUpperCase() : null,

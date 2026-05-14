@@ -8,10 +8,11 @@
 export type GetProposal200DataDetails =
   | {
       branch: 'AUTO'
-      /** @minLength 1 */
-      brand: string
-      /** @minLength 1 */
-      model: string
+      /**
+       * @minLength 1
+       * @maxLength 100
+       */
+      vehicle: string
       /**
        * @minimum 1900
        * @maximum 2100
