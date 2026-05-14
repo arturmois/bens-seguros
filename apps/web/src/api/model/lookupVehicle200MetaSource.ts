@@ -10,5 +10,5 @@ export type LookupVehicle200MetaSource =
 
 export const LookupVehicle200MetaSource = {
   cache: 'cache',
-  apibrasil: 'apibrasil',
+  provider: 'provider',
 } as const

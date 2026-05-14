@@ -39,7 +39,7 @@ const RESULT = {
     chassi: '9BWZZZ377VT004251',
     plate: 'ABC1D23',
   },
-  source: 'apibrasil' as const,
+  source: 'provider' as const,
 }
 
 describe('POST /api/v1/vehicles/lookup', () => {
@@ -54,7 +54,7 @@ describe('POST /api/v1/vehicles/lookup', () => {
     const body = res.json()
     expect(body.success).toBe(true)
     expect(body.data.brand).toBe('FIAT')
-    expect(body.meta.source).toBe('apibrasil')
+    expect(body.meta.source).toBe('provider')
   })
 
   it('returns 400 for invalid plate', async () => {

@@ -1,7 +1,6 @@
 import {
   AcceptInvitation,
   AdvanceProposalStage,
-  ApiBrasilLookupProvider,
   ApproveCommissionAdmin,
   ApproveCommissionCommercial,
   BuildDashboardSnapshot,
@@ -63,6 +62,7 @@ import {
   ListUserTenants,
   LocalStorageProvider,
   LookupCep,
+  LookupProviderConsultarPlaca,
   LookupVehicleByPlate,
   MarkAllNotificationsAsRead,
   MarkNotificationAsRead,
@@ -141,7 +141,7 @@ export function registerDependencies(redis: Redis | null = null) {
     useValue: vehicleLookupCache,
   })
   container.register('VehicleLookupProvider', {
-    useClass: ApiBrasilLookupProvider,
+    useClass: LookupProviderConsultarPlaca,
   })
   container.register(LookupVehicleByPlate, {
     useFactory: (c) =>

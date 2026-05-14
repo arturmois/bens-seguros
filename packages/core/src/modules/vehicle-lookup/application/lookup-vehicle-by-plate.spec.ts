@@ -27,7 +27,7 @@ const DATA: VehicleData = {
 }
 
 function makeProvider(): VehicleLookupProvider {
-  return { lookup: vi.fn() }
+  return { name: 'consultar-placa', lookup: vi.fn() }
 }
 
 function makeCache(): CacheService {
@@ -78,7 +78,7 @@ describe('LookupVehicleByPlate', () => {
     vi.mocked(cache.get).mockResolvedValue(null)
     vi.mocked(provider.lookup).mockResolvedValue(DATA)
     const result = await useCase.execute(BASE_INPUT)
-    expect(result).toEqual({ data: DATA, source: 'apibrasil' })
+    expect(result).toEqual({ data: DATA, source: 'provider' })
     expect(provider.lookup).toHaveBeenCalledWith({
       plate: 'ABC1D23',
       chassi: undefined,

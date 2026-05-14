@@ -48,6 +48,6 @@ export const LookupVehicleResponse = zod.object({
     plate: zod.string().nullable(),
   }),
   meta: zod.object({
-    source: zod.enum(['cache', 'apibrasil']),
+    source: zod.enum(['cache', 'provider']),
   }),
 })

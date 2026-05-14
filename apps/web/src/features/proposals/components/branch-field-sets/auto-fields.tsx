@@ -39,19 +39,16 @@ export function AutoFields({
   function fillEmptyFields(data: LookupVehicle200Data) {
     let filled = 0
 
-    const setIfEmpty = (field: string, value: unknown) => {
-      // Treat numeric 0 as empty — the API may return 0 for unparseable years,
-      // and 0 is never a valid model/manufacturing year.
+    const isEmpty = (value: unknown): boolean => {
       if (value === null || value === undefined || value === '' || value === 0)
-        return
-      const current = getValues(field)
-      if (
-        current !== undefined &&
-        current !== null &&
-        current !== '' &&
-        current !== 0
-      )
-        return
+        return true
+      if (typeof value === 'number' && Number.isNaN(value)) return true
+      return false
+    }
+
+    const setIfEmpty = (field: string, value: unknown) => {
+      if (isEmpty(value)) return
+      if (!isEmpty(getValues(field))) return
       setValue(field, value, { shouldDirty: true, shouldValidate: true })
       filled++
     }

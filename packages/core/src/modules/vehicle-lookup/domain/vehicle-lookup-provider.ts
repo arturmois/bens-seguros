@@ -6,5 +6,6 @@ export interface VehicleLookupInput {
 }
 
 export interface VehicleLookupProvider {
+  readonly name: string
   lookup(input: VehicleLookupInput): Promise<VehicleData>
 }

@@ -55,6 +55,6 @@ export const lookupVehicleResponse = z.object({
   success: z.literal(true),
   data: vehicleDataSchema,
   meta: z.object({
-    source: z.enum(['cache', 'apibrasil']),
+    source: z.enum(['cache', 'provider']),
   }),
 })

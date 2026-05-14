@@ -24,7 +24,7 @@ export interface LookupVehicleByPlateInput {
 
 export interface LookupVehicleByPlateResult {
   readonly data: VehicleData
-  readonly source: 'cache' | 'apibrasil'
+  readonly source: 'cache' | 'provider'
 }
 
 @injectable()
@@ -87,7 +87,7 @@ export class LookupVehicleByPlate {
       providerError: false,
     })
 
-    return { data, source: 'apibrasil' }
+    return { data, source: 'provider' }
   }
 
   private audit(
@@ -107,7 +107,7 @@ export class LookupVehicleByPlate {
       entityId: input.proposalId,
       after: {
         plateHash,
-        provider: 'apibrasil',
+        provider: this.provider.name,
         cacheHit: meta.cacheHit,
         found: meta.found,
         providerError: meta.providerError,

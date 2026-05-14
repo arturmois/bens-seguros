@@ -3,14 +3,14 @@ export type {
   LookupVehicleByPlateInput,
   LookupVehicleByPlateResult,
 } from './application/lookup-vehicle-by-plate.js'
-export type { VehicleData, FuelType } from './domain/vehicle-data.js'
+export type { FuelType, VehicleData } from './domain/vehicle-data.js'
 export {
   InvalidPlateFormatError,
   LookupProviderUnavailableError,
   PlateNotFoundError,
 } from './domain/vehicle-lookup-errors.js'
 export type {
-  VehicleLookupProvider,
   VehicleLookupInput,
+  VehicleLookupProvider,
 } from './domain/vehicle-lookup-provider.js'
-export { ApiBrasilLookupProvider } from './infrastructure/api-brasil-lookup-provider.js'
+export { LookupProviderConsultarPlaca } from './infrastructure/lookup-provider-consultar-placa.js'

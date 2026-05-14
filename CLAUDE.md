@@ -197,6 +197,7 @@ Organization: **Corretora Exemplo** (slug: `corretora-exemplo`). Includes 8 insu
 
 - **Code identifiers (variables, functions, classes, interfaces, types, enums, constants):** always in English
 - **Exception:** Brazilian acronyms with no translation — `cpf`, `cnpj`, `cep` — kept as-is
+- **Exception:** Adapter implementations that integrate with a Brazilian vendor whose brand is Portuguese may keep the brand in the name, **as long as the English role prefix comes first**. Interfaces/ports stay fully English. Example: `LookupProviderConsultarPlaca implements VehicleLookupProvider`. Do not add a comment to identify the vendor — the class name already does.
 - **Code comments:** English
 - **UI display strings (labels, messages, placeholders, toasts, titles, tooltips, descriptions):** correct Brazilian Portuguese (pt-BR) with proper accents (á, é, í, ó, ú, ã, õ, ê, ô) and cedilla (ç)
 - **NEVER** write Portuguese without diacritics in UI: `organizacao` → `organização`, `obrigatorio` → `obrigatório`, `Comecar Gratis` → `Começar Grátis`
