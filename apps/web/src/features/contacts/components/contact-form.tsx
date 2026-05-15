@@ -9,6 +9,8 @@ import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { FormField } from '@/components/shared/form-field'
+import { FormGrid } from '@/components/shared/form-grid'
+import { FormSection } from '@/components/shared/form-section'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -166,96 +168,113 @@ export function ContactForm({
       <form
         id={formId}
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-6"
+        className="space-y-8"
         noValidate
       >
-        <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
-          <FormField label="Nome" error={errors.name?.message} required>
-            <Input placeholder="Nome do contato" {...form.register('name')} />
-          </FormField>
-          <FormField label="Origem" error={errors.source?.message} required>
-            <Controller
-              control={form.control}
-              name="source"
-              render={({ field }) => (
-                <Select
-                  value={field.value ?? 'MANUAL'}
-                  onValueChange={(value) => {
-                    if (value !== null) field.onChange(value as ContactSource)
-                  }}
-                  items={CONTACT_SOURCE_OPTIONS}
-                  disabled={mode === 'edit'}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a origem">
-                      {(value: string | null) => {
-                        const item = CONTACT_SOURCE_OPTIONS.find(
-                          (option) => option.value === value
-                        )
-                        return item?.label ?? null
-                      }}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CONTACT_SOURCE_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </FormField>
-          <FormField label="Telefone" error={errors.phone?.message} required>
-            <Controller
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <InputMask
-                  component={Input}
-                  mask={PHONE_MASK.mask}
-                  replacement={PHONE_MASK.replacement}
-                  placeholder="+55 (11) 99999-9999"
-                  {...field}
-                  value={String(field.value ?? '')}
-                />
-              )}
-            />
-          </FormField>
-          <FormField label="Email" error={errors.email?.message}>
-            <Input
-              type="email"
-              placeholder="contato@example.com"
-              {...form.register('email')}
-            />
-          </FormField>
-        </div>
-        <FormField label="Anotações" error={errors.notes?.message}>
-          <Textarea
-            placeholder="Observações internas"
-            {...form.register('notes')}
-          />
-        </FormField>
-        <div className="flex items-center gap-3">
-          <Controller
-            control={form.control}
-            name="consentLgpd"
-            render={({ field }) => (
-              <Switch
-                checked={field.value === true}
-                onCheckedChange={field.onChange}
-                aria-labelledby="consent-lgpd-label"
+        <FormSection title="Identificação">
+          <FormGrid>
+            <FormField label="Nome" error={errors.name?.message} required>
+              <Input placeholder="Nome do contato" {...form.register('name')} />
+            </FormField>
+            <FormField label="Telefone" error={errors.phone?.message} required>
+              <Controller
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <InputMask
+                    component={Input}
+                    mask={PHONE_MASK.mask}
+                    replacement={PHONE_MASK.replacement}
+                    placeholder="+55 (11) 99999-9999"
+                    {...field}
+                    value={String(field.value ?? '')}
+                  />
+                )}
               />
-            )}
-          />
-          <Label id="consent-lgpd-label">Consentimento LGPD</Label>
-        </div>
-        {errors.consentLgpd?.message ? (
-          <p role="alert" className="text-destructive text-sm">
-            {errors.consentLgpd.message}
-          </p>
-        ) : null}
+            </FormField>
+            <FormField label="Email" error={errors.email?.message}>
+              <Input
+                type="email"
+                placeholder="contato@example.com"
+                {...form.register('email')}
+              />
+            </FormField>
+          </FormGrid>
+        </FormSection>
+        <FormSection title="Origem e consentimento">
+          <FormGrid>
+            <FormField label="Origem" error={errors.source?.message} required>
+              <Controller
+                control={form.control}
+                name="source"
+                render={({ field }) => (
+                  <Select
+                    value={field.value ?? 'MANUAL'}
+                    onValueChange={(value) => {
+                      if (value !== null) field.onChange(value as ContactSource)
+                    }}
+                    items={CONTACT_SOURCE_OPTIONS}
+                    disabled={mode === 'edit'}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a origem">
+                        {(value: string | null) => {
+                          const item = CONTACT_SOURCE_OPTIONS.find(
+                            (option) => option.value === value
+                          )
+                          return item?.label ?? null
+                        }}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CONTACT_SOURCE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </FormField>
+            {/* Switch + Label com aria-labelledby nao encaixa no FormField (label acima do controle); mantemos layout custom dentro do grid via col-span-full */}
+            <div className="col-span-full">
+              <div className="flex items-center gap-3">
+                <Controller
+                  control={form.control}
+                  name="consentLgpd"
+                  render={({ field }) => (
+                    <Switch
+                      checked={field.value === true}
+                      onCheckedChange={field.onChange}
+                      aria-labelledby="consent-lgpd-label"
+                    />
+                  )}
+                />
+                <Label id="consent-lgpd-label">Consentimento LGPD</Label>
+              </div>
+              {errors.consentLgpd?.message ? (
+                <p role="alert" className="text-destructive mt-2 text-sm">
+                  {errors.consentLgpd.message}
+                </p>
+              ) : null}
+            </div>
+          </FormGrid>
+        </FormSection>
+        <FormSection title="Observações">
+          <FormGrid>
+            <FormField
+              label="Anotações"
+              error={errors.notes?.message}
+              span="full"
+            >
+              <Textarea
+                placeholder="Observações internas"
+                {...form.register('notes')}
+              />
+            </FormField>
+          </FormGrid>
+        </FormSection>
         {!hideFooter && (
           <div className="flex gap-3 pt-2">
             <Button type="submit" disabled={isPending}>

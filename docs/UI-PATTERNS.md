@@ -95,9 +95,71 @@ Ao selecionar, barra flutuante no bottom:
 
 ### Layout Interno
 
-- Campos agrupados por contexto com heading visual (ex: "Dados Pessoais", "Endereco")
-- Grid 2 colunas no desktop, 1 coluna no mobile
-- Campos relacionados lado a lado: cidade + estado, data inicio + data fim
+Padrao 3/2/1 baseado em container queries (Tailwind 4), nao em viewport. O grid reage a largura do container pai — funciona igual em Sheet (~500px) e em pagina (~1200px).
+
+| Largura do container | Colunas | Largura util por coluna |
+| -------------------- | ------- | ----------------------- |
+| < 480px              | 1       | ~448px                  |
+| 480 - 919px          | 2       | ~208px - 440px          |
+| >= 920px             | 3       | ~285px - 350px+         |
+
+**Componentes (em `apps/web/src/components/shared/`):**
+
+- `<FormSection title description?>` — agrupa campos por contexto. Multiplas sections em um form usam `<form class="space-y-8">`.
+- `<FormGrid columns? gap?>` — container responsivo. `columns=3` (default) ou `2`. `gap='md'` (default, gap-4), `'sm'` (gap-3), `'lg'` (gap-6).
+- `<FormField label span? required hint error>` — wrapper com label + erro. Prop `span`: `'full' | 2 | 1` (default 1).
+
+**Convencao de span por tipo de campo:**
+
+| Componente filho                                       | Span padrao (convencao) | Override |
+| ------------------------------------------------------ | ----------------------- | -------- |
+| `<Textarea>`                                           | `span="full"`           | Sim      |
+| `<FileUpload>` / dropzone                              | `span="full"`           | Sim      |
+| `<ContactSearch>`, `<PolicySearch>` (busca principal)  | `span="full"`           | Sim      |
+| `<Combobox>` com listagem grande                       | `span="full"`           | Sim      |
+| `<Input>`, `<Select>`, `<DatePicker>`, `<NumberField>` | default (1)             | Sim      |
+| `<CurrencyInput>`, `<PhoneInput>`, `<Switch>`          | default (1)             | Sim      |
+
+A convencao e validada em code review — sem deteccao em runtime.
+
+**Exemplo canonico:**
+
+```tsx
+<form onSubmit={handleSubmit} className="space-y-8">
+  <FormSection title="Dados Gerais">
+    <FormGrid>
+      <FormField label="Apolice" span="full">
+        <PolicySearch />
+      </FormField>
+      <FormField label="Data da Ocorrencia">
+        <DatePicker />
+      </FormField>
+      <FormField label="Status">
+        <Select items={STATUS_OPTIONS} />
+      </FormField>
+      <FormField label="Valor Estimado">
+        <CurrencyInput />
+      </FormField>
+    </FormGrid>
+  </FormSection>
+
+  <FormSection title="Descricao">
+    <FormGrid>
+      <FormField label="Descricao" span="full">
+        <Textarea rows={4} />
+      </FormField>
+    </FormGrid>
+  </FormSection>
+</form>
+```
+
+**Forms fora do padrao (mantem 1-col):**
+
+- Auth: `login-form`, `register-form`, `reset-password-form`, `forgot-password-form`
+- Dialogs com <= 3 campos: `insurer-form-dialog`, `channel-form-dialog`, `contacts/quick-create-contact`
+
+**Regras gerais (validas para todos os forms):**
+
 - Labels visiveis sempre (nunca placeholder-only)
 - Required fields com asterisco `*`
 - Helper text abaixo de campos complexos
