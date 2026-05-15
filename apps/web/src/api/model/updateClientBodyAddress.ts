@@ -8,4 +8,37 @@
 /**
  * @nullable
  */
-export type UpdateClientBodyAddress = { [key: string]: unknown } | null
+export type UpdateClientBodyAddress = {
+  /** @pattern ^\d{5}-?\d{3}$ */
+  cep: string
+  /**
+   * @minLength 1
+   * @maxLength 200
+   */
+  street: string
+  /**
+   * @maxLength 20
+   * @nullable
+   */
+  number?: string | null
+  /**
+   * @maxLength 200
+   * @nullable
+   */
+  complement?: string | null
+  /**
+   * @minLength 1
+   * @maxLength 100
+   */
+  neighborhood: string
+  /**
+   * @minLength 1
+   * @maxLength 100
+   */
+  city: string
+  /**
+   * @minLength 2
+   * @maxLength 2
+   */
+  state: string
+} | null

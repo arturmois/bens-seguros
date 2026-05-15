@@ -1,3 +1,4 @@
+import { clientAddressInputSchema } from '@repo/core'
 import { ContactSource } from '@repo/db'
 import { z } from 'zod'
 import { csvEnumArray, csvStringArray } from '../../shared/csv-array.schema.js'
@@ -69,7 +70,7 @@ export const promoteContactBody = z.object({
   personType: personTypeEnum.optional(),
   profession: z.string().optional(),
   maritalStatus: maritalStatusEnum.optional(),
-  address: z.record(z.string(), z.unknown()).optional(),
+  address: clientAddressInputSchema.optional(),
   fiscalBirthDate: z.coerce.date().optional(),
 })
 

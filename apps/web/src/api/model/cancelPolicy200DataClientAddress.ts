@@ -8,8 +8,8 @@
 /**
  * @nullable
  */
-export type CreateClientBodyAddress = {
-  /** @pattern ^\d{5}-?\d{3}$ */
+export type CancelPolicy200DataClientAddress = {
+  /** @pattern ^\d{8}$ */
   cep: string
   /**
    * @minLength 1
@@ -20,12 +20,12 @@ export type CreateClientBodyAddress = {
    * @maxLength 20
    * @nullable
    */
-  number?: string | null
+  number: string | null
   /**
    * @maxLength 200
    * @nullable
    */
-  complement?: string | null
+  complement: string | null
   /**
    * @minLength 1
    * @maxLength 100

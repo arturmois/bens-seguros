@@ -74,6 +74,28 @@ function buildAddressDisplay(address: Record<string, string> | null): string {
   return parts.length > 0 ? parts.join(', ') : 'Não informado'
 }
 
+function formatCepDisplay(cep: string): string {
+  const digits = cep.replace(/\D/g, '')
+  if (digits.length !== 8) return cep
+  return `${digits.slice(0, 5)}-${digits.slice(5)}`
+}
+
+function policyAddressToDisplayRecord(
+  policyAddress: PolicyData['clientAddress']
+): Record<string, string> | null {
+  if (!policyAddress) return null
+  const address: Record<string, string> = {
+    street: policyAddress.number
+      ? `${policyAddress.street}, ${policyAddress.number}`
+      : policyAddress.street,
+    neighborhood: policyAddress.neighborhood,
+    city: `${policyAddress.city}/${policyAddress.state}`,
+    cep: formatCepDisplay(policyAddress.cep),
+  }
+  if (policyAddress.complement) address.complement = policyAddress.complement
+  return address
+}
+
 interface ClientSectionProps {
   readonly policy: PolicyData
   readonly clientFull?: ClientFullData | null
@@ -84,9 +106,11 @@ function ClientSection({ policy, clientFull }: ClientSectionProps) {
   const document = displayOrFallback(
     clientFull?.document ?? policy.clientDocument
   )
-  const email = displayOrFallback(clientFull?.email)
-  const phone = displayOrFallback(clientFull?.phone)
-  const address = buildAddressDisplay(clientFull?.address ?? null)
+  const email = displayOrFallback(clientFull?.email ?? policy.clientEmail)
+  const phone = displayOrFallback(clientFull?.phone ?? policy.clientPhone)
+  const address = buildAddressDisplay(
+    clientFull?.address ?? policyAddressToDisplayRecord(policy.clientAddress)
+  )
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Segurado</Text>

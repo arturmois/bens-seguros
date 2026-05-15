@@ -1,14 +1,24 @@
 import type { Policy as PrismaPolicyRecord } from '@repo/db'
+import { parseClientAddress } from '../../client/domain/client-address.js'
 import type {
-  PolicyData,
   CoverageDetails,
+  PolicyData,
 } from '../domain/policy-repository.js'
 
 interface PolicyRelations {
-  client?: { legalName: string; document: string } | null
+  client?: {
+    legalName: string
+    document: string
+    address?: unknown
+  } | null
   salesperson?: { name: string } | null
   insurer?: { name: string } | null
-  proposal?: { id: string; details: unknown; boardType: string } | null
+  proposal?: {
+    id: string
+    details: unknown
+    boardType: string
+    contact?: { email: string | null; phone: string | null } | null
+  } | null
 }
 
 type PolicyWithRelations = PrismaPolicyRecord & PolicyRelations
@@ -60,6 +70,9 @@ export class PolicyMapper {
       updatedAt: row.updatedAt,
       clientName: row.client?.legalName,
       clientDocument: row.client?.document,
+      clientEmail: row.proposal?.contact?.email ?? null,
+      clientPhone: row.proposal?.contact?.phone ?? null,
+      clientAddress: parseClientAddress(row.client?.address),
       salespersonName: row.salesperson?.name,
       insurerName: row.insurer?.name,
       proposalIdentifier: row.proposal?.id,

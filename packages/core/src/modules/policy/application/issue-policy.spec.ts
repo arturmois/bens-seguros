@@ -1,4 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
+import type { ClientAddress } from '../../client/domain/client-address.js'
+import { ClientNotFoundError } from '../../client/domain/client-errors.js'
+import type {
+  ClientData,
+  ClientRepository,
+} from '../../client/domain/client-repository.js'
 import type { OnPolicyIssued } from '../../commission/application/on-policy-issued.js'
 import type {
   ContactData,
@@ -11,6 +17,7 @@ import {
 import type { ProposalRepository } from '../../proposal/domain/proposal-repository.js'
 import { Proposal } from '../../proposal/domain/proposal.js'
 import {
+  PolicyClientAddressMissingError,
   PolicyMissingInsurerError,
   PolicyNotIssuableError,
 } from '../domain/policy-errors.js'
@@ -146,6 +153,50 @@ function createMockContactRepo(
   }
 }
 
+const DEFAULT_CLIENT_ADDRESS: ClientAddress = {
+  cep: '01310100',
+  street: 'Av. Paulista',
+  number: '1000',
+  complement: null,
+  neighborhood: 'Bela Vista',
+  city: 'São Paulo',
+  state: 'SP',
+}
+
+function makeClientData(overrides: Partial<ClientData> = {}): ClientData {
+  return {
+    id: 'c-1',
+    organizationId: 'org-1',
+    legalName: 'Cliente Teste',
+    document: '52998224725',
+    documentHash: 'hash',
+    personType: 'INDIVIDUAL',
+    profession: null,
+    maritalStatus: null,
+    address: DEFAULT_CLIENT_ADDRESS,
+    fiscalBirthDate: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    ...overrides,
+  }
+}
+
+function createMockClientRepo(
+  client: ClientData | null = makeClientData()
+): ClientRepository {
+  return {
+    save: vi.fn(),
+    findById: vi.fn().mockResolvedValue(client),
+    findByIdWithMetrics: vi.fn(),
+    findByDocumentHash: vi.fn(),
+    findMany: vi.fn(),
+    update: vi.fn(),
+    softDelete: vi.fn(),
+    lgpdAnonymize: vi.fn(),
+  }
+}
+
 function createMockOnPolicyIssued(): OnPolicyIssued {
   return {
     execute: vi.fn().mockResolvedValue(undefined),
@@ -158,11 +209,13 @@ describe('IssuePolicy', () => {
     const policyRepo = createMockPolicyRepo()
     const proposalRepo = createMockProposalRepo(proposal)
     const contactRepo = createMockContactRepo()
+    const clientRepo = createMockClientRepo()
     const onPolicyIssued = createMockOnPolicyIssued()
     const useCase = new IssuePolicy(
       policyRepo,
       proposalRepo,
       contactRepo,
+      clientRepo,
       onPolicyIssued
     )
     const result = await useCase.execute({
@@ -183,11 +236,13 @@ describe('IssuePolicy', () => {
     const policyRepo = createMockPolicyRepo()
     const proposalRepo = createMockProposalRepo(null)
     const contactRepo = createMockContactRepo()
+    const clientRepo = createMockClientRepo()
     const onPolicyIssued = createMockOnPolicyIssued()
     const useCase = new IssuePolicy(
       policyRepo,
       proposalRepo,
       contactRepo,
+      clientRepo,
       onPolicyIssued
     )
     await expect(
@@ -206,11 +261,13 @@ describe('IssuePolicy', () => {
     const policyRepo = createMockPolicyRepo()
     const proposalRepo = createMockProposalRepo(proposal)
     const contactRepo = createMockContactRepo()
+    const clientRepo = createMockClientRepo()
     const onPolicyIssued = createMockOnPolicyIssued()
     const useCase = new IssuePolicy(
       policyRepo,
       proposalRepo,
       contactRepo,
+      clientRepo,
       onPolicyIssued
     )
     await useCase.execute({
@@ -230,11 +287,13 @@ describe('IssuePolicy', () => {
     const policyRepo = createMockPolicyRepo()
     const proposalRepo = createMockProposalRepo(proposal)
     const contactRepo = createMockContactRepo()
+    const clientRepo = createMockClientRepo()
     const onPolicyIssued = createMockOnPolicyIssued()
     const useCase = new IssuePolicy(
       policyRepo,
       proposalRepo,
       contactRepo,
+      clientRepo,
       onPolicyIssued
     )
     await useCase.execute({
@@ -253,11 +312,13 @@ describe('IssuePolicy', () => {
     const policyRepo = createMockPolicyRepo()
     const proposalRepo = createMockProposalRepo(proposal)
     const contactRepo = createMockContactRepo()
+    const clientRepo = createMockClientRepo()
     const onPolicyIssued = createMockOnPolicyIssued()
     const useCase = new IssuePolicy(
       policyRepo,
       proposalRepo,
       contactRepo,
+      clientRepo,
       onPolicyIssued
     )
     await expect(
@@ -277,11 +338,13 @@ describe('IssuePolicy', () => {
     const policyRepo = createMockPolicyRepo()
     const proposalRepo = createMockProposalRepo(proposal)
     const contactRepo = createMockContactRepo()
+    const clientRepo = createMockClientRepo()
     const onPolicyIssued = createMockOnPolicyIssued()
     const useCase = new IssuePolicy(
       policyRepo,
       proposalRepo,
       contactRepo,
+      clientRepo,
       onPolicyIssued
     )
     await expect(
@@ -302,11 +365,13 @@ describe('IssuePolicy', () => {
     const contactRepo = createMockContactRepo(
       makeContactData({ clientId: null })
     )
+    const clientRepo = createMockClientRepo()
     const onPolicyIssued = createMockOnPolicyIssued()
     const useCase = new IssuePolicy(
       policyRepo,
       proposalRepo,
       contactRepo,
+      clientRepo,
       onPolicyIssued
     )
     await expect(
@@ -318,6 +383,56 @@ describe('IssuePolicy', () => {
         endDate: new Date('2025-01-01'),
       })
     ).rejects.toThrow(ContactNotPromotedError)
+    expect(policyRepo.create).not.toHaveBeenCalled()
+  })
+  it('throws PolicyClientAddressMissingError when client has no address', async () => {
+    const proposal = createProposalAtStage('POLICY_ISSUED', 'ins-1')
+    const policyRepo = createMockPolicyRepo()
+    const proposalRepo = createMockProposalRepo(proposal)
+    const contactRepo = createMockContactRepo()
+    const clientRepo = createMockClientRepo(makeClientData({ address: null }))
+    const onPolicyIssued = createMockOnPolicyIssued()
+    const useCase = new IssuePolicy(
+      policyRepo,
+      proposalRepo,
+      contactRepo,
+      clientRepo,
+      onPolicyIssued
+    )
+    await expect(
+      useCase.execute({
+        organizationId: 'org-1',
+        proposalId: proposal.id,
+        policyNumber: 'POL-2024-001',
+        startDate: new Date('2024-01-01'),
+        endDate: new Date('2025-01-01'),
+      })
+    ).rejects.toThrow(PolicyClientAddressMissingError)
+    expect(policyRepo.create).not.toHaveBeenCalled()
+  })
+  it('throws ClientNotFoundError when client does not exist', async () => {
+    const proposal = createProposalAtStage('POLICY_ISSUED', 'ins-1')
+    const policyRepo = createMockPolicyRepo()
+    const proposalRepo = createMockProposalRepo(proposal)
+    const contactRepo = createMockContactRepo()
+    const clientRepo = createMockClientRepo(null)
+    const onPolicyIssued = createMockOnPolicyIssued()
+    const useCase = new IssuePolicy(
+      policyRepo,
+      proposalRepo,
+      contactRepo,
+      clientRepo,
+      onPolicyIssued
+    )
+    await expect(
+      useCase.execute({
+        organizationId: 'org-1',
+        proposalId: proposal.id,
+        policyNumber: 'POL-2024-001',
+        startDate: new Date('2024-01-01'),
+        endDate: new Date('2025-01-01'),
+      })
+    ).rejects.toThrow(ClientNotFoundError)
     expect(policyRepo.create).not.toHaveBeenCalled()
   })
 })

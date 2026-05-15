@@ -1,3 +1,4 @@
+import { clientAddressDataSchema, clientAddressInputSchema } from '@repo/core'
 import { z } from 'zod'
 
 import { csvEnumArray } from '../../shared/csv-array.schema.js'
@@ -19,7 +20,7 @@ export const createClientBodySchema = z.object({
   personType: personTypeEnum.default('INDIVIDUAL'),
   profession: z.string().trim().max(100).nullable().optional(),
   maritalStatus: maritalStatusEnum.nullable().optional(),
-  address: z.record(z.string(), z.unknown()).nullable().optional(),
+  address: clientAddressInputSchema.nullable().optional(),
   fiscalBirthDate: z.coerce.date().nullable().optional(),
 })
 
@@ -28,7 +29,7 @@ export const updateClientBodySchema = z.object({
   personType: personTypeEnum.optional(),
   profession: z.string().nullable().optional(),
   maritalStatus: maritalStatusEnum.nullable().optional(),
-  address: z.record(z.string(), z.unknown()).nullable().optional(),
+  address: clientAddressInputSchema.nullable().optional(),
   fiscalBirthDate: z.coerce.date().nullable().optional(),
 })
 
@@ -59,7 +60,7 @@ export const clientWithMetricsSchema = z.object({
   personType: personTypeEnum,
   profession: z.string().nullable(),
   maritalStatus: maritalStatusEnum.nullable(),
-  address: z.record(z.string(), z.unknown()).nullable(),
+  address: clientAddressDataSchema.nullable(),
   fiscalBirthDate: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
@@ -77,7 +78,7 @@ export const clientDataSchema = z.object({
   personType: personTypeEnum,
   profession: z.string().nullable(),
   maritalStatus: maritalStatusEnum.nullable(),
-  address: z.record(z.string(), z.unknown()).nullable(),
+  address: clientAddressDataSchema.nullable(),
   fiscalBirthDate: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),

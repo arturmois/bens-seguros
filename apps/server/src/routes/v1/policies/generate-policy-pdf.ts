@@ -165,11 +165,20 @@ export function generatePolicyPdfRoute(app: FastifyInstance) {
           documentEncrypted: true,
         },
       })
-      const contactRow = await prisma.contact.findFirst({
-        where: { organizationId, clientId: policy.clientId, deletedAt: null },
-        orderBy: { createdAt: 'asc' },
-        select: { email: true, phone: true },
+      const proposalRow = await prisma.proposal.findFirst({
+        where: { id: policy.proposalId, organizationId },
+        select: { contactId: true },
       })
+      const contactRow = proposalRow
+        ? await prisma.contact.findFirst({
+            where: {
+              id: proposalRow.contactId,
+              organizationId,
+              deletedAt: null,
+            },
+            select: { email: true, phone: true },
+          })
+        : null
       const rawClient = clientRow
         ? {
             legalName: clientRow.legalName,

@@ -283,6 +283,7 @@ export function registerDependencies(redis: Redis | null = null) {
         policyRepo,
         proposalRepo,
         contactRepo,
+        clientRepo,
         container.resolve(OnPolicyIssued)
       ),
   })

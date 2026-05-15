@@ -5,6 +5,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { GetPolicy200DataBranch } from './getPolicy200DataBranch'
+import type { GetPolicy200DataClientAddress } from './getPolicy200DataClientAddress'
 import type { GetPolicy200DataCoverageDetails } from './getPolicy200DataCoverageDetails'
 import type { GetPolicy200DataStatus } from './getPolicy200DataStatus'
 
@@ -30,6 +31,12 @@ export type GetPolicy200Data = {
   updatedAt: string
   clientName?: string
   clientDocument?: string
+  /** @nullable */
+  clientEmail?: string | null
+  /** @nullable */
+  clientPhone?: string | null
+  /** @nullable */
+  clientAddress?: GetPolicy200DataClientAddress
   salespersonName?: string
   insurerName?: string
   proposalIdentifier?: string

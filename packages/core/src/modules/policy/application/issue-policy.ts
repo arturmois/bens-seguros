@@ -1,16 +1,18 @@
-import { injectable, inject } from 'tsyringe'
 import { randomUUID } from 'node:crypto'
+import { inject, injectable } from 'tsyringe'
 
+import { ClientErrors } from '../../client/domain/client-errors.js'
+import type { ClientRepository } from '../../client/domain/client-repository.js'
 import type { OnPolicyIssued } from '../../commission/application/on-policy-issued.js'
 import type { ContactRepository } from '../../contact/domain/contact-repository.js'
+import { ProposalErrors } from '../../proposal/domain/proposal-errors.js'
+import type { ProposalRepository } from '../../proposal/domain/proposal-repository.js'
+import { PolicyErrors } from '../domain/policy-errors.js'
 import type {
   CoverageDetails,
   PolicyData,
   PolicyRepository,
 } from '../domain/policy-repository.js'
-import type { ProposalRepository } from '../../proposal/domain/proposal-repository.js'
-import { ProposalErrors } from '../../proposal/domain/proposal-errors.js'
-import { PolicyErrors } from '../domain/policy-errors.js'
 
 interface IssuePolicyDTO {
   organizationId: string
@@ -30,6 +32,8 @@ export class IssuePolicy {
     private readonly proposalRepo: ProposalRepository,
     @inject('ContactRepository')
     private readonly contactRepo: ContactRepository,
+    @inject('ClientRepository')
+    private readonly clientRepo: ClientRepository,
     @inject('OnPolicyIssued') private readonly onPolicyIssued: OnPolicyIssued
   ) {}
 
@@ -54,6 +58,16 @@ export class IssuePolicy {
     )
     if (!contact?.clientId) {
       throw ProposalErrors.contactNotPromoted()
+    }
+    const client = await this.clientRepo.findById(
+      contact.clientId,
+      dto.organizationId
+    )
+    if (!client) {
+      throw ClientErrors.notFound(contact.clientId)
+    }
+    if (!client.address) {
+      throw PolicyErrors.clientAddressMissing(client.id)
     }
     const policy = await this.policyRepo.create({
       id: randomUUID(),

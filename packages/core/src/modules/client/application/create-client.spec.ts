@@ -99,7 +99,15 @@ describe('CreateClient', () => {
       personType: 'INDIVIDUAL',
       profession: 'Engenheiro',
       maritalStatus: 'MARRIED',
-      address: { city: 'São Paulo' },
+      address: {
+        cep: '01310100',
+        street: 'Av. Paulista',
+        number: '1000',
+        complement: null,
+        neighborhood: 'Bela Vista',
+        city: 'São Paulo',
+        state: 'SP',
+      },
       fiscalBirthDate: birthDate,
     })
     expect(repo.save).toHaveBeenCalledWith({
@@ -109,7 +117,15 @@ describe('CreateClient', () => {
       personType: 'INDIVIDUAL',
       profession: 'Engenheiro',
       maritalStatus: 'MARRIED',
-      address: { city: 'São Paulo' },
+      address: {
+        cep: '01310100',
+        street: 'Av. Paulista',
+        number: '1000',
+        complement: null,
+        neighborhood: 'Bela Vista',
+        city: 'São Paulo',
+        state: 'SP',
+      },
       fiscalBirthDate: birthDate,
     })
   })

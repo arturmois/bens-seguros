@@ -38,6 +38,9 @@ vi.mock('@repo/db', () => {
     contact: {
       findFirst: vi.fn().mockResolvedValue(null),
     },
+    proposal: {
+      findFirst: vi.fn().mockResolvedValue(null),
+    },
   }
   return { prisma: mock, prismaAdmin: mock }
 })

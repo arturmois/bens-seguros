@@ -30,15 +30,15 @@ afterEach(() => {
 })
 
 describe('ClientForm (quick-create)', () => {
-  it('renderiza apenas 3 campos (tipo, documento, nome)', () => {
+  it('renderiza identificação + endereço, sem campos fiscais opcionais', () => {
     render(<ClientForm />)
     expect(screen.getByText(/Tipo/i)).toBeTruthy()
     expect(screen.getByLabelText(/CPF/i)).toBeTruthy()
     expect(screen.getByLabelText(/Nome completo/i)).toBeTruthy()
+    expect(screen.queryByText(/^Endereço$/i)).toBeTruthy()
     expect(screen.queryByLabelText(/Profissão/i)).toBeNull()
     expect(screen.queryByText(/Estado civil/i)).toBeNull()
     expect(screen.queryByText(/Data de nascimento/i)).toBeNull()
-    expect(screen.queryByLabelText(/CEP/i)).toBeNull()
   })
   it('bloqueia submit quando documento inválido', async () => {
     render(<ClientForm />)

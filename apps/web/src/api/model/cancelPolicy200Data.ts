@@ -5,6 +5,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { CancelPolicy200DataBranch } from './cancelPolicy200DataBranch'
+import type { CancelPolicy200DataClientAddress } from './cancelPolicy200DataClientAddress'
 import type { CancelPolicy200DataCoverageDetails } from './cancelPolicy200DataCoverageDetails'
 import type { CancelPolicy200DataStatus } from './cancelPolicy200DataStatus'
 
@@ -30,6 +31,12 @@ export type CancelPolicy200Data = {
   updatedAt: string
   clientName?: string
   clientDocument?: string
+  /** @nullable */
+  clientEmail?: string | null
+  /** @nullable */
+  clientPhone?: string | null
+  /** @nullable */
+  clientAddress?: CancelPolicy200DataClientAddress
   salespersonName?: string
   insurerName?: string
   proposalIdentifier?: string

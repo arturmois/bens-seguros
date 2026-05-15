@@ -243,7 +243,15 @@ async function main() {
     profession?: string
     maritalStatus?: 'SINGLE' | 'MARRIED' | 'DIVORCED' | 'WIDOWED' | 'OTHER'
     fiscalBirthDate?: Date
-    address?: Record<string, string>
+    address?: {
+      cep: string
+      street: string
+      number: string | null
+      complement: string | null
+      neighborhood: string
+      city: string
+      state: string
+    }
   }
   const clientsData: ClientSeed[] = [
     {
@@ -255,10 +263,13 @@ async function main() {
       maritalStatus: 'MARRIED',
       fiscalBirthDate: new Date('1985-03-15'),
       address: {
-        street: 'Rua das Flores, 123',
+        cep: '01310100',
+        street: 'Rua das Flores',
+        number: '123',
+        complement: null,
+        neighborhood: 'Bela Vista',
         city: 'São Paulo',
         state: 'SP',
-        zipCode: '01310-100',
       },
     },
     {
@@ -268,6 +279,15 @@ async function main() {
       personType: 'INDIVIDUAL',
       profession: 'Médico',
       fiscalBirthDate: new Date('1978-09-22'),
+      address: {
+        cep: '04538133',
+        street: 'Rua Funchal',
+        number: '500',
+        complement: 'Sala 1201',
+        neighborhood: 'Vila Olímpia',
+        city: 'São Paulo',
+        state: 'SP',
+      },
     },
     {
       key: 'client-3',
@@ -275,6 +295,15 @@ async function main() {
       cpf: '98765432100',
       personType: 'INDIVIDUAL',
       fiscalBirthDate: new Date('1990-12-01'),
+      address: {
+        cep: '20021040',
+        street: 'Av. Rio Branco',
+        number: '156',
+        complement: null,
+        neighborhood: 'Centro',
+        city: 'Rio de Janeiro',
+        state: 'RJ',
+      },
     },
     {
       key: 'client-4',
@@ -282,10 +311,13 @@ async function main() {
       cpf: '12345678000195',
       personType: 'COMPANY',
       address: {
-        street: 'Av. Paulista, 1000',
+        cep: '01310100',
+        street: 'Av. Paulista',
+        number: '1000',
+        complement: '15º andar',
+        neighborhood: 'Bela Vista',
         city: 'São Paulo',
         state: 'SP',
-        zipCode: '01310-100',
       },
     },
     {
@@ -293,6 +325,15 @@ async function main() {
       legalName: 'Construtora ABC LTDA',
       cpf: '98765432000180',
       personType: 'COMPANY',
+      address: {
+        cep: '04543011',
+        street: 'Av. Brigadeiro Faria Lima',
+        number: '3477',
+        complement: 'Torre B',
+        neighborhood: 'Itaim Bibi',
+        city: 'São Paulo',
+        state: 'SP',
+      },
     },
   ]
   const clientIdByKey = new Map<string, string>()

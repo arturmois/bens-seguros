@@ -121,6 +121,22 @@ export const CancelPolicyBody = zod.object({
   reason: zod.string().min(1),
 })
 
+export const cancelPolicyResponseDataClientAddressCepRegExp = new RegExp(
+  '^\\d{8}$'
+)
+export const cancelPolicyResponseDataClientAddressStreetMax = 200
+
+export const cancelPolicyResponseDataClientAddressNumberMax = 20
+
+export const cancelPolicyResponseDataClientAddressComplementMax = 200
+
+export const cancelPolicyResponseDataClientAddressNeighborhoodMax = 100
+
+export const cancelPolicyResponseDataClientAddressCityMax = 100
+
+export const cancelPolicyResponseDataClientAddressStateMin = 2
+export const cancelPolicyResponseDataClientAddressStateMax = 2
+
 export const CancelPolicyResponse = zod.object({
   success: zod.literal(true),
   data: zod.object({
@@ -149,6 +165,37 @@ export const CancelPolicyResponse = zod.object({
     updatedAt: zod.string().datetime({}),
     clientName: zod.string().optional(),
     clientDocument: zod.string().optional(),
+    clientEmail: zod.string().nullish(),
+    clientPhone: zod.string().nullish(),
+    clientAddress: zod
+      .object({
+        cep: zod.string().regex(cancelPolicyResponseDataClientAddressCepRegExp),
+        street: zod
+          .string()
+          .min(1)
+          .max(cancelPolicyResponseDataClientAddressStreetMax),
+        number: zod
+          .string()
+          .max(cancelPolicyResponseDataClientAddressNumberMax)
+          .nullable(),
+        complement: zod
+          .string()
+          .max(cancelPolicyResponseDataClientAddressComplementMax)
+          .nullable(),
+        neighborhood: zod
+          .string()
+          .min(1)
+          .max(cancelPolicyResponseDataClientAddressNeighborhoodMax),
+        city: zod
+          .string()
+          .min(1)
+          .max(cancelPolicyResponseDataClientAddressCityMax),
+        state: zod
+          .string()
+          .min(cancelPolicyResponseDataClientAddressStateMin)
+          .max(cancelPolicyResponseDataClientAddressStateMax),
+      })
+      .nullish(),
     salespersonName: zod.string().optional(),
     insurerName: zod.string().optional(),
     proposalIdentifier: zod.string().optional(),
@@ -198,6 +245,22 @@ export const ListPoliciesQueryParams = zod.object({
   search: zod.string().optional(),
 })
 
+export const listPoliciesResponseDataItemClientAddressCepRegExp = new RegExp(
+  '^\\d{8}$'
+)
+export const listPoliciesResponseDataItemClientAddressStreetMax = 200
+
+export const listPoliciesResponseDataItemClientAddressNumberMax = 20
+
+export const listPoliciesResponseDataItemClientAddressComplementMax = 200
+
+export const listPoliciesResponseDataItemClientAddressNeighborhoodMax = 100
+
+export const listPoliciesResponseDataItemClientAddressCityMax = 100
+
+export const listPoliciesResponseDataItemClientAddressStateMin = 2
+export const listPoliciesResponseDataItemClientAddressStateMax = 2
+
 export const ListPoliciesResponse = zod.object({
   success: zod.literal(true),
   data: zod.array(
@@ -227,6 +290,39 @@ export const ListPoliciesResponse = zod.object({
       updatedAt: zod.string().datetime({}),
       clientName: zod.string().optional(),
       clientDocument: zod.string().optional(),
+      clientEmail: zod.string().nullish(),
+      clientPhone: zod.string().nullish(),
+      clientAddress: zod
+        .object({
+          cep: zod
+            .string()
+            .regex(listPoliciesResponseDataItemClientAddressCepRegExp),
+          street: zod
+            .string()
+            .min(1)
+            .max(listPoliciesResponseDataItemClientAddressStreetMax),
+          number: zod
+            .string()
+            .max(listPoliciesResponseDataItemClientAddressNumberMax)
+            .nullable(),
+          complement: zod
+            .string()
+            .max(listPoliciesResponseDataItemClientAddressComplementMax)
+            .nullable(),
+          neighborhood: zod
+            .string()
+            .min(1)
+            .max(listPoliciesResponseDataItemClientAddressNeighborhoodMax),
+          city: zod
+            .string()
+            .min(1)
+            .max(listPoliciesResponseDataItemClientAddressCityMax),
+          state: zod
+            .string()
+            .min(listPoliciesResponseDataItemClientAddressStateMin)
+            .max(listPoliciesResponseDataItemClientAddressStateMax),
+        })
+        .nullish(),
       salespersonName: zod.string().optional(),
       insurerName: zod.string().optional(),
       proposalIdentifier: zod.string().optional(),
@@ -244,6 +340,22 @@ export const ListPoliciesResponse = zod.object({
 export const GetPolicyParams = zod.object({
   id: zod.string().min(1),
 })
+
+export const getPolicyResponseDataClientAddressCepRegExp = new RegExp(
+  '^\\d{8}$'
+)
+export const getPolicyResponseDataClientAddressStreetMax = 200
+
+export const getPolicyResponseDataClientAddressNumberMax = 20
+
+export const getPolicyResponseDataClientAddressComplementMax = 200
+
+export const getPolicyResponseDataClientAddressNeighborhoodMax = 100
+
+export const getPolicyResponseDataClientAddressCityMax = 100
+
+export const getPolicyResponseDataClientAddressStateMin = 2
+export const getPolicyResponseDataClientAddressStateMax = 2
 
 export const GetPolicyResponse = zod.object({
   success: zod.literal(true),
@@ -273,6 +385,37 @@ export const GetPolicyResponse = zod.object({
     updatedAt: zod.string().datetime({}),
     clientName: zod.string().optional(),
     clientDocument: zod.string().optional(),
+    clientEmail: zod.string().nullish(),
+    clientPhone: zod.string().nullish(),
+    clientAddress: zod
+      .object({
+        cep: zod.string().regex(getPolicyResponseDataClientAddressCepRegExp),
+        street: zod
+          .string()
+          .min(1)
+          .max(getPolicyResponseDataClientAddressStreetMax),
+        number: zod
+          .string()
+          .max(getPolicyResponseDataClientAddressNumberMax)
+          .nullable(),
+        complement: zod
+          .string()
+          .max(getPolicyResponseDataClientAddressComplementMax)
+          .nullable(),
+        neighborhood: zod
+          .string()
+          .min(1)
+          .max(getPolicyResponseDataClientAddressNeighborhoodMax),
+        city: zod
+          .string()
+          .min(1)
+          .max(getPolicyResponseDataClientAddressCityMax),
+        state: zod
+          .string()
+          .min(getPolicyResponseDataClientAddressStateMin)
+          .max(getPolicyResponseDataClientAddressStateMax),
+      })
+      .nullish(),
     salespersonName: zod.string().optional(),
     insurerName: zod.string().optional(),
     proposalIdentifier: zod.string().optional(),

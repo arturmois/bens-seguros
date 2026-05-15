@@ -34,7 +34,11 @@ import {
   POLICY_STATUS_BADGE_VARIANT,
   POLICY_STATUS_LABELS,
 } from '../lib/constants'
-import { PolicyCancellationCard, PolicyInfoCard } from './policy-info-cards'
+import {
+  PolicyCancellationCard,
+  PolicyContactCard,
+  PolicyInfoCard,
+} from './policy-info-cards'
 import { PolicyTabs } from './policy-tabs'
 
 interface PolicyDetailProps {
@@ -168,6 +172,11 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
         startDate={policy.startDate}
         endDate={policy.endDate}
         createdAt={policy.createdAt}
+      />
+      <PolicyContactCard
+        clientEmail={policy.clientEmail}
+        clientPhone={policy.clientPhone}
+        clientAddress={policy.clientAddress}
       />
       {policy.status === 'CANCELLED' && (
         <PolicyCancellationCard

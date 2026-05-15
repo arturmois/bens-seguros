@@ -1,4 +1,5 @@
 import type { Client as PrismaClientRecord } from '@repo/db'
+import type { EncryptedField } from '@repo/shared'
 import {
   decrypt,
   encrypt,
@@ -6,18 +7,14 @@ import {
   hashDocument,
   maskDocument,
 } from '@repo/shared'
-import type { EncryptedField } from '@repo/shared'
 import pino from 'pino'
+import { parseClientAddress } from '../domain/client-address.js'
 import type {
   ClientData,
   ClientWithMetrics,
 } from '../domain/client-repository.js'
 
 const logger = pino({ name: 'client-mapper' })
-
-function isJsonObject(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value)
-}
 
 function isEncryptedField(value: unknown): value is EncryptedField {
   if (value === null || typeof value !== 'object') {
@@ -69,7 +66,7 @@ export class ClientMapper {
       personType: row.personType,
       profession: row.profession,
       maritalStatus: row.maritalStatus,
-      address: isJsonObject(row.address) ? row.address : null,
+      address: parseClientAddress(row.address),
       fiscalBirthDate: row.fiscalBirthDate,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,

@@ -5,6 +5,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { IssuePolicy201DataBranch } from './issuePolicy201DataBranch'
+import type { IssuePolicy201DataClientAddress } from './issuePolicy201DataClientAddress'
 import type { IssuePolicy201DataCoverageDetails } from './issuePolicy201DataCoverageDetails'
 import type { IssuePolicy201DataStatus } from './issuePolicy201DataStatus'
 
@@ -30,6 +31,12 @@ export type IssuePolicy201Data = {
   updatedAt: string
   clientName?: string
   clientDocument?: string
+  /** @nullable */
+  clientEmail?: string | null
+  /** @nullable */
+  clientPhone?: string | null
+  /** @nullable */
+  clientAddress?: IssuePolicy201DataClientAddress
   salespersonName?: string
   insurerName?: string
   proposalIdentifier?: string

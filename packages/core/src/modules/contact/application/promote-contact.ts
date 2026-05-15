@@ -1,14 +1,15 @@
-import { inject, injectable } from 'tsyringe'
 import { hashDocument } from '@repo/shared'
-import { ContactErrors } from '../domain/contact-errors.js'
-import type { ContactRepository } from '../domain/contact-repository.js'
+import { inject, injectable } from 'tsyringe'
+import type { ClientAddress } from '../../client/domain/client-address.js'
 import type {
-  ClientRepository,
   ClientData,
+  ClientRepository,
   CreateClientPersistence,
   MaritalStatus,
   PersonType,
 } from '../../client/domain/client-repository.js'
+import { ContactErrors } from '../domain/contact-errors.js'
+import type { ContactRepository } from '../domain/contact-repository.js'
 
 export interface PromoteContactInput {
   contactId: string
@@ -18,7 +19,7 @@ export interface PromoteContactInput {
   personType?: PersonType
   profession?: string
   maritalStatus?: MaritalStatus
-  address?: Record<string, unknown>
+  address?: ClientAddress
   fiscalBirthDate?: Date
 }
 

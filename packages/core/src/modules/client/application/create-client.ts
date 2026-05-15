@@ -1,5 +1,6 @@
-import { inject, injectable } from 'tsyringe'
 import { hashDocument } from '@repo/shared'
+import { inject, injectable } from 'tsyringe'
+import type { ClientAddress } from '../domain/client-address.js'
 import { ClientErrors } from '../domain/client-errors.js'
 import type {
   ClientRepository,
@@ -15,7 +16,7 @@ export interface CreateClientInput {
   personType?: PersonType
   profession?: string | null
   maritalStatus?: MaritalStatus | null
-  address?: Record<string, unknown> | null
+  address?: ClientAddress | null
   fiscalBirthDate?: Date | null
 }
 

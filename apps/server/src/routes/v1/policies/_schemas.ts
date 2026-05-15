@@ -1,3 +1,4 @@
+import { clientAddressDataSchema } from '@repo/core'
 import { z } from 'zod'
 import { csvEnumArray } from '../../shared/csv-array.schema.js'
 import { branchEnum } from '../../shared/enums.schema.js'
@@ -75,6 +76,9 @@ const policyDetailSchema = z.object({
   updatedAt: z.coerce.date(),
   clientName: z.string().optional(),
   clientDocument: z.string().optional(),
+  clientEmail: z.string().nullable().optional(),
+  clientPhone: z.string().nullable().optional(),
+  clientAddress: clientAddressDataSchema.nullable().optional(),
   salespersonName: z.string().optional(),
   insurerName: z.string().optional(),
   proposalIdentifier: z.string().optional(),

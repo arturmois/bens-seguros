@@ -1,4 +1,5 @@
 import type { CursorPage, Page, SortOrder } from '../../../shared/pagination.js'
+import type { ClientAddress } from './client-address.js'
 
 export type { CursorPage, Page, SortOrder }
 
@@ -19,7 +20,7 @@ export interface ClientData {
   personType: PersonType
   profession: string | null
   maritalStatus: MaritalStatus | null
-  address: Record<string, unknown> | null
+  address: ClientAddress | null
   fiscalBirthDate: Date | null
   createdAt: Date
   updatedAt: Date
@@ -48,7 +49,7 @@ export interface CreateClientPersistence {
   personType: PersonType
   profession: string | null
   maritalStatus: MaritalStatus | null
-  address: Record<string, unknown> | null
+  address: ClientAddress | null
   fiscalBirthDate: Date | null
 }
 
@@ -57,7 +58,7 @@ export interface UpdateClientPersistence {
   personType?: PersonType
   profession?: string | null
   maritalStatus?: MaritalStatus | null
-  address?: Record<string, unknown> | null
+  address?: ClientAddress | null
   fiscalBirthDate?: Date | null
 }
 

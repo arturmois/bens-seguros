@@ -1,7 +1,7 @@
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
-import { inject, injectable } from 'tsyringe'
 import { hashDocument } from '@repo/shared'
+import { inject, injectable } from 'tsyringe'
 import { ClientErrors } from '../domain/client-errors.js'
 import type {
   ClientData,
@@ -15,9 +15,7 @@ import type {
 } from '../domain/client-repository.js'
 import { ClientMapper } from './client-mapper.js'
 
-function toInputJsonValue(
-  value: Record<string, unknown>
-): Prisma.InputJsonValue {
+function toInputJsonValue<T>(value: T): Prisma.InputJsonValue {
   return JSON.parse(JSON.stringify(value))
 }
 

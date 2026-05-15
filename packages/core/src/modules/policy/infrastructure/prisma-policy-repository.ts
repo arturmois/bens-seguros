@@ -1,22 +1,31 @@
-import { injectable, inject } from 'tsyringe'
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
+import { inject, injectable } from 'tsyringe'
+import { PolicyErrors } from '../domain/policy-errors.js'
 import type {
-  PolicyRepository,
+  CreatePolicyInput,
+  PolicyCursorPage,
   PolicyData,
   PolicyFilters,
-  PolicyCursorPage,
   PolicyPage,
-  CreatePolicyInput,
+  PolicyRepository,
 } from '../domain/policy-repository.js'
-import { PolicyErrors } from '../domain/policy-errors.js'
 import { PolicyMapper } from './policy-mapper.js'
 
 const POLICY_INCLUDE = {
-  client: { select: { legalName: true, document: true } },
+  client: {
+    select: { legalName: true, document: true, address: true },
+  },
   salesperson: { select: { name: true } },
   insurer: { select: { name: true } },
-  proposal: { select: { id: true, details: true, boardType: true } },
+  proposal: {
+    select: {
+      id: true,
+      details: true,
+      boardType: true,
+      contact: { select: { email: true, phone: true } },
+    },
+  },
 } satisfies Prisma.PolicyInclude
 
 @injectable()

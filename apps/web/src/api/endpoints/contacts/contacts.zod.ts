@@ -16,6 +16,20 @@ export const PromoteContactParams = zod.object({
 
 export const promoteContactBodyDocumentMin = 11
 
+export const promoteContactBodyAddressCepRegExp = new RegExp('^\\d{5}-?\\d{3}$')
+export const promoteContactBodyAddressStreetMax = 200
+
+export const promoteContactBodyAddressNumberMax = 20
+
+export const promoteContactBodyAddressComplementMax = 200
+
+export const promoteContactBodyAddressNeighborhoodMax = 100
+
+export const promoteContactBodyAddressCityMax = 100
+
+export const promoteContactBodyAddressStateMin = 2
+export const promoteContactBodyAddressStateMax = 2
+
 export const PromoteContactBody = zod.object({
   document: zod.string().min(promoteContactBodyDocumentMin),
   legalName: zod.string().min(1).optional(),
@@ -24,7 +38,26 @@ export const PromoteContactBody = zod.object({
   maritalStatus: zod
     .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
     .optional(),
-  address: zod.record(zod.string(), zod.unknown()).optional(),
+  address: zod
+    .object({
+      cep: zod.string().regex(promoteContactBodyAddressCepRegExp),
+      street: zod.string().min(1).max(promoteContactBodyAddressStreetMax),
+      number: zod.string().max(promoteContactBodyAddressNumberMax).nullish(),
+      complement: zod
+        .string()
+        .max(promoteContactBodyAddressComplementMax)
+        .nullish(),
+      neighborhood: zod
+        .string()
+        .min(1)
+        .max(promoteContactBodyAddressNeighborhoodMax),
+      city: zod.string().min(1).max(promoteContactBodyAddressCityMax),
+      state: zod
+        .string()
+        .min(promoteContactBodyAddressStateMin)
+        .max(promoteContactBodyAddressStateMax),
+    })
+    .optional(),
   fiscalBirthDate: zod.string().datetime({}).optional(),
 })
 

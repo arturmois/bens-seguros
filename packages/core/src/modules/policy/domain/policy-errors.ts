@@ -40,6 +40,16 @@ export class PolicyMissingInsurerError extends Error {
   }
 }
 
+export class PolicyClientAddressMissingError extends Error {
+  readonly code = 'POLICY_CLIENT_ADDRESS_MISSING' as const
+  constructor(clientId: string) {
+    super(
+      `Cliente ${clientId} não possui endereço cadastrado — cadastre o endereço (CEP) antes de emitir a apólice`
+    )
+    this.name = 'PolicyClientAddressMissingError'
+  }
+}
+
 export const PolicyErrors = {
   notFound: (id: string) => new PolicyNotFoundError(id),
   alreadyCancelled: (id: string) => new PolicyAlreadyCancelledError(id),
@@ -48,4 +58,6 @@ export const PolicyErrors = {
     new DuplicatePolicyError(policyNumber),
   missingInsurer: (proposalId: string) =>
     new PolicyMissingInsurerError(proposalId),
+  clientAddressMissing: (clientId: string) =>
+    new PolicyClientAddressMissingError(clientId),
 }

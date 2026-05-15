@@ -5,6 +5,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { ListPolicies200DataItemBranch } from './listPolicies200DataItemBranch'
+import type { ListPolicies200DataItemClientAddress } from './listPolicies200DataItemClientAddress'
 import type { ListPolicies200DataItemCoverageDetails } from './listPolicies200DataItemCoverageDetails'
 import type { ListPolicies200DataItemStatus } from './listPolicies200DataItemStatus'
 
@@ -30,6 +31,12 @@ export type ListPolicies200DataItem = {
   updatedAt: string
   clientName?: string
   clientDocument?: string
+  /** @nullable */
+  clientEmail?: string | null
+  /** @nullable */
+  clientPhone?: string | null
+  /** @nullable */
+  clientAddress?: ListPolicies200DataItemClientAddress
   salespersonName?: string
   insurerName?: string
   proposalIdentifier?: string

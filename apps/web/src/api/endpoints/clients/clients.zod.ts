@@ -99,6 +99,20 @@ export const createClientBodyDocumentMax = 14
 export const createClientBodyPersonTypeDefault = `INDIVIDUAL`
 export const createClientBodyProfessionMax = 100
 
+export const createClientBodyAddressCepRegExp = new RegExp('^\\d{5}-?\\d{3}$')
+export const createClientBodyAddressStreetMax = 200
+
+export const createClientBodyAddressNumberMax = 20
+
+export const createClientBodyAddressComplementMax = 200
+
+export const createClientBodyAddressNeighborhoodMax = 100
+
+export const createClientBodyAddressCityMax = 100
+
+export const createClientBodyAddressStateMin = 2
+export const createClientBodyAddressStateMax = 2
+
 export const CreateClientBody = zod.object({
   legalName: zod.string().min(1).max(createClientBodyLegalNameMax),
   document: zod
@@ -112,7 +126,26 @@ export const CreateClientBody = zod.object({
   maritalStatus: zod
     .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
     .nullish(),
-  address: zod.record(zod.string(), zod.unknown()).nullish(),
+  address: zod
+    .object({
+      cep: zod.string().regex(createClientBodyAddressCepRegExp),
+      street: zod.string().min(1).max(createClientBodyAddressStreetMax),
+      number: zod.string().max(createClientBodyAddressNumberMax).nullish(),
+      complement: zod
+        .string()
+        .max(createClientBodyAddressComplementMax)
+        .nullish(),
+      neighborhood: zod
+        .string()
+        .min(1)
+        .max(createClientBodyAddressNeighborhoodMax),
+      city: zod.string().min(1).max(createClientBodyAddressCityMax),
+      state: zod
+        .string()
+        .min(createClientBodyAddressStateMin)
+        .max(createClientBodyAddressStateMax),
+    })
+    .nullish(),
   fiscalBirthDate: zod.string().datetime({}).nullish(),
 })
 
@@ -145,6 +178,22 @@ export const ListClientsQueryParams = zod.object({
     .default(listClientsQuerySortOrderDefault),
 })
 
+export const listClientsResponseDataItemAddressCepRegExp = new RegExp(
+  '^\\d{8}$'
+)
+export const listClientsResponseDataItemAddressStreetMax = 200
+
+export const listClientsResponseDataItemAddressNumberMax = 20
+
+export const listClientsResponseDataItemAddressComplementMax = 200
+
+export const listClientsResponseDataItemAddressNeighborhoodMax = 100
+
+export const listClientsResponseDataItemAddressCityMax = 100
+
+export const listClientsResponseDataItemAddressStateMin = 2
+export const listClientsResponseDataItemAddressStateMax = 2
+
 export const ListClientsResponse = zod.object({
   success: zod.literal(true),
   data: zod.array(
@@ -158,7 +207,35 @@ export const ListClientsResponse = zod.object({
       maritalStatus: zod
         .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
         .nullable(),
-      address: zod.record(zod.string(), zod.unknown()).nullable(),
+      address: zod
+        .object({
+          cep: zod.string().regex(listClientsResponseDataItemAddressCepRegExp),
+          street: zod
+            .string()
+            .min(1)
+            .max(listClientsResponseDataItemAddressStreetMax),
+          number: zod
+            .string()
+            .max(listClientsResponseDataItemAddressNumberMax)
+            .nullable(),
+          complement: zod
+            .string()
+            .max(listClientsResponseDataItemAddressComplementMax)
+            .nullable(),
+          neighborhood: zod
+            .string()
+            .min(1)
+            .max(listClientsResponseDataItemAddressNeighborhoodMax),
+          city: zod
+            .string()
+            .min(1)
+            .max(listClientsResponseDataItemAddressCityMax),
+          state: zod
+            .string()
+            .min(listClientsResponseDataItemAddressStateMin)
+            .max(listClientsResponseDataItemAddressStateMax),
+        })
+        .nullable(),
       fiscalBirthDate: zod.string().datetime({}).nullable(),
       createdAt: zod.string().datetime({}),
       updatedAt: zod.string().datetime({}),
@@ -190,6 +267,20 @@ export const GetClientParams = zod.object({
   id: zod.string().min(1),
 })
 
+export const getClientResponseDataAddressCepRegExp = new RegExp('^\\d{8}$')
+export const getClientResponseDataAddressStreetMax = 200
+
+export const getClientResponseDataAddressNumberMax = 20
+
+export const getClientResponseDataAddressComplementMax = 200
+
+export const getClientResponseDataAddressNeighborhoodMax = 100
+
+export const getClientResponseDataAddressCityMax = 100
+
+export const getClientResponseDataAddressStateMin = 2
+export const getClientResponseDataAddressStateMax = 2
+
 export const GetClientResponse = zod.object({
   success: zod.literal(true),
   data: zod.object({
@@ -202,7 +293,29 @@ export const GetClientResponse = zod.object({
     maritalStatus: zod
       .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
       .nullable(),
-    address: zod.record(zod.string(), zod.unknown()).nullable(),
+    address: zod
+      .object({
+        cep: zod.string().regex(getClientResponseDataAddressCepRegExp),
+        street: zod.string().min(1).max(getClientResponseDataAddressStreetMax),
+        number: zod
+          .string()
+          .max(getClientResponseDataAddressNumberMax)
+          .nullable(),
+        complement: zod
+          .string()
+          .max(getClientResponseDataAddressComplementMax)
+          .nullable(),
+        neighborhood: zod
+          .string()
+          .min(1)
+          .max(getClientResponseDataAddressNeighborhoodMax),
+        city: zod.string().min(1).max(getClientResponseDataAddressCityMax),
+        state: zod
+          .string()
+          .min(getClientResponseDataAddressStateMin)
+          .max(getClientResponseDataAddressStateMax),
+      })
+      .nullable(),
     fiscalBirthDate: zod.string().datetime({}).nullable(),
     createdAt: zod.string().datetime({}),
     updatedAt: zod.string().datetime({}),
@@ -221,6 +334,20 @@ export const UpdateClientParams = zod.object({
   id: zod.string().min(1),
 })
 
+export const updateClientBodyAddressCepRegExp = new RegExp('^\\d{5}-?\\d{3}$')
+export const updateClientBodyAddressStreetMax = 200
+
+export const updateClientBodyAddressNumberMax = 20
+
+export const updateClientBodyAddressComplementMax = 200
+
+export const updateClientBodyAddressNeighborhoodMax = 100
+
+export const updateClientBodyAddressCityMax = 100
+
+export const updateClientBodyAddressStateMin = 2
+export const updateClientBodyAddressStateMax = 2
+
 export const UpdateClientBody = zod.object({
   legalName: zod.string().min(1).optional(),
   personType: zod.enum(['INDIVIDUAL', 'COMPANY']).optional(),
@@ -228,9 +355,42 @@ export const UpdateClientBody = zod.object({
   maritalStatus: zod
     .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
     .nullish(),
-  address: zod.record(zod.string(), zod.unknown()).nullish(),
+  address: zod
+    .object({
+      cep: zod.string().regex(updateClientBodyAddressCepRegExp),
+      street: zod.string().min(1).max(updateClientBodyAddressStreetMax),
+      number: zod.string().max(updateClientBodyAddressNumberMax).nullish(),
+      complement: zod
+        .string()
+        .max(updateClientBodyAddressComplementMax)
+        .nullish(),
+      neighborhood: zod
+        .string()
+        .min(1)
+        .max(updateClientBodyAddressNeighborhoodMax),
+      city: zod.string().min(1).max(updateClientBodyAddressCityMax),
+      state: zod
+        .string()
+        .min(updateClientBodyAddressStateMin)
+        .max(updateClientBodyAddressStateMax),
+    })
+    .nullish(),
   fiscalBirthDate: zod.string().datetime({}).nullish(),
 })
+
+export const updateClientResponseDataAddressCepRegExp = new RegExp('^\\d{8}$')
+export const updateClientResponseDataAddressStreetMax = 200
+
+export const updateClientResponseDataAddressNumberMax = 20
+
+export const updateClientResponseDataAddressComplementMax = 200
+
+export const updateClientResponseDataAddressNeighborhoodMax = 100
+
+export const updateClientResponseDataAddressCityMax = 100
+
+export const updateClientResponseDataAddressStateMin = 2
+export const updateClientResponseDataAddressStateMax = 2
 
 export const UpdateClientResponse = zod.object({
   success: zod.literal(true),
@@ -244,7 +404,32 @@ export const UpdateClientResponse = zod.object({
     maritalStatus: zod
       .enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'OTHER'])
       .nullable(),
-    address: zod.record(zod.string(), zod.unknown()).nullable(),
+    address: zod
+      .object({
+        cep: zod.string().regex(updateClientResponseDataAddressCepRegExp),
+        street: zod
+          .string()
+          .min(1)
+          .max(updateClientResponseDataAddressStreetMax),
+        number: zod
+          .string()
+          .max(updateClientResponseDataAddressNumberMax)
+          .nullable(),
+        complement: zod
+          .string()
+          .max(updateClientResponseDataAddressComplementMax)
+          .nullable(),
+        neighborhood: zod
+          .string()
+          .min(1)
+          .max(updateClientResponseDataAddressNeighborhoodMax),
+        city: zod.string().min(1).max(updateClientResponseDataAddressCityMax),
+        state: zod
+          .string()
+          .min(updateClientResponseDataAddressStateMin)
+          .max(updateClientResponseDataAddressStateMax),
+      })
+      .nullable(),
     fiscalBirthDate: zod.string().datetime({}).nullable(),
     createdAt: zod.string().datetime({}),
     updatedAt: zod.string().datetime({}),

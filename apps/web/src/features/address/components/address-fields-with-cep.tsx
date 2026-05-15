@@ -6,7 +6,9 @@ import { useEffect, useRef } from 'react'
 import {
   Controller,
   type Control,
+  type FieldPath,
   type FieldValues,
+  type PathValue,
   type UseFormRegister,
   type UseFormSetValue,
 } from 'react-hook-form'
@@ -45,22 +47,35 @@ const ERROR_MESSAGES: Record<CepLookupErrorType, string> = {
   network: 'Falha ao consultar o CEP. Verifique sua conexão e tente novamente.',
 }
 
-interface AddressFieldsWithCepProps {
-  readonly control: Control<FieldValues>
-  readonly register: UseFormRegister<FieldValues>
-  readonly setValue: UseFormSetValue<FieldValues>
-  readonly fieldNames?: Partial<Record<AddressFieldKey, string>>
+interface AddressFieldsWithCepProps<TForm extends FieldValues> {
+  readonly control: Control<TForm>
+  readonly register: UseFormRegister<TForm>
+  readonly setValue: UseFormSetValue<TForm>
+  readonly fieldNames?: Partial<Record<AddressFieldKey, FieldPath<TForm>>>
   readonly required?: { readonly cep?: boolean }
 }
 
-export function AddressFieldsWithCep({
+function setStringField<TForm extends FieldValues>(
+  setValue: UseFormSetValue<TForm>,
+  name: FieldPath<TForm>,
+  value: string
+): void {
+  setValue(name, value as PathValue<TForm, FieldPath<TForm>>, {
+    shouldDirty: true,
+  })
+}
+
+export function AddressFieldsWithCep<TForm extends FieldValues>({
   control,
   register,
   setValue,
   fieldNames,
   required,
-}: AddressFieldsWithCepProps) {
-  const names = { ...DEFAULT_FIELD_NAMES, ...fieldNames }
+}: AddressFieldsWithCepProps<TForm>) {
+  const names = { ...DEFAULT_FIELD_NAMES, ...fieldNames } as Record<
+    AddressFieldKey,
+    FieldPath<TForm>
+  >
   const { lookup, isLoading, error } = useCepLookup()
   const lastLookedUpRef = useRef<string | null>(null)
   const reportedErrorRef = useRef<CepLookupErrorType | null>(null)
@@ -80,10 +95,10 @@ export function AddressFieldsWithCep({
     lastLookedUpRef.current = digits
     const data = await lookup(digits)
     if (!data) return
-    setValue(names.street, data.street, { shouldDirty: true })
-    setValue(names.neighborhood, data.neighborhood, { shouldDirty: true })
-    setValue(names.city, data.city, { shouldDirty: true })
-    setValue(names.state, data.state, { shouldDirty: true })
+    setStringField(setValue, names.street, data.street)
+    setStringField(setValue, names.neighborhood, data.neighborhood)
+    setStringField(setValue, names.city, data.city)
+    setStringField(setValue, names.state, data.state)
   }
   return (
     <>

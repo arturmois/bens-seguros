@@ -1,3 +1,5 @@
+import type { ClientAddress } from '../../client/domain/client-address.js'
+
 export type JsonValue =
   | string
   | number
@@ -30,6 +32,9 @@ export interface PolicyData {
   updatedAt: Date
   clientName?: string
   clientDocument?: string
+  clientEmail?: string | null
+  clientPhone?: string | null
+  clientAddress?: ClientAddress | null
   salespersonName?: string
   insurerName?: string
   proposalIdentifier?: string
