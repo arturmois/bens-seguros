@@ -1,3 +1,4 @@
+import pino from 'pino'
 import { injectable, inject } from 'tsyringe'
 import { Proposal } from '../domain/proposal.js'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
@@ -6,6 +7,9 @@ import type { ChecklistConfigProvider } from '../domain/checklist-config.js'
 import type { PolicyRepository } from '../../policy/domain/policy-repository.js'
 import type { ContactRepository } from '../../contact/domain/contact-repository.js'
 import { ProposalErrors } from '../domain/proposal-errors.js'
+import { AutoCompleteChecklistItems } from './auto-complete-checklist-items.js'
+
+const logger = pino({ name: 'create-proposal' })
 
 interface CreateProposalDTOBase {
   organizationId: string
@@ -48,7 +52,9 @@ export class CreateProposal {
     @inject('PolicyRepository')
     private readonly policyRepo: PolicyRepository,
     @inject('ContactRepository')
-    private readonly contactRepo: ContactRepository
+    private readonly contactRepo: ContactRepository,
+    @inject(AutoCompleteChecklistItems)
+    private readonly autoComplete: AutoCompleteChecklistItems
   ) {}
 
   async execute(dto: CreateProposalDTO): Promise<Proposal> {
@@ -73,8 +79,31 @@ export class CreateProposal {
           isRequired: i.isRequired,
         }))
       )
+      await this.runInitialAutoDetection(proposal)
     }
     return proposal
+  }
+
+  private async runInitialAutoDetection(proposal: Proposal): Promise<void> {
+    const autoKeys = [
+      'client_data',
+      'driver_license',
+      'vehicle_registration',
+    ] as const
+    for (const itemKey of autoKeys) {
+      try {
+        await this.autoComplete.execute({
+          organizationId: proposal.organizationId,
+          proposalId: proposal.id,
+          itemKey,
+        })
+      } catch (error) {
+        logger.warn(
+          { err: error, proposalId: proposal.id, itemKey },
+          'Auto-detect inicial falhou'
+        )
+      }
+    }
   }
 
   private async createRenewalOrNewProposal(

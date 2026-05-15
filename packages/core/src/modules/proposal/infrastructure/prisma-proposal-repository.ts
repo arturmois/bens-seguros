@@ -73,6 +73,22 @@ export class PrismaProposalRepository implements ProposalRepository {
     }
   }
 
+  async findActiveByContact(
+    contactId: string,
+    organizationId: string
+  ): Promise<Proposal[]> {
+    const rows = await this.prisma.proposal.findMany({
+      where: {
+        contactId,
+        organizationId,
+        deletedAt: null,
+        stage: { notIn: ['POLICY_ISSUED', 'LOST'] },
+      },
+      include: PROPOSAL_INCLUDE,
+    })
+    return rows.map((row) => ProposalMapper.toDomain(row))
+  }
+
   private toListItem(
     row: Prisma.ProposalGetPayload<{ include: typeof PROPOSAL_INCLUDE }>
   ): ProposalListItem {

@@ -44,4 +44,8 @@ export interface ProposalRepository {
     filters: ProposalFilters,
     page: ProposalCursorPage
   ): Promise<ProposalListPage>
+  findActiveByContact(
+    contactId: string,
+    organizationId: string
+  ): Promise<Proposal[]>
 }

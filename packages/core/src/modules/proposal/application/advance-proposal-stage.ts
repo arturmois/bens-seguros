@@ -1,3 +1,4 @@
+import pino from 'pino'
 import { inject, injectable } from 'tsyringe'
 import type { ContactRepository } from '../../contact/domain/contact-repository.js'
 import type { ChecklistConfigProvider } from '../domain/checklist-config.js'
@@ -5,6 +6,9 @@ import type { ChecklistRepository } from '../domain/checklist-repository.js'
 import { ProposalErrors } from '../domain/proposal-errors.js'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
 import type { Proposal } from '../domain/proposal.js'
+import { AutoCompleteChecklistItems } from './auto-complete-checklist-items.js'
+
+const logger = pino({ name: 'advance-proposal-stage' })
 
 @injectable()
 export class AdvanceProposalStage {
@@ -16,7 +20,9 @@ export class AdvanceProposalStage {
     @inject('ChecklistConfigProvider')
     private readonly checklistConfig: ChecklistConfigProvider,
     @inject('ContactRepository')
-    private readonly contactRepo: ContactRepository
+    private readonly contactRepo: ContactRepository,
+    @inject(AutoCompleteChecklistItems)
+    private readonly autoComplete: AutoCompleteChecklistItems
   ) {}
 
   async execute(proposalId: string, organizationId: string): Promise<Proposal> {
@@ -79,6 +85,29 @@ export class AdvanceProposalStage {
         isRequired: i.isRequired,
       }))
     )
+    await this.runAutoDetection(proposal)
+  }
+
+  private async runAutoDetection(proposal: Proposal): Promise<void> {
+    const autoKeys = [
+      'client_data',
+      'driver_license',
+      'vehicle_registration',
+    ] as const
+    for (const itemKey of autoKeys) {
+      try {
+        await this.autoComplete.execute({
+          organizationId: proposal.organizationId,
+          proposalId: proposal.id,
+          itemKey,
+        })
+      } catch (error) {
+        logger.warn(
+          { err: error, proposalId: proposal.id, itemKey },
+          'Auto-detect falhou após regeneração de checklist'
+        )
+      }
+    }
   }
 
   private async assertContactIsPromoted(

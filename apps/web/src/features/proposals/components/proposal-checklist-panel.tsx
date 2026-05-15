@@ -33,6 +33,7 @@ function ChecklistItemRow({
   onToggle,
   isPending,
 }: ChecklistItemRowProps) {
+  const isAutoCompleted = item.isCompleted && item.completedBy === null
   return (
     <div className="flex items-start gap-3 py-2">
       <Checkbox
@@ -56,6 +57,15 @@ function ChecklistItemRow({
         {item.isRequired && (
           <Badge variant="secondary" className="shrink-0 text-xs">
             Obrigatório
+          </Badge>
+        )}
+        {isAutoCompleted && (
+          <Badge
+            variant="secondary"
+            className="shrink-0 text-xs"
+            title="Marcado automaticamente pelo sistema — desmarque se quiser sinalizar revisão"
+          >
+            Auto-atendido
           </Badge>
         )}
       </label>

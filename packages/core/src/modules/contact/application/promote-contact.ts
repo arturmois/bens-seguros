@@ -1,4 +1,5 @@
 import { hashDocument } from '@repo/shared'
+import pino from 'pino'
 import { inject, injectable } from 'tsyringe'
 import type { ClientAddress } from '../../client/domain/client-address.js'
 import type {
@@ -8,8 +9,11 @@ import type {
   MaritalStatus,
   PersonType,
 } from '../../client/domain/client-repository.js'
+import { AutoCompleteChecklistItems } from '../../proposal/application/auto-complete-checklist-items.js'
 import { ContactErrors } from '../domain/contact-errors.js'
 import type { ContactRepository } from '../domain/contact-repository.js'
+
+const logger = pino({ name: 'promote-contact' })
 
 export interface PromoteContactInput {
   contactId: string
@@ -29,7 +33,9 @@ export class PromoteContact {
     @inject('ContactRepository')
     private readonly contactRepo: ContactRepository,
     @inject('ClientRepository')
-    private readonly clientRepo: ClientRepository
+    private readonly clientRepo: ClientRepository,
+    @inject(AutoCompleteChecklistItems)
+    private readonly autoComplete: AutoCompleteChecklistItems
   ) {}
 
   async execute(input: PromoteContactInput): Promise<ClientData> {
@@ -58,6 +64,7 @@ export class PromoteContact {
       await this.contactRepo.update(input.contactId, input.organizationId, {
         clientId: existing.id,
       })
+      await this.triggerAutoComplete(input.organizationId, input.contactId)
       return existing
     }
     const legalName = input.legalName ?? contact.name
@@ -75,6 +82,25 @@ export class PromoteContact {
     await this.contactRepo.update(input.contactId, input.organizationId, {
       clientId: created.id,
     })
+    await this.triggerAutoComplete(input.organizationId, input.contactId)
     return created
+  }
+
+  private async triggerAutoComplete(
+    organizationId: string,
+    contactId: string
+  ): Promise<void> {
+    try {
+      await this.autoComplete.execute({
+        organizationId,
+        contactId,
+        itemKey: 'client_data',
+      })
+    } catch (error) {
+      logger.warn(
+        { err: error, organizationId, contactId },
+        'Auto-complete client_data falhou após promoção; item permanecerá pendente'
+      )
+    }
   }
 }

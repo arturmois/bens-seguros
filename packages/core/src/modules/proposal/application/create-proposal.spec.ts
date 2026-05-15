@@ -10,6 +10,7 @@ import type {
 import type { ChecklistConfigProvider } from '../domain/checklist-config.js'
 import type { ChecklistRepository } from '../domain/checklist-repository.js'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
+import { AutoCompleteChecklistItems } from './auto-complete-checklist-items.js'
 import { CreateProposal } from './create-proposal.js'
 
 function createMockRepo(): ProposalRepository {
@@ -17,6 +18,7 @@ function createMockRepo(): ProposalRepository {
     save: vi.fn(),
     findById: vi.fn(),
     listForView: vi.fn(),
+    findActiveByContact: vi.fn().mockResolvedValue([]),
   }
 }
 
@@ -64,6 +66,12 @@ function createMockContactRepo(
   }
 }
 
+function createMockAutoComplete(): AutoCompleteChecklistItems {
+  return {
+    execute: vi.fn().mockResolvedValue(undefined),
+  } as unknown as AutoCompleteChecklistItems
+}
+
 function makeContact(
   id: string,
   clientId: string,
@@ -102,7 +110,8 @@ describe('CreateProposal', () => {
       checklistRepo,
       checklistConfig,
       createMockPolicyRepo(),
-      createMockContactRepo()
+      createMockContactRepo(),
+      createMockAutoComplete()
     )
     const result = await useCase.execute({
       organizationId: 'org-1',
@@ -128,7 +137,8 @@ describe('CreateProposal', () => {
       checklistRepo,
       checklistConfig,
       createMockPolicyRepo(),
-      createMockContactRepo()
+      createMockContactRepo(),
+      createMockAutoComplete()
     )
     await useCase.execute({
       organizationId: 'org-1',
@@ -156,7 +166,8 @@ describe('CreateProposal', () => {
       checklistRepo,
       checklistConfig,
       createMockPolicyRepo(),
-      createMockContactRepo()
+      createMockContactRepo(),
+      createMockAutoComplete()
     )
     await useCase.execute({
       organizationId: 'org-1',
@@ -202,7 +213,8 @@ describe('CreateProposal', () => {
       checklistRepo,
       checklistConfig,
       policyRepo,
-      contactRepo
+      contactRepo,
+      createMockAutoComplete()
     )
     const result = await useCase.execute({
       organizationId: 'org-1',
@@ -248,7 +260,8 @@ describe('CreateProposal', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       }),
-      createMockContactRepo()
+      createMockContactRepo(),
+      createMockAutoComplete()
     )
     await expect(
       useCase.execute({
@@ -287,7 +300,8 @@ describe('CreateProposal', () => {
       createMockChecklistRepo(),
       createMockChecklistConfig(),
       policyRepo,
-      contactRepo
+      contactRepo,
+      createMockAutoComplete()
     )
     await expect(
       useCase.execute({
@@ -309,7 +323,8 @@ describe('CreateProposal', () => {
       checklistRepo,
       checklistConfig,
       createMockPolicyRepo(),
-      createMockContactRepo()
+      createMockContactRepo(),
+      createMockAutoComplete()
     )
     const result = await useCase.execute({
       organizationId: 'org-1',
@@ -351,7 +366,8 @@ describe('CreateProposal', () => {
       createMockChecklistRepo(),
       createMockChecklistConfig(),
       policyRepo,
-      createMockContactRepo()
+      createMockContactRepo(),
+      createMockAutoComplete()
     )
     const result = await useCase.execute({
       organizationId: 'org-1',
@@ -376,7 +392,8 @@ describe('CreateProposal', () => {
       createMockChecklistRepo(),
       createMockChecklistConfig(),
       policyRepo,
-      createMockContactRepo()
+      createMockContactRepo(),
+      createMockAutoComplete()
     )
     const result = await useCase.execute({
       organizationId: 'org-1',
@@ -395,7 +412,8 @@ describe('CreateProposal', () => {
       createMockChecklistRepo(),
       createMockChecklistConfig(),
       createMockPolicyRepo(),
-      createMockContactRepo()
+      createMockContactRepo(),
+      createMockAutoComplete()
     )
     const result = await useCase.execute({
       organizationId: 'org-1',
@@ -406,5 +424,38 @@ describe('CreateProposal', () => {
     })
     expect(result.toJSON().renewalPolicyNumber).toBeNull()
     expect(result.toJSON().renewalPolicyId).toBeNull()
+  })
+  it('runs auto-detection for the 3 keys after initial checklist creation', async () => {
+    const repo = createMockRepo()
+    const checklistRepo = createMockChecklistRepo()
+    const checklistConfig = createMockChecklistConfig([
+      { itemKey: 'client_data', label: 'Dados do cliente', isRequired: true },
+    ])
+    const autoComplete = createMockAutoComplete()
+    const useCase = new CreateProposal(
+      repo,
+      checklistRepo,
+      checklistConfig,
+      createMockPolicyRepo(),
+      createMockContactRepo(),
+      autoComplete
+    )
+    await useCase.execute({
+      organizationId: 'org-1',
+      salespersonId: 'u-1',
+      contactId: 'c-1',
+      branch: 'AUTO',
+      boardType: 'NEW_INSURANCE',
+    })
+    expect(autoComplete.execute).toHaveBeenCalledTimes(3)
+    expect(autoComplete.execute).toHaveBeenCalledWith(
+      expect.objectContaining({ itemKey: 'client_data' })
+    )
+    expect(autoComplete.execute).toHaveBeenCalledWith(
+      expect.objectContaining({ itemKey: 'driver_license' })
+    )
+    expect(autoComplete.execute).toHaveBeenCalledWith(
+      expect.objectContaining({ itemKey: 'vehicle_registration' })
+    )
   })
 })

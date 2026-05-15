@@ -16,7 +16,7 @@ const BASE_ITEMS: Partial<Record<Stage, readonly ChecklistItemConfig[]>> = {
     {
       itemKey: 'client_data',
       label: 'Dados do cliente preenchidos',
-      isRequired: true,
+      isRequired: false,
     },
   ],
   QUOTE: [
@@ -62,13 +62,13 @@ const BRANCH_EXTRAS: Partial<
       {
         itemKey: 'driver_license',
         label: 'CNH do condutor',
-        isRequired: true,
+        isRequired: false,
         documentType: 'DRIVER_LICENSE',
       },
       {
         itemKey: 'vehicle_registration',
         label: 'CRLV do veículo',
-        isRequired: true,
+        isRequired: false,
         documentType: 'VEHICLE_REGISTRATION',
       },
       {

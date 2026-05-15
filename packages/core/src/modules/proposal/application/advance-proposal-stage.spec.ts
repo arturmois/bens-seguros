@@ -16,12 +16,14 @@ import {
 import type { ProposalRepository } from '../domain/proposal-repository.js'
 import { Proposal } from '../domain/proposal.js'
 import { AdvanceProposalStage } from './advance-proposal-stage.js'
+import { AutoCompleteChecklistItems } from './auto-complete-checklist-items.js'
 
 function createMockRepo(proposal: Proposal | null): ProposalRepository {
   return {
     save: vi.fn(),
     findById: vi.fn().mockResolvedValue(proposal),
     listForView: vi.fn(),
+    findActiveByContact: vi.fn().mockResolvedValue([]),
   }
 }
 
@@ -85,6 +87,12 @@ function createMockContactRepo(
   }
 }
 
+function createMockAutoComplete(): AutoCompleteChecklistItems {
+  return {
+    execute: vi.fn().mockResolvedValue(undefined),
+  } as unknown as AutoCompleteChecklistItems
+}
+
 function makeProposalAtPayment(): Proposal {
   const proposal = Proposal.create({
     organizationId: 'org-1',
@@ -123,11 +131,13 @@ describe('AdvanceProposalStage', () => {
     const checklistRepo = createMockChecklistRepo(true)
     const checklistConfig = createMockChecklistConfig()
     const contactRepo = createMockContactRepo()
+    const autoComplete = createMockAutoComplete()
     const useCase = new AdvanceProposalStage(
       repo,
       checklistRepo,
       checklistConfig,
-      contactRepo
+      contactRepo,
+      autoComplete
     )
     const result = await useCase.execute(proposal.id, 'org-1')
     expect(result.stage).toBe('QUOTE')
@@ -138,11 +148,13 @@ describe('AdvanceProposalStage', () => {
     const checklistRepo = createMockChecklistRepo()
     const checklistConfig = createMockChecklistConfig()
     const contactRepo = createMockContactRepo()
+    const autoComplete = createMockAutoComplete()
     const useCase = new AdvanceProposalStage(
       repo,
       checklistRepo,
       checklistConfig,
-      contactRepo
+      contactRepo,
+      autoComplete
     )
     await expect(useCase.execute('xxx', 'org-1')).rejects.toThrow(
       'não encontrada'
@@ -161,11 +173,13 @@ describe('AdvanceProposalStage', () => {
     const checklistRepo = createMockChecklistRepo(true)
     const checklistConfig = createMockChecklistConfig()
     const contactRepo = createMockContactRepo()
+    const autoComplete = createMockAutoComplete()
     const useCase = new AdvanceProposalStage(
       repo,
       checklistRepo,
       checklistConfig,
-      contactRepo
+      contactRepo,
+      autoComplete
     )
     await expect(useCase.execute(proposal.id, 'org-1')).rejects.toThrow(
       ProposalDetailsRequiredError
@@ -194,11 +208,13 @@ describe('AdvanceProposalStage', () => {
     const checklistRepo = createMockChecklistRepo(false)
     const checklistConfig = createMockChecklistConfig()
     const contactRepo = createMockContactRepo()
+    const autoComplete = createMockAutoComplete()
     const useCase = new AdvanceProposalStage(
       repo,
       checklistRepo,
       checklistConfig,
-      contactRepo
+      contactRepo,
+      autoComplete
     )
     await expect(useCase.execute(proposal.id, 'org-1')).rejects.toThrow(
       ChecklistIncompleteError
@@ -212,11 +228,13 @@ describe('AdvanceProposalStage', () => {
     const contactRepo = createMockContactRepo(
       makeContact({ clientId: 'client-1' })
     )
+    const autoComplete = createMockAutoComplete()
     const useCase = new AdvanceProposalStage(
       repo,
       checklistRepo,
       checklistConfig,
-      contactRepo
+      contactRepo,
+      autoComplete
     )
     const result = await useCase.execute(proposal.id, 'org-1')
     expect(result.stage).toBe('POLICY_ISSUED')
@@ -230,11 +248,13 @@ describe('AdvanceProposalStage', () => {
     const checklistRepo = createMockChecklistRepo(true)
     const checklistConfig = createMockChecklistConfig()
     const contactRepo = createMockContactRepo(makeContact({ clientId: null }))
+    const autoComplete = createMockAutoComplete()
     const useCase = new AdvanceProposalStage(
       repo,
       checklistRepo,
       checklistConfig,
-      contactRepo
+      contactRepo,
+      autoComplete
     )
     await expect(useCase.execute(proposal.id, 'org-1')).rejects.toThrow(
       ContactNotPromotedError
@@ -247,11 +267,13 @@ describe('AdvanceProposalStage', () => {
     const checklistRepo = createMockChecklistRepo(true)
     const checklistConfig = createMockChecklistConfig()
     const contactRepo = createMockContactRepo(null)
+    const autoComplete = createMockAutoComplete()
     const useCase = new AdvanceProposalStage(
       repo,
       checklistRepo,
       checklistConfig,
-      contactRepo
+      contactRepo,
+      autoComplete
     )
     await expect(useCase.execute(proposal.id, 'org-1')).rejects.toThrow(
       ContactNotPromotedError
@@ -270,11 +292,13 @@ describe('AdvanceProposalStage', () => {
     const checklistRepo = createMockChecklistRepo(false)
     const checklistConfig = createMockChecklistConfig()
     const contactRepo = createMockContactRepo()
+    const autoComplete = createMockAutoComplete()
     const useCase = new AdvanceProposalStage(
       repo,
       checklistRepo,
       checklistConfig,
-      contactRepo
+      contactRepo,
+      autoComplete
     )
     const result = await useCase.execute(proposal.id, 'org-1')
     expect(result.stage).toBe('QUOTE')
@@ -292,13 +316,68 @@ describe('AdvanceProposalStage', () => {
     const checklistRepo = createMockChecklistRepo(true)
     const checklistConfig = createMockChecklistConfig()
     const contactRepo = createMockContactRepo()
+    const autoComplete = createMockAutoComplete()
     const useCase = new AdvanceProposalStage(
       repo,
       checklistRepo,
       checklistConfig,
-      contactRepo
+      contactRepo,
+      autoComplete
     )
     await useCase.execute(proposal.id, 'org-1')
     expect(contactRepo.findById).not.toHaveBeenCalled()
+  })
+  it('runs auto-detection after regenerating checklist on stage advance', async () => {
+    const proposal = Proposal.create({
+      organizationId: 'org-1',
+      contactId: 'c-1',
+      salespersonId: 'u-1',
+      branch: 'AUTO',
+      boardType: 'NEW_INSURANCE',
+    })
+    const repo = createMockRepo(proposal)
+    const checklistRepo = createMockChecklistRepo(true)
+    const checklistConfig = createMockChecklistConfig()
+    checklistConfig.getItems = vi.fn().mockReturnValue([
+      { itemKey: 'client_data', label: 'Dados do cliente', isRequired: true },
+      {
+        itemKey: 'driver_license',
+        label: 'CNH do condutor',
+        isRequired: true,
+      },
+    ])
+    const contactRepo = createMockContactRepo()
+    const autoComplete = createMockAutoComplete()
+    const useCase = new AdvanceProposalStage(
+      repo,
+      checklistRepo,
+      checklistConfig,
+      contactRepo,
+      autoComplete
+    )
+    await useCase.execute(proposal.id, 'org-1')
+    expect(checklistRepo.createMany).toHaveBeenCalledTimes(1)
+    expect(autoComplete.execute).toHaveBeenCalledTimes(3)
+    expect(autoComplete.execute).toHaveBeenCalledWith({
+      organizationId: 'org-1',
+      proposalId: proposal.id,
+      itemKey: 'client_data',
+    })
+    expect(autoComplete.execute).toHaveBeenCalledWith({
+      organizationId: 'org-1',
+      proposalId: proposal.id,
+      itemKey: 'driver_license',
+    })
+    expect(autoComplete.execute).toHaveBeenCalledWith({
+      organizationId: 'org-1',
+      proposalId: proposal.id,
+      itemKey: 'vehicle_registration',
+    })
+    const createManyMock = checklistRepo.createMany as ReturnType<typeof vi.fn>
+    const autoCompleteMock = autoComplete.execute as ReturnType<typeof vi.fn>
+    const createManyOrder = createManyMock.mock.invocationCallOrder[0] ?? 0
+    const autoCompleteOrder = autoCompleteMock.mock.invocationCallOrder[0] ?? 0
+    expect(createManyOrder).toBeGreaterThan(0)
+    expect(autoCompleteOrder).toBeGreaterThan(createManyOrder)
   })
 })

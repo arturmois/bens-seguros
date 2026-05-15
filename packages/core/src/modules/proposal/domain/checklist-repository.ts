@@ -29,7 +29,7 @@ export interface ChecklistRepository {
   complete(
     id: string,
     proposalId: string,
-    userId: string
+    userId: string | null
   ): Promise<ChecklistItemData>
   uncomplete(id: string, proposalId: string): Promise<ChecklistItemData>
   getSummary(proposalId: string): Promise<ChecklistSummary>

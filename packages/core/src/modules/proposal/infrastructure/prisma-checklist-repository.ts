@@ -89,7 +89,7 @@ export class PrismaChecklistRepository implements ChecklistRepository {
   async complete(
     id: string,
     proposalId: string,
-    userId: string
+    userId: string | null
   ): Promise<ChecklistItemData> {
     const item = await this.prisma.proposalChecklistItem.findFirst({
       where: { id, proposalId },

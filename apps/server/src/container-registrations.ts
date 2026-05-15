@@ -3,6 +3,7 @@ import {
   AdvanceProposalStage,
   ApproveCommissionAdmin,
   ApproveCommissionCommercial,
+  AutoCompleteChecklistItems,
   BuildDashboardSnapshot,
   CancelInvitation,
   CancelPolicy,
@@ -213,7 +214,12 @@ export function registerDependencies(redis: Redis | null = null) {
     useFactory: () => new CreateContact(contactRepo),
   })
   container.register(PromoteContact, {
-    useFactory: () => new PromoteContact(contactRepo, clientRepo),
+    useFactory: (c) =>
+      new PromoteContact(
+        contactRepo,
+        clientRepo,
+        c.resolve(AutoCompleteChecklistItems)
+      ),
   })
   container.register(GetContact, {
     useFactory: () => new GetContact(contactRepo),
@@ -228,22 +234,24 @@ export function registerDependencies(redis: Redis | null = null) {
     useFactory: () => new SoftDeleteContact(contactRepo),
   })
   container.register(CreateProposal, {
-    useFactory: () =>
+    useFactory: (c) =>
       new CreateProposal(
         proposalRepo,
         checklistRepo,
         checklistConfig,
         policyRepo,
-        contactRepo
+        contactRepo,
+        c.resolve(AutoCompleteChecklistItems)
       ),
   })
   container.register(AdvanceProposalStage, {
-    useFactory: () =>
+    useFactory: (c) =>
       new AdvanceProposalStage(
         proposalRepo,
         checklistRepo,
         checklistConfig,
-        contactRepo
+        contactRepo,
+        c.resolve(AutoCompleteChecklistItems)
       ),
   })
   container.register(MarkProposalLost, {
@@ -273,6 +281,15 @@ export function registerDependencies(redis: Redis | null = null) {
   })
   container.register(UncompleteChecklistItem, {
     useFactory: () => new UncompleteChecklistItem(checklistRepo, proposalRepo),
+  })
+  container.register(AutoCompleteChecklistItems, {
+    useFactory: () =>
+      new AutoCompleteChecklistItems(
+        checklistRepo,
+        proposalRepo,
+        contactRepo,
+        documentRepo
+      ),
   })
   container.register(OnPolicyIssued, {
     useFactory: () => new OnPolicyIssued(commissionRepo),
@@ -356,7 +373,12 @@ export function registerDependencies(redis: Redis | null = null) {
     useFactory: () => new UpdateAssistanceStatus(assistanceRepo),
   })
   container.register(UploadDocument, {
-    useFactory: () => new UploadDocument(storageProvider, documentRepo),
+    useFactory: (c) =>
+      new UploadDocument(
+        storageProvider,
+        documentRepo,
+        c.resolve(AutoCompleteChecklistItems)
+      ),
   })
   container.register(ListDocuments, {
     useFactory: () => new ListDocuments(documentRepo),

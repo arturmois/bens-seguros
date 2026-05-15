@@ -10,6 +10,13 @@ import type {
   ClientRepository,
   ClientData,
 } from '../../client/domain/client-repository.js'
+import { AutoCompleteChecklistItems } from '../../proposal/application/auto-complete-checklist-items.js'
+
+function createMockAutoComplete(): AutoCompleteChecklistItems {
+  return {
+    execute: vi.fn().mockResolvedValue(undefined),
+  } as unknown as AutoCompleteChecklistItems
+}
 
 function makeContact(overrides: Partial<ContactData> = {}): ContactData {
   return {
@@ -99,7 +106,8 @@ describe('PromoteContact', () => {
   }
   it('cria novo Client quando documentHash não existe', async () => {
     const { contactRepo, clientRepo } = createMocks({ contact: makeContact() })
-    const useCase = new PromoteContact(contactRepo, clientRepo)
+    const autoComplete = createMockAutoComplete()
+    const useCase = new PromoteContact(contactRepo, clientRepo, autoComplete)
     const client = await useCase.execute(baseInput)
     expect(clientRepo.save).toHaveBeenCalledTimes(1)
     expect(contactRepo.update).toHaveBeenCalledWith(
@@ -114,7 +122,8 @@ describe('PromoteContact', () => {
       contact: makeContact(),
       existingClient: existing,
     })
-    const useCase = new PromoteContact(contactRepo, clientRepo)
+    const autoComplete = createMockAutoComplete()
+    const useCase = new PromoteContact(contactRepo, clientRepo, autoComplete)
     const client = await useCase.execute(baseInput)
     expect(client.id).toBe('client-existing')
     expect(clientRepo.save).not.toHaveBeenCalled()
@@ -134,7 +143,8 @@ describe('PromoteContact', () => {
       contact: promoted,
       existingClient: existing,
     })
-    const useCase = new PromoteContact(contactRepo, clientRepo)
+    const autoComplete = createMockAutoComplete()
+    const useCase = new PromoteContact(contactRepo, clientRepo, autoComplete)
     const client = await useCase.execute(baseInput)
     expect(client.id).toBe('client-X')
     expect(clientRepo.save).not.toHaveBeenCalled()
@@ -162,14 +172,44 @@ describe('PromoteContact', () => {
       update: vi.fn(),
       softDelete: vi.fn(),
     } as unknown as ClientRepository
-    const useCase = new PromoteContact(contactRepo, clientRepo)
+    const autoComplete = createMockAutoComplete()
+    const useCase = new PromoteContact(contactRepo, clientRepo, autoComplete)
     await expect(useCase.execute(baseInput)).rejects.toThrow(
       /já está vinculado|não corresponde/i
     )
   })
   it('lança ContactNotFound quando contato não existe', async () => {
     const { contactRepo, clientRepo } = createMocks({ contact: null })
-    const useCase = new PromoteContact(contactRepo, clientRepo)
+    const autoComplete = createMockAutoComplete()
+    const useCase = new PromoteContact(contactRepo, clientRepo, autoComplete)
     await expect(useCase.execute(baseInput)).rejects.toThrow(/não encontrado/i)
+  })
+  it('calls AutoCompleteChecklistItems for client_data after creating new client', async () => {
+    const { contactRepo, clientRepo } = createMocks({ contact: makeContact() })
+    const autoComplete = createMockAutoComplete()
+    const useCase = new PromoteContact(contactRepo, clientRepo, autoComplete)
+    await useCase.execute(baseInput)
+    expect(autoComplete.execute).toHaveBeenCalledTimes(1)
+    expect(autoComplete.execute).toHaveBeenCalledWith({
+      organizationId: 'org-1',
+      contactId: 'contact-1',
+      itemKey: 'client_data',
+    })
+  })
+  it('calls AutoCompleteChecklistItems when contact links to existing client', async () => {
+    const existing = makeClient({ id: 'client-existing' })
+    const { contactRepo, clientRepo } = createMocks({
+      contact: makeContact(),
+      existingClient: existing,
+    })
+    const autoComplete = createMockAutoComplete()
+    const useCase = new PromoteContact(contactRepo, clientRepo, autoComplete)
+    await useCase.execute(baseInput)
+    expect(autoComplete.execute).toHaveBeenCalledTimes(1)
+    expect(autoComplete.execute).toHaveBeenCalledWith({
+      organizationId: 'org-1',
+      contactId: 'contact-1',
+      itemKey: 'client_data',
+    })
   })
 })

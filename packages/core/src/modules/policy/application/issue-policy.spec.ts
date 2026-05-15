@@ -137,6 +137,7 @@ function createMockProposalRepo(proposal: Proposal | null): ProposalRepository {
     save: vi.fn(),
     findById: vi.fn().mockResolvedValue(proposal),
     listForView: vi.fn(),
+    findActiveByContact: vi.fn().mockResolvedValue([]),
   }
 }
 
