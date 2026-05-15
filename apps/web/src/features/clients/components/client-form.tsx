@@ -6,89 +6,27 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { z } from 'zod'
 
-import { CreateClientBody as createClientBodySchema } from '@/api/endpoints/clients/clients.zod'
+import { FormGrid } from '@/components/shared/form-grid'
+import { FormSection } from '@/components/shared/form-section'
 import { Button } from '@/components/ui/button'
 import { AddressFieldsWithCep } from '@/features/address/components/address-fields-with-cep'
 
-import { useCreateClient } from '../hooks/use-clients'
-import type { ClientFormValues } from '../lib/types'
+import { useCreateClient, useUpdateClient } from '../hooks/use-clients'
 import {
-  extractExistingClientId,
-  isValidCnpj,
-  isValidCpf,
-} from '../lib/validation'
+  ADDRESS_FIELD_NAMES,
+  buildInitialValues,
+  clientFormSchema,
+  normalizeAddress,
+} from '../lib/client-form-schema'
+import type { ClientDetail, ClientFormValues } from '../lib/types'
+import { extractExistingClientId } from '../lib/validation'
 import { IdentificationFields } from './identification-fields'
-
-const EMPTY_ADDRESS = {
-  cep: '',
-  street: '',
-  number: '',
-  complement: '',
-  neighborhood: '',
-  city: '',
-  state: '',
-} as const
-
-const DEFAULT_VALUES: ClientFormValues = {
-  legalName: '',
-  document: '',
-  personType: 'INDIVIDUAL',
-  profession: null,
-  maritalStatus: null,
-  address: { ...EMPTY_ADDRESS },
-  fiscalBirthDate: null,
-}
-
-const ADDRESS_FIELD_NAMES = {
-  cep: 'address.cep',
-  street: 'address.street',
-  number: 'address.number',
-  complement: 'address.complement',
-  neighborhood: 'address.neighborhood',
-  city: 'address.city',
-  state: 'address.state',
-} as const
-
-function normalizeAddress(
-  raw: ClientFormValues['address']
-): ClientFormValues['address'] {
-  if (!raw) return null
-  const cepDigits = (raw.cep ?? '').replace(/\D/g, '')
-  if (cepDigits.length === 0) return null
-  return raw
-}
-
-const addressOrNull = z.preprocess((value) => {
-  if (value === null || value === undefined) return null
-  if (typeof value !== 'object') return null
-  const v = value as { cep?: unknown }
-  const cep = typeof v.cep === 'string' ? v.cep.replace(/\D/g, '') : ''
-  return cep.length === 0 ? null : value
-}, createClientBodySchema.shape.address)
-
-const clientFormSchema = createClientBodySchema
-  .extend({ address: addressOrNull })
-  .superRefine((data, ctx) => {
-    const digits = (data.document ?? '').replace(/\D/g, '')
-    if (data.personType === 'INDIVIDUAL' && !isValidCpf(digits)) {
-      ctx.addIssue({
-        path: ['document'],
-        code: z.ZodIssueCode.custom,
-        message: 'CPF inválido',
-      })
-    }
-    if (data.personType === 'COMPANY' && !isValidCnpj(digits)) {
-      ctx.addIssue({
-        path: ['document'],
-        code: z.ZodIssueCode.custom,
-        message: 'CNPJ inválido',
-      })
-    }
-  })
+import { ProfileFields } from './profile-fields'
 
 interface ClientFormProps {
+  readonly mode?: 'create' | 'edit'
+  readonly initial?: ClientDetail
   readonly onSuccess?: (clientId: string) => void
   readonly onCancel?: () => void
   readonly onPendingChange?: (pending: boolean) => void
@@ -97,6 +35,8 @@ interface ClientFormProps {
 }
 
 export function ClientForm({
+  mode = 'create',
+  initial,
   onSuccess,
   onCancel,
   onPendingChange,
@@ -105,17 +45,45 @@ export function ClientForm({
 }: ClientFormProps) {
   const router = useRouter()
   const createMutation = useCreateClient()
+  const updateMutation = useUpdateClient()
+  const isPending = createMutation.isPending || updateMutation.isPending
+  const isEdit = mode === 'edit'
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientFormSchema),
     mode: 'onBlur',
-    defaultValues: DEFAULT_VALUES,
+    defaultValues: buildInitialValues(initial),
   })
   useEffect(() => {
-    onPendingChange?.(createMutation.isPending)
-  }, [createMutation.isPending, onPendingChange])
+    if (initial) form.reset(buildInitialValues(initial))
+  }, [initial, form])
+  useEffect(() => {
+    onPendingChange?.(isPending)
+  }, [isPending, onPendingChange])
   function handleSubmit(values: ClientFormValues) {
-    const digits = values.document.replace(/\D/g, '')
     const address = normalizeAddress(values.address)
+    if (isEdit && initial) {
+      const editable = {
+        legalName: values.legalName,
+        profession: values.profession,
+        maritalStatus: values.maritalStatus,
+        fiscalBirthDate: values.fiscalBirthDate,
+        address,
+      }
+      updateMutation.mutate(
+        { id: initial.id, data: editable },
+        {
+          onSuccess: () => {
+            if (onSuccess) {
+              onSuccess(initial.id)
+              return
+            }
+            router.push(`/clients/${initial.id}`)
+          },
+        }
+      )
+      return
+    }
+    const digits = values.document.replace(/\D/g, '')
     createMutation.mutate(
       { ...values, document: digits, address },
       {
@@ -151,12 +119,25 @@ export function ClientForm({
       <form
         id={formId}
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-6"
+        className="space-y-8"
         noValidate
       >
-        <IdentificationFields />
-        <div className="space-y-4">
-          <h3 className="text-sm font-semibold">Endereço</h3>
+        <FormSection title="Identificação">
+          <FormGrid columns={3}>
+            <IdentificationFields disabled={isEdit} />
+          </FormGrid>
+        </FormSection>
+
+        <FormSection title="Perfil">
+          <FormGrid columns={3}>
+            <ProfileFields />
+          </FormGrid>
+        </FormSection>
+
+        <FormSection
+          title="Endereço"
+          description="Necessário para emissão da apólice."
+        >
           <div className="space-y-4">
             <AddressFieldsWithCep
               control={form.control}
@@ -164,27 +145,26 @@ export function ClientForm({
               setValue={form.setValue}
               fieldNames={ADDRESS_FIELD_NAMES}
             />
+            <p className="text-muted-foreground text-xs">
+              Informe ao menos o CEP. Os demais campos são preenchidos
+              automaticamente.
+            </p>
           </div>
-          <p className="text-muted-foreground text-xs">
-            Informe ao menos o CEP. Os demais campos são preenchidos
-            automaticamente. Necessário para emissão da apólice.
-          </p>
-        </div>
+        </FormSection>
+
         {!hideFooter && (
           <div className="flex items-center justify-end gap-2 pt-2">
             <Button
               type="button"
               variant="outline"
               onClick={handleCancelClick}
-              disabled={createMutation.isPending}
+              disabled={isPending}
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending && (
-                <Loader2 className="mr-2 size-4 animate-spin" />
-              )}
-              Criar cliente
+            <Button type="submit" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isEdit ? 'Salvar alterações' : 'Criar cliente'}
             </Button>
           </div>
         )}

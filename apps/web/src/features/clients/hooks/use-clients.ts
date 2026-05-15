@@ -7,7 +7,9 @@ import { toast } from 'sonner'
 import {
   createClient,
   deleteClient,
+  getGetClientQueryKey,
   getListClientsQueryKey,
+  updateClient,
   useGetClient,
   useListClients,
 } from '@/api/endpoints/clients/clients'
@@ -17,6 +19,7 @@ import type {
   ListClients200Meta,
   ListClientsSortBy,
   ListClientsSortOrder,
+  UpdateClientBody,
 } from '@/api/model'
 
 import { extractErrorMessage } from '@/lib/extract-error-message'
@@ -96,6 +99,27 @@ export function useCreateClient() {
         return
       }
       const message = extractErrorMessage(error, 'Erro ao criar cliente')
+      toast.error(message)
+    },
+  })
+}
+
+export function useUpdateClient() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateClientBody }) =>
+      updateClient(id, data),
+    onSuccess: (_response, variables) => {
+      toast.success('Cliente atualizado com sucesso')
+      void queryClient.invalidateQueries({
+        queryKey: getListClientsQueryKey(),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: getGetClientQueryKey(variables.id),
+      })
+    },
+    onError: (error) => {
+      const message = extractErrorMessage(error, 'Erro ao atualizar cliente')
       toast.error(message)
     },
   })

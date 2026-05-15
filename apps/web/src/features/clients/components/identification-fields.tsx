@@ -19,7 +19,11 @@ import { PERSON_TYPE_OPTIONS } from '../lib/constants'
 import type { ClientFormValues } from '../lib/types'
 import { isValidCnpj, isValidCpf } from '../lib/validation'
 
-export function IdentificationFields() {
+interface IdentificationFieldsProps {
+  readonly disabled?: boolean
+}
+
+export function IdentificationFields({ disabled }: IdentificationFieldsProps) {
   const form = useFormContext<ClientFormValues>()
   const personType = useWatch({ control: form.control, name: 'personType' })
   const isCompany = personType === 'COMPANY'
@@ -34,6 +38,7 @@ export function IdentificationFields() {
   const documentMask = isCompany ? CNPJ_MASK : CPF_MASK
   const autoFocusedRef = useRef(false)
   useEffect(() => {
+    if (disabled) return
     if (!isDocumentValid) {
       autoFocusedRef.current = false
       return
@@ -43,9 +48,9 @@ export function IdentificationFields() {
     if (legalName && legalName.length > 0) return
     autoFocusedRef.current = true
     form.setFocus('legalName')
-  }, [isDocumentValid, form])
+  }, [isDocumentValid, form, disabled])
   return (
-    <div className="space-y-4">
+    <>
       <FormField label="Tipo" error={errors.personType?.message} required>
         {(id) => (
           <Controller
@@ -62,6 +67,7 @@ export function IdentificationFields() {
                   }
                 }}
                 items={PERSON_TYPE_OPTIONS}
+                disabled={disabled}
               >
                 <SelectTrigger id={id}>
                   <SelectValue placeholder="Selecione">
@@ -105,6 +111,7 @@ export function IdentificationFields() {
                   isCompany ? '00.000.000/0000-00' : '000.000.000-00'
                 }
                 inputMode="numeric"
+                disabled={disabled}
                 aria-invalid={errors.document ? 'true' : undefined}
                 aria-describedby={errors.document ? `${id}-error` : undefined}
                 {...field}
@@ -126,6 +133,6 @@ export function IdentificationFields() {
           {...form.register('legalName')}
         />
       </FormField>
-    </div>
+    </>
   )
 }

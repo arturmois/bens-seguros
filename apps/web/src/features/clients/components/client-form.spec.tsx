@@ -13,33 +13,72 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: pushMock, back: vi.fn() }),
 }))
 
-const mutateMock = vi.fn()
+const createMutateMock = vi.fn()
+const updateMutateMock = vi.fn()
 vi.mock('../hooks/use-clients', () => ({
-  useCreateClient: () => ({ mutate: mutateMock, isPending: false }),
+  useCreateClient: () => ({ mutate: createMutateMock, isPending: false }),
+  useUpdateClient: () => ({ mutate: updateMutateMock, isPending: false }),
 }))
 
 vi.mock('sonner', () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }))
 
+import type { ClientDetail } from '../lib/types'
 import { ClientForm } from './client-form'
+
+const sampleClient = {
+  id: 'client-42',
+  organizationId: 'org-1',
+  legalName: 'Maria Silva',
+  document: '52998224725',
+  personType: 'INDIVIDUAL',
+  profession: 'Engenheira',
+  maritalStatus: 'SINGLE',
+  address: {
+    cep: '01311000',
+    street: 'Avenida Paulista',
+    number: '1000',
+    complement: null,
+    neighborhood: 'Bela Vista',
+    city: 'São Paulo',
+    state: 'SP',
+  },
+  fiscalBirthDate: '1990-05-15T00:00:00.000Z',
+  createdAt: '2026-01-01T00:00:00.000Z',
+  updatedAt: '2026-01-01T00:00:00.000Z',
+  deletedAt: null,
+  activePolicyCount: 0,
+  totalPolicyCount: 0,
+  contactCount: 0,
+} as ClientDetail
 
 afterEach(() => {
   cleanup()
   vi.clearAllMocks()
 })
 
-describe('ClientForm (quick-create)', () => {
-  it('renderiza identificação + endereço, sem campos fiscais opcionais', () => {
+describe('ClientForm (mode=create)', () => {
+  it('renderiza Identificação, Perfil e Endereço como seções', () => {
     render(<ClientForm />)
-    expect(screen.getByText(/Tipo/i)).toBeTruthy()
-    expect(screen.getByLabelText(/CPF/i)).toBeTruthy()
-    expect(screen.getByLabelText(/Nome completo/i)).toBeTruthy()
-    expect(screen.queryByText(/^Endereço$/i)).toBeTruthy()
-    expect(screen.queryByLabelText(/Profissão/i)).toBeNull()
-    expect(screen.queryByText(/Estado civil/i)).toBeNull()
-    expect(screen.queryByText(/Data de nascimento/i)).toBeNull()
+    expect(
+      screen.getByRole('heading', { level: 3, name: 'Identificação' })
+    ).toBeTruthy()
+    expect(
+      screen.getByRole('heading', { level: 3, name: 'Perfil' })
+    ).toBeTruthy()
+    expect(
+      screen.getByRole('heading', { level: 3, name: 'Endereço' })
+    ).toBeTruthy()
   })
+
+  it('mostra os campos de perfil', () => {
+    render(<ClientForm />)
+    expect(screen.getByLabelText('Profissão')).toBeTruthy()
+    expect(screen.getByText('Estado civil')).toBeTruthy()
+    expect(screen.getByText('Data de nascimento fiscal')).toBeTruthy()
+  })
+
   it('bloqueia submit quando documento inválido', async () => {
     render(<ClientForm />)
     fireEvent.change(screen.getByLabelText(/CPF/i), {
@@ -50,11 +89,12 @@ describe('ClientForm (quick-create)', () => {
     })
     fireEvent.click(screen.getByRole('button', { name: /Criar cliente/i }))
     await waitFor(() => {
-      expect(mutateMock).not.toHaveBeenCalled()
+      expect(createMutateMock).not.toHaveBeenCalled()
     })
   })
+
   it('redireciona para /clients/{id} ao sucesso (CPF válido)', async () => {
-    mutateMock.mockImplementation(
+    createMutateMock.mockImplementation(
       (_values: unknown, opts: { onSuccess?: (resp: unknown) => void }) => {
         opts.onSuccess?.({ data: { data: { id: 'client-99' } } })
       }
@@ -68,12 +108,13 @@ describe('ClientForm (quick-create)', () => {
     })
     fireEvent.click(screen.getByRole('button', { name: /Criar cliente/i }))
     await waitFor(() => {
-      expect(mutateMock).toHaveBeenCalledTimes(1)
+      expect(createMutateMock).toHaveBeenCalledTimes(1)
       expect(pushMock).toHaveBeenCalledWith('/clients/client-99')
     })
   })
+
   it('envia documento apenas com dígitos (strip da máscara)', async () => {
-    mutateMock.mockImplementation(
+    createMutateMock.mockImplementation(
       (_values: unknown, opts: { onSuccess?: (resp: unknown) => void }) => {
         opts.onSuccess?.({ data: { data: { id: 'client-1' } } })
       }
@@ -87,12 +128,16 @@ describe('ClientForm (quick-create)', () => {
     })
     fireEvent.click(screen.getByRole('button', { name: /Criar cliente/i }))
     await waitFor(() => {
-      const submitted = mutateMock.mock.calls[0]?.[0] as Record<string, unknown>
+      const submitted = createMutateMock.mock.calls[0]?.[0] as Record<
+        string,
+        unknown
+      >
       expect(submitted.document).toBe('52998224725')
     })
   })
+
   it('chama onSuccess callback ao invés de router.push quando passado', async () => {
-    mutateMock.mockImplementation(
+    createMutateMock.mockImplementation(
       (_values: unknown, opts: { onSuccess?: (resp: unknown) => void }) => {
         opts.onSuccess?.({ data: { data: { id: 'client-7' } } })
       }
@@ -111,6 +156,7 @@ describe('ClientForm (quick-create)', () => {
       expect(pushMock).not.toHaveBeenCalled()
     })
   })
+
   it('refoca o campo documento quando hook reporta duplicate', async () => {
     const { ApiError } = await import('@/lib/api-client')
     const duplicateError = new ApiError(
@@ -119,7 +165,7 @@ describe('ClientForm (quick-create)', () => {
       'Já existe',
       { existingClientId: 'client-42' }
     )
-    mutateMock.mockImplementation(
+    createMutateMock.mockImplementation(
       (_values: unknown, opts: { onError?: (error: unknown) => void }) => {
         opts.onError?.(duplicateError)
       }
@@ -133,6 +179,70 @@ describe('ClientForm (quick-create)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Criar cliente/i }))
     await waitFor(() => {
       expect(document.activeElement).toBe(documentInput)
+    })
+  })
+})
+
+describe('ClientForm (mode=edit)', () => {
+  it('popula campos a partir do initial', () => {
+    render(<ClientForm mode="edit" initial={sampleClient} />)
+    expect(
+      (screen.getByLabelText(/Nome completo/i) as HTMLInputElement).value
+    ).toBe('Maria Silva')
+    expect((screen.getByLabelText('Profissão') as HTMLInputElement).value).toBe(
+      'Engenheira'
+    )
+    expect(screen.getByDisplayValue('15/05/1990')).toBeTruthy()
+  })
+
+  it('desabilita CPF/CNPJ em modo edit', () => {
+    render(<ClientForm mode="edit" initial={sampleClient} />)
+    expect((screen.getByLabelText(/CPF/i) as HTMLInputElement).disabled).toBe(
+      true
+    )
+  })
+
+  it('botão muda label para "Salvar alterações"', () => {
+    render(<ClientForm mode="edit" initial={sampleClient} />)
+    expect(
+      screen.getByRole('button', { name: /Salvar alterações/i })
+    ).toBeTruthy()
+  })
+
+  it('submit chama useUpdateClient sem document nem personType', async () => {
+    updateMutateMock.mockImplementation(
+      (_args: unknown, opts: { onSuccess?: () => void }) => {
+        opts.onSuccess?.()
+      }
+    )
+    render(<ClientForm mode="edit" initial={sampleClient} />)
+    fireEvent.change(screen.getByLabelText(/Nome completo/i), {
+      target: { value: 'Maria Atualizada' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /Salvar alterações/i }))
+    await waitFor(() => {
+      expect(updateMutateMock).toHaveBeenCalledTimes(1)
+    })
+    const args = updateMutateMock.mock.calls[0]?.[0] as {
+      id: string
+      data: Record<string, unknown>
+    }
+    expect(args.id).toBe('client-42')
+    expect(args.data.legalName).toBe('Maria Atualizada')
+    expect(args.data).not.toHaveProperty('document')
+    expect(args.data).not.toHaveProperty('personType')
+  })
+
+  it('redireciona para /clients/{id} ao sucesso em edit', async () => {
+    updateMutateMock.mockImplementation(
+      (_args: unknown, opts: { onSuccess?: () => void }) => {
+        opts.onSuccess?.()
+      }
+    )
+    render(<ClientForm mode="edit" initial={sampleClient} />)
+    fireEvent.click(screen.getByRole('button', { name: /Salvar alterações/i }))
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith('/clients/client-42')
     })
   })
 })

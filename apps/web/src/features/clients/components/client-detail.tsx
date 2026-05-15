@@ -1,6 +1,7 @@
 'use client'
 
-import { ArrowLeft, Calendar, RefreshCw, Trash2 } from 'lucide-react'
+import { ArrowLeft, Calendar, Pencil, RefreshCw, Trash2 } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 
@@ -159,6 +160,13 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              render={<Link href={`/clients/${clientId}/edit`} />}
+            >
+              <Pencil className="mr-2 h-4 w-4" />
+              Editar
+            </Button>
             <Button variant="destructive" onClick={() => setDeleteOpen(true)}>
               <Trash2 className="mr-2 h-4 w-4" />
               Excluir
