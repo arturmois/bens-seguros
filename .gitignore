@@ -19,7 +19,14 @@ next-env.d.ts
 qa-*.png
 task*.png
 .agents/
-.claude/
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/bens-*/
+!.claude/hooks/
+!.claude/agents/
+!.claude/commands/
+!.claude/settings.json
 skills-lock.json
 *.pem
 .vercel
