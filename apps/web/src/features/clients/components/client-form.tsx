@@ -54,9 +54,6 @@ export function ClientForm({
     defaultValues: buildInitialValues(initial),
   })
   useEffect(() => {
-    if (initial) form.reset(buildInitialValues(initial))
-  }, [initial, form])
-  useEffect(() => {
     onPendingChange?.(isPending)
   }, [isPending, onPendingChange])
   function handleSubmit(values: ClientFormValues) {
