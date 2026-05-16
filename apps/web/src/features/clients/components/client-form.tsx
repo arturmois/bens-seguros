@@ -139,12 +139,14 @@ export function ClientForm({
           description="Necessário para emissão da apólice."
         >
           <div className="space-y-4">
-            <AddressFieldsWithCep
-              control={form.control}
-              register={form.register}
-              setValue={form.setValue}
-              fieldNames={ADDRESS_FIELD_NAMES}
-            />
+            <FormGrid columns={3}>
+              <AddressFieldsWithCep
+                control={form.control}
+                register={form.register}
+                setValue={form.setValue}
+                fieldNames={ADDRESS_FIELD_NAMES}
+              />
+            </FormGrid>
             <p className="text-muted-foreground text-xs">
               Informe ao menos o CEP. Os demais campos são preenchidos
               automaticamente.

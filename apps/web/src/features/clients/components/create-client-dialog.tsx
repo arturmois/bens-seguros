@@ -4,7 +4,6 @@ import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { Kbd } from '@/components/ui/kbd'
 import {
   Dialog,
   DialogContent,
@@ -14,6 +13,7 @@ import {
   DialogPanel,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Kbd } from '@/components/ui/kbd'
 
 import { ClientForm } from './client-form'
 
@@ -39,7 +39,7 @@ export function CreateClientDialog({
         onOpenChange(next)
       }}
     >
-      <DialogContent className="sm:max-w-[380px]">
+      <DialogContent className="sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>Novo cliente</DialogTitle>
           <DialogDescription>
