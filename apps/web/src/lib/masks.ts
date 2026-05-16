@@ -58,3 +58,10 @@ export function formatPhoneForMask(raw: string | null | undefined): string {
     digits.length > 11 && digits.startsWith('55') ? digits.slice(2) : digits
   return format(withoutCountry, PHONE_MASK)
 }
+
+export function formatCep(raw: string | null | undefined): string {
+  if (!raw) return ''
+  const digits = raw.replace(/\D/g, '').slice(0, 8)
+  if (!digits) return ''
+  return format(digits, CEP_MASK)
+}

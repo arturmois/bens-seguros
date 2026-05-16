@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { CreateClientBody as createClientBodySchema } from '@/api/endpoints/clients/clients.zod'
-import { formatDocument } from '@/lib/masks'
+import { formatCep, formatDocument } from '@/lib/masks'
 
 import type { ClientDetail, ClientFormValues } from './types'
 import { isValidCnpj, isValidCpf } from './validation'
@@ -53,7 +53,9 @@ export function buildInitialValues(initial?: ClientDetail): ClientFormValues {
     personType: initial.personType,
     profession: initial.profession ?? null,
     maritalStatus: initial.maritalStatus ?? null,
-    address: initial.address ?? { ...EMPTY_ADDRESS },
+    address: initial.address
+      ? { ...initial.address, cep: formatCep(initial.address.cep) }
+      : { ...EMPTY_ADDRESS },
     fiscalBirthDate: initial.fiscalBirthDate ?? null,
   }
 }
