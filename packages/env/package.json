@@ -14,5 +14,9 @@
     "@config/typescript-config": "workspace:*",
     "@types/node": "^25.5.0",
     "typescript": "^5.9.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/"
   }
 }

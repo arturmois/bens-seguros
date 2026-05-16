@@ -14,7 +14,9 @@
     "db:migrate": "dotenv -e ../../.env -- prisma migrate dev",
     "db:reset": "dotenv -e ../../.env -- prisma migrate reset",
     "db:seed": "tsx --env-file=../../.env prisma/seed.ts",
-    "db:studio": "dotenv -e ../../.env -- prisma studio"
+    "db:studio": "dotenv -e ../../.env -- prisma studio",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/"
   },
   "prisma": {
     "seed": "tsx --env-file=../../.env prisma/seed.ts"

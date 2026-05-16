@@ -14,7 +14,9 @@
   },
   "scripts": {
     "test": "vitest run --passWithNoTests",
-    "test:watch": "vitest watch"
+    "test:watch": "vitest watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/"
   },
   "dependencies": {
     "@repo/env": "workspace:*",

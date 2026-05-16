@@ -19,7 +19,9 @@
   },
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest watch"
+    "test:watch": "vitest watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/"
   },
   "devDependencies": {
     "@config/typescript-config": "workspace:*",
