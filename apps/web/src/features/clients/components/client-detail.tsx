@@ -22,7 +22,11 @@ import { getInitials } from '@/lib/formatters'
 import { formatDocument } from '@/lib/masks'
 import { hasPermission } from '@/lib/permissions'
 import { useClient, useDeleteClient } from '../hooks/use-clients'
-import { PERSON_TYPE_BADGE_VARIANT, PERSON_TYPE_LABELS } from '../lib/constants'
+import {
+  MARITAL_STATUS_OPTIONS,
+  PERSON_TYPE_BADGE_VARIANT,
+  PERSON_TYPE_LABELS,
+} from '../lib/constants'
 import { ClientContactsTab } from './client-contacts-tab'
 import { DetailSkeleton } from './client-detail-skeleton'
 import { ClientHistoryTab } from './client-history-tab'
@@ -184,7 +188,11 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
           <DetailInfoItem label="Profissão" value={client.profession ?? '-'} />
           <DetailInfoItem
             label="Estado civil"
-            value={client.maritalStatus ?? '-'}
+            value={
+              MARITAL_STATUS_OPTIONS.find(
+                (o) => o.value === client.maritalStatus
+              )?.label ?? '-'
+            }
           />
           <DetailInfoItem
             icon={<Calendar className="h-4 w-4" />}
