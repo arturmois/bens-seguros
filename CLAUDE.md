@@ -224,6 +224,8 @@ Detalhes completos → skill `bens-code-rules`.
 - **Fastify / API / use cases** → skill `fastify-best-practices`
 - **Orval / API client gen** → skill `orval` + slash `/regen-api`
 - **CI/Deploy/Docker** → skill `docker-expert`, `multi-stage-dockerfile`, `docker-compose-orchestration`
+- **Gerar versão / release / tag de prod** → skill `bens-release`
+- **CI quebrou / pipeline falhou** → skill `check-pipeline`
 - **TDD / testes** → skill `superpowers:test-driven-development`
 - **Plano / brainstorming** → skill `superpowers:writing-plans`, `superpowers:brainstorming`
 - **Debug** → skill `superpowers:systematic-debugging`
