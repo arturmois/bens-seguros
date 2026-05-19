@@ -25,7 +25,7 @@ export function BusinessFields({
   const legalNameValue = useWatch({ control, name: 'legalName' })
   return (
     <>
-      <FieldWrapper label="Razão Social" required>
+      <FieldWrapper label="Razão Social" name="legalName" required>
         <Input
           placeholder="Razão social da empresa"
           {...register('legalName')}
@@ -37,7 +37,7 @@ export function BusinessFields({
           />
         )}
       </FieldWrapper>
-      <FieldWrapper label="CNPJ" required>
+      <FieldWrapper label="CNPJ" name="cnpj" required>
         <Controller
           name="cnpj"
           control={control}
@@ -61,7 +61,7 @@ export function BusinessFields({
           )}
         />
       </FieldWrapper>
-      <FieldWrapper label="Atividade" required>
+      <FieldWrapper label="Atividade" name="businessActivity" required>
         <Input
           placeholder="Atividade principal"
           {...register('businessActivity')}
@@ -73,7 +73,7 @@ export function BusinessFields({
         setValue={setValue}
         required={{ cep: false }}
       />
-      <FieldWrapper label="Área (m²)">
+      <FieldWrapper label="Área (m²)" name="areaM2">
         <Input
           type="number"
           placeholder="Ex: 200"

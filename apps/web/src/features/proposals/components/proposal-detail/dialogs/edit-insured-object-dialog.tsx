@@ -85,7 +85,7 @@ export function EditInsuredObjectDialog({
             segurado e os valores.
           </DialogDescription>
         </DialogHeader>
-        <div className="max-h-[60vh] overflow-y-auto pr-1">
+        <div className="max-h-[60vh] overflow-y-auto px-6 py-2">
           <BranchFields
             branch={proposal.branch}
             defaultValues={proposal.details}
@@ -123,7 +123,7 @@ export function EditInsuredObjectDialog({
             <Button
               type="submit"
               form={FORM_ID}
-              disabled={updateMutation.isPending}
+              disabled={updateMutation.isPending || !isDirty}
             >
               {updateMutation.isPending && (
                 <Loader2 className="mr-1.5 size-4 animate-spin" />

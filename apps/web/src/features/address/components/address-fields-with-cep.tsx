@@ -102,7 +102,7 @@ export function AddressFieldsWithCep<TForm extends FieldValues>({
   }
   return (
     <>
-      <FieldWrapper label="CEP" required={required?.cep}>
+      <FieldWrapper label="CEP" name={names.cep} required={required?.cep}>
         <Controller
           name={names.cep}
           control={control}
@@ -136,42 +136,42 @@ export function AddressFieldsWithCep<TForm extends FieldValues>({
           )}
         />
       </FieldWrapper>
-      <FieldWrapper label="Logradouro">
+      <FieldWrapper label="Logradouro" name={names.street}>
         <Input
           placeholder="Rua, avenida, etc."
           disabled={isLoading}
           {...register(names.street)}
         />
       </FieldWrapper>
-      <FieldWrapper label="Número">
+      <FieldWrapper label="Número" name={names.number}>
         <Input
           placeholder="123"
           disabled={isLoading}
           {...register(names.number)}
         />
       </FieldWrapper>
-      <FieldWrapper label="Complemento">
+      <FieldWrapper label="Complemento" name={names.complement}>
         <Input
           placeholder="Apto, bloco, etc."
           disabled={isLoading}
           {...register(names.complement)}
         />
       </FieldWrapper>
-      <FieldWrapper label="Bairro">
+      <FieldWrapper label="Bairro" name={names.neighborhood}>
         <Input
           placeholder="Bairro"
           disabled={isLoading}
           {...register(names.neighborhood)}
         />
       </FieldWrapper>
-      <FieldWrapper label="Cidade">
+      <FieldWrapper label="Cidade" name={names.city}>
         <Input
           placeholder="Cidade"
           disabled={isLoading}
           {...register(names.city)}
         />
       </FieldWrapper>
-      <FieldWrapper label="Estado">
+      <FieldWrapper label="Estado" name={names.state}>
         <Input
           placeholder="UF"
           maxLength={2}

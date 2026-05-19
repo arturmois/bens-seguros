@@ -92,24 +92,24 @@ export function AutoFields({
 
   return (
     <>
-      <FieldWrapper label="Veículo" required>
+      <FieldWrapper label="Veículo" name="vehicle" required>
         <Input placeholder="Ex: Volkswagen Gol 1.6" {...register('vehicle')} />
       </FieldWrapper>
-      <FieldWrapper label="Ano Fabricação" required>
+      <FieldWrapper label="Ano Fabricação" name="manufacturingYear" required>
         <Input
           type="number"
           placeholder="Ex: 2024"
           {...register('manufacturingYear', { valueAsNumber: true })}
         />
       </FieldWrapper>
-      <FieldWrapper label="Ano Modelo" required>
+      <FieldWrapper label="Ano Modelo" name="modelYear" required>
         <Input
           type="number"
           placeholder="Ex: 2025"
           {...register('modelYear', { valueAsNumber: true })}
         />
       </FieldWrapper>
-      <FieldWrapper label="Placa">
+      <FieldWrapper label="Placa" name="licensePlate">
         <Input
           placeholder="Ex: ABC1D23"
           {...plateField}
@@ -129,7 +129,7 @@ export function AutoFields({
           </p>
         )}
       </FieldWrapper>
-      <FieldWrapper label="Chassi">
+      <FieldWrapper label="Chassi" name="vin">
         <Input
           placeholder="Chassi do veículo"
           {...vinField}
@@ -139,10 +139,10 @@ export function AutoFields({
           }}
         />
       </FieldWrapper>
-      <FieldWrapper label="Cor">
+      <FieldWrapper label="Cor" name="color">
         <Input placeholder="Ex: Prata" {...register('color')} />
       </FieldWrapper>
-      <FieldWrapper label="Combustível">
+      <FieldWrapper label="Combustível" name="fuelType">
         <Controller
           name="fuelType"
           control={control}
@@ -173,7 +173,7 @@ export function AutoFields({
           )}
         />
       </FieldWrapper>
-      <FieldWrapper label="Uso do Veículo">
+      <FieldWrapper label="Uso do Veículo" name="vehicleUsage">
         <Controller
           name="vehicleUsage"
           control={control}

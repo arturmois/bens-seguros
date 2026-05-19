@@ -1,26 +1,28 @@
 'use client'
 
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2 } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import type { FieldValues } from 'react-hook-form'
-import { Controller, useForm } from 'react-hook-form'
-import { Loader2 } from 'lucide-react'
+import { Controller, FormProvider, useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import { CurrencyInput } from '@/components/ui/currency-input'
 import { PercentageInput } from '@/components/ui/percentage-input'
 
-import type { InsuranceBranch, InsuredObjectDetails } from '../lib/constants'
+import { getFormSchemaFor } from '../lib/branch-form-schemas'
 import {
   buildAutoFillDefaults,
   buildDetails,
 } from '../lib/build-branch-details'
+import type { InsuranceBranch, InsuredObjectDetails } from '../lib/constants'
+import type { FieldHelperProps } from './branch-field-sets'
 import {
   AutoFields,
   FieldWrapper,
   LifeFields,
   OtherFields,
 } from './branch-field-sets'
-import type { FieldHelperProps } from './branch-field-sets'
 import type { AutoFillData } from './branch-field-sets-property'
 import {
   BusinessFields,
@@ -110,7 +112,11 @@ export function BranchFields({
     baseDefaults.weightKg = rawDefaults.weightInGrams / 1000
   }
   const formDefaults = buildAutoFillDefaults(branch, autoFill, baseDefaults)
-  const form = useForm<FieldValues>({ defaultValues: formDefaults })
+  const form = useForm<FieldValues>({
+    defaultValues: formDefaults,
+    resolver: zodResolver(getFormSchemaFor(branch)),
+    mode: 'onBlur',
+  })
   const watchedValues = form.watch()
   const isDirty = useMemo(
     () => hasRealChange(formDefaults, watchedValues),
@@ -130,57 +136,70 @@ export function BranchFields({
   }
   const BranchComponent = BRANCH_FIELD_MAP[branch]
   return (
-    <form
-      id={formId}
-      onSubmit={form.handleSubmit(handleFormSubmit)}
-      className="space-y-4"
-    >
-      <div className="grid gap-4 sm:grid-cols-2">
-        <BranchComponent
-          register={form.register}
-          control={form.control}
-          setValue={form.setValue}
-          getValues={form.getValues}
-          proposalId={proposalId}
-          autoFill={autoFill}
-        />
-      </div>
-      <div className="border-border border-t pt-4">
+    <FormProvider {...form}>
+      <form
+        id={formId}
+        onSubmit={form.handleSubmit(handleFormSubmit)}
+        className="space-y-6"
+      >
         <div className="grid gap-4 sm:grid-cols-2">
-          <FieldWrapper label="Valor do Prêmio" required>
-            <Controller
+          <BranchComponent
+            register={form.register}
+            control={form.control}
+            setValue={form.setValue}
+            getValues={form.getValues}
+            proposalId={proposalId}
+            autoFill={autoFill}
+          />
+        </div>
+        <div className="space-y-3">
+          <p className="text-muted-foreground text-[11px] font-bold uppercase tracking-wider">
+            Valores
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FieldWrapper
+              label="Valor do Prêmio"
               name="premiumValueInCents"
-              control={form.control}
-              render={({ field }) => (
-                <CurrencyInput
-                  value={field.value ?? 0}
-                  onChange={field.onChange}
-                />
-              )}
-            />
-          </FieldWrapper>
-          <FieldWrapper label="Comissão" required>
-            <Controller
+              required
+            >
+              <Controller
+                name="premiumValueInCents"
+                control={form.control}
+                render={({ field }) => (
+                  <CurrencyInput
+                    value={field.value ?? 0}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
+            </FieldWrapper>
+            <FieldWrapper
+              label="Comissão"
               name="commissionBasisPoints"
-              control={form.control}
-              render={({ field }) => (
-                <PercentageInput
-                  value={field.value ?? 0}
-                  onChange={field.onChange}
-                />
-              )}
-            />
-          </FieldWrapper>
+              required
+            >
+              <Controller
+                name="commissionBasisPoints"
+                control={form.control}
+                render={({ field }) => (
+                  <PercentageInput
+                    value={field.value ?? 0}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
+            </FieldWrapper>
+          </div>
         </div>
-      </div>
-      {!hideSubmit && (
-        <div className="flex justify-end pt-2">
-          <Button type="submit" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Salvar dados do objeto segurado
-          </Button>
-        </div>
-      )}
-    </form>
+        {!hideSubmit && (
+          <div className="flex justify-end pt-2">
+            <Button type="submit" disabled={isLoading}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Salvar dados do objeto segurado
+            </Button>
+          </div>
+        )}
+      </form>
+    </FormProvider>
   )
 }

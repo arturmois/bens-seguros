@@ -12,8 +12,8 @@ import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 
-import type { FieldHelperProps } from './types'
 import { FieldWrapper } from './field-wrapper'
+import type { FieldHelperProps } from './types'
 
 const BMI_UNDERWEIGHT_THRESHOLD = 18.5
 const BMI_NORMAL_THRESHOLD = 25
@@ -80,13 +80,13 @@ function BmiBadge({ control }: { readonly control: Control<FieldValues> }) {
 export function LifeFields({ register, control }: FieldHelperProps) {
   return (
     <>
-      <FieldWrapper label="Profissão" required>
+      <FieldWrapper label="Profissão" name="occupation" required>
         <Input
           placeholder="Profissão do segurado"
           {...register('occupation')}
         />
       </FieldWrapper>
-      <FieldWrapper label="Renda Mensal">
+      <FieldWrapper label="Renda Mensal" name="monthlyIncomeCents">
         <Controller
           name="monthlyIncomeCents"
           control={control}
@@ -95,7 +95,7 @@ export function LifeFields({ register, control }: FieldHelperProps) {
           )}
         />
       </FieldWrapper>
-      <FieldWrapper label="Fumante">
+      <FieldWrapper label="Fumante" name="isSmoker">
         <Controller
           name="isSmoker"
           control={control}
@@ -107,7 +107,7 @@ export function LifeFields({ register, control }: FieldHelperProps) {
           )}
         />
       </FieldWrapper>
-      <FieldWrapper label="Esportes Radicais">
+      <FieldWrapper label="Esportes Radicais" name="extremeSports">
         <Controller
           name="extremeSports"
           control={control}
@@ -119,14 +119,14 @@ export function LifeFields({ register, control }: FieldHelperProps) {
           )}
         />
       </FieldWrapper>
-      <FieldWrapper label="Altura (cm)">
+      <FieldWrapper label="Altura (cm)" name="heightInCentimeters">
         <Input
           type="number"
           placeholder="175"
           {...register('heightInCentimeters', { valueAsNumber: true })}
         />
       </FieldWrapper>
-      <FieldWrapper label="Peso (kg)">
+      <FieldWrapper label="Peso (kg)" name="weightKg">
         <Input
           type="number"
           step="0.1"
@@ -137,7 +137,7 @@ export function LifeFields({ register, control }: FieldHelperProps) {
       <div className="sm:col-span-2">
         <BmiBadge control={control} />
       </div>
-      <FieldWrapper label="Beneficiários">
+      <FieldWrapper label="Beneficiários" name="beneficiaries">
         <Textarea
           placeholder="Nomes e parentesco dos beneficiários"
           {...register('beneficiaries')}

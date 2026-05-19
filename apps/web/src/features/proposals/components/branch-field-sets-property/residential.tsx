@@ -27,7 +27,7 @@ export function ResidentialFields({
 }: FieldHelperProps) {
   return (
     <>
-      <FieldWrapper label="Tipo de Imóvel" required>
+      <FieldWrapper label="Tipo de Imóvel" name="propertyType" required>
         <Controller
           name="propertyType"
           control={control}
@@ -58,7 +58,7 @@ export function ResidentialFields({
           )}
         />
       </FieldWrapper>
-      <FieldWrapper label="Uso do Imóvel" required>
+      <FieldWrapper label="Uso do Imóvel" name="propertyUsage" required>
         <Controller
           name="propertyUsage"
           control={control}
@@ -95,7 +95,7 @@ export function ResidentialFields({
         setValue={setValue}
         required={{ cep: true }}
       />
-      <FieldWrapper label="Construção">
+      <FieldWrapper label="Construção" name="construction">
         <Controller
           name="construction"
           control={control}
@@ -126,7 +126,7 @@ export function ResidentialFields({
           )}
         />
       </FieldWrapper>
-      <FieldWrapper label="Área (m²)">
+      <FieldWrapper label="Área (m²)" name="areaM2">
         <Input
           type="number"
           placeholder="Ex: 120"

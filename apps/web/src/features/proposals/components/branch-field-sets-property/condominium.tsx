@@ -23,7 +23,7 @@ export function CondominiumFields({
   const condominiumNameValue = useWatch({ control, name: 'condominiumName' })
   return (
     <>
-      <FieldWrapper label="Nome do Condomínio" required>
+      <FieldWrapper label="Nome do Condomínio" name="condominiumName" required>
         <Input
           placeholder="Nome do condomínio"
           {...register('condominiumName')}
@@ -35,7 +35,7 @@ export function CondominiumFields({
           />
         )}
       </FieldWrapper>
-      <FieldWrapper label="Número de Unidades" required>
+      <FieldWrapper label="Número de Unidades" name="unitCount" required>
         <Input
           type="number"
           placeholder="Ex: 48"
@@ -48,35 +48,35 @@ export function CondominiumFields({
         setValue={setValue}
         required={{ cep: true }}
       />
-      <FieldWrapper label="Ano de Construção">
+      <FieldWrapper label="Ano de Construção" name="constructionYear">
         <Input
           type="number"
           placeholder="Ex: 2010"
           {...register('constructionYear', { valueAsNumber: true })}
         />
       </FieldWrapper>
-      <FieldWrapper label="Número de Andares">
+      <FieldWrapper label="Número de Andares" name="floorCount">
         <Input
           type="number"
           placeholder="Ex: 12"
           {...register('floorCount', { valueAsNumber: true })}
         />
       </FieldWrapper>
-      <FieldWrapper label="Quantidade de Blocos">
+      <FieldWrapper label="Quantidade de Blocos" name="blockCount">
         <Input
           type="number"
           placeholder="Ex: 4"
           {...register('blockCount', { valueAsNumber: true })}
         />
       </FieldWrapper>
-      <FieldWrapper label="Quantidade de Elevadores">
+      <FieldWrapper label="Quantidade de Elevadores" name="elevatorCount">
         <Input
           type="number"
           placeholder="Ex: 2"
           {...register('elevatorCount', { valueAsNumber: true })}
         />
       </FieldWrapper>
-      <FieldWrapper label="Número de Funcionários">
+      <FieldWrapper label="Número de Funcionários" name="employeeCount">
         <Input
           type="number"
           placeholder="Ex: 10"

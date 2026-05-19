@@ -2,17 +2,17 @@
 
 import { Textarea } from '@/components/ui/textarea'
 
-export type { FieldHelperProps } from './types'
-export { FieldWrapper } from './field-wrapper'
 export { AutoFields } from './auto-fields'
+export { FieldWrapper } from './field-wrapper'
 export { LifeFields } from './life-fields'
+export type { FieldHelperProps } from './types'
 
-import type { FieldHelperProps } from './types'
 import { FieldWrapper } from './field-wrapper'
+import type { FieldHelperProps } from './types'
 
 export function OtherFields({ register }: FieldHelperProps) {
   return (
-    <FieldWrapper label="Descrição" required>
+    <FieldWrapper label="Descrição" name="description" required>
       <Textarea
         placeholder="Descreva o objeto segurado"
         {...register('description')}
