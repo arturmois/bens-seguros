@@ -2,7 +2,7 @@ import type { Control } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 import type { z } from 'zod'
 
-import { Label } from '@/components/ui/label'
+import { FormField } from '@/components/shared/form-field'
 import {
   Select,
   SelectContent,
@@ -44,33 +44,25 @@ export function ProposalFormFields({
         control={control}
         name="contactId"
         render={({ field, fieldState }) => (
-          <div className="space-y-2">
-            <Label>
-              Contato
-              <span className="text-destructive ml-1">*</span>
-            </Label>
+          <FormField
+            label="Contato"
+            required
+            error={fieldState.error?.message}
+            span="full"
+          >
             <ContactSearch
               value={field.value ?? ''}
               onChange={field.onChange}
               onCreateClick={onCreateContact}
             />
-            {fieldState.error?.message ? (
-              <p className="text-destructive text-sm">
-                {fieldState.error.message}
-              </p>
-            ) : null}
-          </div>
+          </FormField>
         )}
       />
       <Controller
         control={control}
         name="branch"
         render={({ field, fieldState }) => (
-          <div className="space-y-2">
-            <Label>
-              Ramo
-              <span className="text-destructive ml-1">*</span>
-            </Label>
+          <FormField label="Ramo" required error={fieldState.error?.message}>
             <Select
               value={field.value ?? ''}
               onValueChange={field.onChange}
@@ -92,23 +84,14 @@ export function ProposalFormFields({
                 ))}
               </SelectContent>
             </Select>
-            {fieldState.error?.message ? (
-              <p className="text-destructive text-sm">
-                {fieldState.error.message}
-              </p>
-            ) : null}
-          </div>
+          </FormField>
         )}
       />
       <Controller
         control={control}
         name="boardType"
         render={({ field, fieldState }) => (
-          <div className="space-y-2">
-            <Label>
-              Tipo
-              <span className="text-destructive ml-1">*</span>
-            </Label>
+          <FormField label="Tipo" required error={fieldState.error?.message}>
             <Select
               value={field.value ?? ''}
               onValueChange={field.onChange}
@@ -130,12 +113,7 @@ export function ProposalFormFields({
                 ))}
               </SelectContent>
             </Select>
-            {fieldState.error?.message ? (
-              <p className="text-destructive text-sm">
-                {fieldState.error.message}
-              </p>
-            ) : null}
-          </div>
+          </FormField>
         )}
       />
       {boardType === 'RENEWAL' && (
@@ -143,18 +121,16 @@ export function ProposalFormFields({
           control={control}
           name="renewalPolicyNumber"
           render={({ field, fieldState }) => (
-            <div className="space-y-2">
-              <Label>Nº da apólice anterior</Label>
+            <FormField
+              label="Nº da apólice anterior"
+              error={fieldState.error?.message}
+              span="full"
+            >
               <RenewalPolicyInput
                 value={field.value ?? ''}
                 onChange={field.onChange}
               />
-              {fieldState.error?.message ? (
-                <p className="text-destructive text-sm">
-                  {fieldState.error.message}
-                </p>
-              ) : null}
-            </div>
+            </FormField>
           )}
         />
       )}

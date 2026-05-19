@@ -1,22 +1,13 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import type { z } from 'zod'
 
-import { FormActions } from '@/components/shared/form-actions'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogPanel,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { FormDialogShell } from '@/components/shared/form-dialog-shell'
+import { FormGrid } from '@/components/shared/form-grid'
+import { FormSection } from '@/components/shared/form-section'
 
 import { CreateProposalBody } from '@/api/endpoints/proposals/proposals.zod'
 import { QuickCreateContact } from '@/features/contacts/components/quick-create-contact'
@@ -32,6 +23,8 @@ import { ProposalFormFields } from './proposal-form-fields'
 
 type ProposalFormValues = z.infer<typeof CreateProposalBody>
 
+const FORM_ID = 'create-proposal-form'
+
 const BRANCH_OPTIONS = BRANCHES.map((b) => ({
   value: b,
   label: BRANCH_LABELS[b],
@@ -44,8 +37,8 @@ const BOARD_TYPE_OPTIONS = BOARD_TYPES.filter((bt) => bt !== 'ENDORSEMENT').map(
 )
 
 interface ProposalFormProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  readonly open: boolean
+  readonly onOpenChange: (open: boolean) => void
 }
 
 export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
@@ -59,7 +52,7 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
     },
   })
   const boardType = form.watch('boardType')
-  const handleSubmit = (values: ProposalFormValues) => {
+  function handleSubmit(values: ProposalFormValues) {
     createMutation.mutate(values, {
       onSuccess: () => {
         form.reset()
@@ -67,60 +60,48 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
       },
     })
   }
-  const handleContactCreated = (contactId: string) => {
+  function handleContactCreated(contactId: string) {
     form.setValue('contactId', contactId, { shouldValidate: true })
   }
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Nova proposta</DialogTitle>
-          <DialogDescription>
-            Preencha os dados para criar uma nova proposta.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogPanel>
+    <>
+      <FormDialogShell
+        open={open}
+        onOpenChange={onOpenChange}
+        title="Nova proposta"
+        description="Preencha os dados para criar uma nova proposta."
+        formId={FORM_ID}
+        isPending={createMutation.isPending}
+        submitLabel="Criar proposta"
+        keyboardHintAction="criar"
+        size="md"
+      >
+        <FormProvider {...form}>
           <form
-            id="proposal-form"
+            id={FORM_ID}
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
+            className="space-y-6"
+            noValidate
           >
-            <ProposalFormFields
-              control={form.control}
-              boardType={boardType}
-              branchOptions={BRANCH_OPTIONS}
-              boardTypeOptions={BOARD_TYPE_OPTIONS}
-              onCreateContact={() => setQuickCreateOpen(true)}
-            />
+            <FormSection title="Dados">
+              <FormGrid columns={2}>
+                <ProposalFormFields
+                  control={form.control}
+                  boardType={boardType}
+                  branchOptions={BRANCH_OPTIONS}
+                  boardTypeOptions={BOARD_TYPE_OPTIONS}
+                  onCreateContact={() => setQuickCreateOpen(true)}
+                />
+              </FormGrid>
+            </FormSection>
           </form>
-        </DialogPanel>
-        <DialogFooter>
-          <FormActions noPadding>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              form="proposal-form"
-              disabled={createMutation.isPending}
-            >
-              {createMutation.isPending && (
-                <Loader2 className="mr-2 size-4 animate-spin" />
-              )}
-              Criar proposta
-            </Button>
-          </FormActions>
-        </DialogFooter>
-      </DialogContent>
+        </FormProvider>
+      </FormDialogShell>
       <QuickCreateContact
         open={quickCreateOpen}
         onOpenChange={setQuickCreateOpen}
         onCreated={handleContactCreated}
       />
-    </Dialog>
+    </>
   )
 }
