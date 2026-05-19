@@ -23,6 +23,7 @@ import type {
 import type {
   CreateInsurer201,
   CreateInsurerBody,
+  GetInsurer200,
   ListInsurers200,
   ListInsurersParams,
   UpdateInsurer200,
@@ -315,6 +316,188 @@ export const prefetchListInsurersQuery = async <
   }
 ): Promise<QueryClient> => {
   const queryOptions = getListInsurersQueryOptions(params, options)
+
+  await queryClient.prefetchQuery(queryOptions)
+
+  return queryClient
+}
+
+/**
+ * @summary Get an insurer by id
+ */
+export type getInsurerResponse200 = {
+  data: GetInsurer200
+  status: 200
+}
+
+export type getInsurerResponseSuccess = getInsurerResponse200 & {
+  headers: Headers
+}
+export type getInsurerResponse = getInsurerResponseSuccess
+
+export const getGetInsurerUrl = (id: string) => {
+  return `/api/v1/insurers/${id}`
+}
+
+export const getInsurer = async (
+  id: string,
+  options?: RequestInit
+): Promise<getInsurerResponse> => {
+  return customFetch<getInsurerResponse>(getGetInsurerUrl(id), {
+    ...options,
+    method: 'GET',
+  })
+}
+
+export const getGetInsurerQueryKey = (id: string) => {
+  return [`/api/v1/insurers/${id}`] as const
+}
+
+export const getGetInsurerQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInsurer>>,
+  TError = unknown,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getInsurer>>, TError, TData>
+    >
+    request?: SecondParameter<typeof customFetch>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetInsurerQueryKey(id)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getInsurer>>> = ({
+    signal,
+  }) => getInsurer(id, { signal, ...requestOptions })
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    staleTime: 60000,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInsurer>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetInsurerQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInsurer>>
+>
+export type GetInsurerQueryError = unknown
+
+export function useGetInsurer<
+  TData = Awaited<ReturnType<typeof getInsurer>>,
+  TError = unknown,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getInsurer>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getInsurer>>,
+          TError,
+          Awaited<ReturnType<typeof getInsurer>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetInsurer<
+  TData = Awaited<ReturnType<typeof getInsurer>>,
+  TError = unknown,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getInsurer>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getInsurer>>,
+          TError,
+          Awaited<ReturnType<typeof getInsurer>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useGetInsurer<
+  TData = Awaited<ReturnType<typeof getInsurer>>,
+  TError = unknown,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getInsurer>>, TError, TData>
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary Get an insurer by id
+ */
+
+export function useGetInsurer<
+  TData = Awaited<ReturnType<typeof getInsurer>>,
+  TError = unknown,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getInsurer>>, TError, TData>
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getGetInsurerQueryOptions(id, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+/**
+ * @summary Get an insurer by id
+ */
+export const prefetchGetInsurerQuery = async <
+  TData = Awaited<ReturnType<typeof getInsurer>>,
+  TError = unknown,
+>(
+  queryClient: QueryClient,
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getInsurer>>, TError, TData>
+    >
+    request?: SecondParameter<typeof customFetch>
+  }
+): Promise<QueryClient> => {
+  const queryOptions = getGetInsurerQueryOptions(id, options)
 
   await queryClient.prefetchQuery(queryOptions)
 
