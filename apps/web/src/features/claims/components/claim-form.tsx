@@ -7,9 +7,13 @@ import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 import { FormActions } from '@/components/shared/form-actions'
+import { FormField } from '@/components/shared/form-field'
+import { FormGrid } from '@/components/shared/form-grid'
+import { FormSection } from '@/components/shared/form-section'
+import { PolicySearch } from '@/components/shared/policy-search'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { DatePicker } from '@/components/ui/date-picker'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -23,9 +27,6 @@ import { Textarea } from '@/components/ui/textarea'
 import type { z } from 'zod'
 
 import { CreateClaimBody } from '@/api/endpoints/claims/claims.zod'
-
-import { FormField } from '@/components/shared/form-field'
-import { PolicySearch } from '@/components/shared/policy-search'
 import { CLAIM_PRIORITY_OPTIONS } from '../lib/constants'
 import { useCreateClaim } from '../hooks/use-claims'
 
@@ -86,137 +87,139 @@ export function ClaimForm() {
     })
   }
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-      <div>
-        <h3 className="text-base font-medium">Dados do Sinistro</h3>
-        <p className="text-muted-foreground text-sm">
-          Informações básicas sobre o sinistro.
-        </p>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FormField
-          label="Apólice"
-          error={form.formState.errors.policyId?.message}
-          required
-        >
-          <PolicySearch
-            value={form.watch('policyId')}
-            onChange={handlePolicySelect}
-          />
-        </FormField>
-        <FormField
-          label="Cliente"
-          error={form.formState.errors.clientId?.message}
-          required
-        >
-          <Input
-            placeholder="Preenchido automaticamente pela apólice"
-            value={clientDisplayName}
-            readOnly
-            disabled
-          />
-        </FormField>
-      </div>
-      <FormField
-        label="Descrição"
-        error={form.formState.errors.description?.message}
-        required
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+      <FormSection
+        title="Dados do Sinistro"
+        description="Informações básicas sobre o sinistro."
       >
-        <Textarea
-          placeholder="Descreva o sinistro ocorrido..."
-          rows={4}
-          {...form.register('description')}
-        />
-      </FormField>
-      <Separator />
-      <div>
-        <h3 className="text-base font-medium">Detalhes</h3>
-        <p className="text-muted-foreground text-sm">
-          Informações adicionais sobre o incidente.
-        </p>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FormField
-          label="Prioridade"
-          error={form.formState.errors.priority?.message}
-        >
-          <Controller
-            name="priority"
-            control={form.control}
-            render={({ field }) => (
-              <Select
-                value={field.value ?? ''}
-                onValueChange={(v) => {
-                  if (v) {
-                    field.onChange(v)
-                    return
-                  }
-                  field.onChange(undefined)
-                }}
-                items={PRIORITY_SELECT_OPTIONS}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione">
-                    {(value: string) =>
-                      PRIORITY_SELECT_OPTIONS.find((opt) => opt.value === value)
-                        ?.label ?? null
+        <FormGrid columns={2}>
+          <FormField
+            label="Apólice"
+            span="full"
+            error={form.formState.errors.policyId?.message}
+            required
+          >
+            <PolicySearch
+              value={form.watch('policyId')}
+              onChange={handlePolicySelect}
+            />
+          </FormField>
+          <FormField
+            label="Cliente"
+            error={form.formState.errors.clientId?.message}
+            required
+          >
+            <Input
+              placeholder="Preenchido automaticamente pela apólice"
+              value={clientDisplayName}
+              readOnly
+              disabled
+            />
+          </FormField>
+          <FormField
+            label="Descrição"
+            span="full"
+            error={form.formState.errors.description?.message}
+            required
+          >
+            <Textarea
+              placeholder="Descreva o sinistro ocorrido..."
+              rows={4}
+              {...form.register('description')}
+            />
+          </FormField>
+        </FormGrid>
+      </FormSection>
+
+      <FormSection
+        title="Detalhes"
+        description="Informações adicionais sobre o incidente."
+      >
+        <FormGrid columns={2}>
+          <FormField
+            label="Prioridade"
+            error={form.formState.errors.priority?.message}
+          >
+            <Controller
+              name="priority"
+              control={form.control}
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? ''}
+                  onValueChange={(v) => {
+                    if (v) {
+                      field.onChange(v)
+                      return
                     }
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {PRIORITY_SELECT_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </FormField>
-        <FormField
-          label="Data do Incidente"
-          error={form.formState.errors.incidentDate?.message}
-        >
-          <Controller
-            name="incidentDate"
-            control={form.control}
-            render={({ field }) => (
-              <DatePicker
-                value={parseDateString(field.value)}
-                onChange={(date) => field.onChange(formatDateToISO(date))}
-              />
-            )}
-          />
-        </FormField>
-      </div>
-      <FormField
-        label="Local do Incidente"
-        error={form.formState.errors.incidentLocation?.message}
+                    field.onChange(undefined)
+                  }}
+                  items={PRIORITY_SELECT_OPTIONS}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione">
+                      {(value: string) =>
+                        PRIORITY_SELECT_OPTIONS.find(
+                          (opt) => opt.value === value
+                        )?.label ?? null
+                      }
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PRIORITY_SELECT_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </FormField>
+          <FormField
+            label="Data do Incidente"
+            error={form.formState.errors.incidentDate?.message}
+          >
+            <Controller
+              name="incidentDate"
+              control={form.control}
+              render={({ field }) => (
+                <DatePicker
+                  value={parseDateString(field.value)}
+                  onChange={(date) => field.onChange(formatDateToISO(date))}
+                />
+              )}
+            />
+          </FormField>
+          <FormField
+            label="Local do Incidente"
+            span="full"
+            error={form.formState.errors.incidentLocation?.message}
+          >
+            <Input
+              placeholder="Endereço ou descrição do local"
+              {...form.register('incidentLocation')}
+            />
+          </FormField>
+        </FormGrid>
+      </FormSection>
+
+      <FormSection
+        title="Seguradora"
+        description="Dados da seguradora (opcional)."
       >
-        <Input
-          placeholder="Endereço ou descrição do local"
-          {...form.register('incidentLocation')}
-        />
-      </FormField>
-      <Separator />
-      <div>
-        <h3 className="text-base font-medium">Seguradora</h3>
-        <p className="text-muted-foreground text-sm">
-          Dados da seguradora (opcional).
-        </p>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FormField
-          label="Seguradora"
-          error={form.formState.errors.insurerId?.message}
-        >
-          <Input
-            placeholder="ID da seguradora (opcional)"
-            {...form.register('insurerId')}
-          />
-        </FormField>
-      </div>
+        <FormGrid columns={2}>
+          <FormField
+            label="Seguradora"
+            error={form.formState.errors.insurerId?.message}
+          >
+            <Input
+              placeholder="ID da seguradora (opcional)"
+              {...form.register('insurerId')}
+            />
+          </FormField>
+        </FormGrid>
+      </FormSection>
+
       <Separator />
       <FormActions gap={3} noPadding>
         <Button

@@ -8,6 +8,7 @@ import type { z } from 'zod'
 
 import { UpdateOrganizationBody } from '@/api/endpoints/organization/organization.zod'
 import { FormField } from '@/components/shared/form-field'
+import { FormGrid } from '@/components/shared/form-grid'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
@@ -43,30 +44,32 @@ export function OrganizationForm({
     updateOrganization.mutate(values)
   }
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-      <FormField
-        label="Nome da organização"
-        error={form.formState.errors.name?.message}
-        required
-      >
-        <Input
-          placeholder="Minha Corretora"
-          disabled={isReadOnly}
-          {...form.register('name')}
-        />
-      </FormField>
-      <FormField
-        label="Slug"
-        error={form.formState.errors.slug?.message}
-        hint="Identificador único usado na URL. Apenas letras minúsculas, números e hifens."
-        required
-      >
-        <Input
-          placeholder="minha-corretora"
-          disabled={isReadOnly}
-          {...form.register('slug')}
-        />
-      </FormField>
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <FormGrid columns={2}>
+        <FormField
+          label="Nome da organização"
+          error={form.formState.errors.name?.message}
+          required
+        >
+          <Input
+            placeholder="Minha Corretora"
+            disabled={isReadOnly}
+            {...form.register('name')}
+          />
+        </FormField>
+        <FormField
+          label="Slug"
+          error={form.formState.errors.slug?.message}
+          hint="Identificador único usado na URL. Apenas letras minúsculas, números e hifens."
+          required
+        >
+          <Input
+            placeholder="minha-corretora"
+            disabled={isReadOnly}
+            {...form.register('slug')}
+          />
+        </FormField>
+      </FormGrid>
       {!isReadOnly && (
         <div className="pt-2">
           <Button type="submit" disabled={updateOrganization.isPending}>

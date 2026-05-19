@@ -6,6 +6,9 @@ import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import { FormActions } from '@/components/shared/form-actions'
+import { FormField } from '@/components/shared/form-field'
+import { FormGrid } from '@/components/shared/form-grid'
+import { FormSection } from '@/components/shared/form-section'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -16,7 +19,6 @@ import {
   DialogPanel,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { FormField } from '@/components/shared/form-field'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -119,47 +121,58 @@ export function AiAgentFormDialog({
           <form
             id="ai-agent-form"
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
+            className="space-y-6"
           >
-            <FormField
-              label="Nome"
-              error={form.formState.errors.name?.message}
-              required
-            >
-              <Input
-                placeholder="Ex: Agente de Vendas"
-                {...form.register('name')}
-              />
-            </FormField>
-            <FormField
-              label="Descrição"
-              error={form.formState.errors.description?.message}
-            >
-              <Input
-                placeholder="Breve descrição do agente"
-                {...form.register('description')}
-              />
-            </FormField>
-            <FormField
-              label="System Prompt"
-              error={form.formState.errors.systemPrompt?.message}
-              hint="Instruções de comportamento do agente. Max 4000 caracteres."
-            >
-              <Textarea
-                placeholder="Você é um assistente especializado em seguros..."
-                rows={5}
-                maxLength={4000}
-                {...form.register('systemPrompt')}
-              />
-            </FormField>
-            <AiAgentProviderSelect
-              control={form.control}
-              error={form.formState.errors.provider?.message}
-            />
-            <AiAgentNumericFields
-              register={form.register}
-              errors={form.formState.errors}
-            />
+            <FormSection title="Identidade">
+              <FormGrid columns={2}>
+                <FormField
+                  label="Nome"
+                  error={form.formState.errors.name?.message}
+                  required
+                >
+                  <Input
+                    placeholder="Ex: Agente de Vendas"
+                    {...form.register('name')}
+                  />
+                </FormField>
+                <FormField
+                  label="Descrição"
+                  error={form.formState.errors.description?.message}
+                >
+                  <Input
+                    placeholder="Breve descrição do agente"
+                    {...form.register('description')}
+                  />
+                </FormField>
+                <FormField
+                  label="System Prompt"
+                  span="full"
+                  error={form.formState.errors.systemPrompt?.message}
+                  hint="Instruções de comportamento do agente. Max 4000 caracteres."
+                >
+                  <Textarea
+                    placeholder="Você é um assistente especializado em seguros..."
+                    rows={5}
+                    maxLength={4000}
+                    {...form.register('systemPrompt')}
+                  />
+                </FormField>
+              </FormGrid>
+            </FormSection>
+
+            <FormSection title="Comportamento">
+              <FormGrid columns={2}>
+                <AiAgentProviderSelect
+                  control={form.control}
+                  error={form.formState.errors.provider?.message}
+                />
+                <AiAgentNumericFields
+                  register={form.register}
+                  errors={form.formState.errors}
+                />
+              </FormGrid>
+            </FormSection>
+
             {availableTools.data && (
               <ToolsToggleSection
                 availableTools={availableTools.data}

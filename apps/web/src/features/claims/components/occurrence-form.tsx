@@ -7,6 +7,8 @@ import { Loader2 } from 'lucide-react'
 import type { z } from 'zod'
 
 import { FormActions } from '@/components/shared/form-actions'
+import { FormField } from '@/components/shared/form-field'
+import { FormGrid } from '@/components/shared/form-grid'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -27,7 +29,6 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 
 import { CreateClaimOccurrenceBody } from '@/api/endpoints/claims/claims.zod'
-import { FormField } from '@/components/shared/form-field'
 import { useCreateOccurrence } from '../hooks/use-claims'
 
 const OCCURRENCE_TYPE_OPTIONS = [
@@ -87,58 +88,58 @@ export function OccurrenceForm({
           </DialogDescription>
         </DialogHeader>
         <DialogPanel>
-          <form
-            id="occurrence-form"
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
-            <FormField
-              label="Tipo"
-              error={form.formState.errors.type?.message}
-              required
-            >
-              <Controller
-                name="type"
-                control={form.control}
-                render={({ field }) => (
-                  <Select
-                    value={field.value}
-                    onValueChange={(v) => {
-                      if (v !== null) field.onChange(v)
-                    }}
-                    items={OCCURRENCE_TYPE_OPTIONS}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o tipo">
-                        {(value: string) =>
-                          OCCURRENCE_TYPE_OPTIONS.find(
-                            (opt) => opt.value === value
-                          )?.label ?? null
-                        }
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {OCCURRENCE_TYPE_OPTIONS.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </FormField>
-            <FormField
-              label="Descrição"
-              error={form.formState.errors.description?.message}
-              required
-            >
-              <Textarea
-                placeholder="Descreva a ocorrência..."
-                rows={4}
-                {...form.register('description')}
-              />
-            </FormField>
+          <form id="occurrence-form" onSubmit={form.handleSubmit(handleSubmit)}>
+            <FormGrid columns={2}>
+              <FormField
+                label="Tipo"
+                span="full"
+                error={form.formState.errors.type?.message}
+                required
+              >
+                <Controller
+                  name="type"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      onValueChange={(v) => {
+                        if (v !== null) field.onChange(v)
+                      }}
+                      items={OCCURRENCE_TYPE_OPTIONS}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o tipo">
+                          {(value: string) =>
+                            OCCURRENCE_TYPE_OPTIONS.find(
+                              (opt) => opt.value === value
+                            )?.label ?? null
+                          }
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {OCCURRENCE_TYPE_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </FormField>
+              <FormField
+                label="Descrição"
+                span="full"
+                error={form.formState.errors.description?.message}
+                required
+              >
+                <Textarea
+                  placeholder="Descreva a ocorrência..."
+                  rows={4}
+                  {...form.register('description')}
+                />
+              </FormField>
+            </FormGrid>
           </form>
         </DialogPanel>
         <DialogFooter>

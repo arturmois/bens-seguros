@@ -7,6 +7,9 @@ import { Loader2 } from 'lucide-react'
 import * as zod from 'zod'
 
 import { FormActions } from '@/components/shared/form-actions'
+import { FormField } from '@/components/shared/form-field'
+import { FormGrid } from '@/components/shared/form-grid'
+import { FormSection } from '@/components/shared/form-section'
 import { Button } from '@/components/ui/button'
 import { DatePicker } from '@/components/ui/date-picker'
 import {
@@ -26,7 +29,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { FormField } from '@/components/shared/form-field'
 
 import { CreateEndorsementBody } from '@/api/endpoints/endorsements/endorsements.zod'
 import type { CreateEndorsementBodyChanges } from '@/api/model'
@@ -130,85 +132,100 @@ export function EndorsementForm({
           <form
             id="endorsement-form"
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
+            className="space-y-8"
           >
-            <FormField
-              label="Tipo"
-              error={form.formState.errors.type?.message}
-              required
-            >
-              <Controller
-                name="type"
-                control={form.control}
-                render={({ field }) => (
-                  <Select
-                    value={field.value}
-                    onValueChange={(v) => {
-                      if (v !== null) field.onChange(v)
-                    }}
-                    items={ENDORSEMENT_TYPE_OPTIONS}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o tipo">
-                        {(value: string) =>
-                          ENDORSEMENT_TYPE_OPTIONS.find(
-                            (opt) => opt.value === value
-                          )?.label ?? null
-                        }
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ENDORSEMENT_TYPE_OPTIONS.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </FormField>
-            <FormField
-              label="Descrição"
-              error={form.formState.errors.description?.message}
-              required
-            >
-              <Textarea
-                placeholder="Descreva o endosso..."
-                rows={3}
-                {...form.register('description')}
-              />
-            </FormField>
-            <FormField
-              label="Data Efetiva"
-              error={form.formState.errors.effectiveDate?.message}
-              required
-            >
-              <Controller
-                name="effectiveDate"
-                control={form.control}
-                render={({ field }) => (
-                  <DatePicker
-                    value={parseDateString(field.value)}
-                    onChange={(date) => field.onChange(formatDateToISO(date))}
+            <FormSection title="Dados do endosso">
+              <FormGrid columns={2}>
+                <FormField
+                  label="Tipo"
+                  error={form.formState.errors.type?.message}
+                  required
+                >
+                  <Controller
+                    name="type"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={(v) => {
+                          if (v !== null) field.onChange(v)
+                        }}
+                        items={ENDORSEMENT_TYPE_OPTIONS}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o tipo">
+                            {(value: string) =>
+                              ENDORSEMENT_TYPE_OPTIONS.find(
+                                (opt) => opt.value === value
+                              )?.label ?? null
+                            }
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ENDORSEMENT_TYPE_OPTIONS.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   />
-                )}
-              />
-            </FormField>
-            <FormField label="Dados Anteriores (JSON)">
-              <Textarea
-                placeholder='{"campo": "valor_anterior"}'
-                rows={3}
-                {...form.register('previousVersionSnapshot')}
-              />
-            </FormField>
-            <FormField label="Alterações (JSON)">
-              <Textarea
-                placeholder='{"campo": "novo_valor"}'
-                rows={3}
-                {...form.register('changes')}
-              />
-            </FormField>
+                </FormField>
+                <FormField
+                  label="Data Efetiva"
+                  error={form.formState.errors.effectiveDate?.message}
+                  required
+                >
+                  <Controller
+                    name="effectiveDate"
+                    control={form.control}
+                    render={({ field }) => (
+                      <DatePicker
+                        value={parseDateString(field.value)}
+                        onChange={(date) =>
+                          field.onChange(formatDateToISO(date))
+                        }
+                      />
+                    )}
+                  />
+                </FormField>
+                <FormField
+                  label="Descrição"
+                  span="full"
+                  error={form.formState.errors.description?.message}
+                  required
+                >
+                  <Textarea
+                    placeholder="Descreva o endosso..."
+                    rows={3}
+                    {...form.register('description')}
+                  />
+                </FormField>
+              </FormGrid>
+            </FormSection>
+
+            <FormSection
+              title="Snapshot e alterações"
+              description="Use JSON para registrar o estado anterior e os campos alterados."
+            >
+              <FormGrid columns={2}>
+                <FormField label="Dados Anteriores (JSON)" span="full">
+                  <Textarea
+                    placeholder='{"campo": "valor_anterior"}'
+                    rows={3}
+                    {...form.register('previousVersionSnapshot')}
+                  />
+                </FormField>
+                <FormField label="Alterações (JSON)" span="full">
+                  <Textarea
+                    placeholder='{"campo": "novo_valor"}'
+                    rows={3}
+                    {...form.register('changes')}
+                  />
+                </FormField>
+              </FormGrid>
+            </FormSection>
           </form>
         </DialogPanel>
         <DialogFooter>

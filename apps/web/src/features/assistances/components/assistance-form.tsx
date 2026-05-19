@@ -7,12 +7,14 @@ import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 import { FormActions } from '@/components/shared/form-actions'
+import { FormField } from '@/components/shared/form-field'
+import { FormGrid } from '@/components/shared/form-grid'
+import { FormSection } from '@/components/shared/form-section'
 import { Button } from '@/components/ui/button'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
-import { FormField } from '@/components/shared/form-field'
 
 import type { z } from 'zod'
 
@@ -58,77 +60,85 @@ export function AssistanceForm() {
     })
   }
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-      <SectionHeader
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+      <FormSection
         title="Dados"
-        subtitle="Informações básicas da assistência."
-      />
-      <AssistanceFormDataSection
-        form={form}
-        clientDisplayName={clientDisplayName}
-        onPolicySelect={handlePolicySelect}
-      />
-      <Separator />
-      <SectionHeader title="Detalhes" subtitle="Descrição e localização." />
-      <FormField
-        label="Descrição"
-        error={form.formState.errors.description?.message}
+        description="Informações básicas da assistência."
       >
-        <Textarea
-          placeholder="Descreva a assistência..."
-          rows={4}
-          {...form.register('description')}
+        <AssistanceFormDataSection
+          form={form}
+          clientDisplayName={clientDisplayName}
+          onPolicySelect={handlePolicySelect}
         />
-      </FormField>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FormField
-          label="Endereço"
-          error={form.formState.errors.address?.message}
-        >
-          <Input
-            placeholder="Endereço do local"
-            {...form.register('address')}
-          />
-        </FormField>
-        <FormField
-          label="Prestador"
-          error={form.formState.errors.providerName?.message}
-        >
-          <Input
-            placeholder="Nome do prestador"
-            {...form.register('providerName')}
-          />
-        </FormField>
-      </div>
-      <FormField
-        label="Telefone do Prestador"
-        error={form.formState.errors.providerPhone?.message}
-      >
-        <Input
-          placeholder="(11) 99999-9999"
-          {...form.register('providerPhone')}
-        />
-      </FormField>
-      <Separator />
-      <SectionHeader
-        title="Agendamento"
-        subtitle="Data programada para a assistência."
-      />
-      <FormField
-        label="Data Agendada"
-        error={form.formState.errors.scheduledAt?.message}
-      >
-        <Controller
-          name="scheduledAt"
-          control={form.control}
-          render={({ field }) => (
-            <DatePicker
-              value={parseDateString(field.value)}
-              onChange={(date) => field.onChange(formatDateToISO(date))}
+      </FormSection>
+
+      <FormSection title="Detalhes" description="Descrição e localização.">
+        <FormGrid columns={2}>
+          <FormField
+            label="Descrição"
+            span="full"
+            error={form.formState.errors.description?.message}
+          >
+            <Textarea
+              placeholder="Descreva a assistência..."
+              rows={4}
+              {...form.register('description')}
             />
-          )}
-        />
-      </FormField>
+          </FormField>
+          <FormField
+            label="Endereço"
+            error={form.formState.errors.address?.message}
+          >
+            <Input
+              placeholder="Endereço do local"
+              {...form.register('address')}
+            />
+          </FormField>
+          <FormField
+            label="Prestador"
+            error={form.formState.errors.providerName?.message}
+          >
+            <Input
+              placeholder="Nome do prestador"
+              {...form.register('providerName')}
+            />
+          </FormField>
+          <FormField
+            label="Telefone do Prestador"
+            span="full"
+            error={form.formState.errors.providerPhone?.message}
+          >
+            <Input
+              placeholder="(11) 99999-9999"
+              {...form.register('providerPhone')}
+            />
+          </FormField>
+        </FormGrid>
+      </FormSection>
+
+      <FormSection
+        title="Agendamento"
+        description="Data programada para a assistência."
+      >
+        <FormGrid columns={2}>
+          <FormField
+            label="Data Agendada"
+            error={form.formState.errors.scheduledAt?.message}
+          >
+            <Controller
+              name="scheduledAt"
+              control={form.control}
+              render={({ field }) => (
+                <DatePicker
+                  value={parseDateString(field.value)}
+                  onChange={(date) => field.onChange(formatDateToISO(date))}
+                />
+              )}
+            />
+          </FormField>
+        </FormGrid>
+      </FormSection>
+
       <Separator />
       <FormActions gap={3} noPadding>
         <Button
@@ -146,20 +156,5 @@ export function AssistanceForm() {
         </Button>
       </FormActions>
     </form>
-  )
-}
-
-function SectionHeader({
-  title,
-  subtitle,
-}: {
-  readonly title: string
-  readonly subtitle: string
-}) {
-  return (
-    <div>
-      <h3 className="text-base font-medium">{title}</h3>
-      <p className="text-muted-foreground text-sm">{subtitle}</p>
-    </div>
   )
 }
