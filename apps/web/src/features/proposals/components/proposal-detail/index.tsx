@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
 
 import { useContact } from '@/features/contacts/hooks/use-contacts'
 import { PromoteContactDialog } from '@/features/contacts/components/promote-contact-dialog'
+import { useDocuments } from '@/features/documents/hooks/use-documents'
 import { usePolicyByProposal } from '@/features/policies/hooks/use-policies'
 import { ApiError } from '@/lib/api-client'
 
@@ -16,17 +16,18 @@ import { useChecklist } from '../../hooks/use-checklist'
 import { useGenerateProposalPdf } from '../../hooks/use-generate-proposal-pdf'
 import { useAdvanceProposal, useProposal } from '../../hooks/use-proposals'
 import { useSendQuote } from '../../hooks/use-send-quote'
-import { BRANCH_LABELS } from '../../lib/constants'
-import { InsuredObjectSection } from '../insured-object-section'
 import { LostReasonDialog } from '../lost-reason-dialog'
 import { DetailSkeleton } from '../proposal-detail-helpers'
-import { ProposalObservations } from '../proposal-observations'
-import { ProposalStageActions } from '../proposal-stage-actions'
-import { CoreInfoSection } from './sections/core-info-section'
-import { DatesSection } from './sections/dates-section'
-import { DocumentsTabSection } from './sections/documents-tab-section'
-import { EndorsementSection } from './sections/endorsement-section'
-import { HeaderSection } from './sections/header-section'
+import { EndorsementCard } from './cards/endorsement-card'
+import { LostReasonCard } from './cards/lost-reason-card'
+import { PolicyIssuedCard } from './cards/policy-issued-card'
+import { RenewalCard } from './cards/renewal-card'
+import { ProposalHero } from './proposal-hero'
+import { ProposalTabs } from './proposal-tabs'
+import { ChecklistTab } from './tabs/checklist-tab'
+import { DocumentsTab } from './tabs/documents-tab'
+import { InsuredObjectTab } from './tabs/insured-object-tab'
+import { OverviewTab } from './tabs/overview-tab'
 
 interface ProposalDetailProps {
   proposalId: string
@@ -37,6 +38,7 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
   const { data, isLoading, isError } = useProposal(proposalId)
   const { data: existingPolicy } = usePolicyByProposal(proposalId)
   const { data: checklistData } = useChecklist(proposalId)
+  const { data: documentsData } = useDocuments('PROPOSAL', proposalId)
   const advanceMutation = useAdvanceProposal()
   const pdfMutation = useGenerateProposalPdf(proposalId)
   const sendQuoteMutation = useSendQuote(proposalId)
@@ -45,6 +47,7 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
   const proposalData = data?.data
   const contactId = proposalData?.contactId ?? ''
   const { data: contact } = useContact(contactId)
+
   if (isLoading) {
     return <DetailSkeleton />
   }
@@ -73,18 +76,17 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
       </div>
     )
   }
+
   const proposal = proposalData
   const isTerminalStage =
     proposal.stage === 'POLICY_ISSUED' || proposal.stage === 'LOST'
-  const canAdvance = !isTerminalStage
   const checklistBlocking =
     !isTerminalStage &&
     proposal.stage !== 'CAPTURE' &&
     checklistData?.summary.canAdvance === false
-  const canMarkLost =
-    proposal.stage !== 'LOST' && proposal.stage !== 'POLICY_ISSUED'
   const willTransitionToPolicyIssued = proposal.stage === 'PAYMENT'
   const contactNeedsPromotion = !contact?.clientId
+
   function dispatchAdvance() {
     advanceMutation.mutate(proposal.id, {
       onError: (error) => {
@@ -97,6 +99,7 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
       },
     })
   }
+
   function handleAdvance() {
     if (willTransitionToPolicyIssued && contactNeedsPromotion) {
       setPromoteOpen(true)
@@ -104,6 +107,12 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
     }
     dispatchAdvance()
   }
+
+  const checklistRequired = checklistData?.summary.required ?? 0
+  const checklistCompleted = checklistData?.summary.requiredCompleted ?? 0
+  const checklistHasPending = checklistData?.summary.canAdvance === false
+  const documentsCount = documentsData?.length ?? 0
+
   return (
     <div className="space-y-6">
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
@@ -118,56 +127,55 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
         </Button>
         <span className="text-muted-foreground">/</span>
         <span className="text-muted-foreground">
-          {proposal.clientName
-            ? `${BRANCH_LABELS[proposal.branch]} — ${proposal.clientName}`
-            : `Proposta`}
+          {proposal.clientName ? proposal.clientName : 'Proposta'}
         </span>
       </nav>
-      <HeaderSection
-        proposalId={proposalId}
+
+      <ProposalHero
         proposal={proposal}
         pdfPending={pdfMutation.isPending}
         sendQuotePending={sendQuoteMutation.isPending}
+        advancePending={advanceMutation.isPending}
+        checklistBlocking={Boolean(checklistBlocking)}
+        existingPolicyId={existingPolicy?.id ?? null}
         onGeneratePdf={() => pdfMutation.mutate()}
         onSendQuote={() => sendQuoteMutation.mutate()}
-      />
-      <Separator />
-      <CoreInfoSection
-        proposal={proposal}
-        proposalId={proposalId}
-        existingPolicyId={existingPolicy?.id}
-      />
-      <EndorsementSection proposal={proposal} />
-      {proposal.stage === 'LOST' && proposal.lostReason && (
-        <>
-          <Separator />
-          <div className="bg-destructive/10 rounded-md p-4">
-            <p className="text-destructive text-sm font-medium">
-              Motivo da Perda
-            </p>
-            <p className="mt-1 text-sm">{proposal.lostReason}</p>
-          </div>
-        </>
-      )}
-      <Separator />
-      <DatesSection proposal={proposal} />
-      <ProposalObservations
-        key={proposalId}
-        proposalId={proposalId}
-        initialValue={proposal.observations}
-      />
-      <InsuredObjectSection proposal={proposal} />
-      <Separator />
-      <ProposalStageActions
-        canAdvance={canAdvance}
-        canMarkLost={canMarkLost}
-        checklistBlocking={checklistBlocking}
-        advancePending={advanceMutation.isPending}
         onAdvance={handleAdvance}
         onMarkLost={() => setShowLostDialog(true)}
       />
-      <Separator />
-      <DocumentsTabSection proposalId={proposalId} branch={proposal.branch} />
+
+      <ProposalTabs
+        checklistRequired={checklistRequired}
+        checklistCompleted={checklistCompleted}
+        checklistHasPending={Boolean(checklistHasPending)}
+        documentsCount={documentsCount}
+        overviewSlot={
+          <OverviewTab
+            proposal={proposal}
+            conditionalsSlot={
+              <>
+                {proposal.stage === 'LOST' && proposal.lostReason && (
+                  <LostReasonCard reason={proposal.lostReason} />
+                )}
+                {proposal.stage === 'POLICY_ISSUED' && (
+                  <PolicyIssuedCard
+                    proposalId={proposalId}
+                    policyId={existingPolicy?.id ?? null}
+                  />
+                )}
+                <EndorsementCard proposal={proposal} />
+                <RenewalCard proposal={proposal} />
+              </>
+            }
+          />
+        }
+        insuredObjectSlot={<InsuredObjectTab proposal={proposal} />}
+        checklistSlot={<ChecklistTab proposalId={proposalId} />}
+        documentsSlot={
+          <DocumentsTab proposalId={proposalId} branch={proposal.branch} />
+        }
+      />
+
       <LostReasonDialog
         proposalId={showLostDialog ? proposalId : null}
         onClose={() => setShowLostDialog(false)}

@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'
 import { Loader2 } from 'lucide-react'
@@ -40,6 +41,9 @@ interface BranchFieldsProps {
     commissionBasisPoints: number
   }) => void
   readonly isLoading?: boolean
+  readonly hideSubmit?: boolean
+  readonly formId?: string
+  readonly onDirtyChange?: (isDirty: boolean) => void
 }
 
 type BranchComponent =
@@ -64,6 +68,9 @@ export function BranchFields({
   proposalId,
   onSubmit,
   isLoading,
+  hideSubmit,
+  formId,
+  onDirtyChange,
 }: BranchFieldsProps) {
   const rawDefaults = defaultValues ?? {}
   const baseDefaults: Record<string, unknown> = {
@@ -82,6 +89,10 @@ export function BranchFields({
   }
   const formDefaults = buildAutoFillDefaults(branch, autoFill, baseDefaults)
   const form = useForm<FieldValues>({ defaultValues: formDefaults })
+  const isDirty = form.formState.isDirty
+  useEffect(() => {
+    onDirtyChange?.(isDirty)
+  }, [isDirty, onDirtyChange])
   function handleFormSubmit(values: FieldValues) {
     const { premiumValueInCents, commissionBasisPoints, ...rest } = values
     const details: InsuredObjectDetails = buildDetails(branch, rest)
@@ -93,7 +104,11 @@ export function BranchFields({
   }
   const BranchComponent = BRANCH_FIELD_MAP[branch]
   return (
-    <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
+    <form
+      id={formId}
+      onSubmit={form.handleSubmit(handleFormSubmit)}
+      className="space-y-4"
+    >
       <div className="grid gap-4 sm:grid-cols-2">
         <BranchComponent
           register={form.register}
@@ -132,12 +147,14 @@ export function BranchFields({
           </FieldWrapper>
         </div>
       </div>
-      <div className="flex justify-end pt-2">
-        <Button type="submit" disabled={isLoading}>
-          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Salvar dados do objeto segurado
-        </Button>
-      </div>
+      {!hideSubmit && (
+        <div className="flex justify-end pt-2">
+          <Button type="submit" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Salvar dados do objeto segurado
+          </Button>
+        </div>
+      )}
     </form>
   )
 }
