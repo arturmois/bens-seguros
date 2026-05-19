@@ -1,10 +1,10 @@
 'use client'
 
+import type { Control, FieldErrors, UseFormRegister } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
-import type { Control, UseFormRegister, FieldErrors } from 'react-hook-form'
 
+import { FormField } from '@/components/shared/form-field'
 import { Badge } from '@/components/ui/badge'
-import { FormField } from '@/components/ui/form-field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -119,7 +119,7 @@ export function AiAgentNumericFields({
       <FormField
         label="Temperature"
         error={errors.temperature?.message}
-        helperText="Criatividade das respostas (0 = deterministico, 1 = criativo)"
+        hint="Criatividade das respostas (0 = determinístico, 1 = criativo)"
       >
         <Input
           type="number"

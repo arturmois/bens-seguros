@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { FormField } from '@/components/shared/form-field'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -15,7 +16,6 @@ import {
   DialogPanel,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { FormField } from '@/components/ui/form-field'
 import { Input } from '@/components/ui/input'
 
 import { useAiAgents } from '@/features/ai-agents/hooks/use-ai-agents'

@@ -15,7 +15,7 @@ import {
   DialogPanel,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { FormField } from '@/components/ui/form-field'
+import { FormField } from '@/components/shared/form-field'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -142,7 +142,7 @@ export function AiAgentFormDialog({
             <FormField
               label="System Prompt"
               error={form.formState.errors.systemPrompt?.message}
-              helperText="Instruções de comportamento do agente. Max 4000 caracteres."
+              hint="Instruções de comportamento do agente. Max 4000 caracteres."
             >
               <Textarea
                 placeholder="Você é um assistente especializado em seguros..."

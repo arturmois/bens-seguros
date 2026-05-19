@@ -1,10 +1,12 @@
 'use client'
 
-import { useEffect } from 'react'
-import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
+import { useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 
+import type { ListInsurers200DataItem } from '@/api/model'
+import { FormField } from '@/components/shared/form-field'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -15,21 +17,19 @@ import {
   DialogPanel,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { FormField } from '@/components/ui/form-field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import type { ListInsurers200DataItem } from '@/api/model'
 
+import {
+  useCreateInsurerMutation,
+  useUpdateInsurerMutation,
+} from '../hooks/use-insurers'
 import {
   DEFAULT_INSURER_FORM,
   insurerFormSchema,
   type InsurerFormValues,
 } from '../lib/schemas'
-import {
-  useCreateInsurerMutation,
-  useUpdateInsurerMutation,
-} from '../hooks/use-insurers'
 
 interface InsurerFormDialogProps {
   readonly open: boolean
@@ -116,7 +116,7 @@ export function InsurerFormDialog({
             <FormField
               label="Código"
               error={form.formState.errors.code?.message}
-              helperText="Opcional. Use quando a operação precisar de um código interno."
+              hint="Opcional. Use quando a operação precisar de um código interno."
             >
               <Input placeholder="Ex: PSEG" {...form.register('code')} />
             </FormField>

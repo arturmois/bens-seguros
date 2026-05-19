@@ -1,18 +1,18 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import type { z } from 'zod'
 
-import { Button } from '@/components/ui/button'
-import { FormField } from '@/components/ui/form-field'
-import { Input } from '@/components/ui/input'
 import { UpdateOrganizationBody } from '@/api/endpoints/organization/organization.zod'
+import { FormField } from '@/components/shared/form-field'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
-import type { OrganizationData } from '../types'
 import { useUpdateOrganization } from '../hooks/use-update-organization'
+import type { OrganizationData } from '../types'
 
 type OrganizationFormValues = z.infer<typeof UpdateOrganizationBody>
 
@@ -58,7 +58,7 @@ export function OrganizationForm({
       <FormField
         label="Slug"
         error={form.formState.errors.slug?.message}
-        helperText="Identificador único usado na URL. Apenas letras minúsculas, números e hifens."
+        hint="Identificador único usado na URL. Apenas letras minúsculas, números e hifens."
         required
       >
         <Input

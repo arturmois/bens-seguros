@@ -1,10 +1,10 @@
 'use client'
 
-import { Controller } from 'react-hook-form'
 import type { Control } from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 
+import { FormField } from '@/components/shared/form-field'
 import { Badge } from '@/components/ui/badge'
-import { FormField } from '@/components/ui/form-field'
 import {
   Select,
   SelectContent,

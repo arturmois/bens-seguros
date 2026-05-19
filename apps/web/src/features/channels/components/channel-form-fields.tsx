@@ -1,10 +1,10 @@
 'use client'
 
 import { CHANNEL_META } from '@repo/shared'
-import { Controller } from 'react-hook-form'
 import type { Control, FieldErrors, UseFormRegister } from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 
-import { FormField } from '@/components/ui/form-field'
+import { FormField } from '@/components/shared/form-field'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -15,8 +15,8 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 
-import type { ChannelType } from '@/features/chat/types'
 import { ChannelIcon } from '@/features/chat/components/channel-icon'
+import type { ChannelType } from '@/features/chat/types'
 import type { ChannelFormValues } from '../lib/schemas'
 import { CHANNEL_TYPE_OPTIONS } from '../lib/schemas'
 import type { CreateChannelPayload } from '../types'
@@ -85,7 +85,7 @@ export function WhatsAppFields({
       <FormField
         label="Tipo de Conexão"
         error={errors.brokerType?.message}
-        helperText="Baileys conecta via QR Code. Meta usa a API oficial."
+        hint="Baileys conecta via QR Code. Meta usa a API oficial."
         required
       >
         <Controller
@@ -135,7 +135,7 @@ export function WebChatFields({ register }: WebChatFieldsProps) {
     <>
       <FormField
         label="Cor do Widget"
-        helperText="Cor principal do chat widget (hex)."
+        hint="Cor principal do chat widget (hex)."
       >
         <Input placeholder="#1f4b5f" {...register('widgetColor')} />
       </FormField>
@@ -148,7 +148,7 @@ export function WebChatFields({ register }: WebChatFieldsProps) {
       </FormField>
       <FormField
         label="Origens Permitidas"
-        helperText="URLs separadas por vírgula (ex: https://meusite.com)."
+        hint="URLs separadas por vírgula (ex: https://meusite.com)."
       >
         <Input
           placeholder="https://meusite.com, https://loja.meusite.com"
