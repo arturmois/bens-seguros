@@ -97,9 +97,7 @@ export function ProposalHero({
       <div className="mb-4">
         <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
           {proposal.clientName ?? 'Cliente'}
-          {variant === 'success' && (
-            <span className="ml-2 text-emerald-200">✓</span>
-          )}
+          {variant === 'success' && <span className="ml-2 text-white">✓</span>}
         </h1>
         <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-white/80">
           <span className="inline-flex items-center rounded-full border border-white/20 bg-white/15 px-2.5 py-0.5 text-xs font-semibold">
@@ -108,7 +106,7 @@ export function ProposalHero({
           <span className="inline-flex items-center rounded-full border border-white/20 bg-white/15 px-2.5 py-0.5 text-xs font-semibold">
             {BOARD_TYPE_LABELS[proposal.boardType]}
           </span>
-          <span className="text-white/50">·</span>
+          <span className="text-white/60">·</span>
           <span className="font-mono text-xs">{idTag}</span>
         </div>
       </div>
@@ -120,7 +118,7 @@ export function ProposalHero({
             variant={variant}
             hideLabels
           />
-          <p className="mt-2 text-xs font-semibold text-white/90">
+          <p className="mt-2 text-xs font-semibold text-white">
             {STAGE_LABELS[proposal.stage]}
           </p>
         </div>
@@ -145,7 +143,7 @@ export function ProposalHero({
           </span>
           <span className="text-base font-bold tabular-nums sm:text-lg">
             {commissionPctDisplay}
-            <span className="ml-1.5 text-xs font-normal text-white/65">
+            <span className="ml-1.5 text-xs font-normal text-white/80">
               {commissionValue}
             </span>
           </span>
