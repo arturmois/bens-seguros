@@ -2,7 +2,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { container } from 'tsyringe'
 import { z } from 'zod'
 
-import { Channel, AiAgent, type ChannelDocument } from '@repo/db-chat'
+import { AiAgent, Channel, type ChannelDocument } from '@repo/db-chat'
 import { BROKER_TYPES, CHANNEL_TYPES, CHAT_QUEUES } from '@repo/shared'
 import { ChannelNotFoundError } from '../../../domain/errors.js'
 import type { QueueProducer } from '../../queue/queue-producer.js'
@@ -74,6 +74,27 @@ export async function channelRoutes(app: FastifyInstance): Promise<void> {
         .lean<ChannelDocument[]>()
       const channels = docs.map(mapChannel)
       return reply.send({ success: true, data: channels })
+    }
+  )
+  app.get(
+    '/chat/channels/:id',
+    async (
+      request: FastifyRequest<{
+        Params: z.infer<typeof channelIdSchema>
+      }>,
+      reply: FastifyReply
+    ) => {
+      const { id } = channelIdSchema.parse(request.params)
+      const tenantId = request.organizationId
+      const channel = await Channel.findOne({
+        _id: id,
+        tenantId,
+        isActive: { $ne: false },
+      }).lean<ChannelDocument>()
+      if (!channel) {
+        return reply.status(404).send(buildChannelNotFoundResponse(id))
+      }
+      return reply.send({ success: true, data: mapChannel(channel) })
     }
   )
   app.post(

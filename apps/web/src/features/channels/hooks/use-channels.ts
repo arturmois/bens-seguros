@@ -24,6 +24,18 @@ export function useChannels() {
   })
 }
 
+export function useChannel(id: string) {
+  return useQuery({
+    queryKey: [CHANNELS_KEY, id],
+    queryFn: async () => {
+      const response = await chatApi.get<ChannelData>(`/chat/channels/${id}`)
+      return response.data
+    },
+    enabled: Boolean(id),
+    staleTime: 60_000,
+  })
+}
+
 export function useCreateChannel() {
   const queryClient = useQueryClient()
   return useMutation({

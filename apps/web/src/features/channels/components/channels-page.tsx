@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
 import {
@@ -28,14 +29,12 @@ import { WhatsAppMethodDialog } from './whatsapp-method-dialog'
 type ActiveOAuthChannel = 'MESSENGER' | 'INSTAGRAM' | null
 
 export function ChannelsPage() {
+  const router = useRouter()
   const { activeOrg } = useOrgs()
   const role = activeOrg?.role ?? 'VIEWER'
   const canManage = hasPermission(role, 'settings:manage')
   const { refetch } = useChannels()
   const [formOpen, setFormOpen] = useState(false)
-  const [editingChannel, setEditingChannel] = useState<ChannelData | undefined>(
-    undefined
-  )
   const [qrChannel, setQrChannel] = useState<ChannelData | null>(null)
   const [deactivateChannel, setDeactivateChannel] =
     useState<ChannelData | null>(null)
@@ -61,12 +60,13 @@ export function ChannelsPage() {
       [messengerOAuth, instagramOAuth]
     ),
   })
-  const handleEdit = useCallback((channel: ChannelData) => {
-    setEditingChannel(channel)
-    setFormOpen(true)
-  }, [])
+  const handleEdit = useCallback(
+    (channel: ChannelData) => {
+      router.push(`/settings/channels/${channel.id}/edit`)
+    },
+    [router]
+  )
   const handleWebChatConnect = useCallback(() => {
-    setEditingChannel(undefined)
     setFormOpen(true)
   }, [])
   const handleQrCode = useCallback((channel: ChannelData) => {
@@ -116,11 +116,7 @@ export function ChannelsPage() {
         onDeactivate={handleDeactivate}
         headerAction={headerAction}
       />
-      <ChannelFormDialog
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        channel={editingChannel}
-      />
+      <ChannelFormDialog open={formOpen} onOpenChange={setFormOpen} />
       <ChannelQrDialog
         open={qrChannel !== null}
         onOpenChange={(open) => {
@@ -159,7 +155,6 @@ export function ChannelsPage() {
         onOpenChange={setWhatsAppMethodOpen}
         onSelectQrCode={() => {
           setWhatsAppMethodOpen(false)
-          setEditingChannel(undefined)
           setFormOpen(true)
         }}
         onSelectCloudApi={() => setEmbeddedSignupOpen(true)}
