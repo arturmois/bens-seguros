@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 import type { z } from 'zod'
 
+import { FormActions } from '@/components/shared/form-actions'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -141,23 +142,25 @@ export function OccurrenceForm({
           </form>
         </DialogPanel>
         <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
-            Cancelar
-          </Button>
-          <Button
-            type="submit"
-            form="occurrence-form"
-            disabled={createOccurrence.isPending}
-          >
-            {createOccurrence.isPending && (
-              <Loader2 className="mr-2 size-4 animate-spin" />
-            )}
-            Registrar
-          </Button>
+          <FormActions noPadding>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              form="occurrence-form"
+              disabled={createOccurrence.isPending}
+            >
+              {createOccurrence.isPending && (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              )}
+              Registrar
+            </Button>
+          </FormActions>
         </DialogFooter>
       </DialogContent>
     </Dialog>

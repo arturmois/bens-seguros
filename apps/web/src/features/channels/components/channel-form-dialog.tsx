@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { FormActions } from '@/components/shared/form-actions'
 import { FormField } from '@/components/shared/form-field'
 import { Button } from '@/components/ui/button'
 import {
@@ -191,17 +192,19 @@ export function ChannelFormDialog({
           </form>
         </DialogPanel>
         <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
-            Cancelar
-          </Button>
-          <Button type="submit" form="channel-form" disabled={isPending}>
-            {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-            {isEditMode ? 'Salvar' : 'Criar canal'}
-          </Button>
+          <FormActions noPadding>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancelar
+            </Button>
+            <Button type="submit" form="channel-form" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isEditMode ? 'Salvar' : 'Criar canal'}
+            </Button>
+          </FormActions>
         </DialogFooter>
       </DialogContent>
     </Dialog>

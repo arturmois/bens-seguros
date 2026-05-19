@@ -8,6 +8,7 @@ import { useEffect } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
+import { FormActions } from '@/components/shared/form-actions'
 import { FormField } from '@/components/shared/form-field'
 import { FormGrid } from '@/components/shared/form-grid'
 import { FormSection } from '@/components/shared/form-section'
@@ -276,15 +277,15 @@ export function ContactForm({
           </FormGrid>
         </FormSection>
         {!hideFooter && (
-          <div className="flex gap-3 pt-2">
+          <FormActions>
+            <Button type="button" variant="outline" onClick={handleCancel}>
+              Cancelar
+            </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
               {mode === 'create' ? 'Criar contato' : 'Salvar alterações'}
             </Button>
-            <Button type="button" variant="outline" onClick={handleCancel}>
-              Cancelar
-            </Button>
-          </div>
+          </FormActions>
         )}
       </form>
     </FormProvider>

@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
+import { FormActions } from '@/components/shared/form-actions'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -183,17 +184,19 @@ export function AiAgentFormDialog({
           </form>
         </DialogPanel>
         <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
-            Cancelar
-          </Button>
-          <Button type="submit" form="ai-agent-form" disabled={isPending}>
-            {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-            {isEditMode ? 'Salvar' : 'Criar agente'}
-          </Button>
+          <FormActions noPadding>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancelar
+            </Button>
+            <Button type="submit" form="ai-agent-form" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isEditMode ? 'Salvar' : 'Criar agente'}
+            </Button>
+          </FormActions>
         </DialogFooter>
       </DialogContent>
     </Dialog>

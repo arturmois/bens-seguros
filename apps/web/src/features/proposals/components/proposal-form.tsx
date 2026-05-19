@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import type { z } from 'zod'
 
+import { FormActions } from '@/components/shared/form-actions'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -94,23 +95,25 @@ export function ProposalForm({ open, onOpenChange }: ProposalFormProps) {
           </form>
         </DialogPanel>
         <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
-            Cancelar
-          </Button>
-          <Button
-            type="submit"
-            form="proposal-form"
-            disabled={createMutation.isPending}
-          >
-            {createMutation.isPending && (
-              <Loader2 className="mr-2 size-4 animate-spin" />
-            )}
-            Criar proposta
-          </Button>
+          <FormActions noPadding>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              form="proposal-form"
+              disabled={createMutation.isPending}
+            >
+              {createMutation.isPending && (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              )}
+              Criar proposta
+            </Button>
+          </FormActions>
         </DialogFooter>
       </DialogContent>
       <QuickCreateContact

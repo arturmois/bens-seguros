@@ -108,6 +108,7 @@ Padrao 3/2/1 baseado em container queries (Tailwind 4), nao em viewport. O grid 
 - `<FormSection title description?>` — agrupa campos por contexto. Multiplas sections em um form usam `<form class="space-y-8">`.
 - `<FormGrid columns? gap?>` — container responsivo. `columns=3` (default) ou `2`. `gap='md'` (default, gap-4), `'sm'` (gap-3), `'lg'` (gap-6).
 - `<FormField label span? required hint error>` — wrapper com label + erro. Prop `span`: `'full' | 2 | 1` (default 1).
+- `<FormActions align? gap? noPadding?>` — footer padronizado (Cancelar a esquerda, acao principal a direita). Default `align='end'`, `gap=2`, `pt-2`. Em Dialog/Sheet, usar `noPadding` dentro de `DialogFooter`/`SheetFooter`.
 
 **Convencao de span por tipo de campo:**
 
@@ -152,6 +153,30 @@ A convencao e validada em code review — sem deteccao em runtime.
   </FormSection>
 </form>
 ```
+
+**Footer de acoes (`<FormActions>`):**
+
+Padroniza o cluster Cancelar/Salvar. Ordem fixa: **Cancelar a esquerda (variant outline), acao principal a direita**. Forms em Page usam `<FormActions>` direto; forms em Dialog/Sheet mantem `DialogFooter`/`SheetFooter` (semantica do primitivo shadcn) com `<FormActions noPadding>` dentro pra evitar dupla margem.
+
+```tsx
+<FormActions>
+  <Button type="button" variant="outline" onClick={onCancel}>
+    Cancelar
+  </Button>
+  <Button type="submit" disabled={isPending}>
+    {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+    Salvar
+  </Button>
+</FormActions>
+```
+
+| Prop        | Default | Notas                                                              |
+| ----------- | ------- | ------------------------------------------------------------------ |
+| `align`     | `'end'` | `'start'`, `'end'`, `'between'`                                    |
+| `gap`       | `2`     | `2`, `3`, `4`                                                      |
+| `noPadding` | `false` | omitir `pt-2` quando o caller (DialogFooter) ja controla o espaco. |
+
+**Anti-padrao:** evitar `<div className="flex justify-end gap-2 pt-2">` ad-hoc nos forms. Se precisar de layout fora dessas opcoes, expandir a API do componente.
 
 **Forms fora do padrao (mantem 1-col):**
 

@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
+import { FormActions } from '@/components/shared/form-actions'
 import { Button } from '@/components/ui/button'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Input } from '@/components/ui/input'
@@ -129,7 +130,7 @@ export function AssistanceForm() {
         />
       </FormField>
       <Separator />
-      <div className="flex justify-end gap-3">
+      <FormActions gap={3} noPadding>
         <Button
           type="button"
           variant="outline"
@@ -143,7 +144,7 @@ export function AssistanceForm() {
           )}
           Registrar Assistência
         </Button>
-      </div>
+      </FormActions>
     </form>
   )
 }

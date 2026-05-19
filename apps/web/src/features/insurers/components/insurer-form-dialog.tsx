@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import type { ListInsurers200DataItem } from '@/api/model'
+import { FormActions } from '@/components/shared/form-actions'
 import { FormField } from '@/components/shared/form-field'
 import { Button } from '@/components/ui/button'
 import {
@@ -141,17 +142,19 @@ export function InsurerFormDialog({
           </form>
         </DialogPanel>
         <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
-            Cancelar
-          </Button>
-          <Button type="submit" form="insurer-form" disabled={isPending}>
-            {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-            {isEditMode ? 'Salvar' : 'Criar seguradora'}
-          </Button>
+          <FormActions noPadding>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancelar
+            </Button>
+            <Button type="submit" form="insurer-form" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isEditMode ? 'Salvar' : 'Criar seguradora'}
+            </Button>
+          </FormActions>
         </DialogFooter>
       </DialogContent>
     </Dialog>

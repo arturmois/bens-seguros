@@ -7,6 +7,7 @@ import { useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
+import { FormActions } from '@/components/shared/form-actions'
 import { FormGrid } from '@/components/shared/form-grid'
 import { FormSection } from '@/components/shared/form-section'
 import { Button } from '@/components/ui/button'
@@ -152,7 +153,7 @@ export function ClientForm({
         </FormSection>
 
         {!hideFooter && (
-          <div className="flex items-center justify-end gap-2 pt-2">
+          <FormActions>
             <Button
               type="button"
               variant="outline"
@@ -165,7 +166,7 @@ export function ClientForm({
               {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
               {isEdit ? 'Salvar alterações' : 'Criar cliente'}
             </Button>
-          </div>
+          </FormActions>
         )}
       </form>
     </FormProvider>
