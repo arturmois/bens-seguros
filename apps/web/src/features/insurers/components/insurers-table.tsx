@@ -3,6 +3,7 @@
 import type { SortingState, VisibilityState } from '@tanstack/react-table'
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { Building2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
 import {
@@ -33,7 +34,6 @@ import { isInsurerSortBy } from '../lib/type-guards'
 import type { InsurerData } from '../lib/types'
 import { InsurerCard } from './insurer-card'
 import { InsurerCreateButton } from './insurer-create-button'
-import { InsurerFormDialog } from './insurer-form-dialog'
 import { createInsurerColumns } from './insurers-columns'
 
 function toActiveParam(
@@ -45,6 +45,7 @@ function toActiveParam(
 
 export function InsurersTable() {
   'use no memo'
+  const router = useRouter()
   const pagination = useCursorPagination()
   const filters = useInsurersFilters()
   const { activeOrg } = useOrgs()
@@ -53,10 +54,6 @@ export function InsurersTable() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
-  const [editingInsurer, setEditingInsurer] = useState<InsurerData | undefined>(
-    undefined
-  )
-  const [editOpen, setEditOpen] = useState(false)
   const debouncedSearch = useDebounce(filters.search, 300)
   const { mutate: updateInsurerMutate } = useUpdateInsurerMutation()
   const sortId = sorting[0]?.id
@@ -82,8 +79,7 @@ export function InsurersTable() {
   const columnActions = useMemo(
     () => ({
       onEdit: (insurer: InsurerData) => {
-        setEditingInsurer(insurer)
-        setEditOpen(true)
+        router.push(`/insurers/${insurer.id}/edit`)
       },
       onToggleActive: (insurer: InsurerData) => {
         updateInsurerMutate({
@@ -96,7 +92,7 @@ export function InsurersTable() {
         })
       },
     }),
-    [updateInsurerMutate]
+    [router, updateInsurerMutate]
   )
   const columns = useMemo(
     () => createInsurerColumns(columnActions, role),
@@ -198,11 +194,6 @@ export function InsurersTable() {
         onNext={() => {
           if (nextCursor) pagination.goToNext(nextCursor)
         }}
-      />
-      <InsurerFormDialog
-        open={editOpen}
-        onOpenChange={setEditOpen}
-        insurer={editingInsurer}
       />
     </div>
   )

@@ -5,8 +5,10 @@ import { toast } from 'sonner'
 
 import {
   createInsurer,
+  getGetInsurerQueryKey,
   getListInsurersQueryKey,
   updateInsurer,
+  useGetInsurer,
   useListInsurers,
 } from '@/api/endpoints/insurers/insurers'
 import { ApiError } from '@/lib/api-client'
@@ -27,6 +29,16 @@ export function useInsurers(filters: InsurerListParams = {}) {
         data: response.data.data,
         meta: response.data.meta,
       }),
+    },
+  })
+}
+
+export function useInsurer(id: string) {
+  return useGetInsurer(id, {
+    query: {
+      queryKey: getGetInsurerQueryKey(id),
+      select: (response) => response.data.data,
+      enabled: Boolean(id),
     },
   })
 }

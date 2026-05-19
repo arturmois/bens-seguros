@@ -60,6 +60,27 @@ export const ListInsurersResponse = zod.object({
 })
 
 /**
+ * @summary Get an insurer by id
+ */
+
+export const GetInsurerParams = zod.object({
+  id: zod.string().min(1),
+})
+
+export const GetInsurerResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    id: zod.string(),
+    organizationId: zod.string(),
+    name: zod.string(),
+    code: zod.string().nullable(),
+    active: zod.boolean(),
+    createdAt: zod.string().datetime({}),
+    updatedAt: zod.string().datetime({}),
+  }),
+})
+
+/**
  * @summary Update an insurer
  */
 
