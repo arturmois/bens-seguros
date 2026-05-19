@@ -72,7 +72,7 @@ export function useCreateAiAgent() {
         error instanceof ChatApiError &&
         error.code === 'AGENT_NAME_ALREADY_EXISTS'
       ) {
-        toast.error('Ja existe um agente com este nome')
+        toast.error('Já existe um agente com este nome')
         return
       }
       toast.error('Erro ao criar agente')
@@ -105,7 +105,7 @@ export function useUpdateAiAgent() {
         error instanceof ChatApiError &&
         error.code === 'AGENT_NAME_ALREADY_EXISTS'
       ) {
-        toast.error('Ja existe um agente com este nome')
+        toast.error('Já existe um agente com este nome')
         return
       }
       toast.error('Erro ao atualizar agente')

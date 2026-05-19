@@ -7,6 +7,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { Brain, Plus } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
 import { DataTable } from '@/components/shared/data-table'
@@ -28,6 +29,7 @@ import {
   MAX_AGENT_NAME_LENGTH,
 } from '../lib/constants'
 import { AI_AGENT_FILTERS, matchesSearch, matchesStatus } from '../lib/filters'
+import type { AiAgentFormValues } from '../lib/schemas'
 import type { AiAgentData } from '../types'
 import { AiAgentCard } from './ai-agent-card'
 import { AiAgentFormDialog } from './ai-agent-form-dialog'
@@ -36,6 +38,7 @@ import { DeleteAgentDialog } from './delete-agent-dialog'
 
 export function AiAgentsTable() {
   'use no memo'
+  const router = useRouter()
   const { activeOrg } = useOrgs()
   const role = activeOrg?.role ?? 'VIEWER'
   const filters = useAiAgentsFilters()
@@ -43,9 +46,9 @@ export function AiAgentsTable() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   )
-  const [editingAgent, setEditingAgent] = useState<AiAgentData | undefined>(
-    undefined
-  )
+  const [duplicateDefaults, setDuplicateDefaults] = useState<
+    AiAgentFormValues | undefined
+  >(undefined)
   const [formOpen, setFormOpen] = useState(false)
   const [deletingAgent, setDeletingAgent] = useState<AiAgentData | null>(null)
   const debouncedSearch = useDebounce(filters.search, 300)
@@ -61,25 +64,29 @@ export function AiAgentsTable() {
   const columnActions = useMemo(
     () => ({
       onEdit: (agent: AiAgentData) => {
-        setEditingAgent(agent)
-        setFormOpen(true)
+        router.push(`/settings/ai-agents/${agent.id}/edit`)
       },
       onDuplicate: (agent: AiAgentData) => {
         const duplicateName = `${DUPLICATE_PREFIX}${agent.name}`.slice(
           0,
           MAX_AGENT_NAME_LENGTH
         )
-        setEditingAgent({
-          ...agent,
-          id: '',
+        setDuplicateDefaults({
           name: duplicateName,
-          linkedChannelCount: 0,
+          description: agent.description ?? '',
+          systemPrompt: agent.systemPrompt ?? '',
+          provider: agent.provider,
+          temperature: agent.temperature,
+          maxTokens: agent.maxTokens,
+          maxResponsesPerConversation: agent.maxResponsesPerConversation,
+          isActive: agent.isActive,
+          enabledTools: agent.enabledTools ?? [],
         })
         setFormOpen(true)
       },
       onDelete: (agent: AiAgentData) => setDeletingAgent(agent),
     }),
-    []
+    [router]
   )
   const columns = useMemo(
     () => createAiAgentColumns(columnActions, role),
@@ -95,7 +102,7 @@ export function AiAgentsTable() {
     getSortedRowModel: getSortedRowModel(),
   })
   function handleCreate() {
-    setEditingAgent(undefined)
+    setDuplicateDefaults(undefined)
     setFormOpen(true)
   }
   function handleFilterChange(key: string, value: FilterValue) {
@@ -163,7 +170,7 @@ export function AiAgentsTable() {
       <AiAgentFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
-        agent={editingAgent}
+        defaultValues={duplicateDefaults}
       />
       <DeleteAgentDialog
         open={deletingAgent !== null}
