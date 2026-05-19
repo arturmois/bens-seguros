@@ -4,15 +4,8 @@ import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { use } from 'react'
 
-import { PageBreadcrumb } from '@/components/page-breadcrumb'
+import { FormPageShell } from '@/components/shared/form-page-shell'
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import { ContactForm } from '@/features/contacts/components/contact-form'
 import { useContact } from '@/features/contacts/hooks/use-contacts'
 
@@ -44,41 +37,24 @@ export default function EditContactPage({ params }: EditContactPageProps) {
     )
   }
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <PageBreadcrumb
-          items={[
-            { label: 'Dashboard', href: '/dashboard' },
-            { label: 'Contatos', href: '/contacts' },
-            { label: contact.name, href: `/contacts/${id}` },
-            { label: 'Editar' },
-          ]}
-        />
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Editar contato
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            Atualize as informações do contato.
-          </p>
-        </div>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Dados do contato</CardTitle>
-          <CardDescription>
-            Altere os campos necessários e salve.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ContactForm
-            mode="edit"
-            initial={contact}
-            onSuccess={() => router.push(`/contacts/${id}`)}
-            onCancel={() => router.push(`/contacts/${id}`)}
-          />
-        </CardContent>
-      </Card>
-    </div>
+    <FormPageShell
+      breadcrumb={[
+        { label: 'Dashboard', href: '/dashboard' },
+        { label: 'Contatos', href: '/contacts' },
+        { label: contact.name, href: `/contacts/${id}` },
+        { label: 'Editar' },
+      ]}
+      title="Editar contato"
+      description="Atualize as informações do contato."
+      cardTitle="Dados do contato"
+      cardDescription="Altere os campos necessários e salve."
+    >
+      <ContactForm
+        mode="edit"
+        initial={contact}
+        onSuccess={() => router.push(`/contacts/${id}`)}
+        onCancel={() => router.push(`/contacts/${id}`)}
+      />
+    </FormPageShell>
   )
 }

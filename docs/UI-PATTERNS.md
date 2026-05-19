@@ -88,10 +88,13 @@ Ao selecionar, barra flutuante no bottom:
 
 ### Abertura (Onde o Form Aparece)
 
-| Complexidade                           | Componente                     | Exemplos                                                    |
-| -------------------------------------- | ------------------------------ | ----------------------------------------------------------- |
-| **Simples** (< 8 campos)               | Sheet lateral (drawer direito) | Criar cliente, endorsement, occurrence, adicionar documento |
-| **Complexo** (8+ campos, sub-recursos) | Pagina dedicada com breadcrumb | Criar proposta (tabs), sinistro (campos dinamicos), claim   |
+| Ação                          | Componente        | Shell               | Exemplos                                                                       |
+| ----------------------------- | ----------------- | ------------------- | ------------------------------------------------------------------------------ |
+| **Criar**                     | Dialog            | `<FormDialogShell>` | Criar cliente, seguradora, canal, agente, sinistro, proposta                   |
+| **Editar**                    | Page `/[id]/edit` | `<FormPageShell>`   | `/clients/[id]/edit`, `/contacts/[id]/edit`, futuros `/insurers/[id]/edit` etc |
+| **Sub-recurso** (append-only) | Dialog            | `<FormDialogShell>` | Endorsement de policy, occurrence de claim                                     |
+
+> **Sheet foi descartado em todo o app.** Toda criação acontece em Dialog; edição em Page `/edit`. Ver `docs/FRONTEND-PATTERNS.md` seção 11 para API dos shells.
 
 ### Layout Interno
 
@@ -375,20 +378,20 @@ Nenhuma no momento. Se um novo módulo precisar quebrar a convenção, documente
 
 ---
 
-## 7. Modais vs Sheets vs Pages
+## 7. Modais vs Pages
 
-| Tipo                       | Quando Usar                                             | Exemplos                                                                    |
-| -------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------- |
-| **Dialog (modal centro)**  | Confirmacoes destrutivas, alertas, campos rapidos (1-2) | Excluir cliente, cancelar apolice, motivo de perda, motivo de rejeicao      |
-| **Sheet (drawer lateral)** | Formularios simples, preview rapido, filtros            | Criar cliente, preview card kanban, filtros avancados, adicionar ocorrencia |
-| **Pagina dedicada**        | Formularios complexos, detalhes com sub-recursos        | Criar proposta (tabs), detalhe de cliente (tabs), sinistro                  |
+| Tipo                      | Quando Usar                                                              | Exemplos                                                                                   |
+| ------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| **Dialog (modal centro)** | Confirmacoes destrutivas, **forms de criacao**, sub-recursos append-only | Excluir cliente, motivo de perda, criar cliente, criar seguradora, endorsement, occurrence |
+| **Pagina dedicada**       | **Edicao** (`/[id]/edit`), detalhes com sub-recursos, fluxos complexos   | `/clients/[id]/edit`, `/proposals/[id]`, `/clients/[id]`                                   |
+
+> Sheet não é usado. Forms de criação usam Dialog via `<FormDialogShell>`; forms de edição usam Page `/[id]/edit` via `<FormPageShell>`.
 
 ### Regras
 
 - Dialog: sempre tem X para fechar + botao Cancelar
-- Sheet: confirma antes de fechar se tem dados nao salvos
-- Sheet: largura max 480px (formularios), 560px (previews)
-- Dialog: max-width 440px
+- Dialog `<FormDialogShell>`: max-width `sm:max-w-md` (sm), `sm:max-w-lg` (md, default), `sm:max-w-5xl` (lg). Bloqueia close enquanto `isPending`.
+- Dialog confirmacao destrutiva: max-width 440px
 - Scrim: 40-60% black para isolar foreground
 
 ---
@@ -454,20 +457,20 @@ Nenhuma no momento. Se um novo módulo precisar quebrar a convenção, documente
 
 ## 10. Decisoes Registradas
 
-| #     | Padrao               | Escolha                                                     |
-| ----- | -------------------- | ----------------------------------------------------------- |
-| UI-1  | Estilo visual        | Swiss Modernism + warmth teal/gold                          |
-| UI-2  | Toolbar tabela       | Hibrida: quick filters + Sheet "Mais filtros"               |
-| UI-3  | Acoes por linha      | Linha clicavel + dropdown contextual                        |
-| UI-4  | Selecao multipla     | Seletiva (Commissions, Notifications, Documents)            |
-| UI-5  | Densidade tabela     | 2 opcoes (compact/default), auto por modulo                 |
-| UI-6  | Abertura forms       | Sheet para simples, pagina para complexos                   |
-| UI-7  | Layout forms         | Sections com grid 2col desktop, 1col mobile                 |
-| UI-8  | Multi-step           | Tabs horizontais, navegacao livre, autosave 30s             |
-| UI-9  | Pagina detalhe       | Header resumo + tabs de sub-recursos (lazy)                 |
-| UI-10 | Kanban               | Cards com contexto operacional, drag confirma stage         |
-| UI-11 | Toggle tabela/kanban | SegmentedControl na toolbar, filtros persistem              |
-| UI-12 | Modais/Sheets/Pages  | Regra por complexidade (dialog/sheet/page)                  |
-| UI-13 | Empty/Loading/Error  | Skeleton + empty contextual + error recovery                |
-| UI-14 | Acoes destrutivas    | Undo toast (soft delete) + dialog com motivo (irreversivel) |
-| UI-15 | Tabela mobile        | Colunas prioritarias + expand inline                        |
+| #     | Padrao               | Escolha                                                                                                 |
+| ----- | -------------------- | ------------------------------------------------------------------------------------------------------- |
+| UI-1  | Estilo visual        | Swiss Modernism + warmth teal/gold                                                                      |
+| UI-2  | Toolbar tabela       | Hibrida: quick filters + Sheet "Mais filtros"                                                           |
+| UI-3  | Acoes por linha      | Linha clicavel + dropdown contextual                                                                    |
+| UI-4  | Selecao multipla     | Seletiva (Commissions, Notifications, Documents)                                                        |
+| UI-5  | Densidade tabela     | 2 opcoes (compact/default), auto por modulo                                                             |
+| UI-6  | Abertura forms       | Dialog para criar (`FormDialogShell`); Page `/edit` para editar (`FormPageShell`). Sheet descartado.    |
+| UI-7  | Layout forms         | `FormSection` + `FormGrid` 3/2/1 com container queries; nunca `<h3>` ou `<div className="grid">` inline |
+| UI-8  | Multi-step           | Tabs horizontais, navegacao livre, autosave 30s                                                         |
+| UI-9  | Pagina detalhe       | Header resumo + tabs de sub-recursos (lazy)                                                             |
+| UI-10 | Kanban               | Cards com contexto operacional, drag confirma stage                                                     |
+| UI-11 | Toggle tabela/kanban | SegmentedControl na toolbar, filtros persistem                                                          |
+| UI-12 | Modais/Pages         | Dialog para criar e confirmar; Page para editar e detalhar. Sheet descartado.                           |
+| UI-13 | Empty/Loading/Error  | Skeleton + empty contextual + error recovery                                                            |
+| UI-14 | Acoes destrutivas    | Undo toast (soft delete) + dialog com motivo (irreversivel)                                             |
+| UI-15 | Tabela mobile        | Colunas prioritarias + expand inline                                                                    |

@@ -699,3 +699,110 @@ A interface `CursorPage<TSortBy>` e generica — cada modulo define seu proprio 
 // CursorPage<CommissionSortField> para commissions
 // CursorPage (default string) para modulos sem sorting
 ```
+
+---
+
+## 11. Form Shells (Dialog + Page)
+
+Para forms do CRUD principal, usar os shells shared que padronizam o frame externo. O componente `<XForm>` interno permanece o mesmo — só a camada de wrapping muda.
+
+### Containers permitidos
+
+| Ação   | Container         | Shell                                                   |
+| ------ | ----------------- | ------------------------------------------------------- |
+| Criar  | Dialog            | `<FormDialogShell>` envolve `<XForm hideFooter formId>` |
+| Editar | Page `/[id]/edit` | `<FormPageShell>` envolve `<XForm mode='edit' initial>` |
+
+**Sheet foi descartado em todo o app.** Use Dialog para criação e Page `/edit` para edição. Sub-recursos (endorsement de policy, occurrence de claim) também usam Dialog only.
+
+### `<FormDialogShell>` API
+
+```tsx
+<FormDialogShell
+  open={open}
+  onOpenChange={setOpen}
+  title="Nova seguradora"
+  description="Cadastre uma seguradora"
+  formId="create-insurer-form"
+  isPending={isPending}
+  submitLabel="Criar seguradora"
+  size="md" // 'sm' | 'md' (default) | 'lg'
+  cancelLabel="Cancelar" // default
+  showKeyboardHint // default true
+>
+  <InsurerForm
+    hideFooter
+    formId="create-insurer-form"
+    onPendingChange={setIsPending}
+    onSuccess={onCreated}
+  />
+</FormDialogShell>
+```
+
+Bloqueia `onOpenChange(false)` enquanto `isPending`. Submit button usa `form={formId}` + `type="submit"` — submit é disparado pelo `<form>` interno.
+
+Tamanhos:
+
+| Size | max-width                | Uso                                                             |
+| ---- | ------------------------ | --------------------------------------------------------------- |
+| `sm` | `sm:max-w-md` (~448px)   | Forms com 1–3 campos                                            |
+| `md` | `sm:max-w-lg` (~512px)   | Forms com 4–7 campos (default)                                  |
+| `lg` | `sm:max-w-5xl` (~1024px) | Forms grandes que justificam Dialog (ex: client com 3 sections) |
+
+### `<FormPageShell>` API
+
+```tsx
+<FormPageShell
+  breadcrumb={[
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: 'Seguradoras', href: '/insurers' },
+    { label: insurer.name, href: `/insurers/${id}` },
+    { label: 'Editar' },
+  ]}
+  title="Editar seguradora"
+  description="Atualize os dados da seguradora."
+  cardTitle="Dados da seguradora"
+  cardDescription="Altere os campos necessários e salve."
+>
+  <InsurerForm
+    mode="edit"
+    initial={insurer}
+    onSuccess={() => router.push(`/insurers/${id}`)}
+    onCancel={() => router.push(`/insurers/${id}`)}
+  />
+</FormPageShell>
+```
+
+Pattern de loading / not-found ainda fica inline na page (Loader2 + botão "Voltar") — se virar repetido, vira follow-up para shells `<FormPageSkeleton>` / `<FormPageNotFound>`.
+
+### API canônica do `<XForm>`
+
+```ts
+interface XFormProps {
+  readonly mode?: 'create' | 'edit' // default 'create'
+  readonly initial?: XDetail // obrigatório quando mode='edit'
+  readonly onSuccess?: (id: string) => void
+  readonly onCancel?: () => void
+  readonly onPendingChange?: (pending: boolean) => void
+  readonly hideFooter?: boolean // true quando dentro de FormDialogShell
+  readonly formId?: string // obrigatório quando hideFooter=true
+}
+```
+
+Regras:
+
+- `<FormProvider>` sempre (permite `useFormContext` em sub-components)
+- Mutation (`useCreateX`/`useUpdateX`) **dentro** do `<XForm>` — wrappers só passam callbacks
+- Schema: default `@/api/endpoints/<x>/<x>.zod`; custom em `features/<x>/lib/*-form-schema.ts` apenas para validações que não vêm do backend
+- Layout: sempre `<FormSection>` + `<FormGrid>` + `<FormField>`; nunca `<h3>`/`<div className="grid">` inline
+- Footer: sempre via `<FormActions>` dentro do form (Page) ou via `<FormDialogShell>` (Dialog)
+- Reset em Dialog: `useEffect([open, initial])` resetando `form.reset()` quando abre
+
+### Naming
+
+| Coisa            | Padrão                                                        |
+| ---------------- | ------------------------------------------------------------- |
+| Form component   | `<x>-form.tsx`                                                |
+| Dialog wrapper   | `<x>-form-dialog.tsx` (envolve `FormDialogShell` + `<XForm>`) |
+| Page de edit     | `apps/web/src/app/(dashboard)/<xs>/[id]/edit/page.tsx`        |
+| Form ID constant | `'create-<x>-form'` ou `'edit-<x>-form'`                      |
