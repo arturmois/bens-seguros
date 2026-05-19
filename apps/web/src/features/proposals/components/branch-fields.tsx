@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'
 import { Loader2 } from 'lucide-react'
@@ -59,6 +59,28 @@ const BRANCH_FIELD_MAP: Record<InsuranceBranch, BranchComponent> = {
   OTHER: OtherFields,
 }
 
+function isEmptyValue(value: unknown): boolean {
+  if (value === null || value === undefined || value === '') return true
+  if (typeof value === 'number' && Number.isNaN(value)) return true
+  return false
+}
+
+function hasRealChange(
+  initial: Record<string, unknown>,
+  current: Record<string, unknown>
+): boolean {
+  const keys = new Set([...Object.keys(initial), ...Object.keys(current)])
+  for (const key of keys) {
+    const initVal = initial[key]
+    const curVal = current[key]
+    const initEmpty = isEmptyValue(initVal)
+    const curEmpty = isEmptyValue(curVal)
+    if (initEmpty && curEmpty) continue
+    if (initVal !== curVal) return true
+  }
+  return false
+}
+
 export function BranchFields({
   branch,
   defaultValues,
@@ -89,7 +111,11 @@ export function BranchFields({
   }
   const formDefaults = buildAutoFillDefaults(branch, autoFill, baseDefaults)
   const form = useForm<FieldValues>({ defaultValues: formDefaults })
-  const isDirty = form.formState.isDirty
+  const watchedValues = form.watch()
+  const isDirty = useMemo(
+    () => hasRealChange(formDefaults, watchedValues),
+    [formDefaults, watchedValues]
+  )
   useEffect(() => {
     onDirtyChange?.(isDirty)
   }, [isDirty, onDirtyChange])

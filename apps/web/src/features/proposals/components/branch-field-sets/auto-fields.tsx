@@ -91,7 +91,7 @@ export function AutoFields({
   }
 
   return (
-    <div aria-busy={lookup.isPending}>
+    <>
       <FieldWrapper label="Veículo" required>
         <Input placeholder="Ex: Volkswagen Gol 1.6" {...register('vehicle')} />
       </FieldWrapper>
@@ -204,6 +204,6 @@ export function AutoFields({
           )}
         />
       </FieldWrapper>
-    </div>
+    </>
   )
 }

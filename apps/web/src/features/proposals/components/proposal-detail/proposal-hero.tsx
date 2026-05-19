@@ -45,9 +45,9 @@ interface ProposalHeroProps {
 type HeroVariant = 'default' | 'lost' | 'success'
 
 const VARIANT_BG: Record<HeroVariant, string> = {
-  default: 'from-[#1f4b5f] to-[#2d6478]',
-  lost: 'from-[#7f1d1d] to-[#991b1b]',
-  success: 'from-[#065f46] to-[#047857]',
+  default: 'from-primary to-primary/85',
+  lost: 'from-destructive to-destructive/85',
+  success: 'from-success to-success/85',
 }
 
 function pickVariant(stage: ProposalStage): HeroVariant {
@@ -201,7 +201,7 @@ export function ProposalHero({
                   ? 'Complete os itens obrigatórios do checklist'
                   : undefined
               }
-              className="bg-white text-[#1f4b5f] hover:bg-white/90"
+              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
             >
               {advancePending ? (
                 <Loader2 className="mr-1.5 size-4 animate-spin" />
@@ -214,7 +214,7 @@ export function ProposalHero({
           {showViewPolicy && existingPolicyId && (
             <Button
               size="sm"
-              className="bg-white text-emerald-700 hover:bg-white/90"
+              className="bg-primary-foreground text-success hover:bg-primary-foreground/90"
               render={<Link href={`/policies/${existingPolicyId}`} />}
             >
               <ExternalLink className="mr-1.5 size-4" />
