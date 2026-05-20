@@ -1,6 +1,13 @@
-# Harness audit — bens-seguros (2026-05-19)
+# Harness audit — bens-seguros
 
-Snapshot do estado do harness do projeto bens-seguros em 2026-05-19, com gap analysis pra suportar o `bens-orchestrator` (spec local: `docs/superpowers/specs/2026-05-19-bens-orchestrator-design.md`).
+Snapshot do estado do harness do projeto bens-seguros + gap analysis pra suportar o `bens-orchestrator` (spec local: `docs/superpowers/specs/2026-05-19-bens-orchestrator-design.md`).
+
+## Update history
+
+| Data       | Update                                                                                                                                                                                                                          | PR             |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| 2026-05-19 | Audit inicial: 11 gaps mapeados. Scaffold de 9 subagents + skill + slash + audit doc + harness-learnings/ commitado.                                                                                                            | #313 (merged)  |
+| 2026-05-20 | Phases 1-4 funcionais: orchestrator skill com Execution flow detalhada + state management JSON. `bens-jira-reader`, `bens-spec-author`, `bens-plan-author` validados via system prompt completo + integração com state machine. | PR-2 (este PR) |
 
 ## Inventário (2026-05-19)
 
@@ -63,34 +70,34 @@ Snapshot do estado do harness do projeto bens-seguros em 2026-05-19, com gap ana
 
 ## Gap analysis (capabilities pro `bens-orchestrator`)
 
-| Capability                                                                   | Provedor existente                                            | Status                                            |
-| ---------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------- |
-| Ler ticket Jira (descrição, comments, ACs, attachments)                      | Atlassian MCP                                                 | ✅ disponível                                     |
-| Ler Confluence linkado                                                       | Atlassian MCP                                                 | ✅ disponível                                     |
-| Buscar Sentry por erro relacionado                                           | Sentry MCP                                                    | ✅ disponível                                     |
-| Buscar código por símbolo                                                    | Serena MCP                                                    | ✅ disponível                                     |
-| Buscar docs de libs                                                          | Context7 MCP                                                  | ✅ disponível                                     |
-| Brainstorming → spec                                                         | `superpowers:brainstorming`                                   | ✅ disponível (global)                            |
-| Spec → plan                                                                  | `superpowers:writing-plans`                                   | ✅ disponível (global)                            |
-| Execução de plano                                                            | `superpowers:executing-plans` + `subagent-driven-development` | ✅ disponível (global)                            |
-| Worktree isolado                                                             | `superpowers:using-git-worktrees`                             | ✅ disponível (global)                            |
-| TDD                                                                          | `superpowers:test-driven-development`                         | ✅ disponível (global)                            |
-| Debug sistemático                                                            | `superpowers:systematic-debugging`                            | ✅ disponível (global)                            |
-| Verificação pré-completion                                                   | `superpowers:verification-before-completion`                  | ✅ disponível (global)                            |
-| Code review                                                                  | `bens-code-reviewer` (subagent local)                         | ✅ disponível                                     |
-| QA runner (Playwright)                                                       | nenhum subagent dedicado                                      | ❌ **GAP — `bens-qa-runner` no PR-1**             |
-| Jira reader wrapper                                                          | nenhum (MCP existe; falta agent)                              | ❌ **GAP — `bens-jira-reader` no PR-1**           |
-| Spec author (subagent que aplica brainstorming sem perguntar excessivamente) | nenhum                                                        | ❌ **GAP — `bens-spec-author` no PR-1**           |
-| Plan author (subagent que aplica writing-plans)                              | nenhum                                                        | ❌ **GAP — `bens-plan-author` no PR-1**           |
-| After-action reviewer                                                        | nenhum                                                        | ❌ **GAP — `bens-after-action` no PR-1**          |
-| Failure dispatch: test-fixer                                                 | nenhum                                                        | ❌ **GAP — `bens-test-fixer` no PR-1**            |
-| Failure dispatch: hook-resolver                                              | nenhum                                                        | ❌ **GAP — `bens-hook-resolver` no PR-1**         |
-| Failure dispatch: review-applier                                             | nenhum                                                        | ❌ **GAP — `bens-review-applier` no PR-1**        |
-| Failure dispatch: qa-fixer                                                   | nenhum                                                        | ❌ **GAP — `bens-qa-fixer` no PR-1**              |
-| Failure dispatch: CI pipeline                                                | `check-pipeline` (skill)                                      | ✅ disponível                                     |
-| Orchestrator state machine                                                   | nenhum                                                        | ❌ **GAP — skill `bens-orchestrator` no PR-1**    |
-| Slash `/work SCRUM-XX`                                                       | nenhum                                                        | ❌ **GAP — `.claude/commands/work.md` no PR-1**   |
-| Persistência de learnings (diretório)                                        | nenhum                                                        | ❌ **GAP — `.claude/harness-learnings/` no PR-1** |
+| Capability                                                                   | Provedor existente                                            | Status                                                                                                                                |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Ler ticket Jira (descrição, comments, ACs, attachments)                      | Atlassian MCP                                                 | ✅ disponível                                                                                                                         |
+| Ler Confluence linkado                                                       | Atlassian MCP                                                 | ✅ disponível                                                                                                                         |
+| Buscar Sentry por erro relacionado                                           | Sentry MCP                                                    | 🟡 limitado — apenas auth handshake exposto; tools de query a confirmar em runtime (PR-2 descoberta; PR-5 after-action propõe ajuste) |
+| Buscar código por símbolo                                                    | Serena MCP                                                    | ✅ disponível                                                                                                                         |
+| Buscar docs de libs                                                          | Context7 MCP                                                  | ✅ disponível                                                                                                                         |
+| Brainstorming → spec                                                         | `superpowers:brainstorming`                                   | ✅ disponível (global)                                                                                                                |
+| Spec → plan                                                                  | `superpowers:writing-plans`                                   | ✅ disponível (global)                                                                                                                |
+| Execução de plano                                                            | `superpowers:executing-plans` + `subagent-driven-development` | ✅ disponível (global)                                                                                                                |
+| Worktree isolado                                                             | `superpowers:using-git-worktrees`                             | ✅ disponível (global)                                                                                                                |
+| TDD                                                                          | `superpowers:test-driven-development`                         | ✅ disponível (global)                                                                                                                |
+| Debug sistemático                                                            | `superpowers:systematic-debugging`                            | ✅ disponível (global)                                                                                                                |
+| Verificação pré-completion                                                   | `superpowers:verification-before-completion`                  | ✅ disponível (global)                                                                                                                |
+| Code review                                                                  | `bens-code-reviewer` (subagent local)                         | ✅ disponível                                                                                                                         |
+| QA runner (Playwright)                                                       | `bens-qa-runner` (scaffold)                                   | 🟡 scaffold (PR-1 #313); funcional em PR-4                                                                                            |
+| Jira reader wrapper                                                          | `bens-jira-reader`                                            | ✅ funcional em PR-2 (este PR)                                                                                                        |
+| Spec author (subagent que aplica brainstorming sem perguntar excessivamente) | `bens-spec-author`                                            | ✅ funcional em PR-2 (este PR)                                                                                                        |
+| Plan author (subagent que aplica writing-plans)                              | `bens-plan-author`                                            | ✅ funcional em PR-2 (este PR)                                                                                                        |
+| After-action reviewer                                                        | `bens-after-action` (scaffold)                                | 🟡 scaffold (PR-1 #313); funcional em PR-5                                                                                            |
+| Failure dispatch: test-fixer                                                 | `bens-test-fixer` (scaffold)                                  | 🟡 scaffold (PR-1 #313); funcional em PR-3                                                                                            |
+| Failure dispatch: hook-resolver                                              | `bens-hook-resolver` (scaffold)                               | 🟡 scaffold (PR-1 #313); funcional em PR-3                                                                                            |
+| Failure dispatch: review-applier                                             | `bens-review-applier` (scaffold)                              | 🟡 scaffold (PR-1 #313); funcional em PR-3                                                                                            |
+| Failure dispatch: qa-fixer                                                   | `bens-qa-fixer` (scaffold)                                    | 🟡 scaffold (PR-1 #313); funcional em PR-4                                                                                            |
+| Failure dispatch: CI pipeline                                                | `check-pipeline` (skill)                                      | ✅ disponível                                                                                                                         |
+| Orchestrator state machine                                                   | skill `bens-orchestrator`                                     | ✅ phases 1-4 em PR-2 (este PR); 5-14 em PR-3 a PR-5                                                                                  |
+| Slash `/work SCRUM-XX`                                                       | `.claude/commands/work.md`                                    | ✅ phases 1-4 em PR-2 (este PR)                                                                                                       |
+| Persistência de learnings (diretório)                                        | `.claude/harness-learnings/`                                  | ✅ criado em PR-1 (#313)                                                                                                              |
 
 ## Recomendações de MCP / config
 
@@ -123,4 +130,4 @@ Sinal de hipótese errada: nenhum dos sinais positivos aparece em 4 semanas → 
 
 ## Conclusão
 
-11 gaps identificados. PR-1 deste plano fecha todos no nível de scaffold (frontmatter + system prompt mínimo). PRs subsequentes (PR-2 a PR-5) implementam a lógica funcional. Nenhum MCP novo necessário; tudo a fazer é configuração local em `.claude/`.
+11 gaps identificados em 2026-05-19. PR-1 (#313) fechou todos como scaffold. PR-2 (este PR) traz 3 capabilities pra estado funcional completo (jira-reader, spec-author, plan-author) + orchestrator state machine pra phases 1-4. Restam 6 capabilities em estado scaffold pra serem ativadas em PR-3 (test-fixer, hook-resolver, review-applier + IMPLEMENT/LOCAL_GATES/CODE_REVIEW/OPEN_PR/CI_WATCH), PR-4 (qa-runner + qa-fixer) e PR-5 (after-action + APPLY_LEARNINGS). Nenhum MCP novo necessário.

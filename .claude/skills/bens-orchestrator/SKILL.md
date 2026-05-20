@@ -15,6 +15,7 @@ Esta skill executa o fluxo Jira → PR de ponta a ponta. Carregada pelo slash `/
 - `short_title` = primeiras 5-7 palavras do título do Jira, sluggificadas
 - `branch` = `feat/${ticket_lower}`
 - `worktree_path` = `../bens-seguros-${ticket_lower}`
+- `date` = `YYYY-MM-DD` (ISO date do dia de execução, ex `2026-05-20`). Usado em paths de spec/plan/learnings: `${date}-${slug}-design.md`, `${date}-${slug}.md`, `${date}-${slug}.md` respectivamente.
 
 ## Pré-condições (checadas antes de qualquer phase)
 
@@ -163,6 +164,140 @@ No root do worktree:
 
 Reentrada (`/work SCRUM-XX` num worktree existente): lê state, mostra resumo, pergunta retomar ou recomeçar.
 
+## Execution flow — phases 1-4 (PR-2: funcional)
+
+Main session executa esta sequência. Cada step é literal — NÃO improvise.
+
+### Phase 0: Pré-checks + setup worktree
+
+1. Validar `ticket_id`: regex `^[A-Z]+-\d+$`. Inválido → erro, aborta.
+2. `git status --porcelain` no main checkout. NÃO vazio → refuse com mensagem ("Working tree não está limpo. Commit ou stash mudanças antes de /work").
+3. `gh auth status`. Não autenticado → refuse.
+4. Testar Atlassian MCP: `mcp__plugin_atlassian_atlassian__getAccessibleAtlassianResources`. Vazio → escalate ("Atlassian MCP indisponível. Retry em 60s ou abortar?").
+5. Worktree setup:
+   ```bash
+   git fetch origin
+   git worktree add ../bens-seguros-${ticket_lower} -b feat/${ticket_lower} origin/main
+   cd ../bens-seguros-${ticket_lower}
+   ln -sf ../bens-seguros/.env .env   # path relativo (memory: worktree-env-symlink-for-prisma)
+   pnpm install --frozen-lockfile
+   pnpm db:generate
+   ```
+6. Inicializar `.orchestrator-state.json` no root do worktree (ver "State management" abaixo).
+7. Logar via TaskCreate cada phase pra tracking visual.
+
+### Phase 1: READ_TICKET
+
+1. Dispatchar subagent `bens-jira-reader`:
+   ```
+   Agent({
+     description: "Read ticket SCRUM-XX",
+     subagent_type: "bens-jira-reader",
+     prompt: "Ticket ID: ${ticket_id}. Worktree path: ${worktree_path}. Produce ticket-context.md per your system prompt contract."
+   })
+   ```
+2. Receber output (caminho ticket-context.md confirmado).
+3. Validar que ticket-context.md existe e tem o cabeçalho principal (`# Ticket Context:`) + 7 seções obrigatórias `## ` (Description, Acceptance Criteria, Comments, Linked Confluence pages, Sentry errors, Git history, Keywords). Total: 1 h1 + 7 h2 = 8 partes; usar `grep "^# " | wc -l` ≥ 1 e `grep "^## " | wc -l` ≥ 7.
+4. Atualizar state: `completed_phases.push("READ_TICKET")`, `phase = "CLASSIFY"`.
+
+### Phase 2: CLASSIFY (inline na main session)
+
+1. Ler ticket-context.md.
+2. Determinar `type` (heurísticas):
+   - Jira type "Bug" → `bug`
+   - Jira type "Task" com keywords "refactor", "cleanup", "rename" → `refactor`
+   - Jira type "Sub-task" sob épico de chore → `chore`
+   - Outros → `feature`
+3. Determinar `scope` (analisar título + descrição + ACs):
+   - Mentions `apps/web`, `components`, `page`, `form`, UI → `frontend`
+   - Mentions `apps/server`, `apps/chat-server`, API, use case, endpoint, backend → `backend`
+   - Mentions `prisma`, `schema`, `migration`, `RLS` → `db`
+   - Mentions `Docker`, `deploy`, `infra`, `CI` → `infra`
+   - Multiple áreas → `mixed`
+4. Slug do ticket: `${ticket_lower}-${kebab(primeiras 5-7 palavras do título)}`. Ex: `scrum-71-emissao-apolice-dados-contato`.
+5. Atualizar state: `slug`, `type`, `scope`, `completed_phases.push("CLASSIFY")`, `phase = "BRAINSTORM_SPEC"`.
+
+### Phase 3: BRAINSTORM_SPEC
+
+1. Dispatchar subagent `bens-spec-author`:
+   ```
+   Agent({
+     description: "Generate spec for SCRUM-XX",
+     subagent_type: "bens-spec-author",
+     prompt: "Input: { ticket_context_path: '${worktree}/ticket-context.md', type: '${type}', scope: '${scope}', slug: '${slug}', date: '${date}' }. Generate spec per your system prompt contract. If you find AMBIGUIDADE — requer decisão do user, return that markdown instead of writing the spec."
+   })
+   ```
+2. Se output for `# AMBIGUIDADE` → escalate user. **Quem escala = main session** (orchestrator), usando a tool `AskUserQuestion` disponível na main session (subagents não têm essa tool). Passar pergunta + opções + recomendação. Receber resposta, re-invocar `bens-spec-author` com decisão tomada.
+3. Validar spec existe em `docs/superpowers/specs/${date}-${slug}-design.md` (path gitignored).
+4. Atualizar state: `spec_path`, `phase = "AWAIT_SPEC_REVIEW"` (NÃO push em `completed_phases` ainda — só após aprovação do checkpoint).
+5. **CHECKPOINT user obrigatório:** Mensagem ao user: "Spec gerado em \`${spec_path}\`. Aprovar pra seguir pro plano? (responder: yes / no / comentários)". WAIT user response (usar `AskUserQuestion` se a resposta deve ser estruturada com opções).
+6. Se `yes` → seguir. Se `no` ou comentários → re-invocar `bens-spec-author` com feedback, voltar pra step 3. Se múltiplas rodadas (>3) → escalate "checkpoint preso, talvez decompor ticket?".
+7. Atualizar state: `completed_phases.push("BRAINSTORM_SPEC")`, `user_interventions.push({phase: "BRAINSTORM_SPEC", type: "checkpoint", answer})`, `phase = "WRITE_PLAN"`.
+
+### Phase 4: WRITE_PLAN
+
+1. Dispatchar subagent `bens-plan-author`:
+   ```
+   Agent({
+     description: "Generate plan for SCRUM-XX",
+     subagent_type: "bens-plan-author",
+     prompt: "Input: { spec_path: '${spec_path}', ticket_id: '${ticket_id}', slug: '${slug}', type: '${type}', scope: '${scope}', date: '${date}' }. Generate plan per your system prompt contract."
+   })
+   ```
+2. Validar plan existe em `docs/superpowers/plans/${date}-${slug}.md` (path gitignored).
+3. Atualizar state: `plan_path`, `phase = "AWAIT_PLAN_REVIEW"` (NÃO push em `completed_phases` ainda — só após aprovação).
+4. **CHECKPOINT user obrigatório:** "Plano gerado em \`${plan_path}\`. Aprovar pra começar implementação? (yes / no / comentários)". WAIT response (usar `AskUserQuestion` se quiser estrutura).
+5. Yes → seguir. No/comentários → re-invocar `bens-plan-author` com feedback, voltar pra step 2.
+6. Atualizar state: `completed_phases.push("WRITE_PLAN")`, `user_interventions.push({phase: "WRITE_PLAN", type: "checkpoint", answer})`, `phase = "IMPLEMENT"`.
+
+### Phases 5-14 — out of scope deste PR-2
+
+Implementação detalhada vem em PR-3 (5-10), PR-4 (8 com QA-fixer), PR-5 (12-13). Por enquanto, ao chegar em phase 5 (IMPLEMENT), a skill retorna pro user: "Phases 1-4 completas. Spec+plan prontos em `${spec_path}` e `${plan_path}`. Phases 5+ ainda não implementadas (PR-3 a PR-5). Você pode (a) implementar manualmente seguindo o plan via `superpowers:subagent-driven-development`, ou (b) aguardar PR-3."
+
+## State management — `.orchestrator-state.json`
+
+### Quando criar/atualizar
+
+- **Phase 0 (setup):** criar com estado inicial após mkdir worktree.
+- **Após cada phase:** atualizar campos relevantes + push em `completed_phases`.
+- **Em falha:** push entry em `failures`.
+- **Em user intervention:** push entry em `user_interventions`.
+- **Em abort:** set `aborted_at`.
+
+### Estado inicial (Phase 0)
+
+```json
+{
+  "ticket": "SCRUM-XX",
+  "slug": null,
+  "type": null,
+  "scope": null,
+  "phase": "READ_TICKET",
+  "started_at": "<ISO timestamp>",
+  "spec_path": null,
+  "plan_path": null,
+  "pr_url": null,
+  "completed_phases": [],
+  "failures": [],
+  "user_interventions": [],
+  "paused_reason": null,
+  "aborted_at": null
+}
+```
+
+### Read protocol (em reentrada de `/work SCRUM-XX`)
+
+1. Se worktree existe (`../bens-seguros-${ticket_lower}/`):
+   - Ler `.orchestrator-state.json`
+   - Se `aborted_at != null` → perguntar "Worktree abortada em ${aborted_at}. Recomeçar?"
+   - Se `phase != null && aborted_at == null` → perguntar "Worktree em phase ${phase}. Retomar ou recomeçar?"
+2. Se "retomar": pular phases em `completed_phases`, continuar do `phase` atual.
+3. Se "recomeçar": apagar state file, começar do Phase 0.
+
+### Write protocol
+
+Sempre Edit ou Write o arquivo INTEIRO (não append). JSON deve ser válido após cada update — re-serializar do objeto em memória.
+
 ## Subagents (catálogo)
 
 Phase subagents (executam phases específicas):
@@ -205,16 +340,17 @@ Sessão **com** orchestrator (`/work SCRUM-XX`): esta skill (state machine de 14
 - Spec/brainstorming standalone — usar `superpowers:brainstorming` direto
 - Implementação manual de feature complexa que user quer dirigir — usar `bens-implementation-flow`
 
-## Status de implementação (este file é o scaffold de PR-1)
+## Status de implementação
 
-PR-1 entrega esta skill como **documentação completa do state machine** + scaffold dos 9 subagents. Lógica funcional vem nos PRs seguintes:
+| PR          | Phases                                                                                                        | Status     |
+| ----------- | ------------------------------------------------------------------------------------------------------------- | ---------- |
+| PR-1 (#313) | state machine doc + 9 subagent scaffolds + `/work` + audit doc                                                | ✅ merged  |
+| PR-2        | Phases 1-4 funcionais (READ_TICKET, CLASSIFY, BRAINSTORM_SPEC, WRITE_PLAN) + 2 checkpoints + state management | 🟢 este PR |
+| PR-3        | Phases 5-10 (IMPLEMENT, LOCAL_GATES, CODE_REVIEW, OPEN_PR, CI_WATCH) + 3 failure specialists                  | pendente   |
+| PR-4        | Phase 8 (QA_RUN) + bens-qa-fixer                                                                              | pendente   |
+| PR-5        | Phases 12-13 (AFTER_ACTION + APPLY_LEARNINGS — self-improvement loop)                                         | pendente   |
 
-- PR-2: implementar phases 1-4 (READ_TICKET, CLASSIFY, BRAINSTORM_SPEC, WRITE_PLAN)
-- PR-3: implementar phases 5-10 (IMPLEMENT, LOCAL_GATES, CODE_REVIEW, QA_RUN skip-by-default, OPEN_PR, CI_WATCH) + 3 failure specialists
-- PR-4: implementar phase 8 (QA_RUN) + qa-fixer
-- PR-5: implementar phases 12-13 (AFTER_ACTION, APPLY_LEARNINGS)
-
-Até PR-2 mergeada, invocar `/work SCRUM-XX` é no-op (skill carrega mas state machine não dispatcha — pra evitar surpresas, o slash retorna mensagem "Orchestrator scaffolded but not yet functional. PR-2 implements phases 1-4. See spec.").
+Após PR-2: `/work SCRUM-XX` lê ticket Jira, gera spec, pausa pra approval, gera plan, pausa pra approval — e termina ali (phases 5+ retornam mensagem de "implemente manualmente OU aguarde PR-3").
 
 ## Memory referenciada
 

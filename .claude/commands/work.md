@@ -62,11 +62,12 @@ Em falhas: dispatch pra failure specialist (`bens-test-fixer`, `bens-hook-resolv
 
 `.claude/skills/bens-orchestrator/SKILL.md`
 
-## Status de implementação (PR-1 entrega scaffold; lógica funcional vem nos PRs seguintes)
+## Status de implementação
 
-- [ ] PR-2: Conectar phases 1-4 (jira-reader, spec-author, plan-author)
-- [ ] PR-3: Conectar phases 5-10 (implement, gates, review, PR, CI watch) + 3 failure specialists
-- [ ] PR-4: Conectar phase 8 (QA runner + qa-fixer)
-- [ ] PR-5: Conectar phases 12-13 (after-action + learnings)
+- [x] **PR-1** (#313, merged): scaffold + state machine doc + 9 subagents + `/work` + audit doc
+- [x] **PR-2** (este PR): phases 1-4 funcionais — `/work SCRUM-XX` lê ticket, gera spec, gera plan, com 2 checkpoints
+- [ ] PR-3: phases 5-10 (IMPLEMENT, LOCAL_GATES, CODE_REVIEW, OPEN_PR, CI_WATCH) + 3 failure specialists
+- [ ] PR-4: phase 8 (QA_RUN) + bens-qa-fixer
+- [ ] PR-5: phases 12-13 (after-action + self-improvement loop)
 
-Até PR-2 mergeada, `/work SCRUM-XX` retorna mensagem "Orchestrator scaffolded but not yet functional. PR-2 implements phases 1-4. See spec."
+Após este PR mergeado, `/work SCRUM-XX` executa Jira → spec → plan end-to-end com 2 pausas pra aprovação humana (após spec, após plan). Ao chegar em phase 5 (IMPLEMENT), retorna pro user com instruções pra implementação manual via `superpowers:subagent-driven-development` (ou aguardar PR-3).

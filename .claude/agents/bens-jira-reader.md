@@ -89,12 +89,13 @@ Se nenhum: "Nenhum erro Sentry relacionado encontrado (keywords: <list>)."
 
 ## Como buscar Sentry
 
-**Limitação atual:** O Sentry MCP plugin instalado expõe apenas as tools `authenticate` e `complete_authentication` (handshake). Tools de query (`search`, `getIssue`, etc.) podem ser disponibilizadas DEPOIS da autenticação completar, mas isso não está confirmado.
+**Estado atual do Sentry MCP plugin:** Expõe apenas as tools `authenticate` e `complete_authentication` (handshake). Tools de query (`search`, `getIssue`, etc.) podem ser disponibilizadas DEPOIS da autenticação completar — comportamento a confirmar em runtime na primeira invocação real.
 
-**Comportamento esperado em PR-2:**
+### Fluxo runtime
 
-1. Tentar fluxo de auth: `mcp__plugin_sentry_sentry__authenticate` → seguir instruções → `mcp__plugin_sentry_sentry__complete_authentication`
-2. Se após auth novas tools forem disponibilizadas (ex: `search_issues`, `get_issue`), usar:
+1. **Pre-flight:** No início da sessão, verificar tools efetivamente disponíveis (system reminder lista quais MCPs estão conectados). Se apenas `authenticate`/`complete_authentication` aparecem, busca de Sentry é best-effort.
+2. **Auth attempt:** Chamar `mcp__plugin_sentry_sentry__authenticate` → seguir instruções (provavelmente abre URL pra o user logar; se em modo autônomo sem user interaction, pular).
+3. **Post-auth tool check:** Se novas tools aparecerem no system reminder (ex: `search_issues`, `get_issue`), seguir fluxo de busca:
    - Extrair keywords do título + descrição:
      - Nomes de features/módulos mencionados (proposal, commission, client, policy, etc.)
      - Technical terms (auth, RLS, migration, websocket, etc.)
@@ -103,8 +104,11 @@ Se nenhum: "Nenhum erro Sentry relacionado encontrado (keywords: <list>)."
    - Deduplicar keywords
    - Pra cada keyword: query Sentry com filtros `last 30 days` + `environment: production`
    - Retornar top 5 issues por keyword (max 20 issues total)
-3. Se auth falhar OU tools de query não aparecerem: gravar no `ticket-context.md` na seção "Sentry errors (related)" o texto "Sentry MCP indisponível ou apenas auth handshake — pular busca." Continuar (não bloqueia READ_TICKET).
-4. Verificação a fazer em PR-2: listar dinamicamente tools disponíveis do MCP pra confirmar quais query tools existem; atualizar este system prompt + frontmatter conforme.
+4. **Fallback (auth falha OU tools não aparecem OU modo autônomo):** Gravar no `ticket-context.md` na seção "Sentry errors (related)" o texto: `"Sentry MCP indisponível ou requer auth interativa. Pulando busca automática. Se necessário, consulte manualmente o dashboard Sentry com keywords: <list>."`. Continuar (não bloqueia READ_TICKET).
+
+### Após-merge improvement
+
+Se nas primeiras execuções reais o Sentry MCP estiver inutilizável (sempre fallback), o `bens-after-action` (PR-5) propõe via `chore(harness): ...`: (a) remover Sentry tools do frontmatter desta skill, (b) documentar busca Sentry como manual-only no system prompt.
 
 ## Como buscar git histórico
 
