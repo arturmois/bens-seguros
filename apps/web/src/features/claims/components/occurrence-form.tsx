@@ -1,24 +1,14 @@
 'use client'
 
-import { useEffect } from 'react'
-import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2 } from 'lucide-react'
+import { useEffect } from 'react'
+import { Controller, FormProvider, useForm } from 'react-hook-form'
 import type { z } from 'zod'
 
-import { FormActions } from '@/components/shared/form-actions'
+import { FormDialogShell } from '@/components/shared/form-dialog-shell'
 import { FormField } from '@/components/shared/form-field'
 import { FormGrid } from '@/components/shared/form-grid'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogPanel,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { FormSection } from '@/components/shared/form-section'
 import {
   Select,
   SelectContent,
@@ -29,12 +19,15 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 
 import { CreateClaimOccurrenceBody } from '@/api/endpoints/claims/claims.zod'
+
 import { useCreateOccurrence } from '../hooks/use-claims'
+
+const FORM_ID = 'create-occurrence-form'
 
 const OCCURRENCE_TYPE_OPTIONS = [
   { value: 'acompanhamento', label: 'Acompanhamento' },
   { value: 'comunicado', label: 'Comunicado' },
-  { value: 'documento_solicitado', label: 'Documento Solicitado' },
+  { value: 'documento_solicitado', label: 'Documento solicitado' },
   { value: 'vistoria', label: 'Vistoria' },
   { value: 'parecer', label: 'Parecer' },
   { value: 'outro', label: 'Outro' },
@@ -66,6 +59,7 @@ export function OccurrenceForm({
   const createOccurrence = useCreateOccurrence()
   const form = useForm<OccurrenceFormValues>({
     resolver: zodResolver(occurrenceFormSchema),
+    mode: 'onBlur',
     defaultValues: EMPTY_VALUES,
   })
   useEffect(() => {
@@ -78,22 +72,32 @@ export function OccurrenceForm({
       { onSuccess: () => onOpenChange(false) }
     )
   }
+  const errors = form.formState.errors
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Nova ocorrência</DialogTitle>
-          <DialogDescription>
-            Registre uma nova ocorrência para este sinistro.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogPanel>
-          <form id="occurrence-form" onSubmit={form.handleSubmit(handleSubmit)}>
+    <FormDialogShell
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Nova ocorrência"
+      description="Registre uma nova ocorrência para este sinistro."
+      formId={FORM_ID}
+      isPending={createOccurrence.isPending}
+      submitLabel="Registrar"
+      keyboardHintAction="registrar"
+      size="md"
+    >
+      <FormProvider {...form}>
+        <form
+          id={FORM_ID}
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="space-y-6"
+          noValidate
+        >
+          <FormSection title="Dados da ocorrência">
             <FormGrid columns={2}>
               <FormField
                 label="Tipo"
                 span="full"
-                error={form.formState.errors.type?.message}
+                error={errors.type?.message}
                 required
               >
                 <Controller
@@ -130,7 +134,7 @@ export function OccurrenceForm({
               <FormField
                 label="Descrição"
                 span="full"
-                error={form.formState.errors.description?.message}
+                error={errors.description?.message}
                 required
               >
                 <Textarea
@@ -140,30 +144,9 @@ export function OccurrenceForm({
                 />
               </FormField>
             </FormGrid>
-          </form>
-        </DialogPanel>
-        <DialogFooter>
-          <FormActions noPadding>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              form="occurrence-form"
-              disabled={createOccurrence.isPending}
-            >
-              {createOccurrence.isPending && (
-                <Loader2 className="mr-2 size-4 animate-spin" />
-              )}
-              Registrar
-            </Button>
-          </FormActions>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </FormSection>
+        </form>
+      </FormProvider>
+    </FormDialogShell>
   )
 }
