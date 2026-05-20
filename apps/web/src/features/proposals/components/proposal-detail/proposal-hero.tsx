@@ -21,12 +21,12 @@ import {
 
 import { formatCurrency, formatPercentage } from '@/lib/formatters'
 
+import type { ProposalData, ProposalStage } from '../../lib/constants'
 import {
   BOARD_TYPE_LABELS,
   BRANCH_LABELS,
   STAGE_LABELS,
 } from '../../lib/constants'
-import type { ProposalData, ProposalStage } from '../../lib/constants'
 import { StageTracker } from './stage-tracker'
 
 interface ProposalHeroProps {
@@ -92,7 +92,7 @@ export function ProposalHero({
     <section
       data-testid="proposal-hero"
       data-variant={variant}
-      className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${VARIANT_BG[variant]} p-4 text-white shadow-lg sm:p-6`}
+      className={`bg-linear-to-br relative overflow-hidden rounded-xl ${VARIANT_BG[variant]} p-4 text-white shadow-lg sm:p-6`}
     >
       <div className="mb-4">
         <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
