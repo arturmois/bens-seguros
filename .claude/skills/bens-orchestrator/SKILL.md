@@ -16,6 +16,8 @@ Esta skill executa o fluxo Jira → PR de ponta a ponta. Carregada pelo slash `/
 - `branch` = `feat/${ticket_lower}`
 - `worktree_path` = `../bens-seguros-${ticket_lower}`
 - `date` = `YYYY-MM-DD` (ISO date do dia de execução, ex `2026-05-20`). Usado em paths de spec/plan/learnings: `${date}-${slug}-design.md`, `${date}-${slug}.md`, `${date}-${slug}.md` respectivamente.
+- `ticket_title` = `summary` do ticket Jira (ex: "RETIRAR INFORMAÇÃO DO EMPRESARIAL")
+- `ticket_brief` = primeiras 2-3 frases do `description` do ticket (~200 chars), pra contexto compacto em prompts de subagent
 
 ## Pré-condições (checadas antes de qualquer phase)
 
@@ -23,7 +25,7 @@ Esta skill executa o fluxo Jira → PR de ponta a ponta. Carregada pelo slash `/
 2. Working tree limpo no main checkout (`git status --porcelain` vazio). NÃO limpo → refuse com mensagem; NÃO faz auto-stash.
 3. `gh` autenticado (`gh auth status`)
 4. Atlassian MCP responde (`mcp__plugin_atlassian_atlassian__getAccessibleAtlassianResources`)
-5. **Subagent availability check (PR-3):** verificar se os bens-\* subagents necessários estão na lista de `subagent_type` do tool `Agent`. Checar pelo menos: `bens-jira-reader`, `bens-spec-author`, `bens-plan-author`, `bens-code-reviewer`, `bens-test-fixer`, `bens-hook-resolver`, `bens-review-applier`. Também checar `bens-qa-runner` e `bens-qa-fixer` quando QA_RUN (Phase 8) for ativada (PR-4 implementa). Se algum subagent requerido pra phase atual faltar → **fallback inline** (modo degradado): main session executa o trabalho do subagent diretamente em vez de dispatchar (memory: `orchestrator-subagent-restart-required`). Logar warning + salvar em state file `failures` com type `subagent_unavailable` pro after-action propor melhoria. **Não bloqueia o fluxo** — orchestrator continua, só perde isolamento de contexto.
+5. **Subagent availability check (PR-3 + PR-4):** verificar se os bens-\* subagents necessários estão na lista de `subagent_type` do tool `Agent`. Lista completa: `bens-jira-reader`, `bens-spec-author`, `bens-plan-author`, `bens-code-reviewer`, `bens-test-fixer`, `bens-hook-resolver`, `bens-review-applier`, `bens-qa-runner` (Phase 8), `bens-qa-fixer` (Phase 8 failure). Se algum subagent requerido pra phase atual faltar → **fallback inline** (modo degradado): main session executa o trabalho do subagent diretamente em vez de dispatchar (memory: `orchestrator-subagent-restart-required`). Logar warning + salvar em state file `failures` com type `subagent_unavailable` pro after-action propor melhoria. **Não bloqueia o fluxo** — orchestrator continua, só perde isolamento de contexto.
 
 ## State machine — 14 phases
 
@@ -313,14 +315,78 @@ Dispatchar `bens-code-reviewer` no diff do branch.
 4. WARNING e INFO: persist em PR body como TODO list (não bloqueia merge).
 5. Atualizar state: `completed_phases.push("CODE_REVIEW")`, `phase = "QA_RUN"`.
 
-### Phase 8: QA_RUN (skip default — implementado em PR-4)
+### Phase 8: QA_RUN (PR-4: funcional)
 
-PR-3 NÃO ativa QA_RUN. Comportamento atual:
+QA via Playwright MCP em features de UI.
 
-1. Detectar se diff tem arquivos `.tsx` em `apps/web/src/features/*/components/` (mudança de UI).
-2. Se SIM: log "QA_RUN skipped (PR-4 will implement) — recomendado executar QA manual via Playwright MCP antes de merge".
-3. Se NÃO: seguir direto.
-4. Atualizar state: `completed_phases.push("QA_RUN")` (string simples, sem objeto) + `qa_skipped: true` em campo separado no root do state JSON (não mistura tipos em completed_phases). Depois `phase = "OPEN_PR"`.
+#### 8.1 — Detectar se QA é necessária
+
+1. Análise do diff: `git diff origin/main..HEAD --name-only`. Se **NENHUM** arquivo bate em `apps/web/src/features/**/components/*.tsx`, `apps/web/src/app/**/page.tsx`, `apps/web/src/app/**/layout.tsx` → skip QA, `qa_skipped: true` (motivo `no_ui_changes`), seguir pra Phase 9.
+2. Se houver arquivos UI tocados → seguir pra 8.2.
+
+#### 8.2 — Pre-flight: porta :3000 (CORS pinned, memory: `server-cors-pinned-to-3000`)
+
+Server CORS é fixo em `http://localhost:3000`. Worktree do orchestrator NÃO pode subir web em outra porta sem quebrar autenticação.
+
+1. Checar se porta :3000 está ocupada por processo Next.js (NÃO usar `/api/health` — falso positivo via proxy do server :3001): `lsof -ti:3000 2>/dev/null` retorna PID se ocupada, vazio se livre. Alternativa: `curl -sf http://localhost:3000/_next/health` (endpoint Next.js específico, não passa por proxy).
+2. Se porta livre:
+   - Main session sobe web no worktree: `pnpm --filter @app/web dev &` (background)
+   - Aguardar `http://localhost:3000` responder (max 30s)
+   - Seguir pra 8.3
+3. Se porta ocupada (PID retornou ou `_next/health` 200):
+   - `AskUserQuestion` com 3 opções:
+     - **(a) Pausar main dev session** — você para o `pnpm dev` no main checkout, eu subo no worktree, rodo QA, paro o worktree, e você reinicia
+     - **(b) Pular QA neste ticket** — marca `qa_skipped: true`, `qa_skip_reason: "port_conflict_user_chose_skip"`, seguir pra Phase 9 com warning no PR body recomendando QA manual pós-merge
+     - **(c) Abortar orchestrator** — setar `paused_reason: "port_conflict_user_chose_abort"` no state + salvar state file. Orchestrator encerra. User retoma com `/work SCRUM-XX` quando porta liberar.
+   - Timeout de 60s: fallback (b) por segurança.
+
+#### 8.3 — Dispatchar bens-qa-runner
+
+```
+Agent({
+  description: "QA Playwright pra feat/${ticket_lower}",
+  subagent_type: "bens-qa-runner",
+  prompt: "Input: { feature_description: '${ticket_title} — ${ticket_brief}', urls: ${urls_inferred_from_diff}, viewports: ['mobile-375', 'desktop-1440'], dark_mode: true, a11y: true }. Server up em localhost:3000. Worktree: ${worktree_path}. Produzir QA report markdown."
+})
+```
+
+`urls_inferred_from_diff` — heurística determinística:
+
+1. Se diff tem `apps/web/src/app/**/page.tsx` tocados: URLs = path do page sem o prefixo `apps/web/src/app` (ex: `apps/web/src/app/(dashboard)/clients/[id]/edit/page.tsx` → `/clients/{id}/edit` com placeholder).
+2. Senão, se diff tem `apps/web/src/features/<feature>/components/*.tsx`: buscar via `grep -rl "from '@/features/${feature}'" apps/web/src/app/` o(s) page.tsx que consome(m) esse feature. URLs = paths daqueles pages.
+3. Se nenhum dos casos acima resolver (ex: hook/lib em features sem consumer detectável): marcar `qa_skipped: true`, `qa_skip_reason: "no_url_inferred"`, log warning, seguir pra Phase 9.
+
+**Inline fallback (se bens-qa-runner missing):** main session usa Playwright MCP diretamente seguindo system prompt de `bens-qa-runner.md`.
+
+#### 8.4 — Avaliar report
+
+1. Se report tem **0 CRITICAL** → seguir pra Phase 9 (WARNING e INFO viram TODO no PR body).
+2. Se report tem **>0 CRITICAL** → **failure dispatch** com type `qa playwright failure`:
+   - Dispatch `bens-qa-fixer` com payload (qa_report + critical_items + screenshots paths)
+   - Inline fallback: main session aplica fixes seguindo system prompt de `bens-qa-fixer.md` + carregando skills `frontend-design` + `web-design-guidelines`
+   - Após fix: re-dispatch `bens-qa-runner` pra confirmar verde
+   - Max 3 tentativas; depois escalate_user com QA report final
+
+#### 8.5 — Cleanup + state update
+
+1. Matar processo do dev server iniciado pelo orchestrator: `pkill -f 'bens-seguros-${ticket_lower}.*next dev' || true` (filtro pelo path do worktree pra NÃO matar processo do main checkout se user estiver rodando). Skip esta etapa se o orchestrator não subiu dev server nesta execução (skip ou port-conflict-abort).
+2. Atualizar state:
+   - `completed_phases.push("QA_RUN")` (string simples)
+   - `qa_skipped: <bool>` no root
+   - Se skipped: `qa_skip_reason: "<one of: no_ui_changes | port_conflict_user_chose_skip | port_conflict_timeout | no_url_inferred | playwright_mcp_down>"`
+   - `phase = "OPEN_PR"`
+
+### Motivos de skip de QA (enumeração canônica)
+
+Pra evitar inconsistência entre state files, esses são os únicos valores válidos pra `qa_skip_reason`:
+
+| Valor                           | Quando                                                               |
+| ------------------------------- | -------------------------------------------------------------------- |
+| `no_ui_changes`                 | Diff não toca arquivos UI (Phase 8.1)                                |
+| `port_conflict_user_chose_skip` | Porta :3000 ocupada, user escolheu opção (b)                         |
+| `port_conflict_timeout`         | Porta :3000 ocupada, user não respondeu em 60s                       |
+| `no_url_inferred`               | Diff toca UI mas heurística não conseguiu inferir URLs (Phase 8.3)   |
+| `playwright_mcp_down`           | Playwright MCP retornou erro de conexão (ver "MCP failure handling") |
 
 ### Phase 9: OPEN_PR
 
@@ -349,7 +415,7 @@ PR-3 NÃO ativa QA_RUN. Comportamento atual:
 
    - [ ] pnpm lint && pnpm typecheck && pnpm test && pnpm build verdes
    - [ ] ${acceptance_criteria_as_checklist}
-   - ${qa_status} (executado / skipped — PR-4)
+   - QA: ${qa_skipped ? 'skipped (' + qa_skip_reason + ')' : 'executado — ' + qa_report_summary}
 
    ## Code review
 
@@ -398,19 +464,19 @@ Após cada invocation: re-rodar o gate que falhou. Se verde → continue. Se ver
 
 ### Specialists por failure type
 
-| Failure type            | Specialist                     | Inline fallback (se subagent unavailable)                                                         |
-| ----------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------- |
-| `lint failure`          | `bens-test-fixer`              | Main session aplica fixes seguindo `bens-code-rules`                                              |
-| `typecheck failure`     | `bens-test-fixer`              | Mesmo                                                                                             |
-| `test failure`          | `bens-test-fixer`              | Mesmo + `superpowers:test-driven-development`                                                     |
-| `build failure`         | `bens-test-fixer`              | Mesmo (tipo/import não capturado por typecheck)                                                   |
-| `hook block`            | `bens-hook-resolver`           | Main session interpreta hook output + aplica fix (remover any, trocar console.log por Pino, etc.) |
-| `code review CRITICAL`  | `bens-review-applier`          | Main session aplica CRITICAL items do report; WARNING/INFO viram TODO no PR body                  |
-| `qa playwright failure` | `bens-qa-fixer`                | PR-4 implementa; até lá, escalate_user                                                            |
-| `ci pipeline failure`   | (skill) `check-pipeline`       | Main session carrega skill, diagnose, fix                                                         |
-| `arch decision needed`  | (none — escalate user)         | `AskUserQuestion` com opções                                                                      |
-| `unknown failure type`  | (none — escalate_user_unknown) | After-action propõe novo specialist na PR `chore(harness): ...`                                   |
-| `subagent_unavailable`  | (none — fallback inline)       | Main session executa o trabalho que seria do subagent                                             |
+| Failure type            | Specialist                     | Inline fallback (se subagent unavailable)                                                                                 |
+| ----------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| `lint failure`          | `bens-test-fixer`              | Main session aplica fixes seguindo `bens-code-rules`                                                                      |
+| `typecheck failure`     | `bens-test-fixer`              | Mesmo                                                                                                                     |
+| `test failure`          | `bens-test-fixer`              | Mesmo + `superpowers:test-driven-development`                                                                             |
+| `build failure`         | `bens-test-fixer`              | Mesmo (tipo/import não capturado por typecheck)                                                                           |
+| `hook block`            | `bens-hook-resolver`           | Main session interpreta hook output + aplica fix (remover any, trocar console.log por Pino, etc.)                         |
+| `code review CRITICAL`  | `bens-review-applier`          | Main session aplica CRITICAL items do report; WARNING/INFO viram TODO no PR body                                          |
+| `qa playwright failure` | `bens-qa-fixer`                | Main session aplica fixes UI seguindo `frontend-design` + `web-design-guidelines`; re-roda Playwright pra confirmar verde |
+| `ci pipeline failure`   | (skill) `check-pipeline`       | Main session carrega skill, diagnose, fix                                                                                 |
+| `arch decision needed`  | (none — escalate user)         | `AskUserQuestion` com opções                                                                                              |
+| `unknown failure type`  | (none — escalate_user_unknown) | After-action propõe novo specialist na PR `chore(harness): ...`                                                           |
+| `subagent_unavailable`  | (none — fallback inline)       | Main session executa o trabalho que seria do subagent                                                                     |
 
 ### Estado em failure
 
@@ -454,11 +520,14 @@ Após 3 tentativas sem resolução: orchestrator escalate_user (marca PR draft s
   "spec_path": null,
   "plan_path": null,
   "pr_url": null,
+  "pr_number": null,
   "completed_phases": [],
   "failures": [],
   "user_interventions": [],
   "paused_reason": null,
-  "aborted_at": null
+  "aborted_at": null,
+  "qa_skipped": null,
+  "qa_skip_reason": null
 }
 ```
 
@@ -523,11 +592,11 @@ Sessão **com** orchestrator (`/work SCRUM-XX`): esta skill (state machine de 14
 | ----------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
 | PR-1 (#313) | state machine doc + 9 subagent scaffolds + `/work` + audit doc                                                                          | ✅ merged  |
 | PR-2 (#314) | Phases 1-4 funcionais (READ_TICKET, CLASSIFY, BRAINSTORM_SPEC, WRITE_PLAN) + 2 checkpoints + state management                           | ✅ merged  |
-| PR-3        | Phases 5-10 (IMPLEMENT, LOCAL_GATES, CODE_REVIEW, OPEN_PR, CI_WATCH) + failure dispatch + subagent availability check + inline fallback | 🟢 este PR |
-| PR-4        | Phase 8 (QA_RUN) + bens-qa-fixer                                                                                                        | pendente   |
+| PR-3 (#315) | Phases 5-10 (IMPLEMENT, LOCAL_GATES, CODE_REVIEW, OPEN_PR, CI_WATCH) + failure dispatch + subagent availability check + inline fallback | ✅ merged  |
+| PR-4        | Phase 8 (QA_RUN funcional via Playwright MCP) + bens-qa-fixer ativado + porta CORS handling                                             | 🟢 este PR |
 | PR-5        | Phases 11-14 (AWAIT_MERGE + AFTER_ACTION + APPLY_LEARNINGS + TEARDOWN — self-improvement loop)                                          | pendente   |
 
-Após PR-3: `/work SCRUM-XX` executa Jira → spec → plan → IMPLEMENT → gates → review → PR → CI watch. QA é skipped por default (recomendado manual via Playwright MCP). Phases 11+ retornam pro user com mensagem "aguardando merge + PR-5 implementa after-action".
+Após PR-4: `/work SCRUM-XX` executa fluxo completo Jira → PR aberta com CI verde + QA Playwright automático em features de UI. Phases 11+ retornam pro user com mensagem "aguardando merge + PR-5 implementa after-action".
 
 ## Memory referenciada
 

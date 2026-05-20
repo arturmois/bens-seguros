@@ -65,9 +65,9 @@ Em falhas: dispatch pra failure specialist (`bens-test-fixer`, `bens-hook-resolv
 ## Status de implementação
 
 - [x] **PR-1** (#313, merged): scaffold + state machine doc + 9 subagents + `/work` + audit doc
-- [x] **PR-2** (#314, merged): phases 1-4 funcionais — `/work SCRUM-XX` lê ticket, gera spec, gera plan, com 2 checkpoints
-- [x] **PR-3** (este PR): phases 5-10 funcionais — IMPLEMENT + LOCAL_GATES + CODE_REVIEW + OPEN_PR + CI_WATCH + failure dispatch (test-fixer, hook-resolver, review-applier) + subagent availability check com fallback inline
-- [ ] PR-4: phase 8 (QA_RUN) + bens-qa-fixer
+- [x] **PR-2** (#314, merged): phases 1-4 funcionais — Jira → spec → plan + 2 checkpoints
+- [x] **PR-3** (#315, merged): phases 5-10 funcionais — IMPLEMENT + LOCAL_GATES + CODE_REVIEW + OPEN_PR + CI_WATCH + failure dispatch + subagent availability fallback
+- [x] **PR-4** (este PR): phase 8 (QA_RUN) funcional via Playwright MCP + bens-qa-fixer ativado + porta CORS handling (3 opções em conflito)
 - [ ] PR-5: phases 11-14 (AWAIT_MERGE + AFTER_ACTION + APPLY_LEARNINGS + TEARDOWN — self-improvement loop)
 
-Após este PR mergeado, `/work SCRUM-XX` executa o fluxo completo Jira → PR aberta no GitHub com CI verde. **Pré-requisito importante:** abrir sessão NOVA do Claude Code antes do primeiro `/work` após mergear PR-3 (subagents recém-criados precisam de session restart pra ficar invocáveis — memory: `orchestrator-subagent-restart-required`). Se subagents não estiverem disponíveis, orchestrator faz fallback inline automaticamente.
+Após este PR mergeado, `/work SCRUM-XX` executa fluxo completo Jira → PR aberta + CI verde + QA Playwright automático em features de UI (skip se ticket não toca UI; pausa pra decisão se porta :3000 ocupada). **Pré-requisito importante:** abrir sessão NOVA do Claude Code antes do primeiro `/work` após mergear PR-4 (subagents `bens-qa-runner`/`bens-qa-fixer` precisam de session restart — memory: `orchestrator-subagent-restart-required`). Sem restart, orchestrator faz fallback inline automaticamente.
