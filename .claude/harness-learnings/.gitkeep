@@ -1,0 +1,8 @@
+# Diretório pra learnings do orchestrator (after-action reviews).
+#
+# Cada arquivo aqui é gerado pelo subagent `bens-after-action` após um PR
+# do orchestrator ser mergeado ou fechado. Formato:
+# YYYY-MM-DD-<ticket-slug>.md
+#
+# Este `.gitkeep` existe pra que o diretório seja versionado mesmo vazio.
+# Pode ser deletado quando houver pelo menos 1 learning real.

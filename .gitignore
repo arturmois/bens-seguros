@@ -27,6 +27,8 @@ task*.png
 !.claude/agents/
 !.claude/commands/
 !.claude/settings.json
+!.claude/harness-audit.md
+!.claude/harness-learnings/
 skills-lock.json
 *.pem
 .vercel

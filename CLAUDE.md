@@ -214,6 +214,7 @@ Detalhes completos → skill `bens-code-rules`.
 
 ## Para tarefas específicas, carregue a skill apropriada
 
+- **Implementar ticket Jira de ponta a ponta (autônomo)** → skill `bens-orchestrator` (via `/work SCRUM-XX`)
 - **Criar módulo DDD / use case / repository / entity** → skill `bens-ddd-module`
 - **Implementar etapa de plano (5 fases obrigatórias)** → skill `bens-implementation-flow`
 - **Code review / refactor / regras detalhadas de código** → skill `bens-code-rules`
