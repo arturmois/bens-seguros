@@ -23,6 +23,7 @@ Esta skill executa o fluxo Jira → PR de ponta a ponta. Carregada pelo slash `/
 2. Working tree limpo no main checkout (`git status --porcelain` vazio). NÃO limpo → refuse com mensagem; NÃO faz auto-stash.
 3. `gh` autenticado (`gh auth status`)
 4. Atlassian MCP responde (`mcp__plugin_atlassian_atlassian__getAccessibleAtlassianResources`)
+5. **Subagent availability check (PR-3):** verificar se os bens-\* subagents necessários estão na lista de `subagent_type` do tool `Agent`. Checar pelo menos: `bens-jira-reader`, `bens-spec-author`, `bens-plan-author`, `bens-code-reviewer`, `bens-test-fixer`, `bens-hook-resolver`, `bens-review-applier`. Também checar `bens-qa-runner` e `bens-qa-fixer` quando QA_RUN (Phase 8) for ativada (PR-4 implementa). Se algum subagent requerido pra phase atual faltar → **fallback inline** (modo degradado): main session executa o trabalho do subagent diretamente em vez de dispatchar (memory: `orchestrator-subagent-restart-required`). Logar warning + salvar em state file `failures` com type `subagent_unavailable` pro after-action propor melhoria. **Não bloqueia o fluxo** — orchestrator continua, só perde isolamento de contexto.
 
 ## State machine — 14 phases
 
@@ -250,9 +251,185 @@ Main session executa esta sequência. Cada step é literal — NÃO improvise.
 5. Yes → seguir. No/comentários → re-invocar `bens-plan-author` com feedback, voltar pra step 2.
 6. Atualizar state: `completed_phases.push("WRITE_PLAN")`, `user_interventions.push({phase: "WRITE_PLAN", type: "checkpoint", answer})`, `phase = "IMPLEMENT"`.
 
-### Phases 5-14 — out of scope deste PR-2
+## Execution flow — phases 5-10 (PR-3: funcional)
 
-Implementação detalhada vem em PR-3 (5-10), PR-4 (8 com QA-fixer), PR-5 (12-13). Por enquanto, ao chegar em phase 5 (IMPLEMENT), a skill retorna pro user: "Phases 1-4 completas. Spec+plan prontos em `${spec_path}` e `${plan_path}`. Phases 5+ ainda não implementadas (PR-3 a PR-5). Você pode (a) implementar manualmente seguindo o plan via `superpowers:subagent-driven-development`, ou (b) aguardar PR-3."
+### Phase 5: IMPLEMENT
+
+Main session executa o plano gerado em Phase 4. NÃO improvise — siga o plan task-by-task.
+
+1. Ler `${plan_path}` integralmente.
+2. Carregar skill `superpowers:subagent-driven-development` (referência) — orchestrator atua como o "controller" descrito lá: dispatcha implementer subagents por task quando disponível, ou executa inline em fallback (per Pré-condição 5).
+3. Pra cada task no plano:
+   - Marcar task como in_progress em TaskCreate
+   - **Se subagents disponíveis (full mode):** Dispatchar `Agent({subagent_type: "general-purpose"})` com prompt formatado per `superpowers:subagent-driven-development` implementer template + texto completo da task. NÃO usa subagent-driven review loop completo (o `bens-code-reviewer` da Phase 7 cobre isso).
+   - **Se fallback inline (degraded mode):** main session executa a task diretamente (Edit/Write/Bash conforme steps do plan), respeitando TDD obrigatório em DDD Full.
+   - Após cada step completar: validar (run command, check expected output). Falha → invocar specialist via Failure dispatch (ver abaixo).
+   - Após task completar: commit segundo conventional commits (já no plan).
+   - Marcar task como completed.
+4. **ARCH_DECISION durante implementação:** escalar pro user via `AskUserQuestion` quando encontrar (lista canônica — bate com Checkpoints section linhas 51-57):
+   - Necessidade de nova tabela / mudança de schema NÃO prevista na spec
+   - Mudança em contrato de API pública NÃO prevista
+   - Nova dependência (package.json) NÃO prevista
+   - **Nova MCP / integração externa**
+   - Mudança em CLAUDE.md / hooks / skills durante a feature (deve ir pra PR separada)
+   - Ambiguidade real na spec/plano que não tem decisão óbvia
+   - Conflito com `docs/ARCHITECTURE-DECISIONS.md`
+5. Todos commits do orchestrator incluem trailer `Co-Authored-By: Claude bens-orchestrator <noreply@anthropic.com>` (spec audit trail).
+6. Atualizar state: `completed_phases.push("IMPLEMENT")`, `phase = "LOCAL_GATES"`.
+
+### Phase 6: LOCAL_GATES
+
+Rodar 5 quality gates do projeto (CLAUDE.md: lint, typecheck, test, build) no escopo afetado.
+
+1. Identificar packages tocados via `git diff --name-only origin/main..HEAD | sed -E 's|^(apps\|packages)/([^/]+)/.*|\1/\2|' | sort -u`.
+2. Pra cada package afetado, rodar em paralelo (background):
+   ```bash
+   pnpm --filter <pkg> lint
+   pnpm --filter <pkg> typecheck
+   pnpm --filter <pkg> test
+   ```
+   E build na raiz:
+   ```bash
+   pnpm build
+   ```
+3. Se todos verdes → seguir pra Phase 7.
+4. Se qualquer falhar → **failure dispatch** com tipo apropriado (`lint failure`, `typecheck failure`, `test failure`, `build failure`). Specialist tenta fix, re-roda gate, max 3 tentativas. Se persistir → escalate_user.
+5. Atualizar state: `completed_phases.push("LOCAL_GATES")`, `phase = "CODE_REVIEW"`.
+
+### Phase 7: CODE_REVIEW
+
+Dispatchar `bens-code-reviewer` no diff do branch.
+
+1. Dispatch:
+   ```
+   Agent({
+     description: "Code review feat/${ticket_lower}",
+     subagent_type: "bens-code-reviewer",
+     prompt: "Review do branch feat/${ticket_lower} no worktree ${worktree_path}. Spec local: ${spec_path}. Plan local: ${plan_path}. Diff: git diff origin/main..HEAD. Output report categorizado CRITICAL/WARNING/INFO."
+   })
+   ```
+2. Receber report. Se 0 CRITICAL → seguir pra `QA_RUN`.
+3. Se >0 CRITICAL → **failure dispatch** com type `code review CRITICAL`, payload = report + critical_items extraídos. `bens-review-applier` tenta aplicar. Após cada round, re-dispatch `bens-code-reviewer` pra validar fix.
+4. WARNING e INFO: persist em PR body como TODO list (não bloqueia merge).
+5. Atualizar state: `completed_phases.push("CODE_REVIEW")`, `phase = "QA_RUN"`.
+
+### Phase 8: QA_RUN (skip default — implementado em PR-4)
+
+PR-3 NÃO ativa QA_RUN. Comportamento atual:
+
+1. Detectar se diff tem arquivos `.tsx` em `apps/web/src/features/*/components/` (mudança de UI).
+2. Se SIM: log "QA_RUN skipped (PR-4 will implement) — recomendado executar QA manual via Playwright MCP antes de merge".
+3. Se NÃO: seguir direto.
+4. Atualizar state: `completed_phases.push("QA_RUN")` (string simples, sem objeto) + `qa_skipped: true` em campo separado no root do state JSON (não mistura tipos em completed_phases). Depois `phase = "OPEN_PR"`.
+
+### Phase 9: OPEN_PR
+
+1. Push branch:
+   ```bash
+   git push -u origin feat/${ticket_lower}
+   ```
+2. Criar PR com title formatado a partir do título do ticket + conventional commits prefix inferido por type (feature → `feat:`, bug → `fix:`, refactor → `refactor:`, chore → `chore:`). Scope opcional baseado em `scope`:
+   - `frontend` → `feat(web): ...`
+   - `backend` → `feat(server): ...`
+   - `mixed` → `feat: ...`
+3. Body template:
+
+   ```markdown
+   ## Summary
+
+   ${ticket_id} — ${spec_title_one_liner}
+
+   ${spec_summary_2_3_sentences}
+
+   ## Mudanças
+
+   ${task_summaries_from_plan}
+
+   ## Test plan
+
+   - [ ] pnpm lint && pnpm typecheck && pnpm test && pnpm build verdes
+   - [ ] ${acceptance_criteria_as_checklist}
+   - ${qa_status} (executado / skipped — PR-4)
+
+   ## Code review
+
+   ${code_reviewer_summary_or_link}
+
+   ## Spec / Plan (local, gitignored)
+
+   - Spec: ${spec_path}
+   - Plan: ${plan_path}
+
+   🤖 Generated with [Claude Code](https://claude.com/claude-code)
+   ```
+
+4. Comando: `gh pr create --title "${title}" --body "${body}"`.
+5. PR body inclui rodapé com `🤖 Generated with [Claude Code](https://claude.com/claude-code)` (já no template acima).
+6. Extrair `pr_number` da URL retornada (`pr_url.match(/\/pull\/(\d+)/)[1]`) e salvar no state.
+7. Atualizar state: `pr_url`, `pr_number`, `completed_phases.push("OPEN_PR")`, `phase = "CI_WATCH"`.
+
+### Phase 10: CI_WATCH
+
+1. `gh pr checks ${pr_number} --watch` (background ou wait). Alternativa se `pr_number` faltar: `gh pr checks --watch` (gh CLI infere do branch atual).
+2. Se todos verdes → seguir pra `AWAIT_MERGE`.
+3. Se algum falhar → **failure dispatch** com type `ci pipeline failure`. Dispatcha **skill** `check-pipeline` (não subagent — é skill carregada inline na main session). Diagnose root cause, propor fix. Aplicar fix → commit → push → re-watch.
+4. Após 3 rounds de CI failure não resolvido → escalate_user com diagnóstico estruturado.
+5. Atualizar state: `completed_phases.push("CI_WATCH")`, `phase = "AWAIT_MERGE"`.
+
+### Phases 11-14 — out of scope deste PR-3
+
+Phase 11 (AWAIT_MERGE), Phase 12 (AFTER_ACTION), Phase 13 (APPLY_LEARNINGS), Phase 14 (TEARDOWN) vêm em PR-5 (after-action + self-improvement loop). Por enquanto, ao chegar em Phase 11, orchestrator retorna pro user: "PR aberta em ${pr_url}. CI verde. Aguardando seu review + merge. Após merge, after-action review virá em PR-5 (ainda não implementado). Cleanup do worktree: manual via `git worktree remove ${worktree_path}`."
+
+## Failure dispatch — execução detalhada (PR-3)
+
+Quando uma phase gate falha (Phase 6, 7, 8, 10), orchestrator dispatch um specialist via Agent tool. **Esta seção amplia a "Failure dispatch" anterior (linhas ~63-105) — leia-as como complementares. A tabela "Mapeamento failure → specialist" lá em cima é authoritative pra mapping subagent + recursos; a tabela abaixo só adiciona a coluna "Inline fallback" (degraded mode).**
+
+### Padrão de invocação
+
+```
+Agent({
+  description: "Fix <failure_type>",
+  subagent_type: "<specialist_id>",  // ex: bens-test-fixer
+  prompt: "<input_json> + worktree path + max_retries=3"
+})
+```
+
+Após cada invocation: re-rodar o gate que falhou. Se verde → continue. Se vermelho após 3 tentativas → escalate_user com tried[] details.
+
+### Specialists por failure type
+
+| Failure type            | Specialist                     | Inline fallback (se subagent unavailable)                                                         |
+| ----------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------- |
+| `lint failure`          | `bens-test-fixer`              | Main session aplica fixes seguindo `bens-code-rules`                                              |
+| `typecheck failure`     | `bens-test-fixer`              | Mesmo                                                                                             |
+| `test failure`          | `bens-test-fixer`              | Mesmo + `superpowers:test-driven-development`                                                     |
+| `build failure`         | `bens-test-fixer`              | Mesmo (tipo/import não capturado por typecheck)                                                   |
+| `hook block`            | `bens-hook-resolver`           | Main session interpreta hook output + aplica fix (remover any, trocar console.log por Pino, etc.) |
+| `code review CRITICAL`  | `bens-review-applier`          | Main session aplica CRITICAL items do report; WARNING/INFO viram TODO no PR body                  |
+| `qa playwright failure` | `bens-qa-fixer`                | PR-4 implementa; até lá, escalate_user                                                            |
+| `ci pipeline failure`   | (skill) `check-pipeline`       | Main session carrega skill, diagnose, fix                                                         |
+| `arch decision needed`  | (none — escalate user)         | `AskUserQuestion` com opções                                                                      |
+| `unknown failure type`  | (none — escalate_user_unknown) | After-action propõe novo specialist na PR `chore(harness): ...`                                   |
+| `subagent_unavailable`  | (none — fallback inline)       | Main session executa o trabalho que seria do subagent                                             |
+
+### Estado em failure
+
+Toda failure resulta em entry no `failures` array:
+
+```json
+{
+  "phase": "LOCAL_GATES",
+  "type": "test failure",
+  "attempts": 1,
+  "specialist": "bens-test-fixer", // ou "inline_fallback"
+  "raw_output_summary": "FAIL: src/foo.spec.ts ...",
+  "resolved": false,
+  "started_at": "...",
+  "resolved_at": null
+}
+```
+
+Após 3 tentativas sem resolução: orchestrator escalate_user (marca PR draft se já existe, comenta no PR explicando, salva state, pinga user).
 
 ## State management — `.orchestrator-state.json`
 
@@ -342,15 +519,15 @@ Sessão **com** orchestrator (`/work SCRUM-XX`): esta skill (state machine de 14
 
 ## Status de implementação
 
-| PR          | Phases                                                                                                        | Status     |
-| ----------- | ------------------------------------------------------------------------------------------------------------- | ---------- |
-| PR-1 (#313) | state machine doc + 9 subagent scaffolds + `/work` + audit doc                                                | ✅ merged  |
-| PR-2        | Phases 1-4 funcionais (READ_TICKET, CLASSIFY, BRAINSTORM_SPEC, WRITE_PLAN) + 2 checkpoints + state management | 🟢 este PR |
-| PR-3        | Phases 5-10 (IMPLEMENT, LOCAL_GATES, CODE_REVIEW, OPEN_PR, CI_WATCH) + 3 failure specialists                  | pendente   |
-| PR-4        | Phase 8 (QA_RUN) + bens-qa-fixer                                                                              | pendente   |
-| PR-5        | Phases 12-13 (AFTER_ACTION + APPLY_LEARNINGS — self-improvement loop)                                         | pendente   |
+| PR          | Phases                                                                                                                                  | Status     |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| PR-1 (#313) | state machine doc + 9 subagent scaffolds + `/work` + audit doc                                                                          | ✅ merged  |
+| PR-2 (#314) | Phases 1-4 funcionais (READ_TICKET, CLASSIFY, BRAINSTORM_SPEC, WRITE_PLAN) + 2 checkpoints + state management                           | ✅ merged  |
+| PR-3        | Phases 5-10 (IMPLEMENT, LOCAL_GATES, CODE_REVIEW, OPEN_PR, CI_WATCH) + failure dispatch + subagent availability check + inline fallback | 🟢 este PR |
+| PR-4        | Phase 8 (QA_RUN) + bens-qa-fixer                                                                                                        | pendente   |
+| PR-5        | Phases 11-14 (AWAIT_MERGE + AFTER_ACTION + APPLY_LEARNINGS + TEARDOWN — self-improvement loop)                                          | pendente   |
 
-Após PR-2: `/work SCRUM-XX` lê ticket Jira, gera spec, pausa pra approval, gera plan, pausa pra approval — e termina ali (phases 5+ retornam mensagem de "implemente manualmente OU aguarde PR-3").
+Após PR-3: `/work SCRUM-XX` executa Jira → spec → plan → IMPLEMENT → gates → review → PR → CI watch. QA é skipped por default (recomendado manual via Playwright MCP). Phases 11+ retornam pro user com mensagem "aguardando merge + PR-5 implementa after-action".
 
 ## Memory referenciada
 

@@ -65,9 +65,9 @@ Em falhas: dispatch pra failure specialist (`bens-test-fixer`, `bens-hook-resolv
 ## Status de implementação
 
 - [x] **PR-1** (#313, merged): scaffold + state machine doc + 9 subagents + `/work` + audit doc
-- [x] **PR-2** (este PR): phases 1-4 funcionais — `/work SCRUM-XX` lê ticket, gera spec, gera plan, com 2 checkpoints
-- [ ] PR-3: phases 5-10 (IMPLEMENT, LOCAL_GATES, CODE_REVIEW, OPEN_PR, CI_WATCH) + 3 failure specialists
+- [x] **PR-2** (#314, merged): phases 1-4 funcionais — `/work SCRUM-XX` lê ticket, gera spec, gera plan, com 2 checkpoints
+- [x] **PR-3** (este PR): phases 5-10 funcionais — IMPLEMENT + LOCAL_GATES + CODE_REVIEW + OPEN_PR + CI_WATCH + failure dispatch (test-fixer, hook-resolver, review-applier) + subagent availability check com fallback inline
 - [ ] PR-4: phase 8 (QA_RUN) + bens-qa-fixer
-- [ ] PR-5: phases 12-13 (after-action + self-improvement loop)
+- [ ] PR-5: phases 11-14 (AWAIT_MERGE + AFTER_ACTION + APPLY_LEARNINGS + TEARDOWN — self-improvement loop)
 
-Após este PR mergeado, `/work SCRUM-XX` executa Jira → spec → plan end-to-end com 2 pausas pra aprovação humana (após spec, após plan). Ao chegar em phase 5 (IMPLEMENT), retorna pro user com instruções pra implementação manual via `superpowers:subagent-driven-development` (ou aguardar PR-3).
+Após este PR mergeado, `/work SCRUM-XX` executa o fluxo completo Jira → PR aberta no GitHub com CI verde. **Pré-requisito importante:** abrir sessão NOVA do Claude Code antes do primeiro `/work` após mergear PR-3 (subagents recém-criados precisam de session restart pra ficar invocáveis — memory: `orchestrator-subagent-restart-required`). Se subagents não estiverem disponíveis, orchestrator faz fallback inline automaticamente.
