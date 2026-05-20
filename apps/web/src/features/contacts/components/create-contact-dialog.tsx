@@ -1,18 +1,8 @@
 'use client'
 
-import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogPanel,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { FormDialogShell } from '@/components/shared/form-dialog-shell'
 
 import { ContactForm } from './contact-form'
 
@@ -31,44 +21,24 @@ export function CreateContactDialog({
 }: CreateContactDialogProps) {
   const [isPending, setIsPending] = useState(false)
   return (
-    <Dialog
+    <FormDialogShell
       open={open}
-      onOpenChange={(next) => {
-        if (isPending && !next) return
-        onOpenChange(next)
-      }}
+      onOpenChange={onOpenChange}
+      title="Novo contato"
+      description="CPF/CNPJ é opcional — você pode promover a cliente depois."
+      formId={FORM_ID}
+      isPending={isPending}
+      submitLabel="Criar contato"
+      keyboardHintAction="criar"
+      size="md"
     >
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Novo contato</DialogTitle>
-          <DialogDescription>
-            CPF/CNPJ é opcional — você pode promover a cliente depois.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogPanel>
-          <ContactForm
-            mode="create"
-            hideFooter
-            formId={FORM_ID}
-            onSuccess={onCreated}
-            onPendingChange={setIsPending}
-          />
-        </DialogPanel>
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={isPending}
-          >
-            Cancelar
-          </Button>
-          <Button type="submit" form={FORM_ID} disabled={isPending}>
-            {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-            Criar contato
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      <ContactForm
+        mode="create"
+        hideFooter
+        formId={FORM_ID}
+        onSuccess={onCreated}
+        onPendingChange={setIsPending}
+      />
+    </FormDialogShell>
   )
 }
