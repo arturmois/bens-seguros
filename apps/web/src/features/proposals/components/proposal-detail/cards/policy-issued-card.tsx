@@ -24,20 +24,20 @@ export function PolicyIssuedCard({
   }
   const policy = data?.data
   return (
-    <div className="flex items-center gap-4 rounded-xl border-l-4 border-emerald-500 bg-emerald-50 p-4 dark:bg-emerald-950/30">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-500/90 text-white">
+    <div className="border-success bg-success/10 flex items-center gap-4 rounded-xl border-l-4 p-4">
+      <div className="bg-success/90 flex size-9 shrink-0 items-center justify-center rounded-full text-white">
         <CheckCircle2 className="size-5" />
       </div>
       <div className="flex-1">
-        <p className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-200">
+        <p className="text-success-foreground text-xs font-bold uppercase tracking-wider">
           Apólice Emitida
         </p>
         {isLoading || !policy ? (
-          <p className="mt-1 text-sm text-emerald-900/70 dark:text-emerald-100/70">
+          <p className="text-muted-foreground mt-1 text-sm">
             Carregando dados da apólice…
           </p>
         ) : (
-          <p className="mt-1 text-sm text-emerald-900 dark:text-emerald-100">
+          <p className="text-foreground mt-1 text-sm">
             <strong>{policy.policyNumber}</strong> · Vigência{' '}
             {formatDate(policy.startDate)} → {formatDate(policy.endDate)}
           </p>
@@ -46,7 +46,7 @@ export function PolicyIssuedCard({
       <Button
         variant="outline"
         size="sm"
-        className="border-emerald-300 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-700 dark:text-emerald-200 dark:hover:bg-emerald-900/40"
+        className="border-success/30 text-success hover:bg-success/10"
         render={<Link href={`/policies/${policyId}`} />}
       >
         <ExternalLink className="mr-1.5 size-3.5" /> Ver Apólice

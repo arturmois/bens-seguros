@@ -49,12 +49,9 @@ interface ChipProps {
 }
 
 const CHIP_STYLES: Record<ChipVariant, string> = {
-  success:
-    'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300',
-  warning:
-    'bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-500/20 dark:text-amber-300',
-  destructive:
-    'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-500/20 dark:text-red-300',
+  success: 'bg-success/10 text-success hover:bg-success/20',
+  warning: 'bg-warning/10 text-warning hover:bg-warning/20',
+  destructive: 'bg-destructive/10 text-destructive hover:bg-destructive/20',
 }
 
 function Chip({ href, label, count, variant, ariaLabel }: ChipProps) {

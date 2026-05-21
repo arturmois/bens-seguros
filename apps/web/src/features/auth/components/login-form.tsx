@@ -39,7 +39,7 @@ export function LoginForm() {
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="email" className="text-slate-400">
+        <Label htmlFor="email" className="text-(--auth-foreground-muted)">
           Email
         </Label>
         <Input
@@ -48,7 +48,7 @@ export function LoginForm() {
           id="email"
           placeholder="seu@email.com"
           autoComplete="email"
-          className="bg-white/4 border-white/10 text-slate-100 placeholder:text-slate-500"
+          className="bg-(--auth-input-bg) border-(--auth-input-border) text-(--auth-foreground) placeholder:text-(--auth-foreground-subtle)"
         />
         {form.formState.errors.email && (
           <p role="alert" className="text-destructive text-sm">
@@ -58,7 +58,7 @@ export function LoginForm() {
       </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="password" className="text-slate-400">
+          <Label htmlFor="password" className="text-(--auth-foreground-muted)">
             Senha
           </Label>
           <Link
@@ -74,13 +74,13 @@ export function LoginForm() {
             type={showPassword ? 'text' : 'password'}
             id="password"
             autoComplete="current-password"
-            className="bg-white/4 border-white/10 text-slate-100 placeholder:text-slate-500"
+            className="bg-(--auth-input-bg) border-(--auth-input-border) text-(--auth-foreground) placeholder:text-(--auth-foreground-subtle)"
           />
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:bg-transparent"
+            className="text-(--auth-foreground-muted) absolute right-0 top-0 h-full px-3 hover:bg-transparent"
             onClick={() => setShowPassword((prev) => !prev)}
             aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
           >
@@ -99,7 +99,7 @@ export function LoginForm() {
       </div>
       <Button
         type="submit"
-        className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 bg-linear-to-r w-full font-bold text-slate-900"
+        className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 bg-linear-to-r text-primary-foreground w-full font-bold"
         disabled={login.isPending}
       >
         {login.isPending ? 'Entrando...' : 'Entrar'}

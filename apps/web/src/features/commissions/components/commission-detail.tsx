@@ -9,10 +9,10 @@ import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatCurrency, formatDate } from '@/lib/formatters'
 
-import type { CommissionData } from '../lib/types'
 import { useCommission } from '../hooks/use-commissions'
-import { CommissionStatusBadge } from './commission-status-badge'
+import type { CommissionData } from '../lib/types'
 import { CommissionActions } from './commission-actions'
+import { CommissionStatusBadge } from './commission-status-badge'
 
 interface CommissionDetailProps {
   readonly commissionId: string
@@ -96,7 +96,10 @@ function DetailHeader({ commission }: { readonly commission: CommissionData }) {
       </h2>
       <CommissionStatusBadge status={commission.status} />
       {commission.isReversal && (
-        <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+        <span
+          className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+          /* INTENCIONAL — slate neutro pra badge informativa, fora de escopo SCRUM-73 */
+        >
           Estorno
         </span>
       )}
@@ -155,7 +158,10 @@ function ReversalInfo({
   readonly originalCommissionId: string
 }) {
   return (
-    <div className="rounded-md border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+    <div
+      className="rounded-md border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900"
+      /* INTENCIONAL — slate neutro pra info panel, fora de escopo SCRUM-73 */
+    >
       <p className="text-sm font-medium">Esta comissão é um estorno</p>
       <p className="text-muted-foreground mt-1 text-sm">
         Comissão original:{' '}
@@ -176,11 +182,11 @@ function RejectionInfo({
   readonly commission: CommissionData
 }) {
   return (
-    <div className="rounded-md border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950">
-      <p className="text-sm font-medium text-red-700 dark:text-red-300">
+    <div className="border-destructive/20 bg-destructive/[0.08] rounded-md border p-4">
+      <p className="text-destructive-foreground text-sm font-medium">
         Comissão rejeitada
       </p>
-      <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+      <p className="text-destructive mt-1 text-sm">
         Motivo: {commission.rejectionReason}
       </p>
       {commission.rejectedAt && (

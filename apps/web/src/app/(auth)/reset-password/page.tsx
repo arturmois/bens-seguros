@@ -5,14 +5,16 @@ import { ResetPasswordForm } from '@/features/auth/components/reset-password-for
 export default function ResetPasswordPage() {
   return (
     <>
-      <h1 className="text-xl font-bold text-slate-100">Redefinir senha</h1>
-      <p className="mb-6 text-sm text-slate-400">
+      <h1 className="text-(--auth-foreground) text-xl font-bold">
+        Redefinir senha
+      </h1>
+      <p className="text-(--auth-foreground-muted) mb-6 text-sm">
         Escolha uma nova senha para sua conta
       </p>
       <Suspense>
         <ResetPasswordForm />
       </Suspense>
-      <p className="mt-4 text-center text-sm text-slate-400">
+      <p className="text-(--auth-foreground-muted) mt-4 text-center text-sm">
         <Link href="/login" className="text-accent-500 hover:text-accent-400">
           Voltar ao login
         </Link>

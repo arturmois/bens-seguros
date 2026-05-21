@@ -1,5 +1,6 @@
 'use client'
 
+import type { ListNotifications200DataItem } from '@/api/model'
 import { cn } from '@/lib/utils'
 import {
   AlertTriangle,
@@ -12,7 +13,6 @@ import {
   UserCheck,
   XCircle,
 } from 'lucide-react'
-import type { ListNotifications200DataItem } from '@/api/model'
 
 type NotificationData = ListNotifications200DataItem
 
@@ -28,14 +28,14 @@ const ICON_MAP: Record<string, React.ElementType> = {
 }
 
 const COLOR_MAP: Record<string, string> = {
-  CLAIM_OPENED: 'text-amber-500',
-  COMMISSION_APPROVED: 'text-emerald-500',
-  COMMISSION_REJECTED: 'text-red-500',
-  POLICY_EXPIRING: 'text-orange-500',
-  INVITATION_ACCEPTED: 'text-blue-500',
-  CLAIM_STALLED: 'text-amber-600',
-  COMMISSION_PENDING: 'text-yellow-500',
-  PROPOSAL_STAGNANT: 'text-slate-500',
+  CLAIM_OPENED: 'text-warning',
+  COMMISSION_APPROVED: 'text-success',
+  COMMISSION_REJECTED: 'text-destructive',
+  POLICY_EXPIRING: 'text-warning',
+  INVITATION_ACCEPTED: 'text-info',
+  CLAIM_STALLED: 'text-warning',
+  COMMISSION_PENDING: 'text-warning',
+  PROPOSAL_STAGNANT: 'text-muted-foreground',
 }
 
 function formatRelativeTime(dateStr: string): string {

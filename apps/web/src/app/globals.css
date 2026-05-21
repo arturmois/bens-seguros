@@ -327,6 +327,15 @@ body {
   }
 }
 
+/* Auth surface tokens — contextual tokens for (auth) layout dark background */
+.auth-surface {
+  --auth-foreground: oklch(0.95 0.005 247);
+  --auth-foreground-muted: oklch(0.64 0.005 247);
+  --auth-foreground-subtle: oklch(0.48 0.005 247);
+  --auth-input-bg: color-mix(in srgb, white 4%, transparent);
+  --auth-input-border: color-mix(in srgb, white 10%, transparent);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

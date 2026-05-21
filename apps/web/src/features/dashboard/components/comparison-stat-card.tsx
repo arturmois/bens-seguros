@@ -57,14 +57,14 @@ export function ComparisonStatCard({
           {showComparison ? (
             <div className="flex items-center gap-1">
               {isPositive ? (
-                <TrendingUp className="size-3 text-emerald-500" />
+                <TrendingUp className="text-success size-3" />
               ) : (
-                <TrendingDown className="size-3 text-red-500" />
+                <TrendingDown className="text-destructive size-3" />
               )}
               <span
                 className={cn(
                   'text-xs font-medium',
-                  isPositive ? 'text-emerald-500' : 'text-red-500'
+                  isPositive ? 'text-success' : 'text-destructive'
                 )}
               >
                 {isPositive ? '+' : ''}

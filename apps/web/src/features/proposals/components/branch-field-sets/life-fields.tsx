@@ -27,23 +27,24 @@ const BMI_RANGES = [
   {
     max: BMI_UNDERWEIGHT_THRESHOLD,
     label: 'Abaixo do peso',
-    color: 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-950',
+    color: 'text-info bg-info/10',
   },
   {
     max: BMI_NORMAL_THRESHOLD,
     label: 'Normal',
-    color: 'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-950',
+    color:
+      'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-950' /* INTENCIONAL — estado de saúde normal, não estado semântico de sucesso */,
   },
   {
     max: BMI_OVERWEIGHT_THRESHOLD,
     label: 'Sobrepeso',
     color:
-      'text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-950',
+      'text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-950' /* INTENCIONAL — estado de saúde intermediário, sem token equivalente */,
   },
   {
     max: Infinity,
     label: 'Obesidade',
-    color: 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-950',
+    color: 'text-destructive bg-destructive/10',
   },
 ] as const
 

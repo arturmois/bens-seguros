@@ -19,10 +19,10 @@ function MessageStatusIcon({
   readonly status: MessageData['status']
 }) {
   if (status === 'FAILED') {
-    return <AlertCircle className="h-3.5 w-3.5 text-red-400" />
+    return <AlertCircle className="text-destructive h-3.5 w-3.5" />
   }
   if (status === 'READ') {
-    return <CheckCheck className="h-3.5 w-3.5 text-blue-300" />
+    return <CheckCheck className="text-info h-3.5 w-3.5" />
   }
   if (status === 'DELIVERED') {
     return <CheckCheck className="h-3.5 w-3.5" />

@@ -1,16 +1,18 @@
+import { LoginForm } from '@/features/auth/components/login-form'
 import Link from 'next/link'
 import { Suspense } from 'react'
-import { LoginForm } from '@/features/auth/components/login-form'
 
 export default function LoginPage() {
   return (
     <>
-      <h1 className="text-xl font-bold text-slate-100">Entrar</h1>
-      <p className="mb-6 text-sm text-slate-400">Acesse sua corretora</p>
+      <h1 className="text-(--auth-foreground) text-xl font-bold">Entrar</h1>
+      <p className="text-(--auth-foreground-muted) mb-6 text-sm">
+        Acesse sua corretora
+      </p>
       <Suspense>
         <LoginForm />
       </Suspense>
-      <p className="mt-4 text-center text-sm text-slate-400">
+      <p className="text-(--auth-foreground-muted) mt-4 text-center text-sm">
         Não tem conta?{' '}
         <Link
           href="/register"

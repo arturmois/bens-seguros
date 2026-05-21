@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { toast } from 'sonner'
-import { Mail } from 'lucide-react'
-import { authClient } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/hooks/use-auth'
+import { authClient } from '@/lib/auth-client'
 import { getActiveOrgCookie } from '@/lib/org-cookie'
+import { Mail } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 const RESEND_COOLDOWN_SECONDS = 60
 
@@ -59,20 +59,22 @@ export function VerifyEmailCard() {
       <div className="mb-6 flex size-16 items-center justify-center rounded-full bg-white/[0.06]">
         <Mail className="text-accent-400 size-8" />
       </div>
-      <h1 className="mb-2 text-xl font-bold text-slate-100">
+      <h1 className="text-(--auth-foreground) mb-2 text-xl font-bold">
         Verifique seu email
       </h1>
-      <p className="mb-2 text-sm text-slate-400">
+      <p className="text-(--auth-foreground-muted) mb-2 text-sm">
         Enviamos um link de verificação para
       </p>
-      <p className="mb-6 text-sm font-medium text-slate-200">{email}</p>
-      <p className="mb-6 text-sm text-slate-400">
+      <p className="text-(--auth-foreground) mb-6 text-sm font-medium">
+        {email}
+      </p>
+      <p className="text-(--auth-foreground-muted) mb-6 text-sm">
         Clique no link do email para ativar sua conta. O link expira em 24
         horas.
       </p>
       <Button
         variant="outline"
-        className="w-full border-white/10 text-slate-300 hover:bg-white/[0.06]"
+        className="border-(--auth-input-border) text-(--auth-foreground-muted) hover:bg-(--auth-input-bg) w-full"
         onClick={handleResend}
         disabled={cooldown > 0 || isSending}
       >
@@ -82,7 +84,7 @@ export function VerifyEmailCard() {
             ? `Reenviar em ${String(cooldown)}s`
             : 'Reenviar email'}
       </Button>
-      <p className="mt-4 text-xs text-slate-500">
+      <p className="text-(--auth-foreground-subtle) mt-4 text-xs">
         Não recebeu? Verifique sua pasta de spam.
       </p>
     </div>

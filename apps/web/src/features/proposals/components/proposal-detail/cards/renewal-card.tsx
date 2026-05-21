@@ -23,12 +23,12 @@ export function RenewalCard({ proposal }: RenewalCardProps) {
 
   if (!renewalId && renewalNumber) {
     return (
-      <div className="flex items-center gap-4 rounded-xl border-l-4 border-blue-500 bg-blue-50 p-4 dark:bg-blue-950/30">
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-blue-500/90 text-white">
+      <div className="border-info bg-info/10 flex items-center gap-4 rounded-xl border-l-4 p-4">
+        <div className="bg-info/90 flex size-9 shrink-0 items-center justify-center rounded-full text-white">
           <RotateCw className="size-5" />
         </div>
         <div className="flex-1">
-          <p className="text-xs font-bold uppercase tracking-wider text-blue-800 dark:text-blue-200">
+          <p className="text-info-foreground text-xs font-bold uppercase tracking-wider">
             Apólice Anterior · {renewalNumber}
           </p>
           <Badge variant="secondary" className="mt-1 text-xs">
@@ -41,20 +41,18 @@ export function RenewalCard({ proposal }: RenewalCardProps) {
 
   const policy = data?.data
   return (
-    <div className="flex items-center gap-4 rounded-xl border-l-4 border-blue-500 bg-blue-50 p-4 dark:bg-blue-950/30">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-blue-500/90 text-white">
+    <div className="border-info bg-info/10 flex items-center gap-4 rounded-xl border-l-4 p-4">
+      <div className="bg-info/90 flex size-9 shrink-0 items-center justify-center rounded-full text-white">
         <RotateCw className="size-5" />
       </div>
       <div className="flex-1">
-        <p className="text-xs font-bold uppercase tracking-wider text-blue-800 dark:text-blue-200">
+        <p className="text-info-foreground text-xs font-bold uppercase tracking-wider">
           Apólice em Renovação
         </p>
         {isLoading || !policy ? (
-          <p className="mt-1 text-sm text-blue-900/70 dark:text-blue-100/70">
-            Carregando...
-          </p>
+          <p className="text-muted-foreground mt-1 text-sm">Carregando...</p>
         ) : (
-          <p className="mt-1 text-sm text-blue-900 dark:text-blue-100">
+          <p className="text-foreground mt-1 text-sm">
             <strong>{policy.policyNumber}</strong> · Vigência{' '}
             {formatDate(policy.startDate)} → {formatDate(policy.endDate)} ·
             Prêmio anterior {formatCurrency(policy.premiumValueInCents)}
@@ -65,7 +63,7 @@ export function RenewalCard({ proposal }: RenewalCardProps) {
         <Button
           variant="outline"
           size="sm"
-          className="border-blue-300 text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-200 dark:hover:bg-blue-900/40"
+          className="border-info/30 text-info hover:bg-info/10"
           render={<Link href={`/policies/${renewalId}`} />}
         >
           <ExternalLink className="mr-1.5 size-3.5" /> Ver

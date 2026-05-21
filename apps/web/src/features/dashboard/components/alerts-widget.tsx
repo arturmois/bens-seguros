@@ -27,7 +27,8 @@ const ALERT_ROWS: readonly AlertRow[] = [
     entityType: 'Policy',
     label: 'apólices vencendo',
     icon: Clock,
-    color: 'text-orange-500',
+    color:
+      'text-orange-500' /* INTENCIONAL — sem token semântico para orange */,
     href: '/policies?filter=expiring',
     linkLabel: 'apólices',
   },
@@ -35,7 +36,7 @@ const ALERT_ROWS: readonly AlertRow[] = [
     entityType: 'Claim',
     label: 'sinistros sem atualização',
     icon: AlertTriangle,
-    color: 'text-amber-600',
+    color: 'text-warning',
     href: '/claims?filter=stalled',
     linkLabel: 'sinistros',
   },
@@ -43,7 +44,8 @@ const ALERT_ROWS: readonly AlertRow[] = [
     entityType: 'Commission',
     label: 'comissões pendentes há mais de 7 dias',
     icon: DollarSign,
-    color: 'text-yellow-500',
+    color:
+      'text-yellow-500' /* INTENCIONAL — sem token semântico para yellow */,
     href: '/commissions?filter=pending',
     linkLabel: 'comissões',
   },
@@ -51,7 +53,7 @@ const ALERT_ROWS: readonly AlertRow[] = [
     entityType: 'Proposal',
     label: 'propostas estagnadas',
     icon: PauseCircle,
-    color: 'text-slate-500',
+    color: 'text-muted-foreground',
     href: '/proposals?filter=stagnant',
     linkLabel: 'propostas',
   },
@@ -111,7 +113,7 @@ export function AlertsWidget() {
           </CardTitle>
         </CardHeader>
         <CardPanel className="flex items-center gap-3 py-6">
-          <CheckCircle2 className="size-6 text-emerald-500" />
+          <CheckCircle2 className="text-success size-6" />
           <p className="text-muted-foreground text-sm">
             Nenhum alerta ativo. Tudo em dia!
           </p>

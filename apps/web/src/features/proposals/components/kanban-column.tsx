@@ -17,13 +17,14 @@ import { STAGE_LABELS } from '../lib/constants'
 import { KanbanCardDraggable } from './kanban-card-draggable'
 
 const STAGE_COLORS: Record<ProposalStage, string> = {
-  CAPTURE: 'bg-blue-500',
-  QUOTE: 'bg-amber-500',
-  PROTOCOL: 'bg-orange-500',
-  INSPECTION: 'bg-purple-500',
-  PAYMENT: 'bg-emerald-500',
-  POLICY_ISSUED: 'bg-green-500',
-  LOST: 'bg-red-500',
+  CAPTURE: 'bg-info',
+  QUOTE: 'bg-warning',
+  PROTOCOL: 'bg-orange-500' /* INTENCIONAL — sem token semântico equivalente */,
+  INSPECTION:
+    'bg-purple-500' /* INTENCIONAL — sem token semântico equivalente */,
+  PAYMENT: 'bg-success',
+  POLICY_ISSUED: 'bg-success',
+  LOST: 'bg-destructive',
 }
 
 interface KanbanColumnProps {

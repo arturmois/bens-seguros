@@ -58,9 +58,7 @@ export function FormField({
           {required && <span className="text-destructive ml-1">*</span>}
         </Label>
         {hint && (
-          <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-            {hint}
-          </span>
+          <span className="text-success text-xs font-medium">{hint}</span>
         )}
       </div>
       {content}

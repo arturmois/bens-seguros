@@ -39,7 +39,7 @@ export function WarningsCard({ data, isLoading }: WarningsCardProps) {
   return (
     <Card>
       <CardPanel className="flex items-start gap-4">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+        <div className="bg-warning/10 text-warning flex size-10 shrink-0 items-center justify-center rounded-lg">
           <AlertTriangle className="size-5" />
         </div>
         <div className="min-w-0 flex-1">

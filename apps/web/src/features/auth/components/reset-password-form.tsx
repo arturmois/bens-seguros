@@ -1,17 +1,17 @@
 'use client'
 
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { toast } from 'sonner'
-import { Eye, EyeOff } from 'lucide-react'
-import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { authClient } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { authClient } from '@/lib/auth-client'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Eye, EyeOff } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
 
 const resetPasswordSchema = z
   .object({
@@ -39,10 +39,10 @@ export function ResetPasswordForm() {
   if (!token || error) {
     return (
       <div className="flex flex-col items-center text-center">
-        <h2 className="mb-2 text-xl font-bold text-slate-100">
+        <h2 className="text-(--auth-foreground) mb-2 text-xl font-bold">
           Link inválido ou expirado
         </h2>
-        <p className="mb-6 text-sm text-slate-400">
+        <p className="text-(--auth-foreground-muted) mb-6 text-sm">
           O link de redefinição de senha expirou ou é inválido. Solicite um novo
           link.
         </p>
@@ -77,7 +77,7 @@ export function ResetPasswordForm() {
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="password" className="text-slate-400">
+        <Label htmlFor="password" className="text-(--auth-foreground-muted)">
           Nova Senha
         </Label>
         <div className="relative">
@@ -86,13 +86,13 @@ export function ResetPasswordForm() {
             type={showPassword ? 'text' : 'password'}
             id="password"
             autoComplete="new-password"
-            className="border-white/10 bg-white/[0.04] text-slate-100 placeholder:text-slate-500"
+            className="border-(--auth-input-border) bg-(--auth-input-bg) text-(--auth-foreground) placeholder:text-(--auth-foreground-subtle)"
           />
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:bg-transparent"
+            className="text-(--auth-foreground-muted) absolute right-0 top-0 h-full px-3 hover:bg-transparent"
             onClick={() => setShowPassword((prev) => !prev)}
             aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
           >
@@ -103,7 +103,9 @@ export function ResetPasswordForm() {
             )}
           </Button>
         </div>
-        <p className="text-xs text-slate-500">Mínimo de 8 caracteres</p>
+        <p className="text-(--auth-foreground-subtle) text-xs">
+          Mínimo de 8 caracteres
+        </p>
         {form.formState.errors.password && (
           <p role="alert" className="text-destructive text-sm">
             {form.formState.errors.password.message}
@@ -111,7 +113,10 @@ export function ResetPasswordForm() {
         )}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="confirmPassword" className="text-slate-400">
+        <Label
+          htmlFor="confirmPassword"
+          className="text-(--auth-foreground-muted)"
+        >
           Confirmar Nova Senha
         </Label>
         <div className="relative">
@@ -120,13 +125,13 @@ export function ResetPasswordForm() {
             type={showConfirmPassword ? 'text' : 'password'}
             id="confirmPassword"
             autoComplete="new-password"
-            className="border-white/10 bg-white/[0.04] text-slate-100 placeholder:text-slate-500"
+            className="border-(--auth-input-border) bg-(--auth-input-bg) text-(--auth-foreground) placeholder:text-(--auth-foreground-subtle)"
           />
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:bg-transparent"
+            className="text-(--auth-foreground-muted) absolute right-0 top-0 h-full px-3 hover:bg-transparent"
             onClick={() => setShowConfirmPassword((prev) => !prev)}
             aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
           >
@@ -145,7 +150,7 @@ export function ResetPasswordForm() {
       </div>
       <Button
         type="submit"
-        className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 w-full bg-gradient-to-r font-bold text-slate-900"
+        className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 text-primary-foreground w-full bg-gradient-to-r font-bold"
         disabled={isPending}
       >
         {isPending ? 'Redefinindo...' : 'Redefinir Senha'}

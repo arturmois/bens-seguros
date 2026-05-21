@@ -58,7 +58,7 @@ export function TermsAcceptanceModal() {
           <Button
             onClick={handleAccept}
             disabled={accept.isPending}
-            className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 w-full bg-gradient-to-r font-bold text-slate-900 sm:w-auto"
+            className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 text-primary-foreground w-full bg-gradient-to-r font-bold sm:w-auto"
           >
             {accept.isPending ? 'Processando...' : 'Li e aceito as alterações'}
           </Button>

@@ -1,12 +1,10 @@
 'use client'
 
-import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
+import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 
-import { TERMINAL_COMMISSION_STATUSES } from '../lib/constants'
-import type { CommissionStatus } from '../lib/types'
 import {
   useApproveAdmin,
   useApproveCommercial,
@@ -14,6 +12,8 @@ import {
   useRejectCommission,
   useReverseCommission,
 } from '../hooks/use-commissions'
+import { TERMINAL_COMMISSION_STATUSES } from '../lib/constants'
+import type { CommissionStatus } from '../lib/types'
 import { RejectDialog, ReverseDialog } from './commission-dialogs'
 
 interface CommissionActionsProps {
@@ -137,9 +137,9 @@ function ActionButton({
 }) {
   const styles = {
     approve:
-      'bg-green-600 text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600',
+      'bg-green-600 text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600' /* INTENCIONAL — verde de ação positiva, não token de status */,
     reject:
-      'bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600',
+      'bg-destructive text-destructive-foreground hover:bg-destructive/90',
     default: '',
   }
   return (

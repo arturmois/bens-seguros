@@ -14,8 +14,8 @@ import {
 } from '@/components/ui/dialog'
 
 import { useUpdateProposalDetails } from '../../../hooks/use-proposals'
-import { BRANCH_LABELS } from '../../../lib/constants'
 import type { InsuredObjectDetails, ProposalData } from '../../../lib/constants'
+import { BRANCH_LABELS } from '../../../lib/constants'
 import { BranchFields } from '../../branch-fields'
 
 interface EditInsuredObjectDialogProps {
@@ -106,7 +106,7 @@ export function EditInsuredObjectDialog({
         </div>
         <DialogFooter className="flex items-center justify-between gap-2 sm:justify-between">
           {isDirty ? (
-            <span className="text-xs font-semibold text-amber-600">
+            <span className="text-warning text-xs font-semibold">
               ● alterações não salvas
             </span>
           ) : (

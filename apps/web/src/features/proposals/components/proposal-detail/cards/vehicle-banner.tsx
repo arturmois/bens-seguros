@@ -16,19 +16,13 @@ export function VehicleBanner({ details }: VehicleBannerProps) {
   const vinPart = details.vin ? `Chassi ${details.vin}` : null
   const subline = [platePart, vinPart].filter(Boolean).join(' · ')
   return (
-    <div className="mb-4 flex items-center gap-4 rounded-xl bg-gradient-to-r from-emerald-50 to-emerald-100 p-4 dark:from-emerald-950/40 dark:to-emerald-900/30">
-      <div className="flex size-11 items-center justify-center rounded-lg bg-emerald-200/60 dark:bg-emerald-900/50">
-        <Car className="size-6 text-emerald-700 dark:text-emerald-300" />
+    <div className="from-primary/5 to-primary/10 mb-4 flex items-center gap-4 rounded-xl bg-gradient-to-r p-4">
+      <div className="bg-primary/10 flex size-11 items-center justify-center rounded-lg">
+        <Car className="text-primary size-6" />
       </div>
       <div>
-        <p className="text-base font-bold text-emerald-900 dark:text-emerald-100">
-          {details.vehicle}
-        </p>
-        {subline && (
-          <p className="text-xs text-emerald-800 dark:text-emerald-200">
-            {subline}
-          </p>
-        )}
+        <p className="text-foreground text-base font-bold">{details.vehicle}</p>
+        {subline && <p className="text-muted-foreground text-xs">{subline}</p>}
       </div>
     </div>
   )

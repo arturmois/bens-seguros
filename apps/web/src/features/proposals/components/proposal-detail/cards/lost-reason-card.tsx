@@ -8,15 +8,15 @@ interface LostReasonCardProps {
 
 export function LostReasonCard({ reason }: LostReasonCardProps) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border-l-4 border-red-500 bg-red-50 p-4 dark:bg-red-950/30">
-      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-red-500/90 text-white">
+    <div className="border-destructive bg-destructive/10 flex items-start gap-3 rounded-xl border-l-4 p-4">
+      <div className="bg-destructive/90 flex size-8 shrink-0 items-center justify-center rounded-full text-white">
         <Ban className="size-4" />
       </div>
       <div>
-        <p className="text-xs font-bold uppercase tracking-wider text-red-700 dark:text-red-300">
+        <p className="text-destructive-foreground text-xs font-bold uppercase tracking-wider">
           Motivo da Perda
         </p>
-        <p className="mt-1 text-sm text-red-900 dark:text-red-100">{reason}</p>
+        <p className="text-foreground mt-1 text-sm">{reason}</p>
       </div>
     </div>
   )
