@@ -84,6 +84,7 @@ Formato baseado em `superpowers:writing-plans`:
 ## Self-review checklist (aplicado pelo plan-author antes de retornar)
 
 - Spec coverage: cada AC tem ao menos 1 task?
+- **File coverage:** se spec é pattern-based (ex: "todos arquivos com X em Y/"), extrair lista explícita via `rg "<pattern>" <dir> --files` ANTES de estruturar tasks. File Structure table deve listar 100% dos arquivos matched (ou marcar "deferred"). Memory: [[spec-plan-sync-implicit-scope]] — SCRUM-73 omitiu `chat/message-bubble.tsx` que estava em escopo implícito.
 - Placeholder scan: nenhum TBD/TODO/FIXME?
 - Type consistency: nomes batem entre tasks?
 ```

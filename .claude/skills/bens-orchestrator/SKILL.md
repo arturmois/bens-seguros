@@ -317,6 +317,18 @@ Rodar 5 quality gates do projeto (CLAUDE.md: lint, typecheck, test, build) no es
 
 ### Phase 7: CODE_REVIEW
 
+**Pré-passo: rebase worktree em `origin/main`** (solo dev pode ter ficado behind durante implementação, memory: [[branch-behind-during-pr-development]]):
+
+```bash
+cd ${worktree_path}
+git fetch origin
+git rebase origin/main
+# Se conflitos: resolver localmente → re-rodar `pnpm lint && pnpm typecheck` → commit resolution
+# Se clean: prosseguir; reviewer verá apenas diffs reais da feature, sem ruído de PRs paralelas
+```
+
+Justificativa: SCRUM-73 levou ~4.5h. Durante esse tempo, 4 PRs mergearam em main. Reviewer reportou "businessSegment removido" — era branch behind, não remoção. Rebase pré-review elimina esse falso positivo.
+
 Dispatchar `bens-code-reviewer` no diff do branch.
 
 1. Dispatch:
@@ -387,6 +399,21 @@ Agent({
    - Após fix: re-dispatch `bens-qa-runner` pra confirmar verde
    - Max 3 tentativas; depois escalate_user com QA report final
 
+#### 8.4.1 — Recovery quando QA é rejeitada/falha por env (NÃO re-dispatchar mesmo prompt)
+
+Se o dispatch do `bens-qa-runner` foi rejeitado pelo user OU falhou por env (server não respondeu, login não funciona, etc.), **NÃO re-dispatchar com prompt idêntico** após corrigir env. Memory: [[qa-failure-recovery-offer-alternatives]] — em SCRUM-73 user percebeu como loop quando re-disparei após fixar :3001.
+
+Recovery correto via `AskUserQuestion`:
+
+| Opção                                       | Quando aplicar                                                                                                                                                            |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fix local + QA pós-merge no main**        | Refactor visual baixo risco, code review 0 CRITICAL, gates verdes                                                                                                         |
+| **Skip + merge agora, regressão em main**   | Mesmo caso acima, user prefere fechar PR rápido                                                                                                                           |
+| **Re-dispatch com prompt FOCADO diferente** | Só se houver um cenário específico pra testar (ex: "abrir só /login em dark mode pra confirmar `--auth-foreground`") — prompt DEVE ser visivelmente diferente do anterior |
+| **Abortar orchestrator**                    | Bloqueador real; user resolve manualmente                                                                                                                                 |
+
+Default em refactors visuais low-risk: opção 1 ou 2. Marcar `qa_skip_reason: "user_chose_skip_visual_refactor_low_risk"`.
+
 #### 8.5 — Cleanup + state update
 
 1. Matar processo do dev server iniciado pelo orchestrator: `pkill -f 'bens-seguros-${ticket_lower}.*next dev' || true` (filtro pelo path do worktree pra NÃO matar processo do main checkout se user estiver rodando). Skip esta etapa se o orchestrator não subiu dev server nesta execução (skip ou port-conflict-abort).
@@ -400,13 +427,14 @@ Agent({
 
 Pra evitar inconsistência entre state files, esses são os únicos valores válidos pra `qa_skip_reason`:
 
-| Valor                           | Quando                                                               |
-| ------------------------------- | -------------------------------------------------------------------- |
-| `no_ui_changes`                 | Diff não toca arquivos UI (Phase 8.1)                                |
-| `port_conflict_user_chose_skip` | Porta :3000 ocupada, user escolheu opção (b)                         |
-| `port_conflict_timeout`         | Porta :3000 ocupada, user não respondeu em 60s                       |
-| `no_url_inferred`               | Diff toca UI mas heurística não conseguiu inferir URLs (Phase 8.3)   |
-| `playwright_mcp_down`           | Playwright MCP retornou erro de conexão (ver "MCP failure handling") |
+| Valor                                      | Quando                                                                                                                                     |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `no_ui_changes`                            | Diff não toca arquivos UI (Phase 8.1)                                                                                                      |
+| `port_conflict_user_chose_skip`            | Porta :3000 ocupada, user escolheu opção (b)                                                                                               |
+| `port_conflict_timeout`                    | Porta :3000 ocupada, user não respondeu em 60s                                                                                             |
+| `no_url_inferred`                          | Diff toca UI mas heurística não conseguiu inferir URLs (Phase 8.3)                                                                         |
+| `playwright_mcp_down`                      | Playwright MCP retornou erro de conexão (ver "MCP failure handling")                                                                       |
+| `user_chose_skip_visual_refactor_low_risk` | Refactor visual baixo risco (0 CRITICAL no code review, gates verdes); user opta por QA pós-merge no main em vez de dispatch (Phase 8.4.1) |
 
 ### Phase 9: OPEN_PR
 
