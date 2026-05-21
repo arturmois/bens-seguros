@@ -21,7 +21,7 @@ export function PolicyTabs({ policyId }: PolicyTabsProps) {
     <>
       <Tabs defaultValue="endorsements">
         <div className="flex items-center justify-between">
-          <TabsList>
+          <TabsList variant="underline">
             <TabsTab value="endorsements">Registros de Endosso</TabsTab>
             <TabsTab value="documents">Documentos</TabsTab>
           </TabsList>
@@ -30,10 +30,10 @@ export function PolicyTabs({ policyId }: PolicyTabsProps) {
             Registrar Endosso Histórico
           </Button>
         </div>
-        <TabsContent value="endorsements" className="mt-4">
+        <TabsContent value="endorsements" className="mt-6">
           <EndorsementList policyId={policyId} />
         </TabsContent>
-        <TabsContent value="documents" className="mt-4 space-y-4">
+        <TabsContent value="documents" className="mt-6 space-y-4">
           <DocumentUpload entityType="POLICY" entityId={policyId} />
           <DocumentList entityType="POLICY" entityId={policyId} />
         </TabsContent>

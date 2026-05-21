@@ -9,7 +9,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs'
 
 import { PageBreadcrumb } from '@/components/page-breadcrumb'
 import { ConfirmDeleteDialog } from '@/components/shared/confirm-delete-dialog'
@@ -32,20 +31,14 @@ import { DetailSkeleton } from './client-detail-skeleton'
 import { ClientHistoryTab } from './client-history-tab'
 import { ClientPoliciesTab } from './client-policies-tab'
 import { ClientProposalsTab } from './client-proposals-tab'
+import { ClientTabs, TAB_VALUES } from './client-tabs'
+import type { TabValue } from './client-tabs'
 import { LgpdDeleteDialogTrigger } from './lgpd-delete-dialog'
 
 interface ClientDetailContentProps {
   readonly clientId: string
 }
 
-const TAB_VALUES = [
-  'propostas',
-  'apolices',
-  'contatos',
-  'documentos',
-  'historico',
-] as const
-type TabValue = (typeof TAB_VALUES)[number]
 const DEFAULT_TAB: TabValue = 'propostas'
 
 function isTabValue(value: string | null): value is TabValue {
@@ -213,31 +206,20 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
           />
         </div>
       </div>
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList>
-          <TabsTab value="propostas">Propostas</TabsTab>
-          <TabsTab value="apolices">Apólices</TabsTab>
-          <TabsTab value="contatos">Contatos</TabsTab>
-          <TabsTab value="documentos">Documentos</TabsTab>
-          <TabsTab value="historico">Histórico</TabsTab>
-        </TabsList>
-        <TabsContent value="propostas" className="mt-4">
-          <ClientProposalsTab clientId={clientId} />
-        </TabsContent>
-        <TabsContent value="apolices" className="mt-4">
-          <ClientPoliciesTab clientId={clientId} />
-        </TabsContent>
-        <TabsContent value="contatos" className="mt-4">
-          <ClientContactsTab clientId={clientId} />
-        </TabsContent>
-        <TabsContent value="documentos" className="mt-4 space-y-4">
-          <DocumentUpload entityType="CLIENT" entityId={clientId} />
-          <DocumentList entityType="CLIENT" entityId={clientId} />
-        </TabsContent>
-        <TabsContent value="historico" className="mt-4">
-          <ClientHistoryTab clientId={clientId} />
-        </TabsContent>
-      </Tabs>
+      <ClientTabs
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        propostasSlot={<ClientProposalsTab clientId={clientId} />}
+        apolicesSlot={<ClientPoliciesTab clientId={clientId} />}
+        contatosSlot={<ClientContactsTab clientId={clientId} />}
+        documentosSlot={
+          <>
+            <DocumentUpload entityType="CLIENT" entityId={clientId} />
+            <DocumentList entityType="CLIENT" entityId={clientId} />
+          </>
+        }
+        historicoSlot={<ClientHistoryTab clientId={clientId} />}
+      />
       <ConfirmDeleteDialog
         entityLabel="cliente"
         open={deleteOpen}

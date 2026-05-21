@@ -1,13 +1,12 @@
 'use client'
 
-import { ArrowLeft, Plus, RefreshCw } from 'lucide-react'
+import { ArrowLeft, RefreshCw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { ConfirmDeleteDialog } from '@/components/shared/confirm-delete-dialog'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs'
 import { DocumentList } from '@/features/documents/components/document-list'
 import { DocumentUpload } from '@/features/documents/components/document-upload'
 
@@ -17,7 +16,7 @@ import { ClaimDetailHeader } from './claim-detail-header'
 import { ClaimDetailSkeleton } from './claim-detail-skeleton'
 import { ClaimInfoGrid } from './claim-info-grid'
 import { ClaimStatusActions } from './claim-status-actions'
-import { OccurrenceForm } from './occurrence-form'
+import { ClaimTabs } from './claim-tabs'
 import { OccurrenceList } from './occurrence-list'
 
 interface ClaimDetailProps {
@@ -28,7 +27,6 @@ export function ClaimDetail({ claimId }: ClaimDetailProps) {
   const router = useRouter()
   const { data, isLoading, isError, refetch } = useClaim(claimId)
   const deleteClaim = useDeleteClaim()
-  const [occurrenceFormOpen, setOccurrenceFormOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   function handleConfirmDelete() {
     deleteClaim.mutate(claimId, {
@@ -99,29 +97,15 @@ export function ClaimDetail({ claimId }: ClaimDetailProps) {
       <Separator />
       <ClaimStatusActions claimId={claimId} currentStatus={claim.status} />
       <Separator />
-      <Tabs defaultValue="occurrences">
-        <div className="flex items-center justify-between">
-          <TabsList>
-            <TabsTab value="occurrences">Ocorrências</TabsTab>
-            <TabsTab value="documents">Documentos</TabsTab>
-          </TabsList>
-          <Button onClick={() => setOccurrenceFormOpen(true)}>
-            <Plus className="mr-1 h-4 w-4" />
-            Nova Ocorrência
-          </Button>
-        </div>
-        <TabsContent value="occurrences" className="mt-4">
-          <OccurrenceList claimId={claimId} />
-        </TabsContent>
-        <TabsContent value="documents" className="mt-4 space-y-4">
-          <DocumentUpload entityType="CLAIM" entityId={claimId} />
-          <DocumentList entityType="CLAIM" entityId={claimId} />
-        </TabsContent>
-      </Tabs>
-      <OccurrenceForm
+      <ClaimTabs
         claimId={claimId}
-        open={occurrenceFormOpen}
-        onOpenChange={setOccurrenceFormOpen}
+        occurrencesSlot={<OccurrenceList claimId={claimId} />}
+        documentsSlot={
+          <>
+            <DocumentUpload entityType="CLAIM" entityId={claimId} />
+            <DocumentList entityType="CLAIM" entityId={claimId} />
+          </>
+        }
       />
       <ConfirmDeleteDialog
         entityLabel="sinistro"

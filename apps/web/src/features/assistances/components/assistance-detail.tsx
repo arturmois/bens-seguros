@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTab } from '@/components/ui/tabs'
 
 import { DocumentList } from '@/features/documents/components/document-list'
 import { DocumentUpload } from '@/features/documents/components/document-upload'
@@ -17,6 +16,7 @@ import type { AssistanceData } from '../lib/types'
 import { useAssistance } from '../hooks/use-assistances'
 import { AssistanceStatusActions } from './assistance-status-actions'
 import { AssistanceStatusBadge } from './assistance-status-badge'
+import { AssistanceTabs } from './assistance-tabs'
 
 interface AssistanceDetailProps {
   readonly assistanceId: string
@@ -79,15 +79,14 @@ export function AssistanceDetail({ assistanceId }: AssistanceDetailProps) {
         currentStatus={data.status}
       />
       <Separator />
-      <Tabs defaultValue="documents">
-        <TabsList>
-          <TabsTab value="documents">Documentos</TabsTab>
-        </TabsList>
-        <TabsContent value="documents" className="mt-4 space-y-4">
-          <DocumentUpload entityType="ASSISTANCE" entityId={assistanceId} />
-          <DocumentList entityType="ASSISTANCE" entityId={assistanceId} />
-        </TabsContent>
-      </Tabs>
+      <AssistanceTabs
+        documentsSlot={
+          <>
+            <DocumentUpload entityType="ASSISTANCE" entityId={assistanceId} />
+            <DocumentList entityType="ASSISTANCE" entityId={assistanceId} />
+          </>
+        }
+      />
     </div>
   )
 }
