@@ -1,6 +1,8 @@
 export * from './api-types'
 export { BROKER_TYPES, CHANNEL_META, CHANNEL_TYPES } from './channel-types'
 export type { BrokerType, ChannelType } from './channel-types'
+export { detectClientCommand } from './chat-commands'
+export type { ClientCommand } from './chat-commands'
 export {
   AUTO_CLOSE_SYSTEM_MESSAGE,
   CHAT_CLIENT_COMMANDS,
@@ -31,13 +33,19 @@ export {
 export {
   BRANCH_VALUES,
   branchEnum,
+  BUSINESS_SEGMENT_VALUES,
+  businessDetailsSchema,
+  businessSegmentSchema,
   insuredObjectDetailsSchema,
+  isBusinessSegment,
   isInsuredObjectDetails,
+  shouldShowAreaM2,
 } from './insured-object-details-schema'
 export type {
   AutoDetails,
   Branch,
   BusinessDetails,
+  BusinessSegment,
   CondominiumDetails,
   InsuredObjectDetails,
   LifeDetails,
@@ -47,6 +55,4 @@ export type {
 export { signRequest, verifyRequest } from './internal-auth'
 export { RATE_LIMITS } from './rate-limit-constants'
 export * from './socket-events'
-export { detectClientCommand } from './chat-commands'
-export type { ClientCommand } from './chat-commands'
 export { isRecord } from './type-guards'

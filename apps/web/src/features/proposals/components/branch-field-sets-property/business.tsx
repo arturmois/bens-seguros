@@ -1,12 +1,25 @@
 'use client'
 
-import { Controller, useWatch } from 'react-hook-form'
 import { InputMask } from '@react-input/mask'
+import { Controller, useWatch } from 'react-hook-form'
 
-import { AddressFieldsWithCep } from '@/features/address/components/address-fields-with-cep'
+import { isBusinessSegment, shouldShowAreaM2 } from '@repo/shared'
+
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { AddressFieldsWithCep } from '@/features/address/components/address-fields-with-cep'
 import { CNPJ_MASK } from '@/lib/masks'
 
+import {
+  BUSINESS_SEGMENT_LABELS,
+  BUSINESS_SEGMENT_OPTIONS,
+} from '../../lib/business-segment'
 import type { FieldHelperProps } from '../branch-field-sets'
 import { FieldWrapper } from '../branch-field-sets'
 import { AutoFilledBadge, type AutoFillData } from './shared'
@@ -23,6 +36,12 @@ export function BusinessFields({
 }: BusinessFieldsProps) {
   const isCompanyClient = autoFill?.clientPersonType === 'COMPANY'
   const legalNameValue = useWatch({ control, name: 'legalName' })
+  const businessSegmentRaw = useWatch({ control, name: 'businessSegment' })
+  const businessSegment = isBusinessSegment(businessSegmentRaw)
+    ? businessSegmentRaw
+    : null
+  const showAreaField = shouldShowAreaM2(businessSegment)
+
   return (
     <>
       <FieldWrapper label="Razão Social" name="legalName" required>
@@ -67,19 +86,62 @@ export function BusinessFields({
           {...register('businessActivity')}
         />
       </FieldWrapper>
+      <FieldWrapper label="Segmento empresarial" name="businessSegment">
+        <Controller
+          name="businessSegment"
+          control={control}
+          render={({ field }) => {
+            const currentSegment = isBusinessSegment(field.value)
+              ? field.value
+              : null
+            return (
+              <Select
+                value={currentSegment ?? ''}
+                onValueChange={(value) => {
+                  const nextSegment = isBusinessSegment(value) ? value : null
+                  field.onChange(nextSegment)
+                  if (!shouldShowAreaM2(nextSegment)) {
+                    setValue('areaM2', undefined)
+                  }
+                }}
+                items={BUSINESS_SEGMENT_OPTIONS}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o segmento">
+                    {(value: string | null) =>
+                      isBusinessSegment(value)
+                        ? BUSINESS_SEGMENT_LABELS[value]
+                        : null
+                    }
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {BUSINESS_SEGMENT_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )
+          }}
+        />
+      </FieldWrapper>
       <AddressFieldsWithCep
         control={control}
         register={register}
         setValue={setValue}
         required={{ cep: false }}
       />
-      <FieldWrapper label="Área (m²)" name="areaM2">
-        <Input
-          type="number"
-          placeholder="Ex: 200"
-          {...register('areaM2', { valueAsNumber: true })}
-        />
-      </FieldWrapper>
+      {showAreaField && (
+        <FieldWrapper label="Área (m²)" name="areaM2">
+          <Input
+            type="number"
+            placeholder="Ex: 200"
+            {...register('areaM2', { valueAsNumber: true })}
+          />
+        </FieldWrapper>
+      )}
     </>
   )
 }

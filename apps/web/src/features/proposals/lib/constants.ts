@@ -1,13 +1,15 @@
 import type { SortingState, VisibilityState } from '@tanstack/react-table'
 
+import type { BusinessSegment } from '@repo/shared'
+
 import type {
-  ListProposals200DataItemStage,
-  ListProposals200DataItemBranch,
-  ListProposals200DataItemBoardType,
-  ListProposals200DataItem,
   GetProposal200Data,
   GetProposalChecklist200DataItemsItem,
   GetProposalChecklist200DataSummary,
+  ListProposals200DataItem,
+  ListProposals200DataItemBoardType,
+  ListProposals200DataItemBranch,
+  ListProposals200DataItemStage,
 } from '@/api/model'
 
 export type ProposalStage = ListProposals200DataItemStage
@@ -72,6 +74,7 @@ export interface BusinessDetails {
   legalName: string
   cnpj: string
   businessActivity: string
+  businessSegment?: BusinessSegment | null
   cep?: string
   street?: string
   number?: string

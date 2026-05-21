@@ -3,10 +3,13 @@
 import { Pencil, Plus } from 'lucide-react'
 import { useState } from 'react'
 
+import { shouldShowAreaM2 } from '@repo/shared'
+
 import { Button } from '@/components/ui/button'
 
 import { formatCurrency } from '@/lib/formatters'
 
+import { BUSINESS_SEGMENT_LABELS } from '../../../lib/business-segment'
 import type { InsuredObjectDetails, ProposalData } from '../../../lib/constants'
 import { VehicleBanner } from '../cards/vehicle-banner'
 import { EditInsuredObjectDialog } from '../dialogs/edit-insured-object-dialog'
@@ -72,11 +75,15 @@ function pairsFor(details: InsuredObjectDetails | null): ReadModePair[] {
           value: details.elevatorCount?.toString() ?? null,
         },
       ]
-    case 'BUSINESS':
-      return [
+    case 'BUSINESS': {
+      const segmentLabel = details.businessSegment
+        ? (BUSINESS_SEGMENT_LABELS[details.businessSegment] ?? null)
+        : null
+      const businessPairs: ReadModePair[] = [
         { label: 'Razão Social', value: details.legalName ?? null },
         { label: 'CNPJ', value: details.cnpj ?? null },
         { label: 'Atividade', value: details.businessActivity ?? null },
+        { label: 'Segmento', value: segmentLabel },
         {
           label: 'Endereço',
           value:
@@ -89,8 +96,15 @@ function pairsFor(details: InsuredObjectDetails | null): ReadModePair[] {
               ? `${details.city}/${details.state}`
               : (details.city ?? null),
         },
-        { label: 'Área (m²)', value: details.areaM2?.toString() ?? null },
       ]
+      if (shouldShowAreaM2(details.businessSegment)) {
+        businessPairs.push({
+          label: 'Área (m²)',
+          value: details.areaM2?.toString() ?? null,
+        })
+      }
+      return businessPairs
+    }
     case 'LIFE':
       return [
         { label: 'Ocupação', value: details.occupation ?? null },

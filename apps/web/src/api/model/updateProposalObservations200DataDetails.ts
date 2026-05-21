@@ -86,6 +86,21 @@ export type UpdateProposalObservations200DataDetails =
       cnpj: string
       /** @minLength 1 */
       businessActivity: string
+      /** @nullable */
+      businessSegment?:
+        | 'INDUSTRY'
+        | 'RETAIL'
+        | 'WHOLESALE'
+        | 'WAREHOUSE_LOGISTICS'
+        | 'CONSTRUCTION'
+        | 'HEALTH_CLINIC'
+        | 'EDUCATION'
+        | 'HOSPITALITY_RESTAURANT'
+        | 'PROFESSIONAL_SERVICES'
+        | 'TECHNOLOGY'
+        | 'CONSULTING'
+        | 'OTHER'
+        | null
       cep?: string
       street?: string
       number?: string

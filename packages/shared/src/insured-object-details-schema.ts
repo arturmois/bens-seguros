@@ -12,6 +12,45 @@ export const BRANCH_VALUES = [
 export const branchEnum = z.enum(BRANCH_VALUES)
 export type Branch = (typeof BRANCH_VALUES)[number]
 
+export const BUSINESS_SEGMENT_VALUES = [
+  'INDUSTRY',
+  'RETAIL',
+  'WHOLESALE',
+  'WAREHOUSE_LOGISTICS',
+  'CONSTRUCTION',
+  'HEALTH_CLINIC',
+  'EDUCATION',
+  'HOSPITALITY_RESTAURANT',
+  'PROFESSIONAL_SERVICES',
+  'TECHNOLOGY',
+  'CONSULTING',
+  'OTHER',
+] as const
+
+export const businessSegmentSchema = z.enum(BUSINESS_SEGMENT_VALUES)
+export type BusinessSegment = (typeof BUSINESS_SEGMENT_VALUES)[number]
+
+const BUSINESS_SEGMENT_VALUES_SET: ReadonlySet<string> = new Set(
+  BUSINESS_SEGMENT_VALUES
+)
+
+const BUSINESS_SEGMENTS_WITHOUT_AREA: ReadonlySet<BusinessSegment> = new Set([
+  'PROFESSIONAL_SERVICES',
+  'TECHNOLOGY',
+  'CONSULTING',
+])
+
+export function isBusinessSegment(value: unknown): value is BusinessSegment {
+  return typeof value === 'string' && BUSINESS_SEGMENT_VALUES_SET.has(value)
+}
+
+export function shouldShowAreaM2(
+  segment: BusinessSegment | null | undefined
+): boolean {
+  if (!segment) return true
+  return !BUSINESS_SEGMENTS_WITHOUT_AREA.has(segment)
+}
+
 const autoDetailsSchema = z.object({
   branch: z.literal('AUTO'),
   vehicle: z.string().trim().min(1, 'Veículo é obrigatório').max(100),
@@ -61,11 +100,12 @@ const condominiumDetailsSchema = z.object({
   fireEquipmentDetails: z.string().optional(),
 })
 
-const businessDetailsSchema = z.object({
+export const businessDetailsSchema = z.object({
   branch: z.literal('BUSINESS'),
   legalName: z.string().min(1),
   cnpj: z.string().min(1),
   businessActivity: z.string().min(1),
+  businessSegment: businessSegmentSchema.nullable().optional(),
   cep: z.string().optional(),
   street: z.string().trim().optional(),
   number: z.string().trim().optional(),
