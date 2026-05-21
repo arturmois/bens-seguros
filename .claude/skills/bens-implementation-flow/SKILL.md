@@ -52,6 +52,29 @@ Cada etapa (task) dos planos em `docs/plans/` segue este fluxo obrigatorio:
 - Respeitar todas as regras deste CLAUDE.md
 - Aplicar as regras das skills carregadas na Fase 1b
 
+#### Sub-fluxo: campo novo em Details schema (Orval regen)
+
+Quando a tarefa adiciona campo novo a `insured-object-details-schema` (`packages/shared/src/insured-object-details-schema.ts`) ou a outro schema que aparece em OpenAPI gerado, o Orval client em `apps/web/src/api/model/*` precisa ser regenerado. Ordem:
+
+1. **Feature code primeiro** (Zod schema, form component, helper) com tests verdes
+2. **Orval regen ANTES do code review** (separa diff auto-gen do diff hand-written):
+   ```bash
+   # Se main checkout tem :3001 ativo, parar primeiro
+   kill $(lsof -ti:3001) 2>/dev/null || true
+   # Subir server do worktree
+   cd <worktree>/apps/server && nohup pnpm dev > /tmp/server-<slug>.log 2>&1 & disown
+   until curl -sf http://localhost:3001/api/docs/openapi.json > /dev/null; do sleep 1; done
+   # Regen (do worktree)
+   cd <worktree> && pnpm --filter @app/web generate:api
+   # Cleanup worktree server
+   pkill -f 'bens-seguros-<slug>.*tsx.*server' || true
+   ```
+3. **Commit auto-gen separado:** `chore(web): regenerar Orval client pra <feature>`
+4. **Verificar `lib/constants.ts`** — se o novo campo é usado em forms/display (não só read-only metadata), atualizar `BusinessDetails`/`ResidentialDetails`/etc. manualmente também ([[type-duplicates-orval-constants]] explica por que ambos coexistem)
+5. **Pre-flight em worktree fresh:** `pnpm db:generate` antes de subir server (senão `ERR_MODULE_NOT_FOUND`)
+
+Related memories: `orval-regen-workflow-decision`, `type-duplicates-orval-constants`, `server-cors-pinned-to-3000`.
+
 ### Fase 3: Code Review (agente reviewer)
 
 - Apos implementacao, disparar agente de code review (`superpowers:code-reviewer`)

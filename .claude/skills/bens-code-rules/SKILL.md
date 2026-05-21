@@ -11,7 +11,7 @@ description: Use ao escrever, refatorar ou revisar código no bens-seguros. Cobr
 - **NO `any` type** — zero tolerance. Use `unknown` + type narrowing. Violation: lint error
 - **NO `// eslint-disable`** — fix the code, not the linter. No exceptions
 - **NO `// @ts-ignore` or `// @ts-expect-error`** — fix the type, not the compiler
-- **NO `as` type assertions** — use type guards, generics, or redesign. Exception: test mocks only
+- **NO `as` type assertions** — use type guards, generics, or redesign. Exception: test mocks only. Pra enums e discriminated unions exportadas do `@repo/shared`, criar type guard companheiro (`is<TypeName>`) — ver seção "Type Guards para Enums" abaixo
 - **NO hardcoded secrets** — use `@repo/env` (t3-env + Zod validated)
 - **NO `process.env` in app or package code** — always import `{ env }` from `@repo/env`. Exception: `apps/web` (Next.js client-side uses `process.env.NEXT_PUBLIC_*`)
 - **NO `--no-verify` on git hooks** — fix the hook failure
@@ -31,6 +31,46 @@ description: Use ao escrever, refatorar ou revisar código no bens-seguros. Cobr
 - Prefer `readonly` on properties that should not be mutated
 - Use `Record<string, unknown>` instead of `object` or `{}`
 - Use template literal types for string patterns where applicable
+
+### Type Guards para Enums e Discriminated Unions (OBRIGATÓRIO)
+
+Quando exportar enum (via `z.enum` + `as const`) ou discriminated union de um package shared, criar type guard companheiro no mesmo módulo.
+
+**Pattern:**
+
+```ts
+// packages/shared/src/<module>.ts
+export const BUSINESS_SEGMENT_VALUES = ['INDUSTRY', 'RETAIL' /* ... */] as const
+export type BusinessSegment = (typeof BUSINESS_SEGMENT_VALUES)[number]
+
+const BUSINESS_SEGMENT_VALUES_SET: ReadonlySet<string> = new Set(
+  BUSINESS_SEGMENT_VALUES
+)
+
+export function isBusinessSegment(value: unknown): value is BusinessSegment {
+  return typeof value === 'string' && BUSINESS_SEGMENT_VALUES_SET.has(value)
+}
+```
+
+**Consumer:**
+
+```tsx
+// WRONG (ABSOLUTE PROHIBITION violation):
+const segment = raw as BusinessSegment
+
+// RIGHT:
+const segment = isBusinessSegment(raw) ? raw : null
+```
+
+**Por quê:**
+
+- Elimina `as` casts (ABSOLUTE PROHIBITION) em código que recebe `unknown` (form watch, JSON parse, network responses)
+- Type-safe fallback no mismatch (retorna `null`/default em vez de crashar)
+- Permite `if (isBusinessSegment(value))` em código condicional
+
+**Exemplos no codebase:** `isBusinessSegment` (SCRUM-58), `isInsuredObjectDetails` (`packages/shared/src/insured-object-details-schema.ts`).
+
+**Code review enforcement:** `bens-code-reviewer` flagará `as` casts em código de produto e proporá pattern de type guard como fix.
 
 ## Language Rules
 
