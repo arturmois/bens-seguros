@@ -259,8 +259,25 @@ Main session executa esta sequência. Cada step é literal — NÃO improvise.
 
 Main session executa o plano gerado em Phase 4. NÃO improvise — siga o plan task-by-task.
 
+**Decisão: inline ou subagent dispatch?** (memory: `refactor-inline-vs-subagent-dispatch`)
+
+Antes de invocar `subagent-driven-development`, avaliar complexidade do plano:
+
+| Condição                                                                                                                            | Caminho                                 |
+| ----------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| Plan é refactor-only + spec.AC todos dizem "no behavior change" + estimado <200 LOC + tudo em `apps/web/src/features/*/components/` | **inline** (main session, sem subagent) |
+| Backend (`apps/server`, `apps/chat-server`, `packages/core`, `packages/db`)                                                         | **subagent**                            |
+| New feature (state + behavior + tests)                                                                                              | **subagent**                            |
+| TDD obrigatório (DDD Full)                                                                                                          | **subagent**                            |
+| Multi-system (web + server + db)                                                                                                    | **subagent**                            |
+| Plan estimado >200 LOC                                                                                                              | **subagent**                            |
+
+Inline tem feedback loop mais rápido (sem handoff state→subagent→state, economiza 10-15min em refactors cirúrgicos). Subagent tem isolamento de contexto (não polui main com diffs grandes).
+
+Exemplo: SCRUM-72 (5-component refactor, 140 add / 62 del, sem behavior change) → inline. SCRUM-71 (novo endpoint + webhook + worker job) → subagent.
+
 1. Ler `${plan_path}` integralmente.
-2. Carregar skill `superpowers:subagent-driven-development` (referência) — orchestrator atua como o "controller" descrito lá: dispatcha implementer subagents por task quando disponível, ou executa inline em fallback (per Pré-condição 5).
+2. Carregar skill `superpowers:subagent-driven-development` (referência) — orchestrator atua como o "controller" descrito lá: dispatcha implementer subagents por task quando aplicável (per tabela acima), ou executa inline em refactors cirúrgicos / fallback (per Pré-condição 5).
 3. Pra cada task no plano:
    - Marcar task como in_progress em TaskCreate
    - **Se subagents disponíveis (full mode):** Dispatchar `Agent({subagent_type: "general-purpose"})` com prompt formatado per `superpowers:subagent-driven-development` implementer template + texto completo da task. NÃO usa subagent-driven review loop completo (o `bens-code-reviewer` da Phase 7 cobre isso).
@@ -330,10 +347,13 @@ Server CORS é fixo em `http://localhost:3000`. Worktree do orchestrator NÃO po
 
 1. Checar se porta :3000 está ocupada por processo Next.js (NÃO usar `/api/health` — falso positivo via proxy do server :3001): `lsof -ti:3000 2>/dev/null` retorna PID se ocupada, vazio se livre. Alternativa: `curl -sf http://localhost:3000/_next/health` (endpoint Next.js específico, não passa por proxy).
 2. Se porta livre:
-   - Main session sobe web no worktree: `pnpm --filter @app/web dev &` (background)
-   - Aguardar `http://localhost:3000` responder (max 30s)
+   - Main session sobe AMBOS no worktree (em background, em paralelo):
+     - `pnpm --filter @app/web dev` (porta :3000 — Next.js frontend)
+     - `pnpm --filter @app/server dev` (porta :3001 — Fastify API; **OBRIGATÓRIO** se ticket envolve UI que faz login/data fetching, ou seja, ~todas as features web. Memory: `orchestrator-qa-preflight-server-startup`)
+     - Se ticket toca chat ou widget: também `pnpm --filter @app/chat-server dev` (porta :3002)
+   - Aguardar `http://localhost:3000/_next/health` E `nc -w1 localhost 3001 </dev/null` ambos responderem (max 60s combinado)
    - Seguir pra 8.3
-3. Se porta ocupada (PID retornou ou `_next/health` 200):
+3. Se porta :3000 ocupada (PID retornou ou `_next/health` 200):
    - `AskUserQuestion` com 3 opções:
      - **(a) Pausar main dev session** — você para o `pnpm dev` no main checkout, eu subo no worktree, rodo QA, paro o worktree, e você reinicia
      - **(b) Pular QA neste ticket** — marca `qa_skipped: true`, `qa_skip_reason: "port_conflict_user_chose_skip"`, seguir pra Phase 9 com warning no PR body recomendando QA manual pós-merge
