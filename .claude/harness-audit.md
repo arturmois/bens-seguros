@@ -4,12 +4,13 @@ Snapshot do estado do harness do projeto bens-seguros + gap analysis pra suporta
 
 ## Update history
 
-| Data       | Update                                                                                                                                                                                                                                                                                                     | PR             |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
-| 2026-05-19 | Audit inicial: 11 gaps mapeados. Scaffold de 9 subagents + skill + slash + audit doc + harness-learnings/ commitado.                                                                                                                                                                                       | #313 (merged)  |
-| 2026-05-20 | Phases 1-4 funcionais: orchestrator skill com Execution flow detalhada + state management JSON. `bens-jira-reader`, `bens-spec-author`, `bens-plan-author` validados via system prompt completo + integração com state machine.                                                                            | #314 (merged)  |
-| 2026-05-20 | Phases 5-10 funcionais: IMPLEMENT + LOCAL_GATES + CODE_REVIEW + OPEN_PR + CI_WATCH com failure dispatch detalhado. Subagent availability check (Pré-condição 5) + fallback inline pra resolver `orchestrator-subagent-restart-required`. PR template Body + test/hook/review failure specialists ativados. | #315 (merged)  |
-| 2026-05-20 | Phase 8 (QA_RUN) funcional via Playwright MCP. `bens-qa-runner` dispatch + skip se diff não toca UI + porta CORS handling (3 opções pro user em conflito :3000). `bens-qa-fixer` ativado pra QA failures com re-run pra confirmar verde.                                                                   | PR-4 (este PR) |
+| Data       | Update                                                                                                                                                                                                                                                                                                                     | PR             |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| 2026-05-19 | Audit inicial: 11 gaps mapeados. Scaffold de 9 subagents + skill + slash + audit doc + harness-learnings/ commitado.                                                                                                                                                                                                       | #313 (merged)  |
+| 2026-05-20 | Phases 1-4 funcionais: orchestrator skill com Execution flow detalhada + state management JSON. `bens-jira-reader`, `bens-spec-author`, `bens-plan-author` validados via system prompt completo + integração com state machine.                                                                                            | #314 (merged)  |
+| 2026-05-20 | Phases 5-10 funcionais: IMPLEMENT + LOCAL_GATES + CODE_REVIEW + OPEN_PR + CI_WATCH com failure dispatch detalhado. Subagent availability check (Pré-condição 5) + fallback inline pra resolver `orchestrator-subagent-restart-required`. PR template Body + test/hook/review failure specialists ativados.                 | #315 (merged)  |
+| 2026-05-20 | Phase 8 (QA_RUN) funcional via Playwright MCP. `bens-qa-runner` dispatch + skip se diff não toca UI + porta CORS handling (3 opções pro user em conflito :3000). `bens-qa-fixer` ativado pra QA failures com re-run pra confirmar verde.                                                                                   | #316 (merged)  |
+| 2026-05-20 | Phases 11-14 (AWAIT_MERGE + AFTER_ACTION + APPLY_LEARNINGS + TEARDOWN) funcionais. `bens-after-action` dispatch pós-merge com proposal estruturado. Memory auto-commit pra user-local + `chore(harness): ...` PR pra repo changes. Worktree teardown automático. **Orchestrator completo: self-improvement loop fechado.** | PR-5 (este PR) |
 
 ## Inventário (2026-05-19)
 
@@ -133,4 +134,12 @@ Sinal de hipótese errada: nenhum dos sinais positivos aparece em 4 semanas → 
 
 ## Conclusão
 
-11 gaps identificados em 2026-05-19. PR-1 (#313) fechou todos como scaffold. PR-2 (#314) ativou jira-reader/spec-author/plan-author + phases 1-4. PR-3 (#315) ativou test-fixer/hook-resolver/review-applier + phases 5-10. PR-4 (este PR) ativa qa-runner + qa-fixer + phase 8 (QA_RUN). Resta APENAS PR-5 pra after-action + APPLY_LEARNINGS (phases 11-14, self-improvement loop). Nenhum MCP novo necessário.
+**Orchestrator completo após PR-5.** 11 gaps mapeados em 2026-05-19, todos resolvidos em 5 PRs sequenciais (#313 → #314 → #315 → #316 → este PR). Estado final:
+
+- PR-1 (#313): scaffold de 9 subagents + skill + slash + audit doc + harness-learnings/ — todos commitados
+- PR-2 (#314): ativou phases 1-4 (jira-reader, spec-author, plan-author + 2 checkpoints + state management)
+- PR-3 (#315): ativou phases 5-10 (IMPLEMENT, LOCAL_GATES, CODE_REVIEW, OPEN_PR, CI_WATCH) + 3 failure specialists (test-fixer, hook-resolver, review-applier) + subagent availability fallback
+- PR-4 (#316): ativou phase 8 QA_RUN via Playwright MCP + qa-runner + qa-fixer + porta CORS handling
+- PR-5 (este PR): ativa phases 11-14 (AWAIT_MERGE + AFTER_ACTION + APPLY_LEARNINGS + TEARDOWN) — self-improvement loop fechado
+
+Nenhum MCP novo foi necessário. Próximo passo: usar `/work SCRUM-XX` em tickets reais e capturar learnings via after-action — o harness agora se mantém sozinho.

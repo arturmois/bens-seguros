@@ -25,7 +25,7 @@ Esta skill executa o fluxo Jira → PR de ponta a ponta. Carregada pelo slash `/
 2. Working tree limpo no main checkout (`git status --porcelain` vazio). NÃO limpo → refuse com mensagem; NÃO faz auto-stash.
 3. `gh` autenticado (`gh auth status`)
 4. Atlassian MCP responde (`mcp__plugin_atlassian_atlassian__getAccessibleAtlassianResources`)
-5. **Subagent availability check (PR-3 + PR-4):** verificar se os bens-\* subagents necessários estão na lista de `subagent_type` do tool `Agent`. Lista completa: `bens-jira-reader`, `bens-spec-author`, `bens-plan-author`, `bens-code-reviewer`, `bens-test-fixer`, `bens-hook-resolver`, `bens-review-applier`, `bens-qa-runner` (Phase 8), `bens-qa-fixer` (Phase 8 failure). Se algum subagent requerido pra phase atual faltar → **fallback inline** (modo degradado): main session executa o trabalho do subagent diretamente em vez de dispatchar (memory: `orchestrator-subagent-restart-required`). Logar warning + salvar em state file `failures` com type `subagent_unavailable` pro after-action propor melhoria. **Não bloqueia o fluxo** — orchestrator continua, só perde isolamento de contexto.
+5. **Subagent availability check (PR-3 + PR-4 + PR-5):** verificar se os bens-\* subagents necessários estão na lista de `subagent_type` do tool `Agent`. Lista completa (9 subagents): `bens-jira-reader`, `bens-spec-author`, `bens-plan-author`, `bens-code-reviewer`, `bens-test-fixer`, `bens-hook-resolver`, `bens-review-applier`, `bens-qa-runner` (Phase 8), `bens-qa-fixer` (Phase 8 failure), `bens-after-action` (Phase 12). Se algum subagent requerido pra phase atual faltar → **fallback inline** (modo degradado): main session executa o trabalho do subagent diretamente em vez de dispatchar (memory: `orchestrator-subagent-restart-required`). Logar warning + salvar em state file `failures` com type `subagent_unavailable` pro after-action propor melhoria. **Não bloqueia o fluxo** — orchestrator continua, só perde isolamento de contexto.
 
 ## State machine — 14 phases
 
@@ -442,9 +442,109 @@ Pra evitar inconsistência entre state files, esses são os únicos valores vál
 4. Após 3 rounds de CI failure não resolvido → escalate_user com diagnóstico estruturado.
 5. Atualizar state: `completed_phases.push("CI_WATCH")`, `phase = "AWAIT_MERGE"`.
 
-### Phases 11-14 — out of scope deste PR-3
+### Phase 11: AWAIT_MERGE (PR-5: passive watcher)
 
-Phase 11 (AWAIT_MERGE), Phase 12 (AFTER_ACTION), Phase 13 (APPLY_LEARNINGS), Phase 14 (TEARDOWN) vêm em PR-5 (after-action + self-improvement loop). Por enquanto, ao chegar em Phase 11, orchestrator retorna pro user: "PR aberta em ${pr_url}. CI verde. Aguardando seu review + merge. Após merge, after-action review virá em PR-5 (ainda não implementado). Cleanup do worktree: manual via `git worktree remove ${worktree_path}`."
+Orchestrator NÃO mergeia o PR — espera o user decidir. Como Claude Code não tem background polling, Phase 11 é resolvida via interação humana ou nova invocação.
+
+1. Mensagem ao user: `"PR aberta em ${pr_url}. CI verde. Aguardando seu review + merge. Quando mergear, me avise dizendo 'PR mergeada' (ou re-invoque /work SCRUM-XX) que eu rodo after-action."`
+2. **Trigger atual (v1):** main session detecta a mensagem do user com keyword `mergeada` / `merged` + ticket_id no contexto, OU na próxima vez que `/work ${ticket_id}` é invocado (lê state file, vê `phase = "AWAIT_MERGE"`, checa `gh pr view ${pr_number} --json state`).
+3. **Trigger planejado (v2 — out of scope deste PR):** slash command dedicado `/work-finish ${ticket_id}` que dispara apenas phases 12-14.
+4. Atualizar state imediatamente após disparo: `phase = "AWAIT_MERGE"`, `paused_reason = "awaiting_pr_merge"`. Antes de seguir pra Phase 12: confirmar via `gh pr view ${pr_number} --json state,mergedAt` que retorna `MERGED` + ler `mergedAt` pra salvar em `pr_merged_at`.
+5. Quando confirmado MERGED → seguir pra Phase 12 (state update com `pr_merged_at`, `paused_reason = null`).
+
+**Implementação simplificada PR-5:** orchestrator considera Phase 11 completa quando user volta dizendo "PR mergeada" ou quando `gh pr view ${pr_number} --json state` retorna `MERGED` na próxima checagem (manual ou automática). Phases 12-14 podem rodar numa sessão diferente (state file persistido pra retomada).
+
+### Phase 12: AFTER_ACTION (PR-5: dispatch `bens-after-action`)
+
+Análise pós-PR pra propor melhorias ao harness.
+
+1. Coletar contexto completo:
+   ```
+   payload = {
+     ticket, slug, pr_url, pr_state ("MERGED" | "CLOSED"),
+     spec_path, plan_path,
+     started_at, ended_at: now,
+     phase_durations: {...},  // derivar de timestamps no state
+     failures: state.failures,
+     user_interventions: state.user_interventions,
+     commits: git log origin/main..feat/${ticket_lower},
+     files_changed: git diff --name-only,
+     review_findings: <do Phase 7 report>,
+     qa_findings: <do Phase 8 report ou null>
+   }
+   ```
+2. Dispatchar `bens-after-action`:
+   ```
+   Agent({
+     description: "After-action review SCRUM-XX",
+     subagent_type: "bens-after-action",
+     prompt: "Input: <payload acima>. Produzir learning report em .claude/harness-learnings/${date}-${slug}.md + proposal JSON com memory_entries_to_create e repo_changes."
+   })
+   ```
+   Inline fallback: main session lê system prompt do `bens-after-action.md` + aplica rubric manualmente.
+3. Receber output:
+   - Arquivo `.claude/harness-learnings/${date}-${slug}.md` committed
+   - Proposal JSON com `memory_entries_to_create[]` e `repo_changes[]`
+4. Validar proposal:
+   - Conferir cooldown (regra: se mesma mudança foi sugerida em 2 PRs anteriores e rejeitada — buscar git log por `chore(harness): ` closed sem merge — NÃO repetir)
+   - Soft cap: se proposal tem >5 mudanças, dividir em N PRs por escopo (skill / agent / CLAUDE.md / hook). Em PR-5 v1, simplificar: se >5, escalar ao user pra decidir como dividir.
+5. Atualizar state: `completed_phases.push("AFTER_ACTION")`, `phase = "APPLY_LEARNINGS"`.
+
+### Phase 13: APPLY_LEARNINGS (PR-5: aplicar proposal)
+
+#### 13.1 — Memory auto-commit (user-local)
+
+Pra cada entry em `memory_entries_to_create[]`:
+
+1. Path: `~/.claude/projects/-home-artur-projects-bens-seguros/memory/${frontmatter.name}.md`
+2. Escrever arquivo com frontmatter + body conforme CLAUDE.md auto memory section
+3. Atualizar `~/.claude/projects/-home-artur-projects-bens-seguros/memory/MEMORY.md` adicionando uma linha pointer no formato `- [Title](file.md) — one-line hook`
+4. NÃO usa git commit (memory é fora do repo do bens-seguros)
+5. Log: `memory: created ${entries.length} entries`
+
+#### 13.2 — Repo PR separada (se há `repo_changes[]`)
+
+Se proposal tem 1+ items em `repo_changes`:
+
+1. Main session: voltar pro main checkout (`cd /home/artur/projects/bens-seguros`)
+2. Verificar tree limpo (refuse se não — escalate "Tree não-limpo no main checkout, não consigo abrir chore PR. Faça stash/commit").
+3. `git fetch origin && git switch main && git pull`
+4. Criar branch: `git switch -c chore/harness-after-${ticket_lower}`
+5. Pra cada item em `repo_changes[]`: aplicar diff via Edit no path indicado
+6. Quality gates: `pnpm lint` + `pnpm typecheck` (gates leves; sem tocar código de produto)
+7. Commit:
+
+   ```
+   git add ${files} && git commit -m "chore(harness): learnings from ${ticket}
+
+   <one-line summary>
+
+   Generated by bens-after-action.
+
+   Learning report: .claude/harness-learnings/${date}-${slug}.md
+
+   Co-Authored-By: Claude bens-orchestrator <noreply@anthropic.com>"
+   ```
+
+8. `git push -u origin chore/harness-after-${ticket_lower}`
+9. `gh pr create` com label `harness-learning` (criar label se necessário; soft fail se permissão falhar) + body apontando pro learning file
+10. Atualizar state: salvar `harness_pr_url` no root.
+
+Se `repo_changes` vazio: skip 13.2 inteiro. Logar `harness: no repo changes proposed`.
+
+#### 13.3 — State update
+
+1. `completed_phases.push("APPLY_LEARNINGS")`, `phase = "TEARDOWN"`.
+
+### Phase 14: TEARDOWN (PR-5: cleanup)
+
+1. Voltar pro main checkout: `cd /home/artur/projects/bens-seguros`
+2. Remove worktree: `git worktree remove ../bens-seguros-${ticket_lower}` — falha → logar warning, NÃO bloqueia.
+3. Delete branch local: `git branch -D feat/${ticket_lower}` (com `|| true` pra não bloquear se não existir).
+4. **Verificar remote branch:** `gh pr view ${pr_number} --json headRefName,state` — se PR foi mergeada via squash/rebase, GitHub geralmente deleta o head branch automaticamente (depende da config "Automatically delete head branches"). Confirmar via `git ls-remote origin feat/${ticket_lower}` → se ainda existe, deletar: `git push origin --delete feat/${ticket_lower} || true`. Não bloqueia.
+5. Atualizar state final: salvar `.orchestrator-state.json` no main checkout em `.claude/harness-learnings/${date}-${slug}.state.json` pra auditoria histórica. Worktree state file é deletado junto com o worktree.
+6. Mensagem ao user: `"Orchestrator completed for ${ticket}. Summary: ${pr_url} merged, learnings em .claude/harness-learnings/${date}-${slug}.md. ${harness_pr_url ? 'Harness PR pra revisar: ' + harness_pr_url : 'Sem repo changes propostos.'}"`
+7. Logar `phase = "DONE"` no log de sessão (state file já não existe no worktree).
 
 ## Failure dispatch — execução detalhada (PR-3)
 
@@ -521,6 +621,8 @@ Após 3 tentativas sem resolução: orchestrator escalate_user (marca PR draft s
   "plan_path": null,
   "pr_url": null,
   "pr_number": null,
+  "pr_merged_at": null,
+  "harness_pr_url": null,
   "completed_phases": [],
   "failures": [],
   "user_interventions": [],
@@ -530,6 +632,8 @@ Após 3 tentativas sem resolução: orchestrator escalate_user (marca PR draft s
   "qa_skip_reason": null
 }
 ```
+
+**Campos derivados (NÃO persistidos no state):** `ended_at` e `phase_durations` são derivados no momento de construir o payload pra `bens-after-action` (Phase 12). Não persistir evita drift entre state writes — `ended_at` é "agora" e `phase_durations` é calculado a partir dos timestamps em `completed_phases` se rastreados, ou inferido de logs de TaskCreate.
 
 ### Read protocol (em reentrada de `/work SCRUM-XX`)
 
@@ -593,10 +697,10 @@ Sessão **com** orchestrator (`/work SCRUM-XX`): esta skill (state machine de 14
 | PR-1 (#313) | state machine doc + 9 subagent scaffolds + `/work` + audit doc                                                                          | ✅ merged  |
 | PR-2 (#314) | Phases 1-4 funcionais (READ_TICKET, CLASSIFY, BRAINSTORM_SPEC, WRITE_PLAN) + 2 checkpoints + state management                           | ✅ merged  |
 | PR-3 (#315) | Phases 5-10 (IMPLEMENT, LOCAL_GATES, CODE_REVIEW, OPEN_PR, CI_WATCH) + failure dispatch + subagent availability check + inline fallback | ✅ merged  |
-| PR-4        | Phase 8 (QA_RUN funcional via Playwright MCP) + bens-qa-fixer ativado + porta CORS handling                                             | 🟢 este PR |
-| PR-5        | Phases 11-14 (AWAIT_MERGE + AFTER_ACTION + APPLY_LEARNINGS + TEARDOWN — self-improvement loop)                                          | pendente   |
+| PR-4 (#316) | Phase 8 (QA_RUN funcional via Playwright MCP) + bens-qa-fixer ativado + porta CORS handling                                             | ✅ merged  |
+| PR-5        | Phases 11-14 (AWAIT_MERGE + AFTER_ACTION + APPLY_LEARNINGS + TEARDOWN — self-improvement loop completo)                                 | 🟢 este PR |
 
-Após PR-4: `/work SCRUM-XX` executa fluxo completo Jira → PR aberta com CI verde + QA Playwright automático em features de UI. Phases 11+ retornam pro user com mensagem "aguardando merge + PR-5 implementa after-action".
+**Após PR-5 (orchestrator completo):** `/work SCRUM-XX` executa fluxo end-to-end Jira → PR aberta → CI verde → QA Playwright (se UI) → aguardar merge → after-action review → memory auto-commit + chore PR opcional → teardown worktree. Self-improvement loop fechado.
 
 ## Memory referenciada
 

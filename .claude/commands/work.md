@@ -62,12 +62,12 @@ Em falhas: dispatch pra failure specialist (`bens-test-fixer`, `bens-hook-resolv
 
 `.claude/skills/bens-orchestrator/SKILL.md`
 
-## Status de implementação
+## Status de implementação (orchestrator completo após este PR)
 
 - [x] **PR-1** (#313, merged): scaffold + state machine doc + 9 subagents + `/work` + audit doc
 - [x] **PR-2** (#314, merged): phases 1-4 funcionais — Jira → spec → plan + 2 checkpoints
-- [x] **PR-3** (#315, merged): phases 5-10 funcionais — IMPLEMENT + LOCAL_GATES + CODE_REVIEW + OPEN_PR + CI_WATCH + failure dispatch + subagent availability fallback
-- [x] **PR-4** (este PR): phase 8 (QA_RUN) funcional via Playwright MCP + bens-qa-fixer ativado + porta CORS handling (3 opções em conflito)
-- [ ] PR-5: phases 11-14 (AWAIT_MERGE + AFTER_ACTION + APPLY_LEARNINGS + TEARDOWN — self-improvement loop)
+- [x] **PR-3** (#315, merged): phases 5-10 funcionais — IMPLEMENT → LOCAL_GATES → CODE_REVIEW → OPEN_PR → CI_WATCH + failure dispatch + subagent availability fallback
+- [x] **PR-4** (#316, merged): phase 8 (QA_RUN) funcional via Playwright MCP + porta CORS handling
+- [x] **PR-5** (este PR): phases 11-14 funcionais — AWAIT_MERGE + AFTER_ACTION (bens-after-action) + APPLY_LEARNINGS (memory auto-commit + chore PR) + TEARDOWN; self-improvement loop COMPLETO
 
-Após este PR mergeado, `/work SCRUM-XX` executa fluxo completo Jira → PR aberta + CI verde + QA Playwright automático em features de UI (skip se ticket não toca UI; pausa pra decisão se porta :3000 ocupada). **Pré-requisito importante:** abrir sessão NOVA do Claude Code antes do primeiro `/work` após mergear PR-4 (subagents `bens-qa-runner`/`bens-qa-fixer` precisam de session restart — memory: `orchestrator-subagent-restart-required`). Sem restart, orchestrator faz fallback inline automaticamente.
+Após este PR mergeado, `/work SCRUM-XX` executa o fluxo end-to-end completo (Jira → PR mergeada → after-action → harness improvements). **Pré-requisito importante:** abrir sessão NOVA do Claude Code antes do primeiro `/work` após mergear PR-5 (subagent `bens-after-action` precisa de session restart pra ficar invocável — memory: `orchestrator-subagent-restart-required`). Sem restart, orchestrator faz fallback inline.
