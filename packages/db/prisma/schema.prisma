@@ -122,6 +122,7 @@ model Organization {
   proposalChecklistItems ProposalChecklistItem[]
   clients                Client[]
   contacts               Contact[]
+  goals                  Goal[]
 }
 
 model Member {
@@ -654,6 +655,22 @@ model AuditLog {
   @@index([organizationId, action])
   @@index([organizationId, userId])
   @@index([organizationId, userId, createdAt(sort: Desc)])
+}
+
+model Goal {
+  id                 String            @id @default(cuid())
+  organizationId     String
+  year               Int
+  month              Int
+  boardType          ProposalBoardType
+  targetPremiumCents Int
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, year, month, boardType])
+  @@index([organizationId, year])
 }
 
 model AuditLogArchive {

@@ -31,6 +31,7 @@ export type Subject =
   | 'Member'
   | 'Invitation'
   | 'Insurer'
+  | 'Goal'
 
 export type AppAbility = MongoAbility<[Action, Subject]>
 
@@ -65,6 +66,7 @@ export function defineAbilitiesFor(role: Role): AppAbility {
       can('lgpd-delete', 'Client')
       can(['read', 'update', 'delete'], 'Member')
       can(['create', 'read', 'delete'], 'Invitation')
+      can(['read', 'update'], 'Goal')
       break
     case 'MANAGER':
       can('manage', OPERATIONAL_SUBJECTS)
@@ -75,6 +77,7 @@ export function defineAbilitiesFor(role: Role): AppAbility {
       can('read', 'AuditLog')
       can('read', 'Member')
       can('read', 'Invitation')
+      can(['read', 'update'], 'Goal')
       break
     case 'COMMERCIAL':
       can(['create', 'read', 'update'], ['Contact', 'Client', 'Proposal'])
@@ -83,11 +86,13 @@ export function defineAbilitiesFor(role: Role): AppAbility {
       can(['read', 'create'], 'Document')
       can('read', 'Notification')
       can('read', 'Member')
+      can('read', 'Goal')
       break
     case 'VIEWER':
       can('read', OPERATIONAL_SUBJECTS)
       cannot('read', 'Insurer')
       can('read', ['Commission', 'Notification'])
+      can('read', 'Goal')
       break
   }
   return build()

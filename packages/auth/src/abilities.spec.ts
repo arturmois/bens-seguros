@@ -62,4 +62,18 @@ describe('CASL Abilities', () => {
     expect(ability.can('delete', 'Client')).toBe(true)
     expect(ability.can('lgpd-delete', 'Client')).toBe(false)
   })
+  it('all roles can read Goal', () => {
+    expect(defineAbilitiesFor('OWNER').can('read', 'Goal')).toBe(true)
+    expect(defineAbilitiesFor('ADMIN').can('read', 'Goal')).toBe(true)
+    expect(defineAbilitiesFor('MANAGER').can('read', 'Goal')).toBe(true)
+    expect(defineAbilitiesFor('COMMERCIAL').can('read', 'Goal')).toBe(true)
+    expect(defineAbilitiesFor('VIEWER').can('read', 'Goal')).toBe(true)
+  })
+  it('only OWNER/ADMIN/MANAGER can update Goal', () => {
+    expect(defineAbilitiesFor('OWNER').can('update', 'Goal')).toBe(true)
+    expect(defineAbilitiesFor('ADMIN').can('update', 'Goal')).toBe(true)
+    expect(defineAbilitiesFor('MANAGER').can('update', 'Goal')).toBe(true)
+    expect(defineAbilitiesFor('COMMERCIAL').can('update', 'Goal')).toBe(false)
+    expect(defineAbilitiesFor('VIEWER').can('update', 'Goal')).toBe(false)
+  })
 })

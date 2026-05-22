@@ -1,6 +1,10 @@
 import type { PrismaClient, ProposalStage } from '@repo/db'
 import { inject, injectable } from 'tsyringe'
-import type { DashboardRepository } from '../domain/dashboard-repository.js'
+import { isGoalBoardType } from '../../goal/domain/goal.js'
+import type {
+  DashboardRepository,
+  PremiumByMonthEntry,
+} from '../domain/dashboard-repository.js'
 import type {
   DashboardPreset,
   DashboardSnapshot,
@@ -86,6 +90,38 @@ export class PrismaDashboardRepository implements DashboardRepository {
       proposalsPending,
       ...this.buildComparisonMetrics(comparisonData),
     }
+  }
+
+  async getPremiumByMonthAndBoardType(
+    organizationId: string,
+    year: number
+  ): Promise<readonly PremiumByMonthEntry[]> {
+    const rows = await this.prisma.$queryRaw<
+      Array<{ month: number; board_type: string; realized_cents: bigint }>
+    >`
+      SELECT
+        EXTRACT(MONTH FROM p."startDate")::int AS month,
+        pr."boardType"::text AS board_type,
+        COALESCE(SUM(p."premiumValueInCents"), 0)::bigint AS realized_cents
+      FROM "Policy" p
+      JOIN "Proposal" pr ON pr.id = p."proposalId"
+      WHERE p."organizationId" = ${organizationId}
+        AND p."deletedAt" IS NULL
+        AND pr."boardType" IN ('NEW_INSURANCE', 'RENEWAL')
+        AND EXTRACT(YEAR FROM p."startDate") = ${year}
+      GROUP BY 1, 2
+      ORDER BY 1, 2
+    `
+    const entries: PremiumByMonthEntry[] = []
+    for (const r of rows) {
+      if (!isGoalBoardType(r.board_type)) continue
+      entries.push({
+        month: r.month,
+        boardType: r.board_type,
+        realizedCents: Number(r.realized_cents),
+      })
+    }
+    return entries
   }
 
   private buildDateRanges(preset: DashboardPreset): DateRange {

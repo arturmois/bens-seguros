@@ -1103,6 +1103,50 @@ async function main() {
     })
   }
   console.warn(`  ✓ Audit logs: ${auditActions.length}`)
+
+  // Goals — current year sample (12 months × 2 boardTypes)
+  const currentYear = new Date().getFullYear()
+  const goalsToSeed: Array<{
+    month: number
+    boardType: 'NEW_INSURANCE' | 'RENEWAL'
+    targetPremiumCents: number
+  }> = []
+  for (let m = 1; m <= 12; m++) {
+    goalsToSeed.push({
+      month: m,
+      boardType: 'NEW_INSURANCE',
+      targetPremiumCents: 50_000_00,
+    })
+    goalsToSeed.push({
+      month: m,
+      boardType: 'RENEWAL',
+      targetPremiumCents: 80_000_00,
+    })
+  }
+  await Promise.all(
+    goalsToSeed.map((g) =>
+      prisma.goal.upsert({
+        where: {
+          organizationId_year_month_boardType: {
+            organizationId: org.id,
+            year: currentYear,
+            month: g.month,
+            boardType: g.boardType,
+          },
+        },
+        create: {
+          organizationId: org.id,
+          year: currentYear,
+          month: g.month,
+          boardType: g.boardType,
+          targetPremiumCents: g.targetPremiumCents,
+        },
+        update: {},
+      })
+    )
+  )
+  console.warn(`  ✓ Goals: ${goalsToSeed.length} (year ${currentYear})`)
+
   console.warn('\n✅ Seed completed successfully!\n')
   console.warn('  Login credentials (all users):')
   console.warn(`    Password: ${PASSWORD}`)

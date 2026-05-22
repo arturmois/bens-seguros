@@ -12,6 +12,7 @@ import {
   MessageSquare,
   Settings,
   Shield,
+  Target,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -82,6 +83,12 @@ export const MAIN_NAV: ReadonlyArray<NavConfigItem> = [
     label: 'Comissões',
     icon: DollarSign,
     permission: 'commissions:read',
+  },
+  {
+    href: '/metas',
+    label: 'Metas',
+    icon: Target,
+    permission: 'goals:read',
   },
 ]
 

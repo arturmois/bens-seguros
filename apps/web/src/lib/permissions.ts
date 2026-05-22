@@ -16,6 +16,7 @@ const SUBJECT_MAP: Record<string, Subject> = {
   users: 'Member',
   settings: 'Organization',
   audit: 'AuditLog',
+  goals: 'Goal',
 }
 
 const ACTION_MAP: Record<string, Action> = {

@@ -32,7 +32,10 @@ function emptySnapshot(): DashboardSnapshot {
 }
 
 function makeMocks() {
-  const repo: DashboardRepository = { getSnapshot: vi.fn() }
+  const repo: DashboardRepository = {
+    getSnapshot: vi.fn(),
+    getPremiumByMonthAndBoardType: vi.fn().mockResolvedValue([]),
+  }
   const cache: CacheService = {
     get: vi.fn(),
     set: vi.fn(),

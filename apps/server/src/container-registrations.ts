@@ -37,6 +37,7 @@ import {
   GetContact,
   GetDocumentUrl,
   GetEndorsement,
+  GetGoalsProgressByYear,
   GetOrganization,
   EnsurePolicyPdf,
   GetPolicy,
@@ -84,6 +85,7 @@ import {
   PrismaDashboardRepository,
   PrismaDocumentRepository,
   PrismaEndorsementRepository,
+  PrismaGoalRepository,
   PrismaInsurerRepository,
   PrismaInvitationRepository,
   PrismaMemberRepository,
@@ -110,6 +112,7 @@ import {
   UpdateMemberRole,
   UpdateOrganization,
   UpdateProposalDetails,
+  UpsertGoalsByYear,
   UploadDocument,
   UploadOrganizationLogo,
   ViaCepProvider,
@@ -168,6 +171,7 @@ export function registerDependencies(redis: Redis | null = null) {
   const dashboardRepo = new PrismaDashboardRepository(prismaAdmin)
   const insurerRepo = new PrismaInsurerRepository(prismaAdmin)
   const commissionRepo = new PrismaCommissionRepository(prismaAdmin)
+  const goalRepo = new PrismaGoalRepository(prismaAdmin)
   const storageProvider =
     env.STORAGE_PROVIDER === 'r2'
       ? new R2StorageProvider()
@@ -190,6 +194,7 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register('DashboardRepository', { useValue: dashboardRepo })
   container.register('InsurerRepository', { useValue: insurerRepo })
   container.register('CommissionRepository', { useValue: commissionRepo })
+  container.register('GoalRepository', { useValue: goalRepo })
   container.register('StorageProvider', { useValue: storageProvider })
   container.register(CreateClient, {
     useFactory: () => new CreateClient(clientRepo),
@@ -413,6 +418,12 @@ export function registerDependencies(redis: Redis | null = null) {
   })
   container.register(BuildDashboardSnapshot, {
     useFactory: () => new BuildDashboardSnapshot(dashboardRepo, cacheService),
+  })
+  container.register(UpsertGoalsByYear, {
+    useFactory: () => new UpsertGoalsByYear(goalRepo),
+  })
+  container.register(GetGoalsProgressByYear, {
+    useFactory: () => new GetGoalsProgressByYear(goalRepo, dashboardRepo),
   })
   container.register(CreateInsurer, {
     useFactory: () => new CreateInsurer(insurerRepo, cacheService),
