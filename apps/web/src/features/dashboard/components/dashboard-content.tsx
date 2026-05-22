@@ -52,6 +52,11 @@ const TrendChart = dynamic(
   { loading: () => <ChartSkeleton />, ssr: false }
 )
 
+const GoalsProgressCard = dynamic(
+  () => import('./goals-progress-card').then((m) => m.GoalsProgressCard),
+  { loading: () => <ChartSkeleton />, ssr: false }
+)
+
 export function DashboardContent() {
   const [preset, setPreset] = useState<DashboardPreset>('30d')
   const { data, isLoading, isError, refetch } = useDashboardStats(preset)
@@ -113,6 +118,7 @@ export function DashboardContent() {
         isLoading={isLoading}
         visible={canSeeRanking}
       />
+      <GoalsProgressCard />
       <TrendChart data={data?.monthlyTrends} isLoading={isLoading} />
     </div>
   )

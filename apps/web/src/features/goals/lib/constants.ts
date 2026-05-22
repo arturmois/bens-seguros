@@ -28,6 +28,11 @@ export const BOARD_TYPE_LABEL: Record<GoalBoardType, string> = {
   RENEWAL: 'Renovação',
 }
 
+export const BOARD_TYPE_KEYS: readonly GoalBoardType[] = [
+  'NEW_INSURANCE',
+  'RENEWAL',
+]
+
 export function getDefaultYear(): number {
   return new Date().getFullYear()
 }
