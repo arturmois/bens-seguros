@@ -1,0 +1,65 @@
+{
+  "ticket": "SCRUM-72",
+  "slug": "scrum-72-padronizar-tabs-detalhe",
+  "type": "refactor",
+  "scope": "frontend",
+  "phase": "DONE",
+  "started_at": "2026-05-20T00:00:00Z",
+  "ended_at": "2026-05-21T03:30:00Z",
+  "spec_path": "docs/superpowers/specs/2026-05-20-scrum-72-padronizar-tabs-detalhe-design.md",
+  "plan_path": "docs/superpowers/plans/2026-05-20-scrum-72-padronizar-tabs-detalhe.md",
+  "pr_url": "https://github.com/arturmois/bens-seguros/pull/319",
+  "pr_number": 319,
+  "pr_merged_at": "2026-05-21T02:55:24Z",
+  "merge_commit": "6530af6ce445f4fefd78a2931eeac5d6b8793bd3",
+  "harness_pr_url": "https://github.com/arturmois/bens-seguros/pull/321",
+  "completed_phases": [
+    "READ_TICKET",
+    "CLASSIFY",
+    "BRAINSTORM_SPEC",
+    "WRITE_PLAN",
+    "IMPLEMENT",
+    "LOCAL_GATES",
+    "CODE_REVIEW",
+    "QA_RUN",
+    "OPEN_PR",
+    "CI_WATCH",
+    "AWAIT_MERGE",
+    "AFTER_ACTION",
+    "APPLY_LEARNINGS",
+    "TEARDOWN"
+  ],
+  "failures": [
+    {
+      "phase": "QA_RUN",
+      "type": "playwright_pre_flight_incomplete",
+      "attempts": 1,
+      "specialist": "main_session_inline",
+      "raw_output_summary": "QA run 1: ERR_CONNECTION_REFUSED no /api/auth/sign-in/email — server :3001 estava down (orchestrator subiu só @app/web). Resolvido: main session subiu @app/server e re-disparou bens-qa-runner. QA run 2: 0 CRITICAL, 4 WARNINGs mobile pré-existentes.",
+      "resolved": true
+    }
+  ],
+  "user_interventions": [
+    {
+      "phase": "TICKET_CREATION",
+      "type": "scope_clarification",
+      "answer": "criar Jira primeiro, escopo extract+visual, type Task"
+    },
+    { "phase": "BRAINSTORM_SPEC", "type": "checkpoint", "answer": "approved" },
+    { "phase": "WRITE_PLAN", "type": "checkpoint", "answer": "approved" },
+    {
+      "phase": "QA_RUN",
+      "type": "port_conflict",
+      "answer": "user_paused_main_dev"
+    }
+  ],
+  "qa_skipped": false,
+  "qa_skip_reason": null,
+  "memory_entries_created": [
+    "feedback_orchestrator-qa-preflight-server-startup.md",
+    "feedback_refactor-inline-vs-subagent-dispatch.md"
+  ],
+  "repo_changes_applied": [
+    ".claude/skills/bens-orchestrator/SKILL.md (Phase 8.2 pre-flight :3001 + Phase 5 inline decision tree)"
+  ]
+}

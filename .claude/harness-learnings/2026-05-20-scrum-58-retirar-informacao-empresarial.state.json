@@ -1,0 +1,86 @@
+{
+  "ticket": "SCRUM-58",
+  "slug": "scrum-58-retirar-informacao-empresarial",
+  "type": "feature",
+  "scope": "frontend",
+  "phase": "DONE",
+  "started_at": "2026-05-20T03:35:00Z",
+  "resumed_at": "2026-05-20T21:01:00Z",
+  "ended_at": "2026-05-21T02:50:00Z",
+  "spec_path": "docs/superpowers/specs/2026-05-20-scrum-58-retirar-informacao-empresarial-design.md",
+  "plan_path": "docs/superpowers/plans/2026-05-20-scrum-58-retirar-informacao-empresarial.md",
+  "pr_url": "https://github.com/arturmois/bens-seguros/pull/318",
+  "pr_number": 318,
+  "pr_merged_at": "2026-05-21T02:39:50Z",
+  "merge_commit": "17f3b153e32c96f87deba587722b06b293e29ea6",
+  "harness_pr_url": "https://github.com/arturmois/bens-seguros/pull/320",
+  "completed_phases": [
+    "READ_TICKET",
+    "CLASSIFY",
+    "BRAINSTORM_SPEC",
+    "WRITE_PLAN",
+    "IMPLEMENT",
+    "LOCAL_GATES",
+    "CODE_REVIEW",
+    "QA_RUN",
+    "OPEN_PR",
+    "CI_WATCH",
+    "AWAIT_MERGE",
+    "AFTER_ACTION",
+    "APPLY_LEARNINGS",
+    "TEARDOWN"
+  ],
+  "failures": [
+    {
+      "phase": "CODE_REVIEW",
+      "type": "code review CRITICAL",
+      "attempts": 1,
+      "specialist": "inline_fallback",
+      "raw_output_summary": "3 CRITICAL: as casts em business.tsx (linhas 42, 95, 97, 109). Fix via isBusinessSegment type guard em @repo/shared.",
+      "resolved": true
+    }
+  ],
+  "user_interventions": [
+    {
+      "phase": "BRAINSTORM_SPEC",
+      "type": "ambiguidade",
+      "answer": "Add new branchType Select + keep businessActivity free text; safe default show areaM2 for unknown"
+    },
+    {
+      "phase": "BRAINSTORM_SPEC",
+      "type": "checkpoint",
+      "answer": "approved"
+    },
+    {
+      "phase": "WRITE_PLAN",
+      "type": "checkpoint",
+      "answer": "approved + stop here (phases 5+ not implemented)"
+    },
+    {
+      "phase": "RESUME",
+      "type": "retomada",
+      "answer": "Retomar de Phase 5 (PR-3/4/5 do orchestrator agora merged)"
+    },
+    {
+      "phase": "IMPLEMENT",
+      "type": "ARCH_DECISION",
+      "answer": "Parar server main + regen Orval + reiniciar (10 arquivos *Details.ts atualizados)"
+    },
+    {
+      "phase": "AWAIT_MERGE",
+      "type": "merge_confirmation",
+      "answer": "feito"
+    }
+  ],
+  "memory_entries_created": [
+    "feedback_orval-regen-workflow-decision",
+    "feedback_type-duplicates-orval-constants"
+  ],
+  "repo_changes": [
+    ".claude/skills/bens-implementation-flow/SKILL.md",
+    ".claude/skills/bens-code-rules/SKILL.md"
+  ],
+  "qa_skipped": false,
+  "qa_skip_reason": null,
+  "qa_summary": "7/7 cenários core passaram (Consultoria/Tecnologia/Profissionais escondem área; Indústria/Varejo/safe-default mostram área; mobile/desktop/dark mode/diacritics OK). 1 CRITICAL reportado é pré-existente (CNPJ InputMask error com seed censurado), não introduzido pelo SCRUM-58."
+}

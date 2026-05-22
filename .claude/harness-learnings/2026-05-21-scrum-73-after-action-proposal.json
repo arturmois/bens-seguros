@@ -1,0 +1,103 @@
+{
+  "ticket": "SCRUM-73",
+  "slug": "scrum-73-padronizar-tokens-cor",
+  "pr_number": 322,
+  "pr_state": "MERGED",
+  "report_path": ".claude/harness-learnings/2026-05-21-scrum-73-padronizar-tokens-cor.md",
+  "memory_entries_to_create": [
+    {
+      "path": "feedback_spec-plan-sync-implicit-scope.md",
+      "frontmatter": {
+        "name": "spec-plan-sync-implicit-scope",
+        "description": "Plan deve validar file coverage contra spec antes de estruturar tasks. SCRUM-73 omitiu chat/message-bubble.tsx que estava em escopo implícito (apps/web/src excluding marketing).",
+        "metadata": {
+          "node_type": "memory",
+          "type": "feedback",
+          "originTicket": "SCRUM-73"
+        }
+      },
+      "body": "# Spec-Plan Sync: Implicit File Scope\n\nPlan task structure deve materializar todos arquivos em escopo ANTES de começar a estruturar tasks.\n\n## Problem\n\nSCRUM-73 spec: \"Refactor todas as cores em apps/web/src (excludes features/marketing)\". Plan não extraiu lista explícita de arquivos afetados. Resultado: chat/message-bubble.tsx (que tinha `text-red-400 → text-destructive`) foi omitido do plan.\n\nDiscovery: residual search no final (Step 4 de QA) identificou arquivo faltante.\n\n## How to apply\n\nWRITE_PLAN phase, antes de estruturar tasks:\n\n1. **Spec tem \"In scope\" / \"Out of scope\" seções explícitas?**\n   - Se sim: use diretamente\n   - Se não (regex/pattern only): proceder com step 2\n\n2. **Extract matched files:**\n   ```bash\n   rg \"<pattern>\" <dir> --files | sort\n   ```\n   Example: `rg \"bg-emerald|bg-amber|text-blue\" apps/web/src --files | grep -v marketing`\n\n3. **Criar plan section \"File Structure\" (tabela):**\n   - File path\n   - Action (Modify/Create/Delete)\n   - Responsible task\n   - Lines estimate\n\n4. **After tasks written: coverage check**\n   - Count files in table\n   - Count files covered by tasks\n   - If covered < total: identify gap + assign to task or mark \"deferred\"\n   - Goal: 100% coverage or explicit deferral\n\n5. **Notate in plan intro:**\n   ```\n   **File coverage:** 32/32 files extracted and assigned to tasks\n   ```\n\n## Success signal\n\nNo after-action report deve mencionar \"file omitted from plan that was in spec scope\". Next large refactor tem \"File coverage: X/Y\" section.\n\n## Related\n\n- [[bens-implementation-flow]] (update WRITE_PLAN section with checklist)\n- SCRUM-73: chat/message-bubble.tsx omission\n"
+    },
+    {
+      "path": "feedback_branch-behind-during-pr-development.md",
+      "frontmatter": {
+        "name": "branch-behind-during-pr-development",
+        "description": "Solo dev em worktree pode ficar behind main se múltiplos PRs mergearem durante implementação. SCRUM-73 ficou behind quando 3 PRs (#318-#320) + chore (#321) mergearam em ~4.5h. Code review vê diff confuso.",
+        "metadata": {
+          "node_type": "memory",
+          "type": "feedback",
+          "originTicket": "SCRUM-73"
+        }
+      },
+      "body": "# Branch Behind Main During PR Development\n\nSolo dev em worktree desenvolvendo feature X enquanto PRs Y, Z, W mergeam em main = diff confusa + rebase surprise.\n\n## Problem\n\nSCRUM-73 executou em ~4.5h em worktree. Durante esse tempo, 3 PRs (#318, #319, #320) + 1 chore (#321) mergearam em main. Quando iniciada CODE_REVIEW, branch estava ~4 commits behind main. Code reviewer reportou \"businessSegment removido em diff\" — na verdade era branch behind, não remoção real.\n\nRebase resolveu clean, mas causou fricção.\n\n## How to apply\n\nPhase 5-7 (IMPLEMENT → CODE_REVIEW) workflow pra worktree:\n\n1. **Antes de CODE_REVIEW (Phase 7 entry):**\n   ```bash\n   git fetch origin\n   git rebase origin/main\n   ```\n\n2. **Se merge conflicts:**\n   - Resolve conflicts locally\n   - Re-run tests: `pnpm lint && pnpm typecheck`\n   - Confirm no behavior regression\n   - Commit rebase resolution\n\n3. **If rebase clean (no conflicts):**\n   - Diff será meramente \"refactor(web): X Y Z\"\n   - Code reviewer vê apenas real changes\n\n4. **Notify user (if conflicts detected):**\n   - \"Branch was behind main; rebase applied with X conflicts resolved. Revalidate via tests.\"\n\n## Success signal\n\nCode review reports não mencionam \"unrelated changes merged during PR dev\". All diffs são focused feature changes.\n\n## Related\n\n- User role: solo-dev (padrão: solo, sem time)\n- Worktree workflow established\n"
+    },
+    {
+      "path": "feedback_qa-single-app-startup-check-before-dispatch.md",
+      "frontmatter": {
+        "name": "qa-single-app-startup-check-before-dispatch",
+        "description": "QA_RUN dispatch deve validar que todos 3 apps (web :3000, server :3001, chat-server :3002) estão listening. SCRUM-73 user relatou \"algum app nao ta rodando\"; QA esperava full stack.",
+        "metadata": {
+          "node_type": "memory",
+          "type": "feedback",
+          "originTicket": "SCRUM-73"
+        }
+      },
+      "body": "# QA Single-App Startup Check Before Dispatch\n\nQA via bens-qa-runner espera full app stack (:3000, :3001, :3002). Se qualquer app falhar startup, QA trava ou produz confusing errors.\n\n## Problem\n\nSCRUM-73 Phase 8 QA_RUN: user rodou `pnpm dev`, então disparei QA. User reportou \"algum app nao ta rodando\". Likely: web (:3000) subiu, server/chat-server não. QA esperava :3001/:3002 disponível.\n\nResultado: user percepcão de \"harness broken\"; meu checkpoint \"ready for QA?\" foi answered affirmatively, mas estado real era degraded.\n\n## How to apply\n\nPhase 8 QA_RUN → preflight check ANTES de dispatchar bens-qa-runner:\n\n```bash\n# Valide todos os portos em paralelo\nfor port in 3000 3001 3002; do\n  if ! nc -zv localhost $port 2>&1 | grep -q \"succeeded\"; then\n    # Port down\n    return SKIP_QA  # com mensagem ao user\n  fi\ndone\n# All ports up → dispatch QA_RUN\n```\n\nAlternativa (mais simples):\n```bash\nlsof -i :3000,:3001,:3002 | grep -c LISTEN\n# Should output: 3 (ou próximo de 3)\n```\n\n**Decision tree:**\n\n1. All 3 ports listening → Dispatch QA_RUN\n2. 1-2 ports down → Retry `pnpm dev` (wait 5s) + re-check\n3. Still failing → Skip QA_RUN + notify user: \"Server :300X not responding. Recommend testing post-merge on main branch.\"\n\n## Success signal\n\nPhase 8 logs contêm \"Ports up: 3000 ✓ 3001 ✓ 3002 ✓\" ou \"Server :3001 not responding; skipping QA_RUN\".\n\nUser nunca experimenta QA dispatch com partial app stack.\n\n## Related\n\n- Phase 8: QA_RUN (bens-qa-runner dispatch)\n- Memory: [[server-cors-pinned-to-3000]] (CORS issues com worktree)\n- SCRUM-72 PR #321: feedback_orchestrator-qa-preflight-server-startup.md (similar)\n"
+    },
+    {
+      "path": "feedback_qa-failure-recovery-offer-alternatives.md",
+      "frontmatter": {
+        "name": "qa-failure-recovery-offer-alternatives",
+        "description": "Se QA_RUN falha, NÃO re-dispatch com same prompt (cria perception de loop). Ofereça alternativas ao user: fix local, skip+merge, focused retry.",
+        "metadata": {
+          "node_type": "memory",
+          "type": "feedback",
+          "originTicket": "SCRUM-73"
+        }
+      },
+      "body": "# QA Failure Recovery: Offer Alternatives\n\nQuando QA_RUN retorna failure (visual regression, app crash, etc.), a recovery padrão deve ser CHANGE OF APPROACH, não re-execute same check.\n\n## Problem\n\nSCRUM-73: User mencionou \"pq vc ta em looping?\" quando eu re-disparei QA_RUN com same prompt após user disser \"sim\" ao checkpoint \"ready for QA?\". Technically não foi reincidência (QA rodou, retornou), mas user percepcão era de loop.\n\nRaiz: eu não ofereci alternative paths quando QA teve issue (server startup problem).\n\n## How to apply\n\nPhase 8 QA_RUN → failure recovery:\n\n```\n1. Analyze failure:\n   - Is it flaky (retry may pass)?\n   - Is it real regression (fix required)?\n   - Is it environment-related (server down, CORS, etc.)?\n\n2. If environment-related:\n   - DO NOT: dispatch same QA_RUN again\n   - DO: offer options to user:\n     Option A: \"Fix locally now, recommend testing post-merge on main\"\n     Option B: \"Skip QA; merge PR and run regression tests on main\"\n     Option C: \"Identify specific scenario; dispatch focused QA with new prompt\"\n\n3. If flaky (intermittent):\n   - Option A: \"Retry QA now (1 attempt, then bail)\"\n   - Option B: \"Skip QA; test on main\"\n\n4. If real regression:\n   - Identify failing test\n   - Option A: \"Fix and re-run focused QA\"\n   - Option B: \"Revert change and implement differently\"\n```\n\n**User selects → apply chosen path.**\n\nNever: `dispatch(same_qa_with_same_prompt)` loop.\n\n## Success signal\n\nUser never sees \"re-dispatching same QA check\". QA failures always followed by decision tree + user choice.\n\n## Related\n\n- Phase 8: QA_RUN (bens-qa-runner)\n- [[feedback_qa-single-app-startup-check-before-dispatch]] (preflight validation)\n"
+    }
+  ],
+  "repo_changes": [
+    {
+      "file": ".claude/agents/bens-implementation-flow.md",
+      "reason": "Add 'Plan file coverage validation' section to WRITE_PLAN phase to prevent file omissions like chat/message-bubble.tsx in SCRUM-73",
+      "diff": "@@ -XX,XX +XX,XX @@\n+#### Plan file coverage validation\n+\n+Before structuring tasks, verify spec + plan alignment on file scope:\n+\n+1. Spec has explicit \"In scope\" / \"Out of scope\" section? → Use directly\n+2. If not, extract files via pattern matching:\n+   - Example: `rg \"bg-emerald|text-amber\" apps/web/src --files` to find all affected files\n+3. Create \"File Structure\" table in plan with:\n+   - File path\n+   - Action (Modify, Create, Delete)\n+   - Which task covers it\n+4. Each task must account for all matched files (no gap)\n+5. After all tasks written: count files covered vs files in table; should be 100%\n+\n+**Success signal:** No after-action report mentions \"file omitted from plan that was in spec scope\"\n"
+    },
+    {
+      "file": ".claude/agents/bens-orchestrator.md",
+      "reason": "Add Phase 8 QA_RUN preflight app startup validation + failure recovery decision tree to prevent partial-stack QA dispatch",
+      "diff": "@@ -XX,XX +XX,XX @@\n+#### Phase 8: QA_RUN — App startup validation\n+\n+Before dispatching QA_RUN via bens-qa-runner:\n+\n+1. Run preflight check:\n+   ```bash\n+   # All 3 apps must be listening\n+   nc -zv localhost 3000 2>&1 | grep \"succeeded\"\n+   nc -zv localhost 3001 2>&1 | grep \"succeeded\"\n+   nc -zv localhost 3002 2>&1 | grep \"succeeded\"\n+   ```\n+2. If any fails:\n+   - Retry: `pnpm dev` (wait 5s)\n+   - Re-check ports\n+   - If still failing: **skip QA_RUN**, notify user: \"Server :300X not responding; recommend testing post-merge on main\"\n+3. Only dispatch QA_RUN if all 3 ports respond\n+\n+**Rationale:** QA expects full app stack; partial startup causes confusing failures.\n+\n+#### QA_RUN failure → recovery logic\n+\n+If QA_RUN is dispatched and returns failure (visual regression, app crash, etc.):\n+\n+1. **Analyze failure:** report specific test name + assertion\n+2. **Do NOT immediately re-dispatch** same QA_RUN with same prompt\n+3. **Instead, offer decision to user:**\n+   - Option A: \"Fix locally, recommend retesting post-merge on main\"\n+   - Option B: \"Skip QA now; merge PR and test in main branch\"\n+   - Option C: \"Identify specific scenario; re-run QA with focused prompt\"\n+4. User selects → apply recovery\n+\n+**Rationale:** Re-dispatching same QA check with same prompt creates perception of \"looping\".\n"
+    },
+    {
+      "file": ".claude/agents/bens-orchestrator.md",
+      "reason": "Add Phase 7 CODE_REVIEW worktree rebase step to prevent branch-behind-main issues in future solo-dev PRs",
+      "diff": "@@ -XX,XX +XX,XX @@\n+#### Phase 7: CODE_REVIEW — Worktree sync\n+\n+If developing in worktree (solo dev pattern):\n+\n+1. Before opening PR / entering CODE_REVIEW:\n+   ```bash\n+   git fetch origin\n+   git rebase origin/main\n+   ```\n+2. If merge conflicts:\n+   - Resolve manually\n+   - Re-run tests: `pnpm lint && pnpm typecheck`\n+   - Commit resolution\n+3. If rebase clean:\n+   - Diff will be purely feature changes\n+   - Code reviewer sees clean diffs (no \"unrelated changes merged during dev\")\n+\n+**Rationale:** Multiple PRs may merge to main during solo dev (~4.5h). Branch falls behind. Rebase before CODE_REVIEW ensures clean diff review.\n"
+    }
+  ],
+  "cooldown_check": {
+    "previous_suggestions": [
+      "feedback_qa-single-app-startup-check-before-dispatch (was suggested in SCRUM-72 PR #321; SCRUM-73 confirms reincidence)",
+      "feedback_refactor-inline-vs-subagent-dispatch (was created in SCRUM-72 PR #321; SCRUM-73 confirms pattern holds)"
+    ],
+    "new_suggestions": [
+      "feedback_spec-plan-sync-implicit-scope (new pattern: file coverage validation)",
+      "feedback_branch-behind-during-pr-development (pattern: solo dev + multiple upstream merges)",
+      "feedback_qa-failure-recovery-offer-alternatives (pattern: avoid re-dispatch loops)"
+    ],
+    "duplicate_check": "No duplicate proposals from SCRUM-72. QA startup check was already proposed; SCRUM-73 reconfirms necessity."
+  },
+  "implementation_notes": {
+    "pr_stats": {
+      "files_changed": 31,
+      "additions": 205,
+      "deletions": 183,
+      "commits": 3,
+      "squashed": true
+    },
+    "test_coverage": "No new tests (refactor only, no behavior change)",
+    "backward_compatibility": "Fully backward compatible (CSS var fallback to same colors)",
+    "risk_assessment": "Low — visual refactor only, no data/logic changes",
+    "deployment_readiness": "Ready (green lint/typecheck, merged via CI)"
+  }
+}
