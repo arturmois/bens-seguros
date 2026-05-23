@@ -8,6 +8,8 @@ import { closeConversationOnMongo } from './close-conversation-helper.js'
 
 const logger = pino({ name: 'auto-close-processor' })
 
+const AUTO_CLOSE_BATCH_SIZE = 500
+
 function buildCutoffDate(): Date {
   const now = Date.now()
   const cutoff = now - CHAT_LIMITS.AUTO_CLOSE_HOURS * 60 * 60 * 1_000
@@ -22,14 +24,16 @@ export function createAutoCloseProcessor(pubsubClient: PubsubClient) {
       status: { $ne: 'CLOSED' },
     })
       .select('_id tenantId')
+      .limit(AUTO_CLOSE_BATCH_SIZE)
       .lean()
       .exec()
     logger.info(
       {
         count: staleConversations.length,
         cutoffHours: CHAT_LIMITS.AUTO_CLOSE_HOURS,
+        batchSize: AUTO_CLOSE_BATCH_SIZE,
       },
-      'Auto-close scan complete'
+      'Auto-close batch scan complete'
     )
     for (const conv of staleConversations) {
       try {

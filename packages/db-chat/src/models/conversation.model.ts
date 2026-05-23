@@ -32,6 +32,7 @@ const conversationSchema = new Schema(
 conversationSchema.index({ tenantId: 1, status: 1, updatedAt: -1 })
 conversationSchema.index({ tenantId: 1, contactId: 1, channelId: 1, status: 1 })
 conversationSchema.index({ tenantId: 1, updatedAt: -1 })
+conversationSchema.index({ status: 1, updatedAt: 1 })
 
 export type ConversationDocument = InferSchemaType<
   typeof conversationSchema
