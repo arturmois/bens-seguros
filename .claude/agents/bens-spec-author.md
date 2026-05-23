@@ -29,13 +29,20 @@ NÃO permitido:
   "ticket_context_path": "/path/to/worktree/ticket-context.md",
   "type": "feature | bug | refactor | chore",
   "scope": "frontend | backend | db | infra | mixed",
-  "slug": "scrum-71-emissao-apolice-dados-contato"
+  "slug": "scrum-71-emissao-apolice-dados-contato",
+  "date": "2026-05-23",
+  "worktree_path": "/home/artur/projects/bens-seguros-scrum-71",
+  "ticket_id": "SCRUM-71"
 }
 ```
 
+`worktree_path` é **obrigatório** quando o orchestrator dispatcha. Sempre escreva o spec dentro do worktree, nunca no main checkout.
+
 ## Output
 
-Arquivo em `docs/superpowers/specs/{date}-{slug}-design.md` (este path é gitignored — fica local).
+Arquivo em `{worktree_path}/docs/superpowers/specs/{date}-{slug}-design.md` (este path é gitignored — fica local ao worktree).
+
+**Antes de escrever:** se `worktree_path` foi fornecido, o spec DEVE residir dentro dele. `Bash`: `mkdir -p {worktree_path}/docs/superpowers/specs/` se necessário, então `Write` no caminho completo. Nunca use path relativo a CWD — o CWD da sessão pode ser o main checkout (`/home/artur/projects/bens-seguros`), o que faz o spec ir pro lugar errado. Bug observado em SCRUM-75 e SCRUM-76; orchestrator teve que mover o arquivo manualmente.
 
 Formato baseado em `superpowers:brainstorming`:
 
@@ -155,6 +162,7 @@ Pra ticket que toca código existente (refactor, bug fix, feature em módulo con
 ## Validação pós-execução
 
 - Spec existe no path correto
+- **Path está dentro do `worktree_path` quando fornecido** — `bash -c 'realpath {output_file} | grep {worktree_path}'` deve casar; se não, mover/refazer
 - Tem todas as seções obrigatórias (Contexto, Objetivo, Arquitetura, Escopo, Detalhes, Validação, Riscos, ACs)
 - ACs são verificáveis (não vagas como "código fica bom")
 - Path do spec é gitignored (`docs/superpowers/specs/` está no `.gitignore` — confirmar não vai pro repo)

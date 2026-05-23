@@ -350,8 +350,13 @@ QA via Playwright MCP em features de UI.
 
 #### 8.1 — Detectar se QA é necessária
 
-1. Análise do diff: `git diff origin/main..HEAD --name-only`. Se **NENHUM** arquivo bate em `apps/web/src/features/**/components/*.tsx`, `apps/web/src/app/**/page.tsx`, `apps/web/src/app/**/layout.tsx` → skip QA, `qa_skipped: true` (motivo `no_ui_changes`), seguir pra Phase 9.
-2. Se houver arquivos UI tocados → seguir pra 8.2.
+Decisão em 3 níveis (memory: `feedback_orchestrator-qa-skip-visible-changes-semantic`):
+
+1. **Features / pages / layouts tocados:** `git diff origin/main..HEAD --name-only` casa em `apps/web/src/features/**/components/*.tsx`, `apps/web/src/app/**/page.tsx`, ou `apps/web/src/app/**/layout.tsx` → **roda QA** (seguir pra 8.2).
+2. **Base UI components (`apps/web/src/components/ui/*.tsx`) tocados:** inspecionar diff:
+   - Se o diff toca APENAS atributos invisíveis (`aria-*`, `data-*`, `id=`, `title=`, `role=`) → skip QA com motivo `no_visible_changes`. Detecção: `git diff origin/main..HEAD apps/web/src/components/ui/` mostra mudanças, e `grep -E 'className=|render=|>[^<]*<'` no diff retorna nada novo (= sem mudança visível).
+   - Se o diff toca atributos visíveis (`className=`, `render=`, `children`/texto renderizado, estrutura JSX) → **roda QA** com motivo `visible_changes_in_base_ui` (base UI afeta todas as features que consomem o componente).
+3. **Nenhum arquivo UI tocado** (só backend/db/infra/docs) → skip QA com motivo `no_ui_changes`.
 
 #### 8.2 — Pre-flight: porta :3000 (CORS pinned, memory: `server-cors-pinned-to-3000`)
 
@@ -420,21 +425,22 @@ Default em refactors visuais low-risk: opção 1 ou 2. Marcar `qa_skip_reason: "
 2. Atualizar state:
    - `completed_phases.push("QA_RUN")` (string simples)
    - `qa_skipped: <bool>` no root
-   - Se skipped: `qa_skip_reason: "<one of: no_ui_changes | port_conflict_user_chose_skip | port_conflict_timeout | no_url_inferred | playwright_mcp_down>"`
+   - Se skipped: `qa_skip_reason: "<one of: no_ui_changes | no_visible_changes | port_conflict_user_chose_skip | port_conflict_timeout | no_url_inferred | playwright_mcp_down>"`
    - `phase = "OPEN_PR"`
 
 ### Motivos de skip de QA (enumeração canônica)
 
 Pra evitar inconsistência entre state files, esses são os únicos valores válidos pra `qa_skip_reason`:
 
-| Valor                                      | Quando                                                                                                                                     |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `no_ui_changes`                            | Diff não toca arquivos UI (Phase 8.1)                                                                                                      |
-| `port_conflict_user_chose_skip`            | Porta :3000 ocupada, user escolheu opção (b)                                                                                               |
-| `port_conflict_timeout`                    | Porta :3000 ocupada, user não respondeu em 60s                                                                                             |
-| `no_url_inferred`                          | Diff toca UI mas heurística não conseguiu inferir URLs (Phase 8.3)                                                                         |
-| `playwright_mcp_down`                      | Playwright MCP retornou erro de conexão (ver "MCP failure handling")                                                                       |
-| `user_chose_skip_visual_refactor_low_risk` | Refactor visual baixo risco (0 CRITICAL no code review, gates verdes); user opta por QA pós-merge no main em vez de dispatch (Phase 8.4.1) |
+| Valor                                      | Quando                                                                                                                                                    |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `no_ui_changes`                            | Diff não toca arquivos UI (Phase 8.1 — sem features/pages/layouts e sem components/ui/)                                                                   |
+| `no_visible_changes`                       | Diff toca `components/ui/*.tsx` mas só atributos invisíveis (`aria-*`, `data-*`, `id`, `title`, `role`) — sem `className`/`render`/`children` (Phase 8.1) |
+| `port_conflict_user_chose_skip`            | Porta :3000 ocupada, user escolheu opção (b)                                                                                                              |
+| `port_conflict_timeout`                    | Porta :3000 ocupada, user não respondeu em 60s                                                                                                            |
+| `no_url_inferred`                          | Diff toca UI mas heurística não conseguiu inferir URLs (Phase 8.3)                                                                                        |
+| `playwright_mcp_down`                      | Playwright MCP retornou erro de conexão (ver "MCP failure handling")                                                                                      |
+| `user_chose_skip_visual_refactor_low_risk` | Refactor visual baixo risco (0 CRITICAL no code review, gates verdes); user opta por QA pós-merge no main em vez de dispatch (Phase 8.4.1)                |
 
 ### Phase 9: OPEN_PR
 
