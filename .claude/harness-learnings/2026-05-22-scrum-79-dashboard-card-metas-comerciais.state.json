@@ -1,0 +1,43 @@
+{
+  "ticket": "SCRUM-79",
+  "slug": "scrum-79-dashboard-card-metas-comerciais",
+  "type": "feature",
+  "scope": "frontend",
+  "phase": "AWAIT_MERGE",
+  "started_at": "2026-05-21T02:15:00Z",
+  "spec_path": "docs/superpowers/specs/2026-05-21-scrum-79-dashboard-card-metas-comerciais-design.md",
+  "plan_path": "docs/superpowers/plans/2026-05-21-scrum-79-dashboard-card-metas-comerciais.md",
+  "pr_url": "https://github.com/arturmois/bens-seguros/pull/325",
+  "pr_number": 325,
+  "pr_merged_at": null,
+  "harness_pr_url": null,
+  "completed_phases": [
+    "READ_TICKET",
+    "CLASSIFY",
+    "BRAINSTORM_SPEC",
+    "WRITE_PLAN",
+    "IMPLEMENT",
+    "LOCAL_GATES",
+    "CODE_REVIEW",
+    "QA_RUN",
+    "OPEN_PR",
+    "CI_WATCH"
+  ],
+  "failures": [],
+  "user_interventions": [
+    {
+      "phase": "BRAINSTORM_SPEC",
+      "type": "checkpoint_skipped",
+      "answer": "auto-approved per autonomous flow"
+    },
+    {
+      "phase": "WRITE_PLAN",
+      "type": "checkpoint_skipped",
+      "answer": "auto-approved per autonomous flow"
+    }
+  ],
+  "paused_reason": "awaiting_pr_merge",
+  "aborted_at": null,
+  "qa_skipped": false,
+  "qa_skip_reason": null
+}
