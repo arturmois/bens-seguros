@@ -41,7 +41,7 @@ export function ChatHeader({
   const displayName = getContactDisplayName(contact, conversation)
   return (
     <div className="border-border bg-card border-b">
-      <div className="flex items-center justify-between px-3 py-2 md:px-4 md:py-3">
+      <div className="flex min-h-14 items-center justify-between px-3 py-2 md:px-4 md:py-3">
         <div className="flex items-center gap-2 md:gap-3">
           <Button
             variant="ghost"

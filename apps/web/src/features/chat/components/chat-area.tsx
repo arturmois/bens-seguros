@@ -5,8 +5,8 @@ import { Loader2 } from 'lucide-react'
 import { useCallback, useEffect, useRef } from 'react'
 
 import type { ContactData, ConversationData, MessageData } from '../types'
-import { ChatHeader } from './chat-header'
 import { EmptyState, MessagesError, MessagesLoading } from './chat-area-states'
+import { ChatHeader } from './chat-header'
 import { MessageBubble } from './message-bubble'
 import { MessageInput } from './message-input'
 

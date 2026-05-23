@@ -86,12 +86,7 @@ export function DesktopChatLayout({
           onRetry={onRetryConversations}
         />
       </div>
-      <div
-        className={cn(
-          'flex-1 transition-all duration-300',
-          showProfile ? 'mr-80' : ''
-        )}
-      >
+      <div className="flex-1">
         <ChatArea
           conversation={activeConversation}
           contact={contact}
@@ -113,8 +108,8 @@ export function DesktopChatLayout({
       </div>
       <div
         className={cn(
-          'border-border fixed right-0 top-0 z-40 h-full w-80 border-l transition-transform duration-300',
-          showProfile ? 'translate-x-0' : 'translate-x-full'
+          'border-border shrink-0 overflow-hidden border-l transition-[width] duration-300',
+          showProfile ? 'w-80' : 'w-0'
         )}
       >
         {activeConversation && (

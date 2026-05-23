@@ -11,14 +11,14 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-import { CHANNEL_META, CHANNEL_TYPES } from '@repo/shared'
 import type { ChannelType } from '@repo/shared'
+import { CHANNEL_META, CHANNEL_TYPES } from '@repo/shared'
+import { AlertCircle, MessageCircle, RefreshCw, Search } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 function isChannelType(value: string): value is ChannelType {
   return (CHANNEL_TYPES as readonly string[]).includes(value)
 }
-import { AlertCircle, MessageCircle, RefreshCw, Search } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
 
 import type {
   ConversationData,
@@ -143,8 +143,8 @@ export function ConversationList({
   return (
     <div className="bg-sidebar flex h-full flex-col">
       {/* Header */}
-      <div className="border-sidebar-border flex items-center justify-between border-b px-4 py-4">
-        <h1 className="text-sidebar-foreground text-xl font-semibold">
+      <div className="border-sidebar-border flex min-h-[57px] items-center justify-between border-b px-4 py-3">
+        <h1 className="text-sidebar-foreground text-lg font-semibold">
           Conversas
         </h1>
         <MessageCircle className="text-primary h-5 w-5" />

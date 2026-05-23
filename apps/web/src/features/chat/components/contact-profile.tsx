@@ -39,7 +39,7 @@ export function ContactProfile({
   return (
     <div className="bg-card flex h-full flex-col">
       {/* Header */}
-      <div className="border-border flex items-center justify-between border-b px-4 py-3">
+      <div className="border-border flex min-h-[57px] items-center justify-between border-b px-4 py-3">
         <h2 className="text-foreground font-semibold">Perfil do contato</h2>
         <Button
           variant="ghost"
