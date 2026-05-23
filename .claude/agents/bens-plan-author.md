@@ -85,9 +85,26 @@ Formato baseado em `superpowers:writing-plans`:
 
 - Spec coverage: cada AC tem ao menos 1 task?
 - **File coverage:** se spec é pattern-based (ex: "todos arquivos com X em Y/"), extrair lista explícita via `rg "<pattern>" <dir> --files` ANTES de estruturar tasks. File Structure table deve listar 100% dos arquivos matched (ou marcar "deferred"). Memory: [[spec-plan-sync-implicit-scope]] — SCRUM-73 omitiu `chat/message-bubble.tsx` que estava em escopo implícito.
+  - **Spot-check obrigatório** após grep: abrir 2-3 arquivos representativos por módulo e validar que o padrão capturado pelo grep bate com a estrutura interna real. Procurar exceções (siblings, fragmentos, conditional rendering) que o grep não captura. Se exceção encontrada, listar no plan. Memory: [[plan-spot-check-after-grep]] — SCRUM-75 plan classificou `condominium.tsx` como "sem alteração" mas o campo `condominiumName` tinha Input + AutoFilledBadge sibling (mesmo pattern de `business.legalName` que o plan PEGOU). Typecheck `TS2746 multiple children` pegou em local gates.
 - Placeholder scan: nenhum TBD/TODO/FIXME?
 - Type consistency: nomes batem entre tasks?
 ```
+
+## Anotação de diacríticos pt-BR (quando plan tem strings com acentos removidos)
+
+Se você optar por escrever UI strings sem acentos no documento de plan (clareza de encoding, evitar problemas em markdown), DEVE adicionar bloco explícito de anotação pro executor restaurar:
+
+```markdown
+### ⚠️ Strings com diacríticos removidos (restaurar no código)
+
+- `Combustivel` → `Combustível`
+- `Campo obrigatorio` → `Campo obrigatório`
+- `Descricao` → `Descrição`
+```
+
+**Por quê:** Executor copia strings do plan pro código. Sem anotação explícita, esquece de restaurar acentos e quebra a regra "UI strings com diacritics" do CLAUDE.md. Code review pega como CRITICAL, gera commit de rework. Memory: [[copy-strings-from-plan-restore-diacritics]] — SCRUM-75 perdeu `Combustível` e `Campo obrigatório` em test mocks pq plan tinha sem acentos.
+
+**Alternativa preferida:** escrever strings COM diacríticos diretamente no plan. Markdown moderno + UTF-8 não tem problemas reais de encoding. Anotar diacríticos removidos é fallback se você decidir remover.
 
 ## Regras específicas do bens-seguros (aplicar SEMPRE)
 

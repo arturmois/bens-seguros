@@ -52,6 +52,18 @@ Cada etapa (task) dos planos em `docs/plans/` segue este fluxo obrigatorio:
 - Respeitar todas as regras deste CLAUDE.md
 - Aplicar as regras das skills carregadas na Fase 1b
 
+**Pre-implementacao: checagem de diacriticos pt-BR**
+
+Antes de copiar strings do plan pro código:
+
+1. Procurar no plan o bloco `### ⚠️ Strings com diacríticos removidos (restaurar no código)` (se plan-author seguiu a convenção)
+2. Se presente, criar checklist mental das substituições (`Combustivel` → `Combustível`, etc.)
+3. Restaurar acentos durante o copy-paste de strings, INCLUINDO em test mocks (mocks representam strings que aparecem ao usuário)
+4. Cross-check contra forbidden list do CLAUDE.md: `nao`, `informacoes`, `maximo`, `minimo`, `invalido`, `descricao`, `organizacao`, `obrigatorio`
+5. Se faltou no plan e você descobriu durante implementação: commitar separadamente `fix(...): restaurar acentos pt-BR em [strings]`
+
+Memory: [[copy-strings-from-plan-restore-diacritics]] — SCRUM-75 perdeu acentos em test mocks ao copiar do plan. Code review pegou como CRITICAL.
+
 #### Sub-fluxo: campo novo em Details schema (Orval regen)
 
 Quando a tarefa adiciona campo novo a `insured-object-details-schema` (`packages/shared/src/insured-object-details-schema.ts`) ou a outro schema que aparece em OpenAPI gerado, o Orval client em `apps/web/src/api/model/*` precisa ser regenerado. Ordem:

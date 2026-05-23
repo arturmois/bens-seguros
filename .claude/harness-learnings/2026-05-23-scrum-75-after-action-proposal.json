@@ -1,0 +1,77 @@
+{
+  "ticket": "SCRUM-75",
+  "date": "2026-05-23",
+  "slug": "scrum-75-fieldwrapper-label-htmlfor",
+  "pr": 328,
+  "pr_state": "MERGED",
+  "memory_entries_to_create": [
+    {
+      "filename": "feedback_copy-strings-from-plan-restore-diacritics.md",
+      "frontmatter": {
+        "name": "copy-strings-from-plan-restore-diacritics",
+        "description": "Plan → code string transfer: when plan documents pt-BR strings without diacritics (for encoding clarity), executor must restore diacritics before committing. CLAUDE.md forbids 'nao', 'informacoes', 'maximo', 'minimo', 'invalido', 'descricao', 'organizacao', 'obrigatorio' — all require accents/tildes.",
+        "metadata": {
+          "type": "feedback",
+          "severity": "HIGH",
+          "domain": "frontend",
+          "pattern": "string-transfer-vulnerability"
+        }
+      },
+      "body": "When plan contains UI strings (labels, error messages, validation hints) in pt-BR WITHOUT diacritics:\n\n**Why:** Plan authors sometimes strip diacritics for document encoding clarity (e.g., \"remover acentos para evitar problemas de encoding\"). Executors then copy strings as-is to code, forgetting to restore accents/tildes. This violates CLAUDE.md \"UI strings com diacritics corretos\" rule and is caught by code review (rework commit).\n\n**SCRUM-75 instance:** Test mock had `'Campo obrigatorio'` (missing accent on 'ó') and `'Combustivel'` (missing accent on 'í'). Caught by bens-code-reviewer subagent; required 1 rework commit.\n\n**How to apply:**\n\n### At plan write time (bens-plan-author):\n\nIf plan contains UI strings without accents, add explicit annotation block:\n\n```markdown\n### ⚠️ Strings with stripped diacritics (restore in code):\n\n- `Combustivel` → insert 'Combustível' (í accent)\n- `Campo obrigatorio` → insert 'Campo obrigatório' (ó accent)\n- `Descricao` → insert 'Descrição' (ã tilde)\n```\n\n### At implementation time (executor / bens-implementation-flow):\n\n1. Scan plan for \"Strings with stripped diacritics\" annotation block\n2. For each string listed, restore diacritics before copy-paste into code\n3. Verify final strings against CLAUDE.md forbidden list:\n   - ❌ nao, informacoes, maximo, minimo, invalido, descricao, organizacao, obrigatorio\n   - ✅ não, informações, máximo, mínimo, inválido, descrição, organização, obrigatório\n4. Commit with message: `fix(...): restaurar acentos pt-BR em [labels/strings]`\n\n### At code review time (bens-code-reviewer):\n\nFlagging missing diacritics is HIGH priority (ABSOLUTE PROHIBITION in CLAUDE.md). Request fix commit; do not merge without diacritics restored.\n\n**Success metric:** Reduction in diacritics-related rework commits from ~1 per 10 PRs to 0 per 15 PRs (once annotation adopted).\n\n**Related:** CLAUDE.md section \"Language Rules\" — pt-BR strings always need correct diacritics. No exceptions."
+    }
+  ],
+  "repo_changes": [
+    {
+      "file": ".claude/agents/bens-plan-author.md",
+      "section": "### Write strings section (if any UI strings in plan)",
+      "action": "ADD subsection after tasks list",
+      "diff": "@@ ... @@\n+### ⚠️ String annotation for diacritics\n+\n+If plan contains pt-BR strings without diacritics (for document clarity), add annotation block:\n+\n+```markdown\n+### ⚠️ Strings with stripped diacritics (restore in code):\n+\n+- `Example` → insert 'Exämple' (show accent/tilde explicitly)\n+```\n+\n+Executor will restore diacritics during implementation (see feedback_copy-strings-from-plan-restore-diacritics).\n+\n+**Rationale:** CLAUDE.md forbids pt-BR strings without diacritics. Plan-to-code transfer loses context; explicit annotation prevents rework commit in Phase 7 code review.",
+      "reason": "Add guidance to plan-author skill on documenting diacritics handling. Prevents executor confusion and rework."
+    },
+    {
+      "file": ".claude/agents/bens-implementation-flow.md",
+      "section": "### Phase 5: IMPLEMENT",
+      "action": "ADD checkpoint after \"Read plan's task list\"",
+      "diff": "@@ ... @@\n+**Pre-implementation diacritics check:**\n+\n+1. Scan plan for \"Strings with stripped diacritics\" annotation block\n+2. If present, create a local checklist of strings to restore:\n+   - `Combustivel` → `Combustível`\n+   - `Campo obrigatorio` → `Campo obrigatório`\n+   - etc.\n+3. During copy-paste of UI strings to code, restore diacritics from checklist\n+4. Cross-check against CLAUDE.md forbidden list (nao, informacoes, etc.)\n+5. Commit diacritics fixes separately if discovered post-implementation\n+\n+**Why:** Plan may strip diacritics for document encoding clarity. Code requires diacritics per CLAUDE.md. Annotation block bridges the gap.",
+      "reason": "Add explicit diacritics handling to Phase 5 checklist. Catches string transfer issues before code review."
+    },
+    {
+      "file": ".claude/agents/bens-plan-author.md",
+      "section": "### File coverage audit",
+      "action": "EXTEND \"How to extract files\" subsection",
+      "diff": "@@ ... @@\n-3. Criar tabela \"File Structure\" no plan com: path | action | task responsável\n-4. Após tasks escritas: contar arquivos cobertos vs total. Gap → assignar a task ou marcar \"deferred\"\n-5. Notar no header do plan: \"**File coverage:** X/X files extracted and assigned\"\n+3. Criar tabela \"File Structure\" no plan com: path | action | task responsável\n+4. **Spot-check step:** Após grep extrair lista, abrir 2-3 representativas per module\n+   - Verify grep heuristic matches actual field patterns (e.g., \"Input + AutoFilledBadge sibling\")\n+   - Search for exceptions (Controller fields, custom patterns) that heuristic may miss\n+   - If exception found, add to plan's exclusion/inclusion notes\n+5. Após tasks escritas: contar arquivos cobertos vs total. Gap → assignar a task ou marcar \"deferred\"\n+6. Notar no header do plan: \"**File coverage:** X/X files extracted and assigned (grep + spot-check)\"",
+      "reason": "Reinforce file coverage audit with explicit spot-check step. SCRUM-75 plan missed condominium.tsx due to superficial grep-only approach. Related: memory feedback_spec-plan-sync-implicit-scope."
+    }
+  ],
+  "cooldown_checks": [
+    {
+      "memory": "feedback_spec-plan-sync-implicit-scope",
+      "status": "NOT_COOLDOWN",
+      "reason": "SCRUM-75 reinforces (doesn't contradict) existing memory. Spot-check step is extension, not rejection."
+    }
+  ],
+  "signals_of_success": {
+    "memory_feedback_copy_strings_from_plan_restore_diacritics": [
+      "Future PRs with pt-BR strings in plans explicitly annotate diacritics → executor catches before code review",
+      "Diacritics rework commits drop from ~1 per 10 PRs to 0 per 15 PRs",
+      "Code review (bens-code-reviewer) finds 0 diacritics violations in new implementation code (may still flag pre-existing)"
+    ],
+    "plan_author_spot_check_extension": [
+      "File coverage misses drop from 1 per 8 PRs (pattern-scoped) to 0 per 15 PRs",
+      "Plan author notes in plan header: 'grep + spot-check' (was just grep)",
+      "No typecheck TS2746 errors (multiple children) from missed field patterns"
+    ],
+    "implementation_flow_diacritics_checkpoint": [
+      "Phase 5 implementation includes diacritics pre-check step in logs",
+      "Diacritics fixes (if needed) are committed DURING Phase 5, not discovered in Phase 7 code review"
+    ]
+  },
+  "notes": {
+    "not_proposed": [
+      "feedback_orchestrator-qa-preflight-server-startup extension (:3001 contention) — flagged in learning report but deferred to orchestrator skill maintainer (operational/infrastructure change, not memory/harness)"
+    ],
+    "pre_existing_debt": [
+      "SCRUM-75 PR includes 1 pre-existing `as` type assertion in field-wrapper.tsx (readErrorMessage) — not introduced by PR, flagged as tech debt. Recommend future ticket SCRUM-7X 'Refactor: remove pre-existing `as` casts in @app/web' (low priority)."
+    ]
+  }
+}
