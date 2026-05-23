@@ -68,26 +68,18 @@ export const CLAIM_PRIORITY_BADGE_VARIANT: Record<
   URGENT: 'error',
 }
 
-export const CLAIM_STATUS_BUTTON_STYLES: Record<
+export const CLAIM_STATUS_BUTTON_VARIANT: Record<
   ClaimStatus,
-  { variant: 'outline' | 'destructive' | 'default'; className: string }
+  'outline' | 'destructive' | 'default'
 > = {
-  REGISTERED: { variant: 'outline', className: '' },
-  IN_ANALYSIS: { variant: 'outline', className: '' },
-  AWAITING_DOCUMENT: { variant: 'outline', className: '' },
-  PENDING_INSPECTION: { variant: 'outline', className: '' },
-  APPROVED: {
-    variant: 'default',
-    className:
-      'bg-green-600 text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600',
-  },
-  REJECTED: { variant: 'destructive', className: '' },
-  PAID: { variant: 'outline', className: '' },
-  COMPLETED: {
-    variant: 'outline',
-    className:
-      'border-teal-300 text-teal-700 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-950',
-  },
+  REGISTERED: 'outline',
+  IN_ANALYSIS: 'outline',
+  AWAITING_DOCUMENT: 'outline',
+  PENDING_INSPECTION: 'outline',
+  APPROVED: 'default',
+  REJECTED: 'destructive',
+  PAID: 'default',
+  COMPLETED: 'outline',
 }
 
 export const CLAIM_STATUS_OPTIONS: readonly SelectOption<ClaimStatus>[] = [

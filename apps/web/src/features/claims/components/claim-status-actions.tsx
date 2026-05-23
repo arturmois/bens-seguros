@@ -1,9 +1,8 @@
 'use client'
 
-import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
+import { useState } from 'react'
 
-import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
   AlertDialogClose,
@@ -13,13 +12,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 
+import { useUpdateClaimStatus } from '../hooks/use-claims'
 import {
-  CLAIM_STATUS_BUTTON_STYLES,
+  CLAIM_STATUS_BUTTON_VARIANT,
   CLAIM_STATUS_LABELS,
   VALID_CLAIM_TRANSITIONS,
 } from '../lib/constants'
-import { useUpdateClaimStatus } from '../hooks/use-claims'
 import type { ClaimStatus } from '../lib/types'
 
 interface ClaimStatusActionsProps {
@@ -103,14 +103,12 @@ function StatusTransitionButton({
   readonly targetStatus: ClaimStatus
   readonly onClick: () => void
 }) {
-  const { variant, className } = CLAIM_STATUS_BUTTON_STYLES[targetStatus]
   return (
     <Button
       type="button"
-      variant={variant}
+      variant={CLAIM_STATUS_BUTTON_VARIANT[targetStatus]}
       size="sm"
       onClick={onClick}
-      className={className}
     >
       {CLAIM_STATUS_LABELS[targetStatus]}
     </Button>

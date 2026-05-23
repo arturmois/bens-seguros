@@ -121,7 +121,7 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
           id={listId}
           role="listbox"
           aria-label="Resultados de apólices"
-          className="bg-popover absolute z-50 mt-1 max-h-56 w-full overflow-auto rounded-lg border p-1 shadow-lg"
+          className="bg-popover shadow-lg/5 absolute z-50 mt-1 max-h-56 w-full overflow-auto rounded-lg border p-1"
         >
           {policies.map((policy, idx) => (
             <li
@@ -152,7 +152,7 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
         <div
           role="status"
           aria-live="polite"
-          className="bg-popover absolute z-50 mt-1 w-full rounded-lg border px-3 py-4 text-center shadow-lg"
+          className="bg-popover shadow-lg/5 absolute z-50 mt-1 w-full rounded-lg border px-3 py-4 text-center"
         >
           <p className="text-muted-foreground text-sm">
             Nenhuma apólice encontrada.

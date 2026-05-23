@@ -58,7 +58,7 @@ export function ContactProfile({
           <div className="relative mb-4">
             <div
               className={cn(
-                'bg-primary/10 flex h-28 w-28 items-center justify-center overflow-hidden rounded-full shadow-lg',
+                'bg-primary/10 flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border',
                 contact?.profilePicUrl && 'relative'
               )}
             >
