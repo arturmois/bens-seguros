@@ -1,7 +1,7 @@
 'use client'
 
-import type React from 'react'
 import { Trophy } from 'lucide-react'
+import type React from 'react'
 
 import { Card, CardHeader, CardPanel, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -69,7 +69,7 @@ export function BrokerRanking({
   return (
     <Card>
       <RankingHeader />
-      <CardPanel className="p-0">
+      <CardPanel className="p-2">
         <Table>
           <TableHeader>
             <TableRow>

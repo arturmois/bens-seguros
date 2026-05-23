@@ -142,14 +142,12 @@ export function GoalsProgressCard() {
             <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
             <XAxis
               dataKey="month"
-              tick={{ fontSize: 12 }}
-              className="fill-muted-foreground"
+              tick={{ fontSize: 12, fill: 'var(--color-foreground)' }}
               stroke="var(--color-border)"
               tickLine={{ stroke: 'var(--color-border)' }}
             />
             <YAxis
-              tick={{ fontSize: 12 }}
-              className="fill-muted-foreground"
+              tick={{ fontSize: 12, fill: 'var(--color-foreground)' }}
               tickFormatter={(v: number) => formatCurrency(v * 100)}
               stroke="var(--color-border)"
               tickLine={{ stroke: 'var(--color-border)' }}
