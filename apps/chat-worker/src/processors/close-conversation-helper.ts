@@ -39,7 +39,7 @@ export async function closeConversationOnMongo(
     )
     return { closed: false }
   }
-  await Message.create({
+  const systemMessage = await Message.create({
     conversationId,
     tenantId,
     senderType: 'SYSTEM',
@@ -47,6 +47,23 @@ export async function closeConversationOnMongo(
     type: 'TEXT',
     status: 'DELIVERED',
   })
+  await pubsubClient.publish(
+    CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE,
+    JSON.stringify({
+      id: String(systemMessage._id),
+      conversationId,
+      tenantId,
+      senderType: 'SYSTEM',
+      senderName: null,
+      senderId: null,
+      text: options.systemMessage,
+      type: 'TEXT',
+      status: 'DELIVERED',
+      externalId: null,
+      createdAt:
+        systemMessage.createdAt?.toISOString() ?? new Date().toISOString(),
+    })
+  )
   await pubsubClient.publish(
     CHAT_PUBSUB_CHANNELS.CONVERSATION_UPDATE,
     JSON.stringify({
