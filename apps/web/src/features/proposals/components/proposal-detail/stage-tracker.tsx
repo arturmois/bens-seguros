@@ -39,16 +39,16 @@ function computeStateFor(
 
 const SEG_CLASS_BY_STATE: Record<StageState, string> = {
   done: 'bg-success',
-  current: 'bg-warning ring-warning/50 ring-2 shadow-md shadow-warning/40',
-  future: 'bg-white/20',
+  current: 'bg-warning ring-warning/30 ring-2 shadow-sm',
+  future: 'bg-muted-foreground/20',
   lost: 'bg-destructive',
 }
 
 const LABEL_CLASS_BY_STATE: Record<StageState, string> = {
-  done: 'text-white/80',
-  current: 'text-warning font-semibold',
-  future: 'text-white/60',
-  lost: 'text-destructive font-semibold',
+  done: 'text-foreground',
+  current: 'text-warning-foreground font-semibold',
+  future: 'text-muted-foreground',
+  lost: 'text-destructive-foreground font-semibold',
 }
 
 export function StageTracker({
