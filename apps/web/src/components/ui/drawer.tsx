@@ -209,7 +209,7 @@ export function DrawerPopup({
           {children}
           {showCloseButton && (
             <DrawerPrimitive.Close
-              aria-label="Close"
+              aria-label="Fechar"
               className="absolute end-2 top-2"
               render={<Button size="icon" variant="ghost" />}
             >
