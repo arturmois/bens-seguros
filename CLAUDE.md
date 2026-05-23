@@ -25,8 +25,13 @@ pnpm db:push          # Push schema to DB (dev only)
 pnpm db:push:dev      # Push schema + re-apply RLS policies
 pnpm db:migrate       # Create migration (production)
 pnpm db:seed          # Populate with test data (idempotent)
-pnpm db:reset         # Reset DB (drop + migrate + seed)
+pnpm db:reset         # Reset DB (drop + migrate + seed) — ATENÇÃO: NÃO reaplica RLS
 pnpm db:studio        # Open Prisma Studio GUI
+
+# Após db:reset, RLS precisa ser reaplicado manualmente, senão server :3001
+# crasha em loop no startup e login falha silenciosamente:
+psql "$DATABASE_URL" -f packages/db/prisma/rls-policies.sql
+# (alternativa: usar pnpm db:push:dev, que já reaplica RLS)
 
 # Run all apps (web :3000, server :3001, chat-server :3002)
 pnpm dev
@@ -41,16 +46,21 @@ pnpm lint          # ESLint across all packages
 pnpm typecheck     # tsc --noEmit across all packages
 pnpm build         # Full build (packages → apps)
 pnpm test          # Vitest run across all packages
+pnpm test:watch    # Vitest watch across all packages
+pnpm format        # Prettier --write em **/*.{ts,tsx}
 
 # Run tests for a specific package/app
 pnpm --filter @repo/core test
 pnpm --filter @app/chat-server test
 
 # Run a single test file
-pnpm --filter @repo/core exec vitest run src/modules/proposal/application/create-proposal.spec.ts
+pnpm --filter @repo/core exec vitest run src/modules/proposal/application/list-proposals.spec.ts
 
 # Watch mode
 pnpm --filter @repo/core exec vitest src/modules/proposal/
+
+# E2E (raramente usado — QA padrão é Playwright via MCP, não .spec.ts)
+pnpm --filter @app/web test:e2e
 
 # Prisma migrations (production — prefer pnpm db:migrate above)
 pnpm --filter @repo/db exec prisma migrate dev --name <name>
@@ -126,6 +136,7 @@ Organization: **Corretora Exemplo** (slug: `corretora-exemplo`). Includes 8 insu
 - **Real-time:** Socket.IO 4 + Redis adapter
 - **Queue:** BullMQ 5
 - **AI:** Vercel AI SDK (Claude Sonnet primary)
+- **Observability:** Sentry (`@sentry/nextjs` + Sentry MCP plugin)
 
 ## Architecture (high-level)
 
