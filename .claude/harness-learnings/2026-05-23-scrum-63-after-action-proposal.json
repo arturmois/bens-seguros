@@ -1,0 +1,85 @@
+{
+  "ticket": "SCRUM-63",
+  "slug": "scrum-63-close-conversation-publish-incoming-message",
+  "pr_number": 334,
+  "pr_state": "MERGED",
+  "analysis_date": "2026-05-23",
+  "memory_entries_to_create": [
+    {
+      "path": "feedback_pattern-mirror-identical-use-case.md",
+      "frontmatter": {
+        "name": "feedback_pattern-mirror-identical-use-case",
+        "description": "When spec author discovers working code solving 80%+ of target design, copy pattern bitwise instead of designing from scratch — reduces spec-to-code rework from 3 cycles to 1.",
+        "metadata": {
+          "type": "feedback",
+          "originSessionId": "scrum-63-after-action",
+          "relatedTickets": ["SCRUM-63", "SCRUM-73"]
+        }
+      },
+      "body": "---\nname: feedback_pattern-mirror-identical-use-case\ndescription: \"When spec author discovers working code solving 80%+ of target design, copy pattern bitwise instead of designing from scratch — reduces spec-to-code rework from 3 cycles to 1.\"\nmetadata:\n  type: feedback\n  originSessionId: scrum-63-after-action\n---\n\n## Pattern Mirror Technique for Identical Use Cases\n\n**When to apply:** Spec author identifies existing working code in the codebase that solves 80% or more of the target design — same payload shape, same event flow, same error handling patterns.\n\n**How to apply:**\n\nInstead of designing from first principles:\n\n1. Identify reference code in codebase (e.g., `escalate-to-human.ts` for INCOMING_MESSAGE pub/sub patterns)\n2. Quote the reference pattern in spec with line numbers and complete code block\n3. Document divergences explicitly (e.g., \"CONVERSATION_UPDATE status changes from WAITING_HUMAN to CLOSED, plus closedBy context\")\n4. Plan copies pattern bitwise, changing only context-specific values (field values, status enums, etc.)\n5. Implementation mirrors plan exactly; code review checks divergences, not baseline\n\n**Why this works:**\n\n- **Spec-to-plan maturity:** 1 review cycle instead of 3 (eliminates ping-pong on \"what does the payload actually look like?\")\n- **Implementation risk:** Low (pattern is proven in production)\n- **Code review velocity:** High (reviewer validates divergences, not the entire pattern)\n- **Type safety:** Easier to spot field name typos when copying existing shape\n\n**Anti-pattern (what creates rework):**\n\nDesigning payload/flow from first principles when 90% solution already exists in codebase. Leads to mid-implementation discovery: \"wait, escalate-to-human.ts already does this differently, let me re-spec.\"\n\n**Evidence (SCRUM-63):**\n\n```\nSpec author found: escalate-to-human.ts lines 37-65 (Message.create + INCOMING_MESSAGE publish + CONVERSATION_UPDATE)\n    ↓\nSpec documented reference + divergences (only status field and closedBy context differ)\n    ↓\nPlan copied pattern exactly: same 11-field payload, same publish order, same Mongoose fallback\n    ↓\nImplementation: 1 atomic Edit, zero rework\n    ↓\nCode review: 1 INFO-level note (benign Mongoose pattern already in reference)\n```\n\nTotal time: 3.4 hours (cleanest session of batch).\n\nCompare to SCRUM-73 (message-bubble.tsx): Pattern hunt happened post-spec → rework → longer session.\n\n**Related patterns:**\n\n- [[feedback_grep-existing-components-before-creating]] — same principle applied to frontend components (Currency, DialogPanel already exist)\n- [[feedback_refactor-inline-vs-subagent-dispatch]] — when to inline vs delegate; pattern mirror often enables inlining\n\n**Validation signals (next application):**\n\n- SCRUM-65 (next chat-worker ticket) identifies and applies pattern mirror → technique is reproducible\n- Memory entry used 2+ times without modification needed → technique is stable\n- Code reviews consistently flag \"matches reference pattern\" rather than discovering payload mismatches → risk reduced\n"
+    }
+  ],
+  "repo_changes": [],
+  "rubric_application": {
+    "pattern_mirror_as_memorialized_technique": {
+      "status": "PROPOSED_AS_MEMORY",
+      "justification": "Observed in SCRUM-63: spec author using escalate-to-human.ts as reference eliminated spec-to-code rework cycles. 80%+ pattern match reduces design-time from multiple cycles to single review. Valuable enough to formalize.",
+      "next_validation": "Apply in SCRUM-65 (next audit ticket) to confirm reproducibility"
+    },
+    "memory_entries_self_reinforcing": {
+      "status": "CONFIRMED",
+      "feedback_backend-bug-fix-inline-exception": {
+        "created_in": "SCRUM-64",
+        "applied_in": "SCRUM-63",
+        "validation": "SCRUM-63 PR diff +18/-1 LOC, no test new, ran inline successfully. Rule proved itself."
+      },
+      "debt_chat-worker-test-infra-gap": {
+        "created_in": "SCRUM-64",
+        "applied_in": "SCRUM-63",
+        "validation": "Spec/plan explicitly documented out-of-scope, no TDD proposed, review aligned. Debt acknowledged, expectations set."
+      }
+    },
+    "audit_batch_processing": {
+      "status": "PATTERN_EMERGING",
+      "tickets": ["SCRUM-63", "SCRUM-64", "SCRUM-65"],
+      "source": "PR #228 chat audit",
+      "characteristics": [
+        "Same subsystem (chat-worker processors)",
+        "Same memory rules apply (inline bug fix exception, test debt)",
+        "Sequential execution, benefiting from learned patterns",
+        "Predictable execution time (3.4-3.75 hours per ticket)"
+      ],
+      "next_step": "Monitor SCRUM-65 completion. If follows pattern, consider memory entry on 'audit batch recognition and handling'"
+    },
+    "session_cleanest_of_batch": {
+      "status": "VALIDATED",
+      "factors": [
+        "Zero failures (SCRUM-64 had 1 hook false positive)",
+        "Zero rework (spec/plan converged on reference pattern)",
+        "Zero user checkpoints (memory rules auto-applied)",
+        "Shortest session time (3.4h vs 3.75h for SCRUM-64)",
+        "Highest code review velocity (1 round, 1 INFO only)"
+      ],
+      "root_cause": "Reference pattern + accumulated memory rules = predictable, low-turbulence execution"
+    }
+  },
+  "guardrails_check": {
+    "conflicts_with_existing_memory": false,
+    "proposed_removals": false,
+    "hook_changes": false,
+    "global_mcp_installs": false,
+    "settings_json_edits": false,
+    "multiple_repo_file_changes": false,
+    "status": "ALL_GUARDRAILS_CLEAR"
+  },
+  "implementation_notes": [
+    "Memory entry feedback_pattern-mirror-identical-use-case is purely additive (new technique documentation). Does not conflict with existing feedback_* entries.",
+    "No repo changes proposed. Technique is codified in memory, not requiring changes to bens-orchestrator, bens-spec-author, or bens-plan-author skills.",
+    "Optional future improvement: Add 'Pattern Mirror' section to bens-implementation-flow skill documentation with link to this memory entry.",
+    "Expected impact: Faster spec author convergence in future tickets where reference code exists in same codebase (common in audit batches, refactor waves, and API client generation tasks)."
+  ],
+  "cooldown_check": {
+    "status": "NONE_REQUIRED",
+    "explanation": "No conflicting memory entries. SCRUM-64 memory entries applied successfully; pattern mirror is new proposal, not revision of rejected idea."
+  }
+}
