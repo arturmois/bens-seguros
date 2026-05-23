@@ -110,23 +110,28 @@ export function AutoFields({
         />
       </FieldWrapper>
       <FieldWrapper label="Placa" name="licensePlate">
-        <Input
-          placeholder="Ex: ABC1D23"
-          {...plateField}
-          onBlur={(e) => {
-            void plateField.onBlur(e)
-            void handlePlateBlur(e)
-          }}
-        />
-        {lookup.isPending && (
-          <p
-            role="status"
-            aria-live="polite"
-            className="text-muted-foreground flex items-center gap-1 text-xs"
-          >
-            <Loader2 className="size-3 animate-spin" />
-            Buscando dados do veículo...
-          </p>
+        {(id) => (
+          <>
+            <Input
+              id={id}
+              placeholder="Ex: ABC1D23"
+              {...plateField}
+              onBlur={(e) => {
+                void plateField.onBlur(e)
+                void handlePlateBlur(e)
+              }}
+            />
+            {lookup.isPending && (
+              <p
+                role="status"
+                aria-live="polite"
+                className="text-muted-foreground flex items-center gap-1 text-xs"
+              >
+                <Loader2 className="size-3 animate-spin" />
+                Buscando dados do veículo...
+              </p>
+            )}
+          </>
         )}
       </FieldWrapper>
       <FieldWrapper label="Chassi" name="vin">
@@ -143,66 +148,70 @@ export function AutoFields({
         <Input placeholder="Ex: Prata" {...register('color')} />
       </FieldWrapper>
       <FieldWrapper label="Combustível" name="fuelType">
-        <Controller
-          name="fuelType"
-          control={control}
-          render={({ field }) => (
-            <Select
-              value={String(field.value ?? '')}
-              onValueChange={field.onChange}
-              items={FUEL_TYPE_OPTIONS}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione">
-                  {(value: string | null) => {
-                    const item = FUEL_TYPE_OPTIONS.find(
-                      (o) => o.value === value
-                    )
-                    return item?.label ?? null
-                  }}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {FUEL_TYPE_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
+        {(id) => (
+          <Controller
+            name="fuelType"
+            control={control}
+            render={({ field }) => (
+              <Select
+                value={String(field.value ?? '')}
+                onValueChange={field.onChange}
+                items={FUEL_TYPE_OPTIONS}
+              >
+                <SelectTrigger id={id}>
+                  <SelectValue placeholder="Selecione">
+                    {(value: string | null) => {
+                      const item = FUEL_TYPE_OPTIONS.find(
+                        (o) => o.value === value
+                      )
+                      return item?.label ?? null
+                    }}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {FUEL_TYPE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        )}
       </FieldWrapper>
       <FieldWrapper label="Uso do Veículo" name="vehicleUsage">
-        <Controller
-          name="vehicleUsage"
-          control={control}
-          render={({ field }) => (
-            <Select
-              value={String(field.value ?? '')}
-              onValueChange={field.onChange}
-              items={VEHICLE_USAGE_OPTIONS}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione">
-                  {(value: string | null) => {
-                    const item = VEHICLE_USAGE_OPTIONS.find(
-                      (o) => o.value === value
-                    )
-                    return item?.label ?? null
-                  }}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {VEHICLE_USAGE_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
+        {(id) => (
+          <Controller
+            name="vehicleUsage"
+            control={control}
+            render={({ field }) => (
+              <Select
+                value={String(field.value ?? '')}
+                onValueChange={field.onChange}
+                items={VEHICLE_USAGE_OPTIONS}
+              >
+                <SelectTrigger id={id}>
+                  <SelectValue placeholder="Selecione">
+                    {(value: string | null) => {
+                      const item = VEHICLE_USAGE_OPTIONS.find(
+                        (o) => o.value === value
+                      )
+                      return item?.label ?? null
+                    }}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {VEHICLE_USAGE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        )}
       </FieldWrapper>
     </>
   )

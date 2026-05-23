@@ -24,15 +24,20 @@ export function CondominiumFields({
   return (
     <>
       <FieldWrapper label="Nome do Condomínio" name="condominiumName" required>
-        <Input
-          placeholder="Nome do condomínio"
-          {...register('condominiumName')}
-        />
-        {isCompanyClient && (
-          <AutoFilledBadge
-            value={String(condominiumNameValue ?? '')}
-            originalValue={autoFill?.clientName ?? ''}
-          />
+        {(id) => (
+          <>
+            <Input
+              id={id}
+              placeholder="Nome do condomínio"
+              {...register('condominiumName')}
+            />
+            {isCompanyClient && (
+              <AutoFilledBadge
+                value={String(condominiumNameValue ?? '')}
+                originalValue={autoFill?.clientName ?? ''}
+              />
+            )}
+          </>
         )}
       </FieldWrapper>
       <FieldWrapper label="Número de Unidades" name="unitCount" required>

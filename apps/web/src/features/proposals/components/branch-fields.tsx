@@ -162,32 +162,38 @@ export function BranchFields({
               name="premiumValueInCents"
               required
             >
-              <Controller
-                name="premiumValueInCents"
-                control={form.control}
-                render={({ field }) => (
-                  <CurrencyInput
-                    value={field.value ?? 0}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
+              {(id) => (
+                <Controller
+                  name="premiumValueInCents"
+                  control={form.control}
+                  render={({ field }) => (
+                    <CurrencyInput
+                      id={id}
+                      value={field.value ?? 0}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+              )}
             </FieldWrapper>
             <FieldWrapper
               label="Comissão"
               name="commissionBasisPoints"
               required
             >
-              <Controller
-                name="commissionBasisPoints"
-                control={form.control}
-                render={({ field }) => (
-                  <PercentageInput
-                    value={field.value ?? 0}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
+              {(id) => (
+                <Controller
+                  name="commissionBasisPoints"
+                  control={form.control}
+                  render={({ field }) => (
+                    <PercentageInput
+                      id={id}
+                      value={field.value ?? 0}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+              )}
             </FieldWrapper>
           </div>
         </div>

@@ -45,40 +45,48 @@ export function BusinessFields({
   return (
     <>
       <FieldWrapper label="Razão Social" name="legalName" required>
-        <Input
-          placeholder="Razão social da empresa"
-          {...register('legalName')}
-        />
-        {isCompanyClient && (
-          <AutoFilledBadge
-            value={String(legalNameValue ?? '')}
-            originalValue={autoFill?.clientName ?? ''}
-          />
+        {(id) => (
+          <>
+            <Input
+              id={id}
+              placeholder="Razão social da empresa"
+              {...register('legalName')}
+            />
+            {isCompanyClient && (
+              <AutoFilledBadge
+                value={String(legalNameValue ?? '')}
+                originalValue={autoFill?.clientName ?? ''}
+              />
+            )}
+          </>
         )}
       </FieldWrapper>
       <FieldWrapper label="CNPJ" name="cnpj" required>
-        <Controller
-          name="cnpj"
-          control={control}
-          render={({ field }) => (
-            <>
-              <InputMask
-                component={Input}
-                mask={CNPJ_MASK.mask}
-                replacement={CNPJ_MASK.replacement}
-                placeholder="00.000.000/0000-00"
-                {...field}
-                value={String(field.value ?? '')}
-              />
-              {isCompanyClient && (
-                <AutoFilledBadge
+        {(id) => (
+          <Controller
+            name="cnpj"
+            control={control}
+            render={({ field }) => (
+              <>
+                <InputMask
+                  id={id}
+                  component={Input}
+                  mask={CNPJ_MASK.mask}
+                  replacement={CNPJ_MASK.replacement}
+                  placeholder="00.000.000/0000-00"
+                  {...field}
                   value={String(field.value ?? '')}
-                  originalValue={autoFill?.clientDocument ?? ''}
                 />
-              )}
-            </>
-          )}
-        />
+                {isCompanyClient && (
+                  <AutoFilledBadge
+                    value={String(field.value ?? '')}
+                    originalValue={autoFill?.clientDocument ?? ''}
+                  />
+                )}
+              </>
+            )}
+          />
+        )}
       </FieldWrapper>
       <FieldWrapper label="Atividade" name="businessActivity" required>
         <Input
@@ -87,45 +95,47 @@ export function BusinessFields({
         />
       </FieldWrapper>
       <FieldWrapper label="Segmento empresarial" name="businessSegment">
-        <Controller
-          name="businessSegment"
-          control={control}
-          render={({ field }) => {
-            const currentSegment = isBusinessSegment(field.value)
-              ? field.value
-              : null
-            return (
-              <Select
-                value={currentSegment ?? ''}
-                onValueChange={(value) => {
-                  const nextSegment = isBusinessSegment(value) ? value : null
-                  field.onChange(nextSegment)
-                  if (!shouldShowAreaM2(nextSegment)) {
-                    setValue('areaM2', undefined)
-                  }
-                }}
-                items={BUSINESS_SEGMENT_OPTIONS}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o segmento">
-                    {(value: string | null) =>
-                      isBusinessSegment(value)
-                        ? BUSINESS_SEGMENT_LABELS[value]
-                        : null
+        {(id) => (
+          <Controller
+            name="businessSegment"
+            control={control}
+            render={({ field }) => {
+              const currentSegment = isBusinessSegment(field.value)
+                ? field.value
+                : null
+              return (
+                <Select
+                  value={currentSegment ?? ''}
+                  onValueChange={(value) => {
+                    const nextSegment = isBusinessSegment(value) ? value : null
+                    field.onChange(nextSegment)
+                    if (!shouldShowAreaM2(nextSegment)) {
+                      setValue('areaM2', undefined)
                     }
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {BUSINESS_SEGMENT_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )
-          }}
-        />
+                  }}
+                  items={BUSINESS_SEGMENT_OPTIONS}
+                >
+                  <SelectTrigger id={id}>
+                    <SelectValue placeholder="Selecione o segmento">
+                      {(value: string | null) =>
+                        isBusinessSegment(value)
+                          ? BUSINESS_SEGMENT_LABELS[value]
+                          : null
+                      }
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {BUSINESS_SEGMENT_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )
+            }}
+          />
+        )}
       </FieldWrapper>
       <AddressFieldsWithCep
         control={control}

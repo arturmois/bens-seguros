@@ -103,38 +103,41 @@ export function AddressFieldsWithCep<TForm extends FieldValues>({
   return (
     <>
       <FieldWrapper label="CEP" name={names.cep} required={required?.cep}>
-        <Controller
-          name={names.cep}
-          control={control}
-          render={({ field }) => (
-            <div className="relative">
-              <InputMask
-                component={Input}
-                mask={CEP_MASK.mask}
-                replacement={CEP_MASK.replacement}
-                placeholder="00000-000"
-                {...field}
-                value={typeof field.value === 'string' ? field.value : ''}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                  field.onChange(event)
-                  void runLookup(event.target.value)
-                }}
-                onBlur={(event: React.FocusEvent<HTMLInputElement>) => {
-                  field.onBlur()
-                  void runLookup(event.target.value)
-                }}
-              />
-              {isLoading && (
-                <span className="pointer-events-none absolute inset-y-0 right-3 z-10 flex items-center">
-                  <Loader2
-                    aria-label="Consultando CEP"
-                    className="text-muted-foreground size-4 animate-spin"
-                  />
-                </span>
-              )}
-            </div>
-          )}
-        />
+        {(id) => (
+          <Controller
+            name={names.cep}
+            control={control}
+            render={({ field }) => (
+              <div className="relative">
+                <InputMask
+                  id={id}
+                  component={Input}
+                  mask={CEP_MASK.mask}
+                  replacement={CEP_MASK.replacement}
+                  placeholder="00000-000"
+                  {...field}
+                  value={typeof field.value === 'string' ? field.value : ''}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    field.onChange(event)
+                    void runLookup(event.target.value)
+                  }}
+                  onBlur={(event: React.FocusEvent<HTMLInputElement>) => {
+                    field.onBlur()
+                    void runLookup(event.target.value)
+                  }}
+                />
+                {isLoading && (
+                  <span className="pointer-events-none absolute inset-y-0 right-3 z-10 flex items-center">
+                    <Loader2
+                      aria-label="Consultando CEP"
+                      className="text-muted-foreground size-4 animate-spin"
+                    />
+                  </span>
+                )}
+              </div>
+            )}
+          />
+        )}
       </FieldWrapper>
       <FieldWrapper label="Logradouro" name={names.street}>
         <Input

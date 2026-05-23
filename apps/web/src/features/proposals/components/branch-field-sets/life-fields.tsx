@@ -88,37 +88,49 @@ export function LifeFields({ register, control }: FieldHelperProps) {
         />
       </FieldWrapper>
       <FieldWrapper label="Renda Mensal" name="monthlyIncomeCents">
-        <Controller
-          name="monthlyIncomeCents"
-          control={control}
-          render={({ field }) => (
-            <CurrencyInput value={field.value ?? 0} onChange={field.onChange} />
-          )}
-        />
+        {(id) => (
+          <Controller
+            name="monthlyIncomeCents"
+            control={control}
+            render={({ field }) => (
+              <CurrencyInput
+                id={id}
+                value={field.value ?? 0}
+                onChange={field.onChange}
+              />
+            )}
+          />
+        )}
       </FieldWrapper>
       <FieldWrapper label="Fumante" name="isSmoker">
-        <Controller
-          name="isSmoker"
-          control={control}
-          render={({ field }) => (
-            <Switch
-              checked={field.value === true}
-              onCheckedChange={field.onChange}
-            />
-          )}
-        />
+        {(id) => (
+          <Controller
+            name="isSmoker"
+            control={control}
+            render={({ field }) => (
+              <Switch
+                id={id}
+                checked={field.value === true}
+                onCheckedChange={field.onChange}
+              />
+            )}
+          />
+        )}
       </FieldWrapper>
       <FieldWrapper label="Esportes Radicais" name="extremeSports">
-        <Controller
-          name="extremeSports"
-          control={control}
-          render={({ field }) => (
-            <Switch
-              checked={field.value === true}
-              onCheckedChange={field.onChange}
-            />
-          )}
-        />
+        {(id) => (
+          <Controller
+            name="extremeSports"
+            control={control}
+            render={({ field }) => (
+              <Switch
+                id={id}
+                checked={field.value === true}
+                onCheckedChange={field.onChange}
+              />
+            )}
+          />
+        )}
       </FieldWrapper>
       <FieldWrapper label="Altura (cm)" name="heightInCentimeters">
         <Input
