@@ -16,7 +16,7 @@ export function VehicleBanner({ details }: VehicleBannerProps) {
   const vinPart = details.vin ? `Chassi ${details.vin}` : null
   const subline = [platePart, vinPart].filter(Boolean).join(' · ')
   return (
-    <div className="from-primary/5 to-primary/10 mb-4 flex items-center gap-4 rounded-xl bg-gradient-to-r p-4">
+    <div className="bg-card mb-4 flex items-center gap-4 rounded-xl border p-4">
       <div className="bg-primary/10 flex size-11 items-center justify-center rounded-lg">
         <Car className="text-primary size-6" />
       </div>

@@ -19,13 +19,13 @@ export function ImportStepResults({ status, onClose }: ImportStepResultsProps) {
     <div className="flex flex-col gap-4 p-4">
       <div
         className={`flex items-center gap-2 rounded-md p-3 ${
-          isFailed ? 'bg-destructive/10' : 'bg-green-500/10'
+          isFailed ? 'bg-destructive/10' : 'bg-success/10'
         }`}
       >
         {isFailed ? (
           <XCircle className="text-destructive h-5 w-5" />
         ) : (
-          <CheckCircle2 className="h-5 w-5 text-green-500" />
+          <CheckCircle2 className="text-success h-5 w-5" />
         )}
         <span className="text-sm font-medium">
           {isFailed ? 'Importação falhou' : 'Importação concluída'}
@@ -33,7 +33,7 @@ export function ImportStepResults({ status, onClose }: ImportStepResultsProps) {
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="flex items-center gap-2 rounded-md border p-3">
-          <CheckCircle2 className="h-4 w-4 text-green-500" />
+          <CheckCircle2 className="text-success h-4 w-4" />
           <div>
             <p className="text-lg font-semibold tabular-nums">
               {progress.created}

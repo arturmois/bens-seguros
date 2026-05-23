@@ -1,6 +1,9 @@
-import { cn } from '@/lib/utils'
+import { Badge } from '@/components/ui/badge'
 
-import { CLAIM_STATUS_COLORS, CLAIM_STATUS_LABELS } from '../lib/constants'
+import {
+  CLAIM_STATUS_BADGE_VARIANT,
+  CLAIM_STATUS_LABELS,
+} from '../lib/constants'
 import type { ClaimStatus } from '../lib/types'
 
 interface ClaimStatusBadgeProps {
@@ -10,14 +13,8 @@ interface ClaimStatusBadgeProps {
 
 export function ClaimStatusBadge({ status, className }: ClaimStatusBadgeProps) {
   return (
-    <span
-      className={cn(
-        'inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium',
-        CLAIM_STATUS_COLORS[status],
-        className
-      )}
-    >
+    <Badge variant={CLAIM_STATUS_BADGE_VARIANT[status]} className={className}>
       {CLAIM_STATUS_LABELS[status]}
-    </span>
+    </Badge>
   )
 }

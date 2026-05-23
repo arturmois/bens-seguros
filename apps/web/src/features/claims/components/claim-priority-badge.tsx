@@ -1,8 +1,11 @@
 import { AlertTriangle } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
+import { Badge } from '@/components/ui/badge'
 
-import { CLAIM_PRIORITY_COLORS, CLAIM_PRIORITY_LABELS } from '../lib/constants'
+import {
+  CLAIM_PRIORITY_BADGE_VARIANT,
+  CLAIM_PRIORITY_LABELS,
+} from '../lib/constants'
 import type { ClaimPriority } from '../lib/types'
 
 interface ClaimPriorityBadgeProps {
@@ -15,16 +18,12 @@ export function ClaimPriorityBadge({
   className,
 }: ClaimPriorityBadgeProps) {
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium',
-        CLAIM_PRIORITY_COLORS[priority],
-        priority === 'URGENT' && 'ring-1 ring-red-300 dark:ring-red-700',
-        className
-      )}
+    <Badge
+      variant={CLAIM_PRIORITY_BADGE_VARIANT[priority]}
+      className={className}
     >
-      {priority === 'URGENT' && <AlertTriangle className="h-3 w-3" />}
+      {priority === 'URGENT' && <AlertTriangle />}
       {CLAIM_PRIORITY_LABELS[priority]}
-    </span>
+    </Badge>
   )
 }

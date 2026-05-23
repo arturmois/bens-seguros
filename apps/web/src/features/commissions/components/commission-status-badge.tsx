@@ -1,7 +1,7 @@
-import { cn } from '@/lib/utils'
+import { Badge } from '@/components/ui/badge'
 
 import {
-  COMMISSION_STATUS_COLORS,
+  COMMISSION_STATUS_BADGE_VARIANT,
   COMMISSION_STATUS_LABELS,
 } from '../lib/constants'
 import type { CommissionStatus } from '../lib/types'
@@ -16,14 +16,11 @@ export function CommissionStatusBadge({
   className,
 }: CommissionStatusBadgeProps) {
   return (
-    <span
-      className={cn(
-        'inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium',
-        COMMISSION_STATUS_COLORS[status],
-        className
-      )}
+    <Badge
+      variant={COMMISSION_STATUS_BADGE_VARIANT[status]}
+      className={className}
     >
       {COMMISSION_STATUS_LABELS[status]}
-    </span>
+    </Badge>
   )
 }

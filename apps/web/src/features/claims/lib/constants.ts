@@ -43,24 +43,29 @@ export const CLAIM_PRIORITY_LABELS: Record<ClaimPriority, string> = {
   URGENT: 'Urgente',
 }
 
-export const CLAIM_STATUS_COLORS: Record<ClaimStatus, string> = {
-  REGISTERED:
-    'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
-  IN_ANALYSIS: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
-  AWAITING_DOCUMENT:
-    'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
-  PENDING_INSPECTION:
-    'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
-  APPROVED: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
-  REJECTED: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
-  PAID: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300',
-  COMPLETED: 'bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300',
+type ClaimBadgeVariant = 'secondary' | 'info' | 'warning' | 'success' | 'error'
+
+export const CLAIM_STATUS_BADGE_VARIANT: Record<
+  ClaimStatus,
+  ClaimBadgeVariant
+> = {
+  REGISTERED: 'secondary',
+  IN_ANALYSIS: 'info',
+  AWAITING_DOCUMENT: 'warning',
+  PENDING_INSPECTION: 'warning',
+  APPROVED: 'info',
+  REJECTED: 'error',
+  PAID: 'success',
+  COMPLETED: 'success',
 }
 
-export const CLAIM_PRIORITY_COLORS: Record<ClaimPriority, string> = {
-  NORMAL: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
-  HIGH: 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
-  URGENT: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
+export const CLAIM_PRIORITY_BADGE_VARIANT: Record<
+  ClaimPriority,
+  ClaimBadgeVariant
+> = {
+  NORMAL: 'secondary',
+  HIGH: 'warning',
+  URGENT: 'error',
 }
 
 export const CLAIM_STATUS_BUTTON_STYLES: Record<
