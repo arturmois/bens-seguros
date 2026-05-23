@@ -43,10 +43,10 @@ interface ConversationListProps {
 type FilterTab = 'ALL' | ConversationStatus
 
 const FILTER_TABS: ReadonlyArray<{ value: FilterTab; label: string }> = [
-  { value: 'ALL', label: 'Todos' },
+  { value: 'ALL', label: 'Ativas' },
   { value: 'WAITING_HUMAN', label: 'Fila' },
   { value: 'HUMAN_ACTIVE', label: 'Meus' },
-  { value: 'CLOSED', label: 'Fechados' },
+  { value: 'CLOSED', label: 'Fechadas' },
 ]
 
 function ConversationListSkeleton() {
@@ -132,9 +132,12 @@ export function ConversationList({
         selected !== 'ALL' && isChannelType(selected) ? selected : undefined,
     })
   }
-  const filteredConversations = filters.channelType
-    ? conversations.filter((c) => c.channelType === filters.channelType)
-    : conversations
+  const filteredConversations = conversations.filter((c) => {
+    if (filters.channelType && c.channelType !== filters.channelType)
+      return false
+    if (!filters.status && c.status === 'CLOSED') return false
+    return true
+  })
   const sortedConversations = [...filteredConversations].sort((a, b) => {
     const aTime = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0
     const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0
