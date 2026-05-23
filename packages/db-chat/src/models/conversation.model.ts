@@ -29,7 +29,7 @@ const conversationSchema = new Schema(
   { timestamps: true }
 )
 
-conversationSchema.index({ tenantId: 1, status: 1 })
+conversationSchema.index({ tenantId: 1, status: 1, updatedAt: -1 })
 conversationSchema.index({ tenantId: 1, contactId: 1, channelId: 1, status: 1 })
 conversationSchema.index({ tenantId: 1, updatedAt: -1 })
 

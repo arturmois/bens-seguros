@@ -61,9 +61,10 @@ export class MongooseConversationRepository implements ConversationRepository {
     filters: ConversationFilters,
     page: CursorPage
   ): Promise<Page<ConversationData>> {
-    const query: Record<string, unknown> = { tenantId: filters.tenantId }
-    if (filters.status) {
-      query['status'] = filters.status
+    const statusFilter = buildStatusFilter(filters.status)
+    const query: Record<string, unknown> = {
+      tenantId: filters.tenantId,
+      ...statusFilter,
     }
     if (filters.assignedTo) {
       query['assignedTo'] = filters.assignedTo
@@ -219,11 +220,23 @@ export class MongooseConversationRepository implements ConversationRepository {
   }
 }
 
+const ACTIVE_STATUSES: ReadonlyArray<ConversationStatus> = [
+  'BOT_ACTIVE',
+  'WAITING_HUMAN',
+  'HUMAN_ACTIVE',
+]
+
+function buildStatusFilter(
+  status: ConversationStatus | undefined
+): Record<string, unknown> {
+  if (status) return { status }
+  return { status: { $in: ACTIVE_STATUSES } }
+}
+
 function buildCountFilter(
   filters: ConversationFilters
 ): Record<string, unknown> {
-  const countFilter: Record<string, unknown> = {}
-  if (filters.status) countFilter['status'] = filters.status
+  const countFilter: Record<string, unknown> = buildStatusFilter(filters.status)
   if (filters.assignedTo) countFilter['assignedTo'] = filters.assignedTo
   if (filters.search)
     countFilter['lastMessageText'] = { $regex: filters.search, $options: 'i' }

@@ -132,12 +132,9 @@ export function ConversationList({
         selected !== 'ALL' && isChannelType(selected) ? selected : undefined,
     })
   }
-  const filteredConversations = conversations.filter((c) => {
-    if (filters.channelType && c.channelType !== filters.channelType)
-      return false
-    if (!filters.status && c.status === 'CLOSED') return false
-    return true
-  })
+  const filteredConversations = filters.channelType
+    ? conversations.filter((c) => c.channelType === filters.channelType)
+    : conversations
   const sortedConversations = [...filteredConversations].sort((a, b) => {
     const aTime = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0
     const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0
