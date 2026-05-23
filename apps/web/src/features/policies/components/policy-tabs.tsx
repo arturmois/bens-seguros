@@ -20,12 +20,15 @@ export function PolicyTabs({ policyId }: PolicyTabsProps) {
   return (
     <>
       <Tabs defaultValue="endorsements">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <TabsList variant="underline">
             <TabsTab value="endorsements">Registros de Endosso</TabsTab>
             <TabsTab value="documents">Documentos</TabsTab>
           </TabsList>
-          <Button onClick={() => setEndorsementFormOpen(true)}>
+          <Button
+            className="w-full sm:w-auto"
+            onClick={() => setEndorsementFormOpen(true)}
+          >
             <Plus className="mr-1 h-4 w-4" />
             Registrar Endosso Histórico
           </Button>

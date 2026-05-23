@@ -23,12 +23,15 @@ export function ClaimTabs({
   return (
     <>
       <Tabs defaultValue="occurrences">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <TabsList variant="underline">
             <TabsTab value="occurrences">Ocorrências</TabsTab>
             <TabsTab value="documents">Documentos</TabsTab>
           </TabsList>
-          <Button onClick={() => setOccurrenceFormOpen(true)}>
+          <Button
+            className="w-full sm:w-auto"
+            onClick={() => setOccurrenceFormOpen(true)}
+          >
             <Plus className="mr-1 h-4 w-4" />
             Nova Ocorrência
           </Button>
