@@ -2,7 +2,6 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { FormActions } from '@/components/shared/form-actions'
@@ -68,10 +67,6 @@ export function ChannelEditForm({
     mode: 'onBlur',
     defaultValues: buildDefaults(initial),
   })
-  useEffect(() => {
-    if (form.formState.isDirty) return
-    form.reset(buildDefaults(initial))
-  }, [initial, form])
   const isWebChat = initial.type === 'WEB_CHAT'
   const isPending = updateChannel.isPending
   function handleSubmit(values: ChannelFormValues) {
@@ -102,7 +97,7 @@ export function ChannelEditForm({
             onSuccess()
             return
           }
-          router.push('/settings/channels')
+          router.push('/settings?section=canais')
         },
       }
     )
@@ -112,7 +107,7 @@ export function ChannelEditForm({
       onCancel()
       return
     }
-    router.push('/settings/channels')
+    router.push('/settings?section=canais')
   }
   const errors = form.formState.errors
   return (
