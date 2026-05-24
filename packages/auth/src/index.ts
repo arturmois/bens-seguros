@@ -128,6 +128,7 @@ export function createAuth(
           VIEWER: VIEWER_ROLE,
         },
         creatorRole: 'OWNER',
+        organizationLimit: env.MAX_ORGS_PER_USER,
       }),
     ],
   } satisfies BetterAuthOptions
