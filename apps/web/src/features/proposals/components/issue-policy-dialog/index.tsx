@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
@@ -30,6 +29,8 @@ import {
   type IssuePolicyFormValues,
 } from './types'
 
+const FORM_ID = 'issue-policy-form'
+
 interface IssuePolicyDialogProps {
   readonly proposalId: string
   readonly open: boolean
@@ -41,27 +42,7 @@ export function IssuePolicyDialog({
   open,
   onOpenChange,
 }: IssuePolicyDialogProps) {
-  const router = useRouter()
   const issuePolicy = useIssuePolicy()
-  const form = useForm<IssuePolicyFormValues>({
-    resolver: zodResolver(issuePolicyFormSchema),
-    defaultValues: EMPTY_VALUES,
-  })
-  useEffect(() => {
-    if (!open) return
-    form.reset(EMPTY_VALUES)
-  }, [open, form])
-  function handleSubmit(values: IssuePolicyFormValues) {
-    issuePolicy.mutate(
-      { proposalId, ...values },
-      {
-        onSuccess: (policy) => {
-          onOpenChange(false)
-          router.push(`/policies/${policy.id}`)
-        },
-      }
-    )
-  }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
@@ -72,60 +53,13 @@ export function IssuePolicyDialog({
           </DialogDescription>
         </DialogHeader>
         <DialogPanel>
-          <form
-            id="issue-policy-form"
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
-            <FormField
-              label="Número da Apólice"
-              error={form.formState.errors.policyNumber?.message}
-              required
-            >
-              <Input
-                placeholder="Ex: AUTO-2026-001"
-                {...form.register('policyNumber')}
-              />
-            </FormField>
-            <InsurerField
-              control={form.control}
-              setValue={form.setValue}
-              error={form.formState.errors.insurerId?.message}
-              dialogOpen={open}
+          {open && (
+            <IssuePolicyFormBody
+              proposalId={proposalId}
+              mutation={issuePolicy}
+              onSubmitted={() => onOpenChange(false)}
             />
-            <FormField
-              label="Início da Vigência"
-              error={form.formState.errors.startDate?.message}
-              required
-            >
-              <Controller
-                name="startDate"
-                control={form.control}
-                render={({ field }) => (
-                  <DatePicker
-                    value={parseDateString(field.value)}
-                    onChange={(date) => field.onChange(formatDateToISO(date))}
-                  />
-                )}
-              />
-            </FormField>
-            <FormField
-              label="Fim da Vigência"
-              error={form.formState.errors.endDate?.message}
-              required
-            >
-              <Controller
-                name="endDate"
-                control={form.control}
-                render={({ field }) => (
-                  <DatePicker
-                    value={parseDateString(field.value)}
-                    onChange={(date) => field.onChange(formatDateToISO(date))}
-                  />
-                )}
-              />
-            </FormField>
-          </form>
+          )}
         </DialogPanel>
         <DialogFooter>
           <Button
@@ -135,11 +69,7 @@ export function IssuePolicyDialog({
           >
             Cancelar
           </Button>
-          <Button
-            type="submit"
-            form="issue-policy-form"
-            disabled={issuePolicy.isPending}
-          >
+          <Button type="submit" form={FORM_ID} disabled={issuePolicy.isPending}>
             {issuePolicy.isPending && (
               <Loader2 className="mr-2 size-4 animate-spin" />
             )}
@@ -148,5 +78,89 @@ export function IssuePolicyDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  )
+}
+
+interface IssuePolicyFormBodyProps {
+  readonly proposalId: string
+  readonly mutation: ReturnType<typeof useIssuePolicy>
+  readonly onSubmitted: () => void
+}
+
+function IssuePolicyFormBody({
+  proposalId,
+  mutation,
+  onSubmitted,
+}: IssuePolicyFormBodyProps) {
+  const router = useRouter()
+  const form = useForm<IssuePolicyFormValues>({
+    resolver: zodResolver(issuePolicyFormSchema),
+    defaultValues: EMPTY_VALUES,
+  })
+  function handleSubmit(values: IssuePolicyFormValues) {
+    mutation.mutate(
+      { proposalId, ...values },
+      {
+        onSuccess: (policy) => {
+          onSubmitted()
+          router.push(`/policies/${policy.id}`)
+        },
+      }
+    )
+  }
+  return (
+    <form
+      id={FORM_ID}
+      onSubmit={form.handleSubmit(handleSubmit)}
+      className="space-y-4"
+    >
+      <FormField
+        label="Número da Apólice"
+        error={form.formState.errors.policyNumber?.message}
+        required
+      >
+        <Input
+          placeholder="Ex: AUTO-2026-001"
+          {...form.register('policyNumber')}
+        />
+      </FormField>
+      <InsurerField
+        control={form.control}
+        setValue={form.setValue}
+        error={form.formState.errors.insurerId?.message}
+      />
+      <FormField
+        label="Início da Vigência"
+        error={form.formState.errors.startDate?.message}
+        required
+      >
+        <Controller
+          name="startDate"
+          control={form.control}
+          render={({ field }) => (
+            <DatePicker
+              value={parseDateString(field.value)}
+              onChange={(date) => field.onChange(formatDateToISO(date))}
+            />
+          )}
+        />
+      </FormField>
+      <FormField
+        label="Fim da Vigência"
+        error={form.formState.errors.endDate?.message}
+        required
+      >
+        <Controller
+          name="endDate"
+          control={form.control}
+          render={({ field }) => (
+            <DatePicker
+              value={parseDateString(field.value)}
+              onChange={(date) => field.onChange(formatDateToISO(date))}
+            />
+          )}
+        />
+      </FormField>
+    </form>
   )
 }

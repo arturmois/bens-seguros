@@ -1,7 +1,7 @@
 'use client'
 
 import { Plus } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Controller, type Control, type UseFormSetValue } from 'react-hook-form'
 
 import { useListInsurers } from '@/api/endpoints/insurers/insurers'
@@ -23,15 +23,9 @@ interface InsurerFieldProps {
   readonly control: Control<IssuePolicyFormValues>
   readonly setValue: UseFormSetValue<IssuePolicyFormValues>
   readonly error?: string
-  readonly dialogOpen: boolean
 }
 
-export function InsurerField({
-  control,
-  setValue,
-  error,
-  dialogOpen,
-}: InsurerFieldProps) {
+export function InsurerField({ control, setValue, error }: InsurerFieldProps) {
   const {
     data: insurersResponse,
     isLoading: insurersLoading,
@@ -41,12 +35,6 @@ export function InsurerField({
   const [createdInsurer, setCreatedInsurer] =
     useState<ListInsurers200DataItem | null>(null)
   const insurers = insurersResponse?.data.data ?? []
-  useEffect(() => {
-    if (!dialogOpen) {
-      setInsurerDialogOpen(false)
-      setCreatedInsurer(null)
-    }
-  }, [dialogOpen])
   const visibleInsurers = useMemo(() => {
     if (!createdInsurer) return insurers
     if (insurers.some((insurer) => insurer.id === createdInsurer.id)) {

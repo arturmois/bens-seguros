@@ -107,11 +107,9 @@ export function ContactForm({
   const form = useForm<CreateContactValues>({
     resolver: zodResolver(CreateContactSchema),
     mode: 'onSubmit',
-    defaultValues: buildDefaultValues(initial),
+    values: buildDefaultValues(initial),
+    resetOptions: { keepDirtyValues: true },
   })
-  useEffect(() => {
-    if (initial) form.reset(buildDefaultValues(initial))
-  }, [initial, form])
   useEffect(() => {
     onPendingChange?.(isPending)
   }, [isPending, onPendingChange])

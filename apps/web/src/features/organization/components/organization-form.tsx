@@ -2,7 +2,6 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
-import { useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import type { z } from 'zod'
 
@@ -32,18 +31,12 @@ export function OrganizationForm({
   const form = useForm<OrganizationFormValues>({
     resolver: zodResolver(UpdateOrganizationBody),
     mode: 'onBlur',
-    defaultValues: {
+    values: {
       name: organization.name,
       slug: organization.slug,
     },
+    resetOptions: { keepDirtyValues: true },
   })
-  useEffect(() => {
-    if (form.formState.isDirty) return
-    form.reset({
-      name: organization.name,
-      slug: organization.slug,
-    })
-  }, [organization.name, organization.slug, form])
   function handleSubmit(values: OrganizationFormValues) {
     updateOrganization.mutate(values)
   }

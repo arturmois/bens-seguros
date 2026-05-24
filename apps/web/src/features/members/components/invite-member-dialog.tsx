@@ -2,7 +2,6 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
-import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import { FormField } from '@/components/shared/form-field'
@@ -37,6 +36,7 @@ import {
 } from '../lib/member-schemas'
 
 type InviteMemberFormValues = z.infer<typeof CreateInvitationBody>
+type InviteMemberMutation = ReturnType<typeof useInviteMember>
 
 interface InviteMemberDialogProps {
   readonly open: boolean
@@ -54,29 +54,14 @@ const DEFAULT_VALUES: InviteMemberFormValues = {
   role: 'COMMERCIAL',
 }
 
+const FORM_ID = 'invite-member-form'
+
 export function InviteMemberDialog({
   open,
   onOpenChange,
   currentUserRole,
 }: InviteMemberDialogProps) {
   const inviteMember = useInviteMember()
-  const form = useForm<InviteMemberFormValues>({
-    resolver: zodResolver(CreateInvitationBody),
-    defaultValues: DEFAULT_VALUES,
-  })
-  useEffect(() => {
-    if (!open) return
-    form.reset(DEFAULT_VALUES)
-  }, [open, form])
-  const availableRoles = getAssignableRolesForCaller(currentUserRole)
-  function handleSubmit(values: InviteMemberFormValues) {
-    inviteMember.mutate(values, {
-      onSuccess: () => {
-        form.reset(DEFAULT_VALUES)
-        onOpenChange(false)
-      },
-    })
-  }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -87,49 +72,13 @@ export function InviteMemberDialog({
           </DialogDescription>
         </DialogHeader>
         <DialogPanel>
-          <form
-            id="invite-member-form"
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
-            <FormField
-              label="Email"
-              error={form.formState.errors.email?.message}
-              required
-            >
-              <Input
-                type="email"
-                placeholder="colaborador@empresa.com"
-                {...form.register('email')}
-              />
-            </FormField>
-            <FormField
-              label="Cargo"
-              error={form.formState.errors.role?.message}
-              required
-            >
-              <Controller
-                name="role"
-                control={form.control}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione um cargo">
-                        {(value: string) => ROLE_LABELS[value] ?? value}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableRoles.map((role) => (
-                        <SelectItem key={role} value={role}>
-                          {ROLE_LABELS[role] ?? role}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </FormField>
-          </form>
+          {open && (
+            <InviteMemberFormBody
+              mutation={inviteMember}
+              currentUserRole={currentUserRole}
+              onSubmitted={() => onOpenChange(false)}
+            />
+          )}
         </DialogPanel>
         <DialogFooter>
           <Button
@@ -141,7 +90,7 @@ export function InviteMemberDialog({
           </Button>
           <Button
             type="submit"
-            form="invite-member-form"
+            form={FORM_ID}
             disabled={inviteMember.isPending}
           >
             {inviteMember.isPending && (
@@ -152,5 +101,75 @@ export function InviteMemberDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  )
+}
+
+interface InviteMemberFormBodyProps {
+  readonly mutation: InviteMemberMutation
+  readonly currentUserRole: string
+  readonly onSubmitted: () => void
+}
+
+function InviteMemberFormBody({
+  mutation,
+  currentUserRole,
+  onSubmitted,
+}: InviteMemberFormBodyProps) {
+  const form = useForm<InviteMemberFormValues>({
+    resolver: zodResolver(CreateInvitationBody),
+    defaultValues: DEFAULT_VALUES,
+  })
+  const availableRoles = getAssignableRolesForCaller(currentUserRole)
+  function handleSubmit(values: InviteMemberFormValues) {
+    mutation.mutate(values, {
+      onSuccess: () => {
+        onSubmitted()
+      },
+    })
+  }
+  return (
+    <form
+      id={FORM_ID}
+      onSubmit={form.handleSubmit(handleSubmit)}
+      className="space-y-4"
+    >
+      <FormField
+        label="Email"
+        error={form.formState.errors.email?.message}
+        required
+      >
+        <Input
+          type="email"
+          placeholder="colaborador@empresa.com"
+          {...form.register('email')}
+        />
+      </FormField>
+      <FormField
+        label="Cargo"
+        error={form.formState.errors.role?.message}
+        required
+      >
+        <Controller
+          name="role"
+          control={form.control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um cargo">
+                  {(value: string) => ROLE_LABELS[value] ?? value}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {availableRoles.map((role) => (
+                  <SelectItem key={role} value={role}>
+                    {ROLE_LABELS[role] ?? role}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+      </FormField>
+    </form>
   )
 }

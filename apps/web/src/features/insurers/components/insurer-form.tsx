@@ -63,11 +63,9 @@ export function InsurerForm({
   const form = useForm<InsurerFormValues>({
     resolver: zodResolver(insurerFormSchema),
     mode: 'onBlur',
-    defaultValues: buildDefaultValues(initial),
+    values: buildDefaultValues(initial),
+    resetOptions: { keepDirtyValues: true },
   })
-  useEffect(() => {
-    if (initial) form.reset(buildDefaultValues(initial))
-  }, [initial, form])
   useEffect(() => {
     onPendingChange?.(isPending)
   }, [isPending, onPendingChange])

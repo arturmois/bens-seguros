@@ -1,7 +1,6 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { FormDialogShell } from '@/components/shared/form-dialog-shell'
@@ -31,22 +30,6 @@ export function ChannelFormDialog({
   onOpenChange,
 }: ChannelFormDialogProps) {
   const createChannel = useCreateChannel()
-  const isPending = createChannel.isPending
-  const form = useForm<ChannelFormValues>({
-    resolver: zodResolver(channelFormSchema),
-    defaultValues: buildEmptyChannelForm(),
-  })
-  const watchedChannelType = form.watch('channelType')
-  useEffect(() => {
-    if (!open) return
-    form.reset(buildEmptyChannelForm())
-  }, [open, form])
-  function handleSubmit(values: ChannelFormValues) {
-    const payload = buildCreatePayload(values)
-    createChannel.mutate(payload, {
-      onSuccess: () => onOpenChange(false),
-    })
-  }
   return (
     <FormDialogShell
       open={open}
@@ -54,43 +37,70 @@ export function ChannelFormDialog({
       title="Novo canal"
       description="Configure um novo canal de comunicação."
       formId={FORM_ID}
-      isPending={isPending}
+      isPending={createChannel.isPending}
       submitLabel="Criar canal"
       keyboardHintAction="criar"
       size="md"
     >
-      <form
-        id={FORM_ID}
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-4"
-        noValidate
-      >
-        <ChannelTypeSelect
-          control={form.control}
-          error={form.formState.errors.channelType?.message}
+      {open && (
+        <ChannelFormBody
+          mutation={createChannel}
+          onSubmitted={() => onOpenChange(false)}
         />
-        <FormField
-          label="Nome"
-          error={form.formState.errors.name?.message}
-          required
-        >
-          <Input
-            placeholder={getNamePlaceholder(watchedChannelType)}
-            {...form.register('name')}
-          />
-        </FormField>
-        {watchedChannelType === 'WHATSAPP' && (
-          <WhatsAppFields
-            control={form.control}
-            register={form.register}
-            errors={form.formState.errors}
-            isEditMode={false}
-          />
-        )}
-        {watchedChannelType === 'WEB_CHAT' && (
-          <WebChatFields register={form.register} />
-        )}
-      </form>
+      )}
     </FormDialogShell>
+  )
+}
+
+interface ChannelFormBodyProps {
+  readonly mutation: ReturnType<typeof useCreateChannel>
+  readonly onSubmitted: () => void
+}
+
+function ChannelFormBody({ mutation, onSubmitted }: ChannelFormBodyProps) {
+  const form = useForm<ChannelFormValues>({
+    resolver: zodResolver(channelFormSchema),
+    defaultValues: buildEmptyChannelForm(),
+  })
+  const watchedChannelType = form.watch('channelType')
+  function handleSubmit(values: ChannelFormValues) {
+    const payload = buildCreatePayload(values)
+    mutation.mutate(payload, {
+      onSuccess: () => onSubmitted(),
+    })
+  }
+  return (
+    <form
+      id={FORM_ID}
+      onSubmit={form.handleSubmit(handleSubmit)}
+      className="space-y-4"
+      noValidate
+    >
+      <ChannelTypeSelect
+        control={form.control}
+        error={form.formState.errors.channelType?.message}
+      />
+      <FormField
+        label="Nome"
+        error={form.formState.errors.name?.message}
+        required
+      >
+        <Input
+          placeholder={getNamePlaceholder(watchedChannelType)}
+          {...form.register('name')}
+        />
+      </FormField>
+      {watchedChannelType === 'WHATSAPP' && (
+        <WhatsAppFields
+          control={form.control}
+          register={form.register}
+          errors={form.formState.errors}
+          isEditMode={false}
+        />
+      )}
+      {watchedChannelType === 'WEB_CHAT' && (
+        <WebChatFields register={form.register} />
+      )}
+    </form>
   )
 }

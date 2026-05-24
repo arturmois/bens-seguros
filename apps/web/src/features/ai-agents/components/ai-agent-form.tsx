@@ -79,12 +79,9 @@ export function AiAgentForm({
   const form = useForm<AiAgentFormValues>({
     resolver: zodResolver(aiAgentFormSchema),
     mode: 'onBlur',
-    defaultValues: defaultValues ?? buildDefaults(initial),
+    values: defaultValues ?? buildDefaults(initial),
+    resetOptions: { keepDirtyValues: true },
   })
-  useEffect(() => {
-    if (form.formState.isDirty) return
-    form.reset(defaultValues ?? buildDefaults(initial))
-  }, [initial, defaultValues, form])
   useEffect(() => {
     onPendingChange?.(isPending)
   }, [isPending, onPendingChange])
