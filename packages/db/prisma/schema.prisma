@@ -145,6 +145,10 @@ model Organization {
   contacts               Contact[]
   goals                  Goal[]
   aiUsageRecords         AiUsageRecord[]
+  subscription           Subscription?
+  invoices               Invoice[]
+  paymentMethods         PaymentMethod[]
+  webhookEvents          WebhookEvent[]
 }
 
 model Member {
@@ -741,4 +745,219 @@ model AuditLogArchive {
   archivedAt     DateTime @default(now())
 
   @@index([organizationId, createdAt(sort: Desc)])
+}
+
+// === BILLING (Fase 2) ===
+
+// Plan is global (not multi-tenant) — a shared catalog. RLS is intentionally
+// NOT applied; write access is locked down via Postgres GRANT SELECT only on
+// app_user in Fase 2B (SE5 lockdown), with writes routed through super-admin
+// endpoints (Fase 4) that use a separate role.
+
+enum BillingPeriod {
+  MONTHLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  EXPIRED
+  BILLED_EXTERNALLY
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELED
+  REFUNDED
+}
+
+enum PaymentMethodType {
+  CREDIT_CARD
+  BOLETO
+  PIX
+}
+
+// Provider agnostic — swap futuro sem rename de coluna.
+enum BillingProvider {
+  ASAAS
+  STRIPE
+  MANUAL
+}
+
+model Plan {
+  id            String        @id @default(cuid())
+  slug          String        @unique
+  name          String
+  description   String?
+  priceCents    Int
+  currency      String        @default("BRL")
+  billingPeriod BillingPeriod @default(MONTHLY)
+
+  // Quotas — null = unlimited
+  maxUsers                 Int?
+  maxProposalsPerMonth     Int?
+  maxChannels              Int?
+  maxConversationsPerOrg   Int?
+  maxImportRows            Int?
+  maxLogoSizeBytes         Int?
+
+  aiEnabled                Boolean @default(false)
+  aiMessagesIncluded       Int     @default(0)
+  aiOverageCentsPerMessage Int     @default(0)
+
+  features      Json          @default("{}")
+
+  active        Boolean       @default(true)
+  isPublic      Boolean       @default(true)
+  sortOrder     Int           @default(0)
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  subscriptions Subscription[]
+
+  @@index([active, isPublic, sortOrder])
+}
+
+model Subscription {
+  id                              String             @id @default(cuid())
+  organizationId                  String             @unique
+  planId                          String
+
+  status                          SubscriptionStatus
+
+  billingProvider                 BillingProvider    @default(ASAAS)
+  billingProviderCustomerId       String?            @unique
+  billingProviderSubscriptionId   String?            @unique
+
+  currentPeriodStart              DateTime
+  currentPeriodEnd                DateTime
+  trialEndsAt                     DateTime?
+  canceledAt                      DateTime?
+  endedAt                         DateTime?
+
+  // Versioned JSON shapes; v1 documented in app-layer Zod discriminated union.
+  aiOverageConfig                 Json?
+  customQuotas                    Json?
+  customQuotasVersion             Int                @default(1)
+
+  // Mirrors Organization.billingManagedExternally (Fase 1) for query convenience
+  // on subscription-scoped lookups. Source of truth stays on Organization.
+  billingManagedExternally        Boolean            @default(false)
+  externalNotes                   String?
+
+  createdAt                       DateTime           @default(now())
+  updatedAt                       DateTime           @updatedAt
+
+  organization                    Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plan                            Plan               @relation(fields: [planId], references: [id])
+  invoices                        Invoice[]
+  paymentMethods                  PaymentMethod[]
+
+  @@index([status])
+  @@index([currentPeriodEnd])
+  @@index([billingProviderSubscriptionId])
+  @@index([planId])
+}
+
+model Invoice {
+  id              String        @id @default(cuid())
+  organizationId  String
+  subscriptionId  String
+
+  billingProvider           BillingProvider @default(ASAAS)
+  billingProviderPaymentId  String?         @unique
+  amountCents     Int
+  status          InvoiceStatus @default(PENDING)
+
+  dueDate         DateTime
+  paidAt          DateTime?
+
+  periodStart     DateTime
+  periodEnd       DateTime
+
+  paymentMethod   PaymentMethodType?
+
+  baseAmountCents     Int
+  overageAmountCents  Int   @default(0)
+  // overageItems shape v1: [{type: 'ai_overage', quantity, unitCents}]
+  overageItems        Json  @default("[]")
+
+  invoiceUrl      String?
+  receiptUrl      String?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  subscription    Subscription  @relation(fields: [subscriptionId], references: [id])
+
+  @@index([organizationId, createdAt])
+  @@index([subscriptionId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model PaymentMethod {
+  id              String             @id @default(cuid())
+  organizationId  String
+  subscriptionId  String
+
+  type            PaymentMethodType
+
+  billingProvider         BillingProvider @default(ASAAS)
+  // AES-256-GCM ciphertext (IV prefixed, base64). Mirrors ENCRYPTION_KEY pattern
+  // used for CPF/CNPJ (SECURITY-SPEC §2). SE9: DB leak without ENCRYPTION_KEY
+  // does not yield usable provider tokens.
+  providerTokenEncrypted  String?
+
+  brand           String?
+  last4           String?
+  expiryMonth     Int?
+  expiryYear      Int?
+
+  // PII — flows through LGPD deletion (SE-H3). Masked in presenter for non-OWNER.
+  holderName      String?
+
+  isDefault       Boolean            @default(false)
+  active          Boolean            @default(true)
+
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  organization    Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  subscription    Subscription       @relation(fields: [subscriptionId], references: [id])
+
+  @@index([organizationId, isDefault])
+  @@index([subscriptionId])
+}
+
+// Webhook dedup + retry safety. PERMISSIVE access pattern (worker reads without
+// tenant context); queries filter organizationId explicitly when applicable.
+model WebhookEvent {
+  id              String   @id @default(cuid())
+
+  source          String
+  externalId      String
+  eventType       String
+
+  organizationId  String?
+  payload         Json
+  signatureValid  Boolean
+
+  processedAt     DateTime?
+  processingError String?
+
+  receivedAt      DateTime @default(now())
+
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  @@unique([source, externalId])
+  @@index([source, processedAt])
+  @@index([organizationId, receivedAt])
 }
