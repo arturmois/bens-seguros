@@ -35,7 +35,9 @@ import {
 import { webhookRoutes } from './infra/http/routes/webhook-routes.js'
 import { rateLimitHook } from './infra/http/routes/widget-helpers.js'
 import { widgetRoutes } from './infra/http/routes/widget-routes.js'
+import { prismaAdmin } from '@repo/db'
 import { PINO_REDACT_CONFIG } from './infra/logger.js'
+import { createMembershipValidator } from './infra/socket/membership-validator.js'
 import type { PresenceTracker } from './infra/socket/presence-tracker.js'
 import { createSocketAuthMiddleware } from './infra/socket/socket-auth.js'
 import { setupSocketHandlers } from './infra/socket/socket-handler.js'
@@ -219,7 +221,12 @@ export async function buildChatApp(
   await app.register(channelRoutes)
   await app.register(aiAgentRoutes)
   await app.register(metaRoutes)
-  io.use(createSocketAuthMiddleware(app.log))
+  const membershipValidator = createMembershipValidator({
+    prisma: prismaAdmin,
+    redis: options.redisGeneral,
+    logger: app.log,
+  })
+  io.use(createSocketAuthMiddleware(app.log, membershipValidator))
   const presence = setupSocketHandlers(io, app.log, options.redisGeneral)
   setupWidgetNamespace({
     io,

@@ -16,6 +16,7 @@
     "@fastify/cors": "^11.0.0",
     "@fastify/helmet": "^13.0.0",
     "@fastify/static": "^9.0.0",
+    "@repo/db": "workspace:*",
     "@repo/db-chat": "workspace:*",
     "@repo/env": "workspace:*",
     "@repo/shared": "workspace:*",

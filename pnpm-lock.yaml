@@ -51,6 +51,9 @@ importers:
       '@fastify/static':
         specifier: ^9.0.0
         version: 9.0.0
+      '@repo/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@repo/db-chat':
         specifier: workspace:*
         version: link:../../packages/db-chat

@@ -8,7 +8,7 @@ export default defineConfig({
   clean: true,
   splitting: false,
   sourcemap: true,
-  noExternal: ['@repo/db-chat', '@repo/env', '@repo/shared'],
+  noExternal: ['@repo/db', '@repo/db-chat', '@repo/env', '@repo/shared'],
   external: [
     'fastify',
     '@fastify/*',
@@ -19,5 +19,9 @@ export default defineConfig({
     '@socket.io/*',
     'pino',
     'zod',
+    '@prisma/client',
+    '@prisma/adapter-pg',
+    'pg',
+    'prisma',
   ],
 })
