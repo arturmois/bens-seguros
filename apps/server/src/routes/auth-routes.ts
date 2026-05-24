@@ -2,6 +2,7 @@ import type { Auth } from '@repo/auth'
 import type { FastifyInstance } from 'fastify'
 import type IORedis from 'ioredis'
 import { createAuthRateLimitHook } from '../middlewares/auth-rate-limit.js'
+import { signupGateHook } from '../middlewares/signup-gate.js'
 
 export function registerAuthRoutes(
   app: FastifyInstance,
@@ -15,7 +16,7 @@ export function registerAuthRoutes(
     schema: {
       hide: true,
     },
-    preHandler: authRateLimitHook,
+    preHandler: [authRateLimitHook, signupGateHook],
     async handler(request, reply) {
       const url = new URL(request.url, `http://${request.headers.host}`)
       const headers = new Headers()

@@ -129,6 +129,12 @@ model Organization {
   logo      String?
   active    Boolean  @default(true)
   metadata  Json?
+  // Fase 1 (billing foundation): orgs with a commercial agreement outside the
+  // platform (legacy customer, partner, corporate contract). When true,
+  // subscription/quota middleware bypasses billing; tier gating still applies
+  // via custom entitlements from Fase 3+.
+  billingManagedExternally Boolean @default(false)
+  externalNotes            String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

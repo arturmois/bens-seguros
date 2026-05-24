@@ -59,6 +59,7 @@ export const env = createEnv({
     CONSULTAR_PLACA_EMAIL: z.string().email().optional(),
     CONSULTAR_PLACA_API_KEY: z.string().min(1).optional(),
     MAX_ORGS_PER_USER: z.coerce.number().int().positive().default(3),
+    SIGNUP_MODE: z.enum(['closed', 'self_serve']).default('self_serve'),
   },
   clientPrefix: 'NEXT_PUBLIC_',
   client: {
