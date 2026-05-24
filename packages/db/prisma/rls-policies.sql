@@ -14,17 +14,22 @@
 --   3. If app.current_tenant is not set, current_setting(..., true) returns NULL
 --      which matches 0 rows — safe default (deny all)
 --
--- Tables with RLS enabled (16):
+-- Tables with RLS enabled (23):
 --
 --   STRICT policy (no IS NULL escape — always queried through tenantPrisma):
 --     Client, Contact, Proposal, ProposalChecklistItem, Policy, Claim, Commission,
 --     Endorsement, Assistance, Document, Notification, AuditLog,
---     Occurrence, Insurer
+--     Occurrence, Insurer, Goal, AiUsageRecord,
+--     Subscription, Invoice, PaymentMethod
 --
 --   PERMISSIVE policy (with IS NULL escape):
 --     Member         — Better Auth queries without tenant context
 --     Invitation     — Better Auth queries without tenant context
 --     AuditLogArchive — worker batch jobs use global prisma
+--     WebhookEvent   — billing webhook worker uses global prisma
+--
+-- Tables WITHOUT RLS (global / non-tenant):
+--     Plan           — global catalog (SE5 lockdown via REVOKE WRITE on app_user)
 --
 -- Verify policies are active:
 --   SELECT tablename, policyname, permissive, cmd, qual
@@ -54,6 +59,9 @@ ALTER TABLE "Occurrence" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Insurer" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Goal" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "AiUsageRecord" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Subscription" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Invoice" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "PaymentMethod" ENABLE ROW LEVEL SECURITY;
 
 -- Tenant isolation policies
 -- Each CREATE POLICY is prefixed with DROP POLICY IF EXISTS so this script is
@@ -125,6 +133,18 @@ DROP POLICY IF EXISTS tenant_isolation ON "AiUsageRecord";
 CREATE POLICY tenant_isolation ON "AiUsageRecord"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
+DROP POLICY IF EXISTS tenant_isolation ON "Subscription";
+CREATE POLICY tenant_isolation ON "Subscription"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+DROP POLICY IF EXISTS tenant_isolation ON "Invoice";
+CREATE POLICY tenant_isolation ON "Invoice"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
+DROP POLICY IF EXISTS tenant_isolation ON "PaymentMethod";
+CREATE POLICY tenant_isolation ON "PaymentMethod"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
 -- Force RLS for table owner too (defense-in-depth)
 ALTER TABLE "Client" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Contact" FORCE ROW LEVEL SECURITY;
@@ -142,6 +162,9 @@ ALTER TABLE "Occurrence" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Insurer" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Goal" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "AiUsageRecord" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Subscription" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Invoice" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "PaymentMethod" FORCE ROW LEVEL SECURITY;
 
 -- ============================================================================
 -- PERMISSIVE policies (with IS NULL escape)
@@ -174,6 +197,16 @@ CREATE POLICY tenant_isolation ON "AuditLogArchive"
          OR current_setting('app.current_tenant', true) IS NULL);
 ALTER TABLE "AuditLogArchive" FORCE ROW LEVEL SECURITY;
 
+-- WebhookEvent — billing webhook worker uses global prisma; reads without tenant
+-- context for ingestion and dedup. App-layer queries filter organizationId
+-- explicitly when applicable.
+ALTER TABLE "WebhookEvent" ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS tenant_isolation ON "WebhookEvent";
+CREATE POLICY tenant_isolation ON "WebhookEvent"
+  USING ("organizationId" = current_setting('app.current_tenant', true)
+         OR current_setting('app.current_tenant', true) IS NULL);
+ALTER TABLE "WebhookEvent" FORCE ROW LEVEL SECURITY;
+
 -- ============================================================================
 -- GRANTS for app_user (non-superuser runtime role)
 -- ============================================================================
@@ -192,7 +225,22 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public
   GRANT USAGE, SELECT ON SEQUENCES TO app_user;
 
 -- ============================================================================
--- To DROP all policies (rollback):
+-- SE5: Plan write lockdown (Fase 2B)
+-- ============================================================================
+-- app_user gets SELECT only on Plan. INSERT/UPDATE/DELETE require the admin
+-- role (DATABASE_ADMIN_URL → prismaAdmin), which is used by:
+--   1. Super-admin endpoints `POST/PUT /api/internal/admin/plans/*` (Fase 4),
+--      already protected by requireSuperAdmin + requireSuperAdmin2FA (SE4a).
+--   2. Versioned migration scripts committed under packages/db/billing-migrations/
+--      and run via SSH on prod.
+-- Bug or injection in app code therefore cannot zero out prices or swap quotas.
+-- NOTE: this REVOKE is per-table and idempotent — it does NOT propagate via
+-- ALTER DEFAULT PRIVILEGES. Any future billing-sensitive table that needs the
+-- same lockdown (e.g. PricingTier, Coupon) must add its own REVOKE here.
+REVOKE INSERT, UPDATE, DELETE ON "Plan" FROM app_user;
+
+-- ============================================================================
+-- To DROP all policies (rollback) — keep in sync with header table list:
 -- ============================================================================
 -- DROP POLICY IF EXISTS tenant_isolation ON "Client";
 -- DROP POLICY IF EXISTS tenant_isolation ON "Contact";
@@ -208,9 +256,15 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public
 -- DROP POLICY IF EXISTS tenant_isolation ON "AuditLog";
 -- DROP POLICY IF EXISTS tenant_isolation ON "Occurrence";
 -- DROP POLICY IF EXISTS tenant_isolation ON "Insurer";
+-- DROP POLICY IF EXISTS tenant_isolation ON "Goal";
+-- DROP POLICY IF EXISTS tenant_isolation ON "AiUsageRecord";
+-- DROP POLICY IF EXISTS tenant_isolation ON "Subscription";
+-- DROP POLICY IF EXISTS tenant_isolation ON "Invoice";
+-- DROP POLICY IF EXISTS tenant_isolation ON "PaymentMethod";
 -- DROP POLICY IF EXISTS tenant_isolation ON "Member";
 -- DROP POLICY IF EXISTS tenant_isolation ON "Invitation";
 -- DROP POLICY IF EXISTS tenant_isolation ON "AuditLogArchive";
+-- DROP POLICY IF EXISTS tenant_isolation ON "WebhookEvent";
 --
 -- ALTER TABLE "Client" DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE "Contact" DISABLE ROW LEVEL SECURITY;
@@ -226,6 +280,15 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public
 -- ALTER TABLE "AuditLog" DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE "Occurrence" DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE "Insurer" DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE "Goal" DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE "AiUsageRecord" DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE "Subscription" DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE "Invoice" DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE "PaymentMethod" DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE "Member" DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE "Invitation" DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE "AuditLogArchive" DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE "WebhookEvent" DISABLE ROW LEVEL SECURITY;
+--
+-- To rollback SE5 Plan write lockdown:
+-- GRANT INSERT, UPDATE, DELETE ON "Plan" TO app_user;
