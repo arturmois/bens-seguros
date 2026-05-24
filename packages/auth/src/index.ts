@@ -4,6 +4,7 @@ import { betterAuth, type BetterAuthOptions } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { customSession, organization } from 'better-auth/plugins'
 import { createAccessControl, role } from 'better-auth/plugins/access'
+import { pickPublicSessionUser } from './public-session-user.js'
 
 const ORGANIZATION_STATEMENTS = {
   organization: ['update', 'delete'],
@@ -138,7 +139,7 @@ export function createAuth(
       ...(options.plugins ?? []),
       customSession(async ({ user, session }) => {
         return {
-          user,
+          user: pickPublicSessionUser(user),
           session: {
             id: session.id,
             userId: session.userId,
