@@ -13,11 +13,11 @@ interface SettingsPageProps {
 
 function SettingsContent({ section }: { readonly section: string }) {
   switch (section) {
-    case 'agentes-ia':
+    case 'agents':
       return <AiAgentsPage />
-    case 'membros':
+    case 'members':
       return <MembersPage />
-    case 'organizacao':
+    case 'organization':
       return <OrganizationPage />
     default:
       return <ChannelsPage />
@@ -28,7 +28,7 @@ export default async function SettingsPage({
   searchParams,
 }: SettingsPageProps) {
   const params = await searchParams
-  const section = params.section ?? 'canais'
+  const section = params.section ?? 'channels'
   return (
     <SettingsLayout activeSection={section}>
       <SettingsContent section={section} />

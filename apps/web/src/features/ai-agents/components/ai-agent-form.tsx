@@ -95,7 +95,7 @@ export function AiAgentForm({
               onSuccess(updated)
               return
             }
-            router.push('/settings?section=agentes-ia')
+            router.push('/settings?section=agents')
           },
         }
       )
@@ -107,7 +107,7 @@ export function AiAgentForm({
           onSuccess(created)
           return
         }
-        router.push('/settings?section=agentes-ia')
+        router.push('/settings?section=agents')
       },
     })
   }
@@ -116,7 +116,7 @@ export function AiAgentForm({
       onCancel()
       return
     }
-    router.push('/settings?section=agentes-ia')
+    router.push('/settings?section=agents')
   }
   const linkedChannels = agentDetail.data?.linkedChannels ?? []
   const errors = form.formState.errors

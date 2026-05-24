@@ -25,13 +25,13 @@ export function useMetaOAuthRedirect({
     if (metaError) {
       hasProcessedRef.current = true
       toast.error(`Erro na autenticação Meta: ${metaError}`)
-      window.history.replaceState({}, '', '/settings?section=canais')
+      window.history.replaceState({}, '', '/settings?section=channels')
       return
     }
     if (metaSession && metaChannelType) {
       hasProcessedRef.current = true
       onSuccess(metaSession, metaChannelType)
-      window.history.replaceState({}, '', '/settings?section=canais')
+      window.history.replaceState({}, '', '/settings?section=channels')
     }
   }, [searchParams, onSuccess])
 }

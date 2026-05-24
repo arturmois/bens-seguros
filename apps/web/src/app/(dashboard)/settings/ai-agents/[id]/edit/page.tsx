@@ -13,7 +13,7 @@ interface EditAiAgentPageProps {
   readonly params: Promise<{ id: string }>
 }
 
-const BACK_HREF = '/settings?section=agentes-ia'
+const BACK_HREF = '/settings?section=agents'
 
 export default function EditAiAgentPage({ params }: EditAiAgentPageProps) {
   const { id } = use(params)

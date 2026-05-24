@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Brain, Building2, Radio, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-type SettingsSection = 'canais' | 'agentes-ia' | 'membros' | 'organizacao'
+type SettingsSection = 'channels' | 'agents' | 'members' | 'organization'
 
 interface SettingsSidebarItem {
   readonly id: SettingsSection
@@ -16,32 +16,32 @@ interface SettingsSidebarItem {
 
 const SETTINGS_SECTIONS: readonly SettingsSidebarItem[] = [
   {
-    id: 'canais',
+    id: 'channels',
     label: 'Canais',
     icon: Radio,
     disabled: false,
-    href: '/settings?section=canais',
+    href: '/settings?section=channels',
   },
   {
-    id: 'agentes-ia',
+    id: 'agents',
     label: 'Agentes IA',
     icon: Brain,
     disabled: false,
-    href: '/settings?section=agentes-ia',
+    href: '/settings?section=agents',
   },
   {
-    id: 'membros',
+    id: 'members',
     label: 'Membros',
     icon: Users,
     disabled: false,
-    href: '/settings?section=membros',
+    href: '/settings?section=members',
   },
   {
-    id: 'organizacao',
+    id: 'organization',
     label: 'Organização',
     icon: Building2,
     disabled: false,
-    href: '/settings?section=organizacao',
+    href: '/settings?section=organization',
   },
 ] as const
 

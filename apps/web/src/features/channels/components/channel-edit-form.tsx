@@ -97,7 +97,7 @@ export function ChannelEditForm({
             onSuccess()
             return
           }
-          router.push('/settings?section=canais')
+          router.push('/settings?section=channels')
         },
       }
     )
@@ -107,7 +107,7 @@ export function ChannelEditForm({
       onCancel()
       return
     }
-    router.push('/settings?section=canais')
+    router.push('/settings?section=channels')
   }
   const errors = form.formState.errors
   return (

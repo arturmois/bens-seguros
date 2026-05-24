@@ -32,7 +32,7 @@ export default function EditChannelPage({ params }: EditChannelPageProps) {
         </p>
         <Button
           variant="link"
-          onClick={() => router.push('/settings?section=canais')}
+          onClick={() => router.push('/settings?section=channels')}
         >
           Voltar para canais
         </Button>
@@ -43,7 +43,7 @@ export default function EditChannelPage({ params }: EditChannelPageProps) {
     <FormPageShell
       breadcrumb={[
         { label: 'Configurações', href: '/settings' },
-        { label: 'Canais', href: '/settings?section=canais' },
+        { label: 'Canais', href: '/settings?section=channels' },
         { label: channel.name },
         { label: 'Editar' },
       ]}
@@ -54,8 +54,8 @@ export default function EditChannelPage({ params }: EditChannelPageProps) {
     >
       <ChannelEditForm
         initial={channel}
-        onSuccess={() => router.push('/settings?section=canais')}
-        onCancel={() => router.push('/settings?section=canais')}
+        onSuccess={() => router.push('/settings?section=channels')}
+        onCancel={() => router.push('/settings?section=channels')}
       />
     </FormPageShell>
   )
