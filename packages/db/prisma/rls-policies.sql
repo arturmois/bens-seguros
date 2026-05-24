@@ -53,6 +53,7 @@ ALTER TABLE "AuditLog" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Occurrence" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Insurer" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Goal" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "AiUsageRecord" ENABLE ROW LEVEL SECURITY;
 
 -- Tenant isolation policies
 -- Each CREATE POLICY is prefixed with DROP POLICY IF EXISTS so this script is
@@ -120,6 +121,10 @@ DROP POLICY IF EXISTS tenant_isolation ON "Goal";
 CREATE POLICY tenant_isolation ON "Goal"
   USING ("organizationId" = current_setting('app.current_tenant', true));
 
+DROP POLICY IF EXISTS tenant_isolation ON "AiUsageRecord";
+CREATE POLICY tenant_isolation ON "AiUsageRecord"
+  USING ("organizationId" = current_setting('app.current_tenant', true));
+
 -- Force RLS for table owner too (defense-in-depth)
 ALTER TABLE "Client" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Contact" FORCE ROW LEVEL SECURITY;
@@ -136,6 +141,7 @@ ALTER TABLE "AuditLog" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Occurrence" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Insurer" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Goal" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "AiUsageRecord" FORCE ROW LEVEL SECURITY;
 
 -- ============================================================================
 -- PERMISSIVE policies (with IS NULL escape)

@@ -8,7 +8,14 @@ export default defineConfig({
   clean: true,
   splitting: false,
   sourcemap: true,
-  noExternal: ['@repo/db-chat', '@repo/env', '@repo/shared', '@repo/ai'],
+  noExternal: [
+    '@repo/ai',
+    '@repo/core',
+    '@repo/db',
+    '@repo/db-chat',
+    '@repo/env',
+    '@repo/shared',
+  ],
   external: [
     'bullmq',
     'ioredis',
@@ -17,5 +24,9 @@ export default defineConfig({
     'pino',
     'zod',
     'reflect-metadata',
+    '@prisma/client',
+    '@prisma/adapter-pg',
+    'pg',
+    'prisma',
   ],
 })

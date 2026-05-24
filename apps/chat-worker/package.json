@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@repo/ai": "workspace:*",
+    "@repo/core": "workspace:*",
     "@repo/db": "workspace:*",
     "@repo/db-chat": "workspace:*",
     "@repo/env": "workspace:*",

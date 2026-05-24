@@ -30,6 +30,7 @@ export {
   CURRENT_TERMS_VERSION,
 } from './shared/legal-constants.js'
 
+export * from './modules/ai-usage/index.js'
 export * from './modules/assistance/index.js'
 export * from './modules/audit/index.js'
 export * from './modules/cep/index.js'

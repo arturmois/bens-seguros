@@ -14,3 +14,15 @@ export function getModel(provider: AIProvider = 'openai') {
       return openai('gpt-4o-mini')
   }
 }
+
+export function resolveProviderLabel(provider: AIProvider = 'openai'): {
+  readonly provider: string
+  readonly model: string
+} {
+  switch (provider) {
+    case 'claude':
+      return { provider: 'anthropic', model: 'claude-sonnet-4-20250514' }
+    case 'openai':
+      return { provider: 'openai', model: 'gpt-4o-mini' }
+  }
+}

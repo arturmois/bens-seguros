@@ -1,5 +1,5 @@
 import { generateText } from 'ai'
-import { getModel } from './providers.js'
+import { getModel, resolveProviderLabel } from './providers.js'
 import type {
   GenerateWithToolsOptions,
   GenerateWithToolsResult,
@@ -38,6 +38,26 @@ export async function generateWithTools(
         toolName: entry.toolName,
         result: entry.result,
       }))
+
+  if (options.usage) {
+    const label = resolveProviderLabel(options.provider)
+    const inputTokens = result.steps.reduce(
+      (sum, step) => sum + (step.usage?.promptTokens ?? 0),
+      0
+    )
+    const outputTokens = result.steps.reduce(
+      (sum, step) => sum + (step.usage?.completionTokens ?? 0),
+      0
+    )
+    await options.usage.onFinish({
+      metadata: options.usage.metadata,
+      provider: label.provider,
+      model: label.model,
+      inputTokens,
+      outputTokens,
+    })
+  }
+
   return {
     text: result.text,
     toolResults,

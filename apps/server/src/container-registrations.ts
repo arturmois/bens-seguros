@@ -45,6 +45,7 @@ import {
   GlobalSearch,
   type InvitationEmailNotifier,
   IssuePolicy,
+  ListAiUsageRecords,
   ListAssistances,
   ListAuditLogs,
   ListChecklistItems,
@@ -85,6 +86,7 @@ import {
   PrismaDashboardRepository,
   PrismaDocumentRepository,
   PrismaEndorsementRepository,
+  PrismaAiUsageRepository,
   PrismaGoalRepository,
   PrismaInsurerRepository,
   PrismaInvitationRepository,
@@ -172,6 +174,7 @@ export function registerDependencies(redis: Redis | null = null) {
   const insurerRepo = new PrismaInsurerRepository(prismaAdmin)
   const commissionRepo = new PrismaCommissionRepository(prismaAdmin)
   const goalRepo = new PrismaGoalRepository(prismaAdmin)
+  const aiUsageRepo = new PrismaAiUsageRepository(prismaAdmin)
   const storageProvider =
     env.STORAGE_PROVIDER === 'r2'
       ? new R2StorageProvider()
@@ -195,6 +198,7 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register('InsurerRepository', { useValue: insurerRepo })
   container.register('CommissionRepository', { useValue: commissionRepo })
   container.register('GoalRepository', { useValue: goalRepo })
+  container.register('AiUsageRepository', { useValue: aiUsageRepo })
   container.register('StorageProvider', { useValue: storageProvider })
   container.register(CreateClient, {
     useFactory: () => new CreateClient(clientRepo),
@@ -396,6 +400,9 @@ export function registerDependencies(redis: Redis | null = null) {
   })
   container.register(ListAuditLogs, {
     useFactory: () => new ListAuditLogs(auditLogRepo),
+  })
+  container.register(ListAiUsageRecords, {
+    useFactory: () => new ListAiUsageRecords(aiUsageRepo),
   })
   container.register(GlobalSearch, {
     useFactory: () => new GlobalSearch(searchRepo),

@@ -1,4 +1,5 @@
 import { generateWithTools } from '@repo/ai'
+import { recordAiUsage } from '../ai/record-ai-usage-adapter.js'
 import type { ContactSource } from '@repo/db'
 import {
   AiAgent,
@@ -200,6 +201,15 @@ export function createAiBotProcessor(
         maxTokens: config.maxTokens,
         temperature: config.temperature,
         maxSteps: 10,
+        usage: {
+          metadata: {
+            organizationId: tenantId,
+            conversationId,
+            channelId,
+            agentId: String(channel.aiAgentId),
+          },
+          onFinish: recordAiUsage,
+        },
       })
     } catch (err: unknown) {
       logger.error(

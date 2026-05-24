@@ -123,6 +123,7 @@ model Organization {
   clients                Client[]
   contacts               Contact[]
   goals                  Goal[]
+  aiUsageRecords         AiUsageRecord[]
 }
 
 model Member {
@@ -275,6 +276,12 @@ enum ContactSource {
   FORM_WEB
   IMPORT
   REFERRAL
+}
+
+enum UsageUnitType {
+  TOKEN
+  CHARACTER
+  IMAGE
 }
 
 model Client {
@@ -671,6 +678,31 @@ model Goal {
 
   @@unique([organizationId, year, month, boardType])
   @@index([organizationId, year])
+}
+
+model AiUsageRecord {
+  id                   String        @id @default(cuid())
+  organizationId       String
+  periodKey            String
+  channelIdHash        String?
+  conversationIdHash   String?
+  messageIdHash        String?
+  agentIdHash          String?
+  provider             String
+  model                String
+  inputQuantity        Int
+  outputQuantity       Int
+  unitType             UsageUnitType
+  inputCostMicrocents  Int
+  outputCostMicrocents Int
+  countedAsIncluded    Boolean?      @default(true)
+  overageCents         Int?
+  createdAt            DateTime      @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, createdAt])
+  @@index([organizationId, periodKey])
 }
 
 model AuditLogArchive {

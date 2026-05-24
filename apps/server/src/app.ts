@@ -33,6 +33,7 @@ import { createAuthMiddleware } from './middlewares/auth-middleware.js'
 import { tenantMiddleware } from './middlewares/tenant-middleware.js'
 import { applySecurityHeaders } from './plugins/security-headers.js'
 import { registerAuthRoutes } from './routes/auth-routes.js'
+import { adminAiUsageRoutes } from './routes/v1/admin/ai-usage/index.js'
 import { assistanceRoutes } from './routes/v1/assistances/index.js'
 import { auditLogRoutes } from './routes/v1/audit-logs/index.js'
 import { cepRoutes } from './routes/v1/cep/index.js'
@@ -335,6 +336,7 @@ export async function buildApp() {
     await authenticatedApp.register(chatTokenRoute)
     await authenticatedApp.register(statsRoutes)
     await authenticatedApp.register(auditLogRoutes)
+    await authenticatedApp.register(adminAiUsageRoutes)
     await authenticatedApp.register(notificationRoutes)
     await authenticatedApp.register(searchRoutes)
     await authenticatedApp.register(cepRoutes)
