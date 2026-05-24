@@ -23,7 +23,13 @@ export async function aiAgentRoutes(app: FastifyInstance): Promise<void> {
         _id: string
         count: number
       }>([
-        { $match: { tenantId, aiAgentId: { $in: agentIds } } },
+        {
+          $match: {
+            tenantId,
+            isActive: { $ne: false },
+            aiAgentId: { $in: agentIds },
+          },
+        },
         {
           $group: {
             _id: '$aiAgentId',

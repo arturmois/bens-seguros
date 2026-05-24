@@ -71,7 +71,7 @@ export async function getLinkedChannels(
   agentId: string
 ): Promise<ReadonlyArray<{ id: string; name: string }>> {
   const channels = await Channel.find(
-    { tenantId, aiAgentId: agentId },
+    { tenantId, aiAgentId: agentId, isActive: { $ne: false } },
     { name: 1 }
   )
     .lean()

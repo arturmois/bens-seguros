@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
+import { AI_AGENTS_KEY } from '@/features/ai-agents/hooks/query-keys'
 import { chatApi, ChatApiError } from '@/features/chat/lib/chat-api'
 
 import type {
@@ -76,6 +77,7 @@ export function useUpdateChannel() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CHANNELS_KEY] })
+      queryClient.invalidateQueries({ queryKey: [AI_AGENTS_KEY] })
       toast.success('Canal atualizado com sucesso')
     },
     onError: (error: unknown) => {
@@ -97,6 +99,7 @@ export function useDeactivateChannel() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CHANNELS_KEY] })
+      queryClient.invalidateQueries({ queryKey: [AI_AGENTS_KEY] })
       toast.success('Canal desativado com sucesso')
     },
     onError: () => {

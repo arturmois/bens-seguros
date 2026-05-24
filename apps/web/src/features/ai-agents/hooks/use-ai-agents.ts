@@ -13,7 +13,7 @@ import type {
   UpdateAiAgentPayload,
 } from '../types'
 
-const AI_AGENTS_KEY = 'ai-agents'
+import { AI_AGENTS_KEY } from './query-keys'
 
 export function useAiAgents() {
   return useQuery({
