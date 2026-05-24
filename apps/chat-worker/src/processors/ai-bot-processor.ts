@@ -1,5 +1,4 @@
 import { generateWithTools } from '@repo/ai'
-import { recordAiUsage } from '../ai/record-ai-usage-adapter.js'
 import type { ContactSource } from '@repo/db'
 import {
   AiAgent,
@@ -12,12 +11,14 @@ import {
 import { CHAT_PUBSUB_CHANNELS, CHAT_QUEUES } from '@repo/shared'
 import { type Job, type Queue } from 'bullmq'
 import pino from 'pino'
+import { recordAiUsage } from '../ai/record-ai-usage-adapter.js'
 import { createCaptureLeadTool } from '../tools/capture-lead.js'
 import { createCollectInsuredAssetDataTool } from '../tools/collect-insured-asset-data.js'
 import { createEscalateToHumanTool } from '../tools/escalate-to-human.js'
 import { createListProductsTool } from '../tools/list-products.js'
 import { createSearchClientTool } from '../tools/search-client.js'
 import {
+  CAPTURE_LEAD_TOOL_NAME,
   CONFIGURABLE_TOOL_NAMES,
   MANDATORY_TOOLS,
 } from '../tools/tool-registry.js'
@@ -40,6 +41,15 @@ const DEFAULT_JOB_OPTIONS = {
   backoff: { type: 'exponential' as const, delay: 1000 },
   removeOnComplete: { age: 3600 },
   removeOnFail: { age: 86_400 },
+}
+
+function isCaptureLeadResultTransferred(result: unknown): boolean {
+  return (
+    typeof result === 'object' &&
+    result !== null &&
+    'transferred' in result &&
+    result.transferred === true
+  )
 }
 
 function channelTypeToContactSource(channelType: ChannelType): ContactSource {
@@ -170,10 +180,12 @@ export function createAiBotProcessor(
         pubsubClient
       ),
       listProducts: createListProductsTool(),
-      captureLead: createCaptureLeadTool(
+      [CAPTURE_LEAD_TOOL_NAME]: createCaptureLeadTool(
         tenantId,
         contactPhone,
-        channelTypeToContactSource(channel.type)
+        channelTypeToContactSource(channel.type),
+        conversationId,
+        pubsubClient
       ),
       searchClient: createSearchClientTool(tenantId),
       collectInsuredAssetData: createCollectInsuredAssetDataTool(tenantId),
@@ -220,7 +232,10 @@ export function createAiBotProcessor(
       return
     }
     const wasEscalated = result.toolResults.some(
-      (tr) => tr.toolName === ESCALATION_TOOL_NAME
+      (tr) =>
+        tr.toolName === ESCALATION_TOOL_NAME ||
+        (tr.toolName === CAPTURE_LEAD_TOOL_NAME &&
+          isCaptureLeadResultTransferred(tr.result))
     )
     if (wasEscalated) {
       logger.info(

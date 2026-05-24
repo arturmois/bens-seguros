@@ -1,5 +1,7 @@
 export const MANDATORY_TOOLS = ['escalateToHuman'] as const
 
+export const CAPTURE_LEAD_TOOL_NAME = 'captureLead' as const
+
 export interface ToolRegistryEntry {
   readonly name: string
   readonly label: string

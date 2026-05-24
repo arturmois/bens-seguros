@@ -1,7 +1,8 @@
+import { Conversation } from '@repo/db-chat'
 import { tool } from 'ai'
 import { z } from 'zod'
-import { Conversation, Message } from '@repo/db-chat'
-import { CHAT_PUBSUB_CHANNELS } from '@repo/shared'
+
+import { transferConversationToHuman } from '../processors/transfer-to-human-helper.js'
 import type { PubsubClient } from '../types/pubsub-client.js'
 
 export function createEscalateToHumanTool(
@@ -13,7 +14,7 @@ export function createEscalateToHumanTool(
     description:
       'Transfere o atendimento para um atendente humano. Use quando: cliente pede explicitamente, assunto exige decisão humana, você não consegue resolver, ou tema é sensível (sinistro, reclamação).',
     parameters: z.object({
-      reason: z.string().describe('Motivo da transferencia para registro'),
+      reason: z.string().describe('Motivo da transferência para registro'),
     }),
     execute: async ({ reason }) => {
       const conversation = await Conversation.findOne({
@@ -29,41 +30,16 @@ export function createEscalateToHumanTool(
           detail: 'Conversa não está em atendimento por IA',
         }
       }
-      await Conversation.updateOne(
-        { _id: conversationId, tenantId, status: 'BOT_ACTIVE' },
-        { $set: { status: 'WAITING_HUMAN' } }
-      ).exec()
-      const systemText = `Transferido para um atendente. Motivo: ${reason}`
-      const systemMessage = await Message.create({
+      const result = await transferConversationToHuman(
         conversationId,
         tenantId,
-        senderType: 'SYSTEM',
-        text: systemText,
-        type: 'TEXT',
-        status: 'DELIVERED',
-      })
-      await pubsubClient.publish(
-        CHAT_PUBSUB_CHANNELS.INCOMING_MESSAGE,
-        JSON.stringify({
-          id: String(systemMessage._id),
-          conversationId,
-          tenantId,
-          senderType: 'SYSTEM',
-          senderName: null,
-          senderId: null,
-          text: systemText,
-          type: 'TEXT',
-          status: 'DELIVERED',
-          externalId: null,
-          createdAt:
-            systemMessage.createdAt?.toISOString() ?? new Date().toISOString(),
-        })
+        pubsubClient,
+        {
+          reason,
+          systemMessage: `Transferido para um atendente. Motivo: ${reason}`,
+        }
       )
-      await pubsubClient.publish(
-        CHAT_PUBSUB_CHANNELS.CONVERSATION_UPDATE,
-        JSON.stringify({ tenantId, conversationId, status: 'WAITING_HUMAN' })
-      )
-      return { transferred: true, reason }
+      return { transferred: result.transferred, reason }
     },
   })
 }

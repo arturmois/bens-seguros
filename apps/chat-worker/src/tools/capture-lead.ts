@@ -6,6 +6,9 @@ import { tool } from 'ai'
 import pino from 'pino'
 import { z } from 'zod'
 
+import { transferConversationToHuman } from '../processors/transfer-to-human-helper.js'
+import type { PubsubClient } from '../types/pubsub-client.js'
+
 const logger = pino({ name: 'capture-lead-tool' })
 
 const FETCH_TIMEOUT_MS = 10_000
@@ -13,7 +16,9 @@ const FETCH_TIMEOUT_MS = 10_000
 export function createCaptureLeadTool(
   tenantId: string,
   contactPhone: string,
-  source: ContactSource
+  source: ContactSource,
+  conversationId: string,
+  pubsubClient: PubsubClient
 ) {
   return tool({
     description:
@@ -126,12 +131,23 @@ export function createCaptureLeadTool(
             )
           }
         }
+        const transferResult = await transferConversationToHuman(
+          conversationId,
+          tenantId,
+          pubsubClient,
+          {
+            reason: 'lead_captured',
+            systemMessage:
+              'Cotação registrada. Um atendente vai dar continuidade em breve.',
+          }
+        )
         return {
           success: true,
           proposalId,
+          transferred: transferResult.transferred,
           message: proposalId
-            ? `Proposta ${proposalId} registrada com sucesso para ${clientName} - ${insuranceType}`
-            : `Proposta registrada com sucesso para ${clientName} - ${insuranceType}`,
+            ? `Proposta ${proposalId} registrada com sucesso para ${clientName} - ${insuranceType}. Atendimento transferido para humano.`
+            : `Proposta registrada com sucesso para ${clientName} - ${insuranceType}. Atendimento transferido para humano.`,
         }
       } catch (err: unknown) {
         logger.error(
