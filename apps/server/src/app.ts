@@ -16,7 +16,7 @@ import { RATE_LIMITS } from '@repo/shared'
 import { PINO_REDACT_CONFIG } from '@repo/shared/pino-redact'
 import * as Sentry from '@sentry/node'
 import IORedis from 'ioredis'
-import type { FastifyError, FastifyRequest } from 'fastify'
+import type { FastifyError } from 'fastify'
 import Fastify from 'fastify'
 import {
   hasZodFastifySchemaValidationErrors,
@@ -30,6 +30,8 @@ import { setupBullBoard } from './bull-board.js'
 import { registerDependencies } from './container-registrations.js'
 import { requireAbility } from './middlewares/ability-middleware.js'
 import { createAuthMiddleware } from './middlewares/auth-middleware.js'
+import { internalAuthMiddleware } from './middlewares/internal-auth-middleware.js'
+import { createInternalRateLimitHook } from './middlewares/internal-rate-limit.js'
 import { tenantMiddleware } from './middlewares/tenant-middleware.js'
 import { applySecurityHeaders } from './plugins/security-headers.js'
 import { registerAuthRoutes } from './routes/auth-routes.js'
@@ -344,24 +346,8 @@ export async function buildApp() {
     await authenticatedApp.register(termsRoutes)
   })
   await app.register(async (internalApp) => {
-    await internalApp.register(rateLimit, {
-      max: RATE_LIMITS.INTERNAL.max,
-      timeWindow: `${String(RATE_LIMITS.INTERNAL.windowSeconds)} seconds`,
-      redis,
-      nameSpace: 'rl:internal:',
-      keyGenerator: (request: FastifyRequest) => request.ip,
-      errorResponseBuilder: (
-        _request: FastifyRequest,
-        context: { ttl: number }
-      ) => ({
-        success: false,
-        error: {
-          code: 'RATE_LIMIT_EXCEEDED',
-          message: `Too many requests. Try again in ${String(Math.ceil(context.ttl / 1000))} seconds.`,
-          retryAfter: Math.ceil(context.ttl / 1000),
-        },
-      }),
-    })
+    internalApp.addHook('preHandler', internalAuthMiddleware)
+    internalApp.addHook('preHandler', createInternalRateLimitHook(redis))
     await internalApp.register(internalLeadRoutes)
     await internalApp.register(internalContactRoutes)
   })
