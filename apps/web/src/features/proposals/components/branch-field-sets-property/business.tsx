@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { AddressFieldsWithCep } from '@/features/address/components/address-fields-with-cep'
-import { CNPJ_MASK } from '@/lib/masks'
+import { CNPJ_MASK, formatDocumentForMask } from '@/lib/masks'
 
 import {
   BUSINESS_SEGMENT_LABELS,
@@ -75,7 +75,7 @@ export function BusinessFields({
                   replacement={CNPJ_MASK.replacement}
                   placeholder="00.000.000/0000-00"
                   {...field}
-                  value={String(field.value ?? '')}
+                  value={formatDocumentForMask(field.value)}
                 />
                 {isCompanyClient && (
                   <AutoFilledBadge

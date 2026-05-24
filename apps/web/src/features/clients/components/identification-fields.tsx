@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { CNPJ_MASK, CPF_MASK } from '@/lib/masks'
+import { CNPJ_MASK, CPF_MASK, formatDocumentForMask } from '@/lib/masks'
 
 import { PERSON_TYPE_OPTIONS } from '../lib/constants'
 import type { ClientFormValues } from '../lib/types'
@@ -115,7 +115,9 @@ export function IdentificationFields({ disabled }: IdentificationFieldsProps) {
                 aria-invalid={errors.document ? 'true' : undefined}
                 aria-describedby={errors.document ? `${id}-error` : undefined}
                 {...field}
-                value={typeof field.value === 'string' ? field.value : ''}
+                value={formatDocumentForMask(
+                  typeof field.value === 'string' ? field.value : ''
+                )}
               />
             )}
           />
