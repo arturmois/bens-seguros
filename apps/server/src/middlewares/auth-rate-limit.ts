@@ -7,47 +7,67 @@ interface RateLimitConfig {
   readonly windowSeconds: number
 }
 
-interface AuthRateLimitPath {
-  readonly suffix: string
+interface RateLimitRule {
   readonly config: RateLimitConfig
   readonly keyExtractor: (request: FastifyRequest) => string
+}
+
+interface AuthRateLimitPath {
+  readonly suffix: string
+  readonly rules: readonly RateLimitRule[]
+}
+
+// Requests without a parseable email fall into a shared "unknown" bucket by
+// design — Better Auth's schema validation runs before this hook, so legitimate
+// auth requests always carry an email. Suspicious bodyless requests bunching up
+// in one bucket is the intended honeypot behavior.
+function emailFromBody(request: FastifyRequest): string {
+  const body = isRecord(request.body) ? request.body : undefined
+  const email = typeof body?.['email'] === 'string' ? body['email'] : 'unknown'
+  return email.toLowerCase()
 }
 
 const AUTH_RATE_LIMIT_PATHS: readonly AuthRateLimitPath[] = [
   {
     suffix: '/sign-in/email',
-    config: RATE_LIMITS.AUTH.LOGIN,
-    keyExtractor: (request) => {
-      const body = isRecord(request.body) ? request.body : undefined
-      const email =
-        typeof body?.['email'] === 'string' ? body['email'] : 'unknown'
-      return `auth:login:${email.toLowerCase()}`
-    },
+    rules: [
+      {
+        config: RATE_LIMITS.AUTH.LOGIN,
+        keyExtractor: (request) => `auth:login:${emailFromBody(request)}`,
+      },
+    ],
   },
   {
     suffix: '/forget-password',
-    config: RATE_LIMITS.AUTH.FORGOT_PASSWORD,
-    keyExtractor: (request) => {
-      const body = isRecord(request.body) ? request.body : undefined
-      const email =
-        typeof body?.['email'] === 'string' ? body['email'] : 'unknown'
-      return `auth:forgot:${email.toLowerCase()}`
-    },
+    rules: [
+      {
+        config: RATE_LIMITS.AUTH.FORGOT_PASSWORD,
+        keyExtractor: (request) => `auth:forgot:${emailFromBody(request)}`,
+      },
+    ],
   },
   {
     suffix: '/sign-up/email',
-    config: RATE_LIMITS.AUTH.REGISTRATION,
-    keyExtractor: (request) => `auth:register:${request.ip}`,
+    rules: [
+      {
+        config: RATE_LIMITS.AUTH.REGISTRATION,
+        keyExtractor: (request) => `auth:register:ip:${request.ip}`,
+      },
+      {
+        config: RATE_LIMITS.AUTH.REGISTRATION_EMAIL,
+        keyExtractor: (request) =>
+          `auth:register:email:${emailFromBody(request)}`,
+      },
+    ],
   },
   {
     suffix: '/send-verification-email',
-    config: RATE_LIMITS.AUTH.VERIFY_EMAIL,
-    keyExtractor: (request) => {
-      const body = isRecord(request.body) ? request.body : undefined
-      const email =
-        typeof body?.['email'] === 'string' ? body['email'] : 'unknown'
-      return `auth:verify:${email.toLowerCase()}`
-    },
+    rules: [
+      {
+        config: RATE_LIMITS.AUTH.VERIFY_EMAIL,
+        keyExtractor: (request) => `auth:verify:${emailFromBody(request)}`,
+      },
+    ],
   },
 ]
 
@@ -86,20 +106,27 @@ export function createAuthRateLimitHook(
       request.url.endsWith(p.suffix)
     )
     if (!matchedPath) return
-    const key = matchedPath.keyExtractor(request)
-    const result = await checkRateLimit(redis, key, matchedPath.config)
-    if (!result.allowed) {
-      void reply
-        .status(429)
-        .header('Retry-After', String(result.retryAfter))
-        .send({
-          success: false,
-          error: {
-            code: 'RATE_LIMIT_EXCEEDED',
-            message: `Too many requests. Try again in ${String(result.retryAfter)} seconds.`,
-            retryAfter: result.retryAfter,
-          },
-        })
+    // Multi-rule defense: when any rule rejects, entries inserted by earlier
+    // rules in this same request remain in their sorted sets. This is by
+    // design — an attacker spreading attempts across many emails from the same
+    // IP also gets penalized by the IP rule, and vice versa.
+    for (const rule of matchedPath.rules) {
+      const key = rule.keyExtractor(request)
+      const result = await checkRateLimit(redis, key, rule.config)
+      if (!result.allowed) {
+        void reply
+          .status(429)
+          .header('Retry-After', String(result.retryAfter))
+          .send({
+            success: false,
+            error: {
+              code: 'RATE_LIMIT_EXCEEDED',
+              message: `Too many requests. Try again in ${String(result.retryAfter)} seconds.`,
+              retryAfter: result.retryAfter,
+            },
+          })
+        return
+      }
     }
   }
 }
