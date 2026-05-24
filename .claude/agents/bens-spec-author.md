@@ -166,6 +166,8 @@ Pra ticket que toca código existente (refactor, bug fix, feature em módulo con
 - Tem todas as seções obrigatórias (Contexto, Objetivo, Arquitetura, Escopo, Detalhes, Validação, Riscos, ACs)
 - ACs são verificáveis (não vagas como "código fica bom")
 - Path do spec é gitignored (`docs/superpowers/specs/` está no `.gitignore` — confirmar não vai pro repo)
+- **Logic validation (se aplicável):** spec especifica conditional rules ou helper logic? Cross-check via grep contra patterns similares no codebase. Documentar baseline ou divergência explicitamente. Memory: [[feedback_plan-logic-validation-vs-reference]] — SCRUM-74 detectou plan rule `<11 → ''` que quebraria typing manual; reference `formatPhoneForMask` preserva partial input. Logic deviation pega no impl, deveria ter sido na spec
+- **Pattern mirror check (se aplicável):** helper functions / endpoints / events — código similar já existe? Referenciar no spec (path:linha) se sim. Memory: [[feedback_pattern-mirror-identical-use-case]] — SCRUM-63/SCRUM-74 aplicaram bitwise copy de escalate-to-human.ts e formatPhoneForMask respectivamente
 
 ## Status de implementação
 

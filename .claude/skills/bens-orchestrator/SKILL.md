@@ -395,6 +395,8 @@ Agent({
 
 **Inline fallback (se bens-qa-runner missing):** main session usa Playwright MCP diretamente seguindo system prompt de `bens-qa-runner.md`.
 
+**Known issue: Playwright MCP lock em selectors complexos.** Memory: [[qa-failure-recovery-offer-alternatives]]. Se MCP responder com lock error (`ref=`, `getBy`, etc.) ou travar mid-session: (a) NÃO é bug de código, (b) é flakiness do MCP. Recovery — oferecer alternativas imediatamente via `AskUserQuestion`: (1) static QA via unit tests + code audit (aceitável se 0 CRITICAL no review + gates verdes), (2) skip + post-merge manual verification documentado no PR body. **NÃO re-dispatchar o mesmo prompt.** Observado em SCRUM-73 e SCRUM-74; pattern recorrente.
+
 #### 8.4 — Avaliar report
 
 1. Se report tem **0 CRITICAL** → seguir pra Phase 9 (WARNING e INFO viram TODO no PR body).

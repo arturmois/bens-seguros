@@ -1,0 +1,66 @@
+{
+  "ticket": "SCRUM-74",
+  "pr_number": 336,
+  "timestamp": "2026-05-24T00:42:34Z",
+  "memory_entries_to_create": [
+    {
+      "path": "feedback_plan-logic-validation-vs-reference.md",
+      "frontmatter": {
+        "name": "feedback_plan-logic-validation-vs-reference",
+        "description": "Plan conditional logic and helper rules must be validated against similar patterns in codebase before implementation. Catches logic errors at spec review, not impl rework.",
+        "metadata": {
+          "type": "feedback",
+          "originSessionId": "scrum-74-analysis",
+          "discoveredPhase": "IMPLEMENT",
+          "targetPhase": "BRAINSTORM_SPEC"
+        }
+      },
+      "body": "When plan specifies conditional logic or helper function rules, validate assumptions against similar patterns in codebase before implementation.\n\n**Why:** SCRUM-74 (PR #336) — plan wrote helper rule `digits.length < 11 → return ''` that would clear input field on partial user typing, breaking UX. Reference pattern `formatPhoneForMask` (masks.ts:20–25) preserves partial mask on partial input (e.g., returns `'(12'` for `'12'`). Conflict undetected at plan stage; discovered at impl when tests were written. Resulted in 1 plan deviation + 1 test adjustment.\n\n**How to apply:** Before finalizing plan:\n\n1. Identify conditional rules or complex helper logic in plan\n2. Search codebase for similar functions (`grep -rn \"pattern_name\" apps/ packages/`)\n3. Read reference implementation: does it clear/reject on partial input or preserve/continue?\n4. If plan rule diverges: either align with reference (document why) or flag as explicit deviation\n5. Note in plan: \"Reference pattern is X.ts:lines. Divergence (if any): Y reason.\"\n\n**Anti-pattern (causes rework):** Plan rule doesn't match reference behavior → impl discovers mismatch → code review or test failure → adjustment commit.\n\n**When to skip:** If no reference pattern exists in codebase (new domain) or reference is deprecated/legacy (check git log for recency).\n\n**Sinais de sucesso após aplicação:**\n- Plan deviations at IMPLEMENT phase drop from 1/4 PRs to <1 per 5 sessions\n- Spec review explicitly documents reference cross-check\n- Code review has zero \"behavior mismatch\" warnings\n\nRelated: [[feedback_pattern-mirror-identical-use-case]] (same principle, applied to payload structure; this applies to logic rules), [[feedback_spec-plan-sync-implicit-scope]] (file coverage; this is correctness validation)."
+    }
+  ],
+  "repo_changes": [
+    {
+      "file": ".claude/agents/bens-spec-author.md",
+      "section": "Pre-finalize checklist",
+      "change_type": "add_checklist_item",
+      "diff": "@@ Spec Authoring Checklist @@\n+ [ ] **Logic validation (if applicable):** Plan specifies conditional rules? Cross-check against similar code in codebase (grep, read reference). Document baseline or divergence.\n+ [ ] **Pattern mirror check:** Helper functions / endpoints / events — does similar code exist? Reference in spec if yes.",
+      "reason": "Operationalize plan logic validation technique discovered in SCRUM-74. Add explicit checklist item to catch logic errors at spec stage, not impl rework."
+    },
+    {
+      "file": ".claude/agents/bens-orchestrator.md",
+      "section": "Phase 8 (QA_RUN) — known failure modes",
+      "change_type": "document_known_issue",
+      "diff": "@@ Phase 8 QA_RUN @@\n+ **Known issue: Playwright MCP lock on complex selectors.** If MCP responds with lock error (ref=, getBy, etc.): (a) not a code bug, (b) flaky MCP behavior. Offer alternatives immediately: static QA (unit tests + code audit) or skip + post-merge manual verification. Do NOT retry with same approach. See memory `qa-failure-recovery-offer-alternatives`.",
+      "reason": "Document Playwright MCP lock as known operational constraint (2nd occurrence in batch: SCRUM-73, SCRUM-74). Enable proactive handling without waiting for failure."
+    }
+  ],
+  "cooldown_checks": [
+    {
+      "memory_slug": "feedback_pattern-mirror-identical-use-case",
+      "last_suggested": "2026-05-22",
+      "applied_count_today": 2,
+      "decision": "REINFORCE — pattern is self-proving, no cooldown needed; high confidence"
+    },
+    {
+      "memory_slug": "qa-failure-recovery-offer-alternatives",
+      "last_suggested": "2026-05-22",
+      "applied_count_today": 1,
+      "decision": "REINFORCE — recovery flow is working, confirm in orchestrator docs"
+    }
+  ],
+  "system_maturity_signals": {
+    "memory_self_reinforcement": "HIGH — 3 memory entries (backend-inline-exception, pattern-mirror, chat-worker-test-debt) applied 4+ times in single session. Orchestrator prediction accuracy improving.",
+    "orchestrator_autonomy": "HIGH — 4 bug fix PRs in batch, all merged <4h each, all inline execution. Checkpoints optional per memory. Solo dev context with parallel worktrees handled correctly.",
+    "qa_confidence": "MEDIUM → stabilizing — Playwright MCP lock now classified as known, not blocker. Recovery pattern is effective. Static QA (unit tests) is acceptable fallback.",
+    "plan_quality": "IMPROVING — 1 logic deviation caught (at impl, should be at spec). New validation technique proposed to shift earlier.",
+    "test_maturity": "HIGH — TDD in apps/web is reliable. 13 tests RED → impl → GREEN → 1 boundary fix → GREEN. Vitest infra solid."
+  },
+  "antipatterns_detected": [],
+  "redundant_memories": [],
+  "contradictions": [],
+  "next_batch_watchpoints": [
+    "Monitor whether plan-logic-validation memory is applied in next 3 brainstorm specs",
+    "Verify Playwright MCP lock frequency (if increases, may need MCP upgrade); if stable at 1/4 PRs, document as known constraint",
+    "Continue observing pattern-mirror technique — assess if memory should be elevated to skill recommendation in bens-implementation-flow"
+  ]
+}
