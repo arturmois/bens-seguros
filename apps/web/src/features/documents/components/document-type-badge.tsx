@@ -1,8 +1,13 @@
+import { Badge } from '@/components/ui/badge'
+
 import { cn } from '@/lib/utils'
 
 import type { DocumentType } from '../lib/constants'
 import { DOCUMENT_TYPE_LABELS } from '../lib/constants'
 
+/* INTENCIONAL — paleta categorial pra 13 tipos distintos, fora dos
+   tokens semânticos. A estrutura (size/padding/rounded/font-weight)
+   vem do <Badge> primitive; só as cores são override. */
 const DOCUMENT_TYPE_COLORS: Record<DocumentType, string> = {
   DRIVER_LICENSE:
     'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
@@ -38,14 +43,11 @@ interface DocumentTypeBadgeProps {
 
 export function DocumentTypeBadge({ type, className }: DocumentTypeBadgeProps) {
   return (
-    <span
-      className={cn(
-        'inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium',
-        DOCUMENT_TYPE_COLORS[type],
-        className
-      )}
+    <Badge
+      variant="secondary"
+      className={cn(DOCUMENT_TYPE_COLORS[type], className)}
     >
       {DOCUMENT_TYPE_LABELS[type]}
-    </span>
+    </Badge>
   )
 }

@@ -4,6 +4,7 @@ import { ArrowLeft, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -95,14 +96,7 @@ function DetailHeader({ commission }: { readonly commission: CommissionData }) {
         {formatCurrency(commission.commissionValueInCents)}
       </h2>
       <CommissionStatusBadge status={commission.status} />
-      {commission.isReversal && (
-        <span
-          className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-          /* INTENCIONAL — slate neutro pra badge informativa, fora de escopo SCRUM-73 */
-        >
-          Estorno
-        </span>
-      )}
+      {commission.isReversal && <Badge variant="outline">Estorno</Badge>}
     </div>
   )
 }
@@ -158,10 +152,7 @@ function ReversalInfo({
   readonly originalCommissionId: string
 }) {
   return (
-    <div
-      className="rounded-md border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900"
-      /* INTENCIONAL — slate neutro pra info panel, fora de escopo SCRUM-73 */
-    >
+    <div className="bg-muted/40 rounded-md border p-4">
       <p className="text-sm font-medium">Esta comissão é um estorno</p>
       <p className="text-muted-foreground mt-1 text-sm">
         Comissão original:{' '}
