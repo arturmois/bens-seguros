@@ -1,16 +1,17 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Check, ChevronsUpDown, Plus } from 'lucide-react'
 import {
   Popover,
-  PopoverTrigger,
   PopoverContent,
+  PopoverTrigger,
 } from '@/components/ui/popover'
+import { ROLE_LABELS } from '@/features/members/lib/member-schemas'
 import { useOrgs } from '@/features/org/hooks/use-orgs'
-import { getOrgInitials, getOrgColor } from '@/lib/org-avatar'
+import { getOrgColor, getOrgInitials } from '@/lib/org-avatar'
 import { cn } from '@/lib/utils'
+import { Check, ChevronsUpDown, Plus } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 interface OrgSwitcherProps {
   collapsed: boolean
@@ -55,7 +56,7 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
               </div>
               {activeOrg.role && (
                 <div className="text-muted-foreground truncate text-xs">
-                  {activeOrg.role}
+                  {ROLE_LABELS[activeOrg.role] ?? activeOrg.role}
                 </div>
               )}
             </div>
@@ -89,7 +90,7 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
                 <div className="truncate text-sm font-medium">{org.name}</div>
                 {org.role && (
                   <div className="text-muted-foreground truncate text-xs">
-                    {org.role}
+                    {ROLE_LABELS[org.role] ?? org.role}
                   </div>
                 )}
               </div>
