@@ -91,8 +91,109 @@ function stableId(prefix: string): string {
 const adapter = new PrismaPg({ connectionString: DATABASE_URL })
 const prisma = new PrismaClient({ adapter })
 
+// Plan catalog seed — independent from the example org and idempotent via
+// upsert(slug). Always runs so freshly cloned dev DBs and the test suite have
+// the four tiers available, even when the example org already exists.
+//
+// Numbers tagged TBD-CALIBRATE are placeholders pending real baseline data
+// from the AI metering Pre-0 collection (~60-90d into prod). Update via
+// super-admin endpoint in Fase 4+ once we have signal.
+async function seedPlans() {
+  const plans = [
+    {
+      slug: 'free',
+      name: 'Free',
+      description: 'Para experimentar a plataforma sem custo.',
+      priceCents: 0,
+      maxUsers: 1,
+      maxProposalsPerMonth: 10,
+      maxChannels: 1,
+      maxConversationsPerOrg: 10,
+      maxImportRows: 50,
+      maxLogoSizeBytes: 256 * 1024,
+      aiEnabled: false,
+      aiMessagesIncluded: 0,
+      aiOverageCentsPerMessage: 0,
+      features: { customBranding: false, advancedReports: false },
+      isPublic: true,
+      sortOrder: 0,
+    },
+    {
+      slug: 'starter',
+      name: 'Starter',
+      description: 'Pra corretoras pequenas, comecando a digitalizar.',
+      priceCents: 29900, // TBD-CALIBRATE
+      maxUsers: 3,
+      maxProposalsPerMonth: 100,
+      maxChannels: 3,
+      maxConversationsPerOrg: 100,
+      maxImportRows: 500,
+      maxLogoSizeBytes: 512 * 1024,
+      aiEnabled: true,
+      aiMessagesIncluded: 200, // TBD-CALIBRATE: baseline AI metering Pre-0
+      aiOverageCentsPerMessage: 30, // TBD-CALIBRATE
+      features: { customBranding: false, advancedReports: false },
+      isPublic: true,
+      sortOrder: 1,
+    },
+    {
+      slug: 'pro',
+      name: 'Pro',
+      description: 'Pra corretoras em crescimento, com automacao AI.',
+      priceCents: 69900, // TBD-CALIBRATE
+      maxUsers: 10,
+      maxProposalsPerMonth: 500,
+      maxChannels: 10,
+      maxConversationsPerOrg: 500,
+      maxImportRows: 2000,
+      maxLogoSizeBytes: 1024 * 1024,
+      aiEnabled: true,
+      aiMessagesIncluded: 1000, // TBD-CALIBRATE
+      aiOverageCentsPerMessage: 20, // TBD-CALIBRATE
+      features: { customBranding: true, advancedReports: true },
+      isPublic: true,
+      sortOrder: 2,
+    },
+    {
+      slug: 'business',
+      name: 'Business',
+      description: 'Pra operacoes grandes, com volume ilimitado e suporte.',
+      priceCents: 149900, // TBD-CALIBRATE
+      maxUsers: null,
+      maxProposalsPerMonth: null,
+      maxChannels: null,
+      maxConversationsPerOrg: null,
+      maxImportRows: null,
+      maxLogoSizeBytes: 5 * 1024 * 1024,
+      aiEnabled: true,
+      aiMessagesIncluded: 5000, // TBD-CALIBRATE
+      aiOverageCentsPerMessage: 15, // TBD-CALIBRATE
+      features: {
+        customBranding: true,
+        advancedReports: true,
+        apiAccess: true,
+        prioritySupport: true,
+      },
+      isPublic: true,
+      sortOrder: 3,
+    },
+  ]
+
+  for (const plan of plans) {
+    await prisma.plan.upsert({
+      where: { slug: plan.slug },
+      update: {}, // by design — never overwrite live tier numbers via re-seed
+      create: plan,
+    })
+  }
+  console.warn(
+    `💎 Seeded ${String(plans.length)} billing plans (upserted by slug)`
+  )
+}
+
 async function main() {
   console.warn('🌱 Seeding database...\n')
+  await seedPlans()
   const existingOrg = await prisma.organization.findUnique({
     where: { slug: 'corretora-exemplo' },
   })
