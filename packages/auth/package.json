@@ -8,7 +8,8 @@
     "./client": "./src/client.ts",
     "./roles": "./src/roles.ts",
     "./abilities": "./src/abilities.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./entitlements": "./src/entitlements.ts"
   },
   "dependencies": {
     "@casl/ability": "^6.7.0",

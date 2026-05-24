@@ -655,6 +655,9 @@ importers:
       '@aws-sdk/s3-request-presigner':
         specifier: ^3.1014.0
         version: 3.1014.0
+      '@repo/auth':
+        specifier: workspace:*
+        version: link:../auth
       '@repo/db':
         specifier: workspace:*
         version: link:../db

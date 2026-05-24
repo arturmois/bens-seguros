@@ -10,6 +10,7 @@ export default defineConfig({
   sourcemap: true,
   noExternal: [
     '@repo/ai',
+    '@repo/auth',
     '@repo/core',
     '@repo/db',
     '@repo/db-chat',
