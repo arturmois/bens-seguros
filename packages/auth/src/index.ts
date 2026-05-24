@@ -2,7 +2,7 @@ import { prisma } from '@repo/db'
 import { env } from '@repo/env'
 import { betterAuth, type BetterAuthOptions } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
-import { customSession, organization } from 'better-auth/plugins'
+import { customSession, organization, twoFactor } from 'better-auth/plugins'
 import { createAccessControl, role } from 'better-auth/plugins/access'
 import { pickPublicSessionUser } from './public-session-user.js'
 
@@ -130,6 +130,9 @@ export function createAuth(
         },
         creatorRole: 'OWNER',
         organizationLimit: env.MAX_ORGS_PER_USER,
+      }),
+      twoFactor({
+        issuer: 'Bens Seguros',
       }),
     ],
   } satisfies BetterAuthOptions
