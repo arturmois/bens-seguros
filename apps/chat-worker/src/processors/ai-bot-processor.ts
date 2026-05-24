@@ -43,15 +43,6 @@ const DEFAULT_JOB_OPTIONS = {
   removeOnFail: { age: 86_400 },
 }
 
-function isCaptureLeadResultTransferred(result: unknown): boolean {
-  return (
-    typeof result === 'object' &&
-    result !== null &&
-    'transferred' in result &&
-    result.transferred === true
-  )
-}
-
 function channelTypeToContactSource(channelType: ChannelType): ContactSource {
   switch (channelType) {
     case 'WEB_CHAT':
@@ -232,10 +223,7 @@ export function createAiBotProcessor(
       return
     }
     const wasEscalated = result.toolResults.some(
-      (tr) =>
-        tr.toolName === ESCALATION_TOOL_NAME ||
-        (tr.toolName === CAPTURE_LEAD_TOOL_NAME &&
-          isCaptureLeadResultTransferred(tr.result))
+      (tr) => tr.toolName === ESCALATION_TOOL_NAME
     )
     if (wasEscalated) {
       logger.info(
