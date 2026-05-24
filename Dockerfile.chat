@@ -7,10 +7,13 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/chat-server/package.json apps/chat-server/
 COPY apps/chat-worker/package.json apps/chat-worker/
 COPY apps/widget/package.json apps/widget/
+COPY packages/db/package.json packages/db/
 COPY packages/db-chat/package.json packages/db-chat/
 COPY packages/env/package.json packages/env/
 COPY packages/shared/package.json packages/shared/
 COPY packages/ai/package.json packages/ai/
+COPY packages/core/package.json packages/core/
+COPY packages/auth/package.json packages/auth/
 COPY config/typescript-config/package.json config/typescript-config/
 RUN pnpm install --frozen-lockfile
 
@@ -18,6 +21,10 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app ./
 COPY . .
+
+ARG DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+RUN cd packages/db && ./node_modules/.bin/prisma generate
+
 RUN cd apps/widget && pnpm build
 RUN cd apps/chat-server && pnpm build
 RUN cd apps/chat-worker && pnpm build
@@ -27,14 +34,17 @@ WORKDIR /app
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/chat-server/package.json apps/chat-server/
 COPY apps/chat-worker/package.json apps/chat-worker/
+COPY packages/db/package.json packages/db/
 COPY packages/db-chat/package.json packages/db-chat/
 COPY packages/ai/package.json packages/ai/
+COPY packages/core/package.json packages/core/
 RUN pnpm install --frozen-lockfile --prod --ignore-scripts --shamefully-hoist
 
 FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=prod-deps /app/node_modules ./node_modules
+COPY --from=builder /app/packages/db/generated ./packages/db/generated
 COPY --from=builder /app/apps/chat-server/dist ./chat-server/dist
 COPY --from=builder /app/apps/chat-worker/dist ./chat-worker/dist
 COPY --from=builder /app/apps/widget/dist ./widget/dist
