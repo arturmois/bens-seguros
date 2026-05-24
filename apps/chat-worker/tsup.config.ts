@@ -24,6 +24,8 @@ export default defineConfig({
     'pino',
     'zod',
     'reflect-metadata',
+    'tsyringe',
+    'debug',
     '@prisma/client',
     '@prisma/adapter-pg',
     'pg',
