@@ -10,6 +10,7 @@ export default defineConfig({
   sourcemap: true,
   noExternal: [
     '@repo/auth',
+    '@repo/billing-port',
     '@repo/core',
     '@repo/db',
     '@repo/env',

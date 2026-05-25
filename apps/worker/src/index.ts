@@ -10,6 +10,7 @@ import { setupExpirePoliciesProcessor } from './processors/expire-policies-proce
 import { setupNotificationProcessor } from './processors/notification-processor.js'
 import { setupProactiveAlertsProcessor } from './processors/alerts/index.js'
 import { setupSendQuoteEmailProcessor } from './processors/send-quote-email-processor.js'
+import { setupWebhookReconciliationProcessor } from './processors/webhook-reconciliation-processor.js'
 
 if (env.SENTRY_DSN) {
   Sentry.init({
@@ -61,6 +62,7 @@ const proactiveAlerts = setupProactiveAlertsProcessor(
   notifications.queue
 )
 const sendQuoteEmail = setupSendQuoteEmailProcessor(connection)
+const webhookReconciliation = setupWebhookReconciliationProcessor(connection)
 
 const allWorkers = [
   auditArchive.worker,
@@ -69,6 +71,7 @@ const allWorkers = [
   notifications.worker,
   proactiveAlerts.worker,
   sendQuoteEmail.worker,
+  webhookReconciliation.worker,
 ]
 
 for (const w of allWorkers) {
@@ -83,7 +86,7 @@ for (const w of allWorkers) {
 }
 
 logger.info(
-  'ERP Worker started. Active processors: audit-archive, csv-import, expire-policies, notifications, proactive-alerts, send-quote-email'
+  'ERP Worker started. Active processors: audit-archive, csv-import, expire-policies, notifications, proactive-alerts, send-quote-email, webhook-reconciliation'
 )
 
 const gracefulShutdown = async () => {
@@ -95,6 +98,7 @@ const gracefulShutdown = async () => {
     notifications.worker.close(),
     proactiveAlerts.worker.close(),
     sendQuoteEmail.worker.close(),
+    webhookReconciliation.worker.close(),
   ])
   await Promise.all([
     auditArchive.queue.close(),
@@ -103,6 +107,7 @@ const gracefulShutdown = async () => {
     notifications.queue.close(),
     proactiveAlerts.queue.close(),
     sendQuoteEmail.queue.close(),
+    webhookReconciliation.queue.close(),
   ])
   if (env.SENTRY_DSN) {
     await Sentry.close(2000)
