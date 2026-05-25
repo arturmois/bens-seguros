@@ -1,8 +1,20 @@
 import { prismaAdmin } from '@repo/db'
+import {
+  SUBSCRIPTION_CACHE_PREFIX,
+  SUBSCRIPTION_CACHE_TTL_SECONDS,
+  SUBSCRIPTION_INVALIDATION_CHANNEL,
+  subscriptionCacheKey as cacheKey,
+} from '@repo/shared'
 import type IORedis from 'ioredis'
 import pino from 'pino'
 
 const logger = pino({ name: 'subscription-cache' })
+
+export {
+  SUBSCRIPTION_CACHE_PREFIX,
+  SUBSCRIPTION_CACHE_TTL_SECONDS,
+  SUBSCRIPTION_INVALIDATION_CHANNEL,
+}
 
 // Snapshot stored in Redis. Plan is embedded (denormalized) so subscription
 // middleware doesn't need a second query per cache miss. Trade-off: writes to
@@ -38,14 +50,6 @@ type SubscriptionStatus =
   | 'CANCELED'
   | 'EXPIRED'
   | 'BILLED_EXTERNALLY'
-
-export const SUBSCRIPTION_CACHE_TTL_SECONDS = 30
-export const SUBSCRIPTION_CACHE_PREFIX = 'sub:'
-export const SUBSCRIPTION_INVALIDATION_CHANNEL = 'subscription:invalidated'
-
-function cacheKey(organizationId: string): string {
-  return `${SUBSCRIPTION_CACHE_PREFIX}${organizationId}`
-}
 
 interface SerializedSnapshot {
   readonly id: string

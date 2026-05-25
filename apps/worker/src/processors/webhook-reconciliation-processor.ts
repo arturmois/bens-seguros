@@ -2,6 +2,10 @@ import { CanonicalEventSchema, type CanonicalEvent } from '@repo/billing-port'
 import { processBillingWebhookEvent, type ProcessBillingDeps } from '@repo/core'
 import { type Prisma, prismaAdmin } from '@repo/db'
 import { env } from '@repo/env'
+import {
+  SUBSCRIPTION_INVALIDATION_CHANNEL,
+  subscriptionCacheKey,
+} from '@repo/shared'
 import type { ConnectionOptions } from 'bullmq'
 import { Queue, Worker } from 'bullmq'
 import IORedis from 'ioredis'
@@ -158,8 +162,8 @@ function makeProcessEventCaller(
           })
         },
         publishInvalidation: async (organizationId: string) => {
-          await redis.del(`sub:${organizationId}`)
-          await redis.publish('subscription:invalidated', organizationId)
+          await redis.del(subscriptionCacheKey(organizationId))
+          await redis.publish(SUBSCRIPTION_INVALIDATION_CHANNEL, organizationId)
         },
       },
       logger,
