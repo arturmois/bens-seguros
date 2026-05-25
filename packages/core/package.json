@@ -19,6 +19,7 @@
     "@aws-sdk/client-s3": "^3.1014.0",
     "@aws-sdk/s3-request-presigner": "^3.1014.0",
     "@repo/auth": "workspace:*",
+    "@repo/billing-port": "workspace:*",
     "@repo/db": "workspace:*",
     "@repo/env": "workspace:^",
     "@repo/shared": "workspace:*",

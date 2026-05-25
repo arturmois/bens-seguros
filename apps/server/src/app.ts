@@ -334,7 +334,7 @@ export async function buildApp() {
     publicInvitationRoutes(publicApp, auth)
   })
   await app.register(async (webhooksApp) => {
-    asaasWebhookRoute(webhooksApp, asaasProvider)
+    asaasWebhookRoute(webhooksApp, asaasProvider, redis)
   })
   const authMiddleware = createAuthMiddleware(auth)
   await app.register(async (authenticatedApp) => {
