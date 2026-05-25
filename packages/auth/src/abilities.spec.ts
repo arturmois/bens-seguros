@@ -1,5 +1,29 @@
 import { describe, expect, it } from 'vitest'
 import { defineAbilitiesFor } from './abilities.js'
+import type { Entitlements } from './entitlements.js'
+
+function entitlementsWith(overrides: Partial<Entitlements> = {}): Entitlements {
+  return {
+    maxUsers: null,
+    maxProposalsPerMonth: null,
+    maxChannels: null,
+    maxConversationsPerOrg: null,
+    maxImportRows: null,
+    maxLogoSizeBytes: null,
+    aiEnabled: true,
+    aiMessagesIncluded: 1000,
+    aiOverageCentsPerMessage: 0,
+    customBranding: true,
+    apiAccess: true,
+    advancedReports: true,
+    prioritySupport: true,
+    isActive: true,
+    isTrialing: false,
+    trialEndsAt: null,
+    billingManagedExternally: false,
+    ...overrides,
+  }
+}
 
 describe('CASL Abilities', () => {
   it('OWNER can manage all', () => {
@@ -75,5 +99,122 @@ describe('CASL Abilities', () => {
     expect(defineAbilitiesFor('MANAGER').can('update', 'Goal')).toBe(true)
     expect(defineAbilitiesFor('COMMERCIAL').can('update', 'Goal')).toBe(false)
     expect(defineAbilitiesFor('VIEWER').can('update', 'Goal')).toBe(false)
+  })
+})
+
+describe('CASL Abilities — Entitlements feature gating', () => {
+  describe('back-compat: no entitlements passed', () => {
+    it('OWNER keeps manage all (no gating applied)', () => {
+      const ability = defineAbilitiesFor('OWNER')
+      expect(ability.can('manage', 'ApiKey')).toBe(true)
+      expect(ability.can('manage', 'AiAgent')).toBe(true)
+      expect(ability.can('read', 'AdvancedReport')).toBe(true)
+    })
+  })
+
+  describe('apiAccess gating', () => {
+    it('blocks ApiKey management when apiAccess=false even for OWNER', () => {
+      const ability = defineAbilitiesFor(
+        'OWNER',
+        entitlementsWith({ apiAccess: false })
+      )
+      expect(ability.can('manage', 'ApiKey')).toBe(false)
+      expect(ability.can('create', 'ApiKey')).toBe(false)
+    })
+
+    it('allows ApiKey management when apiAccess=true', () => {
+      const ability = defineAbilitiesFor(
+        'OWNER',
+        entitlementsWith({ apiAccess: true })
+      )
+      expect(ability.can('manage', 'ApiKey')).toBe(true)
+    })
+  })
+
+  describe('aiEnabled gating', () => {
+    it('blocks AiAgent management when aiEnabled=false', () => {
+      const ability = defineAbilitiesFor(
+        'OWNER',
+        entitlementsWith({ aiEnabled: false })
+      )
+      expect(ability.can('manage', 'AiAgent')).toBe(false)
+      expect(ability.can('create', 'AiAgent')).toBe(false)
+    })
+
+    it('allows AiAgent management when aiEnabled=true (OWNER manage all)', () => {
+      const ability = defineAbilitiesFor(
+        'OWNER',
+        entitlementsWith({ aiEnabled: true })
+      )
+      expect(ability.can('manage', 'AiAgent')).toBe(true)
+    })
+  })
+
+  describe('advancedReports gating', () => {
+    it('blocks reading AdvancedReport when advancedReports=false', () => {
+      const ability = defineAbilitiesFor(
+        'OWNER',
+        entitlementsWith({ advancedReports: false })
+      )
+      expect(ability.can('read', 'AdvancedReport')).toBe(false)
+    })
+
+    it('allows reading AdvancedReport when advancedReports=true', () => {
+      const ability = defineAbilitiesFor(
+        'OWNER',
+        entitlementsWith({ advancedReports: true })
+      )
+      expect(ability.can('read', 'AdvancedReport')).toBe(true)
+    })
+  })
+
+  describe('prioritySupport gating', () => {
+    it('blocks PrioritySupportTicket when prioritySupport=false', () => {
+      const ability = defineAbilitiesFor(
+        'OWNER',
+        entitlementsWith({ prioritySupport: false })
+      )
+      expect(ability.can('manage', 'PrioritySupportTicket')).toBe(false)
+    })
+  })
+
+  describe('customBranding gating', () => {
+    it('blocks updating Organization when customBranding=false', () => {
+      const ability = defineAbilitiesFor(
+        'OWNER',
+        entitlementsWith({ customBranding: false })
+      )
+      expect(ability.can('update', 'Organization')).toBe(false)
+    })
+
+    it('allows updating Organization when customBranding=true', () => {
+      const ability = defineAbilitiesFor(
+        'OWNER',
+        entitlementsWith({ customBranding: true })
+      )
+      expect(ability.can('update', 'Organization')).toBe(true)
+    })
+  })
+
+  describe('cascade: entitlements gate beats role permissiveness', () => {
+    it('OWNER with empty entitlements gets all features blocked', () => {
+      const ability = defineAbilitiesFor(
+        'OWNER',
+        entitlementsWith({
+          apiAccess: false,
+          aiEnabled: false,
+          advancedReports: false,
+          prioritySupport: false,
+          customBranding: false,
+        })
+      )
+      expect(ability.can('manage', 'ApiKey')).toBe(false)
+      expect(ability.can('manage', 'AiAgent')).toBe(false)
+      expect(ability.can('read', 'AdvancedReport')).toBe(false)
+      expect(ability.can('manage', 'PrioritySupportTicket')).toBe(false)
+      expect(ability.can('update', 'Organization')).toBe(false)
+      // Other operational subjects still permitted via manage all
+      expect(ability.can('manage', 'Client')).toBe(true)
+    })
   })
 })

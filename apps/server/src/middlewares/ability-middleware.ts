@@ -11,14 +11,14 @@ export function requireAbility(action: Action, subject: Subject) {
     request: FastifyRequest,
     reply: FastifyReply
   ) {
-    const { role } = request
+    const { role, entitlements } = request
     if (!role) {
       return reply.status(403).send({
         success: false,
         error: { code: 'FORBIDDEN', message: 'No role assigned' },
       })
     }
-    const ability: AppAbility = defineAbilitiesFor(role)
+    const ability: AppAbility = defineAbilitiesFor(role, entitlements)
     if (!ability.can(action, subject)) {
       return reply.status(403).send({
         success: false,

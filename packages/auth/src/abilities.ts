@@ -3,6 +3,7 @@ import {
   createMongoAbility,
   type MongoAbility,
 } from '@casl/ability'
+import type { Entitlements } from './entitlements.js'
 import type { Role } from './roles.js'
 
 export type Action =
@@ -32,6 +33,10 @@ export type Subject =
   | 'Invitation'
   | 'Insurer'
   | 'Goal'
+  | 'ApiKey'
+  | 'AiAgent'
+  | 'AdvancedReport'
+  | 'PrioritySupportTicket'
 
 export type AppAbility = MongoAbility<[Action, Subject]>
 
@@ -47,7 +52,13 @@ const OPERATIONAL_SUBJECTS: Subject[] = [
   'Insurer',
 ]
 
-export function defineAbilitiesFor(role: Role): AppAbility {
+// Apply role-only rules first. Entitlements layer below trims off features the
+// org's plan doesn't include — `cannot` overrides `can` regardless of how
+// permissive the role is (including OWNER + manage all).
+export function defineAbilitiesFor(
+  role: Role,
+  entitlements?: Entitlements
+): AppAbility {
   const { can, cannot, build } = new AbilityBuilder<AppAbility>(
     createMongoAbility
   )
@@ -95,5 +106,32 @@ export function defineAbilitiesFor(role: Role): AppAbility {
       can('read', 'Goal')
       break
   }
+
+  // Plan-level feature gating. Applied after role rules so `cannot` wins over
+  // a role's `manage all`. When entitlements is undefined (caller hasn't wired
+  // subscription middleware yet, e.g. transitional code paths), every feature
+  // gate stays open — back-compat.
+  if (entitlements) {
+    if (!entitlements.apiAccess) {
+      cannot('manage', 'ApiKey')
+    }
+    if (!entitlements.aiEnabled) {
+      cannot('manage', 'AiAgent')
+    }
+    if (!entitlements.advancedReports) {
+      cannot('read', 'AdvancedReport')
+    }
+    if (!entitlements.prioritySupport) {
+      cannot('manage', 'PrioritySupportTicket')
+    }
+    if (!entitlements.customBranding) {
+      // Plan without customBranding can still read/update general org settings
+      // but cannot mutate the logo. Logo write is the only branding-gated
+      // operation on Organization for now; future fields (custom domain,
+      // theme) can join here.
+      cannot('update', 'Organization')
+    }
+  }
+
   return build()
 }
