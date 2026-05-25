@@ -38,6 +38,7 @@ import { registerAuthRoutes } from './routes/auth-routes.js'
 import { adminAiUsageRoutes } from './routes/v1/admin/ai-usage/index.js'
 import { assistanceRoutes } from './routes/v1/assistances/index.js'
 import { auditLogRoutes } from './routes/v1/audit-logs/index.js'
+import { createBillingRoutes } from './routes/v1/billing/index.js'
 import { cepRoutes } from './routes/v1/cep/index.js'
 import { chatTokenRoute } from './routes/v1/chat/index.js'
 import { claimRoutes } from './routes/v1/claims/index.js'
@@ -344,6 +345,7 @@ export async function buildApp() {
     await authenticatedApp.register(cepRoutes)
     await authenticatedApp.register(vehicleRoutes)
     await authenticatedApp.register(termsRoutes)
+    await authenticatedApp.register(createBillingRoutes(redis))
   })
   await app.register(async (internalApp) => {
     internalApp.addHook('preHandler', internalAuthMiddleware)
