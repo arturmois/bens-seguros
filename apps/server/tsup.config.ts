@@ -11,11 +11,13 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   noExternal: [
+    '@repo/asaas-adapter',
+    '@repo/auth',
+    '@repo/billing-port',
     '@repo/core',
     '@repo/db',
     '@repo/env',
     '@repo/shared',
-    '@repo/auth',
   ],
   external: [
     'fastify',

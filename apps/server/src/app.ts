@@ -4,6 +4,8 @@ import multipart from '@fastify/multipart'
 import rateLimit from '@fastify/rate-limit'
 import swagger from '@fastify/swagger'
 import crypto from 'node:crypto'
+import { createAsaasBillingProvider } from '@repo/asaas-adapter'
+import type { AsaasBillingProvider } from '@repo/asaas-adapter'
 import { createAuth } from '@repo/auth'
 import {
   ResendEmailProvider,
@@ -58,6 +60,7 @@ import { policyRoutes } from './routes/v1/policies/index.js'
 import { proposalRoutes } from './routes/v1/proposals/index.js'
 import { searchRoutes } from './routes/v1/search/index.js'
 import { termsRoutes } from './routes/terms/index.js'
+import { asaasWebhookRoute } from './routes/webhooks/asaas/index.js'
 import { statsRoutes } from './routes/v1/stats/index.js'
 import { internalContactRoutes } from './routes/internal/contacts/index.js'
 import { internalLeadRoutes } from './routes/internal/leads/index.js'
@@ -315,9 +318,23 @@ export async function buildApp() {
       },
     })
   })
+  let asaasProvider: AsaasBillingProvider | null = null
+  try {
+    asaasProvider = createAsaasBillingProvider()
+    app.log.info('Asaas billing provider initialized')
+  } catch (err) {
+    app.log.warn(
+      { err: err instanceof Error ? err.message : String(err) },
+      'Asaas billing provider NOT initialized — webhook route will return 503'
+    )
+  }
+
   registerAuthRoutes(app, auth, redis)
   await app.register(async (publicApp) => {
     publicInvitationRoutes(publicApp, auth)
+  })
+  await app.register(async (webhooksApp) => {
+    asaasWebhookRoute(webhooksApp, asaasProvider)
   })
   const authMiddleware = createAuthMiddleware(auth)
   await app.register(async (authenticatedApp) => {

@@ -224,9 +224,15 @@ importers:
       '@react-pdf/renderer':
         specifier: ^4.3.2
         version: 4.3.2(react@19.2.4)
+      '@repo/asaas-adapter':
+        specifier: workspace:*
+        version: link:../../packages/asaas-adapter
       '@repo/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@repo/billing-port':
+        specifier: workspace:*
+        version: link:../../packages/billing-port
       '@repo/core':
         specifier: workspace:*
         version: link:../../packages/core

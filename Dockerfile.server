@@ -12,6 +12,8 @@ COPY packages/db/package.json packages/db/
 COPY packages/env/package.json packages/env/
 COPY packages/shared/package.json packages/shared/
 COPY packages/auth/package.json packages/auth/
+COPY packages/billing-port/package.json packages/billing-port/
+COPY packages/asaas-adapter/package.json packages/asaas-adapter/
 COPY config/typescript-config/package.json config/typescript-config/
 RUN pnpm install --frozen-lockfile
 
@@ -42,6 +44,8 @@ COPY packages/env/package.json packages/env/
 COPY packages/auth/package.json packages/auth/
 COPY packages/core/package.json packages/core/
 COPY packages/shared/package.json packages/shared/
+COPY packages/billing-port/package.json packages/billing-port/
+COPY packages/asaas-adapter/package.json packages/asaas-adapter/
 RUN pnpm install --frozen-lockfile --prod --ignore-scripts --shamefully-hoist
 
 # --- RUNNER ---
