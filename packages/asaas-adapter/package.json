@@ -1,0 +1,26 @@
+{
+  "name": "@repo/asaas-adapter",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "@repo/billing-port": "workspace:*",
+    "@repo/env": "workspace:*",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@config/typescript-config": "workspace:*",
+    "@vitest/coverage-v8": "^3.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.0.0"
+  }
+}

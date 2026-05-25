@@ -25,7 +25,6 @@ export interface BillingProvider {
 
   validateAndParseWebhook(
     body: string,
-    signature: string,
-    timestamp: string
+    headers: Record<string, string>
   ): CanonicalEvent
 }

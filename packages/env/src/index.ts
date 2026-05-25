@@ -60,6 +60,11 @@ export const env = createEnv({
     CONSULTAR_PLACA_API_KEY: z.string().min(1).optional(),
     MAX_ORGS_PER_USER: z.coerce.number().int().positive().default(3),
     SIGNUP_MODE: z.enum(['closed', 'self_serve']).default('self_serve'),
+    ASAAS_ENV: z.enum(['sandbox', 'production']).default('sandbox'),
+    ASAAS_API_KEY: z.string().min(1).optional(),
+    ASAAS_WALLET_ID: z.string().uuid().optional(),
+    ASAAS_WEBHOOK_SECRET_CURRENT: z.string().min(16).optional(),
+    ASAAS_WEBHOOK_SECRET_PREVIOUS: z.string().min(16).optional(),
   },
   clientPrefix: 'NEXT_PUBLIC_',
   client: {
