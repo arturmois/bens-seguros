@@ -1,8 +1,8 @@
 import type { FastifyInstance } from 'fastify'
-import { tenantMiddleware } from '../../../middlewares/tenant-middleware.js'
+import { applyTenantStack } from '../../../middlewares/tenant-stack.js'
 import { lookupVehicleRoute } from './lookup-vehicle.js'
 
 export async function vehicleRoutes(app: FastifyInstance) {
-  app.addHook('preHandler', tenantMiddleware)
+  applyTenantStack(app)
   lookupVehicleRoute(app)
 }

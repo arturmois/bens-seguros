@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 
-import { tenantMiddleware } from '../../../middlewares/tenant-middleware.js'
+import { applyTenantStack } from '../../../middlewares/tenant-stack.js'
 import { approveAdminRoute } from './approve-admin.js'
 import { approveCommercialRoute } from './approve-commercial.js'
 import { exportCommissionsRoute } from './export-commissions.js'
@@ -11,7 +11,7 @@ import { rejectCommissionRoute } from './reject-commission.js'
 import { reverseCommissionRoute } from './reverse-commission.js'
 
 export async function commissionRoutes(app: FastifyInstance) {
-  app.addHook('preHandler', tenantMiddleware)
+  applyTenantStack(app)
   exportCommissionsRoute(app)
   listCommissionsRoute(app)
   getCommissionRoute(app)

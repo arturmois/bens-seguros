@@ -76,6 +76,7 @@ export async function buildApp() {
     genReqId: () => crypto.randomUUID(),
     requestIdHeader: 'x-request-id',
   })
+  app.decorate('redis', redis)
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
   app.addHook('onSend', async (request, reply) => {

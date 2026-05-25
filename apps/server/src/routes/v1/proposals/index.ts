@@ -1,8 +1,7 @@
 import type { FastifyInstance } from 'fastify'
-import { tenantMiddleware } from '../../../middlewares/tenant-middleware.js'
+import { applyTenantStack } from '../../../middlewares/tenant-stack.js'
 import { advanceProposalRoute } from './advance-proposal.js'
 import { completeChecklistItemRoute } from './complete-checklist-item.js'
-import { uncompleteChecklistItemRoute } from './uncomplete-checklist-item.js'
 import { createProposalRoute } from './create-proposal.js'
 import { exportProposalsRoute } from './export-proposals.js'
 import { generateProposalPdfRoute } from './generate-proposal-pdf.js'
@@ -12,12 +11,13 @@ import { listProposalsRoute } from './list-proposals.js'
 import { markProposalLostRoute } from './mark-proposal-lost.js'
 import { reopenProposalRoute } from './reopen-proposal.js'
 import { sendQuoteRoute } from './send-quote.js'
+import { uncompleteChecklistItemRoute } from './uncomplete-checklist-item.js'
 import { updateProposalDatesRoute } from './update-proposal-dates.js'
 import { updateProposalDetailsRoute } from './update-proposal-details.js'
 import { updateProposalObservationsRoute } from './update-proposal-observations.js'
 
 export async function proposalRoutes(app: FastifyInstance) {
-  app.addHook('preHandler', tenantMiddleware)
+  applyTenantStack(app)
   exportProposalsRoute(app)
   generateProposalPdfRoute(app)
   sendQuoteRoute(app)

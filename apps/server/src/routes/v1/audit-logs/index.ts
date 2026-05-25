@@ -1,9 +1,9 @@
 import type { FastifyInstance } from 'fastify'
 
-import { tenantMiddleware } from '../../../middlewares/tenant-middleware.js'
+import { applyTenantStack } from '../../../middlewares/tenant-stack.js'
 import { listAuditLogsRoute } from './list-audit-logs.js'
 
 export async function auditLogRoutes(app: FastifyInstance) {
-  app.addHook('preHandler', tenantMiddleware)
+  applyTenantStack(app)
   listAuditLogsRoute(app)
 }

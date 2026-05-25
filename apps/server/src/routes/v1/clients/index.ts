@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify'
-import { tenantMiddleware } from '../../../middlewares/tenant-middleware.js'
+import { applyTenantStack } from '../../../middlewares/tenant-stack.js'
 import { createClientRoute } from './create-client.js'
 import { deleteClientRoute } from './delete-client.js'
 import { exportClientsRoute } from './export-clients.js'
@@ -10,7 +10,7 @@ import { listClientsRoute } from './list-clients.js'
 import { updateClientRoute } from './update-client.js'
 
 export async function clientRoutes(app: FastifyInstance) {
-  app.addHook('preHandler', tenantMiddleware)
+  applyTenantStack(app)
   exportClientsRoute(app)
   importClientsRoutes(app)
   createClientRoute(app)
