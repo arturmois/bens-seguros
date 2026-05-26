@@ -17,7 +17,11 @@ import type {
   UseQueryResult,
 } from '@tanstack/react-query'
 
-import type { GetBillingCurrent200 } from '../../model'
+import type {
+  GetBillingCurrent200,
+  ListBillingInvoices200,
+  ListBillingInvoicesParams,
+} from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
 
@@ -213,6 +217,232 @@ export const prefetchGetBillingCurrentQuery = async <
   }
 ): Promise<QueryClient> => {
   const queryOptions = getGetBillingCurrentQueryOptions(options)
+
+  await queryClient.prefetchQuery(queryOptions)
+
+  return queryClient
+}
+
+/**
+ * @summary List invoices for the active org (cursor pagination)
+ */
+export type listBillingInvoicesResponse200 = {
+  data: ListBillingInvoices200
+  status: 200
+}
+
+export type listBillingInvoicesResponseSuccess =
+  listBillingInvoicesResponse200 & {
+    headers: Headers
+  }
+export type listBillingInvoicesResponse = listBillingInvoicesResponseSuccess
+
+export const getListBillingInvoicesUrl = (
+  params?: ListBillingInvoicesParams
+) => {
+  const normalizedParams = new URLSearchParams()
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  })
+
+  const stringifiedParams = normalizedParams.toString()
+
+  return stringifiedParams.length > 0
+    ? `/api/v1/billing/invoices?${stringifiedParams}`
+    : `/api/v1/billing/invoices`
+}
+
+export const listBillingInvoices = async (
+  params?: ListBillingInvoicesParams,
+  options?: RequestInit
+): Promise<listBillingInvoicesResponse> => {
+  return customFetch<listBillingInvoicesResponse>(
+    getListBillingInvoicesUrl(params),
+    {
+      ...options,
+      method: 'GET',
+    }
+  )
+}
+
+export const getListBillingInvoicesQueryKey = (
+  params?: ListBillingInvoicesParams
+) => {
+  return [`/api/v1/billing/invoices`, ...(params ? [params] : [])] as const
+}
+
+export const getListBillingInvoicesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listBillingInvoices>>,
+  TError = unknown,
+>(
+  params?: ListBillingInvoicesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listBillingInvoices>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListBillingInvoicesQueryKey(params)
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listBillingInvoices>>
+  > = ({ signal }) => listBillingInvoices(params, { signal, ...requestOptions })
+
+  return {
+    queryKey,
+    queryFn,
+    staleTime: 60000,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof listBillingInvoices>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListBillingInvoicesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listBillingInvoices>>
+>
+export type ListBillingInvoicesQueryError = unknown
+
+export function useListBillingInvoices<
+  TData = Awaited<ReturnType<typeof listBillingInvoices>>,
+  TError = unknown,
+>(
+  params: undefined | ListBillingInvoicesParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listBillingInvoices>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listBillingInvoices>>,
+          TError,
+          Awaited<ReturnType<typeof listBillingInvoices>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useListBillingInvoices<
+  TData = Awaited<ReturnType<typeof listBillingInvoices>>,
+  TError = unknown,
+>(
+  params?: ListBillingInvoicesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listBillingInvoices>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listBillingInvoices>>,
+          TError,
+          Awaited<ReturnType<typeof listBillingInvoices>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useListBillingInvoices<
+  TData = Awaited<ReturnType<typeof listBillingInvoices>>,
+  TError = unknown,
+>(
+  params?: ListBillingInvoicesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listBillingInvoices>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary List invoices for the active org (cursor pagination)
+ */
+
+export function useListBillingInvoices<
+  TData = Awaited<ReturnType<typeof listBillingInvoices>>,
+  TError = unknown,
+>(
+  params?: ListBillingInvoicesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listBillingInvoices>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getListBillingInvoicesQueryOptions(params, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+/**
+ * @summary List invoices for the active org (cursor pagination)
+ */
+export const prefetchListBillingInvoicesQuery = async <
+  TData = Awaited<ReturnType<typeof listBillingInvoices>>,
+  TError = unknown,
+>(
+  queryClient: QueryClient,
+  params?: ListBillingInvoicesParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listBillingInvoices>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  }
+): Promise<QueryClient> => {
+  const queryOptions = getListBillingInvoicesQueryOptions(params, options)
 
   await queryClient.prefetchQuery(queryOptions)
 

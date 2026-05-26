@@ -1,7 +1,10 @@
 import type {
   GetBillingCurrent200DataEntitlements,
   GetBillingCurrent200DataSubscription,
+  ListBillingInvoices200DataItem,
 } from '@/api/model'
+
+type InvoiceStatus = ListBillingInvoices200DataItem['status']
 
 type Subscription = NonNullable<GetBillingCurrent200DataSubscription>
 type SubscriptionStatus = Subscription['status']
@@ -29,7 +32,30 @@ export const UPGRADABLE_FEATURE_KEYS = Object.keys(
   FEATURE_LABEL
 ) as readonly UpgradableFeature[]
 
-export type { BooleanEntitlementKey, UpgradableFeature }
+export const INVOICE_STATUS_LABEL: Record<InvoiceStatus, string> = {
+  PENDING: 'Pendente',
+  PAID: 'Pago',
+  OVERDUE: 'Atrasado',
+  CANCELED: 'Cancelado',
+  REFUNDED: 'Reembolsado',
+}
+
+export const INVOICE_STATUS_VARIANT: Record<
+  InvoiceStatus,
+  'success' | 'warning' | 'error' | 'secondary' | 'info'
+> = {
+  PENDING: 'info',
+  PAID: 'success',
+  OVERDUE: 'warning',
+  CANCELED: 'secondary',
+  REFUNDED: 'error',
+}
+
+export const INVOICE_STATUS_KEYS = Object.keys(
+  INVOICE_STATUS_LABEL
+) as readonly InvoiceStatus[]
+
+export type { BooleanEntitlementKey, InvoiceStatus, UpgradableFeature }
 
 export const PLAN_LABEL: Record<string, string> = {
   free: 'Gratuito',

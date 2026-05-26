@@ -17,6 +17,7 @@ import { formatDate } from '@/lib/formatters'
 
 import { useBillingCurrent } from '../hooks/use-billing-current'
 import { planLabel, STATUS_LABEL, STATUS_VARIANT } from '../lib/constants'
+import { InvoicesList } from './invoices-list'
 
 function BillingSkeleton() {
   return (
@@ -144,6 +145,9 @@ export function BillingPage() {
       )}
       {subscription !== null && !subscription.billingManagedExternally && (
         <ActiveSubscriptionCard subscription={subscription} />
+      )}
+      {subscription !== null && !subscription.billingManagedExternally && (
+        <InvoicesList />
       )}
     </div>
   )

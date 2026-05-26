@@ -61,3 +61,43 @@ export const GetBillingCurrentResponse = zod.object({
     }),
   }),
 })
+
+/**
+ * @summary List invoices for the active org (cursor pagination)
+ */
+export const listBillingInvoicesQueryLimitDefault = 20
+export const listBillingInvoicesQueryLimitMax = 100
+
+export const ListBillingInvoicesQueryParams = zod.object({
+  cursor: zod.string().optional(),
+  limit: zod
+    .number()
+    .min(1)
+    .max(listBillingInvoicesQueryLimitMax)
+    .default(listBillingInvoicesQueryLimitDefault),
+})
+
+export const ListBillingInvoicesResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      status: zod.enum(['PENDING', 'PAID', 'OVERDUE', 'CANCELED', 'REFUNDED']),
+      amountCents: zod.number(),
+      baseAmountCents: zod.number(),
+      overageAmountCents: zod.number(),
+      dueDate: zod.string().datetime({}),
+      paidAt: zod.string().datetime({}).nullable(),
+      periodStart: zod.string().datetime({}),
+      periodEnd: zod.string().datetime({}),
+      paymentMethod: zod.enum(['CREDIT_CARD', 'BOLETO', 'PIX']).nullable(),
+      invoiceUrl: zod.string().nullable(),
+      receiptUrl: zod.string().nullable(),
+      createdAt: zod.string().datetime({}),
+    })
+  ),
+  meta: zod.object({
+    total: zod.number().optional(),
+    nextCursor: zod.string().nullish(),
+  }),
+})
