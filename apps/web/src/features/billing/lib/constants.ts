@@ -1,8 +1,35 @@
-import type { GetBillingCurrent200DataSubscription } from '@/api/model'
+import type {
+  GetBillingCurrent200DataEntitlements,
+  GetBillingCurrent200DataSubscription,
+} from '@/api/model'
 
 type Subscription = NonNullable<GetBillingCurrent200DataSubscription>
 type SubscriptionStatus = Subscription['status']
 type PlanSlug = Subscription['plan']['slug']
+
+type Entitlements = GetBillingCurrent200DataEntitlements
+type BooleanEntitlementKey = {
+  [K in keyof Entitlements]: Entitlements[K] extends boolean ? K : never
+}[keyof Entitlements]
+
+type UpgradableFeature = Exclude<
+  BooleanEntitlementKey,
+  'isActive' | 'isTrialing' | 'billingManagedExternally'
+>
+
+export const FEATURE_LABEL: Record<UpgradableFeature, string> = {
+  aiEnabled: 'Assistente IA',
+  customBranding: 'Marca personalizada',
+  apiAccess: 'Acesso à API',
+  advancedReports: 'Relatórios avançados',
+  prioritySupport: 'Suporte prioritário',
+}
+
+export const UPGRADABLE_FEATURE_KEYS = Object.keys(
+  FEATURE_LABEL
+) as readonly UpgradableFeature[]
+
+export type { BooleanEntitlementKey, UpgradableFeature }
 
 export const PLAN_LABEL: Record<string, string> = {
   free: 'Gratuito',
