@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { AiAgentsPage } from '@/features/ai-agents/components/ai-agents-page'
+import { BillingPage } from '@/features/billing/components/billing-page'
 import { ChannelsPage } from '@/features/channels/components/channels-page'
 import { SettingsLayout } from '@/features/channels/components/settings-layout'
 import { MembersPage } from '@/features/members/components/members-page'
@@ -19,6 +20,8 @@ function SettingsContent({ section }: { readonly section: string }) {
       return <MembersPage />
     case 'organization':
       return <OrganizationPage />
+    case 'billing':
+      return <BillingPage />
     default:
       return <ChannelsPage />
   }

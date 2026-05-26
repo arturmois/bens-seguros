@@ -1,10 +1,17 @@
 'use client'
 
 import Link from 'next/link'
-import { Brain, Building2, Radio, Users } from 'lucide-react'
+import { Brain, Building2, CreditCard, Radio, Users } from 'lucide-react'
+import type { Role } from '@repo/auth/roles'
+import { useOrgs } from '@/features/org/hooks/use-orgs'
 import { cn } from '@/lib/utils'
 
-type SettingsSection = 'channels' | 'agents' | 'members' | 'organization'
+type SettingsSection =
+  | 'channels'
+  | 'agents'
+  | 'members'
+  | 'organization'
+  | 'billing'
 
 interface SettingsSidebarItem {
   readonly id: SettingsSection
@@ -12,6 +19,7 @@ interface SettingsSidebarItem {
   readonly icon: typeof Radio
   readonly disabled: boolean
   readonly href: string
+  readonly roles?: readonly Role[]
 }
 
 const SETTINGS_SECTIONS: readonly SettingsSidebarItem[] = [
@@ -43,6 +51,14 @@ const SETTINGS_SECTIONS: readonly SettingsSidebarItem[] = [
     disabled: false,
     href: '/settings?section=organization',
   },
+  {
+    id: 'billing',
+    label: 'Plano',
+    icon: CreditCard,
+    disabled: false,
+    href: '/settings?section=billing',
+    roles: ['OWNER', 'ADMIN'],
+  },
 ] as const
 
 interface SettingsLayoutProps {
@@ -54,6 +70,11 @@ export function SettingsLayout({
   activeSection,
   children,
 }: SettingsLayoutProps) {
+  const { activeOrg } = useOrgs()
+  const role = activeOrg?.role
+  const visibleSections = SETTINGS_SECTIONS.filter(
+    (s) => !s.roles || (role !== undefined && s.roles.includes(role))
+  )
   return (
     <div className="space-y-6">
       <div>
@@ -67,7 +88,7 @@ export function SettingsLayout({
           aria-label="Seções de configuração"
           className="flex flex-row gap-1 overflow-x-auto lg:w-56 lg:shrink-0 lg:flex-col lg:overflow-x-visible"
         >
-          {SETTINGS_SECTIONS.map((section) => (
+          {visibleSections.map((section) => (
             <SettingsNavItem
               key={section.id}
               section={section}

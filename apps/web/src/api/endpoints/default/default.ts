@@ -4,15 +4,18 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseQueryResult,
+  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from '@tanstack/react-query'
@@ -180,4 +183,96 @@ export const prefetchGetHealthQuery = async <
   await queryClient.prefetchQuery(queryOptions)
 
   return queryClient
+}
+
+export type postApiWebhooksAsaasResponse200 = {
+  data: void
+  status: 200
+}
+
+export type postApiWebhooksAsaasResponseSuccess =
+  postApiWebhooksAsaasResponse200 & {
+    headers: Headers
+  }
+export type postApiWebhooksAsaasResponse = postApiWebhooksAsaasResponseSuccess
+
+export const getPostApiWebhooksAsaasUrl = () => {
+  return `/api/webhooks/asaas`
+}
+
+export const postApiWebhooksAsaas = async (
+  options?: RequestInit
+): Promise<postApiWebhooksAsaasResponse> => {
+  return customFetch<postApiWebhooksAsaasResponse>(
+    getPostApiWebhooksAsaasUrl(),
+    {
+      ...options,
+      method: 'POST',
+    }
+  )
+}
+
+export const getPostApiWebhooksAsaasMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postApiWebhooksAsaas>>,
+    TError,
+    void,
+    TContext
+  >
+  request?: SecondParameter<typeof customFetch>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postApiWebhooksAsaas>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ['postApiWebhooksAsaas']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postApiWebhooksAsaas>>,
+    void
+  > = () => {
+    return postApiWebhooksAsaas(requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostApiWebhooksAsaasMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postApiWebhooksAsaas>>
+>
+
+export type PostApiWebhooksAsaasMutationError = unknown
+
+export const usePostApiWebhooksAsaas = <TError = unknown, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postApiWebhooksAsaas>>,
+      TError,
+      void,
+      TContext
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postApiWebhooksAsaas>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(
+    getPostApiWebhooksAsaasMutationOptions(options),
+    queryClient
+  )
 }
