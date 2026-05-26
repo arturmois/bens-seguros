@@ -17,6 +17,7 @@ import { formatDate } from '@/lib/formatters'
 
 import { useBillingCurrent } from '../hooks/use-billing-current'
 import { planLabel, STATUS_LABEL, STATUS_VARIANT } from '../lib/constants'
+import { AiUsageCard } from './ai-usage-card'
 import { InvoicesList } from './invoices-list'
 
 function BillingSkeleton() {
@@ -149,6 +150,7 @@ export function BillingPage() {
       {subscription !== null && !subscription.billingManagedExternally && (
         <InvoicesList />
       )}
+      {subscription !== null && <AiUsageCard />}
     </div>
   )
 }

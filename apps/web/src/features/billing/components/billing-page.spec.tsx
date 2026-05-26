@@ -10,6 +10,10 @@ vi.mock('./invoices-list', () => ({
   InvoicesList: () => null,
 }))
 
+vi.mock('./ai-usage-card', () => ({
+  AiUsageCard: () => null,
+}))
+
 import { useBillingCurrent } from '../hooks/use-billing-current'
 import { BillingPage } from './billing-page'
 

@@ -101,3 +101,40 @@ export const ListBillingInvoicesResponse = zod.object({
     nextCursor: zod.string().nullish(),
   }),
 })
+
+/**
+ * @summary AI usage daily breakdown for the active org
+ */
+export const getBillingAiUsageQueryDaysDefault = 30
+export const getBillingAiUsageQueryDaysMax = 90
+
+export const GetBillingAiUsageQueryParams = zod.object({
+  days: zod
+    .number()
+    .min(1)
+    .max(getBillingAiUsageQueryDaysMax)
+    .default(getBillingAiUsageQueryDaysDefault),
+})
+
+export const GetBillingAiUsageResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    series: zod.array(
+      zod.object({
+        date: zod.string(),
+        inputTokens: zod.number(),
+        outputTokens: zod.number(),
+        totalCostMicrocents: zod.number(),
+        messageCount: zod.number(),
+      })
+    ),
+    totals: zod.object({
+      inputTokens: zod.number(),
+      outputTokens: zod.number(),
+      totalCostMicrocents: zod.number(),
+      messageCount: zod.number(),
+      periodStart: zod.string().datetime({}),
+      periodEnd: zod.string().datetime({}),
+    }),
+  }),
+})
