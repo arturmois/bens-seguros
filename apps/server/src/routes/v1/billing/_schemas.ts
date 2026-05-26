@@ -1,6 +1,10 @@
 import { z } from 'zod'
 
-import { successResponse } from '../../shared/response.schema.js'
+import { paginationQuery } from '../../shared/pagination.schema.js'
+import {
+  paginatedResponse,
+  successResponse,
+} from '../../shared/response.schema.js'
 
 const subscriptionStatusEnum = z.enum([
   'TRIALING',
@@ -59,3 +63,32 @@ export const billingCurrentResponse = successResponse(
     entitlements: entitlementsPayloadSchema,
   })
 )
+
+const invoiceStatusEnum = z.enum([
+  'PENDING',
+  'PAID',
+  'OVERDUE',
+  'CANCELED',
+  'REFUNDED',
+])
+
+const paymentMethodEnum = z.enum(['CREDIT_CARD', 'BOLETO', 'PIX'])
+
+const invoiceItemSchema = z.object({
+  id: z.string(),
+  status: invoiceStatusEnum,
+  amountCents: z.number().int(),
+  baseAmountCents: z.number().int(),
+  overageAmountCents: z.number().int(),
+  dueDate: z.string().datetime(),
+  paidAt: z.string().datetime().nullable(),
+  periodStart: z.string().datetime(),
+  periodEnd: z.string().datetime(),
+  paymentMethod: paymentMethodEnum.nullable(),
+  invoiceUrl: z.string().nullable(),
+  receiptUrl: z.string().nullable(),
+  createdAt: z.string().datetime(),
+})
+
+export const listInvoicesQuery = paginationQuery(20, 100)
+export const invoiceListResponse = paginatedResponse(invoiceItemSchema)
