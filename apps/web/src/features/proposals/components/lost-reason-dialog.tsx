@@ -54,7 +54,7 @@ export function LostReasonDialog({
             Informe o motivo da perda desta proposta.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-2">
+        <div className="space-y-2 p-6">
           <Label htmlFor="lost-reason">Motivo</Label>
           <Input
             id="lost-reason"
