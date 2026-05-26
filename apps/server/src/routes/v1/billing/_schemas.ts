@@ -92,3 +92,31 @@ const invoiceItemSchema = z.object({
 
 export const listInvoicesQuery = paginationQuery(20, 100)
 export const invoiceListResponse = paginatedResponse(invoiceItemSchema)
+
+export const aiUsageQuery = z.object({
+  days: z.coerce.number().int().min(1).max(90).default(30),
+})
+
+const aiUsageSeriesItemSchema = z.object({
+  date: z.string(),
+  inputTokens: z.number().int(),
+  outputTokens: z.number().int(),
+  totalCostMicrocents: z.number().int(),
+  messageCount: z.number().int(),
+})
+
+const aiUsageTotalsSchema = z.object({
+  inputTokens: z.number().int(),
+  outputTokens: z.number().int(),
+  totalCostMicrocents: z.number().int(),
+  messageCount: z.number().int(),
+  periodStart: z.string().datetime(),
+  periodEnd: z.string().datetime(),
+})
+
+export const aiUsageResponse = successResponse(
+  z.object({
+    series: z.array(aiUsageSeriesItemSchema),
+    totals: aiUsageTotalsSchema,
+  })
+)
