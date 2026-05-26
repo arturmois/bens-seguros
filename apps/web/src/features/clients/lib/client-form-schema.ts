@@ -68,18 +68,28 @@ const addressOrNull = z.preprocess((value) => {
   return cep.length === 0 ? null : value
 }, createClientBodySchema.shape.address)
 
+const documentField = z
+  .string()
+  .transform((value) => value.replace(/\D/g, ''))
+  .pipe(
+    z
+      .string()
+      .refine((digits) => digits.length === 11 || digits.length === 14, {
+        message: 'Documento deve ter 11 (CPF) ou 14 (CNPJ) dígitos',
+      })
+  )
+
 export const clientFormSchema = createClientBodySchema
-  .extend({ address: addressOrNull })
+  .extend({ address: addressOrNull, document: documentField })
   .superRefine((data, ctx) => {
-    const digits = (data.document ?? '').replace(/\D/g, '')
-    if (data.personType === 'INDIVIDUAL' && !isValidCpf(digits)) {
+    if (data.personType === 'INDIVIDUAL' && !isValidCpf(data.document)) {
       ctx.addIssue({
         path: ['document'],
         code: z.ZodIssueCode.custom,
         message: 'CPF inválido',
       })
     }
-    if (data.personType === 'COMPANY' && !isValidCnpj(digits)) {
+    if (data.personType === 'COMPANY' && !isValidCnpj(data.document)) {
       ctx.addIssue({
         path: ['document'],
         code: z.ZodIssueCode.custom,

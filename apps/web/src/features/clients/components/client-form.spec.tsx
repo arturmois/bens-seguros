@@ -136,6 +136,36 @@ describe('ClientForm (mode=create)', () => {
     })
   })
 
+  it('cria cliente PJ com CNPJ formatado (envia 14 dígitos)', async () => {
+    createMutateMock.mockImplementation(
+      (_values: unknown, opts: { onSuccess?: (resp: unknown) => void }) => {
+        opts.onSuccess?.({ data: { data: { id: 'client-pj-1' } } })
+      }
+    )
+    const companyInitial = {
+      ...sampleClient,
+      personType: 'COMPANY' as const,
+      document: '',
+      legalName: '',
+    }
+    render(<ClientForm initial={companyInitial} />)
+    fireEvent.change(screen.getByLabelText(/CNPJ/i), {
+      target: { value: '11.222.333/0001-81' },
+    })
+    fireEvent.change(screen.getByLabelText(/Razão social/i), {
+      target: { value: 'Empresa Teste LTDA' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /Criar cliente/i }))
+    await waitFor(() => {
+      expect(createMutateMock).toHaveBeenCalledTimes(1)
+    })
+    const submitted = createMutateMock.mock.calls[0]?.[0] as Record<
+      string,
+      unknown
+    >
+    expect(submitted.document).toBe('11222333000181')
+  })
+
   it('chama onSuccess callback ao invés de router.push quando passado', async () => {
     createMutateMock.mockImplementation(
       (_values: unknown, opts: { onSuccess?: (resp: unknown) => void }) => {
