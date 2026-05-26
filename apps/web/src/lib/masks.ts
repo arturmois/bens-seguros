@@ -66,11 +66,9 @@ export function formatCep(raw: string | null | undefined): string {
   return format(digits, CEP_MASK)
 }
 
-export function formatDocumentForMask(raw: string | null | undefined): string {
+export function sanitizeDocumentForMask(raw: unknown): string {
+  if (typeof raw !== 'string') return ''
   if (!raw) return ''
   if (raw.includes('*')) return ''
-  const digits = raw.replace(/\D/g, '')
-  if (!digits) return ''
-  if (digits.length <= 11) return format(digits.slice(0, 11), CPF_MASK)
-  return format(digits.slice(0, 14), CNPJ_MASK)
+  return raw
 }
