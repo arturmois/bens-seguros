@@ -10,6 +10,7 @@ import { setupExpirePoliciesProcessor } from './processors/expire-policies-proce
 import { setupNotificationProcessor } from './processors/notification-processor.js'
 import { setupProactiveAlertsProcessor } from './processors/alerts/index.js'
 import { setupSendQuoteEmailProcessor } from './processors/send-quote-email-processor.js'
+import { setupTrialExpiryProcessor } from './processors/trial-expiry-processor.js'
 import { setupWebhookReconciliationProcessor } from './processors/webhook-reconciliation-processor.js'
 
 if (env.SENTRY_DSN) {
@@ -62,6 +63,7 @@ const proactiveAlerts = setupProactiveAlertsProcessor(
   notifications.queue
 )
 const sendQuoteEmail = setupSendQuoteEmailProcessor(connection)
+const trialExpiry = setupTrialExpiryProcessor(connection)
 const webhookReconciliation = setupWebhookReconciliationProcessor(connection)
 
 const allWorkers = [
@@ -71,6 +73,7 @@ const allWorkers = [
   notifications.worker,
   proactiveAlerts.worker,
   sendQuoteEmail.worker,
+  trialExpiry.worker,
   webhookReconciliation.worker,
 ]
 
@@ -86,7 +89,7 @@ for (const w of allWorkers) {
 }
 
 logger.info(
-  'ERP Worker started. Active processors: audit-archive, csv-import, expire-policies, notifications, proactive-alerts, send-quote-email, webhook-reconciliation'
+  'ERP Worker started. Active processors: audit-archive, csv-import, expire-policies, notifications, proactive-alerts, send-quote-email, trial-expiry, webhook-reconciliation'
 )
 
 const gracefulShutdown = async () => {
@@ -98,6 +101,7 @@ const gracefulShutdown = async () => {
     notifications.worker.close(),
     proactiveAlerts.worker.close(),
     sendQuoteEmail.worker.close(),
+    trialExpiry.worker.close(),
     webhookReconciliation.worker.close(),
   ])
   await Promise.all([
@@ -107,6 +111,7 @@ const gracefulShutdown = async () => {
     notifications.queue.close(),
     proactiveAlerts.queue.close(),
     sendQuoteEmail.queue.close(),
+    trialExpiry.queue.close(),
     webhookReconciliation.queue.close(),
   ])
   if (env.SENTRY_DSN) {
