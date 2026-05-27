@@ -7,6 +7,7 @@ import pino from 'pino'
 import 'reflect-metadata'
 import { setupAuditArchiveProcessor } from './processors/audit-archive-processor.js'
 import { setupCsvImportProcessor } from './processors/csv-import-processor.js'
+import { setupDunningProcessor } from './processors/dunning-processor.js'
 import { setupExpirePoliciesProcessor } from './processors/expire-policies-processor.js'
 import { setupExpireSubscriptionsProcessor } from './processors/expire-subscriptions-processor.js'
 import { setupNotificationProcessor } from './processors/notification-processor.js'
@@ -58,6 +59,7 @@ const connection = {
 
 const auditArchive = setupAuditArchiveProcessor(connection)
 const csvImport = setupCsvImportProcessor(connection)
+const dunning = setupDunningProcessor(connection)
 const expirePolicies = setupExpirePoliciesProcessor(connection)
 const expireSubscriptions = setupExpireSubscriptionsProcessor(connection)
 const notifications = setupNotificationProcessor(connection)
@@ -72,6 +74,7 @@ const webhookReconciliation = setupWebhookReconciliationProcessor(connection)
 const allWorkers: Worker[] = [
   auditArchive.worker,
   csvImport.worker,
+  dunning.worker,
   expirePolicies.worker,
   expireSubscriptions.worker,
   notifications.worker,
@@ -93,7 +96,7 @@ for (const w of allWorkers) {
 }
 
 logger.info(
-  'ERP Worker started. Active processors: audit-archive, csv-import, expire-policies, expire-subscriptions, notifications, proactive-alerts, send-quote-email, trial-expiry, webhook-reconciliation'
+  'ERP Worker started. Active processors: audit-archive, csv-import, dunning, expire-policies, expire-subscriptions, notifications, proactive-alerts, send-quote-email, trial-expiry, webhook-reconciliation'
 )
 
 const gracefulShutdown = async () => {
@@ -101,6 +104,7 @@ const gracefulShutdown = async () => {
   await Promise.all([
     auditArchive.worker.close(),
     csvImport.worker.close(),
+    dunning.worker.close(),
     expirePolicies.worker.close(),
     expireSubscriptions.worker.close(),
     notifications.worker.close(),
@@ -112,6 +116,7 @@ const gracefulShutdown = async () => {
   await Promise.all([
     auditArchive.queue.close(),
     csvImport.queue.close(),
+    dunning.queue.close(),
     expirePolicies.queue.close(),
     expireSubscriptions.queue.close(),
     notifications.queue.close(),
