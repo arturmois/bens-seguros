@@ -120,3 +120,10 @@ export const aiUsageResponse = successResponse(
     totals: aiUsageTotalsSchema,
   })
 )
+
+export const cancelSubscriptionResponse = successResponse(
+  z.object({
+    canceledAt: z.string().datetime(),
+    currentPeriodEnd: z.string().datetime(),
+  })
+)

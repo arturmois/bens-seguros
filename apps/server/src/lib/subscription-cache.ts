@@ -16,10 +16,6 @@ export {
   SUBSCRIPTION_INVALIDATION_CHANNEL,
 }
 
-// Snapshot stored in Redis. Plan is embedded (denormalized) so subscription
-// middleware doesn't need a second query per cache miss. Trade-off: writes to
-// Plan must invalidate every Subscription using that plan (handled by SE5 —
-// Plan writes are super-admin only and infrequent).
 export interface SubscriptionSnapshot {
   readonly id: string
   readonly organizationId: string
@@ -183,9 +179,6 @@ async function loadFromDatabase(
   }
 }
 
-// Reads subscription via cache (Redis 30s TTL). Miss falls back to Postgres
-// (DATABASE_ADMIN_URL so RLS isn't an issue — middleware runs with the request
-// organizationId but the Subscription table is the org's own row).
 export async function getSubscriptionFromCache(
   redis: IORedis,
   organizationId: string
@@ -207,8 +200,6 @@ export async function getSubscriptionFromCache(
   return fresh
 }
 
-// Drops the cache entry for one org and broadcasts on pub/sub so other server
-// processes (multi-instance) drop their in-memory copies too.
 export async function invalidateSubscriptionCache(
   redis: IORedis,
   organizationId: string

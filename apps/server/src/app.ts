@@ -3,9 +3,8 @@ import helmet from '@fastify/helmet'
 import multipart from '@fastify/multipart'
 import rateLimit from '@fastify/rate-limit'
 import swagger from '@fastify/swagger'
-import crypto from 'node:crypto'
-import { createAsaasBillingProvider } from '@repo/asaas-adapter'
 import type { AsaasBillingProvider } from '@repo/asaas-adapter'
+import { createAsaasBillingProvider } from '@repo/asaas-adapter'
 import { createAuth } from '@repo/auth'
 import {
   ResendEmailProvider,
@@ -17,7 +16,6 @@ import { env } from '@repo/env'
 import { RATE_LIMITS } from '@repo/shared'
 import { PINO_REDACT_CONFIG } from '@repo/shared/pino-redact'
 import * as Sentry from '@sentry/node'
-import IORedis from 'ioredis'
 import type { FastifyError } from 'fastify'
 import Fastify from 'fastify'
 import {
@@ -26,6 +24,8 @@ import {
   serializerCompiler,
   validatorCompiler,
 } from 'fastify-type-provider-zod'
+import IORedis from 'ioredis'
+import crypto from 'node:crypto'
 import 'reflect-metadata'
 import { ZodError } from 'zod'
 import { setupBullBoard } from './bull-board.js'
@@ -37,6 +37,9 @@ import { createInternalRateLimitHook } from './middlewares/internal-rate-limit.j
 import { tenantMiddleware } from './middlewares/tenant-middleware.js'
 import { applySecurityHeaders } from './plugins/security-headers.js'
 import { registerAuthRoutes } from './routes/auth-routes.js'
+import { internalContactRoutes } from './routes/internal/contacts/index.js'
+import { internalLeadRoutes } from './routes/internal/leads/index.js'
+import { termsRoutes } from './routes/terms/index.js'
 import { adminAiUsageRoutes } from './routes/v1/admin/ai-usage/index.js'
 import { assistanceRoutes } from './routes/v1/assistances/index.js'
 import { auditLogRoutes } from './routes/v1/audit-logs/index.js'
@@ -49,23 +52,20 @@ import { commissionRoutes } from './routes/v1/commissions/index.js'
 import { contactRoutes } from './routes/v1/contacts/index.js'
 import { documentRoutes } from './routes/v1/documents/index.js'
 import { endorsementRoutes } from './routes/v1/endorsements/index.js'
+import { goalRoutes } from './routes/v1/goals/index.js'
 import { insurerRoutes } from './routes/v1/insurers/index.js'
 import { invitationRoutes } from './routes/v1/invitations/index.js'
 import { publicInvitationRoutes } from './routes/v1/invitations/public.js'
-import { goalRoutes } from './routes/v1/goals/index.js'
 import { memberRoutes } from './routes/v1/members/index.js'
-import { organizationRoutes } from './routes/v1/organization/index.js'
 import { notificationRoutes } from './routes/v1/notifications/index.js'
+import { organizationRoutes } from './routes/v1/organization/index.js'
 import { policyRoutes } from './routes/v1/policies/index.js'
 import { proposalRoutes } from './routes/v1/proposals/index.js'
 import { searchRoutes } from './routes/v1/search/index.js'
-import { termsRoutes } from './routes/terms/index.js'
-import { asaasWebhookRoute } from './routes/webhooks/asaas/index.js'
 import { statsRoutes } from './routes/v1/stats/index.js'
-import { internalContactRoutes } from './routes/internal/contacts/index.js'
-import { internalLeadRoutes } from './routes/internal/leads/index.js'
 import { tenantRoutes } from './routes/v1/tenants/index.js'
 import { vehicleRoutes } from './routes/v1/vehicles/index.js'
+import { asaasWebhookRoute } from './routes/webhooks/asaas/index.js'
 
 export async function buildApp() {
   const redis = new IORedis(env.REDIS_URL)
@@ -363,7 +363,7 @@ export async function buildApp() {
     await authenticatedApp.register(cepRoutes)
     await authenticatedApp.register(vehicleRoutes)
     await authenticatedApp.register(termsRoutes)
-    await authenticatedApp.register(createBillingRoutes(redis))
+    await authenticatedApp.register(createBillingRoutes(redis, asaasProvider))
   })
   await app.register(async (internalApp) => {
     internalApp.addHook('preHandler', internalAuthMiddleware)
