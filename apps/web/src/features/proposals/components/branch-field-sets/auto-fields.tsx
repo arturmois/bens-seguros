@@ -65,29 +65,23 @@ export function AutoFields({
     }
   }
 
-  async function handlePlateBlur(e: React.FocusEvent<HTMLInputElement>) {
+  function handlePlateBlur(e: React.FocusEvent<HTMLInputElement>) {
     const plate = normalizePlate(e.target.value)
     if (!isValidPlate(plate)) return
-    try {
-      const result = await lookup.mutateAsync({ data: { plate, proposalId } })
-      fillEmptyFields(result.data.data)
-    } catch {
-      // onError in useVehicleLookup handles the toast
-    }
+    lookup.mutate(
+      { data: { plate, proposalId } },
+      { onSuccess: (result) => fillEmptyFields(result.data.data) }
+    )
   }
 
-  async function handleVinBlur(e: React.FocusEvent<HTMLInputElement>) {
+  function handleVinBlur(e: React.FocusEvent<HTMLInputElement>) {
     if (getValues('licensePlate')) return
     const vin = normalizeVin(e.target.value)
     if (!isValidVin(vin)) return
-    try {
-      const result = await lookup.mutateAsync({
-        data: { chassi: vin, proposalId },
-      })
-      fillEmptyFields(result.data.data)
-    } catch {
-      // onError in useVehicleLookup handles the toast
-    }
+    lookup.mutate(
+      { data: { chassi: vin, proposalId } },
+      { onSuccess: (result) => fillEmptyFields(result.data.data) }
+    )
   }
 
   return (
