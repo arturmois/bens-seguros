@@ -1,10 +1,11 @@
-import { createHash, timingSafeEqual } from 'node:crypto'
 import {
   BillingProviderAuthError,
   BillingProviderInvalidRequestError,
+  BillingProviderUnhandledEventError,
   CanonicalEventSchema,
   type CanonicalEvent,
 } from '@repo/billing-port'
+import { createHash, timingSafeEqual } from 'node:crypto'
 import { AsaasWebhookPayloadSchema } from './asaas-types'
 import { asaasEventToCanonicalType, decimalToCents } from './mappers'
 
@@ -109,9 +110,10 @@ export function validateAndParseWebhook(
 
   const payment = payload.data.payment
   if (!payment.subscription) {
-    throw new BillingProviderInvalidRequestError(
+    throw new BillingProviderUnhandledEventError(
       'asaas',
-      `${payload.data.event} event has no subscription reference`
+      `${payload.data.event} event has no subscription reference (one-off charge or installment)`,
+      { reason: 'no_subscription' }
     )
   }
   const amountCents = decimalToCents(payment.value)

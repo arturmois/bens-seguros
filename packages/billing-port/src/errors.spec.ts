@@ -5,6 +5,7 @@ import {
   BillingProviderInvalidRequestError,
   BillingProviderNetworkError,
   BillingProviderRateLimitError,
+  BillingProviderUnhandledEventError,
 } from './errors'
 
 describe('BillingProviderError', () => {
@@ -51,5 +52,21 @@ describe('subclasses', () => {
     const err = new BillingProviderNetworkError('asaas', 'timeout')
     expect(err).toBeInstanceOf(BillingProviderError)
     expect(err.name).toBe('BillingProviderNetworkError')
+  })
+
+  it('BillingProviderUnhandledEventError carrega reason', () => {
+    const err = new BillingProviderUnhandledEventError(
+      'asaas',
+      'event outside scope',
+      { reason: 'no_subscription' }
+    )
+    expect(err).toBeInstanceOf(BillingProviderError)
+    expect(err.name).toBe('BillingProviderUnhandledEventError')
+    expect(err.reason).toBe('no_subscription')
+  })
+
+  it('BillingProviderUnhandledEventError reason default unknown', () => {
+    const err = new BillingProviderUnhandledEventError('asaas', 'unscoped')
+    expect(err.reason).toBe('unknown')
   })
 })

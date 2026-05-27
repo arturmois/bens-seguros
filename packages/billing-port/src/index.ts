@@ -4,6 +4,7 @@ export {
   BillingProviderInvalidRequestError,
   BillingProviderNetworkError,
   BillingProviderRateLimitError,
+  BillingProviderUnhandledEventError,
 } from './errors'
 
 export { CanonicalEventSchema } from './canonical-event'

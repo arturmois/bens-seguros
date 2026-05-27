@@ -1,12 +1,13 @@
-import Fastify, { type FastifyInstance } from 'fastify'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   BillingProviderAuthError,
   BillingProviderInvalidRequestError,
+  BillingProviderUnhandledEventError,
   type CanonicalEvent,
 } from '@repo/billing-port'
 import { Prisma } from '@repo/db'
+import Fastify, { type FastifyInstance } from 'fastify'
 import type IORedis from 'ioredis'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { asaasWebhookRoute } from '../index.js'
 
 const mockProvider = {
@@ -180,6 +181,32 @@ describe('POST /api/webhooks/asaas', () => {
     })
 
     expect(res.statusCode).toBe(400)
+    expect(mockPrismaAdmin.webhookEvent.create).not.toHaveBeenCalled()
+    await app.close()
+  })
+
+  it('200 OK + skipped em BillingProviderUnhandledEventError (avulsas)', async () => {
+    mockProvider.validateAndParseWebhook.mockImplementation(() => {
+      throw new BillingProviderUnhandledEventError(
+        'asaas',
+        'PAYMENT_RECEIVED event has no subscription reference',
+        { reason: 'no_subscription' }
+      )
+    })
+
+    const app = await buildTestApp(mockProvider)
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/webhooks/asaas',
+      headers: { 'asaas-access-token': 'super-secret' },
+      payload: { id: 'x', event: 'PAYMENT_RECEIVED' },
+    })
+
+    expect(res.statusCode).toBe(200)
+    expect(res.json()).toEqual({
+      success: true,
+      data: { skipped: true, reason: 'no_subscription' },
+    })
     expect(mockPrismaAdmin.webhookEvent.create).not.toHaveBeenCalled()
     await app.close()
   })

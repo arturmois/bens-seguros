@@ -1,7 +1,7 @@
-import type { FastifyBaseLogger, FastifyInstance } from 'fastify'
 import {
   BillingProviderAuthError,
   BillingProviderInvalidRequestError,
+  BillingProviderUnhandledEventError,
   type CanonicalEvent,
 } from '@repo/billing-port'
 import {
@@ -11,6 +11,7 @@ import {
   type UpsertInvoiceInput,
 } from '@repo/core'
 import { Prisma, prismaAdmin } from '@repo/db'
+import type { FastifyBaseLogger, FastifyInstance } from 'fastify'
 import type IORedis from 'ioredis'
 import { invalidateSubscriptionCache } from '../../../lib/subscription-cache.js'
 
@@ -147,6 +148,16 @@ export function asaasWebhookRoute(
           return reply.status(401).send({
             success: false,
             error: { code: 'INVALID_TOKEN', message: err.message },
+          })
+        }
+        if (err instanceof BillingProviderUnhandledEventError) {
+          request.log.info(
+            { reason: err.reason, message: err.message },
+            'Asaas webhook: unhandled event, skipping'
+          )
+          return reply.status(200).send({
+            success: true,
+            data: { skipped: true, reason: err.reason },
           })
         }
         if (err instanceof BillingProviderInvalidRequestError) {

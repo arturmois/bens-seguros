@@ -1,8 +1,9 @@
-import { describe, expect, it } from 'vitest'
 import {
   BillingProviderAuthError,
   BillingProviderInvalidRequestError,
+  BillingProviderUnhandledEventError,
 } from '@repo/billing-port'
+import { describe, expect, it } from 'vitest'
 import { validateAndParseWebhook } from './webhooks'
 
 const SECRET = 'super-secret-current-32chars-long'
@@ -154,7 +155,7 @@ describe('validateAndParseWebhook', () => {
     ).toThrow(BillingProviderInvalidRequestError)
   })
 
-  it('rejeita PAYMENT_RECEIVED sem subscription reference', () => {
+  it('throws UnhandledEventError em PAYMENT_RECEIVED sem subscription reference', () => {
     const body = JSON.stringify({
       id: 'evt_no_sub',
       event: 'PAYMENT_RECEIVED',
@@ -174,7 +175,36 @@ describe('validateAndParseWebhook', () => {
         { 'asaas-access-token': SECRET },
         { currentSecret: SECRET }
       )
-    ).toThrow(BillingProviderInvalidRequestError)
+    ).toThrow(BillingProviderUnhandledEventError)
+  })
+
+  it('UnhandledEventError carrega reason no_subscription', () => {
+    expect.assertions(2)
+    const body = JSON.stringify({
+      id: 'evt_no_sub_2',
+      event: 'PAYMENT_CONFIRMED',
+      payment: {
+        object: 'payment',
+        id: 'pay_no_sub_2',
+        customer: 'cus_001',
+        value: 100,
+        billingType: 'PIX',
+        status: 'CONFIRMED',
+        dueDate: '2026-05-26',
+      },
+    })
+    try {
+      validateAndParseWebhook(
+        body,
+        { 'asaas-access-token': SECRET },
+        { currentSecret: SECRET }
+      )
+    } catch (err) {
+      expect(err).toBeInstanceOf(BillingProviderUnhandledEventError)
+      if (err instanceof BillingProviderUnhandledEventError) {
+        expect(err.reason).toBe('no_subscription')
+      }
+    }
   })
 
   it('rejeita token de tamanho diferente em constant time (hash compare)', () => {

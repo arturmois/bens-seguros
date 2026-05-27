@@ -63,3 +63,17 @@ export class BillingProviderNetworkError extends BillingProviderError {
     this.name = 'BillingProviderNetworkError'
   }
 }
+
+export class BillingProviderUnhandledEventError extends BillingProviderError {
+  readonly reason: string
+
+  constructor(
+    provider: ProviderName,
+    message: string,
+    options?: { cause?: unknown; reason?: string }
+  ) {
+    super(provider, message, options)
+    this.name = 'BillingProviderUnhandledEventError'
+    this.reason = options?.reason ?? 'unknown'
+  }
+}
