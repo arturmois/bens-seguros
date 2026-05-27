@@ -1,13 +1,26 @@
 import { rm } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-import pino from 'pino'
+import { getEntitlementsForOrg } from '@repo/core'
+import { prismaAdmin } from '@repo/db'
 import { Channel } from '@repo/db-chat'
 import { env } from '@repo/env'
 import { CHAT_LIMITS } from '@repo/shared'
+import pino from 'pino'
 
 import { BaileysBroker } from './baileys-broker.js'
 import type { BrokerEvents } from './broker.js'
+
+// Hard cap independent of plan: Baileys SDK and host RAM constraints. Plan
+// quota (entitlements.maxChannels) is layered on top — the effective limit is
+// the minimum of the two.
+const BAILEYS_TECHNICAL_HARD_CAP = CHAT_LIMITS.MAX_BAILEYS_CHANNELS_PER_ORG
+
+async function getChannelLimitForOrg(tenantId: string): Promise<number> {
+  const entitlements = await getEntitlementsForOrg(prismaAdmin, tenantId)
+  const planLimit = entitlements.maxChannels ?? Number.POSITIVE_INFINITY
+  return Math.min(planLimit, BAILEYS_TECHNICAL_HARD_CAP)
+}
 
 interface ManagedConnection {
   readonly broker: BaileysBroker
@@ -50,17 +63,14 @@ export async function connectChannel(
     return
   }
   const currentCount = countChannelsForTenant(tenantId)
-  if (currentCount >= CHAT_LIMITS.MAX_BAILEYS_CHANNELS_PER_ORG) {
+  const limit = await getChannelLimitForOrg(tenantId)
+  if (currentCount >= limit) {
     logger.warn(
-      {
-        tenantId,
-        currentCount,
-        limit: CHAT_LIMITS.MAX_BAILEYS_CHANNELS_PER_ORG,
-      },
+      { tenantId, currentCount, limit },
       'Baileys channel limit reached for tenant'
     )
     throw new Error(
-      `Tenant ${tenantId} has reached the max of ${String(CHAT_LIMITS.MAX_BAILEYS_CHANNELS_PER_ORG)} Baileys channels`
+      `Tenant ${tenantId} has reached the max of ${String(limit)} Baileys channels`
     )
   }
   const broker = new BaileysBroker(tenantId, channelId)
@@ -83,17 +93,14 @@ export async function connectChannelWithPairingCode(
     }
   }
   const currentCount = countChannelsForTenant(tenantId)
-  if (currentCount >= CHAT_LIMITS.MAX_BAILEYS_CHANNELS_PER_ORG) {
+  const limit = await getChannelLimitForOrg(tenantId)
+  if (currentCount >= limit) {
     logger.warn(
-      {
-        tenantId,
-        currentCount,
-        limit: CHAT_LIMITS.MAX_BAILEYS_CHANNELS_PER_ORG,
-      },
+      { tenantId, currentCount, limit },
       'Baileys channel limit reached for tenant'
     )
     throw new Error(
-      `Tenant ${tenantId} has reached the max of ${String(CHAT_LIMITS.MAX_BAILEYS_CHANNELS_PER_ORG)} Baileys channels`
+      `Tenant ${tenantId} has reached the max of ${String(limit)} Baileys channels`
     )
   }
   const broker = new BaileysBroker(tenantId, channelId)

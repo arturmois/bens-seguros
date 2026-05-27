@@ -5,6 +5,11 @@ export {
 } from './application/build-entitlements.js'
 
 export {
+  getEntitlementsForOrg,
+  type SubscriptionLookupClient,
+} from './application/get-entitlements-for-org.js'
+
+export {
   processBillingWebhookEvent,
   type ProcessBillingDeps,
   type ProcessResult,
