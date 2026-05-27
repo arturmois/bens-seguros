@@ -1,6 +1,7 @@
 'use client'
 
 import { AlertCircle, BadgeCheck, Building2 } from 'lucide-react'
+import { useState } from 'react'
 
 import type { GetBillingCurrent200DataSubscription } from '@/api/model'
 import { Badge } from '@/components/ui/badge'
@@ -9,6 +10,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
@@ -18,7 +20,15 @@ import { formatDate } from '@/lib/formatters'
 import { useBillingCurrent } from '../hooks/use-billing-current'
 import { planLabel, STATUS_LABEL, STATUS_VARIANT } from '../lib/constants'
 import { AiUsageCard } from './ai-usage-card'
+import { CancelSubscriptionDialog } from './cancel-subscription-dialog'
 import { InvoicesList } from './invoices-list'
+
+type Subscription = NonNullable<GetBillingCurrent200DataSubscription>
+const CANCELABLE_STATUSES: ReadonlyArray<Subscription['status']> = [
+  'TRIALING',
+  'ACTIVE',
+  'PAST_DUE',
+]
 
 function BillingSkeleton() {
   return (
@@ -64,34 +74,54 @@ function ExternallyManagedCard() {
 function ActiveSubscriptionCard({
   subscription,
 }: {
-  readonly subscription: NonNullable<GetBillingCurrent200DataSubscription>
+  readonly subscription: Subscription
 }) {
+  const [cancelOpen, setCancelOpen] = useState(false)
+  const canCancel = CANCELABLE_STATUSES.includes(subscription.status)
   return (
-    <Card>
-      <CardHeader>
-        <BadgeCheck className="text-primary size-6" />
-        <CardTitle>{planLabel(subscription.plan.slug)}</CardTitle>
-        <CardDescription>
-          <Badge variant={STATUS_VARIANT[subscription.status]} size="sm">
-            {STATUS_LABEL[subscription.status]}
-          </Badge>
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {subscription.trialEndsAt !== null && (
-          <SubscriptionDetail
-            label="Avaliação termina em"
-            value={formatDate(subscription.trialEndsAt)}
-          />
+    <>
+      <Card>
+        <CardHeader>
+          <BadgeCheck className="text-primary size-6" />
+          <CardTitle>{planLabel(subscription.plan.slug)}</CardTitle>
+          <CardDescription>
+            <Badge variant={STATUS_VARIANT[subscription.status]} size="sm">
+              {STATUS_LABEL[subscription.status]}
+            </Badge>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {subscription.trialEndsAt !== null && (
+            <SubscriptionDetail
+              label="Avaliação termina em"
+              value={formatDate(subscription.trialEndsAt)}
+            />
+          )}
+          {subscription.currentPeriodEnd !== null && (
+            <SubscriptionDetail
+              label="Próxima renovação"
+              value={formatDate(subscription.currentPeriodEnd)}
+            />
+          )}
+        </CardContent>
+        {canCancel && (
+          <CardFooter>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCancelOpen(true)}
+            >
+              Cancelar assinatura
+            </Button>
+          </CardFooter>
         )}
-        {subscription.currentPeriodEnd !== null && (
-          <SubscriptionDetail
-            label="Próxima renovação"
-            value={formatDate(subscription.currentPeriodEnd)}
-          />
-        )}
-      </CardContent>
-    </Card>
+      </Card>
+      <CancelSubscriptionDialog
+        open={cancelOpen}
+        onClose={() => setCancelOpen(false)}
+        currentPeriodEnd={subscription.currentPeriodEnd}
+      />
+    </>
   )
 }
 

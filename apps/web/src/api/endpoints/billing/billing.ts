@@ -4,20 +4,29 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
+import { useMutation, useQuery } from '@tanstack/react-query'
 import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseQueryResult,
+  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from '@tanstack/react-query'
-import { useQuery } from '@tanstack/react-query'
 
 import type {
+  CancelBillingSubscription200,
+  CancelBillingSubscription400,
+  CancelBillingSubscription403,
+  CancelBillingSubscription404,
+  CancelBillingSubscription502,
+  CancelBillingSubscription503,
   GetBillingAiUsage200,
   GetBillingAiUsageParams,
   GetBillingCurrent200,
@@ -672,4 +681,157 @@ export const prefetchGetBillingAiUsageQuery = async <
   await queryClient.prefetchQuery(queryOptions)
 
   return queryClient
+}
+
+/**
+ * @summary Cancel current subscription; access continues until currentPeriodEnd
+ */
+export type cancelBillingSubscriptionResponse200 = {
+  data: CancelBillingSubscription200
+  status: 200
+}
+
+export type cancelBillingSubscriptionResponse400 = {
+  data: CancelBillingSubscription400
+  status: 400
+}
+
+export type cancelBillingSubscriptionResponse403 = {
+  data: CancelBillingSubscription403
+  status: 403
+}
+
+export type cancelBillingSubscriptionResponse404 = {
+  data: CancelBillingSubscription404
+  status: 404
+}
+
+export type cancelBillingSubscriptionResponse502 = {
+  data: CancelBillingSubscription502
+  status: 502
+}
+
+export type cancelBillingSubscriptionResponse503 = {
+  data: CancelBillingSubscription503
+  status: 503
+}
+
+export type cancelBillingSubscriptionResponseSuccess =
+  cancelBillingSubscriptionResponse200 & {
+    headers: Headers
+  }
+export type cancelBillingSubscriptionResponseError = (
+  | cancelBillingSubscriptionResponse400
+  | cancelBillingSubscriptionResponse403
+  | cancelBillingSubscriptionResponse404
+  | cancelBillingSubscriptionResponse502
+  | cancelBillingSubscriptionResponse503
+) & {
+  headers: Headers
+}
+
+export type cancelBillingSubscriptionResponse =
+  | cancelBillingSubscriptionResponseSuccess
+  | cancelBillingSubscriptionResponseError
+
+export const getCancelBillingSubscriptionUrl = () => {
+  return `/api/v1/billing/cancel-subscription`
+}
+
+export const cancelBillingSubscription = async (
+  options?: RequestInit
+): Promise<cancelBillingSubscriptionResponse> => {
+  return customFetch<cancelBillingSubscriptionResponse>(
+    getCancelBillingSubscriptionUrl(),
+    {
+      ...options,
+      method: 'POST',
+    }
+  )
+}
+
+export const getCancelBillingSubscriptionMutationOptions = <
+  TError =
+    | CancelBillingSubscription400
+    | CancelBillingSubscription403
+    | CancelBillingSubscription404
+    | CancelBillingSubscription502
+    | CancelBillingSubscription503,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof cancelBillingSubscription>>,
+    TError,
+    void,
+    TContext
+  >
+  request?: SecondParameter<typeof customFetch>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof cancelBillingSubscription>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ['cancelBillingSubscription']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof cancelBillingSubscription>>,
+    void
+  > = () => {
+    return cancelBillingSubscription(requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type CancelBillingSubscriptionMutationResult = NonNullable<
+  Awaited<ReturnType<typeof cancelBillingSubscription>>
+>
+
+export type CancelBillingSubscriptionMutationError =
+  | CancelBillingSubscription400
+  | CancelBillingSubscription403
+  | CancelBillingSubscription404
+  | CancelBillingSubscription502
+  | CancelBillingSubscription503
+
+/**
+ * @summary Cancel current subscription; access continues until currentPeriodEnd
+ */
+export const useCancelBillingSubscription = <
+  TError =
+    | CancelBillingSubscription400
+    | CancelBillingSubscription403
+    | CancelBillingSubscription404
+    | CancelBillingSubscription502
+    | CancelBillingSubscription503,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof cancelBillingSubscription>>,
+      TError,
+      void,
+      TContext
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof cancelBillingSubscription>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(
+    getCancelBillingSubscriptionMutationOptions(options),
+    queryClient
+  )
 }

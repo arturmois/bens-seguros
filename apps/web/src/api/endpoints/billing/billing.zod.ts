@@ -138,3 +138,14 @@ export const GetBillingAiUsageResponse = zod.object({
     }),
   }),
 })
+
+/**
+ * @summary Cancel current subscription; access continues until currentPeriodEnd
+ */
+export const CancelBillingSubscriptionResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.object({
+    canceledAt: zod.string().datetime({}),
+    currentPeriodEnd: zod.string().datetime({}),
+  }),
+})

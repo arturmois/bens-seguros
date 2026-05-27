@@ -14,6 +14,10 @@ vi.mock('./ai-usage-card', () => ({
   AiUsageCard: () => null,
 }))
 
+vi.mock('./cancel-subscription-dialog', () => ({
+  CancelSubscriptionDialog: () => null,
+}))
+
 import { useBillingCurrent } from '../hooks/use-billing-current'
 import { BillingPage } from './billing-page'
 
