@@ -106,10 +106,6 @@ export function createAuthRateLimitHook(
       request.url.endsWith(p.suffix)
     )
     if (!matchedPath) return
-    // Multi-rule defense: when any rule rejects, entries inserted by earlier
-    // rules in this same request remain in their sorted sets. This is by
-    // design — an attacker spreading attempts across many emails from the same
-    // IP also gets penalized by the IP rule, and vice versa.
     for (const rule of matchedPath.rules) {
       const key = rule.keyExtractor(request)
       const result = await checkRateLimit(redis, key, rule.config)

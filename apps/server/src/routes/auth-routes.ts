@@ -3,6 +3,7 @@ import type { FastifyInstance } from 'fastify'
 import type IORedis from 'ioredis'
 import { createAuthRateLimitHook } from '../middlewares/auth-rate-limit.js'
 import { signupGateHook } from '../middlewares/signup-gate.js'
+import { tempmailGateHook } from '../middlewares/tempmail-gate.js'
 import { turnstileGateHook } from '../middlewares/turnstile-gate.js'
 
 export function registerAuthRoutes(
@@ -17,7 +18,12 @@ export function registerAuthRoutes(
     schema: {
       hide: true,
     },
-    preHandler: [authRateLimitHook, signupGateHook, turnstileGateHook],
+    preHandler: [
+      authRateLimitHook,
+      signupGateHook,
+      tempmailGateHook,
+      turnstileGateHook,
+    ],
     async handler(request, reply) {
       const url = new URL(request.url, `http://${request.headers.host}`)
       const headers = new Headers()
