@@ -44,6 +44,7 @@ import { adminAiUsageRoutes } from './routes/v1/admin/ai-usage/index.js'
 import { assistanceRoutes } from './routes/v1/assistances/index.js'
 import { auditLogRoutes } from './routes/v1/audit-logs/index.js'
 import { createBillingRoutes } from './routes/v1/billing/index.js'
+import { publicBillingRoutes } from './routes/v1/billing/public.js'
 import { cepRoutes } from './routes/v1/cep/index.js'
 import { chatTokenRoute } from './routes/v1/chat/index.js'
 import { claimRoutes } from './routes/v1/claims/index.js'
@@ -333,6 +334,7 @@ export async function buildApp() {
   registerAuthRoutes(app, auth, redis)
   await app.register(async (publicApp) => {
     publicInvitationRoutes(publicApp, auth)
+    publicBillingRoutes(publicApp)
   })
   await app.register(async (webhooksApp) => {
     asaasWebhookRoute(webhooksApp, asaasProvider, redis)

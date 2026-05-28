@@ -127,3 +127,30 @@ export const cancelSubscriptionResponse = successResponse(
     currentPeriodEnd: z.string().datetime(),
   })
 )
+
+const billingPeriodEnum = z.enum(['MONTHLY', 'YEARLY'])
+
+const publicPlanSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  name: z.string(),
+  description: z.string().nullable(),
+  priceCents: z.number().int(),
+  currency: z.string(),
+  billingPeriod: billingPeriodEnum,
+  sortOrder: z.number().int(),
+  maxUsers: z.number().int().nullable(),
+  maxProposalsPerMonth: z.number().int().nullable(),
+  maxChannels: z.number().int().nullable(),
+  maxConversationsPerOrg: z.number().int().nullable(),
+  maxImportRows: z.number().int().nullable(),
+  maxLogoSizeBytes: z.number().int().nullable(),
+  aiEnabled: z.boolean(),
+  aiMessagesIncluded: z.number().int(),
+  aiOverageCentsPerMessage: z.number().int(),
+  features: z.record(z.string(), z.unknown()),
+})
+
+export type PublicPlan = z.infer<typeof publicPlanSchema>
+
+export const listPlansResponse = successResponse(z.array(publicPlanSchema))
