@@ -223,5 +223,5 @@ export function setupWebhookReconciliationProcessor(
   worker.on('failed', (job, err) => {
     logger.error({ jobId: job?.id, err }, 'Webhook reconciliation job failed')
   })
-  return { worker, queue }
+  return { worker, queue, redis }
 }

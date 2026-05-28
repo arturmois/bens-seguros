@@ -140,5 +140,5 @@ export function setupTrialExpiryProcessor(connection: ConnectionOptions) {
   worker.on('failed', (job, err) => {
     logger.error({ jobId: job?.id, err }, 'Trial expiry job failed')
   })
-  return { worker, queue }
+  return { worker, queue, redis }
 }

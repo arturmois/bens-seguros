@@ -165,5 +165,5 @@ export function setupDunningProcessor(connection: ConnectionOptions) {
   worker.on('failed', (job, err) => {
     logger.error({ jobId: job?.id, err }, 'Dunning job failed')
   })
-  return { worker, queue }
+  return { worker, queue, redis }
 }

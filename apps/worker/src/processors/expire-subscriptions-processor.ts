@@ -142,5 +142,5 @@ export function setupExpireSubscriptionsProcessor(
   worker.on('failed', (job, err) => {
     logger.error({ jobId: job?.id, err }, 'Expire-subscriptions job failed')
   })
-  return { worker, queue }
+  return { worker, queue, redis }
 }

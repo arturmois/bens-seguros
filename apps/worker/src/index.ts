@@ -125,6 +125,12 @@ const gracefulShutdown = async () => {
     trialExpiry.queue.close(),
     webhookReconciliation.queue.close(),
   ])
+  await Promise.all([
+    dunning.redis.quit(),
+    expireSubscriptions.redis.quit(),
+    trialExpiry.redis.quit(),
+    webhookReconciliation.redis.quit(),
+  ])
   if (env.SENTRY_DSN) {
     await Sentry.close(2000)
   }
