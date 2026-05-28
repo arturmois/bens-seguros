@@ -58,6 +58,7 @@ import { invitationRoutes } from './routes/v1/invitations/index.js'
 import { publicInvitationRoutes } from './routes/v1/invitations/public.js'
 import { memberRoutes } from './routes/v1/members/index.js'
 import { notificationRoutes } from './routes/v1/notifications/index.js'
+import { createOnboardingRoutes } from './routes/v1/onboarding/index.js'
 import { organizationRoutes } from './routes/v1/organization/index.js'
 import { policyRoutes } from './routes/v1/policies/index.js'
 import { proposalRoutes } from './routes/v1/proposals/index.js'
@@ -364,6 +365,7 @@ export async function buildApp() {
     await authenticatedApp.register(vehicleRoutes)
     await authenticatedApp.register(termsRoutes)
     await authenticatedApp.register(createBillingRoutes(redis, asaasProvider))
+    await authenticatedApp.register(createOnboardingRoutes(auth))
   })
   await app.register(async (internalApp) => {
     internalApp.addHook('preHandler', internalAuthMiddleware)

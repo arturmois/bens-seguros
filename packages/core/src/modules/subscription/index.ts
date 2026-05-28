@@ -21,3 +21,11 @@ export {
   type UpdateSubscriptionStatusOpts,
   type UpsertInvoiceInput,
 } from './application/billing-webhook-handlers.js'
+
+export {
+  createOrgWithTrial,
+  PlanNotFoundError,
+  type CreateOrgWithTrialDeps,
+  type CreateOrgWithTrialInput,
+  type CreateOrgWithTrialResult,
+} from './application/create-org-with-trial.js'
