@@ -1,14 +1,14 @@
 'use client'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
+import { clearChatToken } from '@/features/chat/lib/chat-api'
 import { authClient } from '@/lib/auth-client'
 import {
-  setActiveOrgCookie,
-  getActiveOrgCookie,
   clearActiveOrgCookie,
+  getActiveOrgCookie,
+  setActiveOrgCookie,
 } from '@/lib/org-cookie'
-import { clearChatToken } from '@/features/chat/lib/chat-api'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 
 async function fetchSession() {
   const response = await authClient.getSession()
@@ -77,13 +77,20 @@ export function useAuth() {
       password,
       name,
       invitationId,
+      turnstileToken,
     }: {
       email: string
       password: string
       name: string
       invitationId?: string
+      turnstileToken?: string
     }) => {
-      const response = await authClient.signUp.email({ email, password, name })
+      const response = await authClient.signUp.email({
+        email,
+        password,
+        name,
+        ...(turnstileToken ? { turnstileToken } : {}),
+      })
       if (response.error) {
         throw new Error(response.error.message ?? 'Falha no cadastro')
       }

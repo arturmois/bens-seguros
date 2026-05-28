@@ -4,15 +4,18 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { TurnstileWidget } from '@/features/auth/components/turnstile-widget'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
 const registerSchema = z
   .object({
@@ -39,20 +42,38 @@ export function RegisterForm() {
   const invitationId = searchParams.get('invitationId') ?? undefined
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   })
   const acceptedTerms = form.watch('acceptedTerms')
+  const handleVerify = useCallback((token: string) => {
+    setTurnstileToken(token)
+  }, [])
+  const handleExpire = useCallback(() => {
+    setTurnstileToken(null)
+  }, [])
+  const handleError = useCallback(() => {
+    setTurnstileToken(null)
+  }, [])
   const onSubmit = (data: RegisterFormData) => {
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      toast.error('Complete a verificação anti-bot antes de continuar')
+      return
+    }
     registerMutation.mutate(
       {
         name: data.name,
         email: data.email,
         password: data.password,
         invitationId,
+        ...(turnstileToken ? { turnstileToken } : {}),
       },
       {
-        onError: (error) => toast.error(error.message || 'Erro ao criar conta'),
+        onError: (error) => {
+          toast.error(error.message || 'Erro ao criar conta')
+          setTurnstileToken(null)
+        },
       }
     )
   }
@@ -209,10 +230,22 @@ export function RegisterForm() {
           </p>
         )}
       </div>
+      {TURNSTILE_SITE_KEY && (
+        <TurnstileWidget
+          siteKey={TURNSTILE_SITE_KEY}
+          onVerify={handleVerify}
+          onExpire={handleExpire}
+          onError={handleError}
+          theme="auto"
+        />
+      )}
       <Button
         type="submit"
         className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 text-primary-foreground w-full bg-gradient-to-r font-bold"
-        disabled={registerMutation.isPending}
+        disabled={
+          registerMutation.isPending ||
+          (TURNSTILE_SITE_KEY !== undefined && turnstileToken === null)
+        }
       >
         {registerMutation.isPending ? 'Criando conta...' : 'Criar Conta'}
       </Button>
