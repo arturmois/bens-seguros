@@ -4,6 +4,7 @@ import {
   BillingProviderUnhandledEventError,
   type CanonicalEvent,
 } from '@repo/billing-port'
+import { container } from '@repo/core'
 import { Prisma } from '@repo/db'
 import Fastify, { type FastifyInstance } from 'fastify'
 import type IORedis from 'ioredis'
@@ -61,6 +62,45 @@ const mockRedis = {
   del: vi.fn().mockResolvedValue(0),
 } as unknown as IORedis
 
+type ProcessOpts = {
+  logger: { warn(...args: unknown[]): void; info(...args: unknown[]): void }
+  publishInvalidation: (organizationId: string) => Promise<void>
+}
+
+// Fake ProcessBillingWebhookEvent.execute that exercises the mocked prismaAdmin
+// and the route-provided publishInvalidation, mirroring the real PAYMENT_SUCCEEDED
+// flow. The use case's branching logic is covered by @repo/core
+// process-billing-webhook-event.spec.ts.
+async function fakeExecute(event: CanonicalEvent, opts: ProcessOpts) {
+  const sub = await mockPrismaAdmin.subscription.findUnique({
+    where: { billingProviderCustomerId: event.providerCustomerId },
+    select: {
+      id: true,
+      organizationId: true,
+      status: true,
+      currentPeriodStart: true,
+      currentPeriodEnd: true,
+      billingManagedExternally: true,
+    },
+  })
+  if (sub === null) {
+    return { processed: false, reason: 'subscription_not_found' as const }
+  }
+  if (event.type === 'PAYMENT_SUCCEEDED') {
+    await mockPrismaAdmin.invoice.upsert({
+      where: { billingProviderPaymentId: event.providerPaymentId },
+      create: { status: 'PAID' },
+      update: { status: 'PAID' },
+    })
+    await mockPrismaAdmin.subscription.update({
+      where: { id: sub.id },
+      data: { status: 'ACTIVE' },
+    })
+    await opts.publishInvalidation(sub.organizationId)
+  }
+  return { processed: true as const }
+}
+
 async function buildTestApp(
   provider: typeof mockProvider | null
 ): Promise<FastifyInstance> {
@@ -91,6 +131,12 @@ describe('POST /api/webhooks/asaas', () => {
     mockPrismaAdmin.subscription.findUnique.mockResolvedValue(mockSubscription)
     mockPrismaAdmin.subscription.update.mockResolvedValue(undefined)
     mockPrismaAdmin.invoice.upsert.mockResolvedValue(undefined)
+    vi.mocked(container.resolve).mockImplementation((token: unknown) => {
+      if (typeof token === 'function') {
+        return { execute: vi.fn(fakeExecute) }
+      }
+      return null
+    })
   })
 
   afterEach(() => {

@@ -4,14 +4,9 @@ import {
   BillingProviderUnhandledEventError,
   type CanonicalEvent,
 } from '@repo/billing-port'
-import {
-  processBillingWebhookEvent,
-  type BillingSubscriptionRow,
-  type ProcessBillingDeps,
-  type UpsertInvoiceInput,
-} from '@repo/core'
+import { container, ProcessBillingWebhookEvent } from '@repo/core'
 import { Prisma, prismaAdmin } from '@repo/db'
-import type { FastifyBaseLogger, FastifyInstance } from 'fastify'
+import type { FastifyInstance } from 'fastify'
 import type IORedis from 'ioredis'
 import { invalidateSubscriptionCache } from '../../../lib/subscription-cache.js'
 
@@ -30,78 +25,6 @@ function isPrismaUniqueViolation(err: unknown): boolean {
 
 function toInputJsonValue<T>(value: T): Prisma.InputJsonValue {
   return JSON.parse(JSON.stringify(value))
-}
-
-function makeProcessDeps(
-  redis: IORedis,
-  logger: FastifyBaseLogger
-): ProcessBillingDeps {
-  return {
-    findSubscriptionByProviderCustomerId: async (providerCustomerId) => {
-      const row = await prismaAdmin.subscription.findUnique({
-        where: { billingProviderCustomerId: providerCustomerId },
-        select: {
-          id: true,
-          organizationId: true,
-          status: true,
-          currentPeriodStart: true,
-          currentPeriodEnd: true,
-          billingManagedExternally: true,
-        },
-      })
-      if (row === null) return null
-      const mapped: BillingSubscriptionRow = {
-        id: row.id,
-        organizationId: row.organizationId,
-        status: row.status,
-        currentPeriodStart: row.currentPeriodStart,
-        currentPeriodEnd: row.currentPeriodEnd,
-        billingManagedExternally: row.billingManagedExternally,
-      }
-      return mapped
-    },
-    handlers: {
-      upsertInvoice: async (input: UpsertInvoiceInput) => {
-        await prismaAdmin.invoice.upsert({
-          where: { billingProviderPaymentId: input.billingProviderPaymentId },
-          create: {
-            organizationId: input.organizationId,
-            subscriptionId: input.subscriptionId,
-            billingProvider: 'ASAAS',
-            billingProviderPaymentId: input.billingProviderPaymentId,
-            amountCents: input.amountCents,
-            baseAmountCents: input.amountCents,
-            status: input.status,
-            dueDate: input.periodEnd,
-            paidAt: input.paidAt,
-            periodStart: input.periodStart,
-            periodEnd: input.periodEnd,
-          },
-          update: {
-            status: input.status,
-            paidAt: input.paidAt,
-          },
-        })
-      },
-      updateSubscriptionStatus: async (
-        subscriptionId: string,
-        status: 'ACTIVE' | 'PAST_DUE' | 'CANCELED',
-        opts?: { canceledAt?: Date }
-      ) => {
-        await prismaAdmin.subscription.update({
-          where: { id: subscriptionId },
-          data: {
-            status,
-            ...(opts?.canceledAt ? { canceledAt: opts.canceledAt } : {}),
-          },
-        })
-      },
-      publishInvalidation: async (organizationId: string) => {
-        await invalidateSubscriptionCache(redis, organizationId)
-      },
-    },
-    logger,
-  }
 }
 
 export function asaasWebhookRoute(
@@ -198,8 +121,13 @@ export function asaasWebhookRoute(
       }
 
       try {
-        const deps = makeProcessDeps(redis, request.log)
-        const result = await processBillingWebhookEvent(deps, canonical)
+        const useCase = container.resolve(ProcessBillingWebhookEvent)
+        const result = await useCase.execute(canonical, {
+          logger: request.log,
+          publishInvalidation: async (orgId) => {
+            await invalidateSubscriptionCache(redis, orgId)
+          },
+        })
         await prismaAdmin.webhookEvent.update({
           where: { id: webhookEventId },
           data: { processedAt: new Date() },

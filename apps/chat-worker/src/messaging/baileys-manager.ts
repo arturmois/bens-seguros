@@ -1,7 +1,7 @@
 import { rm } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-import { getEntitlementsForOrg } from '@repo/core'
+import { GetEntitlementsForOrg, PrismaSubscriptionRepository } from '@repo/core'
 import { prismaAdmin } from '@repo/db'
 import { Channel } from '@repo/db-chat'
 import { env } from '@repo/env'
@@ -16,8 +16,13 @@ import type { BrokerEvents } from './broker.js'
 // the minimum of the two.
 const BAILEYS_TECHNICAL_HARD_CAP = CHAT_LIMITS.MAX_BAILEYS_CHANNELS_PER_ORG
 
+// Module-level instance — reused across all getChannelLimitForOrg calls
+const getEntitlementsForOrg = new GetEntitlementsForOrg(
+  new PrismaSubscriptionRepository(prismaAdmin)
+)
+
 async function getChannelLimitForOrg(tenantId: string): Promise<number> {
-  const entitlements = await getEntitlementsForOrg(prismaAdmin, tenantId)
+  const entitlements = await getEntitlementsForOrg.execute(tenantId)
   const planLimit = entitlements.maxChannels ?? Number.POSITIVE_INFINITY
   return Math.min(planLimit, BAILEYS_TECHNICAL_HARD_CAP)
 }

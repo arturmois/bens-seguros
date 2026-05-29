@@ -1,12 +1,7 @@
 import { randomBytes } from 'node:crypto'
 
 import type { Auth } from '@repo/auth'
-import {
-  createOrgWithTrial,
-  PlanNotFoundError,
-  type CreateOrgWithTrialDeps,
-} from '@repo/core'
-import { prismaAdmin } from '@repo/db'
+import { container, CreateOrgWithTrial, PlanNotFoundError } from '@repo/core'
 import type { FastifyInstance, FastifyRequest } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import pino from 'pino'
@@ -71,38 +66,24 @@ export function completeOnboardingRoute(app: FastifyInstance, auth: Auth) {
       }
 
       const { orgName, planSlug } = request.body
-
-      const deps: CreateOrgWithTrialDeps = {
-        createOrganization: async ({ name, ownerUserId }) => {
-          const slug = slugify(name)
-          const result = await auth.api.createOrganization({
-            body: { name, slug, userId: ownerUserId },
-            headers: buildAuthHeaders(request),
-          })
-          return { id: result.id }
-        },
-        findPlanBySlug: async (slug) => {
-          const p = await prismaAdmin.plan.findUnique({
-            where: { slug },
-            select: { id: true, slug: true, active: true },
-          })
-          return p && p.active ? { id: p.id, slug: p.slug } : null
-        },
-        createSubscription: async (input) =>
-          prismaAdmin.subscription.create({
-            data: input,
-            select: { id: true },
-          }),
-        now: () => new Date(),
-        logger,
-      }
+      const useCase = container.resolve(CreateOrgWithTrial)
 
       try {
-        const result = await createOrgWithTrial(deps, {
-          ownerUserId: userId,
-          orgName,
-          planSlug,
-        })
+        const result = await useCase.execute(
+          { ownerUserId: userId, orgName, planSlug },
+          {
+            createOrganization: async ({ name, ownerUserId }) => {
+              const slug = slugify(name)
+              const res = await auth.api.createOrganization({
+                body: { name, slug, userId: ownerUserId },
+                headers: buildAuthHeaders(request),
+              })
+              return { id: res.id }
+            },
+            now: () => new Date(),
+            logger,
+          }
+        )
         return reply.code(200).send({
           success: true,
           data: {

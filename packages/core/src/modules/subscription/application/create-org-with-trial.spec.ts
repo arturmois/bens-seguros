@@ -1,11 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
-
-import {
-  createOrgWithTrial,
-  PlanNotFoundError,
-  type CreateOrgWithTrialDeps,
-  type CreateOrgWithTrialInput,
+import type {
+  CreateOrgWithTrialCallDeps,
+  CreateOrgWithTrialInput,
 } from './create-org-with-trial.js'
+import {
+  CreateOrgWithTrial,
+  PlanNotFoundError,
+} from './create-org-with-trial.js'
+import type { SubscriptionRepository } from '../domain/subscription-repository.js'
 
 const FIXED_NOW = new Date('2026-05-27T12:00:00.000Z')
 const EXPECTED_TRIAL_END = new Date('2026-06-10T12:00:00.000Z') // +14d
@@ -18,18 +20,30 @@ function makeLogger() {
   }
 }
 
-function makeDeps(
-  overrides: Partial<CreateOrgWithTrialDeps> = {}
-): CreateOrgWithTrialDeps {
+function makeRepo(
+  override?: Partial<SubscriptionRepository>
+): SubscriptionRepository {
   return {
-    createOrganization: vi.fn().mockResolvedValue({ id: 'org-1' }),
+    findWithPlanByOrganizationId: vi.fn(),
+    findByProviderCustomerId: vi.fn(),
+    updateStatus: vi.fn(),
+    upsertInvoice: vi.fn(),
     findPlanBySlug: vi
       .fn()
       .mockResolvedValue({ id: 'plan-1', slug: 'starter' }),
     createSubscription: vi.fn().mockResolvedValue({ id: 'sub-1' }),
+    ...override,
+  } as unknown as SubscriptionRepository
+}
+
+function makeCallDeps(
+  override?: Partial<CreateOrgWithTrialCallDeps>
+): CreateOrgWithTrialCallDeps {
+  return {
+    createOrganization: vi.fn().mockResolvedValue({ id: 'org-1' }),
     now: () => FIXED_NOW,
     logger: makeLogger(),
-    ...overrides,
+    ...override,
   }
 }
 
@@ -39,22 +53,24 @@ const validInput: CreateOrgWithTrialInput = {
   planSlug: 'starter',
 }
 
-describe('createOrgWithTrial', () => {
+describe('CreateOrgWithTrial', () => {
   it('happy path: cria org + subscription TRIALING e retorna IDs + trialEndsAt', async () => {
-    const deps = makeDeps()
+    const repo = makeRepo()
+    const callDeps = makeCallDeps()
+    const useCase = new CreateOrgWithTrial(repo)
 
-    const result = await createOrgWithTrial(deps, validInput)
+    const result = await useCase.execute(validInput, callDeps)
 
     expect(result).toEqual({
       organizationId: 'org-1',
       subscriptionId: 'sub-1',
       trialEndsAt: EXPECTED_TRIAL_END,
     })
-    expect(deps.createOrganization).toHaveBeenCalledWith({
+    expect(callDeps.createOrganization).toHaveBeenCalledWith({
       name: 'Corretora Teste',
       ownerUserId: 'user-1',
     })
-    expect(deps.createSubscription).toHaveBeenCalledWith({
+    expect(repo.createSubscription).toHaveBeenCalledWith({
       organizationId: 'org-1',
       planId: 'plan-1',
       status: 'TRIALING',
@@ -64,31 +80,29 @@ describe('createOrgWithTrial', () => {
     })
   })
 
-  it('planSlug invalido: throws PlanNotFoundError sem criar org', async () => {
+  it('planSlug inválido: throws PlanNotFoundError sem criar org', async () => {
     const findPlanBySlug = vi.fn().mockResolvedValue(null)
-    const createOrganization = vi.fn()
-    const createSubscription = vi.fn()
-    const deps = makeDeps({
-      findPlanBySlug,
-      createOrganization,
-      createSubscription,
-    })
+    const repo = makeRepo({ findPlanBySlug })
+    const callDeps = makeCallDeps()
+    const useCase = new CreateOrgWithTrial(repo)
 
     await expect(
-      createOrgWithTrial(deps, { ...validInput, planSlug: 'inexistente' })
+      useCase.execute({ ...validInput, planSlug: 'inexistente' }, callDeps)
     ).rejects.toBeInstanceOf(PlanNotFoundError)
     expect(findPlanBySlug).toHaveBeenCalledWith('inexistente')
-    expect(createOrganization).not.toHaveBeenCalled()
-    expect(createSubscription).not.toHaveBeenCalled()
+    expect(callDeps.createOrganization).not.toHaveBeenCalled()
+    expect(repo.createSubscription).not.toHaveBeenCalled()
   })
 
   it('PlanNotFoundError expoe slug pra logging', async () => {
-    const deps = makeDeps({
-      findPlanBySlug: vi.fn().mockResolvedValue(null),
-    })
+    const repo = makeRepo({ findPlanBySlug: vi.fn().mockResolvedValue(null) })
+    const useCase = new CreateOrgWithTrial(repo)
 
     try {
-      await createOrgWithTrial(deps, { ...validInput, planSlug: 'fantasma' })
+      await useCase.execute(
+        { ...validInput, planSlug: 'fantasma' },
+        makeCallDeps()
+      )
       expect.fail('should have thrown')
     } catch (err) {
       expect(err).toBeInstanceOf(PlanNotFoundError)
@@ -96,37 +110,41 @@ describe('createOrgWithTrial', () => {
     }
   })
 
-  it('createOrganization throw: propaga erro e nao chama createSubscription', async () => {
-    const createSubscription = vi.fn()
-    const deps = makeDeps({
+  it('createOrganization throw: propaga erro e não chama createSubscription', async () => {
+    const repo = makeRepo()
+    const callDeps = makeCallDeps({
       createOrganization: vi.fn().mockRejectedValue(new Error('slug conflict')),
-      createSubscription,
     })
+    const useCase = new CreateOrgWithTrial(repo)
 
-    await expect(createOrgWithTrial(deps, validInput)).rejects.toThrow(
+    await expect(useCase.execute(validInput, callDeps)).rejects.toThrow(
       'slug conflict'
     )
-    expect(createSubscription).not.toHaveBeenCalled()
+    expect(repo.createSubscription).not.toHaveBeenCalled()
   })
 
   it('createSubscription throw: propaga erro (org pode ficar orfa — aceitavel MVP)', async () => {
-    const deps = makeDeps({
+    const repo = makeRepo({
       createSubscription: vi
         .fn()
         .mockRejectedValue(new Error('db unavailable')),
     })
+    const callDeps = makeCallDeps()
+    const useCase = new CreateOrgWithTrial(repo)
 
-    await expect(createOrgWithTrial(deps, validInput)).rejects.toThrow(
+    await expect(useCase.execute(validInput, callDeps)).rejects.toThrow(
       'db unavailable'
     )
-    expect(deps.createOrganization).toHaveBeenCalled()
+    expect(callDeps.createOrganization).toHaveBeenCalled()
   })
 
-  it('logger.info chamado em sucesso com contexto util', async () => {
+  it('logger.info chamado em sucesso com contexto útil', async () => {
     const logger = makeLogger()
-    const deps = makeDeps({ logger })
+    const repo = makeRepo()
+    const callDeps = makeCallDeps({ logger })
+    const useCase = new CreateOrgWithTrial(repo)
 
-    await createOrgWithTrial(deps, validInput)
+    await useCase.execute(validInput, callDeps)
 
     expect(logger.info).toHaveBeenCalledWith(
       expect.objectContaining({

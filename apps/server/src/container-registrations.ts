@@ -21,6 +21,7 @@ import {
   CreateInsurer,
   CreateInvitation,
   CreateOccurrence,
+  CreateOrgWithTrial,
   CreateProposal,
   DeactivateMember,
   DeleteClaim,
@@ -37,6 +38,7 @@ import {
   GetContact,
   GetDocumentUrl,
   GetEndorsement,
+  GetEntitlementsForOrg,
   GetGoalsProgressByYear,
   GetOrganization,
   EnsurePolicyPdf,
@@ -97,6 +99,8 @@ import {
   PrismaPolicyRepository,
   PrismaProposalRepository,
   PrismaSearchRepository,
+  PrismaSubscriptionRepository,
+  ProcessBillingWebhookEvent,
   PromoteContact,
   R2StorageProvider,
   RedisCacheService,
@@ -175,6 +179,7 @@ export function registerDependencies(redis: Redis | null = null) {
   const commissionRepo = new PrismaCommissionRepository(prismaAdmin)
   const goalRepo = new PrismaGoalRepository(prismaAdmin)
   const aiUsageRepo = new PrismaAiUsageRepository(prismaAdmin)
+  const subscriptionRepo = new PrismaSubscriptionRepository(prismaAdmin)
   const storageProvider =
     env.STORAGE_PROVIDER === 'r2'
       ? new R2StorageProvider()
@@ -199,6 +204,16 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register('CommissionRepository', { useValue: commissionRepo })
   container.register('GoalRepository', { useValue: goalRepo })
   container.register('AiUsageRepository', { useValue: aiUsageRepo })
+  container.register('SubscriptionRepository', { useValue: subscriptionRepo })
+  container.register(GetEntitlementsForOrg, {
+    useFactory: () => new GetEntitlementsForOrg(subscriptionRepo),
+  })
+  container.register(ProcessBillingWebhookEvent, {
+    useFactory: () => new ProcessBillingWebhookEvent(subscriptionRepo),
+  })
+  container.register(CreateOrgWithTrial, {
+    useFactory: () => new CreateOrgWithTrial(subscriptionRepo),
+  })
   container.register('StorageProvider', { useValue: storageProvider })
   container.register(CreateClient, {
     useFactory: () => new CreateClient(clientRepo),

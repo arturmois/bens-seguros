@@ -1,4 +1,9 @@
 import type { Auth } from '@repo/auth'
+import { container, PlanNotFoundError } from '@repo/core'
+import type {
+  CreateOrgWithTrialCallDeps,
+  CreateOrgWithTrialInput,
+} from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import {
   afterAll,
@@ -17,30 +22,38 @@ import {
   TEST_USER_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
 
-const findUniquePlanMock = vi.fn()
-const createSubscriptionMock = vi.fn()
-
-vi.mock('@repo/db', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@repo/db')>()
-  return {
-    ...actual,
-    prismaAdmin: {
-      get plan() {
-        return { findUnique: findUniquePlanMock }
-      },
-      get subscription() {
-        return { create: createSubscriptionMock }
-      },
-    },
-  }
-})
-
 const { completeOnboardingRoute } = await import('../complete.js')
 
 const mockAuth = {
   api: {
     createOrganization: vi.fn(),
   },
+}
+
+// Fake CreateOrgWithTrial.execute that honors the route-provided callDeps so the
+// route's wiring (auth.api.createOrganization + slugify) is still exercised. The
+// repo-backed parts (plan lookup, subscription persistence) are simulated here —
+// their logic is covered by @repo/core create-org-with-trial.spec.ts.
+let planExists = true
+
+function fakeExecute(
+  input: CreateOrgWithTrialInput,
+  deps: CreateOrgWithTrialCallDeps
+) {
+  if (!planExists) {
+    throw new PlanNotFoundError(input.planSlug)
+  }
+  return (async () => {
+    const org = await deps.createOrganization({
+      name: input.orgName,
+      ownerUserId: input.ownerUserId,
+    })
+    return {
+      organizationId: org.id,
+      subscriptionId: 'sub-new-1',
+      trialEndsAt: new Date('2026-06-10T12:00:00.000Z'),
+    }
+  })()
 }
 
 function registerRoute(app: FastifyInstance) {
@@ -58,17 +71,18 @@ afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
+  planExists = true
   mockAuth.api.createOrganization.mockResolvedValue({
     id: 'org-new-1',
     name: 'Corretora Teste',
     slug: 'corretora-teste-abc123',
   })
-  findUniquePlanMock.mockResolvedValue({
-    id: 'plan-starter-1',
-    slug: 'starter',
-    active: true,
+  vi.mocked(container.resolve).mockImplementation((token: unknown) => {
+    if (typeof token === 'function') {
+      return { execute: vi.fn(fakeExecute) }
+    }
+    return null
   })
-  createSubscriptionMock.mockResolvedValue({ id: 'sub-new-1' })
 })
 
 describe('POST /api/v1/onboarding/complete', () => {
@@ -95,24 +109,9 @@ describe('POST /api/v1/onboarding/complete', () => {
     expect(orgCall.body.name).toBe('Corretora Teste')
     expect(orgCall.body.userId).toBe(TEST_USER_ID)
     expect(orgCall.body.slug).toMatch(/^corretora-teste-[0-9a-f]{6}$/)
-
-    expect(findUniquePlanMock).toHaveBeenCalledWith({
-      where: { slug: 'starter' },
-      select: { id: true, slug: true, active: true },
-    })
-    expect(createSubscriptionMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          organizationId: 'org-new-1',
-          planId: 'plan-starter-1',
-          status: 'TRIALING',
-        }),
-        select: { id: true },
-      })
-    )
   })
 
-  it('401 quando user nao esta autenticado', async () => {
+  it('401 quando user não está autenticado', async () => {
     setTestContext({ user: null })
     const response = await injectAs(app, {
       method: 'POST',
@@ -143,8 +142,8 @@ describe('POST /api/v1/onboarding/complete', () => {
     expect(response.json().error.code).toBe('VALIDATION_ERROR')
   })
 
-  it('404 PLAN_NOT_FOUND quando plano nao existe', async () => {
-    findUniquePlanMock.mockResolvedValue(null)
+  it('404 PLAN_NOT_FOUND quando plano não existe', async () => {
+    planExists = false
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/onboarding/complete',
@@ -155,15 +154,12 @@ describe('POST /api/v1/onboarding/complete', () => {
     expect(body.error.code).toBe('PLAN_NOT_FOUND')
     expect(body.error.message).toContain('inexistente')
     expect(mockAuth.api.createOrganization).not.toHaveBeenCalled()
-    expect(createSubscriptionMock).not.toHaveBeenCalled()
   })
 
   it('404 PLAN_NOT_FOUND quando plano inativo (active=false)', async () => {
-    findUniquePlanMock.mockResolvedValue({
-      id: 'plan-x',
-      slug: 'legacy',
-      active: false,
-    })
+    // Repo trata plano inativo como inexistente (findPlanBySlug retorna null) →
+    // PlanNotFoundError, igual ao caso acima.
+    planExists = false
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/v1/onboarding/complete',
@@ -184,6 +180,5 @@ describe('POST /api/v1/onboarding/complete', () => {
       payload: { orgName: 'Corretora Teste', planSlug: 'starter' },
     })
     expect(response.statusCode).toBe(500)
-    expect(createSubscriptionMock).not.toHaveBeenCalled()
   })
 })

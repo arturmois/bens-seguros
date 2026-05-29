@@ -1,5 +1,8 @@
 import { CanonicalEventSchema, type CanonicalEvent } from '@repo/billing-port'
-import { processBillingWebhookEvent, type ProcessBillingDeps } from '@repo/core'
+import {
+  ProcessBillingWebhookEvent,
+  PrismaSubscriptionRepository,
+} from '@repo/core'
 import { type Prisma, prismaAdmin } from '@repo/db'
 import { env } from '@repo/env'
 import {
@@ -101,74 +104,16 @@ export async function runReconciliationBatch(
 function makeProcessEventCaller(
   redis: IORedis
 ): (canonical: CanonicalEvent) => Promise<{ processed: boolean }> {
+  const repo = new PrismaSubscriptionRepository(prismaAdmin)
+  const useCase = new ProcessBillingWebhookEvent(repo)
   return async (canonical: CanonicalEvent) => {
-    const procDeps: ProcessBillingDeps = {
-      findSubscriptionByProviderCustomerId: async (providerCustomerId) => {
-        const row = await prismaAdmin.subscription.findUnique({
-          where: { billingProviderCustomerId: providerCustomerId },
-          select: {
-            id: true,
-            organizationId: true,
-            status: true,
-            currentPeriodStart: true,
-            currentPeriodEnd: true,
-            billingManagedExternally: true,
-          },
-        })
-        if (row === null) return null
-        return {
-          id: row.id,
-          organizationId: row.organizationId,
-          status: row.status,
-          currentPeriodStart: row.currentPeriodStart,
-          currentPeriodEnd: row.currentPeriodEnd,
-          billingManagedExternally: row.billingManagedExternally,
-        }
-      },
-      handlers: {
-        upsertInvoice: async (input) => {
-          await prismaAdmin.invoice.upsert({
-            where: { billingProviderPaymentId: input.billingProviderPaymentId },
-            create: {
-              organizationId: input.organizationId,
-              subscriptionId: input.subscriptionId,
-              billingProvider: 'ASAAS',
-              billingProviderPaymentId: input.billingProviderPaymentId,
-              amountCents: input.amountCents,
-              baseAmountCents: input.amountCents,
-              status: input.status,
-              dueDate: input.periodEnd,
-              paidAt: input.paidAt,
-              periodStart: input.periodStart,
-              periodEnd: input.periodEnd,
-            },
-            update: {
-              status: input.status,
-              paidAt: input.paidAt,
-            },
-          })
-        },
-        updateSubscriptionStatus: async (
-          subscriptionId: string,
-          status: 'ACTIVE' | 'PAST_DUE' | 'CANCELED',
-          opts?: { canceledAt?: Date }
-        ) => {
-          await prismaAdmin.subscription.update({
-            where: { id: subscriptionId },
-            data: {
-              status,
-              ...(opts?.canceledAt ? { canceledAt: opts.canceledAt } : {}),
-            },
-          })
-        },
-        publishInvalidation: async (organizationId: string) => {
-          await redis.del(subscriptionCacheKey(organizationId))
-          await redis.publish(SUBSCRIPTION_INVALIDATION_CHANNEL, organizationId)
-        },
-      },
+    return useCase.execute(canonical, {
       logger,
-    }
-    return processBillingWebhookEvent(procDeps, canonical)
+      publishInvalidation: async (orgId) => {
+        await redis.del(subscriptionCacheKey(orgId))
+        await redis.publish(SUBSCRIPTION_INVALIDATION_CHANNEL, orgId)
+      },
+    })
   }
 }
 

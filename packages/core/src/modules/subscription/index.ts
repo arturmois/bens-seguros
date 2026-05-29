@@ -4,28 +4,30 @@ export {
   type SubscriptionShape,
 } from './application/build-entitlements.js'
 
-export {
-  getEntitlementsForOrg,
-  type SubscriptionLookupClient,
-} from './application/get-entitlements-for-org.js'
+export { GetEntitlementsForOrg } from './application/get-entitlements-for-org.js'
 
 export {
-  processBillingWebhookEvent,
-  type ProcessBillingDeps,
+  ProcessBillingWebhookEvent,
   type ProcessResult,
+  type ProcessLogger,
 } from './application/process-billing-webhook-event.js'
 
 export {
-  type BillingHandlerDeps,
-  type BillingSubscriptionRow,
-  type UpdateSubscriptionStatusOpts,
-  type UpsertInvoiceInput,
-} from './application/billing-webhook-handlers.js'
-
-export {
-  createOrgWithTrial,
+  CreateOrgWithTrial,
   PlanNotFoundError,
-  type CreateOrgWithTrialDeps,
   type CreateOrgWithTrialInput,
   type CreateOrgWithTrialResult,
+  type CreateOrgWithTrialCallDeps,
+  type Logger as SubscriptionLogger,
 } from './application/create-org-with-trial.js'
+
+export {
+  type SubscriptionRepository,
+  type SubscriptionWithPlan,
+  type SubscriptionBillingRow,
+  type SubscriptionStatusValue,
+  type CreateSubscriptionInput,
+  type PlanRow,
+} from './domain/subscription-repository.js'
+
+export { PrismaSubscriptionRepository } from './infrastructure/prisma-subscription-repository.js'
