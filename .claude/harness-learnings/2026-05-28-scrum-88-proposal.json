@@ -1,0 +1,69 @@
+{
+  "ticket": "SCRUM-88",
+  "learning_report_path": ".claude/harness-learnings/2026-05-28-scrum-88-subscription-injectable-refactor.md",
+  "memory_entries_to_create": [
+    {
+      "path": "feedback_bens-code-reviewer-vitest-setupfiles-check.md",
+      "frontmatter": {
+        "name": "bens-code-reviewer: check vitest.config setupFiles before flagging missing mocks",
+        "description": "Prevent false positives on test mocks that exist in vitest.config.ts setupFiles. Route tests in apps/server/src/routes/*/__tests__/*.spec.ts inherit global vi.mock() from setup.ts.",
+        "metadata": {
+          "type": "feedback",
+          "pattern": "recurring_false_positive",
+          "occurrences": 3,
+          "severity": "medium",
+          "impact": "merge decision friction, unnecessary orchestrator verification"
+        }
+      },
+      "body": "## Problem\n\nbens-code-reviewer flags route tests for \"missing vi.mock('@repo/core')\" or \"missing container.register()\" when the mocks already exist in the project's vitest setupFiles.\n\nOccurrences:\n- PR #340 (SCRUM-79): Reviewer missed async function signature context\n- PR #293 (SCRUM-56): Reviewer missed RHF reset() behavior in prior line\n- PR #395 (SCRUM-88): Reviewer flagged missing vi.mock('@repo/core') without checking setupFiles\n\nRoot cause: Reviewer agent assumes flat file-level test context and does not check parent configs (vitest.config.ts, .vitest.config, jest.setup.ts).\n\n## Solution\n\nAdd a pre-flight check to the bens-code-reviewer agent:\n\n**Before flagging missing test mocks or container registrations in route specs:**\n1. Locate vitest.config.ts or jest.config in the project root\n2. Check if the `setupFiles` or `setupFilesAfterEnv` array contains a reference to the target module being mocked\n3. If yes, skip the CRITICAL flag — the mock is inherited globally\n\nExample: If vitest.config.ts has `setupFiles: ['src/__tests__/helpers/setup.ts']` and setup.ts contains `vi.mock('@repo/core', ...)`, then `apps/server/src/routes/v1/onboarding/__tests__/complete.spec.ts` does NOT need a per-file mock.\n\n## How to apply\n\nUpdate `.claude/agents/bens-code-reviewer.md`:\n\nIn the \"Pre-flight validation\" section (or add if missing):\n\n```markdown\n### Check vitest/jest configuration before flagging missing mocks\n\nWhen reviewing test files (*.spec.ts, *.test.ts):\n\n1. If you plan to flag \"missing vi.mock(X)\" or \"missing container.register(Y)\",\n   first check the project's `vitest.config.ts` or `jest.config.ts` (root or app-level).\n\n2. Look for `setupFiles` or `setupFilesAfterEnv` array.\n\n3. If the array includes a setup file that already mocks the target module,\n   DO NOT flag the per-file mock as missing — the global setup is sufficient.\n\n4. Provide context in the review: \"Global setup.ts mocks this at line X, no action needed.\"\n```\n\n## Success criteria\n\n- Next 5 route-test PRs (apps/server/src/routes/*/__tests__/*.spec.ts) have 0 false positives on mock-related CRITICALs\n- Reviewer mentions checking setupFiles in at least 2 reviews\n- User reports reduced friction in merge decisions\n\n## Related memories\n\n- `feedback_read-test-setup-before-writing-route-tests.md` — slightly different angle (test author perspective); this one is code-review perspective\n- `feedback_bens-code-reviewer-may-hallucinate.md` — broader pattern of reviewer oversights\n"
+    },
+    {
+      "path": "feedback_plan-author-include-tests-in-scope-materialization.md",
+      "frontmatter": {
+        "name": "plan-author: materialize test files importing changed modules in scope inventory",
+        "description": "Catch spec/test files that import changed modules before implementation, not after. Second pass of file-coverage materialization.",
+        "metadata": {
+          "type": "feedback",
+          "pattern": "recurring_scope_gap",
+          "occurrences": 2,
+          "severity": "low",
+          "impact": "implementer discovers tests at execution time; +1 unplanned commit"
+        }
+      },
+      "body": "## Problem\n\nPlan-author materializes file inventory for source files but misses test files (*.spec.ts, __tests__/ directories) that import or test the changed modules.\n\nOccurrences:\n- PR #355 (SCRUM-73): Plan listed component files but missed __tests__/message-bubble.spec.ts importing those components\n- PR #395 (SCRUM-88): Plan listed 12 application/ and infrastructure/ files but missed apps/server/routes/v1/onboarding/__tests__/complete.spec.ts and apps/server/routes/webhooks/asaas/__tests__/asaas-webhook.spec.ts\n\nRoot cause: Plan-author runs initial rg to find source files being modified, but does not run a secondary pass to find test files that import those modules. Instructions say \"materialize file coverage\" but don't explicitly include test files.\n\n## Solution\n\nAdd a secondary materialization step for test files.\n\n**After initial file inventory (source files), run a second grep:**\n\n```bash\nrg --type ts 'import.*from.*(changed-module-path)' 'apps/*/src/**/__tests__/*.spec.ts' 'packages/*/src/**/*.spec.ts'\n```\n\nAppend results to file inventory with note: \"Test files referencing changed modules (will be updated as part of spec validation)\".\n\n## How to apply\n\nUpdate plan-author prompt (in orchestrator Phase 4 WRITE_PLAN dispatcher or skill `bens-implementation-flow`):\n\nIn the \"File Coverage Materialization\" section:\n\n```markdown\n### Step 2: Secondary pass — find test files importing changed modules\n\nAfter listing source files, run:\n\n```bash\nfor module in $(echo \"$CHANGED_MODULES\"); do\n  rg --type ts \"import.*from.*$module\" 'apps/*/src/**/__tests__/*.spec.ts' 'packages/*/src/**/*.spec.ts'\ndone\n```\n\nAppend matching test files to the inventory with category \"Tests (to be updated during implementation)\".\n\n### Example\n\nIf plan lists \"packages/core/src/modules/subscription/application/create-org-with-trial.ts\",\nthen run grep to find \"apps/server/src/routes/v1/onboarding/__tests__/complete.spec.ts\" (imports CreateOrgWithTrial).\nAdd to inventory: \"apps/server/src/routes/v1/onboarding/__tests__/complete.spec.ts — Test — imports CreateOrgWithTrial, will be updated\"\n```\n\n## Success criteria\n\n- Next 3 refactor/feature PRs include all test files in plan scope inventory\n- Implementer does not discover new test files at Task execution time\n- Plan inventory explicitly documents \"Test files\" section\n\n## Related memories\n\n- `feedback_spec-plan-sync-implicit-scope.md` — broader spec/plan scope materialization pattern\n"
+    },
+    {
+      "path": "feedback_implementer-language-rule-refactoring-context.md",
+      "frontmatter": {
+        "name": "implementer: enforce English code comments in refactoring, especially when copy-pasting",
+        "description": "Refactoring tasks have higher risk of introducing pt-BR code comments (copy-paste from existing code). Add language-rule emphasis to refactoring context.",
+        "metadata": {
+          "type": "feedback",
+          "pattern": "language_rule_drift_in_refactoring",
+          "occurrences": 2,
+          "severity": "low",
+          "impact": "code review fix, 1-2 min per file, low functional risk"
+        }
+      },
+      "body": "## Problem\n\nRefactoring tasks produce pt-BR code comments more frequently than feature work (likely due to copy-pasting from existing Portuguese code or comments).\n\nOccurrences:\n- PR #391 (SCRUM-85): New error handler copied from existing Portuguese-adjacent code, included Spanish/Portuguese comments\n- PR #395 (SCRUM-88): New domain port, repository impl, and use case files introduced pt-BR comments (`nao`, `criacao`, `repositorio` without diacritics) despite CLAUDE.md prohibition\n\nRoot cause: Copy-pasting logic from existing code that may have Portuguese context; language rule not top-of-mind during refactoring (feature work tends to start fresh, often in English).\n\nFrequency: 2/10 refactoring PRs in recent sample = 20% violation rate (vs. ~5% for feature work).\n\n## Solution\n\nAdd language-rule emphasis to implementer prompts when context is \"refactoring\".\n\n## How to apply\n\nUpdate orchestrator Phase 5 IMPLEMENT dispatcher:\n\nWhen `task.type === 'refactoring'`, include in implementer prompt:\n\n```markdown\n## Language rules (especially important for refactoring)\n\nPer CLAUDE.md ABSOLUTE PROHIBITIONS:\n- **Code identifiers:** English only. Exceptions: Brazilian acronyms (cpf, cnpj, cep).\n- **Code comments:** English only. NO Portuguese comments, even if refactoring code adjacent to Portuguese.\n- **UI strings:** Brazilian Portuguese with correct diacritics (á, é, í, ó, ú, ã, õ, ê, ô, ç). Never `nao`, `informacoes`, `maximo`, `minimo`, `invalido`, `descricao`, `organizacao`, `obrigatorio`.\n\nWhen copy-pasting logic from existing code:\n1. Check if the source has Portuguese comments → translate to English\n2. Check test descriptions and UI strings → restore diacritics\n3. Common violations found in refactoring: `nao` (should be skipped or comment in English), `criacao` (should be English comment + proper diacritics in strings)\n```\n\n## Success criteria\n\n- Next 3 refactoring PRs have 0 language-rule violations in new code\n- No comments in Portuguese in new files\n- Code review does not flag language rule violations\n\n## Related memories\n\n- CLAUDE.md ABSOLUTE PROHIBITIONS section\n- `feedback_copy-strings-from-plan-restore-diacritics.md` — related pattern for string handling\n"
+    }
+  ],
+  "repo_changes": [
+    {
+      "file": ".claude/agents/bens-code-reviewer.md",
+      "reason": "Add pre-flight check for vitest setupFiles before flagging missing test mocks. Reduces false positives on route tests (3rd occurrence pattern).",
+      "diff_sketch": "In 'Pre-flight checks' section, add subsection 'Verify test setup before flagging missing mocks' that instructs reviewer to check vitest.config.ts setupFiles array before flagging vi.mock() or container.register() as missing in */__tests__/*.spec.ts files."
+    },
+    {
+      "file": ".claude/skills/bens-implementation-flow.md",
+      "reason": "Extend plan-author file-coverage materialization to include test files importing changed modules. Prevents scope omission (2nd occurrence pattern).",
+      "diff_sketch": "In 'Phase 4: Write Plan' section, under 'File Coverage Materialization', add Step 2 that runs secondary grep for *.spec.ts and __tests__/ files importing changed modules. Example: 'If plan lists packages/core/.../create-org-with-trial.ts, grep for apps/*/src/**/__tests__/*.spec.ts importing CreateOrgWithTrial and add to inventory.'"
+    }
+  ],
+  "notes": {
+    "ci_billing_blocker": "New external failure type identified. Consider adding to orchestrator Phase 10 CI_WATCH mapping: when failure reason contains 'billing' or 'spending limit' or 'account payments', escalate to user instead of invoking check-pipeline specialist.",
+    "merge_without_ci_decision": "User chose to merge despite CI failure because all local gates (lint, typecheck, build, test) passed fresh. This is the first instance; valid pattern if frequency stays <5% of PRs. Orchestrator independent test verification in Phase 11 provided safety net.",
+    "cooldown_check_result": "No prior rejections found for any of the three proposed memory entries. All are new or refinements of recurring patterns. Safe to auto-commit.",
+    "high_priority_proposal": "bens-code-reviewer-vitest-setupfiles-check — affects code review quality on 20% of route-test PRs; immediate adoption recommended."
+  }
+}

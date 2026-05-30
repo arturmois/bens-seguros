@@ -1,0 +1,69 @@
+{
+  "ticket": "SCRUM-88",
+  "slug": "scrum-88-subscription-injectable-refactor",
+  "type": "refactor",
+  "scope": "backend",
+  "phase": "AFTER_ACTION",
+  "started_at": "2026-05-27T22:20:00Z",
+  "spec_path": "docs/superpowers/specs/2026-05-27-scrum-88-subscription-injectable-refactor-design.md",
+  "plan_path": "docs/superpowers/plans/2026-05-27-scrum-88-subscription-injectable-refactor.md",
+  "pr_url": "https://github.com/arturmois/bens-seguros/pull/395",
+  "pr_number": 395,
+  "pr_merged_at": "2026-05-29T00:46:51Z",
+  "harness_pr_url": null,
+  "completed_phases": [
+    "READ_TICKET",
+    "CLASSIFY",
+    "BRAINSTORM_SPEC",
+    "WRITE_PLAN",
+    "IMPLEMENT",
+    "LOCAL_GATES",
+    "CODE_REVIEW",
+    "QA_RUN",
+    "OPEN_PR",
+    "CI_WATCH",
+    "AWAIT_MERGE"
+  ],
+  "failures": [
+    {
+      "phase": "CODE_REVIEW",
+      "type": "code review CRITICAL",
+      "attempts": 1,
+      "specialist": "inline_investigation",
+      "raw_output_summary": "Reviewer flagged 2 CRITICAL: complete.spec.ts + asaas-webhook.spec.ts missing vi.mock('@repo/core'). FALSE POSITIVE — global setupFiles src/__tests__/helpers/setup.ts:3-5 mocks @repo/core container.resolve; 16 tests pass fresh.",
+      "resolved": true,
+      "resolution": "false_positive_dismissed"
+    },
+    {
+      "phase": "CODE_REVIEW",
+      "type": "language rule WARNING",
+      "attempts": 1,
+      "specialist": "inline_fix",
+      "raw_output_summary": "pt-BR code comments (should be English) + test descriptions missing diacritics. Fixed in commit 78a69817.",
+      "resolved": true,
+      "resolution": "fixed"
+    },
+    {
+      "phase": "CI_WATCH",
+      "type": "ci infra blocker (not code)",
+      "attempts": 1,
+      "specialist": "none — external blocker",
+      "raw_output_summary": "validate job failed in 2s: GitHub Actions account billing blocker. Not a code/test failure. User chose to merge anyway; local gates all green.",
+      "resolved": true,
+      "resolution": "user_merged_without_ci"
+    }
+  ],
+  "user_interventions": [
+    { "phase": "BRAINSTORM_SPEC", "type": "checkpoint", "answer": "approved" },
+    { "phase": "WRITE_PLAN", "type": "checkpoint", "answer": "approved" },
+    {
+      "phase": "CI_WATCH",
+      "type": "ci_blocker_decision",
+      "answer": "merge_without_ci"
+    }
+  ],
+  "paused_reason": null,
+  "aborted_at": null,
+  "qa_skipped": true,
+  "qa_skip_reason": "no_ui_changes"
+}

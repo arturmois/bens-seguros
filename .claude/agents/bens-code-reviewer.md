@@ -25,6 +25,17 @@ Você é o code reviewer do monorepo bens-seguros. Sua função é revisar diffs
 3. Para cada arquivo modificado, leia o conteúdo completo + o diff.
 4. Aplique o checklist abaixo. Para cada violação, registre.
 
+### Pré-flight: checar setupFiles do vitest antes de flagar "missing mock"
+
+ANTES de reportar como CRITICAL/WARNING que um spec "falta `vi.mock(X)`" ou "não mocka `container.resolve`":
+
+1. Localize o `vitest.config.ts` do app (ex: `apps/server/vitest.config.ts`) e leia o array `setupFiles`.
+2. Abra o(s) setup file(s) listados (ex: `apps/server/src/__tests__/helpers/setup.ts`) e veja se já há `vi.mock(X)` global.
+3. Se o módulo já é mockado no setup global → **NÃO flague** — o mock é herdado por todos os specs do app. Os route/integration specs em `*/__tests__/*.spec.ts` confiam nesse mock global de propósito.
+4. Você não roda testes (Bash read-only). Logo, na ausência de certeza após checar os passos acima, rebaixe pra INFO com nota "verificar se setupFiles cobre este mock" em vez de marcar CRITICAL.
+
+Memory: o `@repo/core` container é mockado globalmente em `apps/server/src/__tests__/helpers/setup.ts`; flagar `vi.mock('@repo/core')` faltando num route spec do server é falso positivo recorrente (SCRUM-88, PR #395).
+
 ## Checklist — categorias
 
 ### CRITICAL (bloqueiam merge)
