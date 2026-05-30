@@ -4,7 +4,6 @@
  * Bens Seguros API
  * OpenAPI spec version: 1.0.0
  */
-import { useMutation, useQuery } from '@tanstack/react-query'
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -19,6 +18,7 @@ import type {
   UseQueryOptions,
   UseQueryResult,
 } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 import type {
   CancelBillingSubscription200,
@@ -32,11 +32,204 @@ import type {
   GetBillingCurrent200,
   ListBillingInvoices200,
   ListBillingInvoicesParams,
+  ListBillingPlans200,
 } from '../../model'
 
 import { customFetch } from '../../../lib/api-mutator'
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
+
+/**
+ * @summary Catálogo público de planos ativos (sem auth)
+ */
+export type listBillingPlansResponse200 = {
+  data: ListBillingPlans200
+  status: 200
+}
+
+export type listBillingPlansResponseSuccess = listBillingPlansResponse200 & {
+  headers: Headers
+}
+export type listBillingPlansResponse = listBillingPlansResponseSuccess
+
+export const getListBillingPlansUrl = () => {
+  return `/api/v1/billing/plans`
+}
+
+export const listBillingPlans = async (
+  options?: RequestInit
+): Promise<listBillingPlansResponse> => {
+  return customFetch<listBillingPlansResponse>(getListBillingPlansUrl(), {
+    ...options,
+    method: 'GET',
+  })
+}
+
+export const getListBillingPlansQueryKey = () => {
+  return [`/api/v1/billing/plans`] as const
+}
+
+export const getListBillingPlansQueryOptions = <
+  TData = Awaited<ReturnType<typeof listBillingPlans>>,
+  TError = unknown,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof listBillingPlans>>, TError, TData>
+  >
+  request?: SecondParameter<typeof customFetch>
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getListBillingPlansQueryKey()
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listBillingPlans>>
+  > = ({ signal }) => listBillingPlans({ signal, ...requestOptions })
+
+  return {
+    queryKey,
+    queryFn,
+    staleTime: 60000,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof listBillingPlans>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListBillingPlansQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listBillingPlans>>
+>
+export type ListBillingPlansQueryError = unknown
+
+export function useListBillingPlans<
+  TData = Awaited<ReturnType<typeof listBillingPlans>>,
+  TError = unknown,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listBillingPlans>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listBillingPlans>>,
+          TError,
+          Awaited<ReturnType<typeof listBillingPlans>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useListBillingPlans<
+  TData = Awaited<ReturnType<typeof listBillingPlans>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listBillingPlans>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listBillingPlans>>,
+          TError,
+          Awaited<ReturnType<typeof listBillingPlans>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useListBillingPlans<
+  TData = Awaited<ReturnType<typeof listBillingPlans>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listBillingPlans>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+/**
+ * @summary Catálogo público de planos ativos (sem auth)
+ */
+
+export function useListBillingPlans<
+  TData = Awaited<ReturnType<typeof listBillingPlans>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listBillingPlans>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getListBillingPlansQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+/**
+ * @summary Catálogo público de planos ativos (sem auth)
+ */
+export const prefetchListBillingPlansQuery = async <
+  TData = Awaited<ReturnType<typeof listBillingPlans>>,
+  TError = unknown,
+>(
+  queryClient: QueryClient,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof listBillingPlans>>,
+        TError,
+        TData
+      >
+    >
+    request?: SecondParameter<typeof customFetch>
+  }
+): Promise<QueryClient> => {
+  const queryOptions = getListBillingPlansQueryOptions(options)
+
+  await queryClient.prefetchQuery(queryOptions)
+
+  return queryClient
+}
 
 /**
  * @summary Get current subscription and entitlements for the active org

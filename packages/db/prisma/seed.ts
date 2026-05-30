@@ -218,6 +218,19 @@ async function main() {
     },
   })
   console.warn(`  ✓ Organization: ${org.name} (${org.id})`)
+  const proPlan = await prisma.plan.findUniqueOrThrow({
+    where: { slug: 'pro' },
+  })
+  await prisma.subscription.create({
+    data: {
+      organizationId: org.id,
+      planId: proPlan.id,
+      status: 'ACTIVE',
+      currentPeriodStart: new Date(),
+      currentPeriodEnd: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+    },
+  })
+  console.warn(`  ✓ Subscription: ${proPlan.name} (ACTIVE, 30d period)`)
   const PASSWORD = 'Senha@123'
   const hashedPw = hashPassword(PASSWORD)
   const usersData = [

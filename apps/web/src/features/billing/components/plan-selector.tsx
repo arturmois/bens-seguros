@@ -1,0 +1,100 @@
+'use client'
+
+import { AlertCircle, PackageOpen } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+
+import { Button } from '@/components/ui/button'
+import { RadioGroup } from '@/components/ui/radio-group'
+import { Skeleton } from '@/components/ui/skeleton'
+
+import { useBillingPlans } from '../hooks/use-billing-plans'
+import { SelectablePlanCard } from './selectable-plan-card'
+
+export function PlanSelector() {
+  const { data: plans, isLoading, isError, refetch } = useBillingPlans()
+  const [selectedSlug, setSelectedSlug] = useState('')
+  const router = useRouter()
+
+  if (isLoading) return <PlansSkeleton />
+  if (isError) return <PlansError onRetry={() => refetch()} />
+
+  const items = plans ?? []
+  if (items.length === 0) return <PlansEmpty />
+
+  function handleContinue() {
+    if (selectedSlug === '') return
+    router.push(`/onboarding?plan=${encodeURIComponent(selectedSlug)}`)
+  }
+
+  return (
+    <div className="bg-card rounded-lg border p-6 shadow-sm sm:p-8">
+      <div className="mb-6 text-center">
+        <h2 className="text-xl font-semibold">Escolha seu plano</h2>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Comece com 14 dias grátis. Você pode trocar de plano quando quiser.
+        </p>
+      </div>
+      <RadioGroup
+        value={selectedSlug}
+        onValueChange={(value) => {
+          if (typeof value === 'string') setSelectedSlug(value)
+        }}
+        aria-label="Planos disponíveis"
+      >
+        {items.map((plan) => (
+          <SelectablePlanCard
+            key={plan.id}
+            plan={plan}
+            selected={plan.slug === selectedSlug}
+          />
+        ))}
+      </RadioGroup>
+      <Button
+        type="button"
+        size="lg"
+        className="mt-6 w-full"
+        disabled={selectedSlug === ''}
+        onClick={handleContinue}
+      >
+        Continuar
+      </Button>
+    </div>
+  )
+}
+
+function PlansSkeleton() {
+  return (
+    <div className="bg-card space-y-3 rounded-lg border p-6 shadow-sm sm:p-8">
+      <Skeleton className="mx-auto h-6 w-40" />
+      <Skeleton className="h-28 w-full rounded-lg" />
+      <Skeleton className="h-28 w-full rounded-lg" />
+      <Skeleton className="h-28 w-full rounded-lg" />
+    </div>
+  )
+}
+
+function PlansError({ onRetry }: { readonly onRetry: () => void }) {
+  return (
+    <div className="bg-card flex flex-col items-center gap-3 rounded-lg border p-8 text-center shadow-sm">
+      <AlertCircle className="text-destructive size-8" />
+      <p className="text-muted-foreground text-sm">
+        Não foi possível carregar os planos.
+      </p>
+      <Button variant="outline" size="sm" onClick={onRetry}>
+        Tentar novamente
+      </Button>
+    </div>
+  )
+}
+
+function PlansEmpty() {
+  return (
+    <div className="bg-card flex flex-col items-center gap-3 rounded-lg border p-8 text-center shadow-sm">
+      <PackageOpen className="text-muted-foreground size-8" />
+      <p className="text-muted-foreground text-sm">
+        Nenhum plano disponível no momento.
+      </p>
+    </div>
+  )
+}

@@ -7,6 +7,35 @@
 import * as zod from 'zod'
 
 /**
+ * @summary Catálogo público de planos ativos (sem auth)
+ */
+export const ListBillingPlansResponse = zod.object({
+  success: zod.literal(true),
+  data: zod.array(
+    zod.object({
+      id: zod.string(),
+      slug: zod.string(),
+      name: zod.string(),
+      description: zod.string().nullable(),
+      priceCents: zod.number(),
+      currency: zod.string(),
+      billingPeriod: zod.enum(['MONTHLY', 'YEARLY']),
+      sortOrder: zod.number(),
+      maxUsers: zod.number().nullable(),
+      maxProposalsPerMonth: zod.number().nullable(),
+      maxChannels: zod.number().nullable(),
+      maxConversationsPerOrg: zod.number().nullable(),
+      maxImportRows: zod.number().nullable(),
+      maxLogoSizeBytes: zod.number().nullable(),
+      aiEnabled: zod.boolean(),
+      aiMessagesIncluded: zod.number(),
+      aiOverageCentsPerMessage: zod.number(),
+      features: zod.record(zod.string(), zod.unknown()),
+    })
+  ),
+})
+
+/**
  * @summary Get current subscription and entitlements for the active org
  */
 export const GetBillingCurrentResponse = zod.object({

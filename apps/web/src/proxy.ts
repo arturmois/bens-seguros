@@ -16,7 +16,7 @@ const AUTH_PAGES = [
   '/forgot-password',
   '/reset-password',
 ]
-const AUTH_ONLY_PATHS = ['/onboarding', '/select-org']
+const AUTH_ONLY_PATHS = ['/onboarding', '/select-org', '/select-plan']
 
 function getSessionToken(request: NextRequest): string | undefined {
   return (
