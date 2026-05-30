@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: bens_dev
       POSTGRES_DB: bens_seguros
     volumes:
-      - pg-data:/var/lib/postgresql/data
+      - pg-data:/var/lib/postgresql
 
   mongodb:
     image: mongo:8
