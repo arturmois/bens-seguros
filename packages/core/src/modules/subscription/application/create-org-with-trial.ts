@@ -26,7 +26,6 @@ export type CreateOrgWithTrialResult = {
   trialEndsAt: Date
 }
 
-// Deps that vary per caller and do not belong in the repository (auth API, clock)
 export type CreateOrgWithTrialCallDeps = {
   createOrganization: (input: {
     name: string

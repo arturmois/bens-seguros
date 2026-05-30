@@ -22,7 +22,6 @@ type ProcessOpts = {
   publishInvalidation: (organizationId: string) => Promise<void>
 }
 
-// Internal helpers — not exported (implementation detail of this use case)
 async function handlePaymentSucceeded(
   repo: SubscriptionRepository,
   sub: SubscriptionBillingRow,

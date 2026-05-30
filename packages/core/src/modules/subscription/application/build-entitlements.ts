@@ -1,10 +1,6 @@
 import type { Entitlements } from '@repo/auth/entitlements'
 import { DEFAULT_PERMISSIVE_ENTITLEMENTS } from '@repo/auth/entitlements'
 
-// Narrow type shapes accepted by buildEntitlements — keeps the function pure
-// and decoupled from the Prisma client shape. Callers (subscription middleware
-// in Fase 3B) project the Prisma rows into these before calling.
-
 export interface PlanShape {
   readonly maxUsers: number | null
   readonly maxProposalsPerMonth: number | null
@@ -36,9 +32,6 @@ type SubscriptionStatusInput =
 const ACTIVE_STATUSES: ReadonlySet<SubscriptionStatusInput> =
   new Set<SubscriptionStatusInput>(['ACTIVE', 'TRIALING', 'BILLED_EXTERNALLY'])
 
-// Keys that customQuotas v1 may override on top of Plan. The union type acts as
-// a defensive filter — keys outside this set are ignored when reading the JSON
-// blob (protects against drifted clients writing arbitrary fields).
 type QuotaOverrideKey =
   | 'maxUsers'
   | 'maxProposalsPerMonth'
@@ -88,17 +81,6 @@ function readPlanFeature(plan: PlanShape, key: FeatureOverrideKey): boolean {
   return typeof value === 'boolean' ? value : false
 }
 
-// Builds the entitlements projection that subscription-middleware injects into
-// request.entitlements and CASL consumes. Pure function — no I/O, no clock.
-//
-// Resolution order per field:
-//   1. customQuotas override (per-field, undefined = no override; null = unlimited)
-//   2. Plan field
-//   3. Default permissive (when subscription is null AND plan is null)
-//
-// BILLED_EXTERNALLY orgs get the plan's quotas as-is (no special unlock) —
-// the bypass is in the middleware (which doesn't 402 them), not in
-// entitlements. Quota gating still applies via customQuotas if set.
 export function buildEntitlements(
   subscription: SubscriptionShape | null,
   plan: PlanShape | null
