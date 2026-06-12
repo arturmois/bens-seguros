@@ -17,6 +17,7 @@ import { DocumentList } from '@/features/documents/components/document-list'
 import { DocumentUpload } from '@/features/documents/components/document-upload'
 
 import { useOrgs } from '@/features/org/hooks/use-orgs'
+import { ApiError } from '@/lib/api-client'
 import { getInitials } from '@/lib/formatters'
 import { formatDocument } from '@/lib/masks'
 import { hasPermission } from '@/lib/permissions'
@@ -79,7 +80,13 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { activeOrg } = useOrgs()
-  const { data: client, isLoading, isError, refetch } = useClient(clientId)
+  const {
+    data: client,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useClient(clientId)
   const deleteClient = useDeleteClient()
   const [deleteOpen, setDeleteOpen] = useState(false)
   const tabParam = searchParams.get('tab')
@@ -105,6 +112,24 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
     return <DetailSkeleton />
   }
   if (isError || !client) {
+    const isNotFound = error instanceof ApiError && error.status === 404
+    if (isNotFound) {
+      return (
+        <div className="flex h-64 flex-col items-center justify-center gap-3">
+          <p className="text-muted-foreground text-sm">
+            Cliente não encontrado. Ele pode ter sido excluído.
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push('/clients')}
+          >
+            <ArrowLeft className="mr-1 h-4 w-4" />
+            Voltar para clientes
+          </Button>
+        </div>
+      )
+    }
     return (
       <div className="flex h-64 flex-col items-center justify-center gap-3">
         <p className="text-destructive text-sm">

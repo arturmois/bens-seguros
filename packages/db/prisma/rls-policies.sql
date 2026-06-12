@@ -292,3 +292,17 @@ REVOKE INSERT, UPDATE, DELETE ON "Plan" FROM app_user;
 --
 -- To rollback SE5 Plan write lockdown:
 -- GRANT INSERT, UPDATE, DELETE ON "Plan" TO app_user;
+
+-- ============================================================================
+-- Partial unique indexes (not expressible in Prisma schema)
+-- ============================================================================
+-- One LIVE client per (organizationId, documentHash). Soft-deleted rows
+-- (deletedAt IS NOT NULL) are excluded, freeing the document for reuse.
+-- Reapplied here because Prisma's @@unique cannot carry a WHERE clause:
+-- `prisma db push` syncs the schema directly and can drop this index, while
+-- `migrate deploy` only applies pending migrations. This companion recreates
+-- it as a safety net after both.
+DROP INDEX IF EXISTS "Client_organizationId_documentHash_key";
+CREATE UNIQUE INDEX IF NOT EXISTS "Client_org_documentHash_active_uk"
+  ON "Client" ("organizationId", "documentHash")
+  WHERE "deletedAt" IS NULL;

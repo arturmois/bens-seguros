@@ -55,6 +55,7 @@ export class PrismaClientRepository implements ClientRepository {
           where: {
             organizationId: data.organizationId,
             documentHash,
+            deletedAt: null,
           },
           select: { id: true },
         })

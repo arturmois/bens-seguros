@@ -22,6 +22,7 @@ import type {
   UpdateClientBody,
 } from '@/api/model'
 
+import { ApiError } from '@/lib/api-client'
 import { extractErrorMessage } from '@/lib/extract-error-message'
 
 import type { ClientFilters, ClientFormValues } from '../lib/types'
@@ -55,6 +56,10 @@ export function useClient(id: string) {
     query: {
       enabled: id.length > 0,
       select: (response) => response.data.data,
+      retry: (failureCount, error) => {
+        if (error instanceof ApiError && error.status === 404) return false
+        return failureCount < 3
+      },
     },
   })
 }

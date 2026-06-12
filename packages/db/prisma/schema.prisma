@@ -333,7 +333,6 @@ model Client {
   commissions  Commission[]
   assistances  Assistance[]
 
-  @@unique([organizationId, documentHash])
   @@index([organizationId, deletedAt])
 }
 
