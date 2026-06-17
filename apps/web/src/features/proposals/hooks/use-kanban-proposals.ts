@@ -32,8 +32,7 @@ export function useKanbanProposalsByStage(
     queryKey: ['proposals', 'kanban', stage, filters],
     queryFn: async ({ pageParam: cursor }) => {
       const params = new URLSearchParams({ limit: '20', stage })
-      if (filters.boardType)
-        params.set('boardType', filters.boardType as string)
+      if (filters.boardType) params.set('boardType', filters.boardType)
       if (filters.search) params.set('search', filters.search)
       if (filters.insurerId) params.set('insurerId', filters.insurerId)
       if (filters.salespersonId)
