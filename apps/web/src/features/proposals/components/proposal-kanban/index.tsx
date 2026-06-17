@@ -31,7 +31,6 @@ import { getNextStage } from './kanban-utils'
 import { useKanbanDnd } from './use-kanban-dnd'
 
 interface ProposalKanbanProps {
-  readonly allowedBoardTypes?: readonly BoardType[]
   readonly boardTypeOverride?: BoardType
 }
 
@@ -39,10 +38,7 @@ function isProposalStage(value: string): value is ProposalStage {
   return (STAGES as readonly string[]).includes(value)
 }
 
-export function ProposalKanban({
-  allowedBoardTypes = ['NEW_INSURANCE', 'RENEWAL'] as const,
-  boardTypeOverride,
-}: ProposalKanbanProps) {
+export function ProposalKanban({ boardTypeOverride }: ProposalKanbanProps) {
   const filters = useProposalsFilters()
   const [selectedProposal, setSelectedProposal] = useState<ProposalData | null>(
     null
@@ -53,8 +49,8 @@ export function ProposalKanban({
   >(null)
   const debouncedSearch = useDebounce(filters.apiParams.search, 300)
   const queryClient = useQueryClient()
-  const effectiveBoardType: BoardType =
-    boardTypeOverride ?? allowedBoardTypes[0] ?? 'NEW_INSURANCE'
+  const effectiveBoardType: BoardType | undefined =
+    boardTypeOverride ?? undefined
   const baseStages =
     effectiveBoardType === 'ENDORSEMENT' ? ENDORSEMENT_STAGES : KANBAN_STAGES
   const stageInRaw = filters.values.stageIn

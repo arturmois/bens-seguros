@@ -7,7 +7,7 @@ import { api } from '@/lib/api-client'
 import type { BoardType, ProposalData, ProposalStage } from '../lib/constants'
 
 export interface KanbanFilters {
-  boardType: BoardType
+  boardType?: BoardType
   search?: string
   insurerId?: string
   salespersonId?: string

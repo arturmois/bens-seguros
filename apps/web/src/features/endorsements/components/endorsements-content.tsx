@@ -44,10 +44,7 @@ export function EndorsementsContent() {
         onFilterChange={filters.setFilter}
         onClearAll={filters.clearAll}
       />
-      <ProposalKanban
-        boardTypeOverride="ENDORSEMENT"
-        allowedBoardTypes={['ENDORSEMENT']}
-      />
+      <ProposalKanban boardTypeOverride="ENDORSEMENT" />
     </div>
   )
 }
