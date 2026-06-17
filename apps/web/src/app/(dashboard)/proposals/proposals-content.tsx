@@ -12,7 +12,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { ProposalExportButton } from '@/features/proposals/components/proposal-export-button'
 import { ProposalsTable } from '@/features/proposals/components/proposals-table'
 import { useProposalsFilters } from '@/features/proposals/hooks/use-proposals-filters'
-import { type BoardType } from '@/features/proposals/lib/constants'
 import { PROPOSAL_FILTERS } from '@/features/proposals/lib/filters'
 
 function KanbanSkeleton() {
@@ -40,11 +39,6 @@ const ProposalKanban = dynamic(
     ssr: false,
   }
 )
-
-const ALLOWED_BOARD_TYPES: readonly BoardType[] = [
-  'NEW_INSURANCE',
-  'RENEWAL',
-] as const
 
 const VIEW_OPTIONS = [
   { value: 'table' as const, label: 'Tabela', icon: List },
@@ -76,11 +70,7 @@ export function ProposalsContent() {
           Nova Proposta
         </Button>
       </UnifiedFilterBar>
-      {filters.view === 'table' ? (
-        <ProposalsTable />
-      ) : (
-        <ProposalKanban allowedBoardTypes={ALLOWED_BOARD_TYPES} />
-      )}
+      {filters.view === 'table' ? <ProposalsTable /> : <ProposalKanban />}
     </div>
   )
 }
