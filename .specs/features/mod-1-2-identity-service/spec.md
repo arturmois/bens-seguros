@@ -119,33 +119,33 @@ Baseline at `bcedb31f`: `@app/server` 114 files / 631 tests; `@repo/auth` 2 file
 
 ## Requirement Traceability
 
-| Requirement ID | Story                     | Phase   | Status       |
-| -------------- | ------------------------- | ------- | ------------ |
-| ID-01          | P1: Characterization      | Execute | Implementing |
-| ID-02          | P1: Characterization      | Execute | Implementing |
-| ID-03          | P1: Characterization      | Execute | Implementing |
-| ID-04          | P1: Characterization      | Execute | Implementing |
-| ID-05          | P1: Characterization      | Execute | Implementing |
-| ID-06          | P1: Characterization      | Execute | Implementing |
-| ID-07          | P1: Characterization      | Execute | Implementing |
-| ID-08          | P1: Characterization      | Execute | Implementing |
-| ID-09          | P1: Identity service      | Execute | Implementing |
-| ID-10          | P1: Identity service      | Execute | Implementing |
-| ID-11          | P1: Identity service      | Execute | Implementing |
-| ID-12          | P1: Identity service      | Execute | Implementing |
-| ID-13          | P1: Identity service      | Execute | Implementing |
-| ID-14          | P1: Identity service      | Execute | Implementing |
-| ID-15          | P1: Identity service      | Execute | Implementing |
-| ID-16          | P1: Identity service      | Execute | Implementing |
-| ID-17          | P1: Identity service      | Execute | Implementing |
-| ID-18          | P1: Identity service      | Execute | Implementing |
-| ID-19          | P1: Identity service      | Execute | Implementing |
-| ID-20          | P1: Identity service      | Execute | Implementing |
-| ID-21          | P1: Routes only translate | Execute | Implementing |
-| ID-22          | P1: Routes only translate | Execute | Implementing |
-| ID-23          | P1: Routes only translate | Execute | Implementing |
-| ID-24          | P1: Routes only translate | Execute | Implementing |
-| ID-25          | P1: Routes only translate | Execute | Implementing |
+| Requirement ID | Story                     | Phase   | Status   |
+| -------------- | ------------------------- | ------- | -------- |
+| ID-01          | P1: Characterization      | Execute | Verified |
+| ID-02          | P1: Characterization      | Execute | Verified |
+| ID-03          | P1: Characterization      | Execute | Verified |
+| ID-04          | P1: Characterization      | Execute | Verified |
+| ID-05          | P1: Characterization      | Execute | Verified |
+| ID-06          | P1: Characterization      | Execute | Verified |
+| ID-07          | P1: Characterization      | Execute | Verified |
+| ID-08          | P1: Characterization      | Execute | Verified |
+| ID-09          | P1: Identity service      | Execute | Verified |
+| ID-10          | P1: Identity service      | Execute | Verified |
+| ID-11          | P1: Identity service      | Execute | Verified |
+| ID-12          | P1: Identity service      | Execute | Verified |
+| ID-13          | P1: Identity service      | Execute | Verified |
+| ID-14          | P1: Identity service      | Execute | Verified |
+| ID-15          | P1: Identity service      | Execute | Verified |
+| ID-16          | P1: Identity service      | Execute | Verified |
+| ID-17          | P1: Identity service      | Execute | Verified |
+| ID-18          | P1: Identity service      | Execute | Verified |
+| ID-19          | P1: Identity service      | Execute | Verified |
+| ID-20          | P1: Identity service      | Execute | Verified |
+| ID-21          | P1: Routes only translate | Execute | Verified |
+| ID-22          | P1: Routes only translate | Execute | Verified |
+| ID-23          | P1: Routes only translate | Execute | Verified |
+| ID-24          | P1: Routes only translate | Execute | Verified |
+| ID-25          | P1: Routes only translate | Execute | Verified |
 
 **Coverage:** 25 total, 25 mapped to execution steps, 0 unmapped.
 
@@ -153,5 +153,5 @@ Baseline at `bcedb31f`: `@app/server` 114 files / 631 tests; `@repo/auth` 2 file
 
 ## Success Criteria
 
-- [ ] 5 quality gates green.
-- [ ] Better Auth (`auth.api.*`) is called from `packages/auth` and `middlewares/auth-middleware.ts` only (the latter until Step 1.3).
+- [x] 5 quality gates green.
+- [x] Better Auth (`auth.api.*`) is called from `packages/auth` and `middlewares/auth-middleware.ts` only (the latter until Step 1.3).
