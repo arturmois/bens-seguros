@@ -17,7 +17,6 @@ Baseline at `bcedb31f`: `@app/server` 114 files / 631 tests; `@repo/auth` 2 file
 | ---------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | `middlewares/auth-middleware.ts` `auth.api.getSession`     | Not listed in plan Step 1.2; middleware is Step 1.3                           |
 | `routes/terms/accept-terms.ts` `prisma.user.update`        | Not an invitation/onboarding path; not listed in Step 1.2                     |
-| `get-public-invitation.ts`                                 | Receives `Auth` but calls no `auth.api` method                                |
 | Case-insensitive email match in current-session mode       | Behavior change (usability bug); separate ticket                              |
 | Member role hierarchy (`<` vs `<=`)                        | Logged as out-of-scope ticket in the plan                                     |
 | `slugify` and `CreateOrgWithTrial` wiring in `complete.ts` | Organization naming is not identity; only the `createOrganization` call moves |
@@ -100,9 +99,9 @@ Baseline at `bcedb31f`: `@app/server` 114 files / 631 tests; `@repo/auth` 2 file
 
 **Acceptance Criteria**:
 
-1. The files `apps/server/src/routes/v1/invitations/_better-auth-helpers.ts` and `_invitation-auth.ts` SHALL NOT exist. <!-- ID-21 -->
+1. The files `apps/server/src/routes/v1/invitations/_better-auth-helpers.ts` and `_invitation-auth.ts` SHALL NOT exist, and `get-public-invitation.ts` (which imports `readCurrentSession` from the helpers) SHALL use the identity service. <!-- ID-21 -->
 2. Files under `apps/server/src/routes/v1/{invitations,onboarding}/` (excluding `__tests__`) SHALL contain zero `auth.api.` occurrences and zero `@repo/db` imports. <!-- ID-22 -->
-3. WHEN the move commits are applied THEN `invitations/__tests__/accept-invitation.spec.ts` and `onboarding/__tests__/complete.spec.ts` SHALL be byte-identical to their state after the characterization commit and SHALL pass. <!-- ID-23 -->
+3. WHEN the move commits are applied THEN `invitations/__tests__/accept-invitation.spec.ts` and `onboarding/__tests__/complete.spec.ts` and `invitations/__tests__/get-public-invitation.spec.ts` SHALL be byte-identical to their state after the characterization commit and SHALL pass. <!-- ID-23 -->
 4. The files `_schemas.ts` in `invitations/` and `onboarding/`, and each route's `schema` block, SHALL be unchanged from `bcedb31f`. <!-- ID-24 -->
 5. WHEN the 4 root gates run (`pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm test`) THEN each SHALL exit 0, with `@app/server` ≥ 114 files / 631 tests + the new characterization tests and `@repo/auth` ≥ 3 files. <!-- ID-25 -->
 

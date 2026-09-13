@@ -90,6 +90,40 @@ describe('GET /api/v1/invitations/:id/public', () => {
     expect(response.statusCode).toBe(200)
     expect(response.json().data.inviterName).toBe('Um membro')
   })
+  it('returns currentSession from the request cookie when logged in', async () => {
+    mockExecute.mockResolvedValue(baseView)
+    vi.mocked(fakeAuth.api.getSession).mockResolvedValueOnce({
+      user: { id: 'user-id-009', email: 'invited@user.com' },
+    } as never)
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/v1/invitations/invite-id-001/public',
+      headers: { cookie: 'better-auth.session_token=tok-9' },
+    })
+    expect(response.statusCode).toBe(200)
+    expect(response.json().data.currentSession).toEqual({
+      userId: 'user-id-009',
+      email: 'invited@user.com',
+    })
+    const call: unknown = vi.mocked(fakeAuth.api.getSession).mock.calls[0]?.[0]
+    const headers =
+      call && typeof call === 'object' && 'headers' in call
+        ? call.headers
+        : undefined
+    expect(headers instanceof Headers ? headers.get('cookie') : null).toBe(
+      'better-auth.session_token=tok-9'
+    )
+  })
+  it('returns currentSession null when getSession throws', async () => {
+    mockExecute.mockResolvedValue(baseView)
+    vi.mocked(fakeAuth.api.getSession).mockRejectedValueOnce(new Error('boom'))
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/v1/invitations/invite-id-001/public',
+    })
+    expect(response.statusCode).toBe(200)
+    expect(response.json().data.currentSession).toBeNull()
+  })
   it('returns 404 when invitation is not found', async () => {
     mockResolveError('INVITATION_NOT_FOUND', 'Invitation not found')
     const response = await app.inject({
