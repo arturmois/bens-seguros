@@ -130,18 +130,18 @@ Baseline at `bcedb31f`: `@app/server` 114 files / 631 tests; `@repo/auth` 2 file
 | ID-06          | P1: Characterization      | Execute | Implementing |
 | ID-07          | P1: Characterization      | Execute | Implementing |
 | ID-08          | P1: Characterization      | Execute | Implementing |
-| ID-09          | P1: Identity service      | Execute | Pending      |
-| ID-10          | P1: Identity service      | Execute | Pending      |
-| ID-11          | P1: Identity service      | Execute | Pending      |
-| ID-12          | P1: Identity service      | Execute | Pending      |
-| ID-13          | P1: Identity service      | Execute | Pending      |
-| ID-14          | P1: Identity service      | Execute | Pending      |
-| ID-15          | P1: Identity service      | Execute | Pending      |
-| ID-16          | P1: Identity service      | Execute | Pending      |
-| ID-17          | P1: Identity service      | Execute | Pending      |
-| ID-18          | P1: Identity service      | Execute | Pending      |
-| ID-19          | P1: Identity service      | Execute | Pending      |
-| ID-20          | P1: Identity service      | Execute | Pending      |
+| ID-09          | P1: Identity service      | Execute | Implementing |
+| ID-10          | P1: Identity service      | Execute | Implementing |
+| ID-11          | P1: Identity service      | Execute | Implementing |
+| ID-12          | P1: Identity service      | Execute | Implementing |
+| ID-13          | P1: Identity service      | Execute | Implementing |
+| ID-14          | P1: Identity service      | Execute | Implementing |
+| ID-15          | P1: Identity service      | Execute | Implementing |
+| ID-16          | P1: Identity service      | Execute | Implementing |
+| ID-17          | P1: Identity service      | Execute | Implementing |
+| ID-18          | P1: Identity service      | Execute | Implementing |
+| ID-19          | P1: Identity service      | Execute | Implementing |
+| ID-20          | P1: Identity service      | Execute | Implementing |
 | ID-21          | P1: Routes only translate | Execute | Pending      |
 | ID-22          | P1: Routes only translate | Execute | Pending      |
 | ID-23          | P1: Routes only translate | Execute | Pending      |
