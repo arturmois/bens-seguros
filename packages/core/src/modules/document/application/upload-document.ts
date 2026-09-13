@@ -8,7 +8,7 @@ import type {
   DocumentRepository,
   DocumentType,
 } from '../domain/document-repository.js'
-import type { StorageProvider } from '../domain/storage-provider.js'
+import type { StorageProvider } from '../../../platform/storage/storage-provider.js'
 import { validateFileContent } from './validate-file-content.js'
 
 const logger = pino({ name: 'upload-document' })

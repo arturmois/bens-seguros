@@ -4,7 +4,7 @@ import type {
   DocumentData,
   DocumentRepository,
 } from '../domain/document-repository.js'
-import type { StorageProvider } from '../domain/storage-provider.js'
+import type { StorageProvider } from '../../../platform/storage/storage-provider.js'
 import { UploadDocument } from './upload-document.js'
 
 vi.mock('./validate-file-content.js', () => ({

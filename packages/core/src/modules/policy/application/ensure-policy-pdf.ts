@@ -1,6 +1,6 @@
 import { inject, injectable } from 'tsyringe'
 import type { DocumentRepository } from '../../document/domain/document-repository.js'
-import type { StorageProvider } from '../../document/domain/storage-provider.js'
+import type { StorageProvider } from '../../../platform/storage/storage-provider.js'
 import { OrganizationNotFoundError } from '../../organization/domain/organization-errors.js'
 import type { OrganizationRepository } from '../../organization/domain/organization-repository.js'
 import { PolicyErrors } from '../domain/policy-errors.js'

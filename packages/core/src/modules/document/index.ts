@@ -9,7 +9,7 @@ export type {
 export type {
   StorageProvider,
   UploadResult,
-} from './domain/storage-provider.js'
+} from '../../platform/storage/storage-provider.js'
 export {
   DocumentNotFoundError,
   InvalidFileTypeError,

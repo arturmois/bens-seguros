@@ -3,7 +3,7 @@ import { dirname, join, resolve } from 'node:path'
 import type {
   StorageProvider,
   UploadResult,
-} from '../domain/storage-provider.js'
+} from '../../../platform/storage/storage-provider.js'
 
 const UPLOADS_DIR = resolve('./uploads')
 

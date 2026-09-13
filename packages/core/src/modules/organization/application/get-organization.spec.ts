@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { CacheService } from '../../../shared/cache-service.js'
-import type { StorageProvider } from '../../document/domain/storage-provider.js'
+import type { StorageProvider } from '../../../platform/storage/storage-provider.js'
 import { OrganizationNotFoundError } from '../domain/organization-errors.js'
 import type { OrganizationRepository } from '../domain/organization-repository.js'
 import { GetOrganization } from './get-organization.js'

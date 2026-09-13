@@ -9,7 +9,7 @@ import { env } from '@repo/env'
 import type {
   StorageProvider,
   UploadResult,
-} from '../domain/storage-provider.js'
+} from '../../../platform/storage/storage-provider.js'
 
 const DEFAULT_SIGNED_URL_EXPIRY = 900
 
