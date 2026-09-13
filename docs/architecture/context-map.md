@@ -1,111 +1,80 @@
 # Context Map — Bens Seguros
 
-> **Documento vivo.** Fonte única do mapa de contextos, dependências permitidas e catálogo de eventos. Atualize na mesma PR que adicionar um gateway, um evento ou um contexto.
+> **Documento vivo.** Fonte única dos módulos, de quem é dono de cada tabela e das dependências permitidas. Atualize na mesma PR que adicionar um módulo ou uma dependência entre módulos.
 >
-> **Status:** alvo (MOD-1, proposta). Racional e migração: [`2026-09-13-modular-architecture.md`](2026-09-13-modular-architecture.md). Decisão: `ARCHITECTURE-DECISIONS.md` → MOD-1.
+> **Status:** alvo aprovado (MOD-1, revisado). Migração: [`2026-09-13-migration-plan.md`](2026-09-13-migration-plan.md). Decisão: `ARCHITECTURE-DECISIONS.md` → MOD-1. O design [`2026-09-13-modular-architecture.md`](2026-09-13-modular-architecture.md) foi substituído pela revisão e serve só como racional histórico.
 
 ---
 
-## 1. Contextos
+## 1. Módulos
 
-| Tier | Contexto | Localização | Owns | DDD |
-|---|---|---|---|---|
-| core | `sales` | `packages/core/src/contexts/sales` | Contact, Proposal, ProposalChecklistItem | Full |
-| core | `portfolio` | `packages/core/src/contexts/portfolio` | Policy, Endorsement | Light → Full |
-| core | `commissions` | `packages/core/src/contexts/commissions` | Commission | Full |
-| core | `servicing` | `packages/core/src/contexts/servicing` | Claim, Occurrence, Assistance | Light |
-| core | `conversations` | `packages/conversations` | Conversation, Message, Channel, AiAgent, Participant (Mongo) | Full |
-| supporting | `clients` | `packages/core/src/contexts/clients` | Client | Light |
-| supporting | `performance` | `packages/core/src/contexts/performance` | Goal, dashboard/alert read models | Light |
-| supporting | `catalog` | `packages/core/src/contexts/catalog` | Insurer, InsuranceBranch/products, vehicle & CEP lookups | Light |
-| supporting | `documents` | `packages/core/src/contexts/documents` | Document | Light |
-| platform | `workspace` | `packages/core/src/contexts/workspace` | Organization, Member, Invitation | Light |
-| platform | `billing` | `packages/core/src/contexts/billing` | Plan, Subscription, Invoice, PaymentMethod, WebhookEvent, AiUsageRecord, Entitlements | Light |
-| platform | `notifications` | `packages/core/src/contexts/notifications` | Notification, templates, recipient rules | Light |
-| platform | `audit` | `packages/core/src/contexts/audit` | AuditLog, AuditLogArchive | Light |
-| platform | `search` | `packages/core/src/contexts/search` | global search read model | — |
+Tudo em `packages/core/src/`.
 
-Fora de `core`: `packages/auth` (Better Auth + CASL) consome apenas o contrato Entitlements de `billing`.
+| Módulo          | Localização                                            | Owns (modelos Prisma)                                                                                                                                         | Absorve os módulos atuais                                            | Tipo     |
+| --------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | -------- |
+| `shared-kernel` | `shared-kernel/`                                       | — (ids, money `Cents`/`BasisPoints`, domain-error, cursor-page, json)                                                                                         | `shared`                                                             | kernel   |
+| `platform`      | `platform/{audit,storage,lookups,csv,cache}`           | AuditLog, AuditLogArchive                                                                                                                                     | `audit`, `cep`, `vehicle-lookup`, `document/domain/storage-provider` | técnico  |
+| `sales`         | `modules/sales/{leads,proposals,policies}`             | Contact, Proposal, ProposalChecklistItem, Policy, Endorsement                                                                                                 | `contact`, `proposal`, `policy`, `endorsement`                       | domínio  |
+| `commissions`   | `modules/commissions`                                  | Commission                                                                                                                                                    | `commission`                                                         | domínio  |
+| `servicing`     | `modules/servicing/{claims,occurrences,assistance}`    | Claim, Occurrence, Assistance                                                                                                                                 | `claim`, `occurrence`, `assistance`                                  | domínio  |
+| `clients`       | `modules/clients`                                      | Client                                                                                                                                                        | `client`                                                             | simples  |
+| `insurers`      | `modules/insurers`                                     | Insurer                                                                                                                                                       | `insurer`                                                            | simples  |
+| `documents`     | `modules/documents`                                    | Document                                                                                                                                                      | `document`                                                           | simples  |
+| `workspace`     | `modules/workspace/{organization,members,invitations}` | Organization, Member, Invitation (User, Session, Account, TwoFactor, Verification, TermsAcceptance são escritos pelo Better Auth; workspace é ACL sobre eles) | `organization`, `member`, `invitation`                               | simples  |
+| `billing`       | `modules/billing`                                      | Plan, Subscription, Invoice, PaymentMethod, WebhookEvent, AiUsageRecord                                                                                       | `subscription`, `ai-usage`                                           | simples  |
+| `notifications` | `modules/notifications`                                | Notification (só entrega; templates ficam no módulo dono do texto)                                                                                            | `notification`                                                       | simples  |
+| `performance`   | `modules/performance/{goals,dashboard}`                | Goal                                                                                                                                                          | `goal`, `dashboard`                                                  | simples  |
+| `search`        | `modules/search`                                       | — (busca global, só leitura)                                                                                                                                  | `search`                                                             | simples  |
+| `compliance`    | `modules/compliance`                                   | — (processo de anonimização de cliente)                                                                                                                       | — (novo, Step 6.3)                                                   | processo |
+
+Fora de `core`: `packages/auth` (Better Auth + CASL) é dono do contrato `@repo/auth/entitlements` (produzido por `billing`) e de `@repo/auth/roles`; `auth` nunca importa `@repo/core`. `packages/conversations` é posterior e não faz parte deste mapa.
 
 ---
 
-## 2. Dependências permitidas
+## 2. Dependências permitidas (imports em processo)
+
+Import sempre pelo `index.ts` público do provider.
+
+| Módulo          | Pode importar                                                                                             |
+| --------------- | --------------------------------------------------------------------------------------------------------- |
+| `shared-kernel` | nada                                                                                                      |
+| `platform`      | `shared-kernel`                                                                                           |
+| `sales`         | `clients`, `documents`, `commissions`, `workspace`                                                        |
+| `servicing`     | `sales`, `clients`, `workspace`, `notifications`                                                          |
+| `commissions`   | `workspace`, `notifications`                                                                              |
+| `workspace`     | `notifications`                                                                                           |
+| `compliance`    | `clients`                                                                                                 |
+| `clients`       | —                                                                                                         |
+| `insurers`      | —                                                                                                         |
+| `documents`     | —                                                                                                         |
+| `billing`       | —                                                                                                         |
+| `notifications` | —                                                                                                         |
+| `performance`   | — (leitura tipada somente-leitura das tabelas de `sales`, `commissions`, `servicing`; escrita só em Goal) |
+| `search`        | — (leitura somente-leitura)                                                                               |
+
+Todo módulo pode importar `platform` e `shared-kernel`; `platform` não importa nenhum módulo.
 
 ```mermaid
 flowchart LR
-  sales --> clients & catalog & workspace
-  portfolio --> sales & clients & catalog
-  commissions --> workspace
-  servicing --> portfolio & clients & workspace
-  billing --> workspace
-  notifications --> workspace
-  conversations -. HTTP/HMAC .-> sales & servicing & clients & catalog
-  performance -. read-only views .-> sales & portfolio & commissions & servicing
-  search -. read-only views .-> sales & clients & portfolio & servicing
+  servicing --> sales & clients & workspace & notifications
+  sales --> clients & documents & commissions & workspace
+  commissions --> workspace & notifications
+  workspace --> notifications
+  compliance --> clients
+  performance -. leitura tipada .-> sales & commissions & servicing
 ```
 
-- Seta sólida = chamada síncrona via gateway port do consumidor. **O grafo sólido deve permanecer DAG.**
-- Tracejada = fora do processo (HMAC) ou leitura declarada via views.
-- `documents`, `clients`, `catalog`, `workspace`, `audit` não dependem de nenhum contexto de negócio.
+- **O grafo sólido deve permanecer acíclico.** Ordem topológica: `notifications` → `workspace` → `commissions` → `clients`, `documents` → `sales` → `servicing`.
+- Nova linha ou nova seta = revisão de arquitetura na PR.
+- Cada módulo recebe um tipo Prisma restrito (`Pick<PrismaClient, delegates próprios>`); escrita em tabela de outro módulo não compila.
 
 ---
 
-## 3. Gateways (dependências síncronas)
+## 3. Dependências fora de processo
 
-| Consumidor | Port | Provider | Operações |
-|---|---|---|---|
-| sales | `ClientsGateway` | clients | `registerInsuredParty`, `getClientSummary` |
-| sales | `CatalogGateway` | catalog | `getInsurer`, `branches` |
-| sales | `MemberDirectory` | workspace | `defaultLeadOwner`, `isActiveMember` |
-| portfolio | `SalesGateway` | sales | `getIssuableProposal`, `confirmIssuance`, `createProposalFromPolicy` |
-| portfolio | `ClientsGateway` | clients | `getInsuredForIssuance` |
-| servicing | `PortfolioGateway` | portfolio | `findActivePolicyForClient`, `getPolicySummary` |
-| servicing | `MemberDirectory` | workspace | `isActiveMember` |
-| commissions | `MemberDirectory` | workspace | `getCommissionSplit` |
-| notifications | `MemberDirectory` | workspace | `recipientsByRoles` |
-| billing | `WorkspaceGateway` | workspace | `countActiveMembers` |
-| conversations | `ErpGateway` (HTTP) | sales, servicing, clients, catalog | `captureLead`, `saveInsuredAssetData`, `searchClient`, `listProducts`, `registerClaim` |
+| Origem             | Destino                           | Via                                 | Módulos chamados                                                                                                                                                |
+| ------------------ | --------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/chat-worker` | `apps/server` `routes/internal/*` | HTTP + HMAC (`INTERNAL_API_SECRET`) | `sales` (captura de lead, propostas/apólices do contato), `clients` (atualização vinda do chat), `servicing` (sinistro vindo do chat), `billing` (entitlements) |
+| `apps/chat-worker` | `apps/worker`                     | BullMQ (Redis compartilhado)        | `billing` (registro de uso de IA)                                                                                                                               |
 
-Nova linha nesta tabela = revisão de arquitetura na PR.
-
----
-
-## 4. Catálogo de eventos
-
-| Evento | Publicador | Assinantes | Entrega |
-|---|---|---|---|
-| `documents.DocumentAttached` | documents | sales | in-process |
-| `sales.ContactPromoted` | sales | sales | in-process |
-| `sales.ProposalLost` | sales | notifications, performance | in-process |
-| `sales.QuoteRequested` | sales | sales (worker: PDF + email) | outbox |
-| `portfolio.PolicyIssued` | portfolio | commissions, portfolio (PDF) | outbox |
-| `portfolio.PolicyCancelled` | portfolio | commissions | outbox |
-| `portfolio.PolicyExpired` | portfolio | performance, notifications | outbox |
-| `commissions.CommissionApproved` | commissions | notifications | outbox |
-| `commissions.CommissionRejected` | commissions | notifications | outbox |
-| `servicing.ClaimRegistered` | servicing | notifications | outbox |
-| `billing.EntitlementsChanged` | billing | auth (cache) | in-process + Redis |
-| `clients.ClientAnonymized` | clients | audit, sales, documents, conversations | outbox |
-
-Regras: nome `<contexto>.<PassadoPascalCase>`; payload enriquecido (handler não chama de volta); todo evento carrega `eventId`, `organizationId`, `correlationId`, `occurredAt`; handlers idempotentes.
-
----
-
-## 5. Transações entre contextos (exceções)
-
-| # | Fluxo | Contextos | Motivo |
-|---|---|---|---|
-| 1 | `portfolio.IssuePolicy` + `sales.confirmIssuance` | portfolio, sales | Etapa `POLICY_ISSUED` só existe junto com a Policy (S7) |
-
-Qualquer outra escrita atômica entre contextos é proibida.
-
----
-
-## 6. Leituras cruzadas declaradas
-
-| Contexto leitor | Views / queries | Tabelas lidas |
-|---|---|---|
-| performance | `infrastructure/read-models/*` | proposals, policies, commissions, claims, goals |
-| search | `infrastructure/read-models/*` | clients, contacts, proposals, policies, claims |
-
-Cada arquivo de read-model lista no topo as tabelas que toca.
+Ports existem só para fornecedores externos e para essas chamadas chat → ERP.

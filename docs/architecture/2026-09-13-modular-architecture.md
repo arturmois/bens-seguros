@@ -2,24 +2,24 @@
 
 > **Date:** 2026-09-13 · **Input:** [`docs/audits/2026-09-13-domain-analysis.md`](../audits/2026-09-13-domain-analysis.md) (C#, D#, S# references point there) · **Snapshot:** `main` @ `833fff33`
 >
-> **Status:** proposal. It turns the as-is domain map into bounded contexts, module rules, and a migration path. It is not an implementation plan — each phase in §10 needs its own plan in `docs/superpowers/plans/`.
+> **Status:** superseded by review. Kept as historical rationale only — do not follow its rules (contexts, gateway ports, domain events, outbox). The approved target is [`2026-09-13-migration-plan.md` §1](2026-09-13-migration-plan.md#1-target-approved-revised-map); the allowed module graph is [`context-map.md`](context-map.md).
 
 ---
 
 ## 0. Decisions at a glance
 
-| # | Decision | Why |
-|---|---|---|
-| A1 | **Stay a modular monolith.** Contexts live in `packages/core` as folders, not as 14 new npm packages. The only new package is `packages/conversations` (chat already runs in separate apps on a separate DB). | Boundaries enforced by lint + `exports`, not by package count. Avoids coordination cost the team doesn't need yet. |
-| A2 | **14 modules in 3 tiers** (§1), down from 23 flat modules + logic spread over 4 apps. | Group by ubiquitous language (§1 of the analysis), not by table. |
-| A3 | **Each context = `domain/` + `application/` + `infrastructure/` + `index.ts` + `module.ts` + `CONTEXT.md`.** Light hexagonal: ports live in `domain/`, adapters in `infrastructure/`. | Rules must be predictable for AI agents: the same five places in every context. |
-| A4 | **Commands go through the domain; queries are vertical slices** that may read the context's own tables directly. | No repository ceremony for list/export/get screens with zero business rules. |
-| A5 | **`index.ts` is the only importable file of a context.** It exports use cases, contract types, errors, and events — never repositories, mappers, or Prisma adapters. The root `export *` barrel is removed. | Today `@repo/core` re-exports every module wholesale, including `Prisma*Repository` (violates the CLAUDE.md barrel rule and P1 "well-defined boundaries"). |
-| A6 | **Cross-context sync calls use a consumer-owned port** (`domain/ports/<provider>-gateway.ts`) with an adapter that calls the provider's `index.ts`. | Dependencies become greppable (`ls */domain/ports`), testable with fakes, and swappable for HTTP later. |
-| A7 | **Cross-context reactions use domain events** (in-process dispatcher; transactional outbox for money/external side-effects). | Breaks the 4 import cycles (proposal⇄contact, proposal⇄policy, proposal⇄document, goal⇄dashboard) and moves notification copy out of use cases (S17). |
-| A8 | **Edges are thin.** HTTP routes, internal HMAC routes, BullMQ processors, and AI tools call use cases only; they never import `@repo/db`. | Today 38 route/worker/chat-worker files import `@repo/db` and carry rules (D2, D4, D10, S8, S9). |
-| A9 | **One writer per table.** Prisma schema split into one file per context; FKs across contexts allowed, cross-context writes are not. Cross-context reads only via ports — except the two declared read-model contexts (`performance`, `search`). | P8 state isolation without giving up referential integrity in a single Postgres. |
-| A10 | **Boundaries are machine-checked** (ESLint boundaries + an architecture spec), not just documented. | An agent that breaks a boundary gets a lint error, not a review comment weeks later. |
+| #   | Decision                                                                                                                                                                                                                                        | Why                                                                                                                                                        |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A1  | **Stay a modular monolith.** Contexts live in `packages/core` as folders, not as 14 new npm packages. The only new package is `packages/conversations` (chat already runs in separate apps on a separate DB).                                   | Boundaries enforced by lint + `exports`, not by package count. Avoids coordination cost the team doesn't need yet.                                         |
+| A2  | **14 modules in 3 tiers** (§1), down from 23 flat modules + logic spread over 4 apps.                                                                                                                                                           | Group by ubiquitous language (§1 of the analysis), not by table.                                                                                           |
+| A3  | **Each context = `domain/` + `application/` + `infrastructure/` + `index.ts` + `module.ts` + `CONTEXT.md`.** Light hexagonal: ports live in `domain/`, adapters in `infrastructure/`.                                                           | Rules must be predictable for AI agents: the same five places in every context.                                                                            |
+| A4  | **Commands go through the domain; queries are vertical slices** that may read the context's own tables directly.                                                                                                                                | No repository ceremony for list/export/get screens with zero business rules.                                                                               |
+| A5  | **`index.ts` is the only importable file of a context.** It exports use cases, contract types, errors, and events — never repositories, mappers, or Prisma adapters. The root `export *` barrel is removed.                                     | Today `@repo/core` re-exports every module wholesale, including `Prisma*Repository` (violates the CLAUDE.md barrel rule and P1 "well-defined boundaries"). |
+| A6  | **Cross-context sync calls use a consumer-owned port** (`domain/ports/<provider>-gateway.ts`) with an adapter that calls the provider's `index.ts`.                                                                                             | Dependencies become greppable (`ls */domain/ports`), testable with fakes, and swappable for HTTP later.                                                    |
+| A7  | **Cross-context reactions use domain events** (in-process dispatcher; transactional outbox for money/external side-effects).                                                                                                                    | Breaks the 4 import cycles (proposal⇄contact, proposal⇄policy, proposal⇄document, goal⇄dashboard) and moves notification copy out of use cases (S17).      |
+| A8  | **Edges are thin.** HTTP routes, internal HMAC routes, BullMQ processors, and AI tools call use cases only; they never import `@repo/db`.                                                                                                       | Today 38 route/worker/chat-worker files import `@repo/db` and carry rules (D2, D4, D10, S8, S9).                                                           |
+| A9  | **One writer per table.** Prisma schema split into one file per context; FKs across contexts allowed, cross-context writes are not. Cross-context reads only via ports — except the two declared read-model contexts (`performance`, `search`). | P8 state isolation without giving up referential integrity in a single Postgres.                                                                           |
+| A10 | **Boundaries are machine-checked** (ESLint boundaries + an architecture spec), not just documented.                                                                                                                                             | An agent that breaks a boundary gets a lint error, not a review comment weeks later.                                                                       |
 
 ---
 
@@ -29,32 +29,32 @@
 
 **Tier 1 — Core business** (rich domain, most change)
 
-| Context | Owns (aggregates / tables) | Absorbs today's | Language |
-|---|---|---|---|
-| `sales` | `Contact` (lead), `Proposal` + `ProposalChecklistItem`, `ChecklistConfig`, quote sending | `contact`, `proposal`, promotion part of `client`, `send-quote-email` worker logic, internal `create-lead` rules | Contato, Proposta, Etapa, Quadro, Checklist, Cotação |
-| `portfolio` | `Policy`, `Endorsement`, renewal & endorsement *requests*, policy PDF, expiry | `policy`, `endorsement`, `expire-policies` worker, policy CSV import | Apólice, Vigência, Endosso, Renovação, Cancelamento |
-| `commissions` | `Commission` (incl. reversal), calculator | `commission` | Comissão, Split, Aprovação, Estorno |
-| `servicing` | `Claim` (+ status machine as entity), `Occurrence`, `Assistance` | `claim`, `occurrence`, `assistance`, internal `create-claim` rules | Sinistro, Ocorrência, Assistência |
-| `conversations` *(package)* | `Conversation`, `Message`, `Channel`, `AiAgent`, `Participant` (renamed chat contact) | `chat-server/{domain,application}`, chat-worker `*-helper.ts`, AI tools' rules | Conversa, Canal, Atendente, Fila, Agente de IA |
+| Context                     | Owns (aggregates / tables)                                                               | Absorbs today's                                                                                                  | Language                                             |
+| --------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `sales`                     | `Contact` (lead), `Proposal` + `ProposalChecklistItem`, `ChecklistConfig`, quote sending | `contact`, `proposal`, promotion part of `client`, `send-quote-email` worker logic, internal `create-lead` rules | Contato, Proposta, Etapa, Quadro, Checklist, Cotação |
+| `portfolio`                 | `Policy`, `Endorsement`, renewal & endorsement _requests_, policy PDF, expiry            | `policy`, `endorsement`, `expire-policies` worker, policy CSV import                                             | Apólice, Vigência, Endosso, Renovação, Cancelamento  |
+| `commissions`               | `Commission` (incl. reversal), calculator                                                | `commission`                                                                                                     | Comissão, Split, Aprovação, Estorno                  |
+| `servicing`                 | `Claim` (+ status machine as entity), `Occurrence`, `Assistance`                         | `claim`, `occurrence`, `assistance`, internal `create-claim` rules                                               | Sinistro, Ocorrência, Assistência                    |
+| `conversations` _(package)_ | `Conversation`, `Message`, `Channel`, `AiAgent`, `Participant` (renamed chat contact)    | `chat-server/{domain,application}`, chat-worker `*-helper.ts`, AI tools' rules                                   | Conversa, Canal, Atendente, Fila, Agente de IA       |
 
 **Tier 2 — Supporting**
 
-| Context | Owns | Absorbs |
-|---|---|---|
-| `clients` | `Client` (insured party), document hash dedup, LGPD anonymization | `client` |
-| `performance` | `Goal`, dashboard read model, alert rules | `goal`, `dashboard`, worker `alerts/*` |
-| `catalog` | `Insurer`, **`InsuranceBranch`/product vocabulary (single source, D7)**, vehicle & address lookups | `insurer`, `vehicle-lookup`, `cep`, `packages/aggilizador` adapter |
-| `documents` | `Document` (typed attachment, storage) | `document` |
+| Context       | Owns                                                                                               | Absorbs                                                            |
+| ------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `clients`     | `Client` (insured party), document hash dedup, LGPD anonymization                                  | `client`                                                           |
+| `performance` | `Goal`, dashboard read model, alert rules                                                          | `goal`, `dashboard`, worker `alerts/*`                             |
+| `catalog`     | `Insurer`, **`InsuranceBranch`/product vocabulary (single source, D7)**, vehicle & address lookups | `insurer`, `vehicle-lookup`, `cep`, `packages/aggilizador` adapter |
+| `documents`   | `Document` (typed attachment, storage)                                                             | `document`                                                         |
 
 **Tier 3 — Generic / platform**
 
-| Context | Owns | Absorbs |
-|---|---|---|
-| `workspace` | `Organization`, `Member` (roles, active, split %), `Invitation`, member directory | `organization`, `member`, `invitation` |
-| `billing` | `Plan`, `Subscription`, `Invoice`, `PaymentMethod`, `WebhookEvent`, `AiUsageRecord`, **Entitlements projection**, quota checks (S10) | `subscription`, `ai-usage`, `billing-port`, `asaas-adapter`, 4 billing processors |
-| `notifications` | `Notification`, templates & pt-BR copy, recipient rules, email provider | `notification` + templates currently imported by commission/claim |
-| `audit` | `AuditLog`, archive, LGPD audit scrub | `audit`, `audit-archive` worker |
-| `search` | global search read model | `search` |
+| Context         | Owns                                                                                                                                 | Absorbs                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| `workspace`     | `Organization`, `Member` (roles, active, split %), `Invitation`, member directory                                                    | `organization`, `member`, `invitation`                                            |
+| `billing`       | `Plan`, `Subscription`, `Invoice`, `PaymentMethod`, `WebhookEvent`, `AiUsageRecord`, **Entitlements projection**, quota checks (S10) | `subscription`, `ai-usage`, `billing-port`, `asaas-adapter`, 4 billing processors |
+| `notifications` | `Notification`, templates & pt-BR copy, recipient rules, email provider                                                              | `notification` + templates currently imported by commission/claim                 |
+| `audit`         | `AuditLog`, archive, LGPD audit scrub                                                                                                | `audit`, `audit-archive` worker                                                   |
+| `search`        | global search read model                                                                                                             | `search`                                                                          |
 
 Identity & auth stay in `packages/auth` (Better Auth + CASL). It **consumes** the `billing` Entitlements contract and nothing else from core.
 
@@ -174,15 +174,15 @@ Apps import `@repo/core/sales`, never `@repo/core` root and never a deep path.
 
 ## 3. Inside a context — layer rules
 
-| Layer | Contains | May import | Must not import |
-|---|---|---|---|
-| `domain/` | Entities, value objects, domain services, errors, events, **port interfaces** | own `domain/`, `shared-kernel` | `tsyringe`, `@repo/db`, `@repo/env`, any vendor SDK, other contexts |
-| `application/commands` | Use cases that change state; orchestrate aggregate + ports; publish events | own `domain/`, `shared-kernel`, `platform` (UoW, dispatcher types), `tsyringe` | `@repo/db`, `infrastructure/`, other contexts (use a gateway port) |
-| `application/queries` | Read-only slices: list, get, export, counts | own `domain/` types, `shared-kernel`, `@repo/db` **for the context's own tables only** | writes; other contexts' tables (except `performance`, `search`) |
-| `application/handlers` | Event subscribers; call own commands | same as commands | anything a command can't import |
-| `infrastructure/` | Prisma repos, mappers, vendor adapters, gateway adapters | everything above, `@repo/db`, `@repo/env`, SDKs, **other contexts' `index.ts`** (gateway adapters only) | other contexts' internals |
-| `index.ts` | Public exports | own layers | — (it exports no infrastructure except `register<Ctx>Module`) |
-| `module.ts` | `register<Ctx>Module(container, deps)` — binds ports to adapters, subscribes handlers | own layers | — |
+| Layer                  | Contains                                                                              | May import                                                                                              | Must not import                                                     |
+| ---------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `domain/`              | Entities, value objects, domain services, errors, events, **port interfaces**         | own `domain/`, `shared-kernel`                                                                          | `tsyringe`, `@repo/db`, `@repo/env`, any vendor SDK, other contexts |
+| `application/commands` | Use cases that change state; orchestrate aggregate + ports; publish events            | own `domain/`, `shared-kernel`, `platform` (UoW, dispatcher types), `tsyringe`                          | `@repo/db`, `infrastructure/`, other contexts (use a gateway port)  |
+| `application/queries`  | Read-only slices: list, get, export, counts                                           | own `domain/` types, `shared-kernel`, `@repo/db` **for the context's own tables only**                  | writes; other contexts' tables (except `performance`, `search`)     |
+| `application/handlers` | Event subscribers; call own commands                                                  | same as commands                                                                                        | anything a command can't import                                     |
+| `infrastructure/`      | Prisma repos, mappers, vendor adapters, gateway adapters                              | everything above, `@repo/db`, `@repo/env`, SDKs, **other contexts' `index.ts`** (gateway adapters only) | other contexts' internals                                           |
+| `index.ts`             | Public exports                                                                        | own layers                                                                                              | — (it exports no infrastructure except `register<Ctx>Module`)       |
+| `module.ts`            | `register<Ctx>Module(container, deps)` — binds ports to adapters, subscribes handlers | own layers                                                                                              | —                                                                   |
 
 **What goes in `index.ts`** (contract): command/query classes, their input/output DTO types, error classes & codes, published event types, enums/VOs other contexts or the UI need. **Never:** repositories, mappers, `Prisma*` classes, internal helpers.
 
@@ -199,13 +199,22 @@ Apps import `@repo/core/sales`, never `@repo/core` root and never a deep path.
 ```ts
 // portfolio/domain/ports/sales-gateway.ts  (owned by the consumer)
 export interface SalesGateway {
-  getIssuableProposal(input: { organizationId: string; proposalId: string }): Promise<IssuableProposal | null>
-  confirmIssuance(input: { organizationId: string; proposalId: string; policyId: string }): Promise<void>
+  getIssuableProposal(input: {
+    organizationId: string
+    proposalId: string
+  }): Promise<IssuableProposal | null>
+  confirmIssuance(input: {
+    organizationId: string
+    proposalId: string
+    policyId: string
+  }): Promise<void>
 }
 
 // portfolio/infrastructure/sales-gateway-adapter.ts  (the only place that imports @repo/core/sales)
 @injectable()
-export class SalesGatewayAdapter implements SalesGateway { /* delegates to sales public queries/commands, maps DTOs */ }
+export class SalesGatewayAdapter implements SalesGateway {
+  /* delegates to sales public queries/commands, maps DTOs */
+}
 ```
 
 Rules:
@@ -214,17 +223,17 @@ Rules:
 - Adapters only delegate and map — no rules (avoids "facades that aren't thin").
 - Initial edges (the whole list should fit on one screen; review any addition):
 
-| Consumer | Port | Provider operations |
-|---|---|---|
-| sales | `ClientsGateway` | `registerInsuredParty` (dedup by document hash), `getClientSummary` |
-| sales | `CatalogGateway` | `getInsurer`, `branches` |
-| sales | `MemberDirectory` | `defaultLeadOwner` (makes S8 an explicit rule), `isActiveMember` |
-| portfolio | `SalesGateway` | `getIssuableProposal`, `confirmIssuance`, `createProposalFromPolicy` |
-| portfolio | `ClientsGateway` | `getInsuredForIssuance` (address check) |
-| servicing | `PortfolioGateway` | `findActivePolicyForClient`, `getPolicySummary` |
-| commissions | `MemberDirectory` | `getCommissionSplit` (resolves S3 once decided) |
-| notifications | `MemberDirectory` | `recipientsByRoles` (single place for D11) |
-| billing | `WorkspaceGateway` | `countActiveMembers` (quota checks, S10) |
+| Consumer      | Port               | Provider operations                                                  |
+| ------------- | ------------------ | -------------------------------------------------------------------- |
+| sales         | `ClientsGateway`   | `registerInsuredParty` (dedup by document hash), `getClientSummary`  |
+| sales         | `CatalogGateway`   | `getInsurer`, `branches`                                             |
+| sales         | `MemberDirectory`  | `defaultLeadOwner` (makes S8 an explicit rule), `isActiveMember`     |
+| portfolio     | `SalesGateway`     | `getIssuableProposal`, `confirmIssuance`, `createProposalFromPolicy` |
+| portfolio     | `ClientsGateway`   | `getInsuredForIssuance` (address check)                              |
+| servicing     | `PortfolioGateway` | `findActivePolicyForClient`, `getPolicySummary`                      |
+| commissions   | `MemberDirectory`  | `getCommissionSplit` (resolves S3 once decided)                      |
+| notifications | `MemberDirectory`  | `recipientsByRoles` (single place for D11)                           |
+| billing       | `WorkspaceGateway` | `countActiveMembers` (quota checks, S10)                             |
 
 ### 4.2 Async: domain events
 
@@ -232,19 +241,19 @@ Rules:
 - `platform/event-dispatcher.ts`: after the command's transaction commits, dispatch to in-process handlers registered by each `module.ts`. A handler failure is logged with context and **does not fail the command**.
 - **Outbox** (`platform/outbox`, one `OutboxEvent` table) for events whose loss is unacceptable or that cause external side-effects: written in the same transaction, relayed to BullMQ by the worker, handlers idempotent by `eventId` or a natural key.
 
-| Event | Publisher | Subscribers | Delivery |
-|---|---|---|---|
-| `documents.DocumentAttached` | documents | sales (checklist auto-complete) | in-process |
-| `sales.ContactPromoted` | sales | sales (checklist `client_data`) | in-process |
-| `sales.ProposalLost` | sales | notifications, performance (optional) | in-process |
-| `sales.QuoteRequested` | sales | sales worker slice (PDF + email, sets `sentToClientAt` via command — D10) | outbox |
-| `portfolio.PolicyIssued` | portfolio | commissions (`CreateCommissionForPolicy`, idempotent by `policyId`), portfolio (PDF) | **outbox** |
-| `portfolio.PolicyCancelled` | portfolio | commissions (policy decision S2) | **outbox** |
-| `portfolio.PolicyExpired` | portfolio | performance, notifications | outbox |
-| `commissions.CommissionApproved` / `Rejected` | commissions | notifications | outbox |
-| `servicing.ClaimRegistered` | servicing | notifications | outbox |
-| `billing.EntitlementsChanged` | billing | auth cache invalidation | in-process + Redis |
-| `clients.ClientAnonymized` | clients | audit, sales, documents, conversations (S12) | outbox |
+| Event                                         | Publisher   | Subscribers                                                                          | Delivery           |
+| --------------------------------------------- | ----------- | ------------------------------------------------------------------------------------ | ------------------ |
+| `documents.DocumentAttached`                  | documents   | sales (checklist auto-complete)                                                      | in-process         |
+| `sales.ContactPromoted`                       | sales       | sales (checklist `client_data`)                                                      | in-process         |
+| `sales.ProposalLost`                          | sales       | notifications, performance (optional)                                                | in-process         |
+| `sales.QuoteRequested`                        | sales       | sales worker slice (PDF + email, sets `sentToClientAt` via command — D10)            | outbox             |
+| `portfolio.PolicyIssued`                      | portfolio   | commissions (`CreateCommissionForPolicy`, idempotent by `policyId`), portfolio (PDF) | **outbox**         |
+| `portfolio.PolicyCancelled`                   | portfolio   | commissions (policy decision S2)                                                     | **outbox**         |
+| `portfolio.PolicyExpired`                     | portfolio   | performance, notifications                                                           | outbox             |
+| `commissions.CommissionApproved` / `Rejected` | commissions | notifications                                                                        | outbox             |
+| `servicing.ClaimRegistered`                   | servicing   | notifications                                                                        | outbox             |
+| `billing.EntitlementsChanged`                 | billing     | auth cache invalidation                                                              | in-process + Redis |
+| `clients.ClientAnonymized`                    | clients     | audit, sales, documents, conversations (S12)                                         | outbox             |
 
 `OnPolicyIssued` stops being injected into `IssuePolicy`; commission creation becomes a handler. Consistency moves from "same call" to "same transaction via outbox" — commissions appear within seconds, and a unique `(policyId, isReversal=false)` constraint guarantees exactly one.
 
@@ -270,18 +279,18 @@ Default: **one command = one context = one transaction.** Exceptions are listed 
 
 ## 5. Identity & naming (resolving the collisions)
 
-| Term today | Target name | Context | Rule |
-|---|---|---|---|
-| Mongo chat `Contact` | **`Participant`** | conversations | Channel identity (phone / social IDs). Holds `leadRef: { contactId }` returned by `captureLead`. `clientId` removed — resolved via ERP when needed. |
-| PG `Contact` | `Contact` (UI "Contato") | sales | Lead owned by a salesperson. |
-| PG `Client` | `Client` (UI "Cliente/Segurado") | clients | Insured legal party. Referenced by id from sales, portfolio, servicing. |
-| `salespersonId` | `salespersonId: UserId` | shared-kernel type | Resolution to role/split/active goes through `MemberDirectory` only. |
-| Endorsement (board type) | `EndorsementRequest` | sales ↔ portfolio | A proposal whose `boardType = ENDORSEMENT`, created by `portfolio.RequestEndorsement`. |
-| Endorsement (record) | `Endorsement` | portfolio | Applied change on a policy, created by issuing an EndorsementRequest (S1/D6 — product decision on whether it versions the policy). |
-| "Issued" | stage `POLICY_ISSUED` ⇔ Policy exists | sales + portfolio | Enforced by §4.3 exception 1. |
-| Premium | `estimatedPremiumCents` (proposal) vs `premiumCents` (policy) | sales / portfolio | AI may set the estimate only when empty (S15). |
-| `commissionPercentageInCents` | `commissionBasisPoints` | sales | Rename with migration (S4). |
-| Notification `type`/`entityType` strings | `NotificationType` union owned by notifications | notifications | Free strings rejected (S19). |
+| Term today                               | Target name                                                   | Context            | Rule                                                                                                                                                |
+| ---------------------------------------- | ------------------------------------------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mongo chat `Contact`                     | **`Participant`**                                             | conversations      | Channel identity (phone / social IDs). Holds `leadRef: { contactId }` returned by `captureLead`. `clientId` removed — resolved via ERP when needed. |
+| PG `Contact`                             | `Contact` (UI "Contato")                                      | sales              | Lead owned by a salesperson.                                                                                                                        |
+| PG `Client`                              | `Client` (UI "Cliente/Segurado")                              | clients            | Insured legal party. Referenced by id from sales, portfolio, servicing.                                                                             |
+| `salespersonId`                          | `salespersonId: UserId`                                       | shared-kernel type | Resolution to role/split/active goes through `MemberDirectory` only.                                                                                |
+| Endorsement (board type)                 | `EndorsementRequest`                                          | sales ↔ portfolio  | A proposal whose `boardType = ENDORSEMENT`, created by `portfolio.RequestEndorsement`.                                                              |
+| Endorsement (record)                     | `Endorsement`                                                 | portfolio          | Applied change on a policy, created by issuing an EndorsementRequest (S1/D6 — product decision on whether it versions the policy).                  |
+| "Issued"                                 | stage `POLICY_ISSUED` ⇔ Policy exists                         | sales + portfolio  | Enforced by §4.3 exception 1.                                                                                                                       |
+| Premium                                  | `estimatedPremiumCents` (proposal) vs `premiumCents` (policy) | sales / portfolio  | AI may set the estimate only when empty (S15).                                                                                                      |
+| `commissionPercentageInCents`            | `commissionBasisPoints`                                       | sales              | Rename with migration (S4).                                                                                                                         |
+| Notification `type`/`entityType` strings | `NotificationType` union owned by notifications               | notifications      | Free strings rejected (S19).                                                                                                                        |
 
 ---
 
@@ -299,7 +308,7 @@ Default: **one command = one context = one transaction.** Exceptions are listed 
 
 Adding a file requires an entry in `docs/ARCHITECTURE-DECISIONS.md`. Technical helpers (CSV, cache-aside, crypto, event dispatcher, outbox, UoW) go to `platform/`, which **domain code never imports**.
 
-`@repo/shared` keeps cross-*app* transport concerns only (socket events, HMAC, rate-limit constants, Sentry/pino redaction).
+`@repo/shared` keeps cross-_app_ transport concerns only (socket events, HMAC, rate-limit constants, Sentry/pino redaction).
 
 ---
 
@@ -321,26 +330,33 @@ Adding a file requires an entry in `docs/ARCHITECTURE-DECISIONS.md`. Technical h
 
 ```md
 # <context>
-## Purpose            (2–3 lines; what decisions happen only here)
-## Language           (term → meaning; pt-BR UI label)
-## Owns               (aggregates, tables, schema file)
-## Public API         (commands, queries, events published — mirrors index.ts)
-## Consumes           (gateway ports → provider; events subscribed)
-## Invariants         (numbered business rules; spec file that proves each)
-## Not here           (common wrong guesses, e.g. "commission creation → commissions handler")
+
+## Purpose (2–3 lines; what decisions happen only here)
+
+## Language (term → meaning; pt-BR UI label)
+
+## Owns (aggregates, tables, schema file)
+
+## Public API (commands, queries, events published — mirrors index.ts)
+
+## Consumes (gateway ports → provider; events subscribed)
+
+## Invariants (numbered business rules; spec file that proves each)
+
+## Not here (common wrong guesses, e.g. "commission creation → commissions handler")
 ```
 
-`CLAUDE.md` gets one line: *"Before editing `packages/core/src/contexts/<x>`, read its `CONTEXT.md`. Cross-context changes: read `docs/architecture/context-map.md`."* The mermaid graph (§1.3) and event table (§4.2) move to `context-map.md` as the single living copy.
+`CLAUDE.md` gets one line: _"Before editing `packages/core/src/contexts/<x>`, read its `CONTEXT.md`. Cross-context changes: read `docs/architecture/context-map.md`."_ The mermaid graph (§1.3) and event table (§4.2) move to `context-map.md` as the single living copy.
 
 ### 8.2 Mechanical enforcement
 
-| Check | Tool | Catches |
-|---|---|---|
+| Check                                                                           | Tool                                                                                                                                                                                 | Catches                                                   |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------- | ------ | -------------------------------------- | -------------------- |
 | Layer rules (§3) + "only `index.ts` across contexts" + solid graph edges (§1.3) | ESLint boundaries rules in `config/eslint-config` (e.g. `eslint-plugin-boundaries` element types `domain`/`application`/`infrastructure`/`context-index`/`shared-kernel`/`platform`) | deep imports, domain → infra, new undeclared context edge |
-| `@repo/db` banned in `apps/*/routes`, `apps/*/processors`, `apps/chat-*` | `no-restricted-imports` per app | A8 regressions |
-| Public surface | `packages/core/src/contexts/architecture.spec.ts`: each `index.ts` exports no `Prisma*`, `*Repository` class, `*Mapper` | leaky exports |
-| One writer per table | spec scanning `infrastructure/` for `prisma.<model>.(create|update|delete|upsert)` against the schema file owner | reach-through writes |
-| Event handler idempotency | handler spec template runs each handler twice | duplicate side-effects |
+| `@repo/db` banned in `apps/*/routes`, `apps/*/processors`, `apps/chat-*`        | `no-restricted-imports` per app                                                                                                                                                      | A8 regressions                                            |
+| Public surface                                                                  | `packages/core/src/contexts/architecture.spec.ts`: each `index.ts` exports no `Prisma*`, `*Repository` class, `*Mapper`                                                              | leaky exports                                             |
+| One writer per table                                                            | spec scanning `infrastructure/` for `prisma.<model>.(create                                                                                                                          | update                                                    | delete | upsert)` against the schema file owner | reach-through writes |
+| Event handler idempotency                                                       | handler spec template runs each handler twice                                                                                                                                        | duplicate side-effects                                    |
 
 ### 8.3 Recipes (go into `bens-ddd-module` skill)
 
@@ -377,14 +393,14 @@ Adding a file requires an entry in `docs/ARCHITECTURE-DECISIONS.md`. Technical h
 
 Each phase leaves `main` green (5 quality gates) and is independently shippable. Behavior changes are isolated in Phase 5.
 
-| Phase | Scope | Key moves | Exit criteria |
-|---|---|---|---|
-| **0 — Guardrails** | no runtime change | Add boundary lint in **warn** mode; `architecture.spec.ts`; `context-map.md`; empty `CONTEXT.md` skeletons; split Prisma schema into per-context files | Lint report lists every current violation (baseline) |
-| **1 — Regroup** | moves + imports only | `git mv` modules into `contexts/<ctx>`; per-context `index.ts` without infra exports; subpath `exports`; remove root barrel; split `container-registrations.ts` into `module.ts` files; move `shared` → `shared-kernel`/`platform` | All apps import `@repo/core/<ctx>`; lint `error` for deep imports |
-| **2 — Thin edges** | logic relocation, same behavior | 38 `@repo/db` edge files → queries/commands; internal `create-lead`/`create-claim` rules into commands; `SendQuote` + worker unified; alerts copy into notifications | `no-restricted-imports` on `@repo/db` in edges = error |
-| **3 — Break cycles** | events | Event dispatcher + outbox; `DocumentAttached`; `PolicyIssued` → commissions handler; templates out of commission/claim; renewal/endorsement start moves to portfolio; goal/dashboard merged | Solid graph is a DAG; boundary lint = error everywhere |
-| **4 — Conversations** | chat | `packages/conversations`; chat-server/chat-worker use one aggregate; `ErpGateway` over HMAC; `Participant` rename; chat-worker off `@repo/db` & `@repo/core` | chat-worker has zero Postgres access |
-| **5 — Domain gaps** | **behavior, needs product decisions** | S1 endorsement/renewal issuance, S2 cancel → commissions, S3 split, S7 issuance atomicity, S10 quotas, S12 LGPD scope via `ClientAnonymized`, S13 self-approval, S14 consent, S15 AI premium overwrite, S4 rename | One ticket per S#, each with an explicit owner decision |
+| Phase                 | Scope                                 | Key moves                                                                                                                                                                                                                          | Exit criteria                                                     |
+| --------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **0 — Guardrails**    | no runtime change                     | Add boundary lint in **warn** mode; `architecture.spec.ts`; `context-map.md`; empty `CONTEXT.md` skeletons; split Prisma schema into per-context files                                                                             | Lint report lists every current violation (baseline)              |
+| **1 — Regroup**       | moves + imports only                  | `git mv` modules into `contexts/<ctx>`; per-context `index.ts` without infra exports; subpath `exports`; remove root barrel; split `container-registrations.ts` into `module.ts` files; move `shared` → `shared-kernel`/`platform` | All apps import `@repo/core/<ctx>`; lint `error` for deep imports |
+| **2 — Thin edges**    | logic relocation, same behavior       | 38 `@repo/db` edge files → queries/commands; internal `create-lead`/`create-claim` rules into commands; `SendQuote` + worker unified; alerts copy into notifications                                                               | `no-restricted-imports` on `@repo/db` in edges = error            |
+| **3 — Break cycles**  | events                                | Event dispatcher + outbox; `DocumentAttached`; `PolicyIssued` → commissions handler; templates out of commission/claim; renewal/endorsement start moves to portfolio; goal/dashboard merged                                        | Solid graph is a DAG; boundary lint = error everywhere            |
+| **4 — Conversations** | chat                                  | `packages/conversations`; chat-server/chat-worker use one aggregate; `ErpGateway` over HMAC; `Participant` rename; chat-worker off `@repo/db` & `@repo/core`                                                                       | chat-worker has zero Postgres access                              |
+| **5 — Domain gaps**   | **behavior, needs product decisions** | S1 endorsement/renewal issuance, S2 cancel → commissions, S3 split, S7 issuance atomicity, S10 quotas, S12 LGPD scope via `ClientAnonymized`, S13 self-approval, S14 consent, S15 AI premium overwrite, S4 rename                  | One ticket per S#, each with an explicit owner decision           |
 
 Phases 1–2 are mostly mechanical and good agent work (one context per PR, `sales` last because it is the most coupled). Phases 3–4 change runtime flow and need a spec + plan each.
 

@@ -391,25 +391,25 @@ export default function GlobalError({ error, reset }) {
 
 ## Resumo de Todas as Decisoes
 
-| #       | Gap                 | Decisao                                                                                                                                    |
-| ------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| GAP-1   | Orval codegen       | Spec versionada commitada + Orval gera hooks + CI valida sync                                                                              |
-| GAP-2   | Migrations          | `prisma migrate` backward-compatible, deploy antes de restart                                                                              |
-| GAP-3   | i18n                | Hardcoded pt-BR, constantes por modulo, `Intl` formatters centralizados                                                                    |
-| GAP-4   | Timezone            | UTC no banco, `America/Sao_Paulo` fixo na exibicao, formatters centralizados                                                               |
-| GAP-5   | Seed data           | 3 camadas (referencia + bootstrap + dev-fake), tudo idempotente                                                                            |
-| GAP-6   | Error boundary      | 3 niveis (global + route group + inline), Sentry integrado                                                                                 |
-| GAP-7   | Build & Docker      | Internal Packages (TS cru) + tsup bundle para backend + transpilePackages para Next.js                                                     |
-| AUTH-1  | Onboarding          | Self-service com setup wizard 2 steps (User + Organization)                                                                                |
-| AUTH-2  | Invitations         | Email com link tokenizado (7 dias) + fallback copiar link                                                                                  |
-| AUTH-3  | Org switching       | Dropdown sidebar + tela `/select-org` se 2+ orgs + clear cache ao trocar                                                                   |
-| AUTH-4  | Password reset      | Email com link tokenizado (1h) + revoga todas sessoes + mensagem generica                                                                  |
-| AUTH-5  | Sessions            | Multi-device (max 5), lista em Settings, encerrar individual/todas, revoga ao trocar senha                                                 |
-| AUTH-6  | OWNER transfer      | Transfer para ADMIN elegivel, confirmacao por digitacao, antigo OWNER vira ADMIN                                                           |
-| AUTH-7  | Permissao granular  | COMMERCIAL ve apenas seus (salespersonId), MANAGER+ ve tudo da org                                                                         |
-| AUTH-8  | Rate limit auth     | Camadas: 5 login/email/15min, 3 forgot/email/1h, 3 register/IP/1h, 100 api/user/min                                                        |
-| BILLING | Billing/monetizacao | Adiado. Campo `plan: 'FREE'` na Organization como seed. Sem Stripe, sem limites, sem tela de billing. Implementar quando tiver 2+ clientes |
-| MOD-1   | Arquitetura modular | **Proposta.** Monolito modular com 14 contextos em `packages/core/src/contexts/`, `index.ts` como única superfície pública, eventos + outbox entre contextos, edges finas |
+| #       | Gap                 | Decisao                                                                                                                                                                                                            |
+| ------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| GAP-1   | Orval codegen       | Spec versionada commitada + Orval gera hooks + CI valida sync                                                                                                                                                      |
+| GAP-2   | Migrations          | `prisma migrate` backward-compatible, deploy antes de restart                                                                                                                                                      |
+| GAP-3   | i18n                | Hardcoded pt-BR, constantes por modulo, `Intl` formatters centralizados                                                                                                                                            |
+| GAP-4   | Timezone            | UTC no banco, `America/Sao_Paulo` fixo na exibicao, formatters centralizados                                                                                                                                       |
+| GAP-5   | Seed data           | 3 camadas (referencia + bootstrap + dev-fake), tudo idempotente                                                                                                                                                    |
+| GAP-6   | Error boundary      | 3 niveis (global + route group + inline), Sentry integrado                                                                                                                                                         |
+| GAP-7   | Build & Docker      | Internal Packages (TS cru) + tsup bundle para backend + transpilePackages para Next.js                                                                                                                             |
+| AUTH-1  | Onboarding          | Self-service com setup wizard 2 steps (User + Organization)                                                                                                                                                        |
+| AUTH-2  | Invitations         | Email com link tokenizado (7 dias) + fallback copiar link                                                                                                                                                          |
+| AUTH-3  | Org switching       | Dropdown sidebar + tela `/select-org` se 2+ orgs + clear cache ao trocar                                                                                                                                           |
+| AUTH-4  | Password reset      | Email com link tokenizado (1h) + revoga todas sessoes + mensagem generica                                                                                                                                          |
+| AUTH-5  | Sessions            | Multi-device (max 5), lista em Settings, encerrar individual/todas, revoga ao trocar senha                                                                                                                         |
+| AUTH-6  | OWNER transfer      | Transfer para ADMIN elegivel, confirmacao por digitacao, antigo OWNER vira ADMIN                                                                                                                                   |
+| AUTH-7  | Permissao granular  | COMMERCIAL ve apenas seus (salespersonId), MANAGER+ ve tudo da org                                                                                                                                                 |
+| AUTH-8  | Rate limit auth     | Camadas: 5 login/email/15min, 3 forgot/email/1h, 3 register/IP/1h, 100 api/user/min                                                                                                                                |
+| BILLING | Billing/monetizacao | Adiado. Campo `plan: 'FREE'` na Organization como seed. Sem Stripe, sem limites, sem tela de billing. Implementar quando tiver 2+ clientes                                                                         |
+| MOD-1   | Arquitetura modular | **Aprovada (revisada), migração em andamento.** Monolito modular em `packages/core/src/modules` + `platform` + `shared-kernel`, import direto do `index.ts` do provider, Prisma restrito por módulo, sem event bus |
 
 ---
 
@@ -1002,40 +1002,40 @@ packages/db/src/index.ts:
 
 ## MOD-1 — Arquitetura Modular por Bounded Context (2026-09-13)
 
-> **Status:** proposta (não implementada). Design completo em [`architecture/2026-09-13-modular-architecture.md`](architecture/2026-09-13-modular-architecture.md). Mapa vivo em [`architecture/context-map.md`](architecture/context-map.md). Base: [`audits/2026-09-13-domain-analysis.md`](audits/2026-09-13-domain-analysis.md).
+> **Status:** aprovada (revisada após review), migração em andamento. Alvo e passos em [`architecture/2026-09-13-migration-plan.md`](architecture/2026-09-13-migration-plan.md). Mapa vivo em [`architecture/context-map.md`](architecture/context-map.md). Base: [`audits/2026-09-13-domain-analysis.md`](audits/2026-09-13-domain-analysis.md). O design original [`architecture/2026-09-13-modular-architecture.md`](architecture/2026-09-13-modular-architecture.md) foi substituído por esta revisão e é só racional histórico.
 
 ### Contexto
 
-A análise de domínio encontrou 23 módulos planos em `packages/core` com 4 ciclos de import (proposal⇄contact, proposal⇄policy, proposal⇄document, goal⇄dashboard), `export *` na raiz expondo repositórios Prisma, 38 arquivos de rotas/workers importando `@repo/db` com regras de negócio, e a lógica de conversa duplicada entre `chat-server` e `chat-worker`.
+A análise de domínio encontrou 23 módulos planos em `packages/core` com 4 ciclos de import (proposal⇄contact, proposal⇄policy, proposal⇄document, goal⇄dashboard), `export *` na raiz expondo repositórios Prisma, 38 arquivos de rotas/workers importando `@repo/db` com regras de negócio, e a lógica de conversa duplicada entre `chat-server` e `chat-worker`. A primeira proposta (14 contextos, ports por consumidor, eventos e outbox) foi revisada para uma versão com menos cerimônia.
 
 ### Decisão
 
-- **Monolito modular.** 14 contextos como pastas em `packages/core/src/contexts/<ctx>`; único pacote novo é `packages/conversations` (Mongo + deploy próprio).
-- **Tiers:** core (`sales`, `portfolio`, `commissions`, `servicing`, `conversations`), supporting (`clients`, `performance`, `catalog`, `documents`), platform (`workspace`, `billing`, `notifications`, `audit`, `search`).
-- **Estrutura fixa por contexto:** `domain/` (entidades + ports) · `application/{commands,queries,handlers}` · `infrastructure/` · `index.ts` · `module.ts` · `CONTEXT.md`.
-- **Commands passam pelo domínio; queries são vertical slices** que leem só as tabelas do próprio contexto.
-- **`index.ts` é a única superfície pública**, via subpath `@repo/core/<ctx>`. Sem repositórios, mappers ou `Prisma*` exportados. Barrel raiz removido.
-- **Chamada síncrona entre contextos:** port do consumidor (`domain/ports/<provider>-gateway.ts`) + adapter que chama o `index.ts` do provider. Grafo síncrono deve ser DAG.
-- **Reações entre contextos:** eventos de domínio; outbox transacional para dinheiro e efeitos externos (`PolicyIssued` → comissão idempotente).
-- **Edges finas:** rotas, rotas internas HMAC, processors e AI tools só chamam use cases; nunca `@repo/db`. `chat-worker` sem acesso ao Postgres.
-- **Um escritor por tabela:** schema Prisma dividido por contexto; FKs entre contextos mantidas, escritas cruzadas proibidas. Leitura cruzada só em `performance` e `search`, via views declaradas.
-- **Enforcement:** regras ESLint de boundaries + `architecture.spec.ts` (superfície pública e ownership de escrita).
+- **Monolito modular** em `packages/core/src/`:
+  - `shared-kernel/` — ids, money (`Cents`, `BasisPoints`), domain-error, cursor-page, json.
+  - `platform/` — audit, storage, lookups (cep, vehicle), csv, cache.
+  - `modules/` — domínio: `sales` (leads, proposals, policies), `commissions`, `servicing` (claims, occurrences, assistance); simples: `clients`, `insurers`, `documents`, `workspace`, `billing`, `notifications` (só entrega), `performance` (goals + dashboard), `search`; processo: `compliance` (anonimização de cliente).
+  - `packages/conversations` fica para depois, fora deste plano.
+- **Chamada entre módulos = import direto do `index.ts` público do provider.** Ports só para fornecedores externos e para chat → ERP (HMAC).
+- **Sem event bus, sem outbox, sem UnitOfWork.** `prisma.$transaction` só onde atomicidade é necessária.
+- **Prisma restrito por módulo:** cada módulo recebe `Pick<PrismaClient, delegates próprios>`; escrita em tabela de outro módulo não compila.
+- **Tokens de DI são classes abstratas** (visíveis no import), não strings.
+- **Workspace é ACL sobre o Better Auth:** o Better Auth escreve as tabelas de identidade; workspace expõe queries e extensões de domínio.
+- **Contrato de entitlements fica em `@repo/auth/entitlements`:** `billing` produz, `auth` consome, `auth` nunca importa `@repo/core`.
 
 ### Regras
 
-- Antes de editar um contexto, ler o `CONTEXT.md` dele; mudanças entre contextos, ler `architecture/context-map.md`.
-- Nova dependência síncrona entre contextos = novo método em gateway + linha no context map. Nunca importar internals de outro contexto.
-- Máquina de estados sempre em método da entidade, nunca em `switch` no use case.
-- Transação entre contextos só nas exceções listadas no design (§4.3) — hoje apenas `IssuePolicy` + `confirmIssuance`.
-- Shared kernel restrito a 7 arquivos (§6 do design); adicionar exige entrada neste documento.
+- Dependências permitidas entre módulos: tabela em `architecture/context-map.md` §2. Nova dependência = nova linha no mapa + revisão na PR.
+- Importar outro módulo só pelo `index.ts` dele; nunca `domain/`, `application/` ou `infrastructure/` de outro módulo.
+- `shared-kernel` não importa nada; `platform` não importa módulos.
+- Migração segue as regras do plano §0: um passo = uma PR, sem mudança de comportamento, sem mudança de contrato HTTP, "mover, depois mudar".
 
 ### Anti-patterns
 
-- NAO importar `@repo/core` raiz nem caminho profundo (`@repo/core/src/...`)
-- NAO chamar outro contexto de volta dentro de um handler — enriquecer o payload do evento
-- NAO colocar regra de negócio em rota interna, processor ou AI tool
-- NAO escrever em tabela de outro contexto, nem via `prismaAdmin`
+- NÃO introduzir gateway, evento de domínio ou outbox entre módulos
+- NÃO importar internals de outro módulo nem via string token de DI
+- NÃO colocar regra de negócio em rota interna, processor ou AI tool
+- NÃO escrever em tabela de outro módulo, nem via `prismaAdmin`
 
 ### Migração
 
-Fases 0–2 mecânicas (guardrails → reagrupar → edges finas), 3–4 mudam fluxo em runtime (eventos/outbox → pacote conversations), 5 corrige gaps de regra (S#) e depende de decisões de produto. Cada fase precisa de plano próprio em `docs/superpowers/plans/`.
+7 fases incrementais descritas em [`architecture/2026-09-13-migration-plan.md`](architecture/2026-09-13-migration-plan.md): 1 identidade & workspace → 2 diretório de membros → 3 domínio sales → 4 persistência de sales → 5 comissões & dinheiro → 6 dependências legadas → 7 enforcement. Correções de gaps (S#) são tickets separados depois da fase 7.
