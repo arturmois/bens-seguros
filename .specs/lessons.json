@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "promote_threshold": 2,
+  "window_days": 45,
+  "quarantine_threshold": 2,
+  "next_id": 2,
+  "lessons": [
+    {
+      "id": "L-001",
+      "key": "spec_precision_gap::write doc unchanged acceptance tests as whitespace format insensitive diffs because lint staged runs prettier write on markdown at commit",
+      "text": "Write doc-unchanged acceptance tests as whitespace/format-insensitive diffs because lint-staged runs prettier --write on markdown at commit",
+      "signal": "spec_precision_gap",
+      "scope": "docs",
+      "status": "candidate",
+      "features": ["mod-1-0-record-architecture"],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/mod-1-0-record-architecture/spec.md:88 (ARCH-12) (docs)"
+      ],
+      "created": "2026-09-13T19:22:40Z",
+      "last_seen": "2026-09-13T19:22:40Z"
+    }
+  ]
+}

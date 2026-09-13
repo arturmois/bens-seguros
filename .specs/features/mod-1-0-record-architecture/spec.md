@@ -83,9 +83,9 @@ Source of truth for this step: migration plan §0 (ground rules), §1 (target) a
 **Acceptance Criteria**:
 
 1. WHEN a reader opens `2026-09-13-modular-architecture.md` THEN the status line in its header SHALL read "superseded by review" and link to `2026-09-13-migration-plan.md` §1 and `context-map.md`. <!-- ARCH-11 -->
-2. The design doc body below the header SHALL remain unchanged. <!-- ARCH-12 -->
+2. The design doc body below the header SHALL have no content change; formatting applied by the pre-commit `prettier --write` hook (table alignment, emphasis style, code-fence formatting) is not a content change. <!-- ARCH-12 -->
 
-**Independent Test**: `git diff` on the design doc touches only the header block.
+**Independent Test**: `git diff -w` on the design doc, after discounting Prettier formatting, touches only the header status line.
 
 ---
 
@@ -98,20 +98,20 @@ Source of truth for this step: migration plan §0 (ground rules), §1 (target) a
 
 ## Requirement Traceability
 
-| Requirement ID | Story                     | Phase   | Status       |
-| -------------- | ------------------------- | ------- | ------------ |
-| ARCH-01        | P1: MOD-1 revised         | Execute | Implementing |
-| ARCH-02        | P1: MOD-1 revised         | Execute | Implementing |
-| ARCH-03        | P1: MOD-1 revised         | Execute | Implementing |
-| ARCH-04        | P1: MOD-1 revised         | Execute | Implementing |
-| ARCH-05        | P1: MOD-1 revised         | Execute | Implementing |
-| ARCH-06        | P1: Context map           | Execute | Implementing |
-| ARCH-07        | P1: Context map           | Execute | Implementing |
-| ARCH-08        | P1: Context map           | Execute | Implementing |
-| ARCH-09        | P1: Context map           | Execute | Implementing |
-| ARCH-10        | P1: Context map           | Execute | Implementing |
-| ARCH-11        | P1: Design doc superseded | Execute | Implementing |
-| ARCH-12        | P1: Design doc superseded | Execute | Implementing |
+| Requirement ID | Story                     | Phase   | Status   |
+| -------------- | ------------------------- | ------- | -------- |
+| ARCH-01        | P1: MOD-1 revised         | Execute | Verified |
+| ARCH-02        | P1: MOD-1 revised         | Execute | Verified |
+| ARCH-03        | P1: MOD-1 revised         | Execute | Verified |
+| ARCH-04        | P1: MOD-1 revised         | Execute | Verified |
+| ARCH-05        | P1: MOD-1 revised         | Execute | Verified |
+| ARCH-06        | P1: Context map           | Execute | Verified |
+| ARCH-07        | P1: Context map           | Execute | Verified |
+| ARCH-08        | P1: Context map           | Execute | Verified |
+| ARCH-09        | P1: Context map           | Execute | Verified |
+| ARCH-10        | P1: Context map           | Execute | Verified |
+| ARCH-11        | P1: Design doc superseded | Execute | Verified |
+| ARCH-12        | P1: Design doc superseded | Execute | Verified |
 
 **Coverage:** 12 total, 12 mapped to execution steps, 0 unmapped.
 
@@ -119,5 +119,5 @@ Source of truth for this step: migration plan §0 (ground rules), §1 (target) a
 
 ## Success Criteria
 
-- [ ] `grep -rniE "outbox|gateway" docs/ARCHITECTURE-DECISIONS.md docs/architecture/context-map.md` returns 0 prescriptive hits.
-- [ ] `pnpm format`-clean markdown (Prettier does not touch `.md` here — manual table alignment check only).
+- [x] `grep -rniE "outbox|gateway" docs/ARCHITECTURE-DECISIONS.md docs/architecture/context-map.md` returns 0 prescriptive hits.
+- [x] `prettier --check` clean on the three docs (lint-staged runs `prettier --write` on `*.md`).
