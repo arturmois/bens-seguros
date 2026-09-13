@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto'
 
 import type { Auth } from '@repo/auth'
+import { createIdentityService } from '@repo/auth/identity'
 import { container, CreateOrgWithTrial, PlanNotFoundError } from '@repo/core'
 import type { FastifyInstance, FastifyRequest } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
@@ -37,6 +38,7 @@ function buildAuthHeaders(req: FastifyRequest): Headers {
 }
 
 export function completeOnboardingRoute(app: FastifyInstance, auth: Auth) {
+  const identity = createIdentityService(auth)
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'POST',
     url: '/api/v1/onboarding/complete',
@@ -74,11 +76,12 @@ export function completeOnboardingRoute(app: FastifyInstance, auth: Auth) {
           {
             createOrganization: async ({ name, ownerUserId }) => {
               const slug = slugify(name)
-              const res = await auth.api.createOrganization({
-                body: { name, slug, userId: ownerUserId },
+              return identity.createOrganizationForUser({
+                name,
+                slug,
+                userId: ownerUserId,
                 headers: buildAuthHeaders(request),
               })
-              return { id: res.id }
             },
             now: () => new Date(),
             logger,
