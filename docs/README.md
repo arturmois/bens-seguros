@@ -19,6 +19,7 @@
 | `audits/2026-09-13-domain-analysis.md` | Mapa de domínio as-is (DDD estratégico: capacidades, conceitos, regras, acoplamentos, gaps) |
 | `architecture/2026-09-13-modular-architecture.md` | Arquitetura modular alvo (proposta): 14 contextos, regras de camadas, contratos, eventos, ownership de dados, migração em 6 fases |
 | `architecture/context-map.md` | Mapa de contextos vivo: módulos, dependências permitidas, catálogo de eventos, gateways |
+| `architecture/2026-09-13-migration-plan.md` | Plano de migração incremental (7 fases, ~46 PRs) para a arquitetura revisada, com riscos, testes e rollback por passo |
 
 ## Operacional
 
