@@ -21,6 +21,20 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: .specs/features/mod-1-0-record-architecture/spec.md:88 (ARCH-12) (docs)
 - last seen: 2026-09-13T19:22:40Z
 
+### L-002 - When a goal promises a byte-identical response body, assert error.message alongside statusCode and code for every mapped error, not only the ones the spec spells out.
+
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `auth-service` · harmful: 0
+- features: mod-1-2-identity-service
+- evidence: M14 packages/auth/src/identity-service.ts:232 (auth-service)
+- last seen: 2026-09-13T23:44:57Z
+
+### L-003 - Before scoping a helper move, grep every importer of the helper module and list each one in the spec's in-scope routes and characterization specs.
+
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `routes` · harmful: 0
+- features: mod-1-2-identity-service
+- evidence: ID-21/ID-23 corrected in b85f09fe (get-public-invitation.ts imported readCurrentSession) (routes)
+- last seen: 2026-09-13T23:44:57Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 2,
+  "next_id": 4,
   "lessons": [
     {
       "id": "L-001",
@@ -20,6 +20,38 @@
       ],
       "created": "2026-09-13T19:22:40Z",
       "last_seen": "2026-09-13T19:22:40Z"
+    },
+    {
+      "id": "L-002",
+      "key": "surviving_mutant::when a goal promises a byte identical response body assert error message alongside statuscode and code for every mapped error not only the ones the spec spells out",
+      "text": "When a goal promises a byte-identical response body, assert error.message alongside statusCode and code for every mapped error, not only the ones the spec spells out.",
+      "signal": "surviving_mutant",
+      "scope": "auth-service",
+      "status": "candidate",
+      "features": ["mod-1-2-identity-service"],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M14 packages/auth/src/identity-service.ts:232 (auth-service)"
+      ],
+      "created": "2026-09-13T23:44:57Z",
+      "last_seen": "2026-09-13T23:44:57Z"
+    },
+    {
+      "id": "L-003",
+      "key": "spec_precision_gap::before scoping a helper move grep every importer of the helper module and list each one in the spec s in scope routes and characterization specs",
+      "text": "Before scoping a helper move, grep every importer of the helper module and list each one in the spec's in-scope routes and characterization specs.",
+      "signal": "spec_precision_gap",
+      "scope": "routes",
+      "status": "candidate",
+      "features": ["mod-1-2-identity-service"],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "ID-21/ID-23 corrected in b85f09fe (get-public-invitation.ts imported readCurrentSession) (routes)"
+      ],
+      "created": "2026-09-13T23:44:57Z",
+      "last_seen": "2026-09-13T23:44:57Z"
     }
   ]
 }

@@ -84,7 +84,7 @@ Baseline at `bcedb31f`: `@app/server` 114 files / 631 tests; `@repo/auth` 2 file
 8. IF `signInEmail` throws or returns any other error code THEN `signInExisting` SHALL throw status 401, code `SIGN_IN_FAILED`, message `Falha ao autenticar`. <!-- ID-16 -->
 9. IF `setActiveOrganization` throws THEN `applyActiveOrg` SHALL return `[]` and call `logger.warn` once. <!-- ID-17 -->
 10. IF `getSession` throws or returns no user THEN `readCurrentSession` SHALL return `null`. <!-- ID-18 -->
-11. WHILE mode is `current-session`, IF there is no session THEN `authenticateForInvitation` SHALL throw status 401, code `NO_SESSION`; IF the session email is not strictly equal (`!==`) to the invitation email THEN status 403, code `SESSION_EMAIL_MISMATCH`; otherwise it SHALL return `{ userId, cookies: [] }`. <!-- ID-19 -->
+11. WHILE mode is `current-session`, IF there is no session THEN `authenticateForInvitation` SHALL throw status 401, code `NO_SESSION`, message `Você não está autenticado. Faça login pra aceitar o convite.`; IF the session email is not strictly equal (`!==`) to the invitation email THEN status 403, code `SESSION_EMAIL_MISMATCH`, message `Você está logado com outro email. Saia da sessão atual pra aceitar este convite.`; otherwise it SHALL return `{ userId, cookies: [] }`. <!-- ID-19 -->
 12. WHEN `createOrganizationForUser({ name, slug, userId, headers })` is called THEN it SHALL call `auth.api.createOrganization({ body: { name, slug, userId }, headers })` and return `{ id }` from the response. <!-- ID-20 -->
 
 **Independent Test**: `pnpm --filter @repo/auth test` with a stubbed `auth.api` and mocked `@repo/db`.

@@ -239,7 +239,11 @@ describe('authenticateForInvitation', () => {
         headers,
         logger,
       })
-    ).rejects.toMatchObject({ statusCode: 401, code: 'NO_SESSION' })
+    ).rejects.toMatchObject({
+      statusCode: 401,
+      code: 'NO_SESSION',
+      message: 'Você não está autenticado. Faça login pra aceitar o convite.',
+    })
   })
 
   it('current-session with a different-case email throws 403 SESSION_EMAIL_MISMATCH', async () => {
@@ -253,7 +257,12 @@ describe('authenticateForInvitation', () => {
         headers,
         logger,
       })
-    ).rejects.toMatchObject({ statusCode: 403, code: 'SESSION_EMAIL_MISMATCH' })
+    ).rejects.toMatchObject({
+      statusCode: 403,
+      code: 'SESSION_EMAIL_MISMATCH',
+      message:
+        'Você está logado com outro email. Saia da sessão atual pra aceitar este convite.',
+    })
   })
 
   it('current-session with matching email returns the session user and no cookies', async () => {
