@@ -7,7 +7,7 @@ import {
   afterAll,
   beforeEach,
 } from 'vitest'
-import { container } from '@repo/core'
+import { container, InvitationExpiredError } from '@repo/core'
 import type { Auth } from '@repo/auth'
 import type { FastifyInstance } from 'fastify'
 import {
@@ -292,5 +292,153 @@ describe('POST /api/v1/invitations/:id/accept — current-session mode', () => {
     })
     expect(response.statusCode).toBe(403)
     expect(response.json().error.code).toBe('SESSION_EMAIL_MISMATCH')
+  })
+})
+
+function setCookiesOf(headers: Record<string, unknown>): string[] {
+  const raw = headers['set-cookie']
+  if (raw === undefined) return []
+  return Array.isArray(raw) ? raw.map(String) : [String(raw)]
+}
+
+function forwardedCookie(call: unknown): string | null {
+  if (call && typeof call === 'object' && 'headers' in call) {
+    const { headers } = call
+    if (headers instanceof Headers) return headers.get('cookie')
+  }
+  return null
+}
+
+const ACTIVE_ORG_COOKIE = 'active_org=org-id-001; Path=/'
+
+describe('POST /api/v1/invitations/:id/accept — cookie forwarding', () => {
+  it('login: responds with sign-in cookie followed by active-org cookie', async () => {
+    mockInvitationRepo.findById.mockResolvedValue(validInvitation)
+    mockSuccessfulSignIn()
+    mockAuth.api.setActiveOrganization.mockResolvedValue({
+      headers: makeSetCookieHeaders([ACTIVE_ORG_COOKIE]),
+    })
+    const response = await injectAs(app, {
+      method: 'POST',
+      url: '/api/v1/invitations/invite-id-001/accept',
+      payload: { mode: 'login', password: 'Senha@123' },
+    })
+    expect(response.statusCode).toBe(200)
+    expect(setCookiesOf(response.headers)).toEqual([
+      'session=abc; Path=/; HttpOnly',
+      ACTIVE_ORG_COOKIE,
+    ])
+  })
+  it('register: responds with sign-in cookie followed by active-org cookie', async () => {
+    const { prisma } = await import('@repo/db')
+    mockInvitationRepo.findById.mockResolvedValue(validInvitation)
+    mockAuth.api.signUpEmail.mockResolvedValue({
+      response: { user: { id: 'user-id-002' } },
+      headers: makeSetCookieHeaders(['signup=ignored; Path=/']),
+    })
+    vi.mocked(prisma.user.update).mockResolvedValue({} as never)
+    mockSuccessfulSignIn()
+    mockAuth.api.signInEmail.mockResolvedValue({
+      response: { user: { id: 'user-id-002' } },
+      headers: makeSetCookieHeaders(['session=reg; Path=/']),
+    })
+    mockAuth.api.setActiveOrganization.mockResolvedValue({
+      headers: makeSetCookieHeaders([ACTIVE_ORG_COOKIE]),
+    })
+    const response = await injectAs(app, {
+      method: 'POST',
+      url: '/api/v1/invitations/invite-id-001/accept',
+      payload: { mode: 'register', name: 'Daisy', password: 'Senha@123' },
+    })
+    expect(response.statusCode).toBe(200)
+    expect(setCookiesOf(response.headers)).toEqual([
+      'session=reg; Path=/',
+      ACTIVE_ORG_COOKIE,
+    ])
+  })
+  it('current-session: responds with only the active-org cookie', async () => {
+    mockInvitationRepo.findById.mockResolvedValue(validInvitation)
+    mockAuth.api.getSession.mockResolvedValue({
+      user: { id: 'user-id-003', email: 'invited@user.com' },
+    })
+    mockAcceptUseCase.execute.mockResolvedValue({
+      organizationId: 'org-id-001',
+      role: 'COMMERCIAL',
+    })
+    mockAuth.api.setActiveOrganization.mockResolvedValue({
+      headers: makeSetCookieHeaders([ACTIVE_ORG_COOKIE]),
+    })
+    const response = await injectAs(app, {
+      method: 'POST',
+      url: '/api/v1/invitations/invite-id-001/accept',
+      payload: { mode: 'current-session' },
+    })
+    expect(response.statusCode).toBe(200)
+    expect(setCookiesOf(response.headers)).toEqual([ACTIVE_ORG_COOKIE])
+  })
+  it('forwards the sign-in cookies to setActiveOrganization joined by "; "', async () => {
+    mockInvitationRepo.findById.mockResolvedValue(validInvitation)
+    mockSuccessfulSignIn()
+    mockAuth.api.signInEmail.mockResolvedValue({
+      response: { user: { id: 'user-id-001' } },
+      headers: makeSetCookieHeaders([
+        'session=abc; Path=/; HttpOnly',
+        'csrf=xyz; Path=/',
+      ]),
+    })
+    await injectAs(app, {
+      method: 'POST',
+      url: '/api/v1/invitations/invite-id-001/accept',
+      payload: { mode: 'login', password: 'Senha@123' },
+    })
+    expect(mockAuth.api.setActiveOrganization).toHaveBeenCalledTimes(1)
+    const call: unknown = mockAuth.api.setActiveOrganization.mock.calls[0]?.[0]
+    expect(call).toMatchObject({ body: { organizationId: 'org-id-001' } })
+    expect(forwardedCookie(call)).toBe(
+      'session=abc; Path=/; HttpOnly; csrf=xyz; Path=/'
+    )
+  })
+  it('still responds 200 with only auth cookies when setActiveOrganization throws', async () => {
+    mockInvitationRepo.findById.mockResolvedValue(validInvitation)
+    mockSuccessfulSignIn()
+    mockAuth.api.setActiveOrganization.mockRejectedValue(new Error('boom'))
+    const response = await injectAs(app, {
+      method: 'POST',
+      url: '/api/v1/invitations/invite-id-001/accept',
+      payload: { mode: 'login', password: 'Senha@123' },
+    })
+    expect(response.statusCode).toBe(200)
+    expect(response.json()).toEqual({
+      success: true,
+      data: { organizationId: 'org-id-001', role: 'COMMERCIAL' },
+    })
+    expect(setCookiesOf(response.headers)).toEqual([
+      'session=abc; Path=/; HttpOnly',
+    ])
+  })
+  it('expired invitation after register: 400 INVITATION_EXPIRED keeps the sign-in cookie', async () => {
+    const { prisma } = await import('@repo/db')
+    mockInvitationRepo.findById.mockResolvedValue(validInvitation)
+    mockAuth.api.signUpEmail.mockResolvedValue({
+      response: { user: { id: 'user-id-002' } },
+      headers: makeSetCookieHeaders(),
+    })
+    vi.mocked(prisma.user.update).mockResolvedValue({} as never)
+    mockAuth.api.signInEmail.mockResolvedValue({
+      response: { user: { id: 'user-id-002' } },
+      headers: makeSetCookieHeaders(['session=reg; Path=/']),
+    })
+    mockAcceptUseCase.execute.mockRejectedValue(
+      new InvitationExpiredError('invite-id-001')
+    )
+    const response = await injectAs(app, {
+      method: 'POST',
+      url: '/api/v1/invitations/invite-id-001/accept',
+      payload: { mode: 'register', name: 'Daisy', password: 'Senha@123' },
+    })
+    expect(response.statusCode).toBe(400)
+    expect(response.json().error.code).toBe('INVITATION_EXPIRED')
+    expect(setCookiesOf(response.headers)).toEqual(['session=reg; Path=/'])
+    expect(mockAuth.api.setActiveOrganization).not.toHaveBeenCalled()
   })
 })

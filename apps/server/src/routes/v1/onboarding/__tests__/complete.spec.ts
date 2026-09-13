@@ -111,6 +111,25 @@ describe('POST /api/v1/onboarding/complete', () => {
     expect(orgCall.body.slug).toMatch(/^corretora-teste-[0-9a-f]{6}$/)
   })
 
+  it('encaminha o cookie da requisição para createOrganization', async () => {
+    const response = await injectAs(app, {
+      method: 'POST',
+      url: '/api/v1/onboarding/complete',
+      payload: { orgName: 'Corretora Teste', planSlug: 'starter' },
+      headers: { cookie: 'better-auth.session_token=tok-123' },
+    })
+    expect(response.statusCode).toBe(200)
+    const call: unknown = mockAuth.api.createOrganization.mock.calls[0]?.[0]
+    const headers =
+      call && typeof call === 'object' && 'headers' in call
+        ? call.headers
+        : undefined
+    expect(headers).toBeInstanceOf(Headers)
+    expect(headers instanceof Headers ? headers.get('cookie') : null).toBe(
+      'better-auth.session_token=tok-123'
+    )
+  })
+
   it('401 quando user não está autenticado', async () => {
     setTestContext({ user: null })
     const response = await injectAs(app, {
