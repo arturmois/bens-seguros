@@ -1,8 +1,8 @@
 import { inject, injectable } from 'tsyringe'
-import type { CacheService } from '../../../shared/cache-service.js'
-import { DuplicateInvitationError } from '../../member/domain/member-errors.js'
-import type { MemberRepository } from '../../member/domain/member-repository.js'
-import type { MemberRole } from '../../member/domain/member-roles.js'
+import type { CacheService } from '../../../../shared/cache-service.js'
+import { DuplicateInvitationError } from '../../members/domain/member-errors.js'
+import type { MemberRepository } from '../../members/domain/member-repository.js'
+import type { MemberRole } from '../../members/domain/member-roles.js'
 import type { OrganizationRepository } from '../../organization/domain/organization-repository.js'
 import type { InvitationEmailNotifier } from '../domain/invitation-email-notifier.js'
 import {

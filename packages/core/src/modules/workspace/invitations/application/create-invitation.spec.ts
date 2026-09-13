@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { CacheService } from '../../../shared/cache-service.js'
+import type { CacheService } from '../../../../shared/cache-service.js'
 import {
   DuplicateInvitationError,
   RoleHierarchyError,
-} from '../../member/domain/member-errors.js'
-import type { MemberRepository } from '../../member/domain/member-repository.js'
+} from '../../members/domain/member-errors.js'
+import type { MemberRepository } from '../../members/domain/member-repository.js'
 import type { OrganizationRepository } from '../../organization/domain/organization-repository.js'
 import type { InvitationEmailNotifier } from '../domain/invitation-email-notifier.js'
 import type { InvitationRepository } from '../domain/invitation-repository.js'

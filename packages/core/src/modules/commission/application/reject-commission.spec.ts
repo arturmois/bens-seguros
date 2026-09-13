@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { MemberRepository } from '../../member/domain/member-repository.js'
+import type { MemberRepository } from '../../workspace/members/domain/member-repository.js'
 import type { NotificationDispatcher } from '../../notification/domain/notification-dispatcher.js'
 import {
   CommissionNotFoundError,

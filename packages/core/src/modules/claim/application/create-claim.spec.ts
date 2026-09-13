@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type {
   MemberContact,
   MemberRepository,
-} from '../../member/domain/member-repository.js'
+} from '../../workspace/members/domain/member-repository.js'
 import type { NotificationDispatcher } from '../../notification/domain/notification-dispatcher.js'
 import type {
   ClaimData,

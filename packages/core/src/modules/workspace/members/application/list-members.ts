@@ -1,6 +1,6 @@
 import { inject, injectable } from 'tsyringe'
-import { cacheAside } from '../../../shared/cache-aside.js'
-import type { CacheService } from '../../../shared/cache-service.js'
+import { cacheAside } from '../../../../shared/cache-aside.js'
+import type { CacheService } from '../../../../shared/cache-service.js'
 import type {
   MemberListPage,
   MemberRepository,

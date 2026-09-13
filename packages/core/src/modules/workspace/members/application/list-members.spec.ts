@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { CacheService } from '../../../shared/cache-service.js'
+import type { CacheService } from '../../../../shared/cache-service.js'
 import type { MemberRepository } from '../domain/member-repository.js'
 import { ListMembers } from './list-members.js'
 

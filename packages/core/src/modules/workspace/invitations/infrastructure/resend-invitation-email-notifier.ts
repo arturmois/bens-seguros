@@ -2,7 +2,7 @@ import pino from 'pino'
 import {
   ResendEmailProvider,
   invitationEmail,
-} from '../../notification/index.js'
+} from '../../../notification/index.js'
 import type {
   InvitationEmailInput,
   InvitationEmailNotifier,

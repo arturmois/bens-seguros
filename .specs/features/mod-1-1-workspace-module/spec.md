@@ -93,13 +93,13 @@
 | WS-02          | P1: StorageProvider in platform | Execute | Implementing |
 | WS-03          | P1: StorageProvider in platform | Execute | Implementing |
 | WS-04          | P1: StorageProvider in platform | Execute | Implementing |
-| WS-05          | P1: Workspace module            | Execute | Pending      |
-| WS-06          | P1: Workspace module            | Execute | Pending      |
-| WS-07          | P1: Workspace module            | Execute | Pending      |
-| WS-08          | P1: Workspace module            | Execute | Pending      |
-| WS-09          | P1: Workspace module            | Execute | Pending      |
-| WS-10          | P1: Workspace module            | Execute | Pending      |
-| WS-11          | P1: Workspace module            | Execute | Pending      |
+| WS-05          | P1: Workspace module            | Execute | Implementing |
+| WS-06          | P1: Workspace module            | Execute | Implementing |
+| WS-07          | P1: Workspace module            | Execute | Implementing |
+| WS-08          | P1: Workspace module            | Execute | Implementing |
+| WS-09          | P1: Workspace module            | Execute | Implementing |
+| WS-10          | P1: Workspace module            | Execute | Implementing |
+| WS-11          | P1: Workspace module            | Execute | Implementing |
 
 **Coverage:** 11 total, 11 mapped to execution steps, 0 unmapped.
 

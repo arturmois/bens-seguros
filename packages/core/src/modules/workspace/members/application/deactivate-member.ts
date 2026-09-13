@@ -1,5 +1,5 @@
 import { inject, injectable } from 'tsyringe'
-import type { CacheService } from '../../../shared/cache-service.js'
+import type { CacheService } from '../../../../shared/cache-service.js'
 import {
   LastOwnerError,
   MemberNotFoundError,

@@ -1,8 +1,8 @@
-import { RoleHierarchyError } from '../../member/domain/member-errors.js'
+import { RoleHierarchyError } from '../../members/domain/member-errors.js'
 import {
   MEMBER_ROLE_HIERARCHY,
   type MemberRole,
-} from '../../member/domain/member-roles.js'
+} from '../../members/domain/member-roles.js'
 
 export const INVITATION_TTL_DAYS = 7
 

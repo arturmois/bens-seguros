@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { CacheService } from '../../../shared/cache-service.js'
-import type { StorageProvider } from '../../../platform/storage/storage-provider.js'
+import type { CacheService } from '../../../../shared/cache-service.js'
+import type { StorageProvider } from '../../../../platform/storage/storage-provider.js'
 import {
   OrganizationNotFoundError,
   SlugConflictError,
