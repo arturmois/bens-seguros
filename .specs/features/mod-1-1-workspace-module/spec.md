@@ -87,19 +87,19 @@
 
 ## Requirement Traceability
 
-| Requirement ID | Story                           | Phase   | Status       |
-| -------------- | ------------------------------- | ------- | ------------ |
-| WS-01          | P1: StorageProvider in platform | Execute | Implementing |
-| WS-02          | P1: StorageProvider in platform | Execute | Implementing |
-| WS-03          | P1: StorageProvider in platform | Execute | Implementing |
-| WS-04          | P1: StorageProvider in platform | Execute | Implementing |
-| WS-05          | P1: Workspace module            | Execute | Implementing |
-| WS-06          | P1: Workspace module            | Execute | Implementing |
-| WS-07          | P1: Workspace module            | Execute | Implementing |
-| WS-08          | P1: Workspace module            | Execute | Implementing |
-| WS-09          | P1: Workspace module            | Execute | Implementing |
-| WS-10          | P1: Workspace module            | Execute | Implementing |
-| WS-11          | P1: Workspace module            | Execute | Implementing |
+| Requirement ID | Story                           | Phase   | Status   |
+| -------------- | ------------------------------- | ------- | -------- |
+| WS-01          | P1: StorageProvider in platform | Execute | Verified |
+| WS-02          | P1: StorageProvider in platform | Execute | Verified |
+| WS-03          | P1: StorageProvider in platform | Execute | Verified |
+| WS-04          | P1: StorageProvider in platform | Execute | Verified |
+| WS-05          | P1: Workspace module            | Execute | Verified |
+| WS-06          | P1: Workspace module            | Execute | Verified |
+| WS-07          | P1: Workspace module            | Execute | Verified |
+| WS-08          | P1: Workspace module            | Execute | Verified |
+| WS-09          | P1: Workspace module            | Execute | Verified |
+| WS-10          | P1: Workspace module            | Execute | Verified |
+| WS-11          | P1: Workspace module            | Execute | Verified |
 
 **Coverage:** 11 total, 11 mapped to execution steps, 0 unmapped.
 
@@ -107,5 +107,5 @@
 
 ## Success Criteria
 
-- [ ] 5 quality gates green (`lint`, `typecheck`, `build`, `test`, ACs above).
-- [ ] `git log --follow` on a moved file shows its pre-move history.
+- [x] 5 quality gates green (`lint`, `typecheck`, `build`, `test`, ACs above).
+- [x] `git log --follow` on a moved file shows its pre-move history.
