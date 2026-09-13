@@ -17,6 +17,8 @@
 | `FRONTEND-PATTERNS.md`      | Padroes do frontend (componentes, hooks, data fetching, auth) |
 | `UI-PATTERNS.md`            | Padroes visuais (design system, tabelas, formularios, cores)  |
 | `audits/2026-09-13-domain-analysis.md` | Mapa de domínio as-is (DDD estratégico: capacidades, conceitos, regras, acoplamentos, gaps) |
+| `architecture/2026-09-13-modular-architecture.md` | Arquitetura modular alvo (proposta): 14 contextos, regras de camadas, contratos, eventos, ownership de dados, migração em 6 fases |
+| `architecture/context-map.md` | Mapa de contextos vivo: módulos, dependências permitidas, catálogo de eventos, gateways |
 
 ## Operacional
 

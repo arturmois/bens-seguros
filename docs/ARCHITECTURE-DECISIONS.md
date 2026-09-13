@@ -409,6 +409,7 @@ export default function GlobalError({ error, reset }) {
 | AUTH-7  | Permissao granular  | COMMERCIAL ve apenas seus (salespersonId), MANAGER+ ve tudo da org                                                                         |
 | AUTH-8  | Rate limit auth     | Camadas: 5 login/email/15min, 3 forgot/email/1h, 3 register/IP/1h, 100 api/user/min                                                        |
 | BILLING | Billing/monetizacao | Adiado. Campo `plan: 'FREE'` na Organization como seed. Sem Stripe, sem limites, sem tela de billing. Implementar quando tiver 2+ clientes |
+| MOD-1   | Arquitetura modular | **Proposta.** Monolito modular com 14 contextos em `packages/core/src/contexts/`, `index.ts` como única superfície pública, eventos + outbox entre contextos, edges finas |
 
 ---
 
@@ -996,3 +997,45 @@ packages/db/src/index.ts:
 - NAO usar `prisma` global em DI repos quando a tabela tem `FORCE ROW LEVEL SECURITY`
 - NAO criar policy RLS com match estrito sem fallback se o sistema usa prisma global sem tenant
 - NAO expor `prismaAdmin` em endpoints publicos sem validacao de organizationId no app-level
+
+---
+
+## MOD-1 — Arquitetura Modular por Bounded Context (2026-09-13)
+
+> **Status:** proposta (não implementada). Design completo em [`architecture/2026-09-13-modular-architecture.md`](architecture/2026-09-13-modular-architecture.md). Mapa vivo em [`architecture/context-map.md`](architecture/context-map.md). Base: [`audits/2026-09-13-domain-analysis.md`](audits/2026-09-13-domain-analysis.md).
+
+### Contexto
+
+A análise de domínio encontrou 23 módulos planos em `packages/core` com 4 ciclos de import (proposal⇄contact, proposal⇄policy, proposal⇄document, goal⇄dashboard), `export *` na raiz expondo repositórios Prisma, 38 arquivos de rotas/workers importando `@repo/db` com regras de negócio, e a lógica de conversa duplicada entre `chat-server` e `chat-worker`.
+
+### Decisão
+
+- **Monolito modular.** 14 contextos como pastas em `packages/core/src/contexts/<ctx>`; único pacote novo é `packages/conversations` (Mongo + deploy próprio).
+- **Tiers:** core (`sales`, `portfolio`, `commissions`, `servicing`, `conversations`), supporting (`clients`, `performance`, `catalog`, `documents`), platform (`workspace`, `billing`, `notifications`, `audit`, `search`).
+- **Estrutura fixa por contexto:** `domain/` (entidades + ports) · `application/{commands,queries,handlers}` · `infrastructure/` · `index.ts` · `module.ts` · `CONTEXT.md`.
+- **Commands passam pelo domínio; queries são vertical slices** que leem só as tabelas do próprio contexto.
+- **`index.ts` é a única superfície pública**, via subpath `@repo/core/<ctx>`. Sem repositórios, mappers ou `Prisma*` exportados. Barrel raiz removido.
+- **Chamada síncrona entre contextos:** port do consumidor (`domain/ports/<provider>-gateway.ts`) + adapter que chama o `index.ts` do provider. Grafo síncrono deve ser DAG.
+- **Reações entre contextos:** eventos de domínio; outbox transacional para dinheiro e efeitos externos (`PolicyIssued` → comissão idempotente).
+- **Edges finas:** rotas, rotas internas HMAC, processors e AI tools só chamam use cases; nunca `@repo/db`. `chat-worker` sem acesso ao Postgres.
+- **Um escritor por tabela:** schema Prisma dividido por contexto; FKs entre contextos mantidas, escritas cruzadas proibidas. Leitura cruzada só em `performance` e `search`, via views declaradas.
+- **Enforcement:** regras ESLint de boundaries + `architecture.spec.ts` (superfície pública e ownership de escrita).
+
+### Regras
+
+- Antes de editar um contexto, ler o `CONTEXT.md` dele; mudanças entre contextos, ler `architecture/context-map.md`.
+- Nova dependência síncrona entre contextos = novo método em gateway + linha no context map. Nunca importar internals de outro contexto.
+- Máquina de estados sempre em método da entidade, nunca em `switch` no use case.
+- Transação entre contextos só nas exceções listadas no design (§4.3) — hoje apenas `IssuePolicy` + `confirmIssuance`.
+- Shared kernel restrito a 7 arquivos (§6 do design); adicionar exige entrada neste documento.
+
+### Anti-patterns
+
+- NAO importar `@repo/core` raiz nem caminho profundo (`@repo/core/src/...`)
+- NAO chamar outro contexto de volta dentro de um handler — enriquecer o payload do evento
+- NAO colocar regra de negócio em rota interna, processor ou AI tool
+- NAO escrever em tabela de outro contexto, nem via `prismaAdmin`
+
+### Migração
+
+Fases 0–2 mecânicas (guardrails → reagrupar → edges finas), 3–4 mudam fluxo em runtime (eventos/outbox → pacote conversations), 5 corrige gaps de regra (S#) e depende de decisões de produto. Cada fase precisa de plano próprio em `docs/superpowers/plans/`.
