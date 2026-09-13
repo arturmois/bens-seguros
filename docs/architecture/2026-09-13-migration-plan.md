@@ -1,23 +1,23 @@
 # Migration Plan — Modular Architecture (incremental)
 
 > **Date:** 2026-09-13 · **Snapshot:** `main` @ `833fff33`
-> **Target:** the *revised* architecture approved after the review of MOD-1 (summary in §1). `2026-09-13-modular-architecture.md`, `context-map.md` and MOD-1 in `ARCHITECTURE-DECISIONS.md` still describe the **pre-review** version — update them in Step 1.0.
+> **Target:** the _revised_ architecture approved after the review of MOD-1 (summary in §1). `2026-09-13-modular-architecture.md`, `context-map.md` and MOD-1 in `ARCHITECTURE-DECISIONS.md` still describe the **pre-review** version — update them in Step 1.0.
 > **Inputs:** [`../audits/2026-09-13-domain-analysis.md`](../audits/2026-09-13-domain-analysis.md) (D#/S# references).
 
 ---
 
 ## 0. Ground rules (apply to every step)
 
-| Rule | How it is checked |
-|---|---|
-| **One step = one PR**, mergeable on its own, `main` stays deployable | 5 quality gates green (`lint`, `typecheck`, `build`, `test`, ACs) |
-| **No behavior change.** Known bugs (S1–S20) are preserved and only *relocated*; fixes are separate tickets after Phase 7 | Characterization specs written **before** moving logic |
-| **No public HTTP contract change** | `pnpm --filter @app/web generate:api` produces **zero diff** in `apps/web/src/api/` |
-| **No destructive schema change.** Only additive migrations (Step 5.4 is the only one, and optional) | `prisma migrate diff` reviewed in PR |
-| **BullMQ job payloads unchanged** | Jobs enqueued by the old code are consumable by the new code and vice-versa → revert is safe with jobs in flight |
-| **`@repo/core` root barrel stays as a compatibility layer until Step 7.1** | Apps keep compiling while modules move underneath |
-| **Move, then change.** A step that moves files contains no logic edits; a step that relocates logic doesn't also rename | Reviewable diffs; `git log --follow` keeps history |
-| **Default rollback = `git revert <merge commit>`** + redeploy tag | Valid for every step because of the 4 rules above; exceptions are called out per step |
+| Rule                                                                                                                     | How it is checked                                                                                                |
+| ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| **One step = one PR**, mergeable on its own, `main` stays deployable                                                     | 5 quality gates green (`lint`, `typecheck`, `build`, `test`, ACs)                                                |
+| **No behavior change.** Known bugs (S1–S20) are preserved and only _relocated_; fixes are separate tickets after Phase 7 | Characterization specs written **before** moving logic                                                           |
+| **No public HTTP contract change**                                                                                       | `pnpm --filter @app/web generate:api` produces **zero diff** in `apps/web/src/api/`                              |
+| **No destructive schema change.** Only additive migrations (Step 5.4 is the only one, and optional)                      | `prisma migrate diff` reviewed in PR                                                                             |
+| **BullMQ job payloads unchanged**                                                                                        | Jobs enqueued by the old code are consumable by the new code and vice-versa → revert is safe with jobs in flight |
+| **`@repo/core` root barrel stays as a compatibility layer until Step 7.1**                                               | Apps keep compiling while modules move underneath                                                                |
+| **Move, then change.** A step that moves files contains no logic edits; a step that relocates logic doesn't also rename  | Reviewable diffs; `git log --follow` keeps history                                                               |
+| **Default rollback = `git revert <merge commit>`** + redeploy tag                                                        | Valid for every step because of the 4 rules above; exceptions are called out per step                            |
 
 **Test infrastructure gap (fix before Phase 4):** CI (`.github/workflows/ci.yml`) has **no Postgres service** — only `db:generate` against a dummy URL — and the only DB-backed spec is `prisma-client-repository.spec.ts`. Route specs mock `container.resolve` (`__tests__/helpers/mock-use-case.ts`), so they don't exercise logic. Phases 3–6 move Prisma queries; without DB-backed specs a moved query can break silently. Step 3.0 adds a Postgres service and a repository spec harness.
 
@@ -50,15 +50,15 @@ packages/conversations/   (later; not in this plan)
 
 ### Phase naming (template → this codebase)
 
-| Requested phase | Here |
-|---|---|
-| 1 Extract authentication boundary | **Identity & workspace boundary** (Better Auth ACL, membership resolution, entitlements access) |
-| 2 Extract driver module | **Member directory** (salespeople, recipients, role groups) |
-| 3 Extract ride domain | **Sales domain** (leads + proposals + policies) |
-| 4 Move ride persistence behind repository | **Sales persistence behind repositories/queries** |
-| 5 Extract financial rules | **Commissions & money rules** |
-| 6 Remove legacy cross-module dependencies | same |
-| 7 Enforce module boundaries | same |
+| Requested phase                           | Here                                                                                            |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| 1 Extract authentication boundary         | **Identity & workspace boundary** (Better Auth ACL, membership resolution, entitlements access) |
+| 2 Extract driver module                   | **Member directory** (salespeople, recipients, role groups)                                     |
+| 3 Extract ride domain                     | **Sales domain** (leads + proposals + policies)                                                 |
+| 4 Move ride persistence behind repository | **Sales persistence behind repositories/queries**                                               |
+| 5 Extract financial rules                 | **Commissions & money rules**                                                                   |
+| 6 Remove legacy cross-module dependencies | same                                                                                            |
+| 7 Enforce module boundaries               | same                                                                                            |
 
 Dependency order: 1 → 2 → 3 → 4 → 5 → 6 → 7. Step 7.3 (lint in **warn** mode) may land right after Step 1.0 to measure progress.
 
@@ -97,7 +97,7 @@ Dependency order: 1 → 2 → 3 → 4 → 5 → 6 → 7. Step 7.3 (lint in **war
 - **Files/modules affected:** `packages/auth/src/identity-service.ts` (new), `packages/auth/package.json` exports, the 4 route files above, `apps/server/src/routes/v1/invitations/_better-auth-helpers.ts` (deleted at end).
 - **Dependencies affected:** `apps/server/routes → better-auth` removed; `routes → @repo/auth/identity` added.
 - **Risks:** cookie/header forwarding differences break session after invite acceptance (highest-risk item of Phase 1); Better Auth error shapes mapped differently.
-- **Tests required:** *before moving*, route specs for accept-invitation (new user, existing user, wrong password, expired invitation) and onboarding complete asserting status + `set-cookie` presence; unit specs for `identity-service` with a stubbed `auth.api`; smoke: invite & accept (new + existing user), onboarding.
+- **Tests required:** _before moving_, route specs for accept-invitation (new user, existing user, wrong password, expired invitation) and onboarding complete asserting status + `set-cookie` presence; unit specs for `identity-service` with a stubbed `auth.api`; smoke: invite & accept (new + existing user), onboarding.
 - **Rollback:** revert; no data or cookie format change.
 - **Expected outcome:** Better Auth is touched from one package; routes contain no identity writes.
 
@@ -208,7 +208,7 @@ Dependency order: 1 → 2 → 3 → 4 → 5 → 6 → 7. Step 7.3 (lint in **war
 - **Files/modules affected:** 2 use cases + new internal service + specs.
 - **Dependencies affected:** none external.
 - **Risks:** subtle ordering difference (items created before/after auto-detect).
-- **Tests required:** *first* characterization specs for both use cases covering each branch (AUTO with CNH already attached, LIFE, ENDORSEMENT starting at QUOTE) asserting created item keys and completion flags; then refactor with specs untouched.
+- **Tests required:** _first_ characterization specs for both use cases covering each branch (AUTO with CNH already attached, LIFE, ENDORSEMENT starting at QUOTE) asserting created item keys and completion flags; then refactor with specs untouched.
 - **Rollback:** revert.
 - **Expected outcome:** one place for checklist rules.
 
@@ -230,7 +230,7 @@ Dependency order: 1 → 2 → 3 → 4 → 5 → 6 → 7. Step 7.3 (lint in **war
 - **Files/modules affected:** `create-lead.ts`, new use case + spec, `ContactRepository.findByPhone` (new method, same query).
 - **Dependencies affected:** internal route loses `@repo/db`.
 - **Risks:** RLS: route used `tenantPrisma`; repos use `prismaAdmin` → cross-tenant spec required; duplicate lead race (two messages at once) — today also non-atomic, keep as is but note.
-- **Tests required:** characterization route spec *before* (existing phone → reuse, new phone → create, NO_MEMBER → error body); use case spec; DB spec for `findByPhone` org scoping; smoke: widget lead capture.
+- **Tests required:** characterization route spec _before_ (existing phone → reuse, new phone → create, NO_MEMBER → error body); use case spec; DB spec for `findByPhone` org scoping; smoke: widget lead capture.
 - **Rollback:** revert (chat-worker contract unchanged).
 - **Expected outcome:** chat → ERP lead creation runs through the sales domain.
 
@@ -269,7 +269,7 @@ Dependency order: 1 → 2 → 3 → 4 → 5 → 6 → 7. Step 7.3 (lint in **war
 - **Files/modules affected:** 3 routes, 3 use cases/queries, repositories.
 - **Dependencies affected:** internal routes lose `@repo/db`.
 - **Risks:** RLS downgrade if `prismaAdmin` is used by mistake (spec below); response shape drift breaks chat-worker tools (`search-client`, AI prompts).
-- **Tests required:** route response snapshot specs *before* moving; DB specs with RLS enabled proving cross-tenant rows are invisible.
+- **Tests required:** route response snapshot specs _before_ moving; DB specs with RLS enabled proving cross-tenant rows are invisible.
 - **Rollback:** revert.
 - **Expected outcome:** all `/internal/leads/*` except `create-claim` go through modules.
 
@@ -291,7 +291,7 @@ Dependency order: 1 → 2 → 3 → 4 → 5 → 6 → 7. Step 7.3 (lint in **war
 - **Files/modules affected:** processor, 2 use cases, `parse-policy-import.ts`/`parse-client-import.ts` (already in core), repositories.
 - **Dependencies affected:** processor loses `@repo/db`.
 - **Risks:** throughput regression (per-row DI calls); error messages shown in the import UI must be byte-identical (pt-BR strings).
-- **Tests required:** characterization spec on the processor with a fixture CSV *before* moving (created/skipped/failed counts + messages); DB spec for `ImportPolicyRow`; timing check on 5k-row fixture (≤ +20%); smoke: CSV import clients + policies.
+- **Tests required:** characterization spec on the processor with a fixture CSV _before_ moving (created/skipped/failed counts + messages); DB spec for `ImportPolicyRow`; timing check on 5k-row fixture (≤ +20%); smoke: CSV import clients + policies.
 - **Rollback:** revert; imports in progress finish with old or new code (same payload).
 - **Expected outcome:** policy creation paths are both inside sales, ready for a later D4 fix.
 
@@ -468,14 +468,14 @@ Dependency order: 1 → 2 → 3 → 4 → 5 → 6 → 7. Step 7.3 (lint in **war
 
 ## Summary
 
-| Phase | PRs (≈) | Removes | Highest risk |
-|---|---|---|---|
-| 1 Identity & workspace | 5 | Better Auth calls in routes; raw member/user queries in middleware; chat-worker entitlements DB access | Session cookies after invite acceptance (1.2); deploy order (1.4) |
-| 2 Member directory | 3 | 9 raw member/user lookups; hardcoded role lists | RLS → app-level scoping in `create-lead` (2.3) |
-| 3 Sales domain | 6 | 3 cycles (proposal⇄contact, proposal⇄policy, proposal⇄document); D3 duplication; lead rules in route | Silent loss of checklist auto-completion (3.4) |
-| 4 Sales persistence | 6 | 13 direct sales-table accesses in routes/workers | CSV import behavior/perf parity (4.5); RLS on internal routes (4.3) |
-| 5 Money rules | 5 | template imports from notification infra; `OnPolicyIssued` coupling; inline money math | Rounding parity (5.1) |
-| 6 Legacy deps | 5 | goal⇄dashboard cycle; claim intake in route; audit cross-writes; chat-worker Postgres access | AI usage becomes async (6.4) |
-| 7 Enforcement | ~16 (7.1 split per module) | root barrel; string DI tokens; unchecked imports | Large mechanical diff (7.1) |
+| Phase                  | PRs (≈)                    | Removes                                                                                                | Highest risk                                                        |
+| ---------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| 1 Identity & workspace | 5                          | Better Auth calls in routes; raw member/user queries in middleware; chat-worker entitlements DB access | Session cookies after invite acceptance (1.2); deploy order (1.4)   |
+| 2 Member directory     | 3                          | 9 raw member/user lookups; hardcoded role lists                                                        | RLS → app-level scoping in `create-lead` (2.3)                      |
+| 3 Sales domain         | 6                          | 3 cycles (proposal⇄contact, proposal⇄policy, proposal⇄document); D3 duplication; lead rules in route   | Silent loss of checklist auto-completion (3.4)                      |
+| 4 Sales persistence    | 6                          | 13 direct sales-table accesses in routes/workers                                                       | CSV import behavior/perf parity (4.5); RLS on internal routes (4.3) |
+| 5 Money rules          | 5                          | template imports from notification infra; `OnPolicyIssued` coupling; inline money math                 | Rounding parity (5.1)                                               |
+| 6 Legacy deps          | 5                          | goal⇄dashboard cycle; claim intake in route; audit cross-writes; chat-worker Postgres access           | AI usage becomes async (6.4)                                        |
+| 7 Enforcement          | ~16 (7.1 split per module) | root barrel; string DI tokens; unchecked imports                                                       | Large mechanical diff (7.1)                                         |
 
-**Out of scope (separate tickets after Phase 7, each needs a product decision):** S1 endorsement/renewal issuance · S2 cancellation vs commissions · S3 split · S7 stage vs policy atomicity · S9 fake `dataSaved` · S10 quotas · S12 LGPD scope · S13 self-approval · S14 consent · S15 AI premium overwrite · S19 notification types · S20 diacritics in alerts · `packages/conversations` extraction (D5).
+**Out of scope (separate tickets after Phase 7, each needs a product decision):** S1 endorsement/renewal issuance · S2 cancellation vs commissions · S3 split · S7 stage vs policy atomicity · S9 fake `dataSaved` · S10 quotas · S12 LGPD scope · S13 self-approval · S14 consent · S15 AI premium overwrite · S19 notification types · S20 diacritics in alerts · member role hierarchy: `UpdateMemberRole` / `DeactivateMember` use `<` (peer ADMIN/MANAGER can demote, deactivate or promote to their own role) while `invitation-policy.assertCanManageRole` uses `<=`; no spec covers the equal-role case (found during Step 1.1 security review) · `packages/conversations` extraction (D5).
