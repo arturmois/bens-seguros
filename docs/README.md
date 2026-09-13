@@ -16,6 +16,7 @@
 | `ARCHITECTURE-DECISIONS.md` | Decisoes de arquitetura (ADRs, GAPs, trade-offs)              |
 | `FRONTEND-PATTERNS.md`      | Padroes do frontend (componentes, hooks, data fetching, auth) |
 | `UI-PATTERNS.md`            | Padroes visuais (design system, tabelas, formularios, cores)  |
+| `audits/2026-09-13-domain-analysis.md` | Mapa de domínio as-is (DDD estratégico: capacidades, conceitos, regras, acoplamentos, gaps) |
 
 ## Operacional
 
