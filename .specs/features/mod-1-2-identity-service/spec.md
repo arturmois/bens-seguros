@@ -141,11 +141,11 @@ Baseline at `bcedb31f`: `@app/server` 114 files / 631 tests; `@repo/auth` 2 file
 | ID-18          | P1: Identity service      | Execute | Implementing |
 | ID-19          | P1: Identity service      | Execute | Implementing |
 | ID-20          | P1: Identity service      | Execute | Implementing |
-| ID-21          | P1: Routes only translate | Execute | Pending      |
-| ID-22          | P1: Routes only translate | Execute | Pending      |
-| ID-23          | P1: Routes only translate | Execute | Pending      |
-| ID-24          | P1: Routes only translate | Execute | Pending      |
-| ID-25          | P1: Routes only translate | Execute | Pending      |
+| ID-21          | P1: Routes only translate | Execute | Implementing |
+| ID-22          | P1: Routes only translate | Execute | Implementing |
+| ID-23          | P1: Routes only translate | Execute | Implementing |
+| ID-24          | P1: Routes only translate | Execute | Implementing |
+| ID-25          | P1: Routes only translate | Execute | Implementing |
 
 **Coverage:** 25 total, 25 mapped to execution steps, 0 unmapped.
 

@@ -1,11 +1,11 @@
 import type { Auth } from '@repo/auth'
+import { createIdentityService } from '@repo/auth/identity'
 import { container, GetPublicInvitation } from '@repo/core'
 import { RATE_LIMITS } from '@repo/shared'
 import type { FastifyInstance, FastifyRequest } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { errorResponse } from '../../shared/response.schema.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import { readCurrentSession } from './_better-auth-helpers.js'
 import { idParamSchema, publicInvitationResponse } from './_schemas.js'
 
 function buildSessionHeaders(request: FastifyRequest): Headers {
@@ -16,6 +16,7 @@ function buildSessionHeaders(request: FastifyRequest): Headers {
 }
 
 export function getPublicInvitationRoute(app: FastifyInstance, auth: Auth) {
+  const identity = createIdentityService(auth)
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'GET',
     url: '/api/v1/invitations/:id/public',
@@ -42,8 +43,7 @@ export function getPublicInvitationRoute(app: FastifyInstance, auth: Auth) {
       try {
         const [view, currentSession] = await Promise.all([
           useCase.execute(id),
-          readCurrentSession({
-            auth,
+          identity.readCurrentSession({
             headers: buildSessionHeaders(request),
             logger: request.log,
           }),

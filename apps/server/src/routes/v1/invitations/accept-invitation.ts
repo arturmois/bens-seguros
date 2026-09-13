@@ -1,5 +1,10 @@
 import type { Auth } from '@repo/auth'
 import {
+  createIdentityService,
+  InviteAuthError,
+  type AuthResult,
+} from '@repo/auth/identity'
+import {
   AcceptInvitation,
   container,
   type InvitationRepository,
@@ -9,13 +14,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { errorResponse } from '../../shared/response.schema.js'
 import { handleDomainError } from '../handle-domain-error.js'
-import {
-  applyActiveOrg,
-  buildOriginHeaders,
-  InviteAuthError,
-  type AuthResult,
-} from './_better-auth-helpers.js'
-import { authenticateForInvitation } from './_invitation-auth.js'
+import { buildOriginHeaders } from './_origin-headers.js'
 import {
   acceptInvitationBodySchema,
   acceptInvitationResponse,
@@ -39,6 +38,7 @@ function applyCookies(reply: FastifyReply, cookies: readonly string[]): void {
 }
 
 export function acceptInvitationRoute(app: FastifyInstance, auth: Auth) {
+  const identity = createIdentityService(auth)
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'POST',
     url: '/api/v1/invitations/:id/accept',
@@ -84,10 +84,9 @@ export function acceptInvitationRoute(app: FastifyInstance, auth: Auth) {
       const authHeaders = buildOriginHeaders(request)
       let authResult: AuthResult
       try {
-        authResult = await authenticateForInvitation({
+        authResult = await identity.authenticateForInvitation({
           body,
           invitationEmail: invitation.email,
-          auth,
           headers: authHeaders,
           logger: request.log,
         })
@@ -110,8 +109,7 @@ export function acceptInvitationRoute(app: FastifyInstance, auth: Auth) {
       } catch (err) {
         return handleDomainError(err, reply)
       }
-      const orgCookies = await applyActiveOrg({
-        auth,
+      const orgCookies = await identity.applyActiveOrg({
         organizationId: result.organizationId,
         headers: authHeaders,
         logger: request.log,
