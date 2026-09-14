@@ -27,15 +27,16 @@
       "text": "When a goal promises a byte-identical response body, assert error.message alongside statusCode and code for every mapped error, not only the ones the spec spells out.",
       "signal": "surviving_mutant",
       "scope": "auth-service",
-      "status": "candidate",
-      "features": ["mod-1-2-identity-service"],
-      "recurrence": 1,
+      "status": "confirmed",
+      "features": ["mod-1-2-identity-service", "mod-1-3-membership-queries"],
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "M14 packages/auth/src/identity-service.ts:232 (auth-service)"
+        "M14 packages/auth/src/identity-service.ts:232 (auth-service)",
+        "M13 apps/server/src/middlewares/tenant-middleware.ts:34; M14 apps/server/src/middlewares/require-super-admin-2fa.ts:35 (auth-service)"
       ],
       "created": "2026-09-13T23:44:57Z",
-      "last_seen": "2026-09-13T23:44:57Z"
+      "last_seen": "2026-09-14T01:03:27Z"
     },
     {
       "id": "L-003",

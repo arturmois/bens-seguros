@@ -14,14 +14,14 @@ Baseline at `f5d957cb`: `@app/server` 114 files / 640 tests; `@repo/core` 102 fi
 
 ## Out of Scope
 
-| Feature                                                                                                                                       | Reason                                                                                |
-| --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| "Banned user → 401" (listed in plan Step 1.3 tests)                                                                                           | No ban check exists in `auth-middleware.ts` today; adding it is a behavior change     |
-| `auth.api.getSession` in `auth-middleware.ts`                                                                                                 | Session reading stays with Better Auth; plan Step 1.3 targets the Prisma lookups only |
-| `createTenantClient` in `tenant-middleware.ts`                                                                                                | Plan: tenant client construction stays in the middleware                              |
-| DI registration in `container-registrations.ts`                                                                                               | See Assumptions (module-level instances instead)                                      |
-| Replacing `MemberRepository` or `prismaAdmin` usage elsewhere                                                                                 | Phase 2                                                                               |
-| Prisma reads of `member`/`user` in routes (`routes/v1/commissions/*`, `routes/terms/accept-terms.ts`, `routes/internal/leads/create-lead.ts`) | Plan Step 2.3 and later                                                               |
+| Feature                                                                                                                                                                                                                                                          | Reason                                                                                |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| "Banned user → 401" (listed in plan Step 1.3 tests)                                                                                                                                                                                                              | No ban check exists in `auth-middleware.ts` today; adding it is a behavior change     |
+| `auth.api.getSession` in `auth-middleware.ts`                                                                                                                                                                                                                    | Session reading stays with Better Auth; plan Step 1.3 targets the Prisma lookups only |
+| `createTenantClient` in `tenant-middleware.ts`                                                                                                                                                                                                                   | Plan: tenant client construction stays in the middleware                              |
+| DI registration in `container-registrations.ts`                                                                                                                                                                                                                  | See Assumptions (module-level instances instead)                                      |
+| Replacing `MemberRepository` or `prismaAdmin` usage elsewhere                                                                                                                                                                                                    | Phase 2                                                                               |
+| Prisma reads of `member`/`user` outside middlewares: routes (`routes/v1/commissions/*`, `routes/terms/accept-terms.ts`, `routes/terms/get-terms-status.ts`, `routes/v1/proposals/send-quote.ts`) and `apps/chat-server/src/infra/socket/membership-validator.ts` | Plan Step 2.3, 4.2 and later; chat-server is outside `apps/server`                    |
 
 ---
 
@@ -109,25 +109,25 @@ Baseline at `f5d957cb`: `@app/server` 114 files / 640 tests; `@repo/core` 102 fi
 
 ## Requirement Traceability
 
-| Requirement ID | Story                       | Phase   | Status       |
-| -------------- | --------------------------- | ------- | ------------ |
-| MR-01          | P1: Auth middleware pinned  | Execute | Implementing |
-| MR-02          | P1: Auth middleware pinned  | Execute | Implementing |
-| MR-03          | P1: Auth middleware pinned  | Execute | Implementing |
-| MR-04          | P1: Auth middleware pinned  | Execute | Implementing |
-| MR-05          | P1: Auth middleware pinned  | Execute | Implementing |
-| MR-06          | P1: Auth middleware pinned  | Execute | Implementing |
-| MR-07          | P1: Workspace queries       | Execute | Implementing |
-| MR-08          | P1: Workspace queries       | Execute | Implementing |
-| MR-09          | P1: Workspace queries       | Execute | Implementing |
-| MR-10          | P1: Workspace queries       | Execute | Implementing |
-| MR-11          | P1: Workspace queries       | Execute | Implementing |
-| MR-12          | P1: Middlewares use queries | Execute | Implementing |
-| MR-13          | P1: Middlewares use queries | Execute | Implementing |
-| MR-14          | P1: Middlewares use queries | Execute | Implementing |
-| MR-15          | P1: Middlewares use queries | Execute | Implementing |
-| MR-16          | P1: Middlewares use queries | Execute | Implementing |
-| MR-17          | P1: Middlewares use queries | Execute | Implementing |
+| Requirement ID | Story                       | Phase   | Status   |
+| -------------- | --------------------------- | ------- | -------- |
+| MR-01          | P1: Auth middleware pinned  | Execute | Verified |
+| MR-02          | P1: Auth middleware pinned  | Execute | Verified |
+| MR-03          | P1: Auth middleware pinned  | Execute | Verified |
+| MR-04          | P1: Auth middleware pinned  | Execute | Verified |
+| MR-05          | P1: Auth middleware pinned  | Execute | Verified |
+| MR-06          | P1: Auth middleware pinned  | Execute | Verified |
+| MR-07          | P1: Workspace queries       | Execute | Verified |
+| MR-08          | P1: Workspace queries       | Execute | Verified |
+| MR-09          | P1: Workspace queries       | Execute | Verified |
+| MR-10          | P1: Workspace queries       | Execute | Verified |
+| MR-11          | P1: Workspace queries       | Execute | Verified |
+| MR-12          | P1: Middlewares use queries | Execute | Verified |
+| MR-13          | P1: Middlewares use queries | Execute | Verified |
+| MR-14          | P1: Middlewares use queries | Execute | Verified |
+| MR-15          | P1: Middlewares use queries | Execute | Verified |
+| MR-16          | P1: Middlewares use queries | Execute | Verified |
+| MR-17          | P1: Middlewares use queries | Execute | Verified |
 
 **Coverage:** 17 total, 17 mapped to execution steps, 0 unmapped.
 
@@ -135,5 +135,5 @@ Baseline at `f5d957cb`: `@app/server` 114 files / 640 tests; `@repo/core` 102 fi
 
 ## Success Criteria
 
-- [ ] 5 quality gates green.
-- [ ] `grep -rnE "prisma(Admin)?\.(member|user)\." apps/server/src/middlewares` (non-test) returns nothing.
+- [x] 5 quality gates green.
+- [x] `grep -rnE "prisma(Admin)?\.(member|user)\." apps/server/src/middlewares` (non-test) returns nothing.
