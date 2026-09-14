@@ -1,5 +1,6 @@
 import type { FastifyRequest, FastifyReply } from 'fastify'
-import { prisma, createTenantClient } from '@repo/db'
+import { createTenantClient } from '@repo/db'
+import { resolveMembership } from '../lib/workspace-queries.js'
 
 export async function tenantMiddleware(
   request: FastifyRequest,
@@ -21,13 +22,9 @@ export async function tenantMiddleware(
       error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
     })
   }
-  const member = await prisma.member.findUnique({
-    where: {
-      organizationId_userId: {
-        organizationId,
-        userId: request.user.id,
-      },
-    },
+  const member = await resolveMembership.execute({
+    userId: request.user.id,
+    organizationId,
   })
   if (!member || !member.active) {
     return reply.status(403).send({

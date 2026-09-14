@@ -1,7 +1,7 @@
 import type { Auth } from '@repo/auth'
 import type { AuthUser } from '@repo/auth/types'
-import { prisma } from '@repo/db'
 import type { FastifyReply, FastifyRequest } from 'fastify'
+import { userStatus } from '../lib/workspace-queries.js'
 
 export function createAuthMiddleware(auth: Auth) {
   return async function authMiddleware(
@@ -26,17 +26,14 @@ export function createAuthMiddleware(auth: Auth) {
       })
     }
     const { user: sessionUser } = session
-    const dbUser = await prisma.user.findUnique({
-      where: { id: sessionUser.id },
-      select: { isSuperAdmin: true },
-    })
+    const isSuperAdmin = await userStatus.isSuperAdmin(sessionUser.id)
     const user: AuthUser = {
       id: sessionUser.id,
       email: sessionUser.email,
       name: sessionUser.name,
       emailVerified: sessionUser.emailVerified,
       image: sessionUser.image,
-      isSuperAdmin: dbUser?.isSuperAdmin === true,
+      isSuperAdmin,
     }
     request.user = user
     request.session = session.session

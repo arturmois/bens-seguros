@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { prisma } from '@repo/db'
+import { userStatus } from '../lib/workspace-queries.js'
 
 // SE4a foundation: gates super-admin routes behind a 2FA-enrolled account.
 // This middleware does NOT re-verify a TOTP code per request — Better Auth's
@@ -25,11 +25,8 @@ export async function requireSuperAdmin2FA(
     })
     return
   }
-  const dbUser = await prisma.user.findUnique({
-    where: { id: request.user.id },
-    select: { twoFactorEnabled: true },
-  })
-  if (dbUser?.twoFactorEnabled !== true) {
+  const twoFactorEnabled = await userStatus.hasTwoFactorEnabled(request.user.id)
+  if (!twoFactorEnabled) {
     await reply.status(403).send({
       success: false,
       error: {

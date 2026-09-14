@@ -122,12 +122,12 @@ Baseline at `f5d957cb`: `@app/server` 114 files / 640 tests; `@repo/core` 102 fi
 | MR-09          | P1: Workspace queries       | Execute | Implementing |
 | MR-10          | P1: Workspace queries       | Execute | Implementing |
 | MR-11          | P1: Workspace queries       | Execute | Implementing |
-| MR-12          | P1: Middlewares use queries | Execute | Pending      |
-| MR-13          | P1: Middlewares use queries | Execute | Pending      |
-| MR-14          | P1: Middlewares use queries | Execute | Pending      |
-| MR-15          | P1: Middlewares use queries | Execute | Pending      |
-| MR-16          | P1: Middlewares use queries | Execute | Pending      |
-| MR-17          | P1: Middlewares use queries | Execute | Pending      |
+| MR-12          | P1: Middlewares use queries | Execute | Implementing |
+| MR-13          | P1: Middlewares use queries | Execute | Implementing |
+| MR-14          | P1: Middlewares use queries | Execute | Implementing |
+| MR-15          | P1: Middlewares use queries | Execute | Implementing |
+| MR-16          | P1: Middlewares use queries | Execute | Implementing |
+| MR-17          | P1: Middlewares use queries | Execute | Implementing |
 
 **Coverage:** 17 total, 17 mapped to execution steps, 0 unmapped.
 
