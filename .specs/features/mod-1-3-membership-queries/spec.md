@@ -117,11 +117,11 @@ Baseline at `f5d957cb`: `@app/server` 114 files / 640 tests; `@repo/core` 102 fi
 | MR-04          | P1: Auth middleware pinned  | Execute | Implementing |
 | MR-05          | P1: Auth middleware pinned  | Execute | Implementing |
 | MR-06          | P1: Auth middleware pinned  | Execute | Implementing |
-| MR-07          | P1: Workspace queries       | Execute | Pending      |
-| MR-08          | P1: Workspace queries       | Execute | Pending      |
-| MR-09          | P1: Workspace queries       | Execute | Pending      |
-| MR-10          | P1: Workspace queries       | Execute | Pending      |
-| MR-11          | P1: Workspace queries       | Execute | Pending      |
+| MR-07          | P1: Workspace queries       | Execute | Implementing |
+| MR-08          | P1: Workspace queries       | Execute | Implementing |
+| MR-09          | P1: Workspace queries       | Execute | Implementing |
+| MR-10          | P1: Workspace queries       | Execute | Implementing |
+| MR-11          | P1: Workspace queries       | Execute | Implementing |
 | MR-12          | P1: Middlewares use queries | Execute | Pending      |
 | MR-13          | P1: Middlewares use queries | Execute | Pending      |
 | MR-14          | P1: Middlewares use queries | Execute | Pending      |

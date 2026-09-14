@@ -30,6 +30,14 @@ export { DeactivateMember } from './members/application/deactivate-member.js'
 export type { DeactivateMemberInput } from './members/application/deactivate-member.js'
 export { ListMembers } from './members/application/list-members.js'
 export { ListUserTenants } from './members/application/list-user-tenants.js'
+export { GetUserStatus } from './members/application/get-user-status.js'
+export type { UserStatusDb } from './members/application/get-user-status.js'
+export { ResolveMembership } from './members/application/resolve-membership.js'
+export type {
+  Membership,
+  MembershipDb,
+  ResolveMembershipInput,
+} from './members/application/resolve-membership.js'
 export { UpdateMemberRole } from './members/application/update-member-role.js'
 export type { UpdateMemberRoleInput } from './members/application/update-member-role.js'
 export {
