@@ -126,6 +126,13 @@ test('modular-architecture unchanged', () => {
   assert.equal(digest, MODULAR_ARCHITECTURE_SHA256)
 })
 
+function tableLines(text) {
+  return text
+    .split('\n')
+    .filter((line) => line.startsWith('|'))
+    .join('\n')
+}
+
 test('context-map status and tables', () => {
   const text = readRepo('docs/architecture/context-map.md')
   const statusEnd = text.indexOf('\n---\n')
@@ -134,11 +141,15 @@ test('context-map status and tables', () => {
   const modules = section(text, '## 1. Módulos', '## 2.')
   const imports = section(text, '## 2. Dependências permitidas', '## 3.')
   assert.equal(
-    modules,
-    readFileSync(join(fixtures, 'context-map-modules.section.md'), 'utf8')
+    tableLines(modules),
+    tableLines(
+      readFileSync(join(fixtures, 'context-map-modules.section.md'), 'utf8')
+    )
   )
   assert.equal(
-    imports,
-    readFileSync(join(fixtures, 'context-map-imports.section.md'), 'utf8')
+    tableLines(imports),
+    tableLines(
+      readFileSync(join(fixtures, 'context-map-imports.section.md'), 'utf8')
+    )
   )
 })

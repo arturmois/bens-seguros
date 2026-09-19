@@ -28,6 +28,10 @@ jobs:
         run: pnpm audit --audit-level high
         continue-on-error: true
       - run: DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" pnpm --filter @repo/db db:generate
+      - name: Architecture deps (warn)
+        run: pnpm arch:check
+        continue-on-error: true
+      - run: pnpm test:architecture
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm build

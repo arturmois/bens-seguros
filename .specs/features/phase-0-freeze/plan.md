@@ -92,10 +92,10 @@ Grouped by slice - one observable outcome each, never a layer. Numbering runs ac
 | ARCH-01   | S1    | 1, 2, 3        | Implementing |
 | ARCH-02   | S1    | 4, 5, 6, 7     | Implementing |
 | ARCH-03   | S1    | 8, 9, 10, 11   | Implementing |
-| CRUISE-01 | S2    | 12, 13, 14, 15 | Pending      |
-| CRUISE-02 | S2    | 16             | Pending      |
-| CRUISE-03 | S2    | 17             | Pending      |
-| CRUISE-04 | S2    | 18, 19, 20     | Pending      |
+| CRUISE-01 | S2    | 12, 13, 14, 15 | Implementing |
+| CRUISE-02 | S2    | 16             | Implementing |
+| CRUISE-03 | S2    | 17             | Implementing |
+| CRUISE-04 | S2    | 18, 19, 20     | Implementing |
 
 **ID format:** `CATEGORY-NUMBER`. **Status:** Pending → In checks → Implementing → Verified.
 

@@ -11,7 +11,9 @@
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
+    "test:architecture": "node --test scripts/architecture-guidance.test.mjs scripts/architecture-cruiser.test.mjs",
     "test:watch": "turbo test:watch",
+    "arch:check": "depcruise --config .dependency-cruiser.cjs apps packages",
     "clean": "turbo clean",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "db:generate": "pnpm --filter @repo/db db:generate",
@@ -43,6 +45,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
+    "dependency-cruiser": "^18.3.1",
     "dotenv-cli": "^11.0.0",
     "husky": "^9.1.7",
     "jscpd": "^4.0.9",

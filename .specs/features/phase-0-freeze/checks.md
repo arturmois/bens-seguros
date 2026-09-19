@@ -107,3 +107,7 @@ Proof: `node --test --test-name-pattern "CI blocking steps stay blocking" script
 Intended split, with the arithmetic, written before any code:
 
 - S1 = ~20k (docs + guidance spec); S2 = ~10k (cruiser config + CI + cruiser spec) → 30k combined, under 150k → one builder, two commits (docs then cruiser), no hand-off
+
+- **Boundary:** C1-C11 closed at `efd9659a`
+- **Settled mid-build:** context-map table proof compares `|` rows only (prettier changed surrounding blanks, not the tables)
+- **Abandoned:** none
