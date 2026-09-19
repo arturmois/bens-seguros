@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Multi-tenant SaaS ERP for Brazilian insurance brokers. Monorepo with 6 apps + 8 packages + 3 config packages.
 
-**Specs:** `docs/ESPECIFICACAO-FINAL.md` | **Plans:** `docs/superpowers/plans/` | **UI:** `docs/UI-PATTERNS.md` | **Frontend:** `docs/FRONTEND-PATTERNS.md` | **Arch:** `docs/ARCHITECTURE-DECISIONS.md` | **Chat:** `docs/CHAT-SPEC.md` | **Multi-Channel:** `docs/MULTI-CHANNEL-SETUP.md` | **Security:** `docs/SECURITY-SPEC.md` | **Settings:** `docs/SETTINGS-DESIGN.md` | **Deploy:** `docs/DEPLOY-TUTORIAL.md`
+**Specs:** `docs/ESPECIFICACAO-FINAL.md` | **Plans:** `docs/superpowers/plans/` | **UI:** `docs/UI-PATTERNS.md` | **Frontend:** `docs/FRONTEND-PATTERNS.md` | **Arch:** `docs/architecture-refactoring-roadmap.md` | **Chat:** `docs/CHAT-SPEC.md` | **Multi-Channel:** `docs/MULTI-CHANNEL-SETUP.md` | **Security:** `docs/SECURITY-SPEC.md` | **Settings:** `docs/SETTINGS-DESIGN.md` | **Deploy:** `docs/DEPLOY-TUTORIAL.md`
 
 ## Development Commands
 
@@ -226,7 +226,7 @@ Detalhes completos → skill `bens-code-rules`.
 ## Para tarefas específicas, carregue a skill apropriada
 
 - **Implementar ticket Jira de ponta a ponta (autônomo)** → skill `bens-orchestrator` (via `/work SCRUM-XX`)
-- **Criar módulo DDD / use case / repository / entity** → skill `bens-ddd-module`
+- **Criar módulo DDD / use case / repository / entity** → skill `bens-ddd-module` (DI: composição explícita, roadmap ADR-2)
 - **Implementar etapa de plano (5 fases obrigatórias)** → skill `bens-implementation-flow`
 - **Code review / refactor / regras detalhadas de código** → skill `bens-code-rules`
 - **Frontend UI / componentes / pages** → skill `frontend-design` + ler `docs/UI-PATTERNS.md`, `docs/FRONTEND-PATTERNS.md`
@@ -245,16 +245,17 @@ Detalhes completos → skill `bens-code-rules`.
 
 ## Doc index
 
-| Doc                              | Tópico                                               |
-| -------------------------------- | ---------------------------------------------------- |
-| `docs/ESPECIFICACAO-FINAL.md`    | Especificação completa do produto                    |
-| `docs/superpowers/plans/`        | Planos de implementação                              |
-| `docs/superpowers/specs/`        | Specs de brainstorming                               |
-| `docs/UI-PATTERNS.md`            | Padrões de UI (Design system, forms, tables, charts) |
-| `docs/FRONTEND-PATTERNS.md`      | Padrões frontend (data fetching, state, errors)      |
-| `docs/ARCHITECTURE-DECISIONS.md` | Decisões arquiteturais (gaps, auth, db, monorepo)    |
-| `docs/CHAT-SPEC.md`              | Spec do chat-server                                  |
-| `docs/MULTI-CHANNEL-SETUP.md`    | Setup multi-canal (WhatsApp, web widget, Meta)       |
-| `docs/SECURITY-SPEC.md`          | Spec de segurança                                    |
-| `docs/SETTINGS-DESIGN.md`        | Design das settings                                  |
-| `docs/DEPLOY-TUTORIAL.md`        | Tutorial de deploy (trunk + tag-based)               |
+| Doc                                        | Tópico                                               |
+| ------------------------------------------ | ---------------------------------------------------- |
+| `docs/ESPECIFICACAO-FINAL.md`              | Especificação completa do produto                    |
+| `docs/superpowers/plans/`                  | Planos de implementação                              |
+| `docs/superpowers/specs/`                  | Specs de brainstorming                               |
+| `docs/UI-PATTERNS.md`                      | Padrões de UI (Design system, forms, tables, charts) |
+| `docs/FRONTEND-PATTERNS.md`                | Padrões frontend (data fetching, state, errors)      |
+| `docs/architecture-refactoring-roadmap.md` | Roadmap de arquitetura (fonte canônica do refactor)  |
+| `docs/ARCHITECTURE-DECISIONS.md`           | Decisões arquiteturais (gaps, auth, db, monorepo)    |
+| `docs/CHAT-SPEC.md`                        | Spec do chat-server                                  |
+| `docs/MULTI-CHANNEL-SETUP.md`              | Setup multi-canal (WhatsApp, web widget, Meta)       |
+| `docs/SECURITY-SPEC.md`                    | Spec de segurança                                    |
+| `docs/SETTINGS-DESIGN.md`                  | Design das settings                                  |
+| `docs/DEPLOY-TUTORIAL.md`                  | Tutorial de deploy (trunk + tag-based)               |

@@ -391,25 +391,25 @@ export default function GlobalError({ error, reset }) {
 
 ## Resumo de Todas as Decisoes
 
-| #       | Gap                 | Decisao                                                                                                                                                                                                            |
-| ------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| GAP-1   | Orval codegen       | Spec versionada commitada + Orval gera hooks + CI valida sync                                                                                                                                                      |
-| GAP-2   | Migrations          | `prisma migrate` backward-compatible, deploy antes de restart                                                                                                                                                      |
-| GAP-3   | i18n                | Hardcoded pt-BR, constantes por modulo, `Intl` formatters centralizados                                                                                                                                            |
-| GAP-4   | Timezone            | UTC no banco, `America/Sao_Paulo` fixo na exibicao, formatters centralizados                                                                                                                                       |
-| GAP-5   | Seed data           | 3 camadas (referencia + bootstrap + dev-fake), tudo idempotente                                                                                                                                                    |
-| GAP-6   | Error boundary      | 3 niveis (global + route group + inline), Sentry integrado                                                                                                                                                         |
-| GAP-7   | Build & Docker      | Internal Packages (TS cru) + tsup bundle para backend + transpilePackages para Next.js                                                                                                                             |
-| AUTH-1  | Onboarding          | Self-service com setup wizard 2 steps (User + Organization)                                                                                                                                                        |
-| AUTH-2  | Invitations         | Email com link tokenizado (7 dias) + fallback copiar link                                                                                                                                                          |
-| AUTH-3  | Org switching       | Dropdown sidebar + tela `/select-org` se 2+ orgs + clear cache ao trocar                                                                                                                                           |
-| AUTH-4  | Password reset      | Email com link tokenizado (1h) + revoga todas sessoes + mensagem generica                                                                                                                                          |
-| AUTH-5  | Sessions            | Multi-device (max 5), lista em Settings, encerrar individual/todas, revoga ao trocar senha                                                                                                                         |
-| AUTH-6  | OWNER transfer      | Transfer para ADMIN elegivel, confirmacao por digitacao, antigo OWNER vira ADMIN                                                                                                                                   |
-| AUTH-7  | Permissao granular  | COMMERCIAL ve apenas seus (salespersonId), MANAGER+ ve tudo da org                                                                                                                                                 |
-| AUTH-8  | Rate limit auth     | Camadas: 5 login/email/15min, 3 forgot/email/1h, 3 register/IP/1h, 100 api/user/min                                                                                                                                |
-| BILLING | Billing/monetizacao | Adiado. Campo `plan: 'FREE'` na Organization como seed. Sem Stripe, sem limites, sem tela de billing. Implementar quando tiver 2+ clientes                                                                         |
-| MOD-1   | Arquitetura modular | **Aprovada (revisada), migração em andamento.** Monolito modular em `packages/core/src/modules` + `platform` + `shared-kernel`, import direto do `index.ts` do provider, Prisma restrito por módulo, sem event bus |
+| #       | Gap                 | Decisao                                                                                                                                                                                            |
+| ------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GAP-1   | Orval codegen       | Spec versionada commitada + Orval gera hooks + CI valida sync                                                                                                                                      |
+| GAP-2   | Migrations          | `prisma migrate` backward-compatible, deploy antes de restart                                                                                                                                      |
+| GAP-3   | i18n                | Hardcoded pt-BR, constantes por modulo, `Intl` formatters centralizados                                                                                                                            |
+| GAP-4   | Timezone            | UTC no banco, `America/Sao_Paulo` fixo na exibicao, formatters centralizados                                                                                                                       |
+| GAP-5   | Seed data           | 3 camadas (referencia + bootstrap + dev-fake), tudo idempotente                                                                                                                                    |
+| GAP-6   | Error boundary      | 3 niveis (global + route group + inline), Sentry integrado                                                                                                                                         |
+| GAP-7   | Build & Docker      | Internal Packages (TS cru) + tsup bundle para backend + transpilePackages para Next.js                                                                                                             |
+| AUTH-1  | Onboarding          | Self-service com setup wizard 2 steps (User + Organization)                                                                                                                                        |
+| AUTH-2  | Invitations         | Email com link tokenizado (7 dias) + fallback copiar link                                                                                                                                          |
+| AUTH-3  | Org switching       | Dropdown sidebar + tela `/select-org` se 2+ orgs + clear cache ao trocar                                                                                                                           |
+| AUTH-4  | Password reset      | Email com link tokenizado (1h) + revoga todas sessoes + mensagem generica                                                                                                                          |
+| AUTH-5  | Sessions            | Multi-device (max 5), lista em Settings, encerrar individual/todas, revoga ao trocar senha                                                                                                         |
+| AUTH-6  | OWNER transfer      | Transfer para ADMIN elegivel, confirmacao por digitacao, antigo OWNER vira ADMIN                                                                                                                   |
+| AUTH-7  | Permissao granular  | COMMERCIAL ve apenas seus (salespersonId), MANAGER+ ve tudo da org                                                                                                                                 |
+| AUTH-8  | Rate limit auth     | Camadas: 5 login/email/15min, 3 forgot/email/1h, 3 register/IP/1h, 100 api/user/min                                                                                                                |
+| BILLING | Billing/monetizacao | Adiado. Campo `plan: 'FREE'` na Organization como seed. Sem Stripe, sem limites, sem tela de billing. Implementar quando tiver 2+ clientes                                                         |
+| MOD-1   | Arquitetura modular | **Aprovada (revisada), migração em andamento.** Monolito modular; DI = composição explícita (ADR-2). Sequência em `architecture-refactoring-roadmap.md`. Prisma restrito por módulo, sem event bus |
 
 ---
 
@@ -1002,7 +1002,7 @@ packages/db/src/index.ts:
 
 ## MOD-1 — Arquitetura Modular por Bounded Context (2026-09-13)
 
-> **Status:** aprovada (revisada após review), migração em andamento. Alvo e passos em [`architecture/2026-09-13-migration-plan.md`](architecture/2026-09-13-migration-plan.md). Mapa vivo em [`architecture/context-map.md`](architecture/context-map.md). Base: [`audits/2026-09-13-domain-analysis.md`](audits/2026-09-13-domain-analysis.md). O design original [`architecture/2026-09-13-modular-architecture.md`](architecture/2026-09-13-modular-architecture.md) foi substituído por esta revisão e é só racional histórico.
+> **Status:** aprovada (revisada após review), migração em andamento. Sequência em [`architecture-refactoring-roadmap.md`](architecture-refactoring-roadmap.md). Mapa vivo em [`architecture/context-map.md`](architecture/context-map.md). Base: [`audits/2026-09-13-domain-analysis.md`](audits/2026-09-13-domain-analysis.md). O design original [`architecture/2026-09-13-modular-architecture.md`](architecture/2026-09-13-modular-architecture.md) é só racional histórico. O plano [`architecture/2026-09-13-migration-plan.md`](architecture/2026-09-13-migration-plan.md) é catálogo de moves.
 
 ### Contexto
 
@@ -1018,7 +1018,7 @@ A análise de domínio encontrou 23 módulos planos em `packages/core` com 4 cic
 - **Chamada entre módulos = import direto do `index.ts` público do provider.** Ports só para fornecedores externos e para chat → ERP (HMAC).
 - **Sem event bus, sem outbox, sem UnitOfWork.** `prisma.$transaction` só onde atomicidade é necessária.
 - **Prisma restrito por módulo:** cada módulo recebe `Pick<PrismaClient, delegates próprios>`; escrita em tabela de outro módulo não compila.
-- **Tokens de DI são classes abstratas** (visíveis no import), não strings.
+- **Composição explícita (ADR-2):** cada app monta o grafo no composition root e passa um objeto tipado às rotas. Sem container global e sem `@injectable`. Detalhe e sequência em [`architecture-refactoring-roadmap.md`](architecture-refactoring-roadmap.md).
 - **Workspace é ACL sobre o Better Auth:** o Better Auth escreve as tabelas de identidade; workspace expõe queries e extensões de domínio.
 - **Contrato de entitlements fica em `@repo/auth/entitlements`:** `billing` produz, `auth` consome, `auth` nunca importa `@repo/core`.
 
@@ -1027,7 +1027,7 @@ A análise de domínio encontrou 23 módulos planos em `packages/core` com 4 cic
 - Dependências permitidas entre módulos: tabela em `architecture/context-map.md` §2. Nova dependência = nova linha no mapa + revisão na PR.
 - Importar outro módulo só pelo `index.ts` dele; nunca `domain/`, `application/` ou `infrastructure/` de outro módulo.
 - `shared-kernel` não importa nada; `platform` não importa módulos.
-- Migração segue as regras do plano §0: um passo = uma PR, sem mudança de comportamento, sem mudança de contrato HTTP, "mover, depois mudar".
+- Migração segue as regras do roadmap §11: um passo = uma PR, sem mudança de comportamento, sem mudança de contrato HTTP, "mover, depois mudar".
 
 ### Anti-patterns
 
@@ -1038,4 +1038,4 @@ A análise de domínio encontrou 23 módulos planos em `packages/core` com 4 cic
 
 ### Migração
 
-7 fases incrementais descritas em [`architecture/2026-09-13-migration-plan.md`](architecture/2026-09-13-migration-plan.md): 1 identidade & workspace → 2 diretório de membros → 3 domínio sales → 4 persistência de sales → 5 comissões & dinheiro → 6 dependências legadas → 7 enforcement. Correções de gaps (S#) são tickets separados depois da fase 7.
+Sequência de PRs em [`architecture-refactoring-roadmap.md`](architecture-refactoring-roadmap.md) (Phase 0 freeze → tooling → composition → merges → edges). O plano [`architecture/2026-09-13-migration-plan.md`](architecture/2026-09-13-migration-plan.md) é só catálogo do que mover, não a ordem a executar. Correções de gaps (S#) são tickets separados.

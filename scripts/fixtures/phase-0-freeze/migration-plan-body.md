@@ -1,8 +1,3 @@
-> **Superseded for sequencing and DI.** Canonical sequence:
-> [`../architecture-refactoring-roadmap.md`](../architecture-refactoring-roadmap.md).
-> This file remains a catalogue of what to move (leads, CSV, alerts, internal
-> routes). Do not follow it for DI or eslint-plugin-boundaries.
-
 # Migration Plan — Modular Architecture (incremental)
 
 > **Date:** 2026-09-13 · **Snapshot:** `main` @ `833fff33`
