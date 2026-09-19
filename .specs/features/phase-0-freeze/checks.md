@@ -109,5 +109,6 @@ Intended split, with the arithmetic, written before any code:
 - S1 = ~20k (docs + guidance spec); S2 = ~10k (cruiser config + CI + cruiser spec) → 30k combined, under 150k → one builder, two commits (docs then cruiser), no hand-off
 
 - **Boundary:** C1-C11 closed at `efd9659a`
-- **Settled mid-build:** context-map table proof compares `|` rows only (prettier changed surrounding blanks, not the tables)
+- **Boundary:** C12-C20 closed at `13404c05`
+- **Settled mid-build:** context-map table proof compares `|` rows only (prettier changed surrounding blanks, not the tables); canary tree needs a stub `tsconfig.json` because the committed config points at `tsconfig.json`
 - **Abandoned:** none
