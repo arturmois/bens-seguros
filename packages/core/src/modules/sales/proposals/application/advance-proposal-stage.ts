@@ -7,6 +7,7 @@ import { ProposalErrors } from '../domain/proposal-errors.js'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
 import type { Proposal } from '../domain/proposal.js'
 import { AutoCompleteChecklistItems } from './auto-complete-checklist-items.js'
+import { syncStageChecklist } from './sync-stage-checklist.js'
 
 const logger = pino({ name: 'advance-proposal-stage' })
 
@@ -75,39 +76,19 @@ export class AdvanceProposalStage {
       proposal.stage,
       proposal.branch
     )
-    if (newItems.length === 0) return
-    await this.checklistRepo.createMany(
-      proposal.id,
+    await syncStageChecklist({
+      proposalId: proposal.id,
       organizationId,
-      newItems.map((i) => ({
-        itemKey: i.itemKey,
-        label: i.label,
-        isRequired: i.isRequired,
-      }))
-    )
-    await this.runAutoDetection(proposal)
-  }
-
-  private async runAutoDetection(proposal: Proposal): Promise<void> {
-    const autoKeys = [
-      'client_data',
-      'driver_license',
-      'vehicle_registration',
-    ] as const
-    for (const itemKey of autoKeys) {
-      try {
-        await this.autoComplete.execute({
-          organizationId: proposal.organizationId,
-          proposalId: proposal.id,
-          itemKey,
-        })
-      } catch (error) {
+      items: newItems,
+      checklistRepo: this.checklistRepo,
+      autoComplete: this.autoComplete,
+      onAutoDetectError: (error, itemKey) => {
         logger.warn(
           { err: error, proposalId: proposal.id, itemKey },
           'Auto-detect falhou após regeneração de checklist'
         )
-      }
-    }
+      },
+    })
   }
 
   private async assertContactIsPromoted(

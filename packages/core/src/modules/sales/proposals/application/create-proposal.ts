@@ -8,6 +8,7 @@ import type { PolicyRepository } from '../../policies/domain/policy-repository.j
 import type { ContactRepository } from '../../leads/domain/contact-repository.js' // ContactRepository lives in sales/leads;
 import { ProposalErrors } from '../domain/proposal-errors.js'
 import { AutoCompleteChecklistItems } from './auto-complete-checklist-items.js'
+import { syncStageChecklist } from './sync-stage-checklist.js'
 
 const logger = pino({ name: 'create-proposal' })
 
@@ -69,41 +70,20 @@ export class CreateProposal {
     }
     await this.proposalRepo.save(proposal)
     const items = this.checklistConfig.getItems(proposal.stage, proposal.branch)
-    if (items.length > 0) {
-      await this.checklistRepo.createMany(
-        proposal.id,
-        proposal.organizationId,
-        items.map((i) => ({
-          itemKey: i.itemKey,
-          label: i.label,
-          isRequired: i.isRequired,
-        }))
-      )
-      await this.runInitialAutoDetection(proposal)
-    }
-    return proposal
-  }
-
-  private async runInitialAutoDetection(proposal: Proposal): Promise<void> {
-    const autoKeys = [
-      'client_data',
-      'driver_license',
-      'vehicle_registration',
-    ] as const
-    for (const itemKey of autoKeys) {
-      try {
-        await this.autoComplete.execute({
-          organizationId: proposal.organizationId,
-          proposalId: proposal.id,
-          itemKey,
-        })
-      } catch (error) {
+    await syncStageChecklist({
+      proposalId: proposal.id,
+      organizationId: proposal.organizationId,
+      items,
+      checklistRepo: this.checklistRepo,
+      autoComplete: this.autoComplete,
+      onAutoDetectError: (error, itemKey) => {
         logger.warn(
           { err: error, proposalId: proposal.id, itemKey },
           'Auto-detect inicial falhou'
         )
-      }
-    }
+      },
+    })
+    return proposal
   }
 
   private async createRenewalOrNewProposal(

@@ -425,6 +425,38 @@ describe('CreateProposal', () => {
     expect(result.toJSON().renewalPolicyNumber).toBeNull()
     expect(result.toJSON().renewalPolicyId).toBeNull()
   })
+  it('createMany is called with client_data Dados do cliente isRequired true', async () => {
+    const checklistRepo = createMockChecklistRepo()
+    const checklistConfig = createMockChecklistConfig([
+      { itemKey: 'client_data', label: 'Dados do cliente', isRequired: true },
+    ])
+    const useCase = new CreateProposal(
+      createMockRepo(),
+      checklistRepo,
+      checklistConfig,
+      createMockPolicyRepo(),
+      createMockContactRepo(),
+      createMockAutoComplete()
+    )
+    await useCase.execute({
+      organizationId: 'org-1',
+      salespersonId: 'u-1',
+      contactId: 'c-1',
+      branch: 'AUTO',
+      boardType: 'NEW_INSURANCE',
+    })
+    expect(checklistRepo.createMany).toHaveBeenCalledWith(
+      expect.any(String),
+      'org-1',
+      [
+        {
+          itemKey: 'client_data',
+          label: 'Dados do cliente',
+          isRequired: true,
+        },
+      ]
+    )
+  })
   it('runs auto-detection for the 3 keys after initial checklist creation', async () => {
     const repo = createMockRepo()
     const checklistRepo = createMockChecklistRepo()
