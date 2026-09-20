@@ -24,7 +24,7 @@ export function WhatsAppMethodDialog({
 }: WhatsAppMethodDialogProps) {
   const hasCloudApiConfig = Boolean(
     process.env.NEXT_PUBLIC_META_WA_CONFIG_ID &&
-    process.env.NEXT_PUBLIC_META_APP_ID
+      process.env.NEXT_PUBLIC_META_APP_ID
   )
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

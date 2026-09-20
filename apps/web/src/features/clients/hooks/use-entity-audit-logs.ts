@@ -3,10 +3,8 @@
 import { useListAuditLogs } from '@/api/endpoints/audit-logs/audit-logs'
 import type { ListAuditLogsParams } from '@/api/model'
 
-interface UseEntityAuditLogsArgs extends Omit<
-  ListAuditLogsParams,
-  'entityType' | 'entityId'
-> {
+interface UseEntityAuditLogsArgs
+  extends Omit<ListAuditLogsParams, 'entityType' | 'entityId'> {
   readonly entityType: string
   readonly entityId: string
 }

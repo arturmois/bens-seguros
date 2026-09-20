@@ -29,7 +29,7 @@
   --widget-radius-button: 28px;
 
   --widget-font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
     Arial, sans-serif;
 
   --widget-transition: 200ms ease-out;

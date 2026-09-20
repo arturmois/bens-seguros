@@ -101,7 +101,10 @@ test('migration-plan banner states superseded sequencing DI catalogue and roadma
   const headingAt = text.indexOf('# Migration Plan')
   assert.notEqual(headingAt, -1)
   const banner = text.slice(0, headingAt)
-  assert.ok(banner.trim().length > 0, 'file must start with a banner before the title')
+  assert.ok(
+    banner.trim().length > 0,
+    'file must start with a banner before the title'
+  )
   assert.match(banner, /superseded/i)
   assert.match(banner, /sequencing/i)
   assert.match(banner, /\bDI\b/)
@@ -114,7 +117,10 @@ test('migration-plan body unchanged from the first Migration Plan heading', () =
   const headingAt = text.indexOf('# Migration Plan')
   assert.notEqual(headingAt, -1)
   const body = text.slice(headingAt)
-  const snapshot = readFileSync(join(fixtures, 'migration-plan-body.md'), 'utf8')
+  const snapshot = readFileSync(
+    join(fixtures, 'migration-plan-body.md'),
+    'utf8'
+  )
   assert.equal(body, snapshot)
 })
 

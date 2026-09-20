@@ -8,14 +8,14 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
-    "lint": "turbo lint",
+    "lint": "biome check .",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
-    "test:architecture": "node --test scripts/architecture-guidance.test.mjs scripts/architecture-cruiser.test.mjs",
+    "test:architecture": "node --test scripts/architecture-guidance.test.mjs scripts/architecture-cruiser.test.mjs scripts/biome-tooling.test.mjs",
     "test:watch": "turbo test:watch",
     "arch:check": "depcruise --config .dependency-cruiser.cjs apps packages",
     "clean": "turbo clean",
-    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "format": "biome check --write .",
     "db:generate": "pnpm --filter @repo/db db:generate",
     "db:push": "pnpm --filter @repo/db db:push",
     "db:push:dev": "pnpm --filter @repo/db db:push:dev",
@@ -26,12 +26,8 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md,css}": [
-      "prettier --write"
+    "*": [
+      "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
     ]
   },
   "pnpm": {
@@ -44,14 +40,13 @@
     }
   },
   "devDependencies": {
+    "@biomejs/biome": "^2",
     "@playwright/test": "^1.58.2",
     "dependency-cruiser": "^18.3.1",
     "dotenv-cli": "^11.0.0",
     "husky": "^9.1.7",
     "jscpd": "^4.0.9",
     "lint-staged": "^16.4.0",
-    "prettier": "^3.8.1",
-    "prettier-plugin-tailwindcss": "^0.6.12",
     "turbo": "^2.9.3"
   }
 }

@@ -23,7 +23,7 @@
     "test": "vitest run",
     "test:watch": "vitest watch",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src/"
+    "lint": "biome check src"
   },
   "devDependencies": {
     "@config/typescript-config": "workspace:*",

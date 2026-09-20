@@ -43,8 +43,9 @@ vi.mock('../../../../lib/subscription-cache.js', async () => {
   }
 })
 
-const { cancelBillingSubscriptionRoute } =
-  await import('../cancel-subscription.js')
+const { cancelBillingSubscriptionRoute } = await import(
+  '../cancel-subscription.js'
+)
 
 const fakeRedis = {} as unknown as IORedis
 

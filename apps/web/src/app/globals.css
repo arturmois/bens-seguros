@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -341,7 +341,7 @@ body {
     @apply border-border outline-ring/50;
   }
   button,
-  [role='button'] {
+  [role="button"] {
     cursor: pointer;
   }
   body {

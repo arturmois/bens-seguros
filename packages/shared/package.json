@@ -16,7 +16,7 @@
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest watch",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src/"
+    "lint": "biome check src"
   },
   "dependencies": {
     "@repo/env": "workspace:*",

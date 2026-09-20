@@ -11,10 +11,10 @@ ADRs that constrain later features live in `docs/ARCHITECTURE-DECISIONS.md` and 
 
 ## Handoff
 
-**Feature**: phase-0-freeze
-**Where**: C1-C20 proofs green — builder done; Verifier not dispatched
-**In progress**: none
-**Next step**: orchestrator dispatches Verifier over `efd9659a^..HEAD` (feature base is parent of first feature commit) with every check
+**Feature**: phase-1-tooling
+**Where**: S1+S2 (T1.1 Biome + T1.3 noProcessEnv) implemented; C1-C25 proofs green
+**In progress**: S3 (T1.2 Postgres CI + core DB harness)
+**Next step**: write postgres-ci proofs from checks, implement T1.2, commit `ci(core): add postgres service and db harness`
 **Blockers**: none
-**Uncommitted**: none after S2 commit
+**Uncommitted**: S1+S2 tree (Biome) until first commit
 **Branch**: main (ahead of origin; do not push unless asked)

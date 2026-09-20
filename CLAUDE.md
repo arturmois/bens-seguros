@@ -42,12 +42,12 @@ pnpm --filter @app/web dev
 pnpm --filter @app/chat-server dev
 
 # Quality gates (run from root)
-pnpm lint          # ESLint across all packages
+pnpm lint          # Biome check across the repo
 pnpm typecheck     # tsc --noEmit across all packages
 pnpm build         # Full build (packages → apps)
 pnpm test          # Vitest run across all packages
 pnpm test:watch    # Vitest watch across all packages
-pnpm format        # Prettier --write em **/*.{ts,tsx}
+pnpm format        # Biome check --write across the repo
 
 # Run tests for a specific package/app
 pnpm --filter @repo/core test
@@ -123,7 +123,7 @@ Organization: **Corretora Exemplo** (slug: `corretora-exemplo`). Includes 8 insu
 
 ### Config (`config/`)
 
-`eslint-config`, `prettier-config`, `typescript-config` — shared across all apps/packages.
+`typescript-config` — shared across all apps/packages. Lint and format live in root `biome.json`.
 
 ## Tech Stack
 

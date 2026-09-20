@@ -208,8 +208,9 @@ describe('LookupProviderConsultarPlaca (no credentials)', () => {
     const fetchSpy = vi.fn()
     vi.stubGlobal('fetch', fetchSpy)
     try {
-      const { LookupProviderConsultarPlaca: ProviderNoCreds } =
-        await import('./lookup-provider-consultar-placa.js')
+      const { LookupProviderConsultarPlaca: ProviderNoCreds } = await import(
+        './lookup-provider-consultar-placa.js'
+      )
       const noCredsProvider = new ProviderNoCreds()
       let caught: unknown = null
       try {

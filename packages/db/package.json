@@ -16,7 +16,7 @@
     "db:seed": "tsx --env-file=../../.env prisma/seed.ts",
     "db:studio": "dotenv -e ../../.env -- prisma studio",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src/"
+    "lint": "biome check src"
   },
   "prisma": {
     "seed": "tsx --env-file=../../.env prisma/seed.ts"

@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -147,6 +153,10 @@ test('CI blocking steps stay blocking', () => {
   for (const command of ['pnpm lint', 'pnpm typecheck', 'pnpm test']) {
     const step = steps.find((entry) => entry.run === command)
     assert.ok(step, `missing ${command}`)
-    assert.equal(step.continueOnError, false, `${command} must not continue-on-error`)
+    assert.equal(
+      step.continueOnError,
+      false,
+      `${command} must not continue-on-error`
+    )
   }
 })

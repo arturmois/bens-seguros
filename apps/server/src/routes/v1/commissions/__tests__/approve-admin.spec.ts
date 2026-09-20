@@ -124,8 +124,9 @@ describe('POST /api/v1/commissions/:id/approve-admin', () => {
   })
   it('sends notification when salesperson exists', async () => {
     const { prisma } = await import('@repo/db')
-    const { enqueueNotification } =
-      await import('../../../../services/notification-enqueuer.js')
+    const { enqueueNotification } = await import(
+      '../../../../services/notification-enqueuer.js'
+    )
     vi.mocked(prisma.user.findUnique).mockResolvedValue(
       makeMinimalUser({
         id: 'user-id-001',

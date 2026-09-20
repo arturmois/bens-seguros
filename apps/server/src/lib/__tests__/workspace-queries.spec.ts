@@ -16,8 +16,9 @@ vi.mock('@repo/db', () => ({
   },
 }))
 
-const { resolveMembership, userStatus } =
-  await import('../workspace-queries.js')
+const { resolveMembership, userStatus } = await import(
+  '../workspace-queries.js'
+)
 
 describe('workspace queries client choice', () => {
   beforeEach(() => {
