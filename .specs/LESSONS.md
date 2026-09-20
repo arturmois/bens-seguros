@@ -42,6 +42,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: C16 scripts/biome-tooling.test.mjs useSortedClasses (lint)
 - last seen: 2026-09-20T02:58:25Z
 
+### L-006 - Assert every conjunct of a compound check; forbidding a leftover stub is not proof the replacement fake was passed in.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: phase-2-composition
+- evidence: C11 .specs/features/phase-2-composition/verification.md round 1 (tests)
+- last seen: 2026-09-20T14:39:30Z
+
+### L-007 - A named plugin-registration boundary is not proven by registering one inner route of that plugin.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: phase-2-composition
+- evidence: C15 apps/server/src/bootstrap/compose.spec.ts:43 round 1 (tests)
+- last seen: 2026-09-20T14:39:30Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

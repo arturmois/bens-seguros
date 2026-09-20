@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 6,
+  "next_id": 8,
   "lessons": [
     {
       "id": "L-001",
@@ -85,6 +85,38 @@
       ],
       "created": "2026-09-20T02:58:25Z",
       "last_seen": "2026-09-20T02:58:25Z"
+    },
+    {
+      "id": "L-006",
+      "key": "ac_gap::assert every conjunct of a compound check forbidding a leftover stub is not proof the replacement fake was passed in",
+      "text": "Assert every conjunct of a compound check; forbidding a leftover stub is not proof the replacement fake was passed in.",
+      "signal": "ac_gap",
+      "scope": "tests",
+      "status": "candidate",
+      "features": ["phase-2-composition"],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "C11 .specs/features/phase-2-composition/verification.md round 1 (tests)"
+      ],
+      "created": "2026-09-20T14:39:30Z",
+      "last_seen": "2026-09-20T14:39:30Z"
+    },
+    {
+      "id": "L-007",
+      "key": "ac_gap::a named plugin registration boundary is not proven by registering one inner route of that plugin",
+      "text": "A named plugin-registration boundary is not proven by registering one inner route of that plugin.",
+      "signal": "ac_gap",
+      "scope": "tests",
+      "status": "candidate",
+      "features": ["phase-2-composition"],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "C15 apps/server/src/bootstrap/compose.spec.ts:43 round 1 (tests)"
+      ],
+      "created": "2026-09-20T14:39:30Z",
+      "last_seen": "2026-09-20T14:39:30Z"
     }
   ]
 }
