@@ -1,15 +1,15 @@
 import { hashDocument } from '@repo/shared'
 import pino from 'pino'
 import { inject, injectable } from 'tsyringe'
-import type { ClientAddress } from '../../client/domain/client-address.js'
+import type { ClientAddress } from '../../../client/domain/client-address.js'
 import type {
   ClientData,
   ClientRepository,
   CreateClientPersistence,
   MaritalStatus,
   PersonType,
-} from '../../client/domain/client-repository.js'
-import { AutoCompleteChecklistItems } from '../../proposal/application/auto-complete-checklist-items.js'
+} from '../../../client/domain/client-repository.js'
+import { AutoCompleteChecklistItems } from '../../proposals/application/auto-complete-checklist-items.js'
 import { ContactErrors } from '../domain/contact-errors.js'
 import type { ContactRepository } from '../domain/contact-repository.js'
 

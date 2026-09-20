@@ -1,5 +1,5 @@
 import type { Policy as PrismaPolicyRecord } from '@repo/db'
-import { parseClientAddress } from '../../client/domain/client-address.js'
+import { parseClientAddress } from '../../../client/domain/client-address.js'
 import type {
   CoverageDetails,
   PolicyData,

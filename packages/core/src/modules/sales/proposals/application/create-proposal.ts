@@ -4,8 +4,8 @@ import { Proposal } from '../domain/proposal.js'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
 import type { ChecklistRepository } from '../domain/checklist-repository.js'
 import type { ChecklistConfigProvider } from '../domain/checklist-config.js'
-import type { PolicyRepository } from '../../policy/domain/policy-repository.js'
-import type { ContactRepository } from '../../contact/domain/contact-repository.js'
+import type { PolicyRepository } from '../../policies/domain/policy-repository.js'
+import type { ContactRepository } from '../../leads/domain/contact-repository.js' // ContactRepository lives in sales/leads;
 import { ProposalErrors } from '../domain/proposal-errors.js'
 import { AutoCompleteChecklistItems } from './auto-complete-checklist-items.js'
 

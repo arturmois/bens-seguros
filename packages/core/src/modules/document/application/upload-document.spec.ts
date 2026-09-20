@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { AutoCompleteChecklistItems } from '../../proposal/application/auto-complete-checklist-items.js'
+import { AutoCompleteChecklistItems } from '../../sales/proposals/application/auto-complete-checklist-items.js'
 import type {
   DocumentData,
   DocumentRepository,

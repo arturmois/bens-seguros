@@ -16,8 +16,6 @@ Inside `packages/core/src/modules`:
 
 | Cycle             | Why it exists today                                                          | Clears when            |
 | ----------------- | ---------------------------------------------------------------------------- | ---------------------- |
-| proposal⇄contact  | create/advance proposal and promote-contact share checklist/contact types    | T3.1 sales merge       |
-| proposal⇄policy   | `create-proposal` injects policy repo; `issue-policy` orchestrates proposal  | T3.1                   |
 | proposal⇄document | `upload-document` auto-completes proposal checklist                          | T4.2 invert documents  |
 | goal⇄dashboard    | progress query reads dashboard repo; dashboard types leak through goal index | T3.4 performance merge |
 

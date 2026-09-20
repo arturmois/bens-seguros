@@ -1,12 +1,5 @@
-import type { ClientAddress } from '../../client/domain/client-address.js'
-
-export type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonValue[]
-  | { [key: string]: JsonValue }
+import type { ClientAddress } from '../../../client/domain/client-address.js'
+import type { JsonValue } from '../../../../shared-kernel/json.js'
 
 export interface CoverageDetails {
   [key: string]: JsonValue

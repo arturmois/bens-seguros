@@ -1,12 +1,12 @@
 import { randomUUID } from 'node:crypto'
 import { inject, injectable } from 'tsyringe'
 
-import { ClientErrors } from '../../client/domain/client-errors.js'
-import type { ClientRepository } from '../../client/domain/client-repository.js'
-import type { OnPolicyIssued } from '../../commission/application/on-policy-issued.js'
-import type { ContactRepository } from '../../contact/domain/contact-repository.js'
-import { ProposalErrors } from '../../proposal/domain/proposal-errors.js'
-import type { ProposalRepository } from '../../proposal/domain/proposal-repository.js'
+import { ClientErrors } from '../../../client/domain/client-errors.js'
+import type { ClientRepository } from '../../../client/domain/client-repository.js'
+import type { OnPolicyIssued } from '../../../commission/application/on-policy-issued.js'
+import type { ContactRepository } from '../../leads/domain/contact-repository.js'
+import { ProposalErrors } from '../../proposals/domain/proposal-errors.js'
+import type { ProposalRepository } from '../../proposals/domain/proposal-repository.js' // ProposalRepository lives in sales/proposals;
 import { PolicyErrors } from '../domain/policy-errors.js'
 import type {
   CoverageDetails,

@@ -1,21 +1,21 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { ClientAddress } from '../../client/domain/client-address.js'
-import { ClientNotFoundError } from '../../client/domain/client-errors.js'
+import type { ClientAddress } from '../../../client/domain/client-address.js'
+import { ClientNotFoundError } from '../../../client/domain/client-errors.js'
 import type {
   ClientData,
   ClientRepository,
-} from '../../client/domain/client-repository.js'
-import type { OnPolicyIssued } from '../../commission/application/on-policy-issued.js'
+} from '../../../client/domain/client-repository.js'
+import type { OnPolicyIssued } from '../../../commission/application/on-policy-issued.js'
 import type {
   ContactData,
   ContactRepository,
-} from '../../contact/domain/contact-repository.js'
+} from '../../leads/domain/contact-repository.js'
 import {
   ContactNotPromotedError,
   ProposalNotFoundError,
-} from '../../proposal/domain/proposal-errors.js'
-import type { ProposalRepository } from '../../proposal/domain/proposal-repository.js'
-import { Proposal } from '../../proposal/domain/proposal.js'
+} from '../../proposals/domain/proposal-errors.js'
+import type { ProposalRepository } from '../../proposals/domain/proposal-repository.js' // ProposalRepository lives in sales/proposals;
+import { Proposal } from '../../proposals/domain/proposal.js'
 import {
   PolicyClientAddressMissingError,
   PolicyMissingInsurerError,

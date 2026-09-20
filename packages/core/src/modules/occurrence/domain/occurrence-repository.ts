@@ -1,6 +1,6 @@
-import type { JsonValue } from '../../policy/domain/policy-repository.js'
+import type { JsonObject } from '../../../shared-kernel/json.js'
 
-export type JsonObject = { [key: string]: JsonValue }
+export type { JsonObject }
 
 export interface OccurrenceData {
   id: string

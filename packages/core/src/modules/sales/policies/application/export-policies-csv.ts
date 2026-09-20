@@ -3,7 +3,7 @@ import type {
   PolicyRepository,
   PolicyFilters,
 } from '../domain/policy-repository.js'
-import { CSV_BOM, formatCsvRow } from '../../../shared/csv-utils.js'
+import { CSV_BOM, formatCsvRow } from '../../../../shared/csv-utils.js'
 
 const BATCH_SIZE = 500
 

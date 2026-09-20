@@ -3,7 +3,7 @@ import type {
   ProposalRepository,
   ProposalFilters,
 } from '../domain/proposal-repository.js'
-import { CSV_BOM, formatCsvRow } from '../../../shared/csv-utils.js'
+import { CSV_BOM, formatCsvRow } from '../../../../shared/csv-utils.js'
 
 const BATCH_SIZE = 500
 

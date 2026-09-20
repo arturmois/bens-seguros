@@ -9,13 +9,13 @@ export {
 export type {
   CoverageDetails,
   CreatePolicyInput,
-  JsonValue,
   PolicyCursorPage,
   PolicyData,
   PolicyFilters,
   PolicyPage,
   PolicyRepository,
 } from './domain/policy-repository.js'
+export type { JsonValue } from '../../../shared-kernel/json.js'
 
 export type {
   PolicyPdfClientFull,

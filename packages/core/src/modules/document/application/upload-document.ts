@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import pino from 'pino'
 import { inject, injectable } from 'tsyringe'
-import { AutoCompleteChecklistItems } from '../../proposal/application/auto-complete-checklist-items.js'
+import { AutoCompleteChecklistItems } from '../../sales/proposals/application/auto-complete-checklist-items.js'
 import type {
   DocumentData,
   DocumentEntityType,

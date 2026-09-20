@@ -7,11 +7,11 @@ import {
   CsvImportError,
   MAX_IMPORT_ROWS,
   MAX_IMPORT_ERRORS,
-} from '../../../shared/csv-import-types.js'
+} from '../../../../shared/csv-import-types.js'
 import type {
   CsvImportParseResult,
   CsvRowError,
-} from '../../../shared/csv-import-types.js'
+} from '../../../../shared/csv-import-types.js'
 
 @injectable()
 export class ParsePolicyImport {

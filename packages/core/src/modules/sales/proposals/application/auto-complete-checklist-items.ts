@@ -1,9 +1,9 @@
 import { inject, injectable } from 'tsyringe'
-import type { ContactRepository } from '../../contact/domain/contact-repository.js'
+import type { ContactRepository } from '../../leads/domain/contact-repository.js' // ContactRepository lives in sales/leads;
 import type {
   DocumentRepository,
   DocumentType,
-} from '../../document/domain/document-repository.js'
+} from '../../../document/domain/document-repository.js'
 import type { ChecklistRepository } from '../domain/checklist-repository.js'
 import type { ProposalRepository } from '../domain/proposal-repository.js'
 

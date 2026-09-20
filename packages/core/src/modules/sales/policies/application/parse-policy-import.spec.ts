@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { PolicyRepository } from '../domain/policy-repository.js'
-import { CsvImportError } from '../../../shared/csv-import-types.js'
+import { CsvImportError } from '../../../../shared/csv-import-types.js'
 import { ParsePolicyImport } from './parse-policy-import.js'
 
 function createMockRepo(): PolicyRepository {

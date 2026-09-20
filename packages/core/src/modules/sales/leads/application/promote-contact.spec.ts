@@ -9,8 +9,8 @@ import type {
 import type {
   ClientRepository,
   ClientData,
-} from '../../client/domain/client-repository.js'
-import { AutoCompleteChecklistItems } from '../../proposal/application/auto-complete-checklist-items.js'
+} from '../../../client/domain/client-repository.js'
+import { AutoCompleteChecklistItems } from '../../proposals/application/auto-complete-checklist-items.js'
 
 function createMockAutoComplete(): AutoCompleteChecklistItems {
   return {

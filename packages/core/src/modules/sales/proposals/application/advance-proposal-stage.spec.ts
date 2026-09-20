@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type {
   ContactData,
   ContactRepository,
-} from '../../contact/domain/contact-repository.js'
+} from '../../leads/domain/contact-repository.js' // ContactRepository lives in sales/leads;
 import type { ChecklistConfigProvider } from '../domain/checklist-config.js'
 import type {
   ChecklistRepository,
