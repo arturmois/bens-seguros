@@ -11,10 +11,10 @@ ADRs that constrain later features live in `docs/ARCHITECTURE-DECISIONS.md` and 
 
 ## Handoff
 
-**Feature**: phase-2-composition
-**Where**: builder finished T2.1–T2.3; proofs C1–C28 green at HEAD
-**In progress**: none
-**Next step**: orchestrator dispatches Verifier over `25b54315..HEAD` with every check in `.specs/features/phase-2-composition/checks.md`
+**Feature**: phase-3-module-merges
+**Where**: Phase 2 verified PASS (C1–C28) at `21ad389c`; Phase 3 `plan.md` written, awaiting human review
+**In progress**: `.specs/features/phase-3-module-merges/plan.md`
+**Next step**: human confirms or objects to the plan; then write `checks.md` (no code until then)
 **Blockers**: none
-**Uncommitted**: none after the three slice commits
+**Uncommitted**: phase-2 `verification.md` + lessons; phase-3 `plan.md`
 **Branch**: main (ahead of origin; do not push unless asked)
