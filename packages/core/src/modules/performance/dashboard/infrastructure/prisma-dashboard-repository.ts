@@ -1,6 +1,6 @@
 import type { PrismaClient, ProposalStage } from '@repo/db'
 import { inject, injectable } from 'tsyringe'
-import { isGoalBoardType } from '../../goal/domain/goal.js'
+import { isGoalBoardType } from '../../goals/domain/goal.js'
 import type {
   DashboardRepository,
   PremiumByMonthEntry,

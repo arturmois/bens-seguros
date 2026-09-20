@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-vi.mock('../../audit/log-audit.js', () => ({
+vi.mock('../../../audit/log-audit.js', () => ({
   logAudit: vi.fn().mockResolvedValue(undefined),
 }))
 
-import { logAudit } from '../../audit/log-audit.js'
+import { logAudit } from '../../../audit/log-audit.js'
 import { LookupVehicleByPlate } from './lookup-vehicle-by-plate.js'
 import {
   InvalidPlateFormatError,
@@ -13,7 +13,7 @@ import {
 } from '../domain/vehicle-lookup-errors.js'
 import type { VehicleData } from '../domain/vehicle-data.js'
 import type { VehicleLookupProvider } from '../domain/vehicle-lookup-provider.js'
-import type { CacheService } from '../../../shared/cache-service.js'
+import type { CacheService } from '../../../../shared/cache-service.js'
 
 const DATA: VehicleData = {
   vehicle: 'FIAT MOBI EASY 1.0',

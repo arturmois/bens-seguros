@@ -1,6 +1,6 @@
 import { inject, injectable } from 'tsyringe'
-import type { CacheService } from '../../../shared/cache-service.js'
-import { logAudit } from '../../audit/log-audit.js'
+import type { CacheService } from '../../../../shared/cache-service.js'
+import { logAudit } from '../../../audit/log-audit.js'
 import type { VehicleData } from '../domain/vehicle-data.js'
 import {
   InvalidPlateFormatError,

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { LookupCep } from './lookup-cep.js'
 import type { CepLookupProvider } from '../domain/cep-lookup-provider.js'
-import type { CacheService } from '../../../shared/cache-service.js'
+import type { CacheService } from '../../../../shared/cache-service.js'
 import type { AddressData } from '../domain/address-data.js'
 import {
   CepNotFoundError,

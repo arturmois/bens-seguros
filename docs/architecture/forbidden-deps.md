@@ -17,7 +17,6 @@ Inside `packages/core/src/modules`:
 | Cycle             | Why it exists today                                                          | Clears when            |
 | ----------------- | ---------------------------------------------------------------------------- | ---------------------- |
 | proposal⇄document | `upload-document` auto-completes proposal checklist                          | T4.2 invert documents  |
-| goal⇄dashboard    | progress query reads dashboard repo; dashboard types leak through goal index | T3.4 performance merge |
 
 `shared-kernel` importing a module, or module B importing module A internals, is also forbidden once those folders exist. They are not a current hotspot.
 

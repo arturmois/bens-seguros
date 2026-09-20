@@ -1,5 +1,5 @@
 import { inject, injectable } from 'tsyringe'
-import type { CacheService } from '../../../shared/cache-service.js'
+import type { CacheService } from '../../../../shared/cache-service.js'
 import type { AddressData } from '../domain/address-data.js'
 import type { CepLookupProvider } from '../domain/cep-lookup-provider.js'
 import { CepNotFoundError, InvalidCepError } from '../domain/errors.js'
