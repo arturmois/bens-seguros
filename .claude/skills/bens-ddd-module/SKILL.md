@@ -66,8 +66,8 @@ description: Use ao criar um novo módulo DDD em packages/core (proposal, commis
 - **Route structure:** `routes/v1/<domain>/` with `_schemas.ts` + individual route files + `index.ts`
 - **Route pattern:** `app.withTypeProvider<ZodTypeProvider>().route({ method, url, schema: { tags, summary, operationId, body, querystring, params, response }, preHandler, handler })`
 - **Shared schemas:** `routes/_shared/` for pagination, params, transforms, enums, response wrappers
-- **Handlers:** resolve use case from DI container, translate domain errors to HTTP via `handleDomainError`
-- **Use cases:** `@injectable()` class with single `execute()` method
+- **Handlers:** resolve use case from DI container, translate domain errors to HTTP via `handleDomainError`. Exception: `routes/v1/clients` receive `ClientsApi` from `composeClients`.
+- **Use cases:** `@injectable()` class with single `execute()` method. Exception: `packages/core/src/modules/client` is composed with `composeClients`; new client use cases MUST NOT use `@injectable()`.
 - **Repositories:** interface in `domain/`, implementation in `infrastructure/`
 - **Mappers:** `toDomain()` and `toPersistence()` — never leak Prisma types to domain
 - **Validation:** Zod schemas in route `schema` block (Fastify validates automatically), domain logic validates business rules
@@ -101,7 +101,7 @@ Para ver o padrão completo aplicado, ler:
 
 - `packages/core/src/modules/proposal/` — DDD Full mais maduro do monorepo
 - `packages/core/src/modules/commission/` — outro exemplo de DDD Full
-- `packages/core/src/modules/client/` — DDD Light (sem application/, repo direto)
+- `packages/core/src/modules/client/` — composed with `composeClients` (ADR-2 template). New client use cases MUST NOT use `@injectable()`; add them in `compose-clients.ts` and on `ClientsApi`. Other modules still use `@injectable()` until T6.1.
 
 ## Checklist antes de commit
 

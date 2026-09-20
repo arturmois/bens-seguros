@@ -23,6 +23,17 @@ Inside `packages/core/src/modules`:
 
 `shared-kernel` importing a module, or module B importing module A internals, is also forbidden once those folders exist. They are not a current hotspot.
 
+## Core module infrastructure from apps
+
+Named hotspot: `apps/server/src/** → packages/core/.../infrastructure`
+
+App code must not import Prisma adapters from core module `infrastructure/` (including `@repo/core/workspace/infrastructure`). Temporary allowlist until T6.1/T6.2:
+
+- `apps/server/src/container-registrations.ts`
+- `apps/server/src/bootstrap/`
+
+Those two may import adapters for composition. The allowlist clears when T6.1/T6.2 land.
+
 ## Not in this file
 
 Package DAG (`@app/*` ↛ `@app/*`) is already acyclic. Chat-worker → `@repo/core` / `@repo/db` is Phase 5, not this checker yet.

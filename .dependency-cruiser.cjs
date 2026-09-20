@@ -17,6 +17,19 @@ module.exports = {
       from: { path: '^packages/core/src/modules' },
       to: { circular: true },
     },
+    {
+      name: 'no-core-infrastructure-from-apps',
+      comment:
+        'Apps must not import core module infrastructure. Allowlisted: container-registrations.ts and bootstrap/ until T6.1/T6.2.',
+      severity: 'warn',
+      from: {
+        path: '^apps/server/src',
+        pathNot: 'container-registrations\\.ts$|src/bootstrap/',
+      },
+      to: {
+        path: '@repo/core/workspace/infrastructure|packages/core/src/modules/.+/infrastructure',
+      },
+    },
   ],
   options: {
     doNotFollow: {
