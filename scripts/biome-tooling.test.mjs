@@ -186,6 +186,18 @@ test('biome.json mapped lint rules', () => {
   assert.ok(allow.includes('error'), 'noConsole allow must include error')
   assert.ok(!allow.includes('log'), 'noConsole allow must not include log')
   assert.equal(ruleLevel(findRule(config, 'noUnusedVariables')), 'error')
+  const unusedPlain = biomeCheckInTree({
+    'canary-unused.ts': 'const leftover = 1\n',
+  })
+  assert.match(unusedPlain.output, /noUnusedVariables/, unusedPlain.output)
+  const unusedUnderscore = biomeCheckInTree({
+    'canary-unused-underscore.ts': 'const _leftover = 1\n',
+  })
+  assert.doesNotMatch(
+    unusedUnderscore.output,
+    /noUnusedVariables/,
+    unusedUnderscore.output
+  )
 })
 
 test('canary reports noExplicitAny', () => {
@@ -256,6 +268,16 @@ test('biome.json enables useSortedClasses', () => {
   const rule = findRule(config, 'useSortedClasses')
   const level = ruleLevel(rule)
   assert.ok(level && level !== 'off', 'useSortedClasses is not enabled')
+  const attributes =
+    rule && typeof rule === 'object' ? rule.options?.attributes : undefined
+  assert.ok(
+    Array.isArray(attributes),
+    'useSortedClasses options.attributes is missing'
+  )
+  assert.ok(
+    attributes.includes('className'),
+    'useSortedClasses must apply to className'
+  )
 })
 
 test('biome.json ignores node_modules dist next generated', () => {
