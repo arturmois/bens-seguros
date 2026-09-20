@@ -91,6 +91,10 @@ export interface UpdateContactPersistence {
 export interface ContactRepository {
   save(data: CreateContactPersistence): Promise<ContactData>
   findById(id: string, organizationId: string): Promise<ContactData | null>
+  findByPhone(
+    phone: string,
+    organizationId: string
+  ): Promise<ContactData | null>
   findByIdWithStage(
     id: string,
     organizationId: string

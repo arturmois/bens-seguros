@@ -31,6 +31,7 @@ function createMockRepo(): MemberRepository {
     existsActiveByEmail: vi.fn(),
     findContactsByRoles: vi.fn(),
     findContactByUserId: vi.fn(),
+    findOldestActive: vi.fn(),
   }
 }
 

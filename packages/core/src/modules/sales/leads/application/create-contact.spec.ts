@@ -19,6 +19,7 @@ function createMockRepo(): ContactRepository {
     ),
     findById: vi.fn(),
     findByIdWithStage: vi.fn(),
+    findByPhone: vi.fn(),
     findMany: vi.fn(),
     update: vi.fn(),
     softDelete: vi.fn(),

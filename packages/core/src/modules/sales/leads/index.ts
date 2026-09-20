@@ -22,6 +22,11 @@ export type {
 } from './domain/contact-repository.js'
 
 export { CreateContact } from './application/create-contact.js'
+export { CaptureLead, NoMemberError } from './application/capture-lead.js'
+export type {
+  CaptureLeadInput,
+  CaptureLeadResult,
+} from './application/capture-lead.js'
 export { GetContact } from './application/get-contact.js'
 export { ListContacts } from './application/list-contacts.js'
 export type { ListContactsInput } from './application/list-contacts.js'

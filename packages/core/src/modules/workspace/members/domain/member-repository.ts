@@ -38,6 +38,7 @@ export interface MemberListPage {
 
 export interface MemberRepository {
   findById(id: string, organizationId: string): Promise<MemberRecord | null>
+  findOldestActive(organizationId: string): Promise<MemberRecord | null>
   countByRole(organizationId: string, role: string): Promise<number>
   updateRole(
     id: string,

@@ -23,6 +23,7 @@ function createMockMemberRepo(): MemberRepository {
     existsActiveByEmail: vi.fn(),
     findContactsByRoles: vi.fn(),
     findContactByUserId: vi.fn().mockResolvedValue(null),
+    findOldestActive: vi.fn(),
   }
 }
 

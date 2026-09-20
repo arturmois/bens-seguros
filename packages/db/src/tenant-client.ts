@@ -1,9 +1,22 @@
+import type { PrismaClient } from '../generated/client/client.js'
 import { prisma } from './index.js'
 
-export type TenantPrismaClient = ReturnType<typeof createTenantClient>
+export type TenantPrismaClient = PrismaClient
 
-export function createTenantClient(organizationId: string) {
-  return prisma.$extends({
+function isPrismaClient(client: unknown): client is PrismaClient {
+  return (
+    typeof client === 'object' &&
+    client !== null &&
+    'contact' in client &&
+    'member' in client &&
+    'proposal' in client &&
+    'policy' in client &&
+    'document' in client
+  )
+}
+
+export function createTenantClient(organizationId: string): PrismaClient {
+  const extended: unknown = prisma.$extends({
     query: {
       async $allOperations({ args, query }) {
         const [, result] = await prisma.$transaction([
@@ -14,4 +27,8 @@ export function createTenantClient(organizationId: string) {
       },
     },
   })
+  if (!isPrismaClient(extended)) {
+    throw new Error('Tenant client is missing Prisma model delegates')
+  }
+  return extended
 }

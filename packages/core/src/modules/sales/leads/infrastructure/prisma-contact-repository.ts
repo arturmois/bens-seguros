@@ -61,6 +61,16 @@ export class PrismaContactRepository implements ContactRepository {
     return row ? ContactMapper.toDomain(row) : null
   }
 
+  async findByPhone(
+    phone: string,
+    organizationId: string
+  ): Promise<ContactData | null> {
+    const row = await this.prisma.contact.findFirst({
+      where: { organizationId, phone, deletedAt: null },
+    })
+    return row ? ContactMapper.toDomain(row) : null
+  }
+
   async findByIdWithStage(
     id: string,
     organizationId: string

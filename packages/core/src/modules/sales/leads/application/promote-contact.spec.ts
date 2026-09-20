@@ -70,6 +70,7 @@ function createMocks(
     save: vi.fn(),
     findById: vi.fn(async () => opts.contact ?? null),
     findByIdWithStage: vi.fn(),
+    findByPhone: vi.fn(),
     findMany: vi.fn(),
     update: vi.fn(async (id, _org, data) => ({
       ...(opts.contact as ContactData),
@@ -160,6 +161,7 @@ describe('PromoteContact', () => {
       save: vi.fn(),
       findById: vi.fn(async () => promoted),
       findByIdWithStage: vi.fn(),
+      findByPhone: vi.fn(),
       findMany: vi.fn(),
       update: vi.fn(),
       softDelete: vi.fn(),

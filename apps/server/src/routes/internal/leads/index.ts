@@ -1,3 +1,4 @@
+import type { CaptureLead } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 
 import { createInternalClaimRoute } from './create-claim.js'
@@ -8,12 +9,21 @@ import { searchClientsRoute } from './search-clients.js'
 import { updateClientRoute } from './update-client.js'
 import { updateInternalProposalDetailsRoute } from './update-proposal-details.js'
 
-export async function internalLeadRoutes(app: FastifyInstance) {
-  createLeadRoute(app)
-  searchClientsRoute(app)
-  updateClientRoute(app)
-  createInternalClaimRoute(app)
-  listInternalProposalsRoute(app)
-  listInternalPoliciesRoute(app)
-  updateInternalProposalDetailsRoute(app)
+export interface InternalLeadHmac {
+  forTenant: (organizationId: string) => { captureLead: CaptureLead }
+}
+
+export function createInternalLeadRoutes(hmac: InternalLeadHmac) {
+  return async function internalLeadRoutes(app: FastifyInstance) {
+    createLeadRoute(app, {
+      captureLeadFor: (organizationId) =>
+        hmac.forTenant(organizationId).captureLead,
+    })
+    searchClientsRoute(app)
+    updateClientRoute(app)
+    createInternalClaimRoute(app)
+    listInternalProposalsRoute(app)
+    listInternalPoliciesRoute(app)
+    updateInternalProposalDetailsRoute(app)
+  }
 }

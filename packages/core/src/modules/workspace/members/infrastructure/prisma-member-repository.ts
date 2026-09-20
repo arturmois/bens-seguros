@@ -50,6 +50,14 @@ export class PrismaMemberRepository implements MemberRepository {
     return row ? toMemberRecord(row) : null
   }
 
+  async findOldestActive(organizationId: string): Promise<MemberRecord | null> {
+    const row = await this.prisma.member.findFirst({
+      where: { organizationId, active: true },
+      orderBy: { createdAt: 'asc' },
+    })
+    return row ? toMemberRecord(row) : null
+  }
+
   async countByRole(organizationId: string, role: string): Promise<number> {
     return this.prisma.member.count({
       where: { organizationId, role: toPrismaRole(role), active: true },

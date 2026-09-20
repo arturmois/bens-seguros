@@ -112,6 +112,7 @@ function createMockContactRepo(
     save: vi.fn(),
     findById: vi.fn().mockResolvedValue(contact),
     findByIdWithStage: vi.fn(),
+    findByPhone: vi.fn(),
     findMany: vi.fn(),
     update: vi.fn(),
     softDelete: vi.fn(),

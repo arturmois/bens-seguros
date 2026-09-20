@@ -60,6 +60,7 @@ function createMockContactRepo(
     save: vi.fn(),
     findById: vi.fn(),
     findByIdWithStage: vi.fn(),
+    findByPhone: vi.fn(),
     findMany: vi.fn().mockResolvedValue({ items: contacts, nextCursor: null }),
     update: vi.fn(),
     softDelete: vi.fn(),

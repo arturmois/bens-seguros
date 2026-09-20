@@ -14,9 +14,9 @@ ADRs that constrain later features live in `docs/ARCHITECTURE-DECISIONS.md` and 
 ## Handoff
 
 **Feature**: phase-4-edges
-**Where**: S1 T4.2 C1–C10 closed; documents do not import sales
-**In progress**: S2 T4.1 CaptureLead C11–C23
-**Next step**: TDD CaptureLead from checks (tests before implementation)
+**Where**: S1 C1–C10 and S2 C11–C23 closed
+**In progress**: S3 T4.3 internal list/update C24–C37
+**Next step**: TDD ListProposalsForClient, ListActivePoliciesForClient, UpdateClientFiscal, HMAC forTenant
 **Blockers**: none
-**Uncommitted**: S1 landing in this commit
+**Uncommitted**: S2 landing in this commit
 **Branch**: main (do not push unless asked)

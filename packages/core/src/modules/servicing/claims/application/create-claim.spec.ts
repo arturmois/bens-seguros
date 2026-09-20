@@ -61,6 +61,7 @@ function createMockMemberRepo(
     existsActiveByEmail: vi.fn(),
     findContactsByRoles: vi.fn().mockResolvedValue(contacts),
     findContactByUserId: vi.fn(),
+    findOldestActive: vi.fn(),
   }
 }
 

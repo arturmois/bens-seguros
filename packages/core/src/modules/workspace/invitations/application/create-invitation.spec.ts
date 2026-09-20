@@ -31,6 +31,7 @@ function makeMocks() {
     existsActiveByEmail: vi.fn().mockResolvedValue(false),
     findContactsByRoles: vi.fn(),
     findContactByUserId: vi.fn(),
+    findOldestActive: vi.fn(),
   }
   const orgRepo: OrganizationRepository = {
     findById: vi.fn().mockResolvedValue({

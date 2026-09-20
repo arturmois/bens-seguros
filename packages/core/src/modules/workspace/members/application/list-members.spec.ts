@@ -14,6 +14,7 @@ function makeMocks() {
     existsActiveByEmail: vi.fn(),
     findContactsByRoles: vi.fn(),
     findContactByUserId: vi.fn(),
+    findOldestActive: vi.fn(),
   }
   const cache: CacheService = {
     get: vi.fn(),

@@ -3,7 +3,7 @@
 Profile: standard
 Plan: `.specs/features/phase-4-edges/plan.md`
 
-66 checks in 6 slices · 3 one-way doors · 56 open, of which 0 block
+66 checks in 6 slices · 3 one-way doors · 43 open, of which 0 block
 
 ## Checks
 
@@ -43,43 +43,43 @@ Proof: `node --test --test-name-pattern "forbidden-deps drops proposal document 
 
 ### S2 - `sales.CaptureLead` (T4.1) · ~15 files · ~50k
 
-**C11** - `packages/core/src/modules/sales/leads/application/capture-lead.ts` exports class `CaptureLead` (LEAD-01, AC 11, door 1)
+**C11** · closed - `packages/core/src/modules/sales/leads/application/capture-lead.ts` exports class `CaptureLead` (LEAD-01, AC 11, door 1)
 Proof: `node --test --test-name-pattern "capture-lead exports CaptureLead" scripts/phase-4-edges.test.mjs`
 
-**C12** - `ContactRepository` declares `findByPhone(phone: string, organizationId: string)` (LEAD-01, AC 12)
+**C12** · closed - `ContactRepository` declares `findByPhone(phone: string, organizationId: string)` (LEAD-01, AC 12)
 Proof: `node --test --test-name-pattern "ContactRepository declares findByPhone" scripts/phase-4-edges.test.mjs`
 
-**C13** - `MemberRepository` declares `findOldestActive(organizationId: string)` (LEAD-01, AC 13)
+**C13** · closed - `MemberRepository` declares `findOldestActive(organizationId: string)` (LEAD-01, AC 13)
 Proof: `node --test --test-name-pattern "MemberRepository declares findOldestActive" scripts/phase-4-edges.test.mjs`
 
-**C14** - `CaptureLead.execute` with a `clientPhone` that already has a non-deleted contact in that org reuses that contact `id` and does not call `CreateContact.execute` (LEAD-02, AC 14)
+**C14** · closed - `CaptureLead.execute` with a `clientPhone` that already has a non-deleted contact in that org reuses that contact `id` and does not call `CreateContact.execute` (LEAD-02, AC 14)
 Proof: `pnpm --filter @repo/core exec vitest run src/modules/sales/leads/application/capture-lead.spec.ts -t "reuses existing contact by phone and skips CreateContact"`
 
-**C15** - `CaptureLead.execute` with a new phone calls `CreateContact.execute` with `consentLgpd: true`, `salespersonId` of `findOldestActive.userId`, and `source` `'MANUAL'` when input source is omitted (LEAD-02, AC 15)
+**C15** · closed - `CaptureLead.execute` with a new phone calls `CreateContact.execute` with `consentLgpd: true`, `salespersonId` of `findOldestActive.userId`, and `source` `'MANUAL'` when input source is omitted (LEAD-02, AC 15)
 Proof: `pnpm --filter @repo/core exec vitest run src/modules/sales/leads/application/capture-lead.spec.ts -t "new phone CreateContact consentLgpd true oldest member MANUAL"`
 
-**C16** - `CaptureLead.execute` with `insuranceType` `TRAVEL` calls `CreateProposal.execute` with `branch` `'OTHER'` and `boardType` `'NEW_INSURANCE'` (LEAD-02, AC 16)
+**C16** · closed - `CaptureLead.execute` with `insuranceType` `TRAVEL` calls `CreateProposal.execute` with `branch` `'OTHER'` and `boardType` `'NEW_INSURANCE'` (LEAD-02, AC 16)
 Proof: `pnpm --filter @repo/core exec vitest run src/modules/sales/leads/application/capture-lead.spec.ts -t "TRAVEL maps to branch OTHER NEW_INSURANCE"`
 
-**C17** - `CaptureLead.execute` throws an error whose `code` is `NO_MEMBER` and whose `message` is `No active member in org` when `findOldestActive` returns `null` (LEAD-03, AC 17)
+**C17** · closed - `CaptureLead.execute` throws an error whose `code` is `NO_MEMBER` and whose `message` is `No active member in org` when `findOldestActive` returns `null` (LEAD-03, AC 17)
 Proof: `pnpm --filter @repo/core exec vitest run src/modules/sales/leads/application/capture-lead.spec.ts -t "throws NO_MEMBER No active member in org"`
 
-**C18** - `POST /api/internal/leads` maps that error to status `400` with JSON `error.code` `NO_MEMBER` and `error.message` `No active member in org` (LEAD-03, AC 18)
+**C18** · closed - `POST /api/internal/leads` maps that error to status `400` with JSON `error.code` `NO_MEMBER` and `error.message` `No active member in org` (LEAD-03, AC 18)
 Proof: `pnpm --filter @app/server exec vitest run src/routes/internal/leads/__tests__/create-lead.spec.ts -t "returns 400 NO_MEMBER No active member in org"`
 
-**C19** - `apps/server/src/routes/internal/leads/create-lead.ts` contains neither `from '@repo/db'` nor `createTenantClient` (LEAD-04, AC 19, door 1)
+**C19** · closed - `apps/server/src/routes/internal/leads/create-lead.ts` contains neither `from '@repo/db'` nor `createTenantClient` (LEAD-04, AC 19, door 1)
 Proof: `node --test --test-name-pattern "create-lead.ts has no @repo/db import" scripts/phase-4-edges.test.mjs`
 
-**C20** - `createLead` stays on `POST` `/api/internal/leads` and a `201` body has keys `proposalId`, `contactId`, and `message` matching `Lead registrado: ${contactName} - ${insuranceType}` (LEAD-03, AC 20)
+**C20** · closed - `createLead` stays on `POST` `/api/internal/leads` and a `201` body has keys `proposalId`, `contactId`, and `message` matching `Lead registrado: ${contactName} - ${insuranceType}` (LEAD-03, AC 20)
 Proof: `pnpm --filter @app/server exec vitest run src/routes/internal/leads/__tests__/create-lead.spec.ts -t "creates a new contact and proposal when contact does not exist"`
 
-**C21** - `findByPhone` invoked with a tenant client for organization B returns `null` for a contact saved under organization A (RLS-01, AC 21, door 1)
+**C21** · closed - `findByPhone` invoked with a tenant client for organization B returns `null` for a contact saved under organization A (RLS-01, AC 21, door 1)
 Proof: `pnpm --filter @repo/core exec vitest run --project core:db src/modules/sales/leads/infrastructure/prisma-contact-repository.db.spec.ts -t "findByPhone under org B tenant returns null"`
 
-**C22** - `apps/chat-worker/src/tools/capture-lead.ts` still contains `/api/internal/leads` and still sends JSON keys `clientName`, `clientPhone`, `insuranceType`, `notes`, and `source` (LEAD-04, AC 22)
+**C22** · closed - `apps/chat-worker/src/tools/capture-lead.ts` still contains `/api/internal/leads` and still sends JSON keys `clientName`, `clientPhone`, `insuranceType`, `notes`, and `source` (LEAD-04, AC 22)
 Proof: `node --test --test-name-pattern "chat-worker capture-lead path and body keys unchanged" scripts/phase-4-edges.test.mjs`
 
-**C23** - `CaptureLead.execute` does not pass `notes` into `CreateContact.execute` (LEAD-02, AC 23)
+**C23** · closed - `CaptureLead.execute` does not pass `notes` into `CreateContact.execute` (LEAD-02, AC 23)
 Proof: `pnpm --filter @repo/core exec vitest run src/modules/sales/leads/application/capture-lead.spec.ts -t "does not persist notes on CreateContact"`
 
 ### S3 - Internal list/update through modules (T4.3) · ~12 files · ~40k

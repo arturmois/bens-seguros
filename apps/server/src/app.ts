@@ -30,6 +30,7 @@ import 'reflect-metadata'
 import { ZodError } from 'zod'
 import { setupBullBoard } from './bull-board.js'
 import { registerDependencies } from './container-registrations.js'
+import { forTenant } from './bootstrap/compose.js'
 import { requireAbility } from './middlewares/ability-middleware.js'
 import { createAuthMiddleware } from './middlewares/auth-middleware.js'
 import { internalAuthMiddleware } from './middlewares/internal-auth-middleware.js'
@@ -38,7 +39,7 @@ import { tenantMiddleware } from './middlewares/tenant-middleware.js'
 import { applySecurityHeaders } from './plugins/security-headers.js'
 import { registerAuthRoutes } from './routes/auth-routes.js'
 import { internalContactRoutes } from './routes/internal/contacts/index.js'
-import { internalLeadRoutes } from './routes/internal/leads/index.js'
+import { createInternalLeadRoutes } from './routes/internal/leads/index.js'
 import { termsRoutes } from './routes/terms/index.js'
 import { adminAiUsageRoutes } from './routes/v1/admin/ai-usage/index.js'
 import { assistanceRoutes } from './routes/v1/assistances/index.js'
@@ -372,7 +373,7 @@ export async function buildApp() {
   await app.register(async (internalApp) => {
     internalApp.addHook('preHandler', internalAuthMiddleware)
     internalApp.addHook('preHandler', createInternalRateLimitHook(redis))
-    await internalApp.register(internalLeadRoutes)
+    await internalApp.register(createInternalLeadRoutes({ forTenant }))
     await internalApp.register(internalContactRoutes)
   })
   await app.register(async (adminApp) => {
