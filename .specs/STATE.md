@@ -14,9 +14,9 @@ ADRs that constrain later features live in `docs/ARCHITECTURE-DECISIONS.md` and 
 ## Handoff
 
 **Feature**: phase-4-edges
-**Where**: S1–S6 closed (C1–C66)
-**In progress**: none — builder done, awaiting Verifier
-**Next step**: dispatch Verifier over feature base..HEAD with every check
+**Where**: complete — Verifier Round 2 PASS at `535a78ab`, `validate_verification.py` 0 errors
+**In progress**: none
+**Next step**: Phase 5 of `docs/architecture-refactoring-roadmap.md` (T5.1 HMAC entitlements) — do not start unless asked
 **Blockers**: none
 **Uncommitted**: none
 **Branch**: main (do not push unless asked)
