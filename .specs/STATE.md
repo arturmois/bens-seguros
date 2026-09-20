@@ -12,9 +12,9 @@ ADRs that constrain later features live in `docs/ARCHITECTURE-DECISIONS.md` and 
 ## Handoff
 
 **Feature**: phase-1-tooling
-**Where**: S1–S3 implemented; C1–C38 proofs green at `886343b4` + `c9b4338e`; waiting on independent Verifier
+**Where**: done — verification PASS round 2 at `fdf98130`; report `.specs/features/phase-1-tooling/verification.md`; `validate_verification.py` exit 0
 **In progress**: none
-**Next step**: orchestrator dispatches Verifier over `a603c91f..HEAD` (or feature base..HEAD); do not push
+**Next step**: push and open two PRs (Biome then Postgres) only if asked; do not start Phase 2 until those land if the roadmap sequencing requires it
 **Blockers**: none
-**Uncommitted**: none
+**Uncommitted**: verification.md + lessons until this commit
 **Branch**: main (ahead of origin; do not push unless asked)

@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 4,
+  "next_id": 6,
   "lessons": [
     {
       "id": "L-001",
@@ -53,6 +53,38 @@
       ],
       "created": "2026-09-13T23:44:57Z",
       "last_seen": "2026-09-13T23:44:57Z"
+    },
+    {
+      "id": "L-004",
+      "key": "ac_gap::when a check names nounusedvariables ignoring underscore prefixed names prove it with a leftover vs leftover canary not only that the rule level is error",
+      "text": "When a check names noUnusedVariables ignoring underscore-prefixed names, prove it with a leftover vs _leftover canary, not only that the rule level is error.",
+      "signal": "ac_gap",
+      "scope": "lint",
+      "status": "candidate",
+      "features": ["phase-1-tooling"],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "C7 scripts/biome-tooling.test.mjs mapped lint rules (lint)"
+      ],
+      "created": "2026-09-20T02:58:25Z",
+      "last_seen": "2026-09-20T02:58:25Z"
+    },
+    {
+      "id": "L-005",
+      "key": "ac_gap::when a check enables a class sort rule for classname assert classname is in the rule options attributes not only that the rule is on",
+      "text": "When a check enables a class-sort rule for className, assert className is in the rule options attributes, not only that the rule is on.",
+      "signal": "ac_gap",
+      "scope": "lint",
+      "status": "candidate",
+      "features": ["phase-1-tooling"],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "C16 scripts/biome-tooling.test.mjs useSortedClasses (lint)"
+      ],
+      "created": "2026-09-20T02:58:25Z",
+      "last_seen": "2026-09-20T02:58:25Z"
     }
   ]
 }
