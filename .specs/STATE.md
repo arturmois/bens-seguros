@@ -12,9 +12,9 @@ ADRs that constrain later features live in `docs/ARCHITECTURE-DECISIONS.md` and 
 ## Handoff
 
 **Feature**: phase-1-tooling
-**Where**: S1–S3 implemented; C1–C38 proofs green; waiting on independent Verifier
+**Where**: S1–S3 implemented; C1–C38 proofs green at `886343b4` + `c9b4338e`; waiting on independent Verifier
 **In progress**: none
-**Next step**: orchestrator dispatches Verifier over the feature base..HEAD; do not push
+**Next step**: orchestrator dispatches Verifier over `a603c91f..HEAD` (or feature base..HEAD); do not push
 **Blockers**: none
-**Uncommitted**: S3 (T1.2) until second commit
+**Uncommitted**: none
 **Branch**: main (ahead of origin; do not push unless asked)

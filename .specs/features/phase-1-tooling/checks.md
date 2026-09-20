@@ -167,6 +167,6 @@ Intended split, with the arithmetic, written before any code:
 - S1+S2 obligation files (biome.json, scripts, package.json, CLAUDE.md, vscode, quality-gates, biome-tooling.test.mjs) ≈ 80k. The format tsunami touches the whole tree and would blow the 150k budget if counted as reading; it cannot be split (roadmap: T1.1 is one PR). S3 ≈ 50k (ci.yml, compose, harness, db spec, postgres-ci.test.mjs). Combined obligations under 150k; tsunami is mechanical `biome check --write`. One builder, two commits (Biome+T1.3 then Postgres harness), no hand-off.
 
 - **Boundary:** C1-C25 closed at `886343b4`
-- **Closed this commit:** C26-C38
+- **Boundary:** C26-C38 closed at `c9b4338e`
 - **Settled mid-build:** Biome 2.5.14 rejects `recommended` together with `preset`; kept `recommended: false` and dropped `preset`. Canary helper sets `vcs.useIgnoreFile` false so tmp trees without `.gitignore` still lint. `files.includes` also excludes `.turbo` and `.agents`. P2002 live proof uses `prismaAdmin` autocommit because a unique violation aborts a held interactive transaction before the `deletedAt: null` lookup. `db:push:dev` pushes schema as `DATABASE_ADMIN_URL`. Host `psql` is still required for the RLS companion; CI installs `postgresql-client`.
 - **Abandoned:** none
