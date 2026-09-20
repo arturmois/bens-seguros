@@ -87,15 +87,15 @@ Grouped by slice - one observable outcome each, never a layer. Numbering runs ac
 
 ## Traceability
 
-| ID        | Slice | Criteria       | Status       |
-| --------- | ----- | -------------- | ------------ |
-| ARCH-01   | S1    | 1, 2, 3        | Implementing |
-| ARCH-02   | S1    | 4, 5, 6, 7     | Implementing |
-| ARCH-03   | S1    | 8, 9, 10, 11   | Implementing |
-| CRUISE-01 | S2    | 12, 13, 14, 15 | Implementing |
-| CRUISE-02 | S2    | 16             | Implementing |
-| CRUISE-03 | S2    | 17             | Implementing |
-| CRUISE-04 | S2    | 18, 19, 20     | Implementing |
+| ID        | Slice | Criteria       | Status   |
+| --------- | ----- | -------------- | -------- |
+| ARCH-01   | S1    | 1, 2, 3        | Verified |
+| ARCH-02   | S1    | 4, 5, 6, 7     | Verified |
+| ARCH-03   | S1    | 8, 9, 10, 11   | Verified |
+| CRUISE-01 | S2    | 12, 13, 14, 15 | Verified |
+| CRUISE-02 | S2    | 16             | Verified |
+| CRUISE-03 | S2    | 17             | Verified |
+| CRUISE-04 | S2    | 18, 19, 20     | Verified |
 
 **ID format:** `CATEGORY-NUMBER`. **Status:** Pending → In checks → Implementing → Verified.
 
