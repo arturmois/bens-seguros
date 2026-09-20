@@ -133,6 +133,20 @@ export class PrismaProposalRepository implements ProposalRepository {
     }))
   }
 
+  async markQuoteSent(input: {
+    proposalId: string
+    organizationId: string
+    sentToClientAt: Date
+  }): Promise<void> {
+    await this.prisma.proposal.updateMany({
+      where: {
+        id: input.proposalId,
+        organizationId: input.organizationId,
+      },
+      data: { sentToClientAt: input.sentToClientAt },
+    })
+  }
+
   private toListItem(
     row: Prisma.ProposalGetPayload<{ include: typeof PROPOSAL_INCLUDE }>
   ): ProposalListItem {

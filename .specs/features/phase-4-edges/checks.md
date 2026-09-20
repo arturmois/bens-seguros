@@ -3,7 +3,7 @@
 Profile: standard
 Plan: `.specs/features/phase-4-edges/plan.md`
 
-66 checks in 6 slices · 3 one-way doors · 30 open, of which 0 block
+66 checks in 6 slices · 3 one-way doors · 21 open, of which 0 block
 
 ## Checks
 
@@ -128,31 +128,31 @@ Proof: `pnpm --filter @app/server exec vitest run src/routes/internal/leads/__te
 
 ### S4 - Worker sales writes (T4.4) · ~8 files · ~25k
 
-**C38** - `ExpireDuePolicies.execute({ now })` calls a `PolicyRepository` method whose `updateMany` `where` is `{ status: 'ACTIVE', endDate: { lt: now } }` and `data` is `{ status: 'EXPIRED' }` with no `organizationId` key (WRK-01, AC 37)
+**C38** · closed - `ExpireDuePolicies.execute({ now })` calls a `PolicyRepository` method whose `updateMany` `where` is `{ status: 'ACTIVE', endDate: { lt: now } }` and `data` is `{ status: 'EXPIRED' }` with no `organizationId` key (WRK-01, AC 37)
 Proof: `pnpm --filter @repo/core exec vitest run src/modules/sales/policies/application/expire-due-policies.spec.ts -t "updateMany ACTIVE endDate lt now to EXPIRED without organizationId"`
 
-**C39** - `apps/worker/src/processors/expire-policies-processor.ts` does not contain `prismaAdmin.policy` (WRK-01, AC 38)
+**C39** · closed - `apps/worker/src/processors/expire-policies-processor.ts` does not contain `prismaAdmin.policy` (WRK-01, AC 38)
 Proof: `node --test --test-name-pattern "expire-policies-processor has no prismaAdmin.policy" scripts/phase-4-edges.test.mjs`
 
-**C40** - an `ACTIVE` policy with `endDate` before `now` becomes `EXPIRED` (WRK-01, AC 39)
+**C40** · closed - an `ACTIVE` policy with `endDate` before `now` becomes `EXPIRED` (WRK-01, AC 39)
 Proof: `pnpm --filter @repo/core exec vitest run --project core:db src/modules/sales/policies/application/expire-due-policies.db.spec.ts -t "ACTIVE past endDate becomes EXPIRED"`
 
-**C41** - a `CANCELLED` policy stays `CANCELLED` and an `ACTIVE` policy with `endDate` after `now` stays `ACTIVE` (WRK-01, AC 39)
+**C41** · closed - a `CANCELLED` policy stays `CANCELLED` and an `ACTIVE` policy with `endDate` after `now` stays `ACTIVE` (WRK-01, AC 39)
 Proof: `pnpm --filter @repo/core exec vitest run --project core:db src/modules/sales/policies/application/expire-due-policies.db.spec.ts -t "CANCELLED and future ACTIVE are untouched"`
 
-**C42** - `MarkQuoteSent.execute` sets `sentToClientAt` to the `sentAt` Date passed in (WRK-02, AC 40)
+**C42** · closed - `MarkQuoteSent.execute` sets `sentToClientAt` to the `sentAt` Date passed in (WRK-02, AC 40)
 Proof: `pnpm --filter @repo/core exec vitest run src/modules/sales/proposals/application/mark-quote-sent.spec.ts -t "sets sentToClientAt to the sentAt argument"`
 
-**C43** - `send-quote-email-processor` calls `MarkQuoteSent` after `emailProvider.send` succeeds, with the job’s `proposalId` and `organizationId` (WRK-02, AC 41)
+**C43** · closed - `send-quote-email-processor` calls `MarkQuoteSent` after `emailProvider.send` succeeds, with the job’s `proposalId` and `organizationId` (WRK-02, AC 41)
 Proof: `pnpm --filter @app/worker exec vitest run src/processors/__tests__/send-quote-email-processor.spec.ts -t "MarkQuoteSent after successful send with proposalId organizationId"`
 
-**C44** - when `emailProvider.send` throws, the processor does not call `MarkQuoteSent` (WRK-02, AC 42)
+**C44** · closed - when `emailProvider.send` throws, the processor does not call `MarkQuoteSent` (WRK-02, AC 42)
 Proof: `pnpm --filter @app/worker exec vitest run src/processors/__tests__/send-quote-email-processor.spec.ts -t "does not MarkQuoteSent when send throws"`
 
-**C45** - `apps/worker/src/processors/send-quote-email-processor.ts` does not contain `prismaAdmin.proposal` (WRK-02, AC 43)
+**C45** · closed - `apps/worker/src/processors/send-quote-email-processor.ts` does not contain `prismaAdmin.proposal` (WRK-02, AC 43)
 Proof: `node --test --test-name-pattern "send-quote-email-processor has no prismaAdmin.proposal" scripts/phase-4-edges.test.mjs`
 
-**C46** - when `RESEND_API_KEY` is unset the processor returns without calling `MarkQuoteSent` (WRK-02, AC 44)
+**C46** · closed - when `RESEND_API_KEY` is unset the processor returns without calling `MarkQuoteSent` (WRK-02, AC 44)
 Proof: `pnpm --filter @app/worker exec vitest run src/processors/__tests__/send-quote-email-processor.spec.ts -t "skips MarkQuoteSent when RESEND_API_KEY is unset"`
 
 ### S5 - Alert queries owned by modules (T4.6) · ~12 files · ~30k

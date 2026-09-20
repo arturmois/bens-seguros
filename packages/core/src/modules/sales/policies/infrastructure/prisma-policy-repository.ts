@@ -190,6 +190,16 @@ export class PrismaPolicyRepository implements PolicyRepository {
     return rows.map(PolicyMapper.toDomain)
   }
 
+  async updateMany(args: {
+    where: { status: 'ACTIVE'; endDate: { lt: Date } }
+    data: { status: 'EXPIRED' }
+  }): Promise<{ count: number }> {
+    return this.prisma.policy.updateMany({
+      where: args.where,
+      data: args.data,
+    })
+  }
+
   async cancel(
     id: string,
     organizationId: string,

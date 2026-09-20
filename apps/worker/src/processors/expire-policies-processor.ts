@@ -1,3 +1,4 @@
+import { ExpireDuePolicies, PrismaPolicyRepository } from '@repo/core'
 import { prismaAdmin } from '@repo/db'
 import type { ConnectionOptions } from 'bullmq'
 import { Queue, Worker } from 'bullmq'
@@ -5,6 +6,9 @@ import pino from 'pino'
 
 const logger = pino({ name: 'expire-policies-processor' })
 const QUEUE_NAME = 'erp-expire-policies'
+const expireDuePolicies = new ExpireDuePolicies(
+  new PrismaPolicyRepository(prismaAdmin)
+)
 
 export function setupExpirePoliciesProcessor(connection: ConnectionOptions) {
   const queue = new Queue(QUEUE_NAME, { connection })
@@ -16,15 +20,7 @@ export function setupExpirePoliciesProcessor(connection: ConnectionOptions) {
   const worker = new Worker(
     QUEUE_NAME,
     async () => {
-      const result = await prismaAdmin.policy.updateMany({
-        where: {
-          status: 'ACTIVE',
-          endDate: { lt: new Date() },
-        },
-        data: {
-          status: 'EXPIRED',
-        },
-      })
+      const result = await expireDuePolicies.execute({ now: new Date() })
       logger.info(
         { expiredCount: result.count },
         'Policy expiration job completed'

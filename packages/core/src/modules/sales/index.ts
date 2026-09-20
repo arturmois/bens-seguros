@@ -62,6 +62,7 @@ export {
   UpdateProposalDates,
   UpdateProposalObservations,
   SendQuote,
+  MarkQuoteSent,
   PrismaChecklistRepository,
   PrismaProposalRepository,
   ProposalMapper,
@@ -94,6 +95,7 @@ export type {
   Stage,
   AutoCompleteChecklistInput,
   AutoCompleteItemKey,
+  MarkQuoteSentInput,
 } from './proposals/index.js'
 
 export {
@@ -110,6 +112,7 @@ export {
   IssuePolicy,
   ListPolicies,
   ListActivePoliciesForClient,
+  ExpireDuePolicies,
   ParsePolicyImport,
   policyImportRowSchema,
   PolicyMapper,
@@ -130,6 +133,7 @@ export type {
   EnsurePolicyPdfInput,
   EnsurePolicyPdfResult,
   PolicyImportRow,
+  ExpireDuePoliciesInput,
 } from './policies/index.js'
 
 export {

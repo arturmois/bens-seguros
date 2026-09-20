@@ -74,6 +74,8 @@ export { UpdateProposalDetails } from './application/update-proposal-details.js'
 export { UpdateProposalDates } from './application/update-proposal-dates.js'
 export { UpdateProposalObservations } from './application/update-proposal-observations.js'
 export { SendQuote } from './application/send-quote.js'
+export { MarkQuoteSent } from './application/mark-quote-sent.js'
+export type { MarkQuoteSentInput } from './application/mark-quote-sent.js'
 
 export { PrismaChecklistRepository } from './infrastructure/prisma-checklist-repository.js'
 export { PrismaProposalRepository } from './infrastructure/prisma-proposal-repository.js'

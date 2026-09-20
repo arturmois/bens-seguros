@@ -107,6 +107,10 @@ export interface PolicyRepository {
     branch?: string
     limit: number
   }): Promise<PolicyData[]>
+  updateMany(args: {
+    where: { status: 'ACTIVE'; endDate: { lt: Date } }
+    data: { status: 'EXPIRED' }
+  }): Promise<{ count: number }>
   cancel(
     id: string,
     organizationId: string,

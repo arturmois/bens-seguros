@@ -2,6 +2,8 @@ import {
   ResendEmailProvider,
   R2StorageProvider,
   LocalStorageProvider,
+  MarkQuoteSent,
+  PrismaProposalRepository,
   type EmailProvider,
   type StorageProvider,
 } from '@repo/core'
@@ -51,11 +53,24 @@ async function downloadPdf(
   return Buffer.from(arrayBuffer)
 }
 
-async function processJob(
-  job: Job<SendQuoteEmailJobData>,
-  emailProvider: EmailProvider,
+export interface SendQuoteEmailJobDeps {
+  resendApiKey: string | undefined
+  emailProvider: EmailProvider | null
   storage: StorageProvider
+  markQuoteSent: Pick<MarkQuoteSent, 'execute'>
+}
+
+export async function processSendQuoteEmailJob(
+  job: { data: SendQuoteEmailJobData; id?: string },
+  deps: SendQuoteEmailJobDeps
 ): Promise<void> {
+  if (!deps.resendApiKey || !deps.emailProvider) {
+    logger.warn(
+      { jobId: job.id },
+      'RESEND_API_KEY not configured — skipping send-quote-email job'
+    )
+    return
+  }
   const {
     proposalId,
     organizationId,
@@ -68,7 +83,7 @@ async function processJob(
     branch,
     premiumFormatted,
   } = job.data
-  const pdfBuffer = await downloadPdf(storage, storageKey)
+  const pdfBuffer = await downloadPdf(deps.storage, storageKey)
   const html = quoteSentEmailHtml({
     clientName: recipientName,
     salespersonName,
@@ -76,16 +91,17 @@ async function processJob(
     branch,
     premiumFormatted,
   })
-  await emailProvider.send({
+  await deps.emailProvider.send({
     to: recipientEmail,
     subject: `Cotação de Seguro — ${branch}`,
     html,
     ...(salespersonEmail ? { replyTo: salespersonEmail } : {}),
     attachments: [{ filename: 'cotacao.pdf', content: pdfBuffer }],
   })
-  await prismaAdmin.proposal.update({
-    where: { id: proposalId, organizationId },
-    data: { sentToClientAt: new Date() },
+  await deps.markQuoteSent.execute({
+    proposalId,
+    organizationId,
+    sentAt: new Date(),
   })
   logger.info(
     { proposalId, organizationId, recipientEmail },
@@ -96,6 +112,9 @@ async function processJob(
 export function setupSendQuoteEmailProcessor(connection: ConnectionOptions) {
   const queue = new Queue<SendQuoteEmailJobData>(QUEUE_NAME, { connection })
   const storage = buildStorageProvider()
+  const markQuoteSent = new MarkQuoteSent(
+    new PrismaProposalRepository(prismaAdmin)
+  )
   let emailProvider: EmailProvider | null = null
   if (env.RESEND_API_KEY) {
     emailProvider = new ResendEmailProvider({
@@ -106,14 +125,12 @@ export function setupSendQuoteEmailProcessor(connection: ConnectionOptions) {
   const worker = new Worker<SendQuoteEmailJobData>(
     QUEUE_NAME,
     async (job: Job<SendQuoteEmailJobData>) => {
-      if (!emailProvider) {
-        logger.warn(
-          { jobId: job.id },
-          'RESEND_API_KEY not configured — skipping send-quote-email job'
-        )
-        return
-      }
-      await processJob(job, emailProvider, storage)
+      await processSendQuoteEmailJob(job, {
+        resendApiKey: env.RESEND_API_KEY,
+        emailProvider,
+        storage,
+        markQuoteSent,
+      })
     },
     {
       connection,

@@ -138,3 +138,17 @@ test('internal list and update operationIds stay on the same method and URL', ()
   assert.match(clients, /method:\s*'PUT'/)
   assert.match(clients, /url:\s*'\/api\/internal\/clients\/:id'/)
 })
+
+test('expire-policies-processor has no prismaAdmin.policy', () => {
+  const text = readRepo(
+    'apps/worker/src/processors/expire-policies-processor.ts'
+  )
+  assert.doesNotMatch(text, /prismaAdmin\.policy/)
+})
+
+test('send-quote-email-processor has no prismaAdmin.proposal', () => {
+  const text = readRepo(
+    'apps/worker/src/processors/send-quote-email-processor.ts'
+  )
+  assert.doesNotMatch(text, /prismaAdmin\.proposal/)
+})

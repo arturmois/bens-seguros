@@ -9,6 +9,7 @@ function createMockRepo(): ProposalRepository {
     save: vi.fn(),
     listForView: vi.fn(),
     listForClient: vi.fn(),
+    markQuoteSent: vi.fn(),
     findActiveByContact: vi.fn().mockResolvedValue([]),
   }
 }

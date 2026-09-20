@@ -13,6 +13,7 @@ function makeRepo(): ProposalRepository {
     findById: vi.fn(),
     listForView: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
     listForClient: vi.fn(),
+    markQuoteSent: vi.fn(),
     findActiveByContact: vi.fn().mockResolvedValue([]),
   }
 }

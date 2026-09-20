@@ -128,6 +128,7 @@ function createMockPolicyRepo(
     findById: vi.fn().mockResolvedValue(policyData),
     findByPolicyNumber: vi.fn(),
     listActiveForClient: vi.fn(),
+    updateMany: vi.fn(),
     findMany: vi.fn(),
     cancel: vi.fn(),
   }
@@ -139,6 +140,7 @@ function createMockProposalRepo(proposal: Proposal | null): ProposalRepository {
     findById: vi.fn().mockResolvedValue(proposal),
     listForView: vi.fn(),
     listForClient: vi.fn(),
+    markQuoteSent: vi.fn(),
     findActiveByContact: vi.fn().mockResolvedValue([]),
   }
 }

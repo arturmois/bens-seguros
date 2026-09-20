@@ -64,4 +64,9 @@ export interface ProposalRepository {
       clientName: string
     }>
   >
+  markQuoteSent(input: {
+    proposalId: string
+    organizationId: string
+    sentToClientAt: Date
+  }): Promise<void>
 }
