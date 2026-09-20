@@ -1,4 +1,4 @@
-import type { CursorPage, Page } from '../../../shared/pagination.js'
+import type { CursorPage, Page } from '../../../../shared/pagination.js'
 
 export type ClaimStatus =
   | 'REGISTERED'

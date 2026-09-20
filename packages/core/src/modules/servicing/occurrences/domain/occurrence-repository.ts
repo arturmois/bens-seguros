@@ -1,4 +1,4 @@
-import type { JsonObject } from '../../../shared-kernel/json.js'
+import type { JsonObject } from '../../../../shared-kernel/json.js'
 
 export type { JsonObject }
 

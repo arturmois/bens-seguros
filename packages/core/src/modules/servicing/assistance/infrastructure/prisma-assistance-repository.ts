@@ -1,7 +1,11 @@
 import { injectable, inject } from 'tsyringe'
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
-import type { CursorPage, Page, SortOrder } from '../../../shared/pagination.js'
+import type {
+  CursorPage,
+  Page,
+  SortOrder,
+} from '../../../../shared/pagination.js'
 import type {
   AssistanceRepository,
   AssistanceData,

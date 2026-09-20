@@ -7,7 +7,7 @@ import type {
 import type {
   ClaimData,
   ClaimRepository,
-} from '../../claim/domain/claim-repository.js'
+} from '../../claims/domain/claim-repository.js'
 import { OccurrenceClaimNotFoundError } from '../domain/occurrence-errors.js'
 import { CreateOccurrence } from './create-occurrence.js'
 

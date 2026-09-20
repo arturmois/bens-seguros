@@ -4,7 +4,7 @@ import type {
   OccurrenceData,
   CreateOccurrenceInput,
 } from '../domain/occurrence-repository.js'
-import type { ClaimRepository } from '../../claim/domain/claim-repository.js'
+import type { ClaimRepository } from '../../claims/domain/claim-repository.js' // ClaimRepository lives in servicing/claims;
 import { OccurrenceErrors } from '../domain/occurrence-errors.js'
 
 @injectable()

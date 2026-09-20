@@ -2,8 +2,8 @@ import { describe, expect, it, vi } from 'vitest'
 import type {
   MemberContact,
   MemberRepository,
-} from '../../workspace/members/domain/member-repository.js'
-import type { NotificationDispatcher } from '../../notification/domain/notification-dispatcher.js'
+} from '../../../workspace/members/domain/member-repository.js'
+import type { NotificationDispatcher } from '../../../notification/domain/notification-dispatcher.js'
 import type {
   ClaimData,
   ClaimRepository,

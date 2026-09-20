@@ -1,5 +1,5 @@
 import { inject, injectable } from 'tsyringe'
-import type { CursorPage, Page } from '../../../shared/pagination.js'
+import type { CursorPage, Page } from '../../../../shared/pagination.js'
 import type {
   ClaimData,
   ClaimFilters,
