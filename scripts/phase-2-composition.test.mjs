@@ -157,8 +157,19 @@ test('client application specs construct with new', () => {
 test('client route specs pass fake ClientsApi and skip mockResolve', () => {
   const testsDir = join(clientRoutes, '__tests__')
   for (const file of walkTs(testsDir)) {
+    if (!file.endsWith('.spec.ts')) continue
     const text = readFileSync(file, 'utf8')
     const rel = relative(root, file)
+    assert.match(
+      text,
+      /createFakeClientsApi\s*\(/,
+      `${rel} does not pass a fake ClientsApi`
+    )
+    assert.match(
+      text,
+      /,\s*clients\)/,
+      `${rel} does not pass the fake ClientsApi into the route under test`
+    )
     assert.doesNotMatch(
       text,
       /\bmockResolve\b/,

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { ClientRepository } from '@repo/core'
 import { createTestApp } from '../__tests__/helpers/create-test-app.js'
-import { getClientRoute } from '../routes/v1/clients/get-client.js'
+import { createClientRoutes } from '../routes/v1/clients/index.js'
 import { composeServerClients } from './compose.js'
 
 const REQUIRED_CLIENTS_API_KEYS = [
@@ -39,9 +39,7 @@ describe('composeServerClients', () => {
 
   it('createClientRoutes registers from composed graph', async () => {
     const graph = composeServerClients(fakeRepo())
-    const app = await createTestApp((instance) =>
-      getClientRoute(instance, graph.clients)
-    )
+    const app = await createTestApp(createClientRoutes(graph.clients))
     expect(app.hasRoute({ method: 'GET', url: '/api/v1/clients/:id' })).toBe(
       true
     )
