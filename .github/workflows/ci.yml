@@ -14,6 +14,23 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: bens
+          POSTGRES_PASSWORD: bens_dev
+          POSTGRES_DB: bens_seguros
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bens -d bens_seguros"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://app_user:bens_app@localhost:5432/bens_seguros
+      DATABASE_ADMIN_URL: postgresql://bens:bens_dev@localhost:5432/bens_seguros
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
@@ -28,6 +45,19 @@ jobs:
         run: pnpm audit --audit-level high
         continue-on-error: true
       - run: DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" pnpm --filter @repo/db db:generate
+      - name: Install postgresql-client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Create app_user role
+        env:
+          PGPASSWORD: bens_dev
+        run: psql -h localhost -U bens -d bens_seguros -c "CREATE ROLE app_user LOGIN PASSWORD 'bens_app' NOSUPERUSER"
+      - name: Write .env for db:push:dev
+        run: |
+          printf '%s\n' \
+            'DATABASE_URL=postgresql://app_user:bens_app@localhost:5432/bens_seguros' \
+            'DATABASE_ADMIN_URL=postgresql://bens:bens_dev@localhost:5432/bens_seguros' \
+            > .env
+      - run: pnpm db:push:dev
       - name: Architecture deps (warn)
         run: pnpm arch:check
         continue-on-error: true

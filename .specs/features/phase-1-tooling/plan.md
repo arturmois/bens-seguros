@@ -140,10 +140,10 @@ Grouped by slice - one observable outcome each, never a layer. Numbering runs ac
 | TOOL-04 | S1 | 11, 12, 20 | Implementing |
 | TOOL-05 | S1 | 13, 14, 15, 17, 18, 19 | Implementing |
 | ENV-01 | S2 | 21, 22, 23, 24, 25 | Implementing |
-| DBCI-01 | S3 | 26, 27, 28, 36, 37 | Pending |
-| DBCI-02 | S3 | 29, 30, 33, 35 | Pending |
-| DBCI-03 | S3 | 31, 32 | Pending |
-| DBCI-04 | S3 | 34, 38 | Pending |
+| DBCI-01 | S3 | 26, 27, 28, 36, 37 | Implementing |
+| DBCI-02 | S3 | 29, 30, 33, 35 | Implementing |
+| DBCI-03 | S3 | 31, 32 | Implementing |
+| DBCI-04 | S3 | 34, 38 | Implementing |
 
 **ID format:** `CATEGORY-NUMBER`. **Status:** Pending → In checks → Implementing → Verified.
 

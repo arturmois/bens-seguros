@@ -90,43 +90,43 @@ Proof: `node --test --test-name-pattern "packages/db prisma seed does not report
 
 ### S3 - Postgres in CI + core DB harness (T1.2) · ~8 files · ~50k
 
-**C26** - `validate` job in `.github/workflows/ci.yml` declares a service whose `image` value starts with `postgres:18` (DBCI-01, AC 26, door 2)
+**C26** · closed - `validate` job in `.github/workflows/ci.yml` declares a service whose `image` value starts with `postgres:18` (DBCI-01, AC 26, door 2)
 Proof: `node --test --test-name-pattern "CI postgres service image is postgres 18" scripts/postgres-ci.test.mjs`
 
-**C27** - `validate` job sets `DATABASE_URL` to a connection whose user is `app_user` and `DATABASE_ADMIN_URL` to a connection whose user is `bens` (DBCI-01, AC 27, door 2)
+**C27** · closed - `validate` job sets `DATABASE_URL` to a connection whose user is `app_user` and `DATABASE_ADMIN_URL` to a connection whose user is `bens` (DBCI-01, AC 27, door 2)
 Proof: `node --test --test-name-pattern "CI DATABASE_URL is app_user and DATABASE_ADMIN_URL is bens" scripts/postgres-ci.test.mjs`
 
-**C28** - `validate` job runs `pnpm db:push:dev` after Postgres is healthy and before `pnpm test`, without `continue-on-error` (DBCI-01, AC 28, door 2)
+**C28** · closed - `validate` job runs `pnpm db:push:dev` after Postgres is healthy and before `pnpm test`, without `continue-on-error` (DBCI-01, AC 28, door 2)
 Proof: `node --test --test-name-pattern "CI db:push:dev before test without continue-on-error" scripts/postgres-ci.test.mjs`
 
-**C29** - `packages/core/test/db-harness.ts` begins a database transaction for each `*.db.spec.ts` example and rolls it back after the example (DBCI-02, AC 29, door 3)
+**C29** · closed - `packages/core/test/db-harness.ts` begins a database transaction for each `*.db.spec.ts` example and rolls it back after the example (DBCI-02, AC 29, door 3)
 Proof: `pnpm --filter @repo/core exec vitest run --project core:db -t "harness rolls back inserted client"`
 
-**C30** - `packages/core/vitest.config.ts` defines a Vitest project whose include glob matches `**/*.db.spec.ts` (DBCI-02, AC 30, door 3)
+**C30** · closed - `packages/core/vitest.config.ts` defines a Vitest project whose include glob matches `**/*.db.spec.ts` (DBCI-02, AC 30, door 3)
 Proof: `node --test --test-name-pattern "vitest core:db include glob" scripts/postgres-ci.test.mjs`
 
-**C31** - `PrismaClientRepository.save` P2002 on a second live Client with the same organization and document throws `ClientAlreadyExistsError` and the lookup uses `deletedAt: null` (DBCI-03, AC 31)
+**C31** · closed - `PrismaClientRepository.save` P2002 on a second live Client with the same organization and document throws `ClientAlreadyExistsError` and the lookup uses `deletedAt: null` (DBCI-03, AC 31)
 Proof: `pnpm --filter @repo/core exec vitest run --project core:db -t "P2002 live-client conflict"`
 
-**C32** - `createTenantClient` for organization B returns `null` from `findById` for a Client that belongs to organization A (DBCI-03, AC 32)
+**C32** · closed - `createTenantClient` for organization B returns `null` from `findById` for a Client that belongs to organization A (DBCI-03, AC 32)
 Proof: `pnpm --filter @repo/core exec vitest run --project core:db -t "tenant B cannot read org A client"`
 
-**C33** - after a `*.db.spec.ts` example inserts a Client and finishes, the next example in that file sees zero Client rows for the seeded organization (DBCI-02, AC 33, door 3)
+**C33** · closed - after a `*.db.spec.ts` example inserts a Client and finishes, the next example in that file sees zero Client rows for the seeded organization (DBCI-02, AC 33, door 3)
 Proof: `pnpm --filter @repo/core exec vitest run --project core:db -t "harness rolls back inserted client"`
 
-**C34** - CLAUDE.md Development Commands states that `docker compose up -d` is required before `*.db.spec.ts` / the core DB harness (DBCI-04, AC 34)
+**C34** · closed - CLAUDE.md Development Commands states that `docker compose up -d` is required before `*.db.spec.ts` / the core DB harness (DBCI-04, AC 34)
 Proof: `node --test --test-name-pattern "CLAUDE.md compose prerequisite for db specs" scripts/postgres-ci.test.mjs`
 
-**C35** - `packages/core` unit project include is `src/**/*.spec.ts` excluding `*.db.spec.ts` and its `DATABASE_URL` is `postgresql://test:test@localhost:5432/test` (DBCI-02, AC 35)
+**C35** · closed - `packages/core` unit project include is `src/**/*.spec.ts` excluding `*.db.spec.ts` and its `DATABASE_URL` is `postgresql://test:test@localhost:5432/test` (DBCI-02, AC 35)
 Proof: `node --test --test-name-pattern "unit project dummy DATABASE_URL excludes db specs" scripts/postgres-ci.test.mjs`
 
-**C36** - `validate` job steps whose `run` is `pnpm lint`, `pnpm typecheck`, or `pnpm test` do not set `continue-on-error` (DBCI-01, AC 36)
+**C36** · closed - `validate` job steps whose `run` is `pnpm lint`, `pnpm typecheck`, or `pnpm test` do not set `continue-on-error` (DBCI-01, AC 36)
 Proof: `node --test --test-name-pattern "CI lint typecheck test stay blocking" scripts/postgres-ci.test.mjs`
 
-**C37** - `validate` job step whose `run` is `pnpm arch:check` keeps `continue-on-error` equal to `true` (DBCI-01, AC 37)
+**C37** · closed - `validate` job step whose `run` is `pnpm arch:check` keeps `continue-on-error` equal to `true` (DBCI-01, AC 37)
 Proof: `node --test --test-name-pattern "CI arch:check continue-on-error remains true" scripts/postgres-ci.test.mjs`
 
-**C38** - `docker-compose.yml` creates role `app_user` as `NOSUPERUSER` `LOGIN` on first Postgres volume init, and `.env.example` sets `DATABASE_URL` to that role and `DATABASE_ADMIN_URL` to `bens` (DBCI-04, AC 38, door 2)
+**C38** · closed - `docker-compose.yml` creates role `app_user` as `NOSUPERUSER` `LOGIN` on first Postgres volume init, and `.env.example` sets `DATABASE_URL` to that role and `DATABASE_ADMIN_URL` to `bens` (DBCI-04, AC 38, door 2)
 Proof: `node --test --test-name-pattern "compose app_user and env.example split URLs" scripts/postgres-ci.test.mjs`
 
 ## Coverage
@@ -166,4 +166,7 @@ Intended split, with the arithmetic, written before any code:
 
 - S1+S2 obligation files (biome.json, scripts, package.json, CLAUDE.md, vscode, quality-gates, biome-tooling.test.mjs) ≈ 80k. The format tsunami touches the whole tree and would blow the 150k budget if counted as reading; it cannot be split (roadmap: T1.1 is one PR). S3 ≈ 50k (ci.yml, compose, harness, db spec, postgres-ci.test.mjs). Combined obligations under 150k; tsunami is mechanical `biome check --write`. One builder, two commits (Biome+T1.3 then Postgres harness), no hand-off.
 
-- **Closed this commit:** C1-C25
+- **Boundary:** C1-C25 closed at `886343b4`
+- **Closed this commit:** C26-C38
+- **Settled mid-build:** Biome 2.5.14 rejects `recommended` together with `preset`; kept `recommended: false` and dropped `preset`. Canary helper sets `vcs.useIgnoreFile` false so tmp trees without `.gitignore` still lint. `files.includes` also excludes `.turbo` and `.agents`. P2002 live proof uses `prismaAdmin` autocommit because a unique violation aborts a held interactive transaction before the `deletedAt: null` lookup. `db:push:dev` pushes schema as `DATABASE_ADMIN_URL`. Host `psql` is still required for the RLS companion; CI installs `postgresql-client`.
+- **Abandoned:** none

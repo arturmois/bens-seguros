@@ -1,0 +1,2 @@
+CREATE ROLE app_user WITH LOGIN PASSWORD 'bens_app' NOSUPERUSER;
+GRANT CONNECT ON DATABASE bens_seguros TO app_user;

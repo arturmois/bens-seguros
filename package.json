@@ -11,7 +11,7 @@
     "lint": "biome check .",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
-    "test:architecture": "node --test scripts/architecture-guidance.test.mjs scripts/architecture-cruiser.test.mjs scripts/biome-tooling.test.mjs",
+    "test:architecture": "node --test scripts/architecture-guidance.test.mjs scripts/architecture-cruiser.test.mjs scripts/biome-tooling.test.mjs scripts/postgres-ci.test.mjs",
     "test:watch": "turbo test:watch",
     "arch:check": "depcruise --config .dependency-cruiser.cjs apps packages",
     "clean": "turbo clean",

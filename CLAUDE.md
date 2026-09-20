@@ -14,7 +14,10 @@ Multi-tenant SaaS ERP for Brazilian insurance brokers. Monorepo with 6 apps + 8 
 
 ```bash
 # Infrastructure (PostgreSQL 18, MongoDB 8 replica set, Redis 8)
+# Required before *.db.spec.ts / the core DB harness
 docker compose up -d
+# Existing pg-data volumes skip init scripts. One-time:
+# psql postgresql://bens:bens_dev@localhost:5432/bens_seguros -c "CREATE ROLE app_user LOGIN PASSWORD 'bens_app' NOSUPERUSER;"
 
 # Install dependencies
 pnpm install
