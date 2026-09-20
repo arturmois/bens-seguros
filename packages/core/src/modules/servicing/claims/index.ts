@@ -26,4 +26,5 @@ export type {
 } from './application/find-stalled-claims.js'
 
 export { ClaimMapper } from './infrastructure/claim-mapper.js'
+export { claimOpenedEmail } from './infrastructure/notifications/claim-opened.js'
 export { PrismaClaimRepository } from './infrastructure/prisma-claim-repository.js'

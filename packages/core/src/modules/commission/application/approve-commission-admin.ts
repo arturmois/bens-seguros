@@ -1,7 +1,7 @@
 import { inject, injectable } from 'tsyringe'
 import type { MemberRepository } from '../../workspace/members/domain/member-repository.js'
 import type { NotificationDispatcher } from '../../notification/domain/notification-dispatcher.js'
-import { commissionApprovedEmail } from '../../notification/infrastructure/email-templates/commission-approved.js'
+import { commissionApprovedEmail } from '../infrastructure/notifications/commission-approved.js'
 import { CommissionErrors } from '../domain/commission-errors.js'
 import type {
   CommissionData,

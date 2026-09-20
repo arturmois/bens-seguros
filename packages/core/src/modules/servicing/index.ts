@@ -9,6 +9,7 @@ export {
   UpdateClaimStatus,
   FindStalledClaims,
   ClaimMapper,
+  claimOpenedEmail,
   PrismaClaimRepository,
 } from './claims/index.js'
 export type {

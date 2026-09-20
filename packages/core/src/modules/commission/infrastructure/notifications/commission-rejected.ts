@@ -1,4 +1,4 @@
-import { baseLayout, button } from './base-layout.js'
+import { baseLayout, button } from '../../../notification/index.js'
 
 interface CommissionRejectedParams {
   readonly userName: string

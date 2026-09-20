@@ -36,4 +36,6 @@ export type {
 } from './application/find-pending-commissions.js'
 
 export { CommissionMapper } from './infrastructure/commission-mapper.js'
+export { commissionApprovedEmail } from './infrastructure/notifications/commission-approved.js'
+export { commissionRejectedEmail } from './infrastructure/notifications/commission-rejected.js'
 export { PrismaCommissionRepository } from './infrastructure/prisma-commission-repository.js'

@@ -3,7 +3,7 @@ import { inject, injectable } from 'tsyringe'
 import type { MemberRepository } from '../../../workspace/members/domain/member-repository.js'
 import type { NotificationDispatcher } from '../../../notification/domain/notification-dispatcher.js'
 import type { NotificationJobData } from '../../../notification/domain/notification-types.js'
-import { claimOpenedEmail } from '../../../notification/infrastructure/email-templates/claim-opened.js'
+import { claimOpenedEmail } from '../infrastructure/notifications/claim-opened.js'
 import type {
   ClaimData,
   ClaimRepository,

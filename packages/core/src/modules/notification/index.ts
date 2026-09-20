@@ -29,9 +29,10 @@ export {
   ResendEmailProvider,
 } from './infrastructure/resend-email-provider.js'
 
-export { claimOpenedEmail } from './infrastructure/email-templates/claim-opened.js'
-export { commissionApprovedEmail } from './infrastructure/email-templates/commission-approved.js'
-export { commissionRejectedEmail } from './infrastructure/email-templates/commission-rejected.js'
+export {
+  baseLayout,
+  button,
+} from './infrastructure/email-templates/base-layout.js'
 export { emailVerificationEmail } from './infrastructure/email-templates/email-verification.js'
 export { invitationEmail } from './infrastructure/email-templates/invitation.js'
 export { passwordResetEmail } from './infrastructure/email-templates/password-reset.js'
