@@ -73,5 +73,6 @@ describe('forTenant', () => {
     expect(graph.listProposalsForClient.execute).toEqual(expect.any(Function))
     expect(graph.updateClientFiscal.execute).toEqual(expect.any(Function))
     expect(graph.registerClaimFromChat.execute).toEqual(expect.any(Function))
+    expect(graph.getEntitlementsForOrg.execute).toEqual(expect.any(Function))
   })
 })

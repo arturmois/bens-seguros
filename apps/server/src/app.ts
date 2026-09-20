@@ -38,6 +38,7 @@ import { createInternalRateLimitHook } from './middlewares/internal-rate-limit.j
 import { tenantMiddleware } from './middlewares/tenant-middleware.js'
 import { applySecurityHeaders } from './plugins/security-headers.js'
 import { registerAuthRoutes } from './routes/auth-routes.js'
+import { createInternalBillingRoutes } from './routes/internal/billing/index.js'
 import { internalContactRoutes } from './routes/internal/contacts/index.js'
 import { createInternalLeadRoutes } from './routes/internal/leads/index.js'
 import { termsRoutes } from './routes/terms/index.js'
@@ -374,6 +375,7 @@ export async function buildApp() {
     internalApp.addHook('preHandler', internalAuthMiddleware)
     internalApp.addHook('preHandler', createInternalRateLimitHook(redis))
     await internalApp.register(createInternalLeadRoutes({ forTenant }))
+    await internalApp.register(createInternalBillingRoutes({ forTenant }))
     await internalApp.register(internalContactRoutes)
   })
   await app.register(async (adminApp) => {

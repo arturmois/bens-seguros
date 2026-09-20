@@ -1,29 +1,71 @@
 import { rm } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-import { GetEntitlementsForOrg, PrismaSubscriptionRepository } from '@repo/core'
-import { prismaAdmin } from '@repo/db'
 import { Channel } from '@repo/db-chat'
 import { env } from '@repo/env'
-import { CHAT_LIMITS } from '@repo/shared'
+import { CHAT_LIMITS, signRequest } from '@repo/shared'
 import pino from 'pino'
 
 import { BaileysBroker } from './baileys-broker.js'
 import type { BrokerEvents } from './broker.js'
 
-// Hard cap independent of plan: Baileys SDK and host RAM constraints. Plan
-// quota (entitlements.maxChannels) is layered on top — the effective limit is
-// the minimum of the two.
 const BAILEYS_TECHNICAL_HARD_CAP = CHAT_LIMITS.MAX_BAILEYS_CHANNELS_PER_ORG
+const ENTITLEMENTS_TIMEOUT_MS = 3000
 
-// Module-level instance — reused across all getChannelLimitForOrg calls
-const getEntitlementsForOrg = new GetEntitlementsForOrg(
-  new PrismaSubscriptionRepository(prismaAdmin)
-)
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
 
-async function getChannelLimitForOrg(tenantId: string): Promise<number> {
-  const entitlements = await getEntitlementsForOrg.execute(tenantId)
-  const planLimit = entitlements.maxChannels ?? Number.POSITIVE_INFINITY
+function readMaxChannels(payload: unknown): number | null {
+  if (
+    !isRecord(payload) ||
+    payload.success !== true ||
+    !isRecord(payload.data)
+  ) {
+    throw new Error('Entitlements response is not a success payload')
+  }
+  const maxChannels = payload.data.maxChannels
+  if (maxChannels === null) {
+    return null
+  }
+  if (typeof maxChannels === 'number') {
+    return maxChannels
+  }
+  throw new Error('Entitlements maxChannels is not a number or null')
+}
+
+export async function getChannelLimitForOrg(tenantId: string): Promise<number> {
+  const url = env.INTERNAL_API_URL
+  const secret = env.INTERNAL_API_SECRET
+  if (!url || !secret) {
+    throw new Error('Internal API is not configured')
+  }
+  const path = `/api/internal/billing/entitlements/${tenantId}`
+  const timestamp = Math.floor(Date.now() / 1000)
+  const signature = signRequest({
+    secret,
+    method: 'GET',
+    path,
+    tenantId,
+    body: '',
+    timestamp,
+  })
+  const response = await fetch(`${url}${path}`, {
+    method: 'GET',
+    headers: {
+      'X-Signature': signature,
+      'X-Timestamp': String(timestamp),
+      'X-Tenant-Id': tenantId,
+    },
+    signal: AbortSignal.timeout(ENTITLEMENTS_TIMEOUT_MS),
+  })
+  if (!response.ok) {
+    throw new Error(
+      `Entitlements request failed with status ${String(response.status)}`
+    )
+  }
+  const payload: unknown = await response.json()
+  const planLimit = readMaxChannels(payload) ?? Number.POSITIVE_INFINITY
   return Math.min(planLimit, BAILEYS_TECHNICAL_HARD_CAP)
 }
 

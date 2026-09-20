@@ -5,6 +5,7 @@ import {
   CreateClaim,
   CreateContact,
   CreateProposal,
+  GetEntitlementsForOrg,
   ListActivePoliciesForClient,
   ListProposalsForClient,
   PrismaChecklistRepository,
@@ -14,6 +15,7 @@ import {
   PrismaDocumentRepository,
   PrismaPolicyRepository,
   PrismaProposalRepository,
+  PrismaSubscriptionRepository,
   RegisterClaimFromChat,
   StaticChecklistConfig,
   UpdateClientFiscal,
@@ -40,6 +42,7 @@ export interface HmacTenantApi {
   listActivePoliciesForClient: ListActivePoliciesForClient
   updateClientFiscal: UpdateClientFiscal
   registerClaimFromChat: RegisterClaimFromChat
+  getEntitlementsForOrg: GetEntitlementsForOrg
 }
 
 export function forTenant(organizationId: string): HmacTenantApi {
@@ -52,6 +55,7 @@ export function forTenant(organizationId: string): HmacTenantApi {
   const documentRepo = new PrismaDocumentRepository(prisma)
   const clientRepo = new PrismaClientRepository(prisma)
   const claimRepo = new PrismaClaimRepository(prisma)
+  const subscriptionRepo = new PrismaSubscriptionRepository(prisma)
   const autoComplete = new AutoCompleteChecklistItems(
     checklistRepo,
     proposalRepo,
@@ -95,5 +99,6 @@ export function forTenant(organizationId: string): HmacTenantApi {
       policyRepo,
       createClaim
     ),
+    getEntitlementsForOrg: new GetEntitlementsForOrg(subscriptionRepo),
   }
 }

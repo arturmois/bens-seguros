@@ -16,6 +16,8 @@ export default defineConfig({
       AUTH_SECRET: 'test-auth-secret-at-least-32-chars!!',
       SOCKET_JWT_SECRET: 'test-socket-secret-16',
       ENCRYPTION_KEY: 'a'.repeat(64),
+      INTERNAL_API_URL: 'http://localhost:3001',
+      INTERNAL_API_SECRET: 'a'.repeat(32),
     },
   },
 })
