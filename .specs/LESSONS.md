@@ -54,6 +54,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: C15 apps/server/src/bootstrap/compose.spec.ts:43 round 1 (tests)
 - last seen: 2026-09-20T14:39:30Z
 
+### L-008 - When a check names an HTTP status, assert that exact statusCode, not a range such as >= 400.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `routes` · harmful: 0
+- features: phase-5-isolation
+- evidence: C37 create-claim.spec.ts:108 (routes)
+- last seen: 2026-09-20T21:12:50Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
