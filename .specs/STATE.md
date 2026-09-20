@@ -14,9 +14,9 @@ ADRs that constrain later features live in `docs/ARCHITECTURE-DECISIONS.md` and 
 ## Handoff
 
 **Feature**: phase-4-edges
-**Where**: S1–S4 closed (C1–C46)
-**In progress**: S5 T4.6 alert queries C47–C58
-**Next step**: FindStagnantProposals, FindExpiringPolicies, FindPendingCommissions, stalled claims
+**Where**: S1–S5 closed (C1–C58)
+**In progress**: S6 T4.5 CSV C59–C66
+**Next step**: characterization fixture then ImportClientRow + ImportPolicyRow (no IssuePolicy)
 **Blockers**: none
 **Uncommitted**: none
 **Branch**: main (do not push unless asked)

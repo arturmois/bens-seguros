@@ -63,6 +63,7 @@ function makeClaimRepo(claim: ClaimData | null): ClaimRepository {
     create: vi.fn(),
     findById: vi.fn().mockResolvedValue(claim),
     findMany: vi.fn(),
+    findStalled: vi.fn(),
     updateStatus: vi.fn(),
     softDelete: vi.fn(),
   }

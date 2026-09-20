@@ -35,6 +35,7 @@ function makeMockRepo(): ClaimRepository {
       total: 1,
       nextCursor: null,
     }),
+    findStalled: vi.fn(),
     updateStatus: vi.fn(),
     softDelete: vi.fn(),
   }

@@ -1,3 +1,4 @@
+import { FindExpiringPolicies, PrismaPolicyRepository } from '@repo/core'
 import type { NotificationJobData } from '@repo/core/notification'
 import { prismaAdmin } from '@repo/db'
 import type { Queue } from 'bullmq'
@@ -11,38 +12,35 @@ function severityForDays(days: number): string {
   return days <= 7 ? 'CRITICAL' : 'HIGH'
 }
 
+export interface CheckPoliciesExpiringDeps {
+  findExpiring: Pick<FindExpiringPolicies, 'execute'>
+  now: () => Date
+}
+
 export async function checkPoliciesExpiring(
   organizationId: string,
   notificationQueue: Queue<NotificationJobData>,
-  logger: Logger
+  logger: Logger,
+  deps?: CheckPoliciesExpiringDeps
 ): Promise<void> {
-  const now = new Date()
+  const now = deps?.now ?? (() => new Date())
+  const findExpiring =
+    deps?.findExpiring ??
+    new FindExpiringPolicies(new PrismaPolicyRepository(prismaAdmin))
   const managers = await prismaAdmin.member.findMany({
     where: {
       organizationId,
       role: { in: ['MANAGER', 'ADMIN', 'OWNER'] },
     },
   })
-  for (const days of THRESHOLDS) {
-    const targetDate = new Date(now)
-    targetDate.setDate(targetDate.getDate() + days)
-    const startOfDay = new Date(targetDate)
-    startOfDay.setHours(0, 0, 0, 0)
-    const endOfDay = new Date(targetDate)
-    endOfDay.setHours(23, 59, 59, 999)
-    const policies = await prismaAdmin.policy.findMany({
-      where: {
-        organizationId,
-        status: 'ACTIVE',
-        deletedAt: null,
-        endDate: { gte: startOfDay, lte: endOfDay },
-      },
-      include: {
-        salesperson: true,
-        client: true,
-      },
-    })
-    for (const policy of policies) {
+  const windows = await findExpiring.execute({
+    organizationId,
+    now: now(),
+    thresholds: THRESHOLDS,
+  })
+  for (const window of windows) {
+    const days = window.days
+    for (const policy of window.policies) {
       const isDuplicate = await hasExistingAlert({
         organizationId,
         entityType: 'Policy',

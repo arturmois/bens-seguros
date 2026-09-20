@@ -1,3 +1,4 @@
+import { FindStalledClaims, PrismaClaimRepository } from '@repo/core'
 import type { NotificationJobData } from '@repo/core/notification'
 import { prismaAdmin } from '@repo/db'
 import type { Queue } from 'bullmq'
@@ -6,33 +7,32 @@ import { DEFAULT_JOB_OPTIONS } from './constants.js'
 import { hasExistingAlert } from './idempotency.js'
 
 const STALLED_DAYS = 7
-const STALLED_STATUSES = [
-  'REGISTERED',
-  'IN_ANALYSIS',
-  'AWAITING_DOCUMENT',
-  'PENDING_INSPECTION',
-] as const
+
+export interface CheckClaimsStalledDeps {
+  findStalled: Pick<FindStalledClaims, 'execute'>
+  now: () => Date
+}
 
 export async function checkClaimsStalled(
   organizationId: string,
   notificationQueue: Queue<NotificationJobData>,
-  logger: Logger
+  logger: Logger,
+  deps?: CheckClaimsStalledDeps
 ): Promise<void> {
-  const cutoff = new Date()
-  cutoff.setDate(cutoff.getDate() - STALLED_DAYS)
+  const now = deps?.now ?? (() => new Date())
+  const findStalled =
+    deps?.findStalled ??
+    new FindStalledClaims(new PrismaClaimRepository(prismaAdmin))
   const managers = await prismaAdmin.member.findMany({
     where: {
       organizationId,
       role: { in: ['MANAGER', 'ADMIN', 'OWNER'] },
     },
   })
-  const claims = await prismaAdmin.claim.findMany({
-    where: {
-      organizationId,
-      status: { in: [...STALLED_STATUSES] },
-      deletedAt: null,
-      updatedAt: { lt: cutoff },
-    },
+  const claims = await findStalled.execute({
+    organizationId,
+    now: now(),
+    days: STALLED_DAYS,
   })
   for (const claim of claims) {
     const isDuplicate = await hasExistingAlert({

@@ -76,6 +76,11 @@ export { UpdateProposalObservations } from './application/update-proposal-observ
 export { SendQuote } from './application/send-quote.js'
 export { MarkQuoteSent } from './application/mark-quote-sent.js'
 export type { MarkQuoteSentInput } from './application/mark-quote-sent.js'
+export { FindStagnantProposals } from './application/find-stagnant-proposals.js'
+export type {
+  FindStagnantProposalsInput,
+  StagnantProposal,
+} from './application/find-stagnant-proposals.js'
 
 export { PrismaChecklistRepository } from './infrastructure/prisma-checklist-repository.js'
 export { PrismaProposalRepository } from './infrastructure/prisma-proposal-repository.js'

@@ -7,6 +7,7 @@ export {
   GetClaim,
   ListClaims,
   UpdateClaimStatus,
+  FindStalledClaims,
   ClaimMapper,
   PrismaClaimRepository,
 } from './claims/index.js'

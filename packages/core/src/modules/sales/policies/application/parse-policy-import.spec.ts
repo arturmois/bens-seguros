@@ -10,6 +10,7 @@ function createMockRepo(): PolicyRepository {
     findByPolicyNumber: vi.fn(),
     listActiveForClient: vi.fn(),
     updateMany: vi.fn(),
+    findExpiring: vi.fn(),
     findMany: vi.fn(),
     cancel: vi.fn(),
   }

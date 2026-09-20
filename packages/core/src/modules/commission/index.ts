@@ -29,6 +29,11 @@ export { OnPolicyIssued } from './application/on-policy-issued.js'
 export { PayCommission } from './application/pay-commission.js'
 export { RejectCommission } from './application/reject-commission.js'
 export { ReverseCommission } from './application/reverse-commission.js'
+export { FindPendingCommissions } from './application/find-pending-commissions.js'
+export type {
+  FindPendingCommissionsInput,
+  PendingCommissionAlert,
+} from './application/find-pending-commissions.js'
 
 export { CommissionMapper } from './infrastructure/commission-mapper.js'
 export { PrismaCommissionRepository } from './infrastructure/prisma-commission-repository.js'

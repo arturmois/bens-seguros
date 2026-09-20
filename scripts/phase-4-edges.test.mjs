@@ -152,3 +152,46 @@ test('send-quote-email-processor has no prismaAdmin.proposal', () => {
   )
   assert.doesNotMatch(text, /prismaAdmin\.proposal/)
 })
+
+test('check-proposals-stagnant has no prismaAdmin.proposal', () => {
+  const text = readRepo(
+    'apps/worker/src/processors/alerts/check-proposals-stagnant.ts'
+  )
+  assert.doesNotMatch(text, /prismaAdmin\.proposal/)
+})
+
+test('check-policy-expiry has no prismaAdmin.policy', () => {
+  const text = readRepo(
+    'apps/worker/src/processors/alerts/check-policy-expiry.ts'
+  )
+  assert.doesNotMatch(text, /prismaAdmin\.policy/)
+})
+
+test('check-commissions-pending has no prismaAdmin.commission', () => {
+  const text = readRepo(
+    'apps/worker/src/processors/alerts/check-commissions-pending.ts'
+  )
+  assert.doesNotMatch(text, /prismaAdmin\.commission/)
+})
+
+test('check-claims-stalled has no prismaAdmin.claim', () => {
+  const text = readRepo(
+    'apps/worker/src/processors/alerts/check-claims-stalled.ts'
+  )
+  assert.doesNotMatch(text, /prismaAdmin\.claim/)
+})
+
+test('alerts keep hasExistingAlert and organization loop', () => {
+  for (const relative of [
+    'apps/worker/src/processors/alerts/check-proposals-stagnant.ts',
+    'apps/worker/src/processors/alerts/check-policy-expiry.ts',
+    'apps/worker/src/processors/alerts/check-commissions-pending.ts',
+    'apps/worker/src/processors/alerts/check-claims-stalled.ts',
+  ]) {
+    const text = readRepo(relative)
+    assert.match(text, /hasExistingAlert/)
+  }
+  const index = readRepo('apps/worker/src/processors/alerts/index.ts')
+  assert.match(index, /organization\.findMany/)
+  assert.match(index, /for \(const org of organizations\)/)
+})

@@ -57,6 +57,17 @@ export interface CommissionRepository {
     filters: CommissionFilters,
     page: CursorPage<CommissionSortField>
   ): Promise<Page<CommissionData>>
+  findPendingCommercial(input: {
+    organizationId: string
+    createdBefore: Date
+  }): Promise<
+    Array<{
+      id: string
+      salespersonId: string
+      createdAt: Date
+      policyNumber: string
+    }>
+  >
   update(commission: Commission): Promise<CommissionData>
   reverseAtomic(
     original: Commission,

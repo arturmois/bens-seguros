@@ -103,6 +103,7 @@ function createMockProposalRepo({
     listForView: vi.fn(),
     listForClient: vi.fn(),
     markQuoteSent: vi.fn(),
+    findStagnant: vi.fn(),
     findActiveByContact: vi.fn().mockResolvedValue(activeProposals),
   }
 }

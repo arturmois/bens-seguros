@@ -1,3 +1,4 @@
+import { FindPendingCommissions, PrismaCommissionRepository } from '@repo/core'
 import type { NotificationJobData } from '@repo/core/notification'
 import { prismaAdmin } from '@repo/db'
 import type { Queue } from 'bullmq'
@@ -7,29 +8,31 @@ import { hasExistingAlert } from './idempotency.js'
 
 const PENDING_DAYS = 7
 
+export interface CheckCommissionsPendingDeps {
+  findPending: Pick<FindPendingCommissions, 'execute'>
+  now: () => Date
+}
+
 export async function checkCommissionsPending(
   organizationId: string,
   notificationQueue: Queue<NotificationJobData>,
-  logger: Logger
+  logger: Logger,
+  deps?: CheckCommissionsPendingDeps
 ): Promise<void> {
-  const cutoff = new Date()
-  cutoff.setDate(cutoff.getDate() - PENDING_DAYS)
+  const now = deps?.now ?? (() => new Date())
+  const findPending =
+    deps?.findPending ??
+    new FindPendingCommissions(new PrismaCommissionRepository(prismaAdmin))
   const admins = await prismaAdmin.member.findMany({
     where: {
       organizationId,
       role: { in: ['ADMIN', 'OWNER'] },
     },
   })
-  const commissions = await prismaAdmin.commission.findMany({
-    where: {
-      organizationId,
-      status: 'PENDING_COMMERCIAL',
-      deletedAt: null,
-      createdAt: { lt: cutoff },
-    },
-    include: {
-      policy: true,
-    },
+  const commissions = await findPending.execute({
+    organizationId,
+    now: now(),
+    days: PENDING_DAYS,
   })
   for (const commission of commissions) {
     const isDuplicate = await hasExistingAlert({
@@ -44,8 +47,7 @@ export async function checkCommissionsPending(
     const daysPending = Math.floor(
       (Date.now() - commission.createdAt.getTime()) / (1000 * 60 * 60 * 24)
     )
-    const policyNumber = commission.policy?.policyNumber ?? 'N/A'
-    const body = `Comissão da apólice ${policyNumber} pendente há ${daysPending} dias`
+    const body = `Comissão da apólice ${commission.policyNumber} pendente há ${daysPending} dias`
     await notificationQueue.add(
       'notification',
       {

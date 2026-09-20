@@ -7,6 +7,7 @@ function createMockRepo(): CommissionRepository {
     save: vi.fn().mockResolvedValue(undefined),
     findById: vi.fn(),
     findMany: vi.fn(),
+    findPendingCommercial: vi.fn(),
     update: vi.fn(),
     reverseAtomic: vi.fn(),
   }

@@ -69,4 +69,13 @@ export interface ProposalRepository {
     organizationId: string
     sentToClientAt: Date
   }): Promise<void>
+  findStagnant(input: { organizationId: string; updatedBefore: Date }): Promise<
+    Array<{
+      id: string
+      salespersonId: string
+      stage: string
+      updatedAt: Date
+      clientName: string
+    }>
+  >
 }

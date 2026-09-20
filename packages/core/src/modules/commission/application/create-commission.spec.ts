@@ -7,6 +7,7 @@ function createMockRepo(): CommissionRepository {
     save: vi.fn().mockImplementation(async (commission) => commission.toJSON()),
     findById: vi.fn(),
     findMany: vi.fn(),
+    findPendingCommercial: vi.fn(),
     update: vi.fn(),
     reverseAtomic: vi.fn(),
   }

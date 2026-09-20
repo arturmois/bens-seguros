@@ -43,6 +43,7 @@ function createMockClaimRepo(
     create: vi.fn().mockResolvedValue(created),
     findById: vi.fn().mockResolvedValue(claimData),
     findMany: vi.fn(),
+    findStalled: vi.fn(),
     updateStatus: vi.fn(),
     softDelete: vi.fn(),
   }

@@ -147,6 +147,38 @@ export class PrismaProposalRepository implements ProposalRepository {
     })
   }
 
+  async findStagnant(input: {
+    organizationId: string
+    updatedBefore: Date
+  }): Promise<
+    Array<{
+      id: string
+      salespersonId: string
+      stage: string
+      updatedAt: Date
+      clientName: string
+    }>
+  > {
+    const rows = await this.prisma.proposal.findMany({
+      where: {
+        organizationId: input.organizationId,
+        stage: { notIn: ['POLICY_ISSUED', 'LOST'] },
+        deletedAt: null,
+        updatedAt: { lt: input.updatedBefore },
+      },
+      include: {
+        contact: { include: { client: { select: { legalName: true } } } },
+      },
+    })
+    return rows.map((row) => ({
+      id: row.id,
+      salespersonId: row.salespersonId,
+      stage: row.stage,
+      updatedAt: row.updatedAt,
+      clientName: row.contact?.client?.legalName ?? row.contact?.name ?? 'N/A',
+    }))
+  }
+
   private toListItem(
     row: Prisma.ProposalGetPayload<{ include: typeof PROPOSAL_INCLUDE }>
   ): ProposalListItem {

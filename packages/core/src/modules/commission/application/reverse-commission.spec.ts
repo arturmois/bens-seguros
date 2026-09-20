@@ -42,6 +42,7 @@ function createMockRepo(data: CommissionData | null): CommissionRepository {
     save: vi.fn(),
     findById: vi.fn().mockResolvedValue(data),
     findMany: vi.fn(),
+    findPendingCommercial: vi.fn(),
     update: vi.fn(),
     reverseAtomic: vi.fn().mockImplementation(async (original, reversal) => {
       const originalJson = original.toJSON()

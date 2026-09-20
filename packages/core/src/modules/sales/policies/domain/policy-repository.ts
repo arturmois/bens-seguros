@@ -111,6 +111,13 @@ export interface PolicyRepository {
     where: { status: 'ACTIVE'; endDate: { lt: Date } }
     data: { status: 'EXPIRED' }
   }): Promise<{ count: number }>
+  findExpiring(input: {
+    organizationId: string
+    startOfDay: Date
+    endOfDay: Date
+  }): Promise<
+    Array<{ id: string; policyNumber: string; salespersonId: string }>
+  >
   cancel(
     id: string,
     organizationId: string,

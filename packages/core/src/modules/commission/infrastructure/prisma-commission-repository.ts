@@ -126,6 +126,34 @@ export class PrismaCommissionRepository implements CommissionRepository {
     }
   }
 
+  async findPendingCommercial(input: {
+    organizationId: string
+    createdBefore: Date
+  }): Promise<
+    Array<{
+      id: string
+      salespersonId: string
+      createdAt: Date
+      policyNumber: string
+    }>
+  > {
+    const rows = await this.prisma.commission.findMany({
+      where: {
+        organizationId: input.organizationId,
+        status: 'PENDING_COMMERCIAL',
+        deletedAt: null,
+        createdAt: { lt: input.createdBefore },
+      },
+      include: { policy: { select: { policyNumber: true } } },
+    })
+    return rows.map((row) => ({
+      id: row.id,
+      salespersonId: row.salespersonId,
+      createdAt: row.createdAt,
+      policyNumber: row.policy?.policyNumber ?? 'N/A',
+    }))
+  }
+
   async update(commission: Commission): Promise<CommissionData> {
     const data = CommissionMapper.toPersistence(commission.toJSON())
     const row = await this.prisma.commission.update({

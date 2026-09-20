@@ -77,6 +77,18 @@ export interface ClaimRepository {
     filters: ClaimFilters,
     page: CursorPage<ClaimSortField>
   ): Promise<Page<ClaimData>>
+  findStalled(input: {
+    organizationId: string
+    updatedBefore: Date
+    statuses: readonly ClaimStatus[]
+  }): Promise<
+    Array<{
+      id: string
+      assignedToId: string | null
+      updatedAt: Date
+      claimNumber: number
+    }>
+  >
   updateStatus(
     id: string,
     organizationId: string,

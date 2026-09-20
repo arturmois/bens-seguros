@@ -3,7 +3,7 @@
 Profile: standard
 Plan: `.specs/features/phase-4-edges/plan.md`
 
-66 checks in 6 slices · 3 one-way doors · 21 open, of which 0 block
+66 checks in 6 slices · 3 one-way doors · 8 open, of which 0 block
 
 ## Checks
 
@@ -157,40 +157,40 @@ Proof: `pnpm --filter @app/worker exec vitest run src/processors/__tests__/send-
 
 ### S5 - Alert queries owned by modules (T4.6) · ~12 files · ~30k
 
-**C47** - `FindStagnantProposals.execute({ organizationId, now, days: 15 })` returns proposals in that org whose `stage` is not `POLICY_ISSUED` or `LOST`, `deletedAt` is null, and `updatedAt` is before `now` minus 15 days (ALRT-01, AC 45)
+**C47** · closed - `FindStagnantProposals.execute({ organizationId, now, days: 15 })` returns proposals in that org whose `stage` is not `POLICY_ISSUED` or `LOST`, `deletedAt` is null, and `updatedAt` is before `now` minus 15 days (ALRT-01, AC 45)
 Proof: `pnpm --filter @repo/core exec vitest run --project core:db src/modules/sales/proposals/application/find-stagnant-proposals.db.spec.ts -t "stagnant is updatedAt before now minus 15 days excluding terminal stages"`
 
-**C48** - `FindExpiringPolicies.execute` with thresholds `[30, 15, 7]` returns `ACTIVE` undeleted policies whose `endDate` falls on the calendar day `now + thresholdDays` for each threshold (ALRT-01, AC 46)
+**C48** · closed - `FindExpiringPolicies.execute` with thresholds `[30, 15, 7]` returns `ACTIVE` undeleted policies whose `endDate` falls on the calendar day `now + thresholdDays` for each threshold (ALRT-01, AC 46)
 Proof: `pnpm --filter @repo/core exec vitest run --project core:db src/modules/sales/policies/application/find-expiring-policies.db.spec.ts -t "expiring windows 30 15 7 calendar days"`
 
-**C49** - `FindPendingCommissions.execute({ organizationId, now, days: 7 })` returns commissions with `status` `PENDING_COMMERCIAL`, `deletedAt` null, and `createdAt` before `now` minus 7 days (ALRT-01, AC 47)
+**C49** · closed - `FindPendingCommissions.execute({ organizationId, now, days: 7 })` returns commissions with `status` `PENDING_COMMERCIAL`, `deletedAt` null, and `createdAt` before `now` minus 7 days (ALRT-01, AC 47)
 Proof: `pnpm --filter @repo/core exec vitest run --project core:db src/modules/commission/application/find-pending-commissions.db.spec.ts -t "pending commercial older than 7 days"`
 
-**C50** - `FindStalledClaims.execute({ organizationId, now, days: 7 })` returns claims whose `status` is one of `REGISTERED`, `IN_ANALYSIS`, `AWAITING_DOCUMENT`, `PENDING_INSPECTION`, `deletedAt` null, and `updatedAt` before `now` minus 7 days (ALRT-01, AC 48)
+**C50** · closed - `FindStalledClaims.execute({ organizationId, now, days: 7 })` returns claims whose `status` is one of `REGISTERED`, `IN_ANALYSIS`, `AWAITING_DOCUMENT`, `PENDING_INSPECTION`, `deletedAt` null, and `updatedAt` before `now` minus 7 days (ALRT-01, AC 48)
 Proof: `pnpm --filter @repo/core exec vitest run --project core:db src/modules/servicing/claims/application/find-stalled-claims.db.spec.ts -t "stalled statuses older than 7 days"`
 
-**C51** - `apps/worker/src/processors/alerts/check-proposals-stagnant.ts` does not contain `prismaAdmin.proposal` (ALRT-02, AC 49)
+**C51** · closed - `apps/worker/src/processors/alerts/check-proposals-stagnant.ts` does not contain `prismaAdmin.proposal` (ALRT-02, AC 49)
 Proof: `node --test --test-name-pattern "check-proposals-stagnant has no prismaAdmin.proposal" scripts/phase-4-edges.test.mjs`
 
-**C52** - `apps/worker/src/processors/alerts/check-policy-expiry.ts` does not contain `prismaAdmin.policy` (ALRT-02, AC 50)
+**C52** · closed - `apps/worker/src/processors/alerts/check-policy-expiry.ts` does not contain `prismaAdmin.policy` (ALRT-02, AC 50)
 Proof: `node --test --test-name-pattern "check-policy-expiry has no prismaAdmin.policy" scripts/phase-4-edges.test.mjs`
 
-**C53** - `apps/worker/src/processors/alerts/check-commissions-pending.ts` does not contain `prismaAdmin.commission` (ALRT-02, AC 51)
+**C53** · closed - `apps/worker/src/processors/alerts/check-commissions-pending.ts` does not contain `prismaAdmin.commission` (ALRT-02, AC 51)
 Proof: `node --test --test-name-pattern "check-commissions-pending has no prismaAdmin.commission" scripts/phase-4-edges.test.mjs`
 
-**C54** - `apps/worker/src/processors/alerts/check-claims-stalled.ts` does not contain `prismaAdmin.claim` (ALRT-02, AC 52)
+**C54** · closed - `apps/worker/src/processors/alerts/check-claims-stalled.ts` does not contain `prismaAdmin.claim` (ALRT-02, AC 52)
 Proof: `node --test --test-name-pattern "check-claims-stalled has no prismaAdmin.claim" scripts/phase-4-edges.test.mjs`
 
-**C55** - a stagnant proposal notification `body` is `Proposta de ${clientName} parada no estagio ${stage} ha ${daysSinceUpdate} dias` (ALRT-03, AC 53)
+**C55** · closed - a stagnant proposal notification `body` is `Proposta de ${clientName} parada no estagio ${stage} ha ${daysSinceUpdate} dias` (ALRT-03, AC 53)
 Proof: `pnpm --filter @app/worker exec vitest run src/processors/alerts/__tests__/check-proposals-stagnant.spec.ts -t "body uses unaccented estagio ha dias"`
 
-**C56** - an expiring policy with `days <= 7` uses title `Apolice vencendo em breve!`; otherwise `Apolice expirando`; body is `Apolice ${policyNumber} vence em ${days} dias` (ALRT-03, AC 54)
+**C56** · closed - an expiring policy with `days <= 7` uses title `Apolice vencendo em breve!`; otherwise `Apolice expirando`; body is `Apolice ${policyNumber} vence em ${days} dias` (ALRT-03, AC 54)
 Proof: `pnpm --filter @app/worker exec vitest run src/processors/alerts/__tests__/check-policy-expiry.spec.ts -t "title Apolice vencendo em breve when days is 7 else Apolice expirando"`
 
-**C57** - a stalled claim notification `body` is `Sinistro #${claimNumber} sem atualizacao ha ${daysSinceUpdate} dias` (ALRT-03, AC 55)
+**C57** · closed - a stalled claim notification `body` is `Sinistro #${claimNumber} sem atualizacao ha ${daysSinceUpdate} dias` (ALRT-03, AC 55)
 Proof: `pnpm --filter @app/worker exec vitest run src/processors/alerts/__tests__/check-claims-stalled.spec.ts -t "body uses unaccented atualizacao ha dias"`
 
-**C58** - alert processors still call `hasExistingAlert` before enqueueing, and `alerts/index.ts` still iterates organizations (ALRT-03, AC 56)
+**C58** · closed - alert processors still call `hasExistingAlert` before enqueueing, and `alerts/index.ts` still iterates organizations (ALRT-03, AC 56)
 Proof: `node --test --test-name-pattern "alerts keep hasExistingAlert and organization loop" scripts/phase-4-edges.test.mjs`
 
 ### S6 - CSV import through clients + sales (T4.5) · ~10 files · ~40k

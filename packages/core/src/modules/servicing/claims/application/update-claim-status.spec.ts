@@ -35,6 +35,7 @@ function createMockRepo(data: ClaimData | null): ClaimRepository {
     create: vi.fn(),
     findById: vi.fn().mockResolvedValue(data),
     findMany: vi.fn(),
+    findStalled: vi.fn(),
     updateStatus: vi.fn().mockImplementation(async (_id, _orgId, input) => ({
       ...makeClaimData(),
       ...input,

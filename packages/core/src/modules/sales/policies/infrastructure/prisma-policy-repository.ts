@@ -200,6 +200,29 @@ export class PrismaPolicyRepository implements PolicyRepository {
     })
   }
 
+  async findExpiring(input: {
+    organizationId: string
+    startOfDay: Date
+    endOfDay: Date
+  }): Promise<
+    Array<{ id: string; policyNumber: string; salespersonId: string }>
+  > {
+    const rows = await this.prisma.policy.findMany({
+      where: {
+        organizationId: input.organizationId,
+        status: 'ACTIVE',
+        deletedAt: null,
+        endDate: { gte: input.startOfDay, lte: input.endOfDay },
+      },
+      select: { id: true, policyNumber: true, salespersonId: true },
+    })
+    return rows.map((row) => ({
+      id: row.id,
+      policyNumber: String(row.policyNumber),
+      salespersonId: row.salespersonId,
+    }))
+  }
+
   async cancel(
     id: string,
     organizationId: string,

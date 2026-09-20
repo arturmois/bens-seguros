@@ -12,6 +12,7 @@ import type {
   ClaimFilters,
   ClaimRepository,
   ClaimSortField,
+  ClaimStatus,
   CreateClaimInput,
   UpdateClaimStatusInput,
 } from '../domain/claim-repository.js'
@@ -160,6 +161,40 @@ export class PrismaClaimRepository implements ClaimRepository {
       total,
       nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,
     }
+  }
+
+  async findStalled(input: {
+    organizationId: string
+    updatedBefore: Date
+    statuses: readonly ClaimStatus[]
+  }): Promise<
+    Array<{
+      id: string
+      assignedToId: string | null
+      updatedAt: Date
+      claimNumber: number
+    }>
+  > {
+    const rows = await this.prisma.claim.findMany({
+      where: {
+        organizationId: input.organizationId,
+        status: { in: [...input.statuses] },
+        deletedAt: null,
+        updatedAt: { lt: input.updatedBefore },
+      },
+      select: {
+        id: true,
+        assignedToId: true,
+        updatedAt: true,
+        claimNumber: true,
+      },
+    })
+    return rows.map((row) => ({
+      id: row.id,
+      assignedToId: row.assignedToId,
+      updatedAt: row.updatedAt,
+      claimNumber: row.claimNumber,
+    }))
   }
 
   async updateStatus(

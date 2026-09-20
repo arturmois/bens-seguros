@@ -39,6 +39,7 @@ function createMockRepo(data: PolicyData | null): PolicyRepository {
     findByPolicyNumber: vi.fn(),
     listActiveForClient: vi.fn(),
     updateMany: vi.fn(),
+    findExpiring: vi.fn(),
     findMany: vi.fn(),
     cancel: vi.fn().mockImplementation(async (id, orgId, reason) => ({
       ...makePolicyData(),

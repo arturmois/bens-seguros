@@ -43,6 +43,11 @@ export type {
 
 export { ExpireDuePolicies } from './application/expire-due-policies.js'
 export type { ExpireDuePoliciesInput } from './application/expire-due-policies.js'
+export { FindExpiringPolicies } from './application/find-expiring-policies.js'
+export type {
+  ExpiringPolicyWindow,
+  FindExpiringPoliciesInput,
+} from './application/find-expiring-policies.js'
 
 export { ParsePolicyImport } from './application/parse-policy-import.js'
 export { policyImportRowSchema } from './application/policy-import-schema.js'
