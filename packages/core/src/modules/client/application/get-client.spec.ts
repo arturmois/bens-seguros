@@ -1,6 +1,4 @@
-import 'reflect-metadata'
 import { describe, expect, it, vi } from 'vitest'
-import { ClientNotFoundError } from '../domain/client-errors.js'
 import type {
   ClientRepository,
   ClientWithMetrics,
@@ -63,6 +61,6 @@ describe('GetClient', () => {
     const useCase = new GetClient(repo)
     await expect(
       useCase.execute({ id: 'missing-id', organizationId: 'org-1' })
-    ).rejects.toThrow(ClientNotFoundError)
+    ).rejects.toMatchObject({ code: 'CLIENT_NOT_FOUND' })
   })
 })

@@ -1,4 +1,3 @@
-import 'reflect-metadata'
 import { describe, expect, it, vi } from 'vitest'
 import type { ClientRepository } from '../domain/client-repository.js'
 import { ListClients } from './list-clients.js'

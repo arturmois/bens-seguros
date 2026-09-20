@@ -9,12 +9,13 @@ import {
   CancelPolicy,
   CompleteChecklistByAttachment,
   UncompleteChecklistItem,
+  composeWorkspace,
+  type ClientsApi,
   container,
   CountAlertsByEntityType,
   CountUnreadNotifications,
   CreateAssistance,
   CreateClaim,
-  CreateClient,
   CreateCommission,
   CreateContact,
   CreateEndorsement,
@@ -25,15 +26,12 @@ import {
   CreateProposal,
   DeactivateMember,
   DeleteClaim,
-  DeleteClient,
   DeleteDocument,
-  ExportClientsCsv,
   ExportCommissionsCsv,
   ExportPoliciesCsv,
   ExportProposalsCsv,
   GetAssistance,
   GetClaim,
-  GetClient,
   GetCommission,
   GetContact,
   GetDocumentUrl,
@@ -52,7 +50,6 @@ import {
   ListAuditLogs,
   ListChecklistItems,
   ListClaims,
-  ListClients,
   ListCommissions,
   ListContacts,
   ListDocuments,
@@ -75,7 +72,6 @@ import {
   NoopCacheService,
   NoopInvitationEmailNotifier,
   OnPolicyIssued,
-  ParseClientImport,
   ParsePolicyImport,
   PayCommission,
   PrismaAssistanceRepository,
@@ -91,11 +87,8 @@ import {
   PrismaAiUsageRepository,
   PrismaGoalRepository,
   PrismaInsurerRepository,
-  PrismaInvitationRepository,
-  PrismaMemberRepository,
   PrismaNotificationRepository,
   PrismaOccurrenceRepository,
-  PrismaOrganizationRepository,
   PrismaPolicyRepository,
   PrismaProposalRepository,
   PrismaSearchRepository,
@@ -112,7 +105,6 @@ import {
   StaticChecklistConfig,
   UpdateAssistanceStatus,
   UpdateClaimStatus,
-  UpdateClient,
   UpdateContact,
   UpdateInsurer,
   UpdateMemberRole,
@@ -123,13 +115,21 @@ import {
   UploadOrganizationLogo,
   ViaCepProvider,
 } from '@repo/core'
+import {
+  PrismaInvitationRepository,
+  PrismaMemberRepository,
+  PrismaOrganizationRepository,
+} from '@repo/core/workspace/infrastructure'
 import { prismaAdmin } from '@repo/db'
 import { env } from '@repo/env'
 import type { Redis } from 'ioredis'
+import { composeServerClients } from './bootstrap/compose.js'
 import { BullmqNotificationDispatcher } from './services/bullmq-notification-dispatcher.js'
 import { ReactPolicyPdfRenderer } from './services/react-policy-pdf-renderer.js'
 
-export function registerDependencies(redis: Redis | null = null) {
+export function registerDependencies(redis: Redis | null = null): {
+  clients: ClientsApi
+} {
   const cacheService = redis
     ? new RedisCacheService(redis)
     : new NoopCacheService()
@@ -161,6 +161,7 @@ export function registerDependencies(redis: Redis | null = null) {
       ),
   })
   const clientRepo = new PrismaClientRepository(prismaAdmin)
+  const { clients } = composeServerClients(clientRepo)
   const contactRepo = new PrismaContactRepository(prismaAdmin)
   const proposalRepo = new PrismaProposalRepository(prismaAdmin)
   const checklistRepo = new PrismaChecklistRepository(prismaAdmin)
@@ -215,25 +216,6 @@ export function registerDependencies(redis: Redis | null = null) {
     useFactory: () => new CreateOrgWithTrial(subscriptionRepo),
   })
   container.register('StorageProvider', { useValue: storageProvider })
-  container.register(CreateClient, {
-    useFactory: () => new CreateClient(clientRepo),
-  })
-  container.register(ListClients, {
-    useFactory: () => new ListClients(clientRepo),
-  })
-  container.register(GetClient, { useFactory: () => new GetClient(clientRepo) })
-  container.register(UpdateClient, {
-    useFactory: () => new UpdateClient(clientRepo),
-  })
-  container.register(DeleteClient, {
-    useFactory: () => new DeleteClient(clientRepo),
-  })
-  container.register(ExportClientsCsv, {
-    useFactory: () => new ExportClientsCsv(clientRepo),
-  })
-  container.register(ParseClientImport, {
-    useFactory: () => new ParseClientImport(clientRepo),
-  })
   container.register(CreateContact, {
     useFactory: () => new CreateContact(contactRepo),
   })
@@ -422,22 +404,6 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register(GlobalSearch, {
     useFactory: () => new GlobalSearch(searchRepo),
   })
-  container.register(GetOrganization, {
-    useFactory: () =>
-      new GetOrganization(organizationRepo, cacheService, storageProvider),
-  })
-  container.register(UpdateOrganization, {
-    useFactory: () =>
-      new UpdateOrganization(organizationRepo, cacheService, storageProvider),
-  })
-  container.register(UploadOrganizationLogo, {
-    useFactory: () =>
-      new UploadOrganizationLogo(
-        organizationRepo,
-        cacheService,
-        storageProvider
-      ),
-  })
   container.register(BuildDashboardSnapshot, {
     useFactory: () => new BuildDashboardSnapshot(dashboardRepo, cacheService),
   })
@@ -501,29 +467,8 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register('PolicyPdfRenderer', {
     useValue: new ReactPolicyPdfRenderer(),
   })
-  container.register(UpdateMemberRole, {
-    useFactory: () => new UpdateMemberRole(memberRepo, cacheService),
-  })
-  container.register(DeactivateMember, {
-    useFactory: () => new DeactivateMember(memberRepo, cacheService),
-  })
-  container.register(ListUserTenants, {
-    useFactory: () => new ListUserTenants(memberRepo),
-  })
-  container.register(ListMembers, {
-    useFactory: () => new ListMembers(memberRepo, cacheService),
-  })
   const invitationRepo = new PrismaInvitationRepository(prismaAdmin)
   container.register('InvitationRepository', { useValue: invitationRepo })
-  container.register(AcceptInvitation, {
-    useFactory: () => new AcceptInvitation(invitationRepo, cacheService),
-  })
-  container.register(CancelInvitation, {
-    useFactory: () => new CancelInvitation(invitationRepo),
-  })
-  container.register(ListPendingInvitations, {
-    useFactory: () => new ListPendingInvitations(invitationRepo),
-  })
   const invitationEmailNotifier: InvitationEmailNotifier = env.RESEND_API_KEY
     ? new ResendInvitationEmailNotifier({
         apiKey: env.RESEND_API_KEY,
@@ -534,15 +479,46 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register('InvitationEmailNotifier', {
     useValue: invitationEmailNotifier,
   })
+  const workspace = composeWorkspace({
+    organizationRepo,
+    memberRepo,
+    invitationRepo,
+    cacheService,
+    storageProvider,
+    invitationEmailNotifier,
+  })
+  container.register(GetOrganization, {
+    useValue: workspace.getOrganization,
+  })
+  container.register(UpdateOrganization, {
+    useValue: workspace.updateOrganization,
+  })
+  container.register(UploadOrganizationLogo, {
+    useValue: workspace.uploadOrganizationLogo,
+  })
+  container.register(UpdateMemberRole, {
+    useValue: workspace.updateMemberRole,
+  })
+  container.register(DeactivateMember, {
+    useValue: workspace.deactivateMember,
+  })
+  container.register(ListUserTenants, {
+    useValue: workspace.listUserTenants,
+  })
+  container.register(ListMembers, {
+    useValue: workspace.listMembers,
+  })
+  container.register(AcceptInvitation, {
+    useValue: workspace.acceptInvitation,
+  })
+  container.register(CancelInvitation, {
+    useValue: workspace.cancelInvitation,
+  })
+  container.register(ListPendingInvitations, {
+    useValue: workspace.listPendingInvitations,
+  })
   container.register(CreateInvitation, {
-    useFactory: () =>
-      new CreateInvitation(
-        invitationRepo,
-        memberRepo,
-        organizationRepo,
-        invitationEmailNotifier,
-        cacheService
-      ),
+    useValue: workspace.createInvitation,
   })
   const notificationRepo = new PrismaNotificationRepository(prismaAdmin)
   container.register('NotificationRepository', { useValue: notificationRepo })
@@ -561,4 +537,5 @@ export function registerDependencies(redis: Redis | null = null) {
   container.register(CountAlertsByEntityType, {
     useFactory: () => new CountAlertsByEntityType(notificationRepo),
   })
+  return { clients }
 }

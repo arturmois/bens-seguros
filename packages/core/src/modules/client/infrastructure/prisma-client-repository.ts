@@ -1,7 +1,6 @@
 import type { PrismaClient } from '@repo/db'
 import { Prisma } from '@repo/db'
 import { hashDocument } from '@repo/shared'
-import { inject, injectable } from 'tsyringe'
 import { ClientErrors } from '../domain/client-errors.js'
 import type {
   ClientData,
@@ -19,9 +18,8 @@ function toInputJsonValue<T>(value: T): Prisma.InputJsonValue {
   return JSON.parse(JSON.stringify(value))
 }
 
-@injectable()
 export class PrismaClientRepository implements ClientRepository {
-  constructor(@inject('PrismaClient') private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaClient) {}
 
   async save(data: CreateClientPersistence): Promise<ClientData> {
     const docPersistence = ClientMapper.documentToPersistence(data.document)

@@ -13,20 +13,19 @@ import {
   setTestContext,
   TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
-import { mockResolve } from '../../../../__tests__/helpers/mock-use-case.js'
+import { createFakeClientsApi } from './fake-clients-api.js'
 import { listClientsRoute } from '../list-clients.js'
 
-const mockExecute = vi.fn()
+const { clients, execute: mockExecute } = createFakeClientsApi()
 let app: Awaited<ReturnType<typeof createTestApp>>
 
 beforeAll(async () => {
-  app = await createTestApp(listClientsRoute)
+  app = await createTestApp((instance) => listClientsRoute(instance, clients))
 })
 afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
-  mockResolve(mockExecute)
 })
 
 const makeClient = (overrides: Partial<Record<string, unknown>> = {}) => ({

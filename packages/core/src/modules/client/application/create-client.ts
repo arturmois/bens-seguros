@@ -1,5 +1,4 @@
 import { hashDocument } from '@repo/shared'
-import { inject, injectable } from 'tsyringe'
 import type { ClientAddress } from '../domain/client-address.js'
 import { ClientErrors } from '../domain/client-errors.js'
 import type {
@@ -20,12 +19,8 @@ export interface CreateClientInput {
   fiscalBirthDate?: Date | null
 }
 
-@injectable()
 export class CreateClient {
-  constructor(
-    @inject('ClientRepository')
-    private readonly clientRepo: ClientRepository
-  ) {}
+  constructor(private readonly clientRepo: ClientRepository) {}
 
   async execute(input: CreateClientInput): Promise<ClientWithMetrics> {
     const documentHash = hashDocument(input.document)

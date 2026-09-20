@@ -1,11 +1,11 @@
-import { container, GetClient } from '@repo/core'
+import type { ClientsApi } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { handleDomainError } from '../handle-domain-error.js'
 import { clientDetailResponse, idParamSchema } from './_schemas.js'
 
-export function getClientRoute(app: FastifyInstance) {
+export function getClientRoute(app: FastifyInstance, clients: ClientsApi) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'GET',
     url: '/api/v1/clients/:id',
@@ -18,9 +18,8 @@ export function getClientRoute(app: FastifyInstance) {
     },
     preHandler: [requireAbility('read', 'Client')],
     handler: async (request, reply) => {
-      const useCase = container.resolve(GetClient)
       try {
-        const client = await useCase.execute({
+        const client = await clients.getClient.execute({
           id: request.params.id,
           organizationId: request.organizationId!,
         })

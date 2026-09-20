@@ -7,18 +7,19 @@ import {
   afterAll,
   beforeEach,
 } from 'vitest'
-import { container } from '@repo/core'
 import {
   createTestApp,
   injectAs,
   setTestContext,
 } from '../../../../__tests__/helpers/create-test-app.js'
+import { createFakeClientsApi } from './fake-clients-api.js'
 import { exportClientsRoute } from '../export-clients.js'
 
+const { clients, generateCsvRows } = createFakeClientsApi()
 let app: Awaited<ReturnType<typeof createTestApp>>
 
 beforeAll(async () => {
-  app = await createTestApp(exportClientsRoute)
+  app = await createTestApp((instance) => exportClientsRoute(instance, clients))
 })
 afterAll(() => app.close())
 beforeEach(() => {
@@ -35,14 +36,7 @@ async function* makeCsvGenerator(rows: string[] = []) {
 
 describe('GET /api/v1/clients/export', () => {
   it('returns 200 with text/csv content type', async () => {
-    vi.mocked(container.resolve).mockImplementation((token: unknown) => {
-      if (typeof token === 'function') {
-        return {
-          generateCsvRows: vi.fn().mockReturnValue(makeCsvGenerator()),
-        }
-      }
-      return null
-    })
+    generateCsvRows.mockReturnValue(makeCsvGenerator())
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/clients/export',
@@ -51,14 +45,7 @@ describe('GET /api/v1/clients/export', () => {
     expect(response.headers['content-type']).toContain('text/csv')
   })
   it('returns CSV attachment header', async () => {
-    vi.mocked(container.resolve).mockImplementation((token: unknown) => {
-      if (typeof token === 'function') {
-        return {
-          generateCsvRows: vi.fn().mockReturnValue(makeCsvGenerator()),
-        }
-      }
-      return null
-    })
+    generateCsvRows.mockReturnValue(makeCsvGenerator())
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/clients/export',
@@ -68,20 +55,11 @@ describe('GET /api/v1/clients/export', () => {
     )
   })
   it('streams CSV rows in response body', async () => {
-    vi.mocked(container.resolve).mockImplementation((token: unknown) => {
-      if (typeof token === 'function') {
-        return {
-          generateCsvRows: vi
-            .fn()
-            .mockReturnValue(
-              makeCsvGenerator([
-                'João Silva,12345678901,CLIENT,joao@email.com,11999999999\n',
-              ])
-            ),
-        }
-      }
-      return null
-    })
+    generateCsvRows.mockReturnValue(
+      makeCsvGenerator([
+        'João Silva,12345678901,CLIENT,joao@email.com,11999999999\n',
+      ])
+    )
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/clients/export',
@@ -91,36 +69,24 @@ describe('GET /api/v1/clients/export', () => {
     expect(response.body).toContain('João Silva')
   })
   it('passes filters to use case', async () => {
-    const mockGenerateCsvRows = vi.fn().mockReturnValue(makeCsvGenerator())
-    vi.mocked(container.resolve).mockImplementation((token: unknown) => {
-      if (typeof token === 'function') {
-        return { generateCsvRows: mockGenerateCsvRows }
-      }
-      return null
-    })
+    generateCsvRows.mockReturnValue(makeCsvGenerator())
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/clients/export',
       query: { hasActivePolicy: 'true', search: 'joao' },
     })
-    expect(mockGenerateCsvRows).toHaveBeenCalledWith(
+    expect(generateCsvRows).toHaveBeenCalledWith(
       expect.objectContaining({ hasActivePolicy: true, search: 'joao' })
     )
   })
   it('passes personTypeIn to ExportClientsCsv', async () => {
-    const mockGenerateCsvRows = vi.fn().mockReturnValue(makeCsvGenerator())
-    vi.mocked(container.resolve).mockImplementation((token: unknown) => {
-      if (typeof token === 'function') {
-        return { generateCsvRows: mockGenerateCsvRows }
-      }
-      return null
-    })
+    generateCsvRows.mockReturnValue(makeCsvGenerator())
     await injectAs(app, {
       method: 'GET',
       url: '/api/v1/clients/export',
       query: { personTypeIn: 'COMPANY' },
     })
-    expect(mockGenerateCsvRows).toHaveBeenCalledWith(
+    expect(generateCsvRows).toHaveBeenCalledWith(
       expect.objectContaining({ personTypeIn: ['COMPANY'] })
     )
   })

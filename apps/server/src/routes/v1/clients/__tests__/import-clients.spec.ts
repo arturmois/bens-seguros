@@ -8,7 +8,6 @@ import {
   beforeEach,
 } from 'vitest'
 import multipart from '@fastify/multipart'
-import { container } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import {
   createTestApp,
@@ -16,6 +15,7 @@ import {
   TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
 import { buildCsvMultipart } from '../../../../__tests__/helpers/multipart.js'
+import { createFakeClientsApi } from './fake-clients-api.js'
 import { importClientsRoutes } from '../import-clients.js'
 
 vi.mock('../../../../services/csv-import-enqueuer.js', () => ({
@@ -34,9 +34,11 @@ import {
   getImportJobStatus,
 } from '../../../../services/csv-import-enqueuer.js'
 
+const { clients, execute: mockExecute } = createFakeClientsApi()
+
 async function registerRoute(app: FastifyInstance) {
   await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } })
-  importClientsRoutes(app)
+  importClientsRoutes(app, clients)
 }
 
 let app: Awaited<ReturnType<typeof createTestApp>>
@@ -129,18 +131,11 @@ describe('POST /api/v1/clients/import', () => {
     const csvContent = 'Nome,CPF/CNPJ,Tipo\nJoão Silva,12345678901,CLIENT\n'
     const boundary = '----ImportBoundaryValid'
     const body = buildCsvMultipart('clients.csv', csvContent, boundary)
-    vi.mocked(container.resolve).mockImplementation((token: unknown) => {
-      if (typeof token === 'function') {
-        return {
-          execute: vi.fn().mockResolvedValue({
-            jobId: TEST_JOB_ID,
-            preview: [{ Nome: 'João Silva' }],
-            validationSummary: { total: 1, valid: 1, invalid: 0, errors: [] },
-            validRows: [{ name: 'João Silva' }],
-          }),
-        }
-      }
-      return null
+    mockExecute.mockResolvedValue({
+      jobId: TEST_JOB_ID,
+      preview: [{ Nome: 'João Silva' }],
+      validationSummary: { total: 1, valid: 1, invalid: 0, errors: [] },
+      validRows: [{ name: 'João Silva' }],
     })
     vi.mocked(stageImportData).mockResolvedValue(undefined)
     const response = await app.inject({

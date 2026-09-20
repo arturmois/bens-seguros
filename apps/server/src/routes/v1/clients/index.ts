@@ -1,3 +1,4 @@
+import type { ClientsApi } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import { applyTenantStack } from '../../../middlewares/tenant-stack.js'
 import { createClientRoute } from './create-client.js'
@@ -9,14 +10,16 @@ import { lgpdDeleteClientRoute } from './lgpd-delete-client.js'
 import { listClientsRoute } from './list-clients.js'
 import { updateClientRoute } from './update-client.js'
 
-export async function clientRoutes(app: FastifyInstance) {
-  applyTenantStack(app)
-  exportClientsRoute(app)
-  importClientsRoutes(app)
-  createClientRoute(app)
-  listClientsRoute(app)
-  lgpdDeleteClientRoute(app)
-  getClientRoute(app)
-  updateClientRoute(app)
-  deleteClientRoute(app)
+export function createClientRoutes(clients: ClientsApi) {
+  return async function clientRoutes(app: FastifyInstance) {
+    applyTenantStack(app)
+    exportClientsRoute(app, clients)
+    importClientsRoutes(app, clients)
+    createClientRoute(app, clients)
+    listClientsRoute(app, clients)
+    lgpdDeleteClientRoute(app, clients)
+    getClientRoute(app, clients)
+    updateClientRoute(app, clients)
+    deleteClientRoute(app, clients)
+  }
 }

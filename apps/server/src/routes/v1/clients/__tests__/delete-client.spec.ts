@@ -12,23 +12,19 @@ import {
   injectAs,
   setTestContext,
 } from '../../../../__tests__/helpers/create-test-app.js'
-import {
-  mockResolve,
-  mockResolveError,
-} from '../../../../__tests__/helpers/mock-use-case.js'
+import { createFakeClientsApi, domainError } from './fake-clients-api.js'
 import { deleteClientRoute } from '../delete-client.js'
 
-const mockExecute = vi.fn()
+const { clients, execute: mockExecute } = createFakeClientsApi()
 let app: Awaited<ReturnType<typeof createTestApp>>
 
 beforeAll(async () => {
-  app = await createTestApp(deleteClientRoute)
+  app = await createTestApp((instance) => deleteClientRoute(instance, clients))
 })
 afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
-  mockResolve(mockExecute)
 })
 
 describe('DELETE /api/v1/clients/:id', () => {
@@ -43,7 +39,9 @@ describe('DELETE /api/v1/clients/:id', () => {
     expect(response.body).toBe('')
   })
   it('returns 404 when client does not exist', async () => {
-    mockResolveError('CLIENT_NOT_FOUND', 'Client not found')
+    mockExecute.mockRejectedValue(
+      domainError('CLIENT_NOT_FOUND', 'Client not found')
+    )
     const response = await injectAs(app, {
       method: 'DELETE',
       url: '/api/v1/clients/nonexistent-id',

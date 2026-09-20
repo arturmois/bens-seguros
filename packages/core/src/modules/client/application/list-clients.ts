@@ -1,4 +1,3 @@
-import { inject, injectable } from 'tsyringe'
 import type {
   ClientRepository,
   ClientWithMetrics,
@@ -16,11 +15,8 @@ export interface ListClientsInput {
   sortOrder?: 'asc' | 'desc'
 }
 
-@injectable()
 export class ListClients {
-  constructor(
-    @inject('ClientRepository') private readonly clientRepo: ClientRepository
-  ) {}
+  constructor(private readonly clientRepo: ClientRepository) {}
 
   async execute(
     input: ListClientsInput

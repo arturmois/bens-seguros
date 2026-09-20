@@ -48,7 +48,7 @@ import { publicBillingRoutes } from './routes/v1/billing/public.js'
 import { cepRoutes } from './routes/v1/cep/index.js'
 import { chatTokenRoute } from './routes/v1/chat/index.js'
 import { claimRoutes } from './routes/v1/claims/index.js'
-import { clientRoutes } from './routes/v1/clients/index.js'
+import { createClientRoutes } from './routes/v1/clients/index.js'
 import { commissionRoutes } from './routes/v1/commissions/index.js'
 import { contactRoutes } from './routes/v1/contacts/index.js'
 import { documentRoutes } from './routes/v1/documents/index.js'
@@ -165,7 +165,7 @@ export async function buildApp() {
     return payload
   })
   await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } })
-  registerDependencies(redis)
+  const { clients } = registerDependencies(redis)
   app.addHook('onSend', async (request, reply, payload) => {
     if (request.url.startsWith('/api/')) {
       void reply.header(
@@ -343,7 +343,7 @@ export async function buildApp() {
   await app.register(async (authenticatedApp) => {
     authenticatedApp.addHook('preHandler', authMiddleware)
     await authenticatedApp.register(tenantRoutes)
-    await authenticatedApp.register(clientRoutes)
+    await authenticatedApp.register(createClientRoutes(clients))
     await authenticatedApp.register(contactRoutes)
     await authenticatedApp.register(proposalRoutes)
     await authenticatedApp.register(policyRoutes)

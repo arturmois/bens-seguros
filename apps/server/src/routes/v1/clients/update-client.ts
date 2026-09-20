@@ -1,4 +1,4 @@
-import { container, UpdateClient } from '@repo/core'
+import type { ClientsApi } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
@@ -10,7 +10,7 @@ import {
   updateClientBodySchema,
 } from './_schemas.js'
 
-export function updateClientRoute(app: FastifyInstance) {
+export function updateClientRoute(app: FastifyInstance, clients: ClientsApi) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'PUT',
     url: '/api/v1/clients/:id',
@@ -24,9 +24,8 @@ export function updateClientRoute(app: FastifyInstance) {
     },
     preHandler: [requireAbility('update', 'Client')],
     handler: async (request, reply) => {
-      const useCase = container.resolve(UpdateClient)
       try {
-        const updated = await useCase.execute({
+        const updated = await clients.updateClient.execute({
           id: request.params.id,
           organizationId: request.organizationId!,
           ...request.body,

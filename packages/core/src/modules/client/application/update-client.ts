@@ -1,4 +1,3 @@
-import { inject, injectable } from 'tsyringe'
 import type { ClientAddress } from '../domain/client-address.js'
 import { ClientErrors } from '../domain/client-errors.js'
 import type {
@@ -19,11 +18,8 @@ export interface UpdateClientInput {
   fiscalBirthDate?: Date | null
 }
 
-@injectable()
 export class UpdateClient {
-  constructor(
-    @inject('ClientRepository') private readonly clientRepo: ClientRepository
-  ) {}
+  constructor(private readonly clientRepo: ClientRepository) {}
 
   async execute(input: UpdateClientInput): Promise<ClientData> {
     const found = await this.clientRepo.findById(input.id, input.organizationId)

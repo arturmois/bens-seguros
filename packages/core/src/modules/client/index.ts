@@ -24,6 +24,8 @@ export type {
   UpdateClientPersistence,
 } from './domain/client-repository.js'
 
+export { composeClients } from './compose-clients.js'
+export type { ClientsApi } from './compose-clients.js'
 export { ClientPresenter } from './application/client-presenter.js'
 export type {
   ClientDetail,

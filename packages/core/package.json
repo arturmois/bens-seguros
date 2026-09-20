@@ -7,7 +7,8 @@
     ".": "./src/index.ts",
     "./container": "./src/container.ts",
     "./notification": "./src/modules/notification/index.ts",
-    "./legal": "./src/shared/legal-constants.ts"
+    "./legal": "./src/shared/legal-constants.ts",
+    "./workspace/infrastructure": "./src/modules/workspace/infrastructure.ts"
   },
   "scripts": {
     "test": "vitest run --passWithNoTests",

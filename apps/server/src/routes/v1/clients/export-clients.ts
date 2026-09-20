@@ -1,11 +1,11 @@
-import { container, ExportClientsCsv } from '@repo/core'
+import type { ClientsApi } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { Readable } from 'node:stream'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
 import { listClientsQuerySchema } from './_schemas.js'
 
-export function exportClientsRoute(app: FastifyInstance) {
+export function exportClientsRoute(app: FastifyInstance, clients: ClientsApi) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'GET',
     url: '/api/v1/clients/export',
@@ -18,8 +18,7 @@ export function exportClientsRoute(app: FastifyInstance) {
     preHandler: [requireAbility('read', 'Client')],
     handler: async (request, reply) => {
       const { hasActivePolicy, personTypeIn, search } = request.query
-      const useCase = container.resolve(ExportClientsCsv)
-      const csvGenerator = useCase.generateCsvRows({
+      const csvGenerator = clients.exportClientsCsv.generateCsvRows({
         organizationId: request.organizationId!,
         hasActivePolicy,
         personTypeIn,

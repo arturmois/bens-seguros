@@ -1,4 +1,3 @@
-import { injectable, inject } from 'tsyringe'
 import { maskDocument } from '@repo/shared'
 import type {
   ClientRepository,
@@ -19,12 +18,8 @@ const CLIENT_CSV_COLUMNS = [
   'Criado em',
 ]
 
-@injectable()
 export class ExportClientsCsv {
-  constructor(
-    @inject('ClientRepository')
-    private readonly clientRepo: ClientRepository
-  ) {}
+  constructor(private readonly clientRepo: ClientRepository) {}
 
   async *generateCsvRows(filters: ClientFilters): AsyncGenerator<string> {
     yield CSV_BOM + CLIENT_CSV_COLUMNS.join(',') + '\n'

@@ -1,4 +1,4 @@
-import { container, CreateClient } from '@repo/core'
+import type { ClientsApi } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { requireAbility } from '../../../middlewares/ability-middleware.js'
@@ -6,7 +6,7 @@ import { auditCreate } from '../../../services/audit-logger.js'
 import { handleDomainError } from '../handle-domain-error.js'
 import { clientCreateResponse, createClientBodySchema } from './_schemas.js'
 
-export function createClientRoute(app: FastifyInstance) {
+export function createClientRoute(app: FastifyInstance, clients: ClientsApi) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'POST',
     url: '/api/v1/clients',
@@ -19,9 +19,8 @@ export function createClientRoute(app: FastifyInstance) {
     },
     preHandler: [requireAbility('create', 'Client')],
     handler: async (request, reply) => {
-      const useCase = container.resolve(CreateClient)
       try {
-        const created = await useCase.execute({
+        const created = await clients.createClient.execute({
           organizationId: request.organizationId!,
           ...request.body,
         })

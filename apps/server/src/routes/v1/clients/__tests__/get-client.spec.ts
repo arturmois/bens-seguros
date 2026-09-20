@@ -13,23 +13,19 @@ import {
   setTestContext,
   TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
-import {
-  mockResolve,
-  mockResolveError,
-} from '../../../../__tests__/helpers/mock-use-case.js'
+import { createFakeClientsApi, domainError } from './fake-clients-api.js'
 import { getClientRoute } from '../get-client.js'
 
-const mockExecute = vi.fn()
+const { clients, execute: mockExecute } = createFakeClientsApi()
 let app: Awaited<ReturnType<typeof createTestApp>>
 
 beforeAll(async () => {
-  app = await createTestApp(getClientRoute)
+  app = await createTestApp((instance) => getClientRoute(instance, clients))
 })
 afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
-  mockResolve(mockExecute)
 })
 
 const makeClient = (overrides: Partial<Record<string, unknown>> = {}) => ({
@@ -66,7 +62,6 @@ describe('GET /api/v1/clients/:id', () => {
   })
   it('returns 200 with client document for VIEWER role', async () => {
     setTestContext({ role: 'VIEWER' })
-    mockResolve(mockExecute)
     mockExecute.mockResolvedValue(makeClient({ document: '98765432100' }))
     const response = await injectAs(app, {
       method: 'GET',
@@ -78,7 +73,9 @@ describe('GET /api/v1/clients/:id', () => {
     expect(typeof body.data.document).toBe('string')
   })
   it('returns 404 when client does not exist', async () => {
-    mockResolveError('CLIENT_NOT_FOUND', 'Client not found')
+    mockExecute.mockRejectedValue(
+      domainError('CLIENT_NOT_FOUND', 'Client not found')
+    )
     const response = await injectAs(app, {
       method: 'GET',
       url: '/api/v1/clients/nonexistent-id',
@@ -103,7 +100,6 @@ describe('GET /api/v1/clients/:id', () => {
   })
   it('returns fiscal fields for OWNER role', async () => {
     setTestContext({ role: 'OWNER' })
-    mockResolve(mockExecute)
     mockExecute.mockResolvedValue(
       makeClient({ profession: 'Engenheira', maritalStatus: 'SINGLE' })
     )

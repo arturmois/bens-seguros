@@ -1,8 +1,7 @@
 import {
-  container,
   CsvImportError,
   MAX_IMPORT_FILE_SIZE,
-  ParseClientImport,
+  type ClientsApi,
 } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
@@ -22,7 +21,7 @@ import {
   importUploadResponse,
 } from './_schemas.js'
 
-export function importClientsRoutes(app: FastifyInstance) {
+export function importClientsRoutes(app: FastifyInstance, clients: ClientsApi) {
   const typed = app.withTypeProvider<ZodTypeProvider>()
   typed.route({
     method: 'GET',
@@ -89,7 +88,7 @@ export function importClientsRoutes(app: FastifyInstance) {
         })
       }
       const csvContent = buffer.toString('utf-8')
-      const useCase = container.resolve(ParseClientImport)
+      const useCase = clients.parseClientImport
       try {
         const result = await useCase.execute(
           csvContent,

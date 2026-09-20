@@ -20,11 +20,15 @@ export {
   SlugConflictError,
 } from './organization/domain/organization-errors.js'
 
+export { composeWorkspace } from './compose-workspace.js'
+export type {
+  ComposeWorkspaceInput,
+  WorkspaceApi,
+} from './compose-workspace.js'
+
 export { GetOrganization } from './organization/application/get-organization.js'
 export { UpdateOrganization } from './organization/application/update-organization.js'
 export { UploadOrganizationLogo } from './organization/application/upload-organization-logo.js'
-
-export { PrismaOrganizationRepository } from './organization/infrastructure/prisma-organization-repository.js'
 
 export { DeactivateMember } from './members/application/deactivate-member.js'
 export type { DeactivateMemberInput } from './members/application/deactivate-member.js'
@@ -61,7 +65,6 @@ export {
   MEMBER_ROLES,
 } from './members/domain/member-roles.js'
 export type { MemberRole } from './members/domain/member-roles.js'
-export { PrismaMemberRepository } from './members/infrastructure/prisma-member-repository.js'
 
 export type {
   InvitationEmailInput,
@@ -95,7 +98,6 @@ export { CreateInvitation } from './invitations/application/create-invitation.js
 export { GetPublicInvitation } from './invitations/application/get-public-invitation.js'
 export { ListPendingInvitations } from './invitations/application/list-pending-invitations.js'
 
-export { PrismaInvitationRepository } from './invitations/infrastructure/prisma-invitation-repository.js'
 export {
   NoopInvitationEmailNotifier,
   ResendInvitationEmailNotifier,

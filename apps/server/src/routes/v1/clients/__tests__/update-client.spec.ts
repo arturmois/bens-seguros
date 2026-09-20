@@ -13,23 +13,19 @@ import {
   setTestContext,
   TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
-import {
-  mockResolve,
-  mockResolveError,
-} from '../../../../__tests__/helpers/mock-use-case.js'
+import { createFakeClientsApi, domainError } from './fake-clients-api.js'
 import { updateClientRoute } from '../update-client.js'
 
-const mockExecute = vi.fn()
+const { clients, execute: mockExecute } = createFakeClientsApi()
 let app: Awaited<ReturnType<typeof createTestApp>>
 
 beforeAll(async () => {
-  app = await createTestApp(updateClientRoute)
+  app = await createTestApp((instance) => updateClientRoute(instance, clients))
 })
 afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
-  mockResolve(mockExecute)
 })
 
 const makeClient = (overrides: Partial<Record<string, unknown>> = {}) => ({
@@ -88,7 +84,9 @@ describe('PUT /api/v1/clients/:id', () => {
     )
   })
   it('returns 404 when client does not exist', async () => {
-    mockResolveError('CLIENT_NOT_FOUND', 'Client not found')
+    mockExecute.mockRejectedValue(
+      domainError('CLIENT_NOT_FOUND', 'Client not found')
+    )
     const response = await injectAs(app, {
       method: 'PUT',
       url: '/api/v1/clients/nonexistent-id',

@@ -1,4 +1,3 @@
-import { inject, injectable } from 'tsyringe'
 import { ClientErrors } from '../domain/client-errors.js'
 import type {
   ClientRepository,
@@ -10,11 +9,8 @@ export interface GetClientInput {
   organizationId: string
 }
 
-@injectable()
 export class GetClient {
-  constructor(
-    @inject('ClientRepository') private readonly clientRepo: ClientRepository
-  ) {}
+  constructor(private readonly clientRepo: ClientRepository) {}
 
   async execute(input: GetClientInput): Promise<ClientWithMetrics> {
     const found = await this.clientRepo.findByIdWithMetrics(

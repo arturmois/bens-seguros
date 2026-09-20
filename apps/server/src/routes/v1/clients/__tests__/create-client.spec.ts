@@ -13,23 +13,19 @@ import {
   setTestContext,
   TEST_ORG_ID,
 } from '../../../../__tests__/helpers/create-test-app.js'
-import {
-  mockResolve,
-  mockResolveError,
-} from '../../../../__tests__/helpers/mock-use-case.js'
+import { createFakeClientsApi, domainError } from './fake-clients-api.js'
 import { createClientRoute } from '../create-client.js'
 
-const mockExecute = vi.fn()
+const { clients, execute: mockExecute } = createFakeClientsApi()
 let app: Awaited<ReturnType<typeof createTestApp>>
 
 beforeAll(async () => {
-  app = await createTestApp(createClientRoute)
+  app = await createTestApp((instance) => createClientRoute(instance, clients))
 })
 afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
-  mockResolve(mockExecute)
 })
 
 const VALID_BODY = {
@@ -74,10 +70,12 @@ describe('POST /api/v1/clients', () => {
     expect(body.data.contactCount).toBe(0)
   })
   it('retorna 409 com details.existingClientId quando documento já existe', async () => {
-    mockResolveError(
-      'CLIENT_ALREADY_EXISTS',
-      'Já existe cliente com este documento na organização',
-      { existingClientId: 'client-existing-42' }
+    mockExecute.mockRejectedValue(
+      domainError(
+        'CLIENT_ALREADY_EXISTS',
+        'Já existe cliente com este documento na organização',
+        { existingClientId: 'client-existing-42' }
+      )
     )
     const response = await injectAs(app, {
       method: 'POST',

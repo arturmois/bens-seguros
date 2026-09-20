@@ -1,4 +1,3 @@
-import { injectable, inject } from 'tsyringe'
 import Papa from 'papaparse'
 import { randomUUID } from 'node:crypto'
 import type { ClientRepository } from '../domain/client-repository.js'
@@ -13,12 +12,8 @@ import type {
   CsvRowError,
 } from '../../../shared/csv-import-types.js'
 
-@injectable()
 export class ParseClientImport {
-  constructor(
-    @inject('ClientRepository')
-    private readonly clientRepo: ClientRepository
-  ) {}
+  constructor(private readonly clientRepo: ClientRepository) {}
 
   async execute(
     csvContent: string,
