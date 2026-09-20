@@ -3,7 +3,7 @@ import { inject, injectable } from 'tsyringe'
 
 import { ClientErrors } from '../../../client/domain/client-errors.js'
 import type { ClientRepository } from '../../../client/domain/client-repository.js'
-import type { OnPolicyIssued } from '../../../commission/application/on-policy-issued.js'
+import { CreateCommissionForPolicy } from '../../../commission/application/create-commission-for-policy.js'
 import type { ContactRepository } from '../../leads/domain/contact-repository.js'
 import { ProposalErrors } from '../../proposals/domain/proposal-errors.js'
 import type { ProposalRepository } from '../../proposals/domain/proposal-repository.js' // ProposalRepository lives in sales/proposals;
@@ -34,7 +34,8 @@ export class IssuePolicy {
     private readonly contactRepo: ContactRepository,
     @inject('ClientRepository')
     private readonly clientRepo: ClientRepository,
-    @inject('OnPolicyIssued') private readonly onPolicyIssued: OnPolicyIssued
+    @inject(CreateCommissionForPolicy)
+    private readonly createCommissionForPolicy: CreateCommissionForPolicy
   ) {}
 
   async execute(dto: IssuePolicyDTO): Promise<PolicyData> {
@@ -84,12 +85,12 @@ export class IssuePolicy {
       startDate: dto.startDate,
       endDate: dto.endDate,
     })
-    await this.onPolicyIssued.execute({
+    await this.createCommissionForPolicy.execute({
       organizationId: dto.organizationId,
       policyId: policy.id,
       salespersonId: proposal.salespersonId,
       premiumValueInCents: proposal.premiumValueInCents,
-      commissionPercentageInBasisPoints: proposal.commissionPercentageInCents,
+      commissionPercentageInBasisPoints: proposal.commissionBasisPoints,
     })
     return policy
   }

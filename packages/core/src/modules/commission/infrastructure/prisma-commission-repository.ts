@@ -154,6 +154,22 @@ export class PrismaCommissionRepository implements CommissionRepository {
     }))
   }
 
+  async findNonReversalByPolicyId(
+    policyId: string,
+    organizationId: string
+  ): Promise<CommissionData | null> {
+    const row = await this.prisma.commission.findFirst({
+      where: {
+        policyId,
+        organizationId,
+        isReversal: false,
+        deletedAt: null,
+      },
+      include: COMMISSION_INCLUDE,
+    })
+    return row ? CommissionMapper.toData(row) : null
+  }
+
   async update(commission: Commission): Promise<CommissionData> {
     const data = CommissionMapper.toPersistence(commission.toJSON())
     const row = await this.prisma.commission.update({

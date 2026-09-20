@@ -5,7 +5,7 @@ import type {
   ClientData,
   ClientRepository,
 } from '../../../client/domain/client-repository.js'
-import type { OnPolicyIssued } from '../../../commission/application/on-policy-issued.js'
+import type { CreateCommissionForPolicy } from '../../../commission/application/create-commission-for-policy.js'
 import type {
   ContactData,
   ContactRepository,
@@ -205,10 +205,10 @@ function createMockClientRepo(
   }
 }
 
-function createMockOnPolicyIssued(): OnPolicyIssued {
+function createMockCreateCommissionForPolicy(): CreateCommissionForPolicy {
   return {
-    execute: vi.fn().mockResolvedValue(undefined),
-  } as unknown as OnPolicyIssued
+    execute: vi.fn().mockResolvedValue(null),
+  } as unknown as CreateCommissionForPolicy
 }
 
 describe('IssuePolicy', () => {
@@ -218,13 +218,13 @@ describe('IssuePolicy', () => {
     const proposalRepo = createMockProposalRepo(proposal)
     const contactRepo = createMockContactRepo()
     const clientRepo = createMockClientRepo()
-    const onPolicyIssued = createMockOnPolicyIssued()
+    const createCommissionForPolicy = createMockCreateCommissionForPolicy()
     const useCase = new IssuePolicy(
       policyRepo,
       proposalRepo,
       contactRepo,
       clientRepo,
-      onPolicyIssued
+      createCommissionForPolicy
     )
     const result = await useCase.execute({
       organizationId: 'org-1',
@@ -238,20 +238,20 @@ describe('IssuePolicy', () => {
       expect.objectContaining({ clientId: 'c-1' })
     )
     expect(result.status).toBe('ACTIVE')
-    expect(onPolicyIssued.execute).toHaveBeenCalledTimes(1)
+    expect(createCommissionForPolicy.execute).toHaveBeenCalledTimes(1)
   })
   it('throws ProposalNotFoundError when proposal does not exist', async () => {
     const policyRepo = createMockPolicyRepo()
     const proposalRepo = createMockProposalRepo(null)
     const contactRepo = createMockContactRepo()
     const clientRepo = createMockClientRepo()
-    const onPolicyIssued = createMockOnPolicyIssued()
+    const createCommissionForPolicy = createMockCreateCommissionForPolicy()
     const useCase = new IssuePolicy(
       policyRepo,
       proposalRepo,
       contactRepo,
       clientRepo,
-      onPolicyIssued
+      createCommissionForPolicy
     )
     await expect(
       useCase.execute({
@@ -270,13 +270,13 @@ describe('IssuePolicy', () => {
     const proposalRepo = createMockProposalRepo(proposal)
     const contactRepo = createMockContactRepo()
     const clientRepo = createMockClientRepo()
-    const onPolicyIssued = createMockOnPolicyIssued()
+    const createCommissionForPolicy = createMockCreateCommissionForPolicy()
     const useCase = new IssuePolicy(
       policyRepo,
       proposalRepo,
       contactRepo,
       clientRepo,
-      onPolicyIssued
+      createCommissionForPolicy
     )
     await useCase.execute({
       organizationId: 'org-1',
@@ -296,13 +296,13 @@ describe('IssuePolicy', () => {
     const proposalRepo = createMockProposalRepo(proposal)
     const contactRepo = createMockContactRepo()
     const clientRepo = createMockClientRepo()
-    const onPolicyIssued = createMockOnPolicyIssued()
+    const createCommissionForPolicy = createMockCreateCommissionForPolicy()
     const useCase = new IssuePolicy(
       policyRepo,
       proposalRepo,
       contactRepo,
       clientRepo,
-      onPolicyIssued
+      createCommissionForPolicy
     )
     await useCase.execute({
       organizationId: 'org-1',
@@ -321,13 +321,13 @@ describe('IssuePolicy', () => {
     const proposalRepo = createMockProposalRepo(proposal)
     const contactRepo = createMockContactRepo()
     const clientRepo = createMockClientRepo()
-    const onPolicyIssued = createMockOnPolicyIssued()
+    const createCommissionForPolicy = createMockCreateCommissionForPolicy()
     const useCase = new IssuePolicy(
       policyRepo,
       proposalRepo,
       contactRepo,
       clientRepo,
-      onPolicyIssued
+      createCommissionForPolicy
     )
     await expect(
       useCase.execute({
@@ -347,13 +347,13 @@ describe('IssuePolicy', () => {
     const proposalRepo = createMockProposalRepo(proposal)
     const contactRepo = createMockContactRepo()
     const clientRepo = createMockClientRepo()
-    const onPolicyIssued = createMockOnPolicyIssued()
+    const createCommissionForPolicy = createMockCreateCommissionForPolicy()
     const useCase = new IssuePolicy(
       policyRepo,
       proposalRepo,
       contactRepo,
       clientRepo,
-      onPolicyIssued
+      createCommissionForPolicy
     )
     await expect(
       useCase.execute({
@@ -374,13 +374,13 @@ describe('IssuePolicy', () => {
       makeContactData({ clientId: null })
     )
     const clientRepo = createMockClientRepo()
-    const onPolicyIssued = createMockOnPolicyIssued()
+    const createCommissionForPolicy = createMockCreateCommissionForPolicy()
     const useCase = new IssuePolicy(
       policyRepo,
       proposalRepo,
       contactRepo,
       clientRepo,
-      onPolicyIssued
+      createCommissionForPolicy
     )
     await expect(
       useCase.execute({
@@ -399,13 +399,13 @@ describe('IssuePolicy', () => {
     const proposalRepo = createMockProposalRepo(proposal)
     const contactRepo = createMockContactRepo()
     const clientRepo = createMockClientRepo(makeClientData({ address: null }))
-    const onPolicyIssued = createMockOnPolicyIssued()
+    const createCommissionForPolicy = createMockCreateCommissionForPolicy()
     const useCase = new IssuePolicy(
       policyRepo,
       proposalRepo,
       contactRepo,
       clientRepo,
-      onPolicyIssued
+      createCommissionForPolicy
     )
     await expect(
       useCase.execute({
@@ -424,13 +424,13 @@ describe('IssuePolicy', () => {
     const proposalRepo = createMockProposalRepo(proposal)
     const contactRepo = createMockContactRepo()
     const clientRepo = createMockClientRepo(null)
-    const onPolicyIssued = createMockOnPolicyIssued()
+    const createCommissionForPolicy = createMockCreateCommissionForPolicy()
     const useCase = new IssuePolicy(
       policyRepo,
       proposalRepo,
       contactRepo,
       clientRepo,
-      onPolicyIssued
+      createCommissionForPolicy
     )
     await expect(
       useCase.execute({
@@ -442,5 +442,32 @@ describe('IssuePolicy', () => {
       })
     ).rejects.toThrow(ClientNotFoundError)
     expect(policyRepo.create).not.toHaveBeenCalled()
+  })
+  it('calls CreateCommissionForPolicy with proposal commissionBasisPoints', async () => {
+    const proposal = createProposalAtStage('POLICY_ISSUED', 'ins-1')
+    const policyRepo = createMockPolicyRepo()
+    const proposalRepo = createMockProposalRepo(proposal)
+    const contactRepo = createMockContactRepo()
+    const clientRepo = createMockClientRepo()
+    const createCommissionForPolicy = createMockCreateCommissionForPolicy()
+    const useCase = new IssuePolicy(
+      policyRepo,
+      proposalRepo,
+      contactRepo,
+      clientRepo,
+      createCommissionForPolicy
+    )
+    await useCase.execute({
+      organizationId: 'org-1',
+      proposalId: proposal.id,
+      policyNumber: 'POL-2024-001',
+      startDate: new Date('2024-01-01'),
+      endDate: new Date('2025-01-01'),
+    })
+    expect(createCommissionForPolicy.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        commissionPercentageInBasisPoints: proposal.commissionBasisPoints,
+      })
+    )
   })
 })

@@ -68,6 +68,10 @@ export interface CommissionRepository {
       policyNumber: string
     }>
   >
+  findNonReversalByPolicyId(
+    policyId: string,
+    organizationId: string
+  ): Promise<CommissionData | null>
   update(commission: Commission): Promise<CommissionData>
   reverseAtomic(
     original: Commission,

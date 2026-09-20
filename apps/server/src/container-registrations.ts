@@ -18,6 +18,7 @@ import {
   CreateAssistance,
   CreateClaim,
   CreateCommission,
+  CreateCommissionForPolicy,
   CreateContact,
   CreateEndorsement,
   CreateInsurer,
@@ -72,7 +73,6 @@ import {
   MarkProposalLost,
   NoopCacheService,
   NoopInvitationEmailNotifier,
-  OnPolicyIssued,
   ParsePolicyImport,
   PayCommission,
   PrismaAssistanceRepository,
@@ -302,8 +302,8 @@ export function registerDependencies(redis: Redis | null = null): {
         documentRepo
       ),
   })
-  container.register(OnPolicyIssued, {
-    useFactory: () => new OnPolicyIssued(commissionRepo),
+  container.register(CreateCommissionForPolicy, {
+    useFactory: () => new CreateCommissionForPolicy(commissionRepo),
   })
   container.register(IssuePolicy, {
     useFactory: () =>
@@ -312,7 +312,7 @@ export function registerDependencies(redis: Redis | null = null): {
         proposalRepo,
         contactRepo,
         clientRepo,
-        container.resolve(OnPolicyIssued)
+        container.resolve(CreateCommissionForPolicy)
       ),
   })
   container.register(ListPolicies, {
