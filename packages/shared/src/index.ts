@@ -62,3 +62,8 @@ export { signRequest, verifyRequest } from './internal-auth'
 export { RATE_LIMITS } from './rate-limit-constants'
 export * from './socket-events'
 export { isRecord } from './type-guards'
+export {
+  CONTACT_SOURCE_VALUES,
+  isContactSource,
+} from './contact-source'
+export type { ContactSource } from './contact-source'

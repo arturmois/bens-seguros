@@ -6,6 +6,7 @@ function makeRepo() {
   return {
     create: vi.fn().mockResolvedValue(undefined),
     list: vi.fn(),
+    existsByMessageIdHash: vi.fn(),
   } satisfies AiUsageRepository
 }
 

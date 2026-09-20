@@ -8,15 +8,7 @@ export default defineConfig({
   clean: true,
   splitting: false,
   sourcemap: true,
-  noExternal: [
-    '@repo/ai',
-    '@repo/auth',
-    '@repo/core',
-    '@repo/db',
-    '@repo/db-chat',
-    '@repo/env',
-    '@repo/shared',
-  ],
+  noExternal: ['@repo/ai', '@repo/db-chat', '@repo/env', '@repo/shared'],
   external: [
     'bullmq',
     'ioredis',

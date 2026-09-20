@@ -21,4 +21,8 @@ export interface AiUsageRepository {
     filters: ListAiUsageFilters,
     pagination: ListAiUsagePagination
   ): Promise<ListAiUsageResult>
+  existsByMessageIdHash(
+    organizationId: string,
+    messageIdHash: string
+  ): Promise<boolean>
 }

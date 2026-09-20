@@ -1,5 +1,4 @@
 import { generateWithTools } from '@repo/ai'
-import type { ContactSource } from '@repo/db'
 import {
   AiAgent,
   Channel,
@@ -8,6 +7,7 @@ import {
   Conversation,
   Message,
 } from '@repo/db-chat'
+import type { ContactSource } from '@repo/shared'
 import { CHAT_PUBSUB_CHANNELS, CHAT_QUEUES } from '@repo/shared'
 import { type Job, type Queue } from 'bullmq'
 import pino from 'pino'

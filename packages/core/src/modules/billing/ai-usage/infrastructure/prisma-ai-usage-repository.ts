@@ -105,4 +105,15 @@ export class PrismaAiUsageRepository implements AiUsageRepository {
       nextCursor,
     }
   }
+
+  async existsByMessageIdHash(
+    organizationId: string,
+    messageIdHash: string
+  ): Promise<boolean> {
+    const row = await this.prisma.aiUsageRecord.findFirst({
+      where: { organizationId, messageIdHash },
+      select: { id: true },
+    })
+    return row !== null
+  }
 }

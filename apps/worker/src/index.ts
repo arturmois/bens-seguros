@@ -24,6 +24,7 @@ import { setupProactiveAlertsProcessor } from './processors/alerts/index.js'
 import { setupSendQuoteEmailProcessor } from './processors/send-quote-email-processor.js'
 import { setupTrialExpiryProcessor } from './processors/trial-expiry-processor.js'
 import { setupWebhookReconciliationProcessor } from './processors/webhook-reconciliation-processor.js'
+import { setupRecordAiUsageProcessor } from './processors/record-ai-usage-processor.js'
 
 if (env.SENTRY_DSN) {
   Sentry.init({
@@ -95,6 +96,7 @@ const proactiveAlerts = setupProactiveAlertsProcessor(
 const sendQuoteEmail = setupSendQuoteEmailProcessor(connection)
 const trialExpiry = setupTrialExpiryProcessor(connection)
 const webhookReconciliation = setupWebhookReconciliationProcessor(connection)
+const recordAiUsage = setupRecordAiUsageProcessor(connection)
 
 const allWorkers: Worker[] = [
   auditArchive.worker,
@@ -107,6 +109,7 @@ const allWorkers: Worker[] = [
   sendQuoteEmail.worker,
   trialExpiry.worker,
   webhookReconciliation.worker,
+  recordAiUsage.worker,
 ]
 
 for (const w of allWorkers) {
@@ -121,7 +124,7 @@ for (const w of allWorkers) {
 }
 
 logger.info(
-  'ERP Worker started. Active processors: audit-archive, csv-import, dunning, expire-policies, expire-subscriptions, notifications, proactive-alerts, send-quote-email, trial-expiry, webhook-reconciliation'
+  'ERP Worker started. Active processors: audit-archive, csv-import, dunning, expire-policies, expire-subscriptions, notifications, proactive-alerts, send-quote-email, trial-expiry, webhook-reconciliation, erp-record-ai-usage'
 )
 
 const gracefulShutdown = async () => {
@@ -137,6 +140,7 @@ const gracefulShutdown = async () => {
     sendQuoteEmail.worker.close(),
     trialExpiry.worker.close(),
     webhookReconciliation.worker.close(),
+    recordAiUsage.worker.close(),
   ])
   await Promise.all([
     auditArchive.queue.close(),
@@ -149,6 +153,7 @@ const gracefulShutdown = async () => {
     sendQuoteEmail.queue.close(),
     trialExpiry.queue.close(),
     webhookReconciliation.queue.close(),
+    recordAiUsage.queue.close(),
   ])
   await Promise.all([
     dunning.redis.quit(),

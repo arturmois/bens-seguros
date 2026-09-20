@@ -1,4 +1,4 @@
-import type { ContactSource } from '@repo/db'
+import type { ContactSource } from '@repo/shared'
 import { Contact } from '@repo/db-chat'
 import { env } from '@repo/env'
 import { signRequest } from '@repo/shared'

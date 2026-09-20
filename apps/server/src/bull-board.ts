@@ -9,6 +9,7 @@ const QUEUE_NAMES = [
   'erp-notifications',
   'erp-proactive-alerts',
   'erp-audit-archive',
+  'erp-record-ai-usage',
   'chat-send-message',
   'chat-incoming-message',
   'chat-ai-bot',

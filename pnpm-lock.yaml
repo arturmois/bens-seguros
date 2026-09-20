@@ -130,12 +130,6 @@ importers:
       '@repo/ai':
         specifier: workspace:*
         version: link:../../packages/ai
-      '@repo/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@repo/db':
-        specifier: workspace:*
-        version: link:../../packages/db
       '@repo/db-chat':
         specifier: workspace:*
         version: link:../../packages/db-chat
