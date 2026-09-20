@@ -3,6 +3,7 @@ export {
   ClaimNotFoundError,
   InvalidClaimStatusTransitionError,
   CreateClaim,
+  RegisterClaimFromChat,
   DeleteClaim,
   GetClaim,
   ListClaims,
@@ -20,6 +21,8 @@ export type {
   ClaimSortField,
   ClaimStatus,
   CreateClaimInput,
+  RegisterClaimFromChatInput,
+  RegisterClaimFromChatResult,
   UpdateClaimStatusInput,
 } from './claims/index.js'
 

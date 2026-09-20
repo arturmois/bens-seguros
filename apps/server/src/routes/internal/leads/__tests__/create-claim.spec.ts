@@ -1,13 +1,12 @@
 import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeAll,
   afterAll,
+  beforeAll,
   beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
 } from 'vitest'
-import { container } from '@repo/core'
 import {
   createTestApp,
   injectAs,
@@ -16,45 +15,9 @@ import {
 } from '../../../../__tests__/helpers/create-test-app.js'
 import { createInternalClaimRoute } from '../create-claim.js'
 
-const mockTenantPrisma = {
-  client: {
-    findFirst: vi.fn(),
-  },
-  policy: {
-    findFirst: vi.fn(),
-  },
-}
-
-vi.mock('@repo/db/tenant', () => ({
-  createTenantClient: vi.fn(() => mockTenantPrisma),
-}))
-
 const mockExecute = vi.fn()
 
 let app: Awaited<ReturnType<typeof createTestApp>>
-
-const makeClient = () => ({
-  id: 'client-001',
-  name: 'João Silva',
-  organizationId: TEST_ORG_ID,
-  deletedAt: null,
-})
-
-const makePolicy = () => ({
-  id: 'policy-001',
-  organizationId: TEST_ORG_ID,
-  clientId: 'client-001',
-  insurerId: 'insurer-001',
-  status: 'ACTIVE',
-  branch: 'AUTO',
-  endDate: new Date('2026-01-01'),
-})
-
-const makeClaim = () => ({
-  id: 'claim-001',
-  claimNumber: 42,
-  organizationId: TEST_ORG_ID,
-})
 
 const makeBody = (overrides: Partial<Record<string, unknown>> = {}) => ({
   phoneOrDocument: '11999999999',
@@ -63,18 +26,22 @@ const makeBody = (overrides: Partial<Record<string, unknown>> = {}) => ({
 })
 
 beforeAll(async () => {
-  app = await createTestApp(createInternalClaimRoute)
+  app = await createTestApp((fastify) =>
+    createInternalClaimRoute(fastify, {
+      registerClaimFromChatFor: () => ({ execute: mockExecute }),
+    })
+  )
 })
 afterAll(() => app.close())
 beforeEach(() => {
   vi.clearAllMocks()
   setTestContext()
-  mockTenantPrisma.client.findFirst.mockResolvedValue(makeClient())
-  mockTenantPrisma.policy.findFirst.mockResolvedValue(makePolicy())
-  mockExecute.mockResolvedValue(makeClaim())
-  vi.mocked(container.resolve).mockImplementation((token: unknown) => {
-    if (typeof token === 'function') return { execute: mockExecute }
-    return null
+  mockExecute.mockResolvedValue({
+    claimCreated: true,
+    claimNumber: 'SIN-42',
+    dataSaved: false,
+    claimData: null,
+    message: 'Sinistro 42 registrado com prioridade urgente.',
   })
 })
 
@@ -93,7 +60,13 @@ describe('POST /api/internal/claims', () => {
     expect(mockExecute).toHaveBeenCalledOnce()
   })
   it('returns dataSaved=true without creating claim when client is not found', async () => {
-    mockTenantPrisma.client.findFirst.mockResolvedValue(null)
+    mockExecute.mockResolvedValue({
+      claimCreated: false,
+      claimNumber: null,
+      dataSaved: true,
+      claimData: { phoneOrDocument: '11000000000' },
+      message: 'Cliente não encontrado. Dados registrados para o corretor.',
+    })
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/internal/claims',
@@ -104,10 +77,17 @@ describe('POST /api/internal/claims', () => {
     expect(body.data.claimCreated).toBe(false)
     expect(body.data.dataSaved).toBe(true)
     expect(body.data.claimData).toBeDefined()
-    expect(mockExecute).not.toHaveBeenCalled()
+    expect(mockExecute).toHaveBeenCalledOnce()
   })
   it('returns dataSaved=true without creating claim when no active policy is found', async () => {
-    mockTenantPrisma.policy.findFirst.mockResolvedValue(null)
+    mockExecute.mockResolvedValue({
+      claimCreated: false,
+      claimNumber: null,
+      dataSaved: true,
+      claimData: { clientId: 'client-001' },
+      message:
+        'Nenhuma apólice ativa encontrada. Dados registrados para o corretor.',
+    })
     const response = await injectAs(app, {
       method: 'POST',
       url: '/api/internal/claims',
@@ -117,7 +97,7 @@ describe('POST /api/internal/claims', () => {
     const body = response.json()
     expect(body.data.claimCreated).toBe(false)
     expect(body.data.dataSaved).toBe(true)
-    expect(mockExecute).not.toHaveBeenCalled()
+    expect(mockExecute).toHaveBeenCalledOnce()
   })
   it('returns 400 when required fields are missing', async () => {
     const response = await injectAs(app, {
@@ -125,7 +105,7 @@ describe('POST /api/internal/claims', () => {
       url: '/api/internal/claims',
       payload: { phoneOrDocument: '11999999999' },
     })
-    expect(response.statusCode).toBeGreaterThanOrEqual(400)
+    expect(response.statusCode).toBe(400)
   })
   it('accepts optional incidentDate and incidentLocation', async () => {
     const response = await injectAs(app, {
@@ -142,7 +122,10 @@ describe('POST /api/internal/claims', () => {
     expect(body.data.claimCreated).toBe(true)
     expect(mockExecute).toHaveBeenCalledWith(
       expect.objectContaining({
+        organizationId: TEST_ORG_ID,
         incidentLocation: 'Av. Paulista, 1000',
+        incidentDate: '2025-06-01',
+        insuranceType: 'AUTO',
       })
     )
   })

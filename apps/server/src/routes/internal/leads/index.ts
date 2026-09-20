@@ -24,7 +24,10 @@ export function createInternalLeadRoutes(hmac: InternalLeadHmac) {
       updateClientFiscalFor: (organizationId) =>
         forOrg(organizationId).updateClientFiscal,
     })
-    createInternalClaimRoute(app)
+    createInternalClaimRoute(app, {
+      registerClaimFromChatFor: (organizationId) =>
+        forOrg(organizationId).registerClaimFromChat,
+    })
     listInternalProposalsRoute(app, {
       listProposalsFor: (organizationId) =>
         forOrg(organizationId).listProposalsForClient,

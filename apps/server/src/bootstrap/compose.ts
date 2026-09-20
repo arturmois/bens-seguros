@@ -2,20 +2,24 @@ import {
   AutoCompleteChecklistItems,
   CaptureLead,
   composeClients,
+  CreateClaim,
   CreateContact,
   CreateProposal,
   ListActivePoliciesForClient,
   ListProposalsForClient,
   PrismaChecklistRepository,
+  PrismaClaimRepository,
   PrismaClientRepository,
   PrismaContactRepository,
   PrismaDocumentRepository,
   PrismaPolicyRepository,
   PrismaProposalRepository,
+  RegisterClaimFromChat,
   StaticChecklistConfig,
   UpdateClientFiscal,
   type ClientRepository,
   type ClientsApi,
+  type NotificationDispatcher,
 } from '@repo/core'
 import { PrismaMemberRepository } from '@repo/core/workspace/infrastructure'
 import { createTenantClient } from '@repo/db/tenant'
@@ -35,6 +39,7 @@ export interface HmacTenantApi {
   listProposalsForClient: ListProposalsForClient
   listActivePoliciesForClient: ListActivePoliciesForClient
   updateClientFiscal: UpdateClientFiscal
+  registerClaimFromChat: RegisterClaimFromChat
 }
 
 export function forTenant(organizationId: string): HmacTenantApi {
@@ -46,11 +51,20 @@ export function forTenant(organizationId: string): HmacTenantApi {
   const policyRepo = new PrismaPolicyRepository(prisma)
   const documentRepo = new PrismaDocumentRepository(prisma)
   const clientRepo = new PrismaClientRepository(prisma)
+  const claimRepo = new PrismaClaimRepository(prisma)
   const autoComplete = new AutoCompleteChecklistItems(
     checklistRepo,
     proposalRepo,
     contactRepo,
     documentRepo
+  )
+  const notificationDispatcher: NotificationDispatcher = {
+    dispatch: async () => {},
+  }
+  const createClaim = new CreateClaim(
+    claimRepo,
+    memberRepo,
+    notificationDispatcher
   )
   return {
     captureLead: new CaptureLead(
@@ -75,5 +89,11 @@ export function forTenant(organizationId: string): HmacTenantApi {
       policyRepo
     ),
     updateClientFiscal: new UpdateClientFiscal(clientRepo),
+    registerClaimFromChat: new RegisterClaimFromChat(
+      clientRepo,
+      contactRepo,
+      policyRepo,
+      createClaim
+    ),
   }
 }

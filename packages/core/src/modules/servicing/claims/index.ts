@@ -15,6 +15,11 @@ export type {
 } from './domain/claim-repository.js'
 
 export { CreateClaim } from './application/create-claim.js'
+export { RegisterClaimFromChat } from './application/register-claim-from-chat.js'
+export type {
+  RegisterClaimFromChatInput,
+  RegisterClaimFromChatResult,
+} from './application/register-claim-from-chat.js'
 export { DeleteClaim } from './application/delete-claim.js'
 export { GetClaim } from './application/get-claim.js'
 export { ListClaims } from './application/list-claims.js'
