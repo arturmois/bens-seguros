@@ -1,14 +1,13 @@
-const BASIS_POINTS_DIVISOR = 10000
+import { applyBasisPoints } from '../../../shared-kernel/money.js'
 
 export function calculateCommissionValue(
   premiumValueInCents: number,
   percentageInBasisPoints: number,
-  splitPercentageInBasisPoints: number = BASIS_POINTS_DIVISOR
+  splitPercentageInBasisPoints: number = 10000
 ): number {
-  return Math.round(
-    (premiumValueInCents *
-      percentageInBasisPoints *
-      splitPercentageInBasisPoints) /
-      (BASIS_POINTS_DIVISOR * BASIS_POINTS_DIVISOR)
+  return applyBasisPoints(
+    premiumValueInCents,
+    percentageInBasisPoints,
+    splitPercentageInBasisPoints
   )
 }

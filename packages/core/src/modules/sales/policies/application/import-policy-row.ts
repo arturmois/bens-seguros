@@ -1,5 +1,7 @@
 import { hashDocument } from '@repo/shared'
 
+import { reaisToCents } from '../../../../shared-kernel/money.js'
+
 const POLICY_BRANCHES = [
   'AUTO',
   'RESIDENTIAL',
@@ -115,7 +117,7 @@ export class ImportPolicyRow {
           message: `Cliente com CPF/CNPJ ${cpfCnpjCliente} não tem Contact vinculado`,
         }
       }
-      const premiumInCents = Math.round(premioReais * 100)
+      const premiumInCents = reaisToCents(premioReais)
       const proposal = await this.stores.createImportedIssued({
         organizationId: input.organizationId,
         contactId: contact.id,

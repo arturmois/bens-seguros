@@ -14,7 +14,7 @@ function createTestProposal(): Proposal {
     boardType: 'NEW_INSURANCE',
     branch: 'AUTO',
     premiumValueInCents: 100000,
-    commissionPercentageInCents: 1500,
+    commissionBasisPoints: 1500,
     details: null,
     lostReason: null,
     observations: null,

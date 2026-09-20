@@ -18,7 +18,7 @@ function createTestProposal(stage: Proposal['stage'] = 'QUOTE'): Proposal {
     boardType: 'NEW_INSURANCE',
     branch: 'AUTO',
     premiumValueInCents: 100000,
-    commissionPercentageInCents: 1000,
+    commissionBasisPoints: 1000,
     details: null,
     lostReason: null,
     observations: null,

@@ -30,7 +30,7 @@ export class ProposalMapper {
       boardType: row.boardType,
       branch: row.branch,
       premiumValueInCents: row.premiumValueInCents,
-      commissionPercentageInCents: row.commissionPercentageInCents,
+      commissionBasisPoints: row.commissionPercentageInCents,
       details: isInsuredObjectDetails(row.details) ? row.details : null,
       lostReason: row.lostReason,
       observations: row.observations,
@@ -59,8 +59,9 @@ export class ProposalMapper {
 
   static toPersistence(proposal: Proposal): Omit<
     ProposalProps,
-    'deletedAt' | 'details' | 'sourcePolicySnapshot'
+    'deletedAt' | 'details' | 'sourcePolicySnapshot' | 'commissionBasisPoints'
   > & {
+    commissionPercentageInCents: number
     details: Prisma.InputJsonValue | typeof Prisma.DbNull
     sourcePolicySnapshot: Prisma.InputJsonValue | typeof Prisma.DbNull
   } {

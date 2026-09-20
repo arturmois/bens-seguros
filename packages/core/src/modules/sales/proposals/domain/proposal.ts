@@ -110,7 +110,7 @@ export interface ProposalProps {
   boardType: BoardType
   branch: Branch
   premiumValueInCents: number
-  commissionPercentageInCents: number
+  commissionBasisPoints: number
   details: InsuredObjectDetails | null
   lostReason: string | null
   observations: string | null
@@ -169,7 +169,7 @@ export class Proposal {
       boardType: input.boardType,
       branch: input.branch,
       premiumValueInCents: input.premiumValueInCents ?? 0,
-      commissionPercentageInCents: input.commissionPercentageInCents ?? 0,
+      commissionBasisPoints: input.commissionPercentageInCents ?? 0,
       details: null,
       lostReason: null,
       observations: null,
@@ -222,7 +222,7 @@ export class Proposal {
     }
     this.props.details = details
     this.props.premiumValueInCents = premiumValueInCents
-    this.props.commissionPercentageInCents = commissionBasisPoints
+    this.props.commissionBasisPoints = commissionBasisPoints
     if (insurerId !== undefined) {
       this.props.insurerId = insurerId
     }
@@ -323,8 +323,11 @@ export class Proposal {
   get premiumValueInCents(): number {
     return this.props.premiumValueInCents
   }
+  get commissionBasisPoints(): number {
+    return this.props.commissionBasisPoints
+  }
   get commissionPercentageInCents(): number {
-    return this.props.commissionPercentageInCents
+    return this.props.commissionBasisPoints
   }
   get insurerId(): string | null {
     return this.props.insurerId
@@ -363,7 +366,10 @@ export class Proposal {
     )
   }
 
-  toJSON(): ProposalProps {
-    return { ...this.props }
+  toJSON(): Omit<ProposalProps, 'commissionBasisPoints'> & {
+    commissionPercentageInCents: number
+  } {
+    const { commissionBasisPoints, ...rest } = this.props
+    return { ...rest, commissionPercentageInCents: commissionBasisPoints }
   }
 }

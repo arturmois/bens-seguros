@@ -111,7 +111,7 @@ describe('Proposal Entity', () => {
       boardType: 'NEW_INSURANCE',
       branch: 'AUTO',
       premiumValueInCents: 50000,
-      commissionPercentageInCents: 1500,
+      commissionBasisPoints: 1500,
       details: null,
       lostReason: null,
       observations: null,
@@ -196,6 +196,16 @@ describe('Proposal Entity', () => {
     expect(json.id).toBe(proposal.id)
     expect(json.stage).toBe('CAPTURE')
     expect(json.organizationId).toBe('org-1')
+  })
+  it('toJSON emits commissionPercentageInCents not commissionBasisPoints', () => {
+    const proposal = Proposal.create({
+      ...validProps,
+      commissionPercentageInCents: 1500,
+    })
+    const json = proposal.toJSON()
+    expect(json.commissionPercentageInCents).toBe(1500)
+    expect(Object.hasOwn(json, 'commissionBasisPoints')).toBe(false)
+    expect(proposal.commissionBasisPoints).toBe(1500)
   })
   describe('updateDetails', () => {
     const autoDetails: AutoDetails = {
