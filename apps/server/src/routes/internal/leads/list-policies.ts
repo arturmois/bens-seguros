@@ -1,18 +1,24 @@
-import type { Prisma } from '@repo/db'
-import { createTenantClient } from '@repo/db/tenant'
+import type { ListActivePoliciesForClient } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { errorResponse } from '../../shared/response.schema.js'
-import { resolveClientId } from './helpers/index.js'
+import { handleDomainError } from '../../v1/handle-domain-error.js'
 import {
   listInternalPoliciesQuerySchema,
   listInternalPoliciesResponse,
 } from './schemas/index.js'
 
-const MAX_POLICIES = 10
+export interface ListInternalPoliciesApi {
+  listPoliciesFor: (
+    organizationId: string
+  ) => Pick<ListActivePoliciesForClient, 'execute'>
+}
 
-export function listInternalPoliciesRoute(app: FastifyInstance) {
+export function listInternalPoliciesRoute(
+  app: FastifyInstance,
+  api: ListInternalPoliciesApi
+) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'GET',
     url: '/api/internal/policies',
@@ -35,50 +41,17 @@ export function listInternalPoliciesRoute(app: FastifyInstance) {
           },
         })
       }
-      const tenantPrisma = createTenantClient(organizationId)
-      const resolvedClientId = await resolveClientId(
-        tenantPrisma,
-        organizationId,
-        clientId,
-        phone
-      )
-      if (!resolvedClientId) {
-        return reply.status(200).send({
-          success: true,
-          data: { policies: [], total: 0 },
+      try {
+        const data = await api.listPoliciesFor(organizationId).execute({
+          organizationId,
+          clientId,
+          phone,
+          branch,
         })
+        return reply.status(200).send({ success: true, data })
+      } catch (error) {
+        return handleDomainError(error, reply)
       }
-      const where: Prisma.PolicyWhereInput = {
-        organizationId,
-        clientId: resolvedClientId,
-        status: 'ACTIVE',
-        deletedAt: null,
-      }
-      if (branch) {
-        where.branch = branch as Prisma.PolicyWhereInput['branch']
-      }
-      const policies = await tenantPrisma.policy.findMany({
-        where,
-        include: { insurer: { select: { name: true } } },
-        orderBy: { endDate: 'desc' },
-        take: MAX_POLICIES,
-      })
-      return reply.status(200).send({
-        success: true,
-        data: {
-          policies: policies.map((p) => ({
-            id: p.id,
-            policyNumber: String(p.policyNumber),
-            branch: p.branch,
-            status: p.status,
-            startDate: p.startDate,
-            endDate: p.endDate,
-            premiumValueInCents: p.premiumValueInCents,
-            insurerName: p.insurer?.name ?? null,
-          })),
-          total: policies.length,
-        },
-      })
     },
   })
 }

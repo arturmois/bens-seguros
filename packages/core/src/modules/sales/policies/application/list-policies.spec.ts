@@ -9,6 +9,7 @@ describe('ListPolicies', () => {
       create: vi.fn(),
       findById: vi.fn(),
       findByPolicyNumber: vi.fn(),
+      listActiveForClient: vi.fn(),
       findMany: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
       cancel: vi.fn(),
     } as unknown as PolicyRepository

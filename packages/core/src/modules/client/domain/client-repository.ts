@@ -58,8 +58,11 @@ export interface UpdateClientPersistence {
   personType?: PersonType
   profession?: string | null
   maritalStatus?: MaritalStatus | null
-  address?: ClientAddress | null
+  address?: ClientAddress | Record<string, unknown> | null
   fiscalBirthDate?: Date | null
+  document?: string
+  documentHash?: string
+  documentEncrypted?: string
 }
 
 export interface ClientRepository {

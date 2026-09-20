@@ -40,6 +40,12 @@ export { GetClient } from './application/get-client.js'
 export { LgpdDeleteClient } from './application/lgpd-delete-client.js'
 export { ListClients } from './application/list-clients.js'
 export { UpdateClient } from './application/update-client.js'
+export { UpdateClientFiscal } from './application/update-client-fiscal.js'
+export type { UpdateClientFiscalInput } from './application/update-client-fiscal.js'
+export {
+  ClientNotFoundFiscalError,
+  InvalidDocumentError,
+} from './application/update-client-fiscal.js'
 
 export { clientImportRowSchema } from './application/client-import-schema.js'
 export type { ClientImportRow } from './application/client-import-schema.js'

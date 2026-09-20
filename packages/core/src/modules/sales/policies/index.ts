@@ -34,6 +34,12 @@ export { ExportPoliciesCsv } from './application/export-policies-csv.js'
 export { GetPolicy } from './application/get-policy.js'
 export { IssuePolicy } from './application/issue-policy.js'
 export { ListPolicies } from './application/list-policies.js'
+export { ListActivePoliciesForClient } from './application/list-active-policies-for-client.js'
+export type {
+  ChatPolicyItem,
+  ListActivePoliciesForClientInput,
+  ListActivePoliciesForClientResult,
+} from './application/list-active-policies-for-client.js'
 
 export { ParsePolicyImport } from './application/parse-policy-import.js'
 export { policyImportRowSchema } from './application/policy-import-schema.js'

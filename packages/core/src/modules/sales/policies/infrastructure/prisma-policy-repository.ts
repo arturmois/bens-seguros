@@ -12,6 +12,24 @@ import type {
 } from '../domain/policy-repository.js'
 import { PolicyMapper } from './policy-mapper.js'
 
+const POLICY_BRANCHES = [
+  'AUTO',
+  'RESIDENTIAL',
+  'CONDOMINIUM',
+  'BUSINESS',
+  'LIFE',
+  'OTHER',
+] as const
+
+function isPolicyBranch(
+  value: string | undefined
+): value is PolicyData['branch'] {
+  return (
+    value !== undefined &&
+    (POLICY_BRANCHES as readonly string[]).includes(value)
+  )
+}
+
 const POLICY_INCLUDE = {
   client: {
     select: { legalName: true, document: true, address: true },
@@ -148,6 +166,28 @@ export class PrismaPolicyRepository implements PolicyRepository {
       items: items.map(PolicyMapper.toDomain),
       nextCursor: hasNext ? (items.at(-1)?.id ?? null) : null,
     }
+  }
+
+  async listActiveForClient(input: {
+    organizationId: string
+    clientId: string
+    branch?: string
+    limit: number
+  }): Promise<PolicyData[]> {
+    const branch = isPolicyBranch(input.branch) ? input.branch : undefined
+    const rows = await this.prisma.policy.findMany({
+      where: {
+        organizationId: input.organizationId,
+        clientId: input.clientId,
+        status: 'ACTIVE',
+        deletedAt: null,
+        ...(branch ? { branch } : {}),
+      },
+      include: POLICY_INCLUDE,
+      orderBy: { endDate: 'desc' },
+      take: input.limit,
+    })
+    return rows.map(PolicyMapper.toDomain)
   }
 
   async cancel(

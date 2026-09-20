@@ -101,6 +101,12 @@ export interface PolicyRepository {
     organizationId: string
   ): Promise<PolicyData | null>
   findMany(filters: PolicyFilters, page: PolicyCursorPage): Promise<PolicyPage>
+  listActiveForClient(input: {
+    organizationId: string
+    clientId: string
+    branch?: string
+    limit: number
+  }): Promise<PolicyData[]>
   cancel(
     id: string,
     organizationId: string,

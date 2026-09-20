@@ -3,7 +3,7 @@
 Profile: standard
 Plan: `.specs/features/phase-4-edges/plan.md`
 
-66 checks in 6 slices · 3 one-way doors · 43 open, of which 0 block
+66 checks in 6 slices · 3 one-way doors · 30 open, of which 0 block
 
 ## Checks
 
@@ -84,46 +84,46 @@ Proof: `pnpm --filter @repo/core exec vitest run src/modules/sales/leads/applica
 
 ### S3 - Internal list/update through modules (T4.3) · ~12 files · ~40k
 
-**C24** - `list-proposals.ts`, `list-policies.ts`, and `update-client.ts` under `apps/server/src/routes/internal/leads/` contain neither `from '@repo/db'` nor `createTenantClient` (INT-01, AC 24, door 1)
+**C24** · closed - `list-proposals.ts`, `list-policies.ts`, and `update-client.ts` under `apps/server/src/routes/internal/leads/` contain neither `from '@repo/db'` nor `createTenantClient` (INT-01, AC 24, door 1)
 Proof: `node --test --test-name-pattern "internal list and update-client routes have no @repo/db" scripts/phase-4-edges.test.mjs`
 
-**C25** - `GET /api/internal/proposals` with neither `clientId` nor `phone` responds `400` with `error.code` `MISSING_PARAMS` and `error.message` `At least one of clientId or phone is required` (INT-02, AC 25)
+**C25** · closed - `GET /api/internal/proposals` with neither `clientId` nor `phone` responds `400` with `error.code` `MISSING_PARAMS` and `error.message` `At least one of clientId or phone is required` (INT-02, AC 25)
 Proof: `pnpm --filter @app/server exec vitest run src/routes/internal/leads/__tests__/list-proposals.spec.ts -t "returns 400 when neither clientId nor phone is provided"`
 
-**C26** - `GET /api/internal/policies` with neither `clientId` nor `phone` responds `400` with `error.code` `MISSING_PARAMS` and `error.message` `At least one of clientId or phone is required` (INT-02, AC 25)
+**C26** · closed - `GET /api/internal/policies` with neither `clientId` nor `phone` responds `400` with `error.code` `MISSING_PARAMS` and `error.message` `At least one of clientId or phone is required` (INT-02, AC 25)
 Proof: `pnpm --filter @app/server exec vitest run src/routes/internal/leads/__tests__/list-policies.spec.ts -t "returns 400 when neither clientId nor phone is provided"`
 
-**C27** - `GET /api/internal/proposals` that cannot resolve a client responds `200` with `data.proposals` `[]` and `data.total` `0` (INT-02, AC 26)
+**C27** · closed - `GET /api/internal/proposals` that cannot resolve a client responds `200` with `data.proposals` `[]` and `data.total` `0` (INT-02, AC 26)
 Proof: `pnpm --filter @app/server exec vitest run src/routes/internal/leads/__tests__/list-proposals.spec.ts -t "returns empty list when client is not found by phone"`
 
-**C28** - `GET /api/internal/proposals` for a resolved client returns at most `10` proposals ordered by `createdAt` descending with keys `id`, `branch`, `stage`, `premiumValueInCents`, `coverageStartDate`, `createdAt`, `clientName` (INT-02, AC 27)
+**C28** · closed - `GET /api/internal/proposals` for a resolved client returns at most `10` proposals ordered by `createdAt` descending with keys `id`, `branch`, `stage`, `premiumValueInCents`, `coverageStartDate`, `createdAt`, `clientName` (INT-02, AC 27)
 Proof: `pnpm --filter @repo/core exec vitest run src/modules/sales/proposals/application/list-proposals-for-client.spec.ts -t "returns at most 10 proposals by createdAt desc with clientName"`
 
-**C29** - `GET /api/internal/policies` for a resolved client returns only `status` `ACTIVE` policies, at most `10`, with `policyNumber` as a string (INT-02, AC 28)
+**C29** · closed - `GET /api/internal/policies` for a resolved client returns only `status` `ACTIVE` policies, at most `10`, with `policyNumber` as a string (INT-02, AC 28)
 Proof: `pnpm --filter @repo/core exec vitest run src/modules/sales/policies/application/list-active-policies-for-client.spec.ts -t "returns at most 10 ACTIVE policies with policyNumber string"`
 
-**C30** - `PUT /api/internal/clients/:id` for an id the tenant cannot see responds `404` with `error.code` `CLIENT_NOT_FOUND` and `error.message` `Client not found` (INT-03, AC 29)
+**C30** · closed - `PUT /api/internal/clients/:id` for an id the tenant cannot see responds `404` with `error.code` `CLIENT_NOT_FOUND` and `error.message` `Client not found` (INT-03, AC 29)
 Proof: `pnpm --filter @app/server exec vitest run src/routes/internal/leads/__tests__/update-client.spec.ts -t "returns 404 when client does not exist"`
 
-**C31** - `PUT /api/internal/clients/:id` with a document whose digit count is not `11` and not `14` responds `400` with `error.code` `INVALID_DOCUMENT` (INT-03, AC 30)
+**C31** · closed - `PUT /api/internal/clients/:id` with a document whose digit count is not `11` and not `14` responds `400` with `error.code` `INVALID_DOCUMENT` (INT-03, AC 30)
 Proof: `pnpm --filter @app/server exec vitest run src/routes/internal/leads/__tests__/update-client.spec.ts -t "returns 400 when document has invalid length"`
 
-**C32** - `PUT /api/internal/clients/:id` with an 11- or 14-digit document persists `document`, `documentHash`, and `documentEncrypted` (INT-03, AC 31)
+**C32** · closed - `PUT /api/internal/clients/:id` with an 11- or 14-digit document persists `document`, `documentHash`, and `documentEncrypted` (INT-03, AC 31)
 Proof: `pnpm --filter @app/server exec vitest run src/routes/internal/leads/__tests__/update-client.spec.ts -t "persists fiscal document fields when a valid document is provided"`
 
-**C33** - `UpdateClientFiscal.execute` with only `email` does not write an email field on `client` (INT-03, AC 32)
+**C33** · closed - `UpdateClientFiscal.execute` with only `email` does not write an email field on `client` (INT-03, AC 32)
 Proof: `pnpm --filter @repo/core exec vitest run src/modules/client/application/update-client-fiscal.spec.ts -t "email-only input does not write email on client"`
 
-**C34** - HMAC `forTenant(organizationId)` constructs repositories with `createTenantClient(organizationId)` and does not pass `prismaAdmin` (RLS-01, AC 33, door 1)
+**C34** · closed - HMAC `forTenant(organizationId)` constructs repositories with `createTenantClient(organizationId)` and does not pass `prismaAdmin` (RLS-01, AC 33, door 1)
 Proof: `pnpm --filter @app/server exec vitest run src/bootstrap/compose.spec.ts -t "forTenant calls createTenantClient not prismaAdmin"`
 
-**C35** - organization B’s tenant client listing proposals does not include a proposal whose `organizationId` is A (RLS-01, AC 34, door 1)
+**C35** · closed - organization B’s tenant client listing proposals does not include a proposal whose `organizationId` is A (RLS-01, AC 34, door 1)
 Proof: `pnpm --filter @repo/core exec vitest run --project core:db src/modules/sales/proposals/application/list-proposals-for-client.db.spec.ts -t "org B tenant does not list org A proposals"`
 
-**C36** - `listInternalProposals` stays on `GET` `/api/internal/proposals`, `listInternalPolicies` on `GET` `/api/internal/policies`, `updateClientInternal` on `PUT` `/api/internal/clients/:id` (INT-01, AC 35)
+**C36** · closed - `listInternalProposals` stays on `GET` `/api/internal/proposals`, `listInternalPolicies` on `GET` `/api/internal/policies`, `updateClientInternal` on `PUT` `/api/internal/clients/:id` (INT-01, AC 35)
 Proof: `node --test --test-name-pattern "internal list and update operationIds stay on the same method and URL" scripts/phase-4-edges.test.mjs`
 
-**C37** - a successful `PUT /api/internal/clients/:id` returns `data.message` `Dados do cliente atualizados` (INT-03, AC 36)
+**C37** · closed - a successful `PUT /api/internal/clients/:id` returns `data.message` `Dados do cliente atualizados` (INT-03, AC 36)
 Proof: `pnpm --filter @app/server exec vitest run src/routes/internal/leads/__tests__/update-client.spec.ts -t "updates multiple fields in a single request"`
 
 ### S4 - Worker sales writes (T4.4) · ~8 files · ~25k

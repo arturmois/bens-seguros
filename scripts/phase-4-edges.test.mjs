@@ -105,3 +105,36 @@ test('chat-worker capture-lead path and body keys unchanged', () => {
   assert.match(text, /notes/)
   assert.match(text, /source/)
 })
+
+test('internal list and update-client routes have no @repo/db', () => {
+  for (const relative of [
+    'apps/server/src/routes/internal/leads/list-proposals.ts',
+    'apps/server/src/routes/internal/leads/list-policies.ts',
+    'apps/server/src/routes/internal/leads/update-client.ts',
+  ]) {
+    const text = readRepo(relative)
+    assert.doesNotMatch(text, /from ['"]@repo\/db/)
+    assert.doesNotMatch(text, /createTenantClient/)
+  }
+})
+
+test('internal list and update operationIds stay on the same method and URL', () => {
+  const proposals = readRepo(
+    'apps/server/src/routes/internal/leads/list-proposals.ts'
+  )
+  assert.match(proposals, /operationId:\s*'listInternalProposals'/)
+  assert.match(proposals, /method:\s*'GET'/)
+  assert.match(proposals, /url:\s*'\/api\/internal\/proposals'/)
+  const policies = readRepo(
+    'apps/server/src/routes/internal/leads/list-policies.ts'
+  )
+  assert.match(policies, /operationId:\s*'listInternalPolicies'/)
+  assert.match(policies, /method:\s*'GET'/)
+  assert.match(policies, /url:\s*'\/api\/internal\/policies'/)
+  const clients = readRepo(
+    'apps/server/src/routes/internal/leads/update-client.ts'
+  )
+  assert.match(clients, /operationId:\s*'updateClientInternal'/)
+  assert.match(clients, /method:\s*'PUT'/)
+  assert.match(clients, /url:\s*'\/api\/internal\/clients\/:id'/)
+})

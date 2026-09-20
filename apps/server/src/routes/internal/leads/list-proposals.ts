@@ -1,18 +1,24 @@
-import type { Prisma } from '@repo/db'
-import { createTenantClient } from '@repo/db/tenant'
+import type { ListProposalsForClient } from '@repo/core'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { errorResponse } from '../../shared/response.schema.js'
-import { resolveClientId } from './helpers/index.js'
+import { handleDomainError } from '../../v1/handle-domain-error.js'
 import {
   listInternalProposalsQuerySchema,
   listInternalProposalsResponse,
 } from './schemas/index.js'
 
-const MAX_PROPOSALS = 10
+export interface ListInternalProposalsApi {
+  listProposalsFor: (
+    organizationId: string
+  ) => Pick<ListProposalsForClient, 'execute'>
+}
 
-export function listInternalProposalsRoute(app: FastifyInstance) {
+export function listInternalProposalsRoute(
+  app: FastifyInstance,
+  api: ListInternalProposalsApi
+) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'GET',
     url: '/api/internal/proposals',
@@ -35,50 +41,17 @@ export function listInternalProposalsRoute(app: FastifyInstance) {
           },
         })
       }
-      const tenantPrisma = createTenantClient(organizationId)
-      const resolvedClientId = await resolveClientId(
-        tenantPrisma,
-        organizationId,
-        clientId,
-        phone
-      )
-      if (!resolvedClientId) {
-        return reply.status(200).send({
-          success: true,
-          data: { proposals: [], total: 0 },
+      try {
+        const data = await api.listProposalsFor(organizationId).execute({
+          organizationId,
+          clientId,
+          phone,
+          status,
         })
+        return reply.status(200).send({ success: true, data })
+      } catch (error) {
+        return handleDomainError(error, reply)
       }
-      const where: Prisma.ProposalWhereInput = {
-        organizationId,
-        contact: { clientId: resolvedClientId },
-        deletedAt: null,
-      }
-      if (status === 'LOST') {
-        where.stage = 'LOST'
-      } else if (status === 'ACTIVE') {
-        where.stage = { notIn: ['LOST', 'POLICY_ISSUED'] }
-      }
-      const proposals = await tenantPrisma.proposal.findMany({
-        where,
-        include: { contact: { select: { name: true } } },
-        orderBy: { createdAt: 'desc' },
-        take: MAX_PROPOSALS,
-      })
-      return reply.status(200).send({
-        success: true,
-        data: {
-          proposals: proposals.map((p) => ({
-            id: p.id,
-            branch: p.branch,
-            stage: p.stage,
-            premiumValueInCents: p.premiumValueInCents,
-            coverageStartDate: p.coverageStartDate,
-            createdAt: p.createdAt,
-            clientName: p.contact?.name ?? '',
-          })),
-          total: proposals.length,
-        },
-      })
     },
   })
 }

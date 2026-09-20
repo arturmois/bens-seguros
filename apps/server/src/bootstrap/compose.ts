@@ -4,12 +4,16 @@ import {
   composeClients,
   CreateContact,
   CreateProposal,
+  ListActivePoliciesForClient,
+  ListProposalsForClient,
   PrismaChecklistRepository,
+  PrismaClientRepository,
   PrismaContactRepository,
   PrismaDocumentRepository,
   PrismaPolicyRepository,
   PrismaProposalRepository,
   StaticChecklistConfig,
+  UpdateClientFiscal,
   type ClientRepository,
   type ClientsApi,
 } from '@repo/core'
@@ -28,6 +32,9 @@ export function composeServerClients(
 
 export interface HmacTenantApi {
   captureLead: CaptureLead
+  listProposalsForClient: ListProposalsForClient
+  listActivePoliciesForClient: ListActivePoliciesForClient
+  updateClientFiscal: UpdateClientFiscal
 }
 
 export function forTenant(organizationId: string): HmacTenantApi {
@@ -38,6 +45,7 @@ export function forTenant(organizationId: string): HmacTenantApi {
   const checklistRepo = new PrismaChecklistRepository(prisma)
   const policyRepo = new PrismaPolicyRepository(prisma)
   const documentRepo = new PrismaDocumentRepository(prisma)
+  const clientRepo = new PrismaClientRepository(prisma)
   const autoComplete = new AutoCompleteChecklistItems(
     checklistRepo,
     proposalRepo,
@@ -58,5 +66,14 @@ export function forTenant(organizationId: string): HmacTenantApi {
         autoComplete
       )
     ),
+    listProposalsForClient: new ListProposalsForClient(
+      contactRepo,
+      proposalRepo
+    ),
+    listActivePoliciesForClient: new ListActivePoliciesForClient(
+      contactRepo,
+      policyRepo
+    ),
+    updateClientFiscal: new UpdateClientFiscal(clientRepo),
   }
 }

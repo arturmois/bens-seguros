@@ -89,6 +89,50 @@ export class PrismaProposalRepository implements ProposalRepository {
     return rows.map((row) => ProposalMapper.toDomain(row))
   }
 
+  async listForClient(input: {
+    organizationId: string
+    clientId: string
+    status: 'ACTIVE' | 'LOST' | 'ALL'
+    limit: number
+  }): Promise<
+    Array<{
+      id: string
+      branch: string
+      stage: string
+      premiumValueInCents: number | null
+      coverageStartDate: Date | null
+      createdAt: Date
+      clientName: string
+    }>
+  > {
+    const stageFilter =
+      input.status === 'LOST'
+        ? { stage: 'LOST' as const }
+        : input.status === 'ACTIVE'
+          ? { stage: { notIn: ['LOST' as const, 'POLICY_ISSUED' as const] } }
+          : {}
+    const rows = await this.prisma.proposal.findMany({
+      where: {
+        organizationId: input.organizationId,
+        contact: { clientId: input.clientId },
+        deletedAt: null,
+        ...stageFilter,
+      },
+      include: { contact: { select: { name: true } } },
+      orderBy: { createdAt: 'desc' },
+      take: input.limit,
+    })
+    return rows.map((row) => ({
+      id: row.id,
+      branch: row.branch,
+      stage: row.stage,
+      premiumValueInCents: row.premiumValueInCents,
+      coverageStartDate: row.coverageStartDate,
+      createdAt: row.createdAt,
+      clientName: row.contact?.name ?? '',
+    }))
+  }
+
   private toListItem(
     row: Prisma.ProposalGetPayload<{ include: typeof PROPOSAL_INCLUDE }>
   ): ProposalListItem {

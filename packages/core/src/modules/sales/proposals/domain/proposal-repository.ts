@@ -48,4 +48,20 @@ export interface ProposalRepository {
     contactId: string,
     organizationId: string
   ): Promise<Proposal[]>
+  listForClient(input: {
+    organizationId: string
+    clientId: string
+    status: 'ACTIVE' | 'LOST' | 'ALL'
+    limit: number
+  }): Promise<
+    Array<{
+      id: string
+      branch: string
+      stage: string
+      premiumValueInCents: number | null
+      coverageStartDate: Date | null
+      createdAt: Date
+      clientName: string
+    }>
+  >
 }

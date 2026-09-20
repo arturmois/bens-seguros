@@ -14,9 +14,9 @@ ADRs that constrain later features live in `docs/ARCHITECTURE-DECISIONS.md` and 
 ## Handoff
 
 **Feature**: phase-4-edges
-**Where**: S1 C1–C10 and S2 C11–C23 closed
-**In progress**: S3 T4.3 internal list/update C24–C37
-**Next step**: TDD ListProposalsForClient, ListActivePoliciesForClient, UpdateClientFiscal, HMAC forTenant
+**Where**: S1–S3 closed (C1–C37)
+**In progress**: S4 T4.4 worker writes C38–C46
+**Next step**: ExpireDuePolicies + MarkQuoteSent; workers keep prismaAdmin
 **Blockers**: none
-**Uncommitted**: S2 landing in this commit
+**Uncommitted**: none
 **Branch**: main (do not push unless asked)

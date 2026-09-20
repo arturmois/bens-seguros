@@ -210,6 +210,13 @@ export class PrismaClientRepository implements ClientRepository {
         data.address === null ? Prisma.JsonNull : toInputJsonValue(data.address)
       updateData.address = address
     }
+    if (data.document !== undefined) updateData.document = data.document
+    if (data.documentHash !== undefined) {
+      updateData.documentHash = data.documentHash
+    }
+    if (data.documentEncrypted !== undefined) {
+      updateData.documentEncrypted = data.documentEncrypted
+    }
     const row = await this.prisma.client.update({
       where: { id, organizationId },
       data: updateData,

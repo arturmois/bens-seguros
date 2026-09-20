@@ -58,3 +58,19 @@ describe('composeServerClients', () => {
     expect(graph.clients.lgpdDeleteClient).toBeDefined()
   })
 })
+
+describe('forTenant', () => {
+  it('forTenant calls createTenantClient not prismaAdmin', async () => {
+    const { readFileSync } = await import('node:fs')
+    const { fileURLToPath } = await import('node:url')
+    const composePath = fileURLToPath(new URL('./compose.ts', import.meta.url))
+    const source = readFileSync(composePath, 'utf8')
+    expect(source).not.toMatch(/prismaAdmin/)
+    const { forTenant } = await import('./compose.js')
+    const graph = forTenant('org-hmac-1')
+    expect(source).toMatch(/createTenantClient\(organizationId\)/)
+    expect(graph.captureLead.execute).toEqual(expect.any(Function))
+    expect(graph.listProposalsForClient.execute).toEqual(expect.any(Function))
+    expect(graph.updateClientFiscal.execute).toEqual(expect.any(Function))
+  })
+})
