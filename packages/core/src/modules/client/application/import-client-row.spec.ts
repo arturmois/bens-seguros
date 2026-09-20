@@ -74,4 +74,24 @@ describe('ImportClientRow', () => {
       })
     )
   })
+
+  it('repo throw returns failed and does not create a second client', async () => {
+    const saveClient = vi.fn().mockRejectedValue(new Error('write failed'))
+    const useCase = new ImportClientRow(
+      {
+        findByDocumentHash: vi.fn().mockResolvedValue(null),
+        save: saveClient,
+      },
+      {
+        findOldestByClientId: vi.fn(),
+        save: vi.fn(),
+      }
+    )
+    const result = await useCase.execute({
+      organizationId: 'org-1',
+      userId: 'user-1',
+      raw: { Nome: 'Erro', 'CPF/CNPJ': '111.444.777-35' },
+    })
+    expect(result).toEqual({ status: 'failed', message: 'write failed' })
+  })
 })

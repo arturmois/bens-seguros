@@ -115,6 +115,18 @@ describe('FindExpiringPolicies live db', () => {
       status: 'CANCELLED',
       endDate: new Date(day7.start.getTime() + 12 * 60 * 60 * 1000),
     })
+    const deletedId = await seedPolicy({
+      organizationId: org.id,
+      userId: user.id,
+      clientId: client.id,
+      policyNumber: `DEL-${suffix.slice(0, 8)}`,
+      status: 'ACTIVE',
+      endDate: new Date(day7.start.getTime() + 12 * 60 * 60 * 1000),
+    })
+    await prismaAdmin.policy.update({
+      where: { id: deletedId },
+      data: { deletedAt: now },
+    })
     const outside = await seedPolicy({
       organizationId: org.id,
       userId: user.id,
@@ -138,6 +150,7 @@ describe('FindExpiringPolicies live db', () => {
       expect(byDays.get(7)).toContain(id7)
       expect(byDays.get(7)).not.toContain(cancelled)
       expect(byDays.get(7)).not.toContain(outside)
+      expect(byDays.get(7)).not.toContain(deletedId)
     } finally {
       await prismaAdmin.policy.deleteMany({
         where: { organizationId: org.id },

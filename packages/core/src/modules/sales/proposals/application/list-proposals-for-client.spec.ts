@@ -22,11 +22,18 @@ describe('ListProposalsForClient', () => {
     } as unknown as ContactRepository
     const listForClient = vi
       .fn()
-      .mockResolvedValue(
-        Array.from({ length: 15 }, (_, index) =>
-          chatProposal(`p-${String(index)}`, new Date(2026, 0, 15 - index))
-        )
-      )
+      .mockResolvedValue([
+        chatProposal('p-old', new Date('2026-01-01T00:00:00.000Z')),
+        chatProposal('p-mid', new Date('2026-01-10T00:00:00.000Z')),
+        ...Array.from({ length: 13 }, (_, index) =>
+          chatProposal(
+            `p-${String(index)}`,
+            new Date(
+              `2026-01-${String(index + 2).padStart(2, '0')}T00:00:00.000Z`
+            )
+          )
+        ),
+      ])
     const proposalRepo = { listForClient } as unknown as ProposalRepository
     const useCase = new ListProposalsForClient(contactRepo, proposalRepo)
     const result = await useCase.execute({
@@ -41,10 +48,16 @@ describe('ListProposalsForClient', () => {
     })
     expect(result.proposals).toHaveLength(10)
     expect(result.total).toBe(10)
+    const createdAtTimes = result.proposals.map((item) =>
+      item.createdAt.getTime()
+    )
+    expect(createdAtTimes).toEqual([...createdAtTimes].sort((a, b) => b - a))
+    const ids = result.proposals.map((item) => item.id)
+    expect(ids[0]).toBe('p-12')
+    expect(ids).not.toContain('p-old')
     const first = result.proposals[0]
     expect(first).toBeDefined()
-    if (!first) return
-    expect(Object.keys(first).sort()).toEqual(
+    expect(Object.keys(first ?? {}).sort()).toEqual(
       [
         'id',
         'branch',
@@ -55,6 +68,6 @@ describe('ListProposalsForClient', () => {
         'clientName',
       ].sort()
     )
-    expect(first.clientName).toBe('João Silva')
+    expect(first?.clientName).toBe('João Silva')
   })
 })

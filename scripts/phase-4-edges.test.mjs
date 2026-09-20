@@ -94,6 +94,9 @@ test('create-lead.ts has no @repo/db import', () => {
   const text = readRepo('apps/server/src/routes/internal/leads/create-lead.ts')
   assert.doesNotMatch(text, /from ['"]@repo\/db/)
   assert.doesNotMatch(text, /createTenantClient/)
+  assert.match(text, /operationId:\s*'createLead'/)
+  assert.match(text, /method:\s*'POST'/)
+  assert.match(text, /url:\s*'\/api\/internal\/leads'/)
 })
 
 test('chat-worker capture-lead path and body keys unchanged', () => {

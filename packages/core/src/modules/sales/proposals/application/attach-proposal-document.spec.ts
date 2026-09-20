@@ -99,4 +99,38 @@ describe('AttachProposalDocument', () => {
     })
     expect(result.id).toBe('doc-1')
   })
+
+  it('CLIENT entityType does not auto-complete', async () => {
+    const uploadDocument = fakeUpload(
+      persistedDocument({ entityType: 'CLIENT', entityId: 'client-1' })
+    )
+    const autoComplete = fakeAutoComplete()
+    const useCase = new AttachProposalDocument(uploadDocument, autoComplete)
+    await useCase.execute({
+      ...proposalUpload,
+      entityType: 'CLIENT',
+      entityId: 'client-1',
+      type: 'DRIVER_LICENSE',
+    })
+    expect(autoComplete.execute).not.toHaveBeenCalled()
+  })
+
+  it('missing type does not auto-complete', async () => {
+    const uploadDocument = fakeUpload(persistedDocument())
+    const autoComplete = fakeAutoComplete()
+    const useCase = new AttachProposalDocument(uploadDocument, autoComplete)
+    await useCase.execute({ ...proposalUpload })
+    expect(autoComplete.execute).not.toHaveBeenCalled()
+  })
+
+  it('unmapped document type does not auto-complete', async () => {
+    const uploadDocument = fakeUpload(persistedDocument({ type: 'OTHER' }))
+    const autoComplete = fakeAutoComplete()
+    const useCase = new AttachProposalDocument(uploadDocument, autoComplete)
+    await useCase.execute({
+      ...proposalUpload,
+      type: 'OTHER',
+    })
+    expect(autoComplete.execute).not.toHaveBeenCalled()
+  })
 })

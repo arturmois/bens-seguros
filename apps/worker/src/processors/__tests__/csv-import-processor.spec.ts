@@ -90,4 +90,36 @@ describe('csv-import-processor', () => {
       `Cliente com CPF/CNPJ ${missingContactCpf} não tem Contact vinculado`,
     ])
   })
+
+  it('slices rows in batches of 50 and caps recorded errors at 100', async () => {
+    const importPolicyRow = {
+      execute: vi.fn().mockResolvedValue({
+        status: 'failed' as const,
+        message: 'write failed',
+      }),
+    }
+    const updateProgress = vi.fn().mockResolvedValue(undefined)
+    const rows = Array.from({ length: 101 }, (_, index) => ({
+      'Numero Apolice': `POL-${String(index)}`,
+    }))
+    const progress = await runCsvImport(
+      {
+        data: {
+          entityType: 'policy',
+          organizationId: 'org-1',
+          userId: 'user-1',
+          rows,
+          totalRows: 101,
+        },
+        updateProgress,
+      },
+      {
+        importClientRow: { execute: vi.fn() },
+        importPolicyRow,
+      }
+    )
+    expect(progress.failed).toBe(101)
+    expect(progress.errors).toHaveLength(100)
+    expect(updateProgress).toHaveBeenCalledTimes(3)
+  })
 })

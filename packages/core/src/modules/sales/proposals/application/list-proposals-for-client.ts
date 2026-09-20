@@ -42,7 +42,10 @@ export class ListProposalsForClient {
       status: input.status ?? 'ACTIVE',
       limit: 10,
     })
-    const capped = proposals.slice(0, 10)
+    const newestFirst = [...proposals].sort(
+      (left, right) => right.createdAt.getTime() - left.createdAt.getTime()
+    )
+    const capped = newestFirst.slice(0, 10)
     return { proposals: capped, total: capped.length }
   }
 

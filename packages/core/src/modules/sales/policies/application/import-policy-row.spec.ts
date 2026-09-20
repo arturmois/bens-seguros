@@ -1,5 +1,7 @@
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
-import { IssuePolicy } from './issue-policy.js'
 import {
   ImportPolicyRow,
   type ImportPolicyStores,
@@ -45,7 +47,6 @@ describe('ImportPolicyRow', () => {
   })
 
   it('creates POLICY_ISSUED proposal commission 0 without IssuePolicy', async () => {
-    const issuePolicy = { execute: vi.fn() }
     const stores = makeStores()
     const useCase = new ImportPolicyRow(stores)
     const result = await useCase.execute({
@@ -64,7 +65,26 @@ describe('ImportPolicyRow', () => {
       boardType: 'NEW_INSURANCE',
       commissionPercentageInCents: 0,
     })
-    expect(issuePolicy.execute).not.toHaveBeenCalled()
-    expect(IssuePolicy).toBeDefined()
+    const source = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), 'import-policy-row.ts'),
+      'utf8'
+    )
+    expect(source).not.toMatch(/IssuePolicy/)
+  })
+
+  it('repo throw returns failed and does not create a policy', async () => {
+    const stores = makeStores({
+      createImportedIssued: vi
+        .fn()
+        .mockRejectedValue(new Error('write failed')),
+    })
+    const useCase = new ImportPolicyRow(stores)
+    const result = await useCase.execute({
+      organizationId: 'org-1',
+      userId: 'user-1',
+      raw,
+    })
+    expect(result).toEqual({ status: 'failed', message: 'write failed' })
+    expect(stores.createImportedPolicy).not.toHaveBeenCalled()
   })
 })
