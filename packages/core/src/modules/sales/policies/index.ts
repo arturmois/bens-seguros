@@ -50,6 +50,12 @@ export type {
 } from './application/find-expiring-policies.js'
 
 export { ParsePolicyImport } from './application/parse-policy-import.js'
+export { ImportPolicyRow } from './application/import-policy-row.js'
+export type {
+  ImportPolicyRowInput,
+  ImportPolicyRowResult,
+  ImportPolicyStores,
+} from './application/import-policy-row.js'
 export { policyImportRowSchema } from './application/policy-import-schema.js'
 export type { PolicyImportRow } from './application/policy-import-schema.js'
 

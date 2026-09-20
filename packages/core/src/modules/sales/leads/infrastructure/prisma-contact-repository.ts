@@ -71,6 +71,18 @@ export class PrismaContactRepository implements ContactRepository {
     return row ? ContactMapper.toDomain(row) : null
   }
 
+  async findOldestByClientId(
+    clientId: string,
+    organizationId: string
+  ): Promise<{ id: string } | null> {
+    const row = await this.prisma.contact.findFirst({
+      where: { organizationId, clientId, deletedAt: null },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true },
+    })
+    return row
+  }
+
   async findByIdWithStage(
     id: string,
     organizationId: string

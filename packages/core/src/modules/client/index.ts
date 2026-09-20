@@ -50,6 +50,11 @@ export {
 export { clientImportRowSchema } from './application/client-import-schema.js'
 export type { ClientImportRow } from './application/client-import-schema.js'
 export { ParseClientImport } from './application/parse-client-import.js'
+export { ImportClientRow } from './application/import-client-row.js'
+export type {
+  ImportClientRowInput,
+  ImportClientRowResult,
+} from './application/import-client-row.js'
 
 export { ClientMapper } from './infrastructure/client-mapper.js'
 export { PrismaClientRepository } from './infrastructure/prisma-client-repository.js'

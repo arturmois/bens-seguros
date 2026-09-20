@@ -14,9 +14,9 @@ ADRs that constrain later features live in `docs/ARCHITECTURE-DECISIONS.md` and 
 ## Handoff
 
 **Feature**: phase-4-edges
-**Where**: S1–S5 closed (C1–C58)
-**In progress**: S6 T4.5 CSV C59–C66
-**Next step**: characterization fixture then ImportClientRow + ImportPolicyRow (no IssuePolicy)
+**Where**: S1–S6 closed (C1–C66)
+**In progress**: none — builder done, awaiting Verifier
+**Next step**: dispatch Verifier over feature base..HEAD with every check
 **Blockers**: none
 **Uncommitted**: none
 **Branch**: main (do not push unless asked)

@@ -179,6 +179,38 @@ export class PrismaProposalRepository implements ProposalRepository {
     }))
   }
 
+  async createImportedIssued(input: {
+    organizationId: string
+    contactId: string
+    salespersonId: string
+    branch:
+      | 'AUTO'
+      | 'RESIDENTIAL'
+      | 'CONDOMINIUM'
+      | 'BUSINESS'
+      | 'LIFE'
+      | 'OTHER'
+    premiumValueInCents: number
+    stage: 'POLICY_ISSUED'
+    boardType: 'NEW_INSURANCE'
+    commissionPercentageInCents: 0
+  }): Promise<{ id: string }> {
+    const row = await this.prisma.proposal.create({
+      data: {
+        organizationId: input.organizationId,
+        contactId: input.contactId,
+        salespersonId: input.salespersonId,
+        stage: input.stage,
+        boardType: input.boardType,
+        branch: input.branch,
+        premiumValueInCents: input.premiumValueInCents,
+        commissionPercentageInCents: input.commissionPercentageInCents,
+      },
+      select: { id: true },
+    })
+    return row
+  }
+
   private toListItem(
     row: Prisma.ProposalGetPayload<{ include: typeof PROPOSAL_INCLUDE }>
   ): ProposalListItem {

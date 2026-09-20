@@ -3,7 +3,7 @@
 Profile: standard
 Plan: `.specs/features/phase-4-edges/plan.md`
 
-66 checks in 6 slices · 3 one-way doors · 8 open, of which 0 block
+66 checks in 6 slices · 3 one-way doors · 0 open, of which 0 block
 
 ## Checks
 
@@ -195,28 +195,28 @@ Proof: `node --test --test-name-pattern "alerts keep hasExistingAlert and organi
 
 ### S6 - CSV import through clients + sales (T4.5) · ~10 files · ~40k
 
-**C59** - a characterization spec for mixed new / duplicate / missing-client / missing-contact rows asserts `created`, `skipped`, and `failed` counts plus messages `Cliente com CPF/CNPJ ${cpf} não encontrado` and `Cliente com CPF/CNPJ ${cpf} não tem Contact vinculado` (CSV-01, AC 57, door 3)
+**C59** · closed - a characterization spec for mixed new / duplicate / missing-client / missing-contact rows asserts `created`, `skipped`, and `failed` counts plus messages `Cliente com CPF/CNPJ ${cpf} não encontrado` and `Cliente com CPF/CNPJ ${cpf} não tem Contact vinculado` (CSV-01, AC 57, door 3)
 Proof: `pnpm --filter @app/worker exec vitest run src/processors/__tests__/csv-import-processor.spec.ts -t "characterization fixture counts and pt-BR messages"`
 
-**C60** - `ImportClientRow` for an existing `documentHash` in the organization increments skipped and does not create a second client (CSV-02, AC 58)
+**C60** · closed - `ImportClientRow` for an existing `documentHash` in the organization increments skipped and does not create a second client (CSV-02, AC 58)
 Proof: `pnpm --filter @repo/core exec vitest run src/modules/client/application/import-client-row.spec.ts -t "existing documentHash increments skipped"`
 
-**C61** - `ImportClientRow` for a new document creates a client and a contact with `source` `'IMPORT'` and `consentLgpd` `true` (CSV-02, AC 59)
+**C61** · closed - `ImportClientRow` for a new document creates a client and a contact with `source` `'IMPORT'` and `consentLgpd` `true` (CSV-02, AC 59)
 Proof: `pnpm --filter @repo/core exec vitest run src/modules/client/application/import-client-row.spec.ts -t "new document creates client and contact IMPORT consentLgpd true"`
 
-**C62** - `ImportPolicyRow` for an existing `policyNumber` in the organization increments skipped and does not create a proposal or policy (CSV-02, AC 60, door 3)
+**C62** · closed - `ImportPolicyRow` for an existing `policyNumber` in the organization increments skipped and does not create a proposal or policy (CSV-02, AC 60, door 3)
 Proof: `pnpm --filter @repo/core exec vitest run src/modules/sales/policies/application/import-policy-row.spec.ts -t "existing policyNumber increments skipped"`
 
-**C63** - `ImportPolicyRow` does not call `IssuePolicy`; a created policy is preceded by a proposal with `stage` `'POLICY_ISSUED'`, `boardType` `'NEW_INSURANCE'`, and `commissionPercentageInCents` `0` (CSV-02, AC 61, door 3)
+**C63** · closed - `ImportPolicyRow` does not call `IssuePolicy`; a created policy is preceded by a proposal with `stage` `'POLICY_ISSUED'`, `boardType` `'NEW_INSURANCE'`, and `commissionPercentageInCents` `0` (CSV-02, AC 61, door 3)
 Proof: `pnpm --filter @repo/core exec vitest run src/modules/sales/policies/application/import-policy-row.spec.ts -t "creates POLICY_ISSUED proposal commission 0 without IssuePolicy"`
 
-**C64** - `apps/worker/src/processors/csv-import-processor.ts` does not contain `from '@repo/db'` and does not call `prismaAdmin.client`, `prismaAdmin.contact`, `prismaAdmin.proposal`, or `prismaAdmin.policy` (CSV-03, AC 62, door 3)
+**C64** · closed - `apps/worker/src/processors/csv-import-processor.ts` does not contain `from '@repo/db'` and does not call `prismaAdmin.client`, `prismaAdmin.contact`, `prismaAdmin.proposal`, or `prismaAdmin.policy` (CSV-03, AC 62, door 3)
 Proof: `node --test --test-name-pattern "csv-import-processor has no @repo/db or prismaAdmin table writes" scripts/phase-4-edges.test.mjs`
 
-**C65** - the processor still slices rows with `IMPORT_BATCH_SIZE` `50` and caps `progress.errors` at `MAX_IMPORT_ERRORS` `100` (CSV-03, AC 63)
+**C65** · closed - the processor still slices rows with `IMPORT_BATCH_SIZE` `50` and caps `progress.errors` at `MAX_IMPORT_ERRORS` `100` (CSV-03, AC 63)
 Proof: `node --test --test-name-pattern "csv-import-processor keeps IMPORT_BATCH_SIZE 50 and MAX_IMPORT_ERRORS 100" scripts/phase-4-edges.test.mjs`
 
-**C66** - after the move, the characterization fixture from C59 produces the same `created`, `skipped`, `failed`, and `errors[].message` values (CSV-01, AC 64, door 3)
+**C66** · closed - after the move, the characterization fixture from C59 produces the same `created`, `skipped`, `failed`, and `errors[].message` values (CSV-01, AC 64, door 3)
 Proof: `pnpm --filter @app/worker exec vitest run src/processors/__tests__/csv-import-processor.spec.ts -t "characterization fixture counts and pt-BR messages"`
 
 ## Coverage

@@ -85,6 +85,34 @@ export class PrismaPolicyRepository implements PolicyRepository {
     }
   }
 
+  async createImportedPolicy(input: {
+    organizationId: string
+    proposalId: string
+    clientId: string
+    salespersonId: string
+    policyNumber: string
+    status: 'ACTIVE' | 'CANCELLED' | 'EXPIRED'
+    branch: PolicyData['branch']
+    premiumValueInCents: number
+    startDate: Date
+    endDate: Date
+  }): Promise<void> {
+    await this.prisma.policy.create({
+      data: {
+        organizationId: input.organizationId,
+        proposalId: input.proposalId,
+        clientId: input.clientId,
+        salespersonId: input.salespersonId,
+        policyNumber: input.policyNumber,
+        status: input.status,
+        branch: input.branch,
+        premiumValueInCents: input.premiumValueInCents,
+        startDate: input.startDate,
+        endDate: input.endDate,
+      },
+    })
+  }
+
   async findById(
     id: string,
     organizationId: string

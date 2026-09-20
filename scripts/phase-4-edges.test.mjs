@@ -195,3 +195,21 @@ test('alerts keep hasExistingAlert and organization loop', () => {
   assert.match(index, /organization\.findMany/)
   assert.match(index, /for \(const org of organizations\)/)
 })
+
+test('csv-import-processor has no @repo/db or prismaAdmin table writes', () => {
+  const text = readRepo('apps/worker/src/processors/csv-import-processor.ts')
+  assert.doesNotMatch(text, /from ['"]@repo\/db/)
+  assert.doesNotMatch(text, /prismaAdmin\.client/)
+  assert.doesNotMatch(text, /prismaAdmin\.contact/)
+  assert.doesNotMatch(text, /prismaAdmin\.proposal/)
+  assert.doesNotMatch(text, /prismaAdmin\.policy/)
+})
+
+test('csv-import-processor keeps IMPORT_BATCH_SIZE 50 and MAX_IMPORT_ERRORS 100', () => {
+  const text = readRepo('apps/worker/src/processors/csv-import-processor.ts')
+  assert.match(text, /IMPORT_BATCH_SIZE/)
+  assert.match(text, /MAX_IMPORT_ERRORS/)
+  const types = readRepo('packages/core/src/shared/csv-import-types.ts')
+  assert.match(types, /export const IMPORT_BATCH_SIZE = 50/)
+  assert.match(types, /export const MAX_IMPORT_ERRORS = 100/)
+})

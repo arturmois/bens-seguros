@@ -116,6 +116,7 @@ export {
   ExpireDuePolicies,
   FindExpiringPolicies,
   ParsePolicyImport,
+  ImportPolicyRow,
   policyImportRowSchema,
   PolicyMapper,
   PrismaPolicyRepository,

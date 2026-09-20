@@ -5,6 +5,15 @@ import { PINO_REDACT_CONFIG } from '@repo/shared/pino-redact'
 import type { Job, Worker } from 'bullmq'
 import pino from 'pino'
 import 'reflect-metadata'
+import { prismaAdmin } from '@repo/db'
+import {
+  ImportClientRow,
+  ImportPolicyRow,
+  PrismaClientRepository,
+  PrismaContactRepository,
+  PrismaPolicyRepository,
+  PrismaProposalRepository,
+} from '@repo/core'
 import { setupAuditArchiveProcessor } from './processors/audit-archive-processor.js'
 import { setupCsvImportProcessor } from './processors/csv-import-processor.js'
 import { setupDunningProcessor } from './processors/dunning-processor.js'
@@ -58,7 +67,23 @@ const connection = {
 }
 
 const auditArchive = setupAuditArchiveProcessor(connection)
-const csvImport = setupCsvImportProcessor(connection)
+const clientRepo = new PrismaClientRepository(prismaAdmin)
+const contactRepo = new PrismaContactRepository(prismaAdmin)
+const proposalRepo = new PrismaProposalRepository(prismaAdmin)
+const policyRepo = new PrismaPolicyRepository(prismaAdmin)
+const csvImport = setupCsvImportProcessor(connection, {
+  importClientRow: new ImportClientRow(clientRepo, contactRepo),
+  importPolicyRow: new ImportPolicyRow({
+    findByDocumentHash: (hash, organizationId) =>
+      clientRepo.findByDocumentHash(hash, organizationId),
+    findOldestByClientId: (clientId, organizationId) =>
+      contactRepo.findOldestByClientId(clientId, organizationId),
+    findByPolicyNumber: (policyNumber, organizationId) =>
+      policyRepo.findByPolicyNumber(policyNumber, organizationId),
+    createImportedIssued: (input) => proposalRepo.createImportedIssued(input),
+    createImportedPolicy: (input) => policyRepo.createImportedPolicy(input),
+  }),
+})
 const dunning = setupDunningProcessor(connection)
 const expirePolicies = setupExpirePoliciesProcessor(connection)
 const expireSubscriptions = setupExpireSubscriptionsProcessor(connection)
