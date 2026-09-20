@@ -55,6 +55,7 @@ export type {
   AutoCompleteChecklistInput,
   AutoCompleteItemKey,
 } from './application/auto-complete-checklist-items.js'
+export { AttachProposalDocument } from './application/attach-proposal-document.js'
 export { CompleteChecklistByAttachment } from './application/complete-checklist-by-attachment.js'
 export { UncompleteChecklistItem } from './application/uncomplete-checklist-item.js'
 export { CreateProposal } from './application/create-proposal.js'

@@ -51,7 +51,7 @@ import { claimRoutes } from './routes/v1/claims/index.js'
 import { createClientRoutes } from './routes/v1/clients/index.js'
 import { commissionRoutes } from './routes/v1/commissions/index.js'
 import { contactRoutes } from './routes/v1/contacts/index.js'
-import { documentRoutes } from './routes/v1/documents/index.js'
+import { createDocumentRoutes } from './routes/v1/documents/index.js'
 import { endorsementRoutes } from './routes/v1/endorsements/index.js'
 import { goalRoutes } from './routes/v1/goals/index.js'
 import { insurerRoutes } from './routes/v1/insurers/index.js'
@@ -165,7 +165,7 @@ export async function buildApp() {
     return payload
   })
   await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } })
-  const { clients } = registerDependencies(redis)
+  const { clients, documentUpload } = registerDependencies(redis)
   app.addHook('onSend', async (request, reply, payload) => {
     if (request.url.startsWith('/api/')) {
       void reply.header(
@@ -350,7 +350,7 @@ export async function buildApp() {
     await authenticatedApp.register(claimRoutes)
     await authenticatedApp.register(endorsementRoutes)
     await authenticatedApp.register(assistanceRoutes)
-    await authenticatedApp.register(documentRoutes)
+    await authenticatedApp.register(createDocumentRoutes(documentUpload))
     await authenticatedApp.register(insurerRoutes)
     await authenticatedApp.register(memberRoutes)
     await authenticatedApp.register(invitationRoutes)

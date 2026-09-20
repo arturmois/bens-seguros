@@ -4,6 +4,7 @@ import {
   ApproveCommissionAdmin,
   ApproveCommissionCommercial,
   AutoCompleteChecklistItems,
+  AttachProposalDocument,
   BuildDashboardSnapshot,
   CancelInvitation,
   CancelPolicy,
@@ -129,6 +130,10 @@ import { ReactPolicyPdfRenderer } from './services/react-policy-pdf-renderer.js'
 
 export function registerDependencies(redis: Redis | null = null): {
   clients: ClientsApi
+  documentUpload: {
+    uploadDocument: UploadDocument
+    attachProposalDocument: AttachProposalDocument
+  }
 } {
   const cacheService = redis
     ? new RedisCacheService(redis)
@@ -378,13 +383,9 @@ export function registerDependencies(redis: Redis | null = null): {
   container.register(UpdateAssistanceStatus, {
     useFactory: () => new UpdateAssistanceStatus(assistanceRepo),
   })
+  const uploadDocument = new UploadDocument(storageProvider, documentRepo)
   container.register(UploadDocument, {
-    useFactory: (c) =>
-      new UploadDocument(
-        storageProvider,
-        documentRepo,
-        c.resolve(AutoCompleteChecklistItems)
-      ),
+    useValue: uploadDocument,
   })
   container.register(ListDocuments, {
     useFactory: () => new ListDocuments(documentRepo),
@@ -537,5 +538,19 @@ export function registerDependencies(redis: Redis | null = null): {
   container.register(CountAlertsByEntityType, {
     useFactory: () => new CountAlertsByEntityType(notificationRepo),
   })
-  return { clients }
+  return {
+    clients,
+    documentUpload: {
+      uploadDocument,
+      attachProposalDocument: new AttachProposalDocument(
+        uploadDocument,
+        new AutoCompleteChecklistItems(
+          checklistRepo,
+          proposalRepo,
+          contactRepo,
+          documentRepo
+        )
+      ),
+    },
+  }
 }

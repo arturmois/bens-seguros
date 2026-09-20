@@ -12,11 +12,7 @@ Typical leftovers: internal HMAC lead/claim routes, billing reads, commission ap
 
 ## Core module cycles
 
-Inside `packages/core/src/modules`:
-
-| Cycle             | Why it exists today                                                          | Clears when            |
-| ----------------- | ---------------------------------------------------------------------------- | ---------------------- |
-| proposal⇄document | `upload-document` auto-completes proposal checklist                          | T4.2 invert documents  |
+Inside `packages/core/src/modules`: none remaining. T4.2 inverted the documents/sales cycle (`AttachProposalDocument` in sales calls documents; documents do not import sales).
 
 `shared-kernel` importing a module, or module B importing module A internals, is also forbidden once those folders exist. They are not a current hotspot.
 

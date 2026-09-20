@@ -44,6 +44,7 @@ export {
   ExportProposalsCsv,
   AdvanceProposalStage,
   AutoCompleteChecklistItems,
+  AttachProposalDocument,
   CompleteChecklistByAttachment,
   UncompleteChecklistItem,
   CreateProposal,

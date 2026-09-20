@@ -17,6 +17,7 @@ export {
 } from './domain/document-errors.js'
 
 export { UploadDocument } from './application/upload-document.js'
+export type { UploadDocumentInput } from './application/upload-document.js'
 export { ListDocuments } from './application/list-documents.js'
 export { GetDocumentUrl } from './application/get-document-url.js'
 export { DeleteDocument } from './application/delete-document.js'

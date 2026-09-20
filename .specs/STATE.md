@@ -8,13 +8,15 @@ ADRs that constrain later features live in `docs/ARCHITECTURE-DECISIONS.md` and 
 | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------ | ---------- |
 | AD-001 | Architecture sequencing and DI live guidance is `docs/architecture-refactoring-roadmap.md` (ADR-2 explicit composition), not abstract-class tsyringe tokens | T0.1 freeze; agents were still copying MOD-1 abstract tokens | active | 2026-09-19 |
 | AD-002 | Module DAG is enforced with `dependency-cruiser` starting at `warn`, not `eslint-plugin-boundaries`                                                         | ADR-3; ESLint is being removed (ADR-1)                       | active | 2026-09-19 |
+| AD-003 | HMAC internal edges construct per-request use cases via `forTenant(organizationId)` + `createTenantClient`, not boot-time `prismaAdmin`                     | C4 / Phase 4 door 1; T5.6 copies this                        | active | 2026-09-20 |
+| AD-004 | CSV `ImportPolicyRow` relocates D4 (synthetic `POLICY_ISSUED` proposal, commission 0) and does not call `IssuePolicy`                                       | Phase 4 door 3; D4 fix is a later task                       | active | 2026-09-20 |
 
 ## Handoff
 
-**Feature**: phase-3-module-merges
-**Where**: Phase 2 verified PASS (C1–C28) at `21ad389c`; Phase 3 `plan.md` written, awaiting human review
-**In progress**: `.specs/features/phase-3-module-merges/plan.md`
-**Next step**: human confirms or objects to the plan; then write `checks.md` (no code until then)
+**Feature**: phase-4-edges
+**Where**: S1 T4.2 C1–C10 closed; documents do not import sales
+**In progress**: S2 T4.1 CaptureLead C11–C23
+**Next step**: TDD CaptureLead from checks (tests before implementation)
 **Blockers**: none
-**Uncommitted**: phase-2 `verification.md` + lessons; phase-3 `plan.md`
-**Branch**: main (ahead of origin; do not push unless asked)
+**Uncommitted**: S1 landing in this commit
+**Branch**: main (do not push unless asked)
