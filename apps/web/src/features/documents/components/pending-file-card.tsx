@@ -37,11 +37,11 @@ export function PendingFileCard({
 }: PendingFileCardProps) {
   const typeOptions = getDocumentTypesForBranch(branch)
   return (
-    <div className="bg-muted/30 mt-3 flex items-start gap-3 rounded-lg border p-3">
-      <FileText className="text-muted-foreground mt-0.5 size-5 shrink-0" />
+    <div className="mt-3 flex items-start gap-3 rounded-lg border bg-muted/30 p-3">
+      <FileText className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium">{file.name}</p>
+          <p className="truncate font-medium text-sm">{file.name}</p>
           <p className="text-muted-foreground text-xs">
             {formatFileSize(file.size)}
           </p>

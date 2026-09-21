@@ -48,7 +48,7 @@ export function LoginForm() {
           id="email"
           placeholder="seu@email.com"
           autoComplete="email"
-          className="bg-(--auth-input-bg) border-(--auth-input-border) text-(--auth-foreground) placeholder:text-(--auth-foreground-subtle)"
+          className="border-(--auth-input-border) bg-(--auth-input-bg) text-(--auth-foreground) placeholder:text-(--auth-foreground-subtle)"
         />
         {form.formState.errors.email && (
           <p role="alert" className="text-destructive text-sm">
@@ -63,7 +63,7 @@ export function LoginForm() {
           </Label>
           <Link
             href="/forgot-password"
-            className="text-accent-500 hover:text-accent-400 text-sm"
+            className="text-accent-500 text-sm hover:text-accent-400"
           >
             Esqueceu?
           </Link>
@@ -74,13 +74,13 @@ export function LoginForm() {
             type={showPassword ? 'text' : 'password'}
             id="password"
             autoComplete="current-password"
-            className="bg-(--auth-input-bg) border-(--auth-input-border) text-(--auth-foreground) placeholder:text-(--auth-foreground-subtle)"
+            className="border-(--auth-input-border) bg-(--auth-input-bg) text-(--auth-foreground) placeholder:text-(--auth-foreground-subtle)"
           />
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="text-(--auth-foreground-muted) absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+            className="absolute top-0 right-0 h-full px-3 text-(--auth-foreground-muted) hover:bg-transparent"
             onClick={() => setShowPassword((prev) => !prev)}
             aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
           >
@@ -99,7 +99,7 @@ export function LoginForm() {
       </div>
       <Button
         type="submit"
-        className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 bg-linear-to-r text-primary-foreground w-full font-bold"
+        className="w-full bg-linear-to-r from-accent-500 to-accent-400 font-bold text-primary-foreground hover:from-accent-600 hover:to-accent-500"
         disabled={login.isPending}
       >
         {login.isPending ? 'Entrando...' : 'Entrar'}

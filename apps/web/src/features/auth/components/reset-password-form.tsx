@@ -39,16 +39,16 @@ export function ResetPasswordForm() {
   if (!token || error) {
     return (
       <div className="flex flex-col items-center text-center">
-        <h2 className="text-(--auth-foreground) mb-2 text-xl font-bold">
+        <h2 className="mb-2 font-bold text-(--auth-foreground) text-xl">
           Link inválido ou expirado
         </h2>
-        <p className="text-(--auth-foreground-muted) mb-6 text-sm">
+        <p className="mb-6 text-(--auth-foreground-muted) text-sm">
           O link de redefinição de senha expirou ou é inválido. Solicite um novo
           link.
         </p>
         <Link
           href="/forgot-password"
-          className="text-accent-500 hover:text-accent-400 text-sm"
+          className="text-accent-500 text-sm hover:text-accent-400"
         >
           Solicitar novo link
         </Link>
@@ -92,7 +92,7 @@ export function ResetPasswordForm() {
             type="button"
             variant="ghost"
             size="icon"
-            className="text-(--auth-foreground-muted) absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+            className="absolute top-0 right-0 h-full px-3 text-(--auth-foreground-muted) hover:bg-transparent"
             onClick={() => setShowPassword((prev) => !prev)}
             aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
           >
@@ -131,7 +131,7 @@ export function ResetPasswordForm() {
             type="button"
             variant="ghost"
             size="icon"
-            className="text-(--auth-foreground-muted) absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+            className="absolute top-0 right-0 h-full px-3 text-(--auth-foreground-muted) hover:bg-transparent"
             onClick={() => setShowConfirmPassword((prev) => !prev)}
             aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
           >
@@ -150,7 +150,7 @@ export function ResetPasswordForm() {
       </div>
       <Button
         type="submit"
-        className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 text-primary-foreground w-full bg-gradient-to-r font-bold"
+        className="w-full bg-gradient-to-r from-accent-500 to-accent-400 font-bold text-primary-foreground hover:from-accent-600 hover:to-accent-500"
         disabled={isPending}
       >
         {isPending ? 'Redefinindo...' : 'Redefinir Senha'}

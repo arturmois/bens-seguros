@@ -110,7 +110,7 @@ export function ChatArea({
     conversation.status === 'HUMAN_ACTIVE' &&
     conversation.assignedTo === currentUserId
   return (
-    <div className="bg-(--chat-bg) flex h-full flex-col">
+    <div className="flex h-full flex-col bg-(--chat-bg)">
       <ChatHeader
         conversation={conversation}
         contact={contact}
@@ -132,7 +132,7 @@ export function ChatArea({
           <>
             {isLoadingOlder && (
               <div className="flex justify-center py-2">
-                <Loader2 className="text-muted-foreground h-5 w-5 animate-spin" />
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               </div>
             )}
             <div

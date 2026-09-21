@@ -253,7 +253,7 @@ export function ContactForm({
                 <Label id="consent-lgpd-label">Consentimento LGPD</Label>
               </div>
               {errors.consentLgpd?.message ? (
-                <p role="alert" className="text-destructive mt-2 text-sm">
+                <p role="alert" className="mt-2 text-destructive text-sm">
                   {errors.consentLgpd.message}
                 </p>
               ) : null}

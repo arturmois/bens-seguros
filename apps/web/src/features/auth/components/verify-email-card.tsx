@@ -57,24 +57,24 @@ export function VerifyEmailCard() {
   return (
     <div className="flex flex-col items-center text-center">
       <div className="mb-6 flex size-16 items-center justify-center rounded-full bg-white/[0.06]">
-        <Mail className="text-accent-400 size-8" />
+        <Mail className="size-8 text-accent-400" />
       </div>
-      <h1 className="text-(--auth-foreground) mb-2 text-xl font-bold">
+      <h1 className="mb-2 font-bold text-(--auth-foreground) text-xl">
         Verifique seu email
       </h1>
-      <p className="text-(--auth-foreground-muted) mb-2 text-sm">
+      <p className="mb-2 text-(--auth-foreground-muted) text-sm">
         Enviamos um link de verificação para
       </p>
-      <p className="text-(--auth-foreground) mb-6 text-sm font-medium">
+      <p className="mb-6 font-medium text-(--auth-foreground) text-sm">
         {email}
       </p>
-      <p className="text-(--auth-foreground-muted) mb-6 text-sm">
+      <p className="mb-6 text-(--auth-foreground-muted) text-sm">
         Clique no link do email para ativar sua conta. O link expira em 24
         horas.
       </p>
       <Button
         variant="outline"
-        className="border-(--auth-input-border) text-(--auth-foreground-muted) hover:bg-(--auth-input-bg) w-full"
+        className="w-full border-(--auth-input-border) text-(--auth-foreground-muted) hover:bg-(--auth-input-bg)"
         onClick={handleResend}
         disabled={cooldown > 0 || isSending}
       >
@@ -84,7 +84,7 @@ export function VerifyEmailCard() {
             ? `Reenviar em ${String(cooldown)}s`
             : 'Reenviar email'}
       </Button>
-      <p className="text-(--auth-foreground-subtle) mt-4 text-xs">
+      <p className="mt-4 text-(--auth-foreground-subtle) text-xs">
         Não recebeu? Verifique sua pasta de spam.
       </p>
     </div>

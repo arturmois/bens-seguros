@@ -94,7 +94,7 @@ export function AssistanceDetail({ assistanceId }: AssistanceDetailProps) {
 function DetailHeader({ assistance }: { readonly assistance: AssistanceData }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <h2 className="text-xl font-semibold">
+      <h2 className="font-semibold text-xl">
         {getAssistanceTypeLabel(assistance.type)}
       </h2>
       <AssistanceStatusBadge status={assistance.status} />
@@ -122,13 +122,13 @@ function DetailInfoGrid({
       <InfoItem label="Endereço">
         {assistance.address ? (
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">{assistance.address}</span>
+            <span className="font-medium text-sm">{assistance.address}</span>
             {mapsUrl && (
               <a
                 href={mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary inline-flex items-center gap-1 text-xs hover:underline"
+                className="inline-flex items-center gap-1 text-primary text-xs hover:underline"
               >
                 Abrir no Google Maps
                 <ExternalLink className="size-3" />
@@ -136,7 +136,7 @@ function DetailInfoGrid({
             )}
           </div>
         ) : (
-          <span className="text-sm font-medium">-</span>
+          <span className="font-medium text-sm">-</span>
         )}
       </InfoItem>
       <InfoItem label="Prestador" value={assistance.providerName ?? '-'} />
@@ -176,7 +176,7 @@ function InfoItem({
   return (
     <div>
       <p className="text-muted-foreground text-xs">{label}</p>
-      {children ?? <p className="text-sm font-medium">{value}</p>}
+      {children ?? <p className="font-medium text-sm">{value}</p>}
     </div>
   )
 }

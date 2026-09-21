@@ -40,9 +40,9 @@ export function InvitationError({ variant }: InvitationErrorProps) {
   const router = useRouter()
   const { title, message, action } = ERROR_CONFIG[variant]
   return (
-    <div className="bg-card rounded-lg border p-8 text-center shadow-sm">
-      <h2 className="text-lg font-semibold">{title}</h2>
-      <p className="text-muted-foreground mt-2 text-sm">{message}</p>
+    <div className="rounded-lg border bg-card p-8 text-center shadow-sm">
+      <h2 className="font-semibold text-lg">{title}</h2>
+      <p className="mt-2 text-muted-foreground text-sm">{message}</p>
       {action && (
         <Button className="mt-6" onClick={() => router.push(action.href)}>
           {action.label}

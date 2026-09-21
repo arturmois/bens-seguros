@@ -34,7 +34,7 @@ function InvoicesSkeleton() {
 function InvoicesError({ onRetry }: { readonly onRetry: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-12">
-      <AlertCircle className="text-destructive size-8" />
+      <AlertCircle className="size-8 text-destructive" />
       <p className="text-muted-foreground text-sm">Erro ao carregar faturas.</p>
       <Button variant="outline" size="sm" onClick={onRetry}>
         Tentar novamente
@@ -46,7 +46,7 @@ function InvoicesError({ onRetry }: { readonly onRetry: () => void }) {
 function InvoicesEmpty() {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-      <FileText className="text-muted-foreground size-8" />
+      <FileText className="size-8 text-muted-foreground" />
       <p className="text-muted-foreground text-sm">
         Nenhuma fatura ainda. Suas faturas aparecerão aqui quando emitidas.
       </p>

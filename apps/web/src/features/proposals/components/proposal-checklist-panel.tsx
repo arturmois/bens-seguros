@@ -90,13 +90,13 @@ export function ProposalChecklistPanel({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <Spinner className="text-muted-foreground h-5 w-5" />
+        <Spinner className="h-5 w-5 text-muted-foreground" />
       </div>
     )
   }
   if (isError || !data) {
     return (
-      <p className="text-destructive py-4 text-sm">
+      <p className="py-4 text-destructive text-sm">
         Erro ao carregar checklist.
       </p>
     )
@@ -104,7 +104,7 @@ export function ProposalChecklistPanel({
   const { items, summary } = data
   if (items.length === 0) {
     return (
-      <div className="text-muted-foreground flex items-center gap-2 py-6 text-sm">
+      <div className="flex items-center gap-2 py-6 text-muted-foreground text-sm">
         <CheckCircle2 className="h-4 w-4" />
         <span>Nenhum item de checklist para esta proposta.</span>
       </div>
@@ -135,16 +135,16 @@ export function ProposalChecklistPanel({
         </Progress>
       </div>
       {!summary.canAdvance && (
-        <div className="border-warning/30 bg-warning/10 flex items-start gap-2 rounded-md border p-3">
-          <AlertTriangle className="text-warning mt-0.5 h-4 w-4 shrink-0" />
-          <p className="text-warning-foreground text-sm">
+        <div className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/10 p-3">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+          <p className="text-sm text-warning-foreground">
             Itens pendentes impedem o avanço de estágio.
           </p>
         </div>
       )}
       {requiredItems.length > 0 && (
         <div className="space-y-1">
-          <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
+          <p className="font-semibold text-muted-foreground text-xs uppercase tracking-wide">
             Obrigatórios
           </p>
           <div className="divide-y">
@@ -161,7 +161,7 @@ export function ProposalChecklistPanel({
       )}
       {optionalItems.length > 0 && (
         <div className="space-y-1">
-          <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
+          <p className="font-semibold text-muted-foreground text-xs uppercase tracking-wide">
             Opcionais
           </p>
           <div className="divide-y">

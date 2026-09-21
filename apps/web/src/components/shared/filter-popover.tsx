@@ -65,7 +65,7 @@ export function FilterPopover({
       <PopoverPopup side="bottom" align="start" className="w-72 p-0">
         {!editingFilter && (
           <div className="flex w-full flex-col py-1">
-            <div className="text-muted-foreground border-b px-3 py-1.5 text-xs font-medium">
+            <div className="border-b px-3 py-1.5 font-medium text-muted-foreground text-xs">
               Filtros disponíveis
             </div>
             {filters
@@ -77,9 +77,9 @@ export function FilterPopover({
                     key={filter.key}
                     type="button"
                     onClick={() => handleSelectField(filter.key)}
-                    className="hover:bg-accent flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm"
+                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-accent"
                   >
-                    <Icon className="text-muted-foreground size-3.5" />
+                    <Icon className="size-3.5 text-muted-foreground" />
                     <span>{filter.label}</span>
                   </button>
                 )

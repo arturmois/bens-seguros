@@ -12,7 +12,7 @@ export function Table({
     >
       <table
         className={cn(
-          'in-data-[slot=frame]:border-separate in-data-[slot=frame]:border-spacing-0 w-full caption-bottom text-sm',
+          'w-full caption-bottom in-data-[slot=frame]:border-separate in-data-[slot=frame]:border-spacing-0 text-sm',
           className
         )}
         data-slot="table"
@@ -29,7 +29,7 @@ export function TableHeader({
   return (
     <thead
       className={cn(
-        'in-data-[slot=frame]:**:[th]:h-9 in-data-[slot=frame]:*:[tr]:border-none in-data-[slot=frame]:*:[tr]:hover:bg-transparent [&_tr]:border-b',
+        '[&_tr]:border-b in-data-[slot=frame]:**:[th]:h-9 in-data-[slot=frame]:*:[tr]:border-none in-data-[slot=frame]:*:[tr]:hover:bg-transparent',
         className
       )}
       data-slot="table-header"
@@ -45,7 +45,7 @@ export function TableBody({
   return (
     <tbody
       className={cn(
-        'in-data-[slot=frame]:rounded-xl in-data-[slot=frame]:shadow-xs/5 not-in-data-[slot=frame]:before:hidden in-data-[slot=frame]:*:[tr]:border-0 in-data-[slot=frame]:*:[tr]:*:[td]:border-b in-data-[slot=frame]:*:[tr]:*:[td]:bg-background in-data-[slot=frame]:*:[tr]:*:[td]:bg-clip-padding in-data-[slot=frame]:*:[tr]:first:*:[td]:first:rounded-ss-xl in-data-[slot=frame]:*:[tr]:*:[td]:first:border-s in-data-[slot=frame]:*:[tr]:first:*:[td]:border-t in-data-[slot=frame]:*:[tr]:last:*:[td]:last:rounded-ee-xl in-data-[slot=frame]:*:[tr]:*:[td]:last:border-e in-data-[slot=frame]:*:[tr]:first:*:[td]:last:rounded-se-xl in-data-[slot=frame]:*:[tr]:last:*:[td]:first:rounded-es-xl in-data-[slot=frame]:*:[tr]:hover:*:[td]:bg-transparent in-data-[slot=frame]:*:[tr]:data-[state=selected]:*:[td]:bg-muted/72 relative before:pointer-events-none before:absolute before:inset-px before:rounded-[calc(var(--radius-xl)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:before:shadow-[0_-1px_--theme(--color-white/8%)] [&_tr:last-child]:border-0',
+        'relative in-data-[slot=frame]:rounded-xl in-data-[slot=frame]:shadow-xs/5 before:pointer-events-none before:absolute before:inset-px not-in-data-[slot=frame]:before:hidden before:rounded-[calc(var(--radius-xl)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:before:shadow-[0_-1px_--theme(--color-white/8%)] [&_tr:last-child]:border-0 in-data-[slot=frame]:*:[tr]:border-0 in-data-[slot=frame]:*:[tr]:*:[td]:border-b in-data-[slot=frame]:*:[tr]:*:[td]:bg-background in-data-[slot=frame]:*:[tr]:*:[td]:bg-clip-padding in-data-[slot=frame]:*:[tr]:first:*:[td]:first:rounded-ss-xl in-data-[slot=frame]:*:[tr]:*:[td]:first:border-s in-data-[slot=frame]:*:[tr]:first:*:[td]:border-t in-data-[slot=frame]:*:[tr]:last:*:[td]:last:rounded-ee-xl in-data-[slot=frame]:*:[tr]:*:[td]:last:border-e in-data-[slot=frame]:*:[tr]:first:*:[td]:last:rounded-se-xl in-data-[slot=frame]:*:[tr]:last:*:[td]:first:rounded-es-xl in-data-[slot=frame]:*:[tr]:hover:*:[td]:bg-transparent in-data-[slot=frame]:*:[tr]:data-[state=selected]:*:[td]:bg-muted/72',
         className
       )}
       data-slot="table-body"
@@ -61,7 +61,7 @@ export function TableFooter({
   return (
     <tfoot
       className={cn(
-        'in-data-[slot=frame]:border-none bg-muted/72 in-data-[slot=frame]:bg-transparent in-data-[slot=frame]:*:[tr]:hover:bg-transparent border-t font-medium [&>tr]:last:border-b-0',
+        'border-t in-data-[slot=frame]:border-none bg-muted/72 in-data-[slot=frame]:bg-transparent font-medium [&>tr]:last:border-b-0 in-data-[slot=frame]:*:[tr]:hover:bg-transparent',
         className
       )}
       data-slot="table-footer"
@@ -77,7 +77,7 @@ export function TableRow({
   return (
     <tr
       className={cn(
-        'hover:bg-muted/72 in-data-[slot=frame]:hover:bg-transparent data-[state=selected]:bg-muted/72 in-data-[slot=frame]:data-[state=selected]:bg-transparent border-b transition-colors',
+        'border-b transition-colors hover:bg-muted/72 in-data-[slot=frame]:hover:bg-transparent data-[state=selected]:bg-muted/72 in-data-[slot=frame]:data-[state=selected]:bg-transparent',
         className
       )}
       data-slot="table-row"
@@ -93,7 +93,7 @@ export function TableHead({
   return (
     <th
       className={cn(
-        'text-muted-foreground h-10 whitespace-nowrap px-1.5 text-left align-middle font-medium leading-none has-[[role=checkbox]]:w-px has-[[role=checkbox]]:pe-0',
+        'h-10 whitespace-nowrap px-1.5 text-left align-middle font-medium text-muted-foreground leading-none has-[[role=checkbox]]:w-px has-[[role=checkbox]]:pe-0',
         className
       )}
       data-slot="table-head"
@@ -109,7 +109,7 @@ export function TableCell({
   return (
     <td
       className={cn(
-        'in-data-[slot=frame]:first:p-[calc(--spacing(1.5)-1px)] in-data-[slot=frame]:last:p-[calc(--spacing(1.5)-1px)] whitespace-nowrap p-1.5 align-middle leading-none has-[[role=checkbox]]:pe-0',
+        'whitespace-nowrap p-1.5 align-middle leading-none in-data-[slot=frame]:first:p-[calc(--spacing(1.5)-1px)] in-data-[slot=frame]:last:p-[calc(--spacing(1.5)-1px)] has-[[role=checkbox]]:pe-0',
         className
       )}
       data-slot="table-cell"
@@ -125,7 +125,7 @@ export function TableCaption({
   return (
     <caption
       className={cn(
-        'in-data-[slot=frame]:my-4 text-muted-foreground mt-4 text-sm',
+        'in-data-[slot=frame]:my-4 mt-4 text-muted-foreground text-sm',
         className
       )}
       data-slot="table-caption"

@@ -116,7 +116,7 @@ function KanbanCardDetailBody({
       {proposal.boardType === 'ENDORSEMENT' &&
         proposal.sourcePolicySnapshot && (
           <div className="space-y-2 rounded-lg border p-3">
-            <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
+            <p className="font-semibold text-muted-foreground text-xs uppercase tracking-wide">
               Apólice de origem
             </p>
             <DetailItem label="Número">
@@ -156,7 +156,7 @@ function KanbanCardDetailBody({
         <IssuePolicySection proposalId={proposal.id} />
       )}
       <div className="space-y-2">
-        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
+        <p className="font-semibold text-muted-foreground text-xs uppercase tracking-wide">
           Checklist
         </p>
         <ProposalChecklistPanel proposalId={proposal.id} />

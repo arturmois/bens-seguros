@@ -49,7 +49,7 @@ export function EnumFilterControl({
   return (
     <div className="flex w-full flex-col" data-slot="enum-filter-control">
       <div className="flex items-center justify-between border-b px-3 py-2">
-        <span className="text-sm font-medium">{label}</span>
+        <span className="font-medium text-sm">{label}</span>
         <span className="text-muted-foreground text-xs">
           {draft.length > 0
             ? `${draft.length} selecionado${draft.length > 1 ? 's' : ''}`
@@ -59,7 +59,7 @@ export function EnumFilterControl({
       {showSearch && (
         <div className="border-b px-2 py-1.5">
           <div className="relative">
-            <Search className="text-muted-foreground absolute left-2 top-1/2 size-3.5 -translate-y-1/2" />
+            <Search className="absolute top-1/2 left-2 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <input
               autoFocus
               className="h-7 w-full rounded-sm bg-transparent pl-7 text-xs outline-none"
@@ -72,12 +72,12 @@ export function EnumFilterControl({
       )}
       <div className="max-h-64 overflow-y-auto py-1">
         {isLoadingOptions && (
-          <div className="text-muted-foreground px-3 py-2 text-xs">
+          <div className="px-3 py-2 text-muted-foreground text-xs">
             Carregando...
           </div>
         )}
         {!isLoadingOptions && filtered.length === 0 && (
-          <div className="text-muted-foreground px-3 py-2 text-xs">
+          <div className="px-3 py-2 text-muted-foreground text-xs">
             Nenhum valor encontrado
           </div>
         )}
@@ -96,7 +96,7 @@ export function EnumFilterControl({
               >
                 <span
                   className={cn(
-                    'border-input flex size-4 items-center justify-center rounded-sm border',
+                    'flex size-4 items-center justify-center rounded-sm border border-input',
                     checked &&
                       'border-primary bg-primary text-primary-foreground'
                   )}
@@ -120,7 +120,7 @@ export function EnumFilterControl({
         <button
           type="button"
           onClick={handleApply}
-          className="text-primary font-medium hover:underline"
+          className="font-medium text-primary hover:underline"
         >
           Aplicar
         </button>

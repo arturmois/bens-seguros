@@ -141,8 +141,8 @@ export function ContactSearch({
             onKeyDown={handleKeyDown}
           />
           {isLoading && debouncedSearch.length >= MIN_SEARCH_LENGTH && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <Loader2 className="text-muted-foreground size-4 animate-spin" />
+            <div className="absolute top-1/2 right-3 -translate-y-1/2">
+              <Loader2 className="size-4 animate-spin text-muted-foreground" />
             </div>
           )}
         </div>
@@ -157,7 +157,7 @@ export function ContactSearch({
           id="contact-search-results"
           role="listbox"
           aria-label="Resultados de contatos"
-          className="bg-popover absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border shadow-md"
+          className="absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border bg-popover shadow-md"
         >
           {data.map((contact, index) => (
             <li
@@ -184,7 +184,7 @@ export function ContactSearch({
         <div
           role="status"
           aria-live="polite"
-          className="bg-popover absolute z-50 mt-1 w-full rounded-lg border px-3 py-2 shadow-md"
+          className="absolute z-50 mt-1 w-full rounded-lg border bg-popover px-3 py-2 shadow-md"
         >
           <p className="text-muted-foreground text-sm">
             Nenhum contato encontrado.

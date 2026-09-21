@@ -18,7 +18,7 @@ interface AuditCardProps {
 export function AuditCard({ entry, onView }: AuditCardProps) {
   return (
     <div
-      className="bg-card active:bg-muted/50 cursor-pointer space-y-3 rounded-lg border p-4"
+      className="cursor-pointer space-y-3 rounded-lg border bg-card p-4 active:bg-muted/50"
       onClick={() => onView(entry)}
       role="button"
       tabIndex={0}

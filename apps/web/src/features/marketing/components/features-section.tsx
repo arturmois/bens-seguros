@@ -19,7 +19,7 @@ const FEATURES: readonly FeatureCard[] = [
     title: 'Propostas',
     description:
       'Fluxo completo de cotação à emissão, com automações inteligentes e histórico rastreável.',
-    icon: <FileText className="text-primary-400 size-6" />,
+    icon: <FileText className="size-6 text-primary-400" />,
     span: 'lg:col-span-2',
     hoverBorder: 'hover:border-primary-500/20',
     extra: <WorkflowPills />,
@@ -28,7 +28,7 @@ const FEATURES: readonly FeatureCard[] = [
     title: 'Comissões',
     description:
       'Controle automático de recebimentos, parcelas e repasses. Nunca mais perca uma comissão.',
-    icon: <DollarSign className="text-accent-400 size-6" />,
+    icon: <DollarSign className="size-6 text-accent-400" />,
     span: '',
     hoverBorder: 'hover:border-accent-500/20',
   },
@@ -58,10 +58,10 @@ export function FeaturesSection(): React.ReactElement {
     >
       <FeaturesBackground />
       <div className="relative z-10 mx-auto max-w-6xl">
-        <p className="text-accent-500 text-center text-xs font-semibold uppercase tracking-widest">
+        <p className="text-center font-semibold text-accent-500 text-xs uppercase tracking-widest">
           Recursos
         </p>
-        <h2 className="mt-4 text-center text-2xl font-bold text-white sm:text-3xl">
+        <h2 className="mt-4 text-center font-bold text-2xl text-white sm:text-3xl">
           Tudo integrado em uma única plataforma
         </h2>
         <div className="mt-12 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -78,11 +78,11 @@ function FeaturesBackground(): React.ReactElement {
   return (
     <>
       <div
-        className="bg-size-[24px_24px] absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.03)_1px,transparent_1px)]"
+        className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-size-[24px_24px]"
         aria-hidden="true"
       />
       <div
-        className="animate-orb-drift bg-primary-500/10 absolute left-1/4 top-0 h-[400px] w-[400px] rounded-full blur-[60px]"
+        className="absolute top-0 left-1/4 h-[400px] w-[400px] animate-orb-drift rounded-full bg-primary-500/10 blur-[60px]"
         aria-hidden="true"
       />
     </>
@@ -99,13 +99,13 @@ function BentoCard({
 }: FeatureCard): React.ReactElement {
   return (
     <div
-      className={`border-white/8 bg-white/3 rounded-xl border p-5 transition-colors ${hoverBorder} ${span}`}
+      className={`rounded-xl border border-white/8 bg-white/3 p-5 transition-colors ${hoverBorder} ${span}`}
     >
       <div className="flex items-center gap-3">
         {icon}
-        <h3 className="text-lg font-semibold text-white">{title}</h3>
+        <h3 className="font-semibold text-lg text-white">{title}</h3>
       </div>
-      <p className="mt-3 text-sm leading-relaxed text-slate-400">
+      <p className="mt-3 text-slate-400 text-sm leading-relaxed">
         {description}
       </p>
       {extra}
@@ -119,7 +119,7 @@ function WorkflowPills(): React.ReactElement {
     <div className="mt-4 flex flex-wrap items-center gap-2">
       {stages.map((stage, index) => (
         <span key={stage} className="flex items-center gap-2">
-          <span className="bg-primary-500/20 text-primary-300 rounded-full px-3 py-1 text-xs font-medium">
+          <span className="rounded-full bg-primary-500/20 px-3 py-1 font-medium text-primary-300 text-xs">
             {stage}
           </span>
           {index < stages.length - 1 && (

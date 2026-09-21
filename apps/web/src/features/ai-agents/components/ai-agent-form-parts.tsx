@@ -30,7 +30,7 @@ export interface ActiveToggleProps {
 
 export function ActiveToggle({ checked, onCheckedChange }: ActiveToggleProps) {
   return (
-    <div className="border-border flex items-center justify-between rounded-lg border p-4">
+    <div className="flex items-center justify-between rounded-lg border border-border p-4">
       <Label htmlFor="isActive" className="cursor-pointer">
         Ativo
       </Label>
@@ -55,7 +55,7 @@ export function LinkedChannelsSection({
 }: LinkedChannelsSectionProps) {
   return (
     <div className="space-y-2">
-      <p className="text-sm font-medium">Canais vinculados</p>
+      <p className="font-medium text-sm">Canais vinculados</p>
       <div className="flex flex-wrap gap-2">
         {channels.map((ch) => (
           <Badge key={ch.id} variant="secondary">

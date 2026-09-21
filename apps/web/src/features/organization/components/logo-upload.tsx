@@ -50,7 +50,7 @@ export function LogoUpload({ organization, isReadOnly }: LogoUploadProps) {
   }
   return (
     <div className="space-y-2">
-      <p className="text-sm font-medium">Logo</p>
+      <p className="font-medium text-sm">Logo</p>
       <div
         role="button"
         tabIndex={isReadOnly ? -1 : 0}
@@ -62,12 +62,12 @@ export function LogoUpload({ organization, isReadOnly }: LogoUploadProps) {
         className={cn(
           'flex h-48 flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors',
           isReadOnly
-            ? 'border-muted cursor-not-allowed'
-            : 'border-border hover:border-primary/50 cursor-pointer'
+            ? 'cursor-not-allowed border-muted'
+            : 'cursor-pointer border-border hover:border-primary/50'
         )}
       >
         {uploadLogo.isPending ? (
-          <Loader2 className="text-muted-foreground size-8 animate-spin" />
+          <Loader2 className="size-8 animate-spin text-muted-foreground" />
         ) : organization.logo ? (
           <img
             src={organization.logo}
@@ -76,10 +76,10 @@ export function LogoUpload({ organization, isReadOnly }: LogoUploadProps) {
           />
         ) : (
           <>
-            <Building2 className="text-muted-foreground mb-2 size-10" />
+            <Building2 className="mb-2 size-10 text-muted-foreground" />
             {!isReadOnly && (
               <div className="text-center">
-                <Upload className="text-muted-foreground mx-auto mb-1 size-4" />
+                <Upload className="mx-auto mb-1 size-4 text-muted-foreground" />
                 <p className="text-muted-foreground text-xs">
                   Clique ou arraste uma imagem
                 </p>

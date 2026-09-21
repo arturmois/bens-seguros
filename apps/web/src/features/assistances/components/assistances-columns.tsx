@@ -16,7 +16,7 @@ export function createAssistanceColumns(): ColumnDef<AssistanceData>[] {
       header: ({ column }) => (
         <button
           type="button"
-          className="hover:text-foreground -ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors"
+          className="-ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Tipo
@@ -34,7 +34,7 @@ export function createAssistanceColumns(): ColumnDef<AssistanceData>[] {
       accessorKey: 'clientName',
       header: 'Cliente',
       cell: ({ row }) => (
-        <span className="text-muted-foreground truncate">
+        <span className="truncate text-muted-foreground">
           {row.original.clientName ?? '-'}
         </span>
       ),
@@ -55,7 +55,7 @@ export function createAssistanceColumns(): ColumnDef<AssistanceData>[] {
       header: ({ column }) => (
         <button
           type="button"
-          className="hover:text-foreground -ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors"
+          className="-ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Status
@@ -70,7 +70,7 @@ export function createAssistanceColumns(): ColumnDef<AssistanceData>[] {
       header: ({ column }) => (
         <button
           type="button"
-          className="hover:text-foreground -ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors"
+          className="-ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Data Solicitação
@@ -83,7 +83,7 @@ export function createAssistanceColumns(): ColumnDef<AssistanceData>[] {
       accessorKey: 'address',
       header: 'Endereço',
       cell: ({ row }) => (
-        <span className="text-muted-foreground max-w-48 truncate">
+        <span className="max-w-48 truncate text-muted-foreground">
           {row.original.address ?? '-'}
         </span>
       ),
@@ -94,7 +94,7 @@ export function createAssistanceColumns(): ColumnDef<AssistanceData>[] {
       header: ({ column }) => (
         <button
           type="button"
-          className="hover:text-foreground -ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors"
+          className="-ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Criado em

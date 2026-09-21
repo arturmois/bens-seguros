@@ -34,7 +34,7 @@ export function TableToolbar({
     <div className="flex flex-wrap items-center justify-between gap-2">
       <div className="flex flex-1 flex-wrap items-center gap-2">
         <div className="relative">
-          <Search className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2" />
+          <Search className="pointer-events-none absolute top-1/2 left-3 z-10 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder={searchPlaceholder}
             className="h-8 w-full ps-9 md:w-[320px]"
@@ -52,7 +52,7 @@ export function TableToolbar({
               Colunas
             </PopoverTrigger>
             <PopoverPopup side="bottom" align="end" className="min-w-[160px]">
-              <p className="text-muted-foreground px-2 pb-1.5 text-xs font-medium">
+              <p className="px-2 pb-1.5 font-medium text-muted-foreground text-xs">
                 Alternar colunas
               </p>
               {hideableColumns.map((col) => {
@@ -61,7 +61,7 @@ export function TableToolbar({
                   <button
                     key={col.id}
                     type="button"
-                    className="hover:bg-accent hover:text-accent-foreground flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm"
+                    className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
                     onClick={() => onColumnVisibilityChange(col.id, !isVisible)}
                   >
                     <Check

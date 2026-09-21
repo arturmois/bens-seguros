@@ -50,21 +50,21 @@ export function InlineEditObservations({
   return (
     <section
       aria-labelledby="proposal-observations-label"
-      className="bg-card rounded-xl border p-5 shadow-sm"
+      className="rounded-xl border bg-card p-5 shadow-sm"
     >
       <div className="mb-3 flex items-center justify-between">
         <p
           id="proposal-observations-label"
-          className="text-muted-foreground inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider"
+          className="inline-flex items-center gap-2 font-bold text-[11px] text-muted-foreground uppercase tracking-wider"
         >
-          <NotebookPen className="text-primary size-3.5" /> Observações
+          <NotebookPen className="size-3.5 text-primary" /> Observações
         </p>
         {!editing && (
           <button
             type="button"
             onClick={startEditing}
             aria-label="Editar observações"
-            className="text-muted-foreground hover:text-primary transition-colors"
+            className="text-muted-foreground transition-colors hover:text-primary"
           >
             <Pencil className="size-4" />
           </button>
@@ -111,10 +111,10 @@ export function InlineEditObservations({
         <button
           type="button"
           onClick={startEditing}
-          className="bg-muted/40 hover:bg-muted/60 w-full rounded-md p-3 text-left text-sm leading-relaxed transition-colors"
+          className="w-full rounded-md bg-muted/40 p-3 text-left text-sm leading-relaxed transition-colors hover:bg-muted/60"
         >
           {initial ? (
-            <span className="text-foreground whitespace-pre-wrap">
+            <span className="whitespace-pre-wrap text-foreground">
               {initial}
             </span>
           ) : (

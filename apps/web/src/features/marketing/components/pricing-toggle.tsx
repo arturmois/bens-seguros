@@ -12,7 +12,7 @@ export function PricingToggle({
   return (
     <div className="mt-8 flex items-center justify-center gap-3">
       <span
-        className={`text-sm font-medium ${
+        className={`font-medium text-sm ${
           billing === 'monthly' ? 'text-slate-900' : 'text-slate-400'
         }`}
       >
@@ -26,7 +26,7 @@ export function PricingToggle({
         onClick={() =>
           onBillingChange(billing === 'monthly' ? 'annual' : 'monthly')
         }
-        className="data-[state=checked]:bg-accent-500 relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full bg-slate-200 transition-colors"
+        className="relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full bg-slate-200 transition-colors data-[state=checked]:bg-accent-500"
         data-state={billing === 'annual' ? 'checked' : 'unchecked'}
       >
         <span
@@ -36,12 +36,12 @@ export function PricingToggle({
         />
       </button>
       <span
-        className={`text-sm font-medium ${
+        className={`font-medium text-sm ${
           billing === 'annual' ? 'text-slate-900' : 'text-slate-400'
         }`}
       >
         Anual
-        <span className="text-accent-600 ml-1 text-xs">-20%</span>
+        <span className="ml-1 text-accent-600 text-xs">-20%</span>
       </span>
     </div>
   )

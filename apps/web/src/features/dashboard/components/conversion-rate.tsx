@@ -33,13 +33,13 @@ export function ConversionRate({ data, isLoading }: ConversionRateProps) {
       </CardHeader>
       <CardPanel className="flex items-center gap-4">
         <div className="flex items-baseline gap-1">
-          <span className="text-4xl font-bold tracking-tight">
+          <span className="font-bold text-4xl tracking-tight">
             {data.rate}%
           </span>
         </div>
-        <div className="text-muted-foreground space-y-1 text-xs">
+        <div className="space-y-1 text-muted-foreground text-xs">
           <div className="flex items-center gap-1">
-            <TrendingUp className="text-success size-3.5" />
+            <TrendingUp className="size-3.5 text-success" />
             <span>{data.issued} convertidas</span>
           </div>
           <p>{data.total} propostas (6 meses)</p>

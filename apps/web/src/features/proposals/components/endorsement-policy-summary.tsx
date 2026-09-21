@@ -13,7 +13,7 @@ export function EndorsementPolicySummary({
   branch,
 }: EndorsementPolicySummaryProps) {
   return (
-    <div className="bg-muted/20 border-border space-y-3 rounded-lg border px-4 py-3">
+    <div className="space-y-3 rounded-lg border border-border bg-muted/20 px-4 py-3">
       <div>
         <p className="text-muted-foreground text-xs uppercase tracking-wide">
           Apólice de origem

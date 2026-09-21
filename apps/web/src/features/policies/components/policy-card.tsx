@@ -20,7 +20,7 @@ export function PolicyCard({ policy }: PolicyCardProps) {
   const router = useRouter()
   return (
     <div
-      className="bg-card active:bg-muted/50 cursor-pointer space-y-3 rounded-lg border p-4"
+      className="cursor-pointer space-y-3 rounded-lg border bg-card p-4 active:bg-muted/50"
       onClick={() => router.push(`/policies/${policy.id}`)}
       role="button"
       tabIndex={0}

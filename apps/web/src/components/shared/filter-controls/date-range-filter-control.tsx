@@ -57,11 +57,11 @@ export function DateRangeFilterControl({
         data-slot="date-range-filter-control"
       >
         <div className="flex items-center justify-between border-b px-3 py-2">
-          <span className="text-sm font-medium">{label}</span>
+          <span className="font-medium text-sm">{label}</span>
           <button
             type="button"
             onClick={handleClear}
-            className="text-muted-foreground hover:text-foreground text-xs"
+            className="text-muted-foreground text-xs hover:text-foreground"
           >
             Limpar
           </button>
@@ -80,7 +80,7 @@ export function DateRangeFilterControl({
                 )}
               >
                 <span>{preset.label}</span>
-                {active && <Check className="text-primary size-3.5" />}
+                {active && <Check className="size-3.5 text-primary" />}
               </button>
             )
           })}
@@ -89,7 +89,7 @@ export function DateRangeFilterControl({
           <button
             type="button"
             onClick={() => setStage('custom')}
-            className="text-primary hover:bg-accent flex w-full items-center px-3 py-1.5 text-left text-sm"
+            className="flex w-full items-center px-3 py-1.5 text-left text-primary text-sm hover:bg-accent"
           >
             Customizado...
           </button>
@@ -111,17 +111,17 @@ export function DateRangeFilterControl({
         >
           <ArrowLeft className="size-3.5" />
         </button>
-        <span className="text-sm font-medium">Customizado</span>
+        <span className="font-medium text-sm">Customizado</span>
       </div>
       <div className="space-y-2 px-3 py-2 text-xs">
         <div className="flex items-center gap-2">
-          <span className="text-muted-foreground w-8">De</span>
+          <span className="w-8 text-muted-foreground">De</span>
           <span className="flex-1 font-medium">
             {from ? format(from, 'dd/MM/yyyy', { locale: ptBR }) : '—'}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-muted-foreground w-8">Até</span>
+          <span className="w-8 text-muted-foreground">Até</span>
           <span className="flex-1 font-medium">
             {to ? format(to, 'dd/MM/yyyy', { locale: ptBR }) : '—'}
           </span>
@@ -144,7 +144,7 @@ export function DateRangeFilterControl({
           onClick={handleCustomApply}
           disabled={!from || !to}
           className={cn(
-            'text-primary font-medium hover:underline',
+            'font-medium text-primary hover:underline',
             (!from || !to) && 'pointer-events-none opacity-50'
           )}
         >

@@ -21,7 +21,7 @@ function ChartSkeleton() {
   return (
     <Card>
       <CardPanel className="flex h-64 items-center justify-center">
-        <Loader2 className="text-muted-foreground size-6 animate-spin" />
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
       </CardPanel>
     </Card>
   )
@@ -70,7 +70,7 @@ export function DashboardContent() {
     return (
       <Card>
         <CardPanel className="flex flex-col items-center justify-center gap-3 py-16">
-          <AlertTriangle className="text-destructive size-8" />
+          <AlertTriangle className="size-8 text-destructive" />
           <p className="text-muted-foreground text-sm">
             Erro ao carregar dados do dashboard.
           </p>

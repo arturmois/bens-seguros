@@ -44,7 +44,7 @@ export function EndorsementList({ policyId }: EndorsementListProps) {
   if (!data?.data || data.data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-8">
-        <FileText className="text-muted-foreground size-10" />
+        <FileText className="size-10 text-muted-foreground" />
         <p className="text-muted-foreground text-sm">
           Nenhum endosso registrado
         </p>
@@ -80,7 +80,7 @@ function EndorsementRow({
   return (
     <TableRow>
       <TableCell>
-        <span className="bg-muted rounded px-2 py-0.5 text-xs font-medium">
+        <span className="rounded bg-muted px-2 py-0.5 font-medium text-xs">
           {getEndorsementTypeLabel(endorsement.type)}
         </span>
       </TableCell>

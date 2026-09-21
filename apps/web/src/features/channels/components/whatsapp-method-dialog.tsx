@@ -43,16 +43,16 @@ export function WhatsAppMethodDialog({
               onOpenChange(false)
               onSelectCloudApi()
             }}
-            className="hover:bg-accent flex items-start gap-4 rounded-xl border p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-start gap-4 rounded-xl border p-4 text-left transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
           >
             <div className="mt-0.5 shrink-0">
               <Cloud className="size-6 text-green-600" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold">
+              <p className="font-semibold text-sm">
                 WhatsApp Business (Cloud API)
               </p>
-              <p className="text-muted-foreground mt-0.5 text-xs">
+              <p className="mt-0.5 text-muted-foreground text-xs">
                 {hasCloudApiConfig
                   ? 'Número comercial verificado pela Meta. Ideal para empresas.'
                   : 'Número comercial verificado pela Meta. Não configurado neste ambiente.'}
@@ -65,16 +65,16 @@ export function WhatsAppMethodDialog({
               onOpenChange(false)
               onSelectQrCode()
             }}
-            className="hover:bg-accent flex items-start gap-4 rounded-xl border p-4 text-left transition-colors"
+            className="flex items-start gap-4 rounded-xl border p-4 text-left transition-colors hover:bg-accent"
           >
             <div className="mt-0.5 shrink-0">
               <QrCode className="size-6 text-green-600" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold">
+              <p className="font-semibold text-sm">
                 WhatsApp Pessoal (QR Code)
               </p>
-              <p className="text-muted-foreground mt-0.5 text-xs">
+              <p className="mt-0.5 text-muted-foreground text-xs">
                 Conecte seu WhatsApp pessoal escaneando um QR code.
               </p>
             </div>

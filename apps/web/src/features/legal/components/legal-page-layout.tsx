@@ -43,13 +43,13 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
     }
   }
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-12 pt-24 sm:px-6">
+    <div className="mx-auto max-w-6xl px-4 pt-24 pb-12 sm:px-6">
       {/* Header */}
       <div className="mb-10 text-center">
-        <h1 className="text-foreground text-3xl font-bold sm:text-4xl">
+        <h1 className="font-bold text-3xl text-foreground sm:text-4xl">
           {doc.title}
         </h1>
-        <p className="text-muted-foreground mt-3 text-sm">
+        <p className="mt-3 text-muted-foreground text-sm">
           Versão {doc.version} — Última atualização:{' '}
           {new Date(doc.updatedAt).toLocaleDateString('pt-BR')}
         </p>
@@ -59,7 +59,7 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
         <button
           type="button"
           onClick={() => setTocOpen((prev) => !prev)}
-          className="border-border bg-secondary text-foreground flex w-full items-center justify-between rounded-lg border px-4 py-3 text-sm"
+          className="flex w-full items-center justify-between rounded-lg border border-border bg-secondary px-4 py-3 text-foreground text-sm"
         >
           <span>Índice</span>
           <ChevronDown
@@ -70,7 +70,7 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
           />
         </button>
         {tocOpen && (
-          <nav className="border-border bg-secondary mt-2 rounded-lg border p-4">
+          <nav className="mt-2 rounded-lg border border-border bg-secondary p-4">
             <ul className="space-y-2">
               {doc.sections.map((section) => (
                 <li key={section.id}>
@@ -80,7 +80,7 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
                     className={cn(
                       'w-full text-left text-sm transition-colors',
                       activeSection === section.id
-                        ? 'text-primary font-medium'
+                        ? 'font-medium text-primary'
                         : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
@@ -97,7 +97,7 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
         {/* Sidebar TOC (desktop) */}
         <aside className="hidden w-56 shrink-0 md:block">
           <nav className="sticky top-24">
-            <p className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
+            <p className="mb-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
               Índice
             </p>
             <ul className="space-y-1.5">
@@ -109,8 +109,8 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
                     className={cn(
                       'w-full text-left text-sm transition-colors',
                       activeSection === section.id
-                        ? 'border-primary text-primary border-l-2 pl-3 font-medium'
-                        : 'text-muted-foreground hover:text-foreground border-l-2 border-transparent pl-3'
+                        ? 'border-primary border-l-2 pl-3 font-medium text-primary'
+                        : 'border-transparent border-l-2 pl-3 text-muted-foreground hover:text-foreground'
                     )}
                   >
                     {section.title}
@@ -131,10 +131,10 @@ export function LegalPageLayout({ document: doc }: LegalPageLayoutProps) {
               }}
               className="mb-10 scroll-mt-24"
             >
-              <h2 className="text-foreground mb-4 text-xl font-semibold">
+              <h2 className="mb-4 font-semibold text-foreground text-xl">
                 {section.title}
               </h2>
-              <div className="text-muted-foreground whitespace-pre-line text-sm leading-relaxed">
+              <div className="whitespace-pre-line text-muted-foreground text-sm leading-relaxed">
                 {section.content}
               </div>
             </section>

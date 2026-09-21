@@ -28,7 +28,7 @@ export function PricingCard({
   const isEnterprise = price === null
   return (
     <div
-      className={`relative flex flex-col rounded-2xl border p-6 ${popular ? 'md:order-0 order-first' : ''} ${
+      className={`relative flex flex-col rounded-2xl border p-6 ${popular ? 'order-first md:order-0' : ''} ${
         dark
           ? 'border-white/10 bg-[#0f172a] text-white'
           : popular
@@ -38,7 +38,7 @@ export function PricingCard({
     >
       {popular && <PopularBadge />}
       <h3
-        className={`text-lg font-semibold ${dark ? 'text-white' : 'text-slate-900'}`}
+        className={`font-semibold text-lg ${dark ? 'text-white' : 'text-slate-900'}`}
       >
         {name}
       </h3>
@@ -67,7 +67,7 @@ export function PricingCard({
 
 function PopularBadge(): React.ReactElement {
   return (
-    <span className="bg-accent-500 absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-bold text-slate-900">
+    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent-500 px-3 py-1 font-bold text-slate-900 text-xs">
       MAIS POPULAR
     </span>
   )
@@ -85,7 +85,7 @@ function PriceDisplay({
   if (isEnterprise) {
     return (
       <p
-        className={`mt-4 text-2xl font-bold ${dark ? 'text-white' : 'text-slate-900'}`}
+        className={`mt-4 font-bold text-2xl ${dark ? 'text-white' : 'text-slate-900'}`}
       >
         Sob consulta
       </p>
@@ -94,11 +94,11 @@ function PriceDisplay({
   return (
     <p className="mt-4">
       <span
-        className={`text-3xl font-bold ${dark ? 'text-white' : 'text-slate-900'}`}
+        className={`font-bold text-3xl ${dark ? 'text-white' : 'text-slate-900'}`}
       >
         R${price}
       </span>
-      <span className="text-sm text-slate-500">/mês</span>
+      <span className="text-slate-500 text-sm">/mês</span>
     </p>
   )
 }
@@ -118,7 +118,7 @@ function CtaButton({
     return (
       <Link
         href={href}
-        className="from-accent-500 to-accent-600 shadow-accent-500/20 hover:shadow-accent-500/30 bg-linear-to-r mt-6 block rounded-xl py-3 text-center text-sm font-semibold text-slate-900 shadow-lg transition-all"
+        className="mt-6 block rounded-xl bg-linear-to-r from-accent-500 to-accent-600 py-3 text-center font-semibold text-slate-900 text-sm shadow-accent-500/20 shadow-lg transition-all hover:shadow-accent-500/30"
       >
         {label}
       </Link>
@@ -128,7 +128,7 @@ function CtaButton({
     return (
       <a
         href={href}
-        className="mt-6 block rounded-xl border border-white/20 py-3 text-center text-sm font-medium text-white transition-colors hover:border-white/40"
+        className="mt-6 block rounded-xl border border-white/20 py-3 text-center font-medium text-sm text-white transition-colors hover:border-white/40"
       >
         {label}
       </a>
@@ -137,7 +137,7 @@ function CtaButton({
   return (
     <Link
       href={href}
-      className="mt-6 block rounded-xl border border-slate-200 py-3 text-center text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50"
+      className="mt-6 block rounded-xl border border-slate-200 py-3 text-center font-medium text-slate-700 text-sm transition-colors hover:border-slate-300 hover:bg-slate-50"
     >
       {label}
     </Link>

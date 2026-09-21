@@ -67,7 +67,7 @@ export function InputOTPSlot({
   return (
     <div
       className={cn(
-        'in-[[data-slot=input-otp-group][data-size=lg]]:size-10 border-input bg-background not-dark:bg-clip-padding in-[[data-slot=input-otp-group][data-size=lg]]:text-lg text-foreground shadow-xs/5 ring-ring/24 not-data-[active=true]:not-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] aria-invalid:border-destructive/36 data-[active=true]:border-ring data-[active=true]:ring-ring/24 data-[active=true]:aria-invalid:border-destructive/64 data-[active=true]:aria-invalid:ring-destructive/16 sm:in-[[data-slot=input-otp-group][data-size=lg]]:size-9 sm:in-[[data-slot=input-otp-group][data-size=lg]]:text-base dark:bg-input/32 dark:data-[active=true]:aria-invalid:ring-destructive/24 dark:not-data-[active=true]:not-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/6%)] [[data-active=true],[aria-invalid]]:shadow-none relative inline-flex size-9 items-center justify-center rounded-lg border text-base outline-none transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] data-[active=true]:z-10 data-[active=true]:ring-[3px] sm:size-8 sm:text-sm',
+        'relative inline-flex in-[[data-slot=input-otp-group][data-size=lg]]:size-10 size-9 items-center justify-center rounded-lg border border-input bg-background not-dark:bg-clip-padding in-[[data-slot=input-otp-group][data-size=lg]]:text-lg text-base text-foreground shadow-xs/5 outline-none ring-ring/24 transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] not-data-[active=true]:not-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] aria-invalid:border-destructive/36 data-[active=true]:z-10 data-[active=true]:border-ring data-[active=true]:ring-[3px] data-[active=true]:ring-ring/24 data-[active=true]:aria-invalid:border-destructive/64 data-[active=true]:aria-invalid:ring-destructive/16 sm:in-[[data-slot=input-otp-group][data-size=lg]]:size-9 sm:size-8 sm:in-[[data-slot=input-otp-group][data-size=lg]]:text-base sm:text-sm dark:bg-input/32 dark:data-[active=true]:aria-invalid:ring-destructive/24 dark:not-data-[active=true]:not-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/6%)] [[data-active=true],[aria-invalid]]:shadow-none',
         className
       )}
       data-active={isActive ? true : undefined}
@@ -77,7 +77,7 @@ export function InputOTPSlot({
       {char}
       {hasFakeCaret && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="animate-caret-blink bg-foreground h-4 w-px" />
+          <div className="h-4 w-px animate-caret-blink bg-foreground" />
         </div>
       )}
     </div>
@@ -91,7 +91,7 @@ export function InputOTPSeparator({
   return (
     <Separator
       className={cn(
-        'bg-input rounded-full data-[orientation=horizontal]:h-0.5 data-[orientation=horizontal]:w-3',
+        'rounded-full bg-input data-[orientation=horizontal]:h-0.5 data-[orientation=horizontal]:w-3',
         className
       )}
       {...props}

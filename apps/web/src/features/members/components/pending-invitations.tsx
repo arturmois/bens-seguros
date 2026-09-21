@@ -64,7 +64,7 @@ export function PendingInvitations({ canManage }: PendingInvitationsProps) {
     revokeInvitation.mutate(invitation.id)
   }
   return (
-    <div className="divide-border divide-y rounded-lg border">
+    <div className="divide-y divide-border rounded-lg border">
       {invitations.map((invitation) => (
         <InvitationRow
           key={invitation.id}
@@ -101,7 +101,7 @@ function InvitationRow({
     <div className="flex items-center justify-between gap-4 px-4 py-3">
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium">
+          <span className="truncate font-medium text-sm">
             {invitation.email}
           </span>
           <Badge variant="outline" size="sm">
@@ -113,7 +113,7 @@ function InvitationRow({
             </Badge>
           )}
         </div>
-        <div className="text-muted-foreground flex items-center gap-3 text-xs">
+        <div className="flex items-center gap-3 text-muted-foreground text-xs">
           <span>Enviado {sentAgo}</span>
           <span className="flex items-center gap-1">
             <Clock className="size-3" />
@@ -144,7 +144,7 @@ function InvitationRow({
 
 function InvitationsSkeleton() {
   return (
-    <div className="divide-border divide-y rounded-lg border">
+    <div className="divide-y divide-border rounded-lg border">
       {Array.from({ length: 3 }, (_, index) => (
         <div
           key={index}

@@ -221,7 +221,7 @@ export function CommandPalette() {
                 <CommandEmpty>Nenhum resultado encontrado.</CommandEmpty>
               )}
               {hasQuery && isLoading && (
-                <div className="text-muted-foreground py-6 text-center text-sm">
+                <div className="py-6 text-center text-muted-foreground text-sm">
                   Buscando...
                 </div>
               )}
@@ -234,7 +234,7 @@ export function CommandPalette() {
               <span>esc fechar</span>
             </div>
             {isLoading && (
-              <Search className="text-muted-foreground size-4 animate-pulse" />
+              <Search className="size-4 animate-pulse text-muted-foreground" />
             )}
           </CommandFooter>
         </Command>

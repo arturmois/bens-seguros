@@ -11,7 +11,7 @@ export function WhatsappStatus({ isConnected }: WhatsappStatusProps) {
   return (
     <div
       className={cn(
-        'flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors',
+        'flex items-center gap-1.5 rounded-full px-2.5 py-1 font-medium text-xs transition-colors',
         isConnected
           ? 'bg-(--chat-online)/15 text-(--chat-online)'
           : 'bg-destructive/10 text-destructive-foreground'

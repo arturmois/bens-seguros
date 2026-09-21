@@ -42,7 +42,7 @@ export function CancelSubscriptionDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <AlertTriangle className="text-destructive size-6" />
+          <AlertTriangle className="size-6 text-destructive" />
           <DialogTitle>Cancelar assinatura?</DialogTitle>
           <DialogDescription>
             Você perderá acesso a recursos do plano após o fim do período pago.
@@ -52,7 +52,7 @@ export function CancelSubscriptionDialog({
           {currentPeriodEnd !== null && (
             <p className="text-muted-foreground">
               Sua assinatura permanecerá ativa até{' '}
-              <span className="text-foreground font-medium">
+              <span className="font-medium text-foreground">
                 {formatDate(currentPeriodEnd)}
               </span>
               . Após essa data, o acesso à organização será suspenso.

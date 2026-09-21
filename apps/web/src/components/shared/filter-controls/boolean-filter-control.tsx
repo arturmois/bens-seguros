@@ -29,7 +29,7 @@ export function BooleanFilterControl({
   return (
     <div className="flex w-full flex-col" data-slot="boolean-filter-control">
       <div className="border-b px-3 py-2">
-        <span className="text-sm font-medium">{label}</span>
+        <span className="font-medium text-sm">{label}</span>
       </div>
       <div className="py-1">
         {OPTIONS.map((option) => {
@@ -45,7 +45,7 @@ export function BooleanFilterControl({
               )}
             >
               <span>{option.label}</span>
-              {active && <Check className="text-primary size-3.5" />}
+              {active && <Check className="size-3.5 text-primary" />}
             </button>
           )
         })}

@@ -153,7 +153,7 @@ export function BranchFields({
           />
         </div>
         <div className="space-y-3">
-          <p className="text-muted-foreground text-[11px] font-bold uppercase tracking-wider">
+          <p className="font-bold text-[11px] text-muted-foreground uppercase tracking-wider">
             Valores
           </p>
           <div className="grid gap-4 sm:grid-cols-2">

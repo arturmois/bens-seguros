@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 function ChatLayoutSkeleton() {
   return (
-    <div className="bg-background flex h-full w-full overflow-hidden">
+    <div className="flex h-full w-full overflow-hidden bg-background">
       {/* Conversation list skeleton */}
       <div className="hidden w-80 shrink-0 border-r md:block lg:w-96">
         <div className="space-y-3 p-4">

@@ -40,7 +40,7 @@ export function ChatHeader({
 }: ChatHeaderProps) {
   const displayName = getContactDisplayName(contact, conversation)
   return (
-    <div className="border-border bg-card border-b">
+    <div className="border-border border-b bg-card">
       <div className="flex min-h-14 items-center justify-between px-3 py-2 md:px-4 md:py-3">
         <div className="flex items-center gap-2 md:gap-3">
           <Button
@@ -59,8 +59,8 @@ export function ChatHeader({
             <div className="relative">
               <div
                 className={cn(
-                  'bg-primary/10 flex h-9 w-9 items-center justify-center overflow-hidden rounded-full md:h-10 md:w-10',
-                  contact?.profilePicUrl && 'bg-muted relative'
+                  'flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-primary/10 md:h-10 md:w-10',
+                  contact?.profilePicUrl && 'relative bg-muted'
                 )}
               >
                 {contact?.profilePicUrl ? (
@@ -72,7 +72,7 @@ export function ChatHeader({
                     sizes="40px"
                   />
                 ) : (
-                  <span className="text-primary text-sm font-semibold md:text-base">
+                  <span className="font-semibold text-primary text-sm md:text-base">
                     {displayName.charAt(0).toUpperCase()}
                   </span>
                 )}
@@ -80,7 +80,7 @@ export function ChatHeader({
             </div>
             <div className="text-left">
               <div className="flex items-center gap-2">
-                <h2 className="text-foreground text-sm font-semibold md:text-base">
+                <h2 className="font-semibold text-foreground text-sm md:text-base">
                   {displayName}
                 </h2>
                 <ConversationStatusBadge status={conversation.status} />

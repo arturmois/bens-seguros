@@ -68,7 +68,7 @@ export function GoalsProgressCard() {
     return (
       <GoalsCardShell year={currentYear}>
         <CardPanel className="flex flex-col items-center justify-center gap-3 py-16">
-          <AlertTriangle className="text-destructive size-8" />
+          <AlertTriangle className="size-8 text-destructive" />
           <p className="text-muted-foreground text-sm">
             Erro ao carregar metas comerciais.
           </p>

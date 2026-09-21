@@ -96,7 +96,7 @@ export function AuditTable() {
         table={table}
         isLoading={isLoading}
         emptyIcon={
-          <ClipboardList className="text-muted-foreground/50 size-10" />
+          <ClipboardList className="size-10 text-muted-foreground/50" />
         }
         emptyMessage="Nenhum registro de auditoria encontrado."
         columnVisibility={columnVisibility}
@@ -107,7 +107,7 @@ export function AuditTable() {
         keyExtractor={(e) => e.id}
         isLoading={isLoading}
         emptyIcon={
-          <ClipboardList className="text-muted-foreground/50 size-10" />
+          <ClipboardList className="size-10 text-muted-foreground/50" />
         }
         emptyMessage="Nenhum registro de auditoria encontrado."
         renderCard={(entry) => (

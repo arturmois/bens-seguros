@@ -27,7 +27,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   if (isLoading || !activeOrg) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Spinner className="text-muted-foreground size-6" />
+        <Spinner className="size-6 text-muted-foreground" />
       </div>
     )
   }

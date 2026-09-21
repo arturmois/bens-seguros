@@ -129,7 +129,7 @@ export function CommissionsTable() {
       <DataTable
         table={table}
         isLoading={isLoading}
-        emptyIcon={<DollarSign className="text-muted-foreground/50 size-10" />}
+        emptyIcon={<DollarSign className="size-10 text-muted-foreground/50" />}
         emptyMessage="Nenhuma comissão encontrada."
         emptyDescription="As comissões serão criadas automaticamente ao emitir apólices."
         columnVisibility={columnVisibility}
@@ -141,7 +141,7 @@ export function CommissionsTable() {
         data={commissions}
         keyExtractor={(c) => c.id}
         isLoading={isLoading}
-        emptyIcon={<DollarSign className="text-muted-foreground/50 size-10" />}
+        emptyIcon={<DollarSign className="size-10 text-muted-foreground/50" />}
         emptyMessage="Nenhuma comissão encontrada."
         emptyDescription="As comissões serão criadas automaticamente ao emitir apólices."
         renderCard={(commission) => <CommissionCard commission={commission} />}

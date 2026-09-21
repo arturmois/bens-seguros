@@ -106,7 +106,7 @@ export function EditInsuredObjectDialog({
         </div>
         <DialogFooter className="flex items-center justify-between gap-2 sm:justify-between">
           {isDirty ? (
-            <span className="text-warning text-xs font-semibold">
+            <span className="font-semibold text-warning text-xs">
               ● alterações não salvas
             </span>
           ) : (

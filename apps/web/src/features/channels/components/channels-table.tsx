@@ -118,7 +118,7 @@ export function ChannelsTable({
         table={table}
         isLoading={isLoading}
         emptyIcon={
-          <MessageCircle className="text-muted-foreground/50 size-10" />
+          <MessageCircle className="size-10 text-muted-foreground/50" />
         }
         emptyMessage={emptyMessage}
         emptyDescription={emptyDescription}
@@ -130,7 +130,7 @@ export function ChannelsTable({
         keyExtractor={(channel) => channel.id}
         isLoading={isLoading}
         emptyIcon={
-          <MessageCircle className="text-muted-foreground/50 size-10" />
+          <MessageCircle className="size-10 text-muted-foreground/50" />
         }
         emptyMessage={emptyMessage}
         emptyDescription={emptyDescription}

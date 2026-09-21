@@ -145,7 +145,7 @@ export function AiAgentsTable() {
       <DataTable
         table={table}
         isLoading={isLoading}
-        emptyIcon={<Brain className="text-muted-foreground/50 size-10" />}
+        emptyIcon={<Brain className="size-10 text-muted-foreground/50" />}
         emptyMessage={emptyMessage}
         emptyDescription={emptyDescription}
         columnVisibility={columnVisibility}
@@ -155,7 +155,7 @@ export function AiAgentsTable() {
         data={agents}
         keyExtractor={(agent) => agent.id}
         isLoading={isLoading}
-        emptyIcon={<Brain className="text-muted-foreground/50 size-10" />}
+        emptyIcon={<Brain className="size-10 text-muted-foreground/50" />}
         emptyMessage={emptyMessage}
         emptyDescription={emptyDescription}
         renderCard={(agent) => (

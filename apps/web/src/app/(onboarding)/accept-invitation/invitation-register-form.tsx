@@ -72,7 +72,7 @@ export function InvitationRegisterForm({
           type="email"
           value={invitation.email}
           readOnly
-          className="bg-muted cursor-not-allowed"
+          className="cursor-not-allowed bg-muted"
         />
       </div>
       <div className="space-y-1">
@@ -126,7 +126,7 @@ export function InvitationRegisterForm({
             })
           }}
         />
-        <Label htmlFor="terms" className="cursor-pointer text-sm font-normal">
+        <Label htmlFor="terms" className="cursor-pointer font-normal text-sm">
           Eu aceito os{' '}
           <a href="/terms" className="text-primary underline">
             termos de uso

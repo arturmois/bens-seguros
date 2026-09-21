@@ -43,7 +43,7 @@ export function PairingCodeTab({
       </div>
       {code && <PairingCodeDisplay code={code} />}
       {error && (
-        <p className="text-destructive text-center text-sm" role="alert">
+        <p className="text-center text-destructive text-sm" role="alert">
           {error}
         </p>
       )}
@@ -64,13 +64,13 @@ function PairingCodeDisplay({ code }: { readonly code: string }) {
         telefone
       </p>
       <p
-        className="font-mono text-3xl font-bold tracking-widest"
+        className="font-bold font-mono text-3xl tracking-widest"
         aria-label={`Código de pareamento: ${formatted}`}
       >
         {formatted}
       </p>
       <div className="flex items-center gap-2 text-sm">
-        <Loader2 className="text-warning size-4 animate-spin" />
+        <Loader2 className="size-4 animate-spin text-warning" />
         <span className="text-muted-foreground">Aguardando pareamento...</span>
       </div>
     </div>

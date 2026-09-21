@@ -84,13 +84,13 @@ export function CreateOrgForm() {
     }
   }
   return (
-    <div className="bg-card rounded-lg border p-8 shadow-sm">
+    <div className="rounded-lg border bg-card p-8 shadow-sm">
       <div className="mb-6 text-center">
-        <p className="text-primary text-sm font-semibold uppercase tracking-wide">
+        <p className="font-semibold text-primary text-sm uppercase tracking-wide">
           Passo 2 de 2
         </p>
-        <h2 className="mt-1 text-xl font-semibold">Configure sua corretora</h2>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <h2 className="mt-1 font-semibold text-xl">Configure sua corretora</h2>
+        <p className="mt-1 text-muted-foreground text-sm">
           Estas informações podem ser alteradas depois
         </p>
       </div>
@@ -111,7 +111,7 @@ export function CreateOrgForm() {
         <div className="space-y-2">
           <Label htmlFor="slug">Identificador (slug)</Label>
           <div className="flex items-center overflow-hidden rounded-md border">
-            <span className="bg-muted text-muted-foreground border-r px-3 py-2 text-sm">
+            <span className="border-r bg-muted px-3 py-2 text-muted-foreground text-sm">
               bens.app/
             </span>
             <Input
@@ -141,7 +141,7 @@ export function CreateOrgForm() {
             'Criar corretora'
           )}
         </Button>
-        <p className="text-muted-foreground text-center text-xs">
+        <p className="text-center text-muted-foreground text-xs">
           Você será o administrador (Owner) desta organização
         </p>
       </form>

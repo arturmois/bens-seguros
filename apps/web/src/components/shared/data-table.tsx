@@ -41,7 +41,7 @@ export function DataTable<T>({
   return (
     <div className="hidden min-h-0 flex-1 overflow-auto rounded-md border md:flex md:flex-col">
       <Table>
-        <TableHeader className="bg-background sticky top-0 z-10">
+        <TableHeader className="sticky top-0 z-10 bg-background">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) =>
@@ -65,7 +65,7 @@ export function DataTable<T>({
           ) : table.getRowModel().rows.length === 0 ? (
             <TableRow>
               <TableCell colSpan={colCount} className="h-32 text-center">
-                <div className="text-muted-foreground flex flex-col items-center gap-2">
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
                   {emptyIcon}
                   <p>{emptyMessage}</p>
                   {emptyDescription && (

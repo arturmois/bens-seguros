@@ -104,7 +104,7 @@ export function ChannelsPage() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-6">
       <div>
-        <h2 className="text-lg font-semibold tracking-tight">Canais</h2>
+        <h2 className="font-semibold text-lg tracking-tight">Canais</h2>
         <p className="text-muted-foreground text-sm">
           Gerencie seus canais de comunicação.
         </p>

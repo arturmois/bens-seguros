@@ -28,10 +28,10 @@ export function PlanSelector() {
   }
 
   return (
-    <div className="bg-card rounded-lg border p-6 shadow-sm sm:p-8">
+    <div className="rounded-lg border bg-card p-6 shadow-sm sm:p-8">
       <div className="mb-6 text-center">
-        <h2 className="text-xl font-semibold">Escolha seu plano</h2>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <h2 className="font-semibold text-xl">Escolha seu plano</h2>
+        <p className="mt-1 text-muted-foreground text-sm">
           Comece com 14 dias grátis. Você pode trocar de plano quando quiser.
         </p>
       </div>
@@ -65,7 +65,7 @@ export function PlanSelector() {
 
 function PlansSkeleton() {
   return (
-    <div className="bg-card space-y-3 rounded-lg border p-6 shadow-sm sm:p-8">
+    <div className="space-y-3 rounded-lg border bg-card p-6 shadow-sm sm:p-8">
       <Skeleton className="mx-auto h-6 w-40" />
       <Skeleton className="h-28 w-full rounded-lg" />
       <Skeleton className="h-28 w-full rounded-lg" />
@@ -76,8 +76,8 @@ function PlansSkeleton() {
 
 function PlansError({ onRetry }: { readonly onRetry: () => void }) {
   return (
-    <div className="bg-card flex flex-col items-center gap-3 rounded-lg border p-8 text-center shadow-sm">
-      <AlertCircle className="text-destructive size-8" />
+    <div className="flex flex-col items-center gap-3 rounded-lg border bg-card p-8 text-center shadow-sm">
+      <AlertCircle className="size-8 text-destructive" />
       <p className="text-muted-foreground text-sm">
         Não foi possível carregar os planos.
       </p>
@@ -90,8 +90,8 @@ function PlansError({ onRetry }: { readonly onRetry: () => void }) {
 
 function PlansEmpty() {
   return (
-    <div className="bg-card flex flex-col items-center gap-3 rounded-lg border p-8 text-center shadow-sm">
-      <PackageOpen className="text-muted-foreground size-8" />
+    <div className="flex flex-col items-center gap-3 rounded-lg border bg-card p-8 text-center shadow-sm">
+      <PackageOpen className="size-8 text-muted-foreground" />
       <p className="text-muted-foreground text-sm">
         Nenhum plano disponível no momento.
       </p>

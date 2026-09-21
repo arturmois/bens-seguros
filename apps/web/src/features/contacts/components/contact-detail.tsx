@@ -46,7 +46,7 @@ export function ContactDetail({ contact }: ContactDetailProps) {
             <ArrowLeft className="mr-1 size-4" />
             Voltar
           </Button>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="font-semibold text-2xl tracking-tight">
             {contact.name}
           </h1>
           <div className="flex flex-wrap items-center gap-2 text-sm">

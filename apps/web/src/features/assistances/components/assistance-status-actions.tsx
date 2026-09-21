@@ -45,7 +45,7 @@ export function AssistanceStatusActions({
   }
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-medium">Alterar Status</h3>
+      <h3 className="font-medium text-sm">Alterar Status</h3>
       <div className="flex flex-wrap gap-2">
         {allowedTransitions.map((targetStatus) => (
           <Button

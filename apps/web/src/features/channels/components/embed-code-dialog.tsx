@@ -48,8 +48,8 @@ export function EmbedCodeDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="mt-4 space-y-4">
-          <div className="bg-muted relative rounded-lg p-4">
-            <pre className="text-foreground overflow-x-auto text-sm leading-relaxed">
+          <div className="relative rounded-lg bg-muted p-4">
+            <pre className="overflow-x-auto text-foreground text-sm leading-relaxed">
               <code>{snippet}</code>
             </pre>
           </div>

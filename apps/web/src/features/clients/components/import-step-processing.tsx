@@ -16,7 +16,7 @@ export function ImportStepProcessing({ status }: ImportStepProcessingProps) {
   const percentage = total > 0 ? Math.round((processed / total) * 100) : 0
   return (
     <div className="flex flex-col items-center gap-6 p-8">
-      <Loader2 className="text-primary h-12 w-12 animate-spin" />
+      <Loader2 className="h-12 w-12 animate-spin text-primary" />
       <div className="w-full space-y-2">
         <div className="flex justify-between text-sm">
           <span>Processando...</span>

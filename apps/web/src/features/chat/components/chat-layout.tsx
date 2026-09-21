@@ -126,9 +126,9 @@ export function ChatLayout() {
   }
   return (
     <ChatActionsProvider value={chatActionsValue}>
-      <div className="bg-background flex h-full w-full overflow-hidden">
+      <div className="flex h-full w-full overflow-hidden bg-background">
         {/* Connection status indicator */}
-        <div className="fixed left-1/2 top-2 z-50 -translate-x-1/2">
+        <div className="fixed top-2 left-1/2 z-50 -translate-x-1/2">
           <WhatsappStatus isConnected={isConnected} />
         </div>
         <DesktopChatLayout {...sharedLayoutProps} />

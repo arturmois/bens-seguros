@@ -135,7 +135,7 @@ export function AssistancesTable() {
       <DataTable
         table={table}
         isLoading={isLoading}
-        emptyIcon={<Ambulance className="text-muted-foreground/50 size-10" />}
+        emptyIcon={<Ambulance className="size-10 text-muted-foreground/50" />}
         emptyMessage="Nenhuma assistência encontrada."
         emptyDescription="Registre uma nova assistência para começar."
         columnVisibility={columnVisibility}
@@ -147,7 +147,7 @@ export function AssistancesTable() {
         data={assistances}
         keyExtractor={(a) => a.id}
         isLoading={isLoading}
-        emptyIcon={<Ambulance className="text-muted-foreground/50 size-10" />}
+        emptyIcon={<Ambulance className="size-10 text-muted-foreground/50" />}
         emptyMessage="Nenhuma assistência encontrada."
         emptyDescription="Registre uma nova assistência para começar."
         renderCard={(assistance) => <AssistanceCard assistance={assistance} />}

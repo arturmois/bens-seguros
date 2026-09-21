@@ -101,11 +101,11 @@ export function MetaAssetSelect({
               {visibleAssets.map((asset) => (
                 <label
                   key={asset.pageId}
-                  className="hover:bg-accent/50 flex cursor-pointer items-start gap-3 rounded-lg border p-4"
+                  className="flex cursor-pointer items-start gap-3 rounded-lg border p-4 hover:bg-accent/50"
                 >
                   <Radio value={asset.pageId} className="mt-0.5" />
                   <div className="space-y-0.5">
-                    <p className="text-sm font-medium leading-none">
+                    <p className="font-medium text-sm leading-none">
                       {asset.pageName}
                     </p>
                     {channelType === 'INSTAGRAM' && asset.instagramUsername && (

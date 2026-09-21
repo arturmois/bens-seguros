@@ -68,7 +68,7 @@ function ConversationListSkeleton() {
 function ConversationListError({ onRetry }: { readonly onRetry: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-12">
-      <AlertCircle className="text-destructive h-10 w-10" />
+      <AlertCircle className="h-10 w-10 text-destructive" />
       <p className="text-muted-foreground text-sm">
         Erro ao carregar conversas
       </p>
@@ -82,7 +82,7 @@ function ConversationListError({ onRetry }: { readonly onRetry: () => void }) {
 
 function ConversationListEmpty() {
   return (
-    <div className="text-muted-foreground flex flex-col items-center justify-center py-12">
+    <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
       <MessageCircle className="mb-2 h-12 w-12 opacity-50" />
       <p className="text-sm">Nenhuma conversa encontrada</p>
     </div>
@@ -141,23 +141,23 @@ export function ConversationList({
     return bTime - aTime
   })
   return (
-    <div className="bg-sidebar flex h-full flex-col">
+    <div className="flex h-full flex-col bg-sidebar">
       {/* Header */}
-      <div className="border-sidebar-border flex min-h-[57px] items-center justify-between border-b px-4 py-3">
-        <h1 className="text-sidebar-foreground text-lg font-semibold">
+      <div className="flex min-h-[57px] items-center justify-between border-sidebar-border border-b px-4 py-3">
+        <h1 className="font-semibold text-lg text-sidebar-foreground">
           Conversas
         </h1>
-        <MessageCircle className="text-primary h-5 w-5" />
+        <MessageCircle className="h-5 w-5 text-primary" />
       </div>
       {/* Search */}
       <div className="px-3 py-2">
         <div className="relative">
-          <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Buscar conversa..."
             value={searchInput}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="bg-muted/50 focus-visible:ring-primary border-0 pl-9 focus-visible:ring-1"
+            className="border-0 bg-muted/50 pl-9 focus-visible:ring-1 focus-visible:ring-primary"
           />
         </div>
       </div>
@@ -169,7 +169,7 @@ export function ConversationList({
             onClick={() => handleTabChange(tab.value)}
             variant={activeTab === tab.value ? 'default' : 'outline'}
             className={cn(
-              'max-w-full rounded-md text-xs font-medium transition-colors',
+              'max-w-full rounded-md font-medium text-xs transition-colors',
               activeTab === tab.value
                 ? 'bg-primary text-primary-foreground'
                 : 'text-muted-foreground hover:bg-muted'
@@ -185,7 +185,7 @@ export function ConversationList({
           value={filters.channelType ?? 'ALL'}
           onValueChange={handleChannelTypeChange}
         >
-          <SelectTrigger className="bg-muted/50 h-8 border-0 text-xs">
+          <SelectTrigger className="h-8 border-0 bg-muted/50 text-xs">
             <SelectValue placeholder="Filtrar por canal">
               {(value: string | null) => {
                 if (!value || value === 'ALL') return 'Todos os canais'

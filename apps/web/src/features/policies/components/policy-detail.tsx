@@ -117,7 +117,7 @@ export function PolicyDetail({ policyId }: PolicyDetailProps) {
       </nav>
       <div className="flex items-start justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="font-semibold text-2xl tracking-tight">
             Apólice {policy.policyNumber}
           </h1>
           <div className="flex items-center gap-2">

@@ -70,14 +70,14 @@ export function TransferAgentModal({
         <div className="px-6 pb-4">
           {availableAgents.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-8">
-              <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full">
-                <Users className="text-muted-foreground h-6 w-6" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                <Users className="h-6 w-6 text-muted-foreground" />
               </div>
               <div className="text-center">
-                <p className="text-foreground text-sm font-medium">
+                <p className="font-medium text-foreground text-sm">
                   Nenhum agente disponível
                 </p>
-                <p className="text-muted-foreground mt-1 text-xs">
+                <p className="mt-1 text-muted-foreground text-xs">
                   Não há outros agentes online no momento para receber a
                   transferência.
                 </p>
@@ -93,17 +93,17 @@ export function TransferAgentModal({
                   className={cn(
                     'flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors',
                     selectedAgentId === agent.userId
-                      ? 'border-primary bg-primary/5 ring-primary ring-2'
+                      ? 'border-primary bg-primary/5 ring-2 ring-primary'
                       : 'border-border hover:bg-accent'
                   )}
                 >
-                  <div className="bg-primary/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
-                    <span className="text-primary text-sm font-semibold">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                    <span className="font-semibold text-primary text-sm">
                       {agent.name.charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <div>
-                    <p className="text-foreground text-sm font-medium">
+                    <p className="font-medium text-foreground text-sm">
                       {agent.name}
                     </p>
                     <p className="text-muted-foreground text-xs">Online</p>

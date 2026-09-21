@@ -39,12 +39,12 @@ export function ForgotPasswordForm() {
     return (
       <div className="flex flex-col items-center text-center">
         <div className="mb-6 flex size-16 items-center justify-center rounded-full bg-white/[0.06]">
-          <Mail className="text-accent-400 size-8" />
+          <Mail className="size-8 text-accent-400" />
         </div>
-        <h2 className="text-(--auth-foreground) mb-2 text-xl font-bold">
+        <h2 className="mb-2 font-bold text-(--auth-foreground) text-xl">
           Verifique seu email
         </h2>
-        <p className="text-(--auth-foreground-muted) mb-6 text-sm">
+        <p className="mb-6 text-(--auth-foreground-muted) text-sm">
           Se o email informado estiver cadastrado, enviaremos um link para
           redefinir sua senha. O link expira em 1 hora.
         </p>
@@ -76,7 +76,7 @@ export function ForgotPasswordForm() {
       </div>
       <Button
         type="submit"
-        className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 text-primary-foreground w-full bg-gradient-to-r font-bold"
+        className="w-full bg-gradient-to-r from-accent-500 to-accent-400 font-bold text-primary-foreground hover:from-accent-600 hover:to-accent-500"
         disabled={isPending}
       >
         {isPending ? 'Enviando...' : 'Enviar link de redefinição'}

@@ -119,7 +119,7 @@ export function AutoFields({
               <p
                 role="status"
                 aria-live="polite"
-                className="text-muted-foreground flex items-center gap-1 text-xs"
+                className="flex items-center gap-1 text-muted-foreground text-xs"
               >
                 <Loader2 className="size-3 animate-spin" />
                 Buscando dados do veículo...

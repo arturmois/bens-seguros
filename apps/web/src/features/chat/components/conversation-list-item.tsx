@@ -39,8 +39,8 @@ export function ConversationListItem({
       )}
     >
       <div className="relative shrink-0">
-        <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-full">
-          <span className="text-primary text-base font-semibold">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+          <span className="font-semibold text-base text-primary">
             {displayName.charAt(0).toUpperCase()}
           </span>
         </div>
@@ -53,7 +53,7 @@ export function ConversationListItem({
                 <ChannelIcon channelType={conversation.channelType} size={14} />
               </span>
             )}
-            <span className="text-foreground truncate font-medium">
+            <span className="truncate font-medium text-foreground">
               {displayName}
             </span>
             <ConversationStatusBadge status={conversation.status} />
@@ -70,7 +70,7 @@ export function ConversationListItem({
             {unreadCount > 0 && (
               <span
                 aria-label={`${unreadCount > 99 ? 'Mais de 99' : unreadCount} não lidas`}
-                className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-medium"
+                className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 font-medium text-primary-foreground text-xs"
               >
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
@@ -78,14 +78,14 @@ export function ConversationListItem({
           </div>
         </div>
         <div className="mt-0.5 flex items-center justify-between gap-2">
-          <p className="text-muted-foreground truncate text-sm">
+          <p className="truncate text-muted-foreground text-sm">
             {conversation.lastMessageText ?? 'Sem mensagens'}
           </p>
           {conversation.status === 'HUMAN_ACTIVE' &&
             conversation.assignedToName && (
               <span
                 aria-label={`Atendido por ${conversation.assignedToName}`}
-                className="text-muted-foreground shrink-0 text-xs"
+                className="shrink-0 text-muted-foreground text-xs"
               >
                 {conversation.assignedToName}
               </span>

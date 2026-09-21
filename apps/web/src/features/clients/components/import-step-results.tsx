@@ -23,37 +23,37 @@ export function ImportStepResults({ status, onClose }: ImportStepResultsProps) {
         }`}
       >
         {isFailed ? (
-          <XCircle className="text-destructive h-5 w-5" />
+          <XCircle className="h-5 w-5 text-destructive" />
         ) : (
-          <CheckCircle2 className="text-success h-5 w-5" />
+          <CheckCircle2 className="h-5 w-5 text-success" />
         )}
-        <span className="text-sm font-medium">
+        <span className="font-medium text-sm">
           {isFailed ? 'Importação falhou' : 'Importação concluída'}
         </span>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="flex items-center gap-2 rounded-md border p-3">
-          <CheckCircle2 className="text-success h-4 w-4" />
+          <CheckCircle2 className="h-4 w-4 text-success" />
           <div>
-            <p className="text-lg font-semibold tabular-nums">
+            <p className="font-semibold text-lg tabular-nums">
               {progress.created}
             </p>
             <p className="text-muted-foreground text-xs">Criados</p>
           </div>
         </div>
         <div className="flex items-center gap-2 rounded-md border p-3">
-          <SkipForward className="text-muted-foreground h-4 w-4" />
+          <SkipForward className="h-4 w-4 text-muted-foreground" />
           <div>
-            <p className="text-lg font-semibold tabular-nums">
+            <p className="font-semibold text-lg tabular-nums">
               {progress.skipped}
             </p>
             <p className="text-muted-foreground text-xs">Ignorados</p>
           </div>
         </div>
         <div className="flex items-center gap-2 rounded-md border p-3">
-          <XCircle className="text-destructive h-4 w-4" />
+          <XCircle className="h-4 w-4 text-destructive" />
           <div>
-            <p className="text-lg font-semibold tabular-nums">
+            <p className="font-semibold text-lg tabular-nums">
               {progress.failed}
             </p>
             <p className="text-muted-foreground text-xs">Falharam</p>
@@ -61,8 +61,8 @@ export function ImportStepResults({ status, onClose }: ImportStepResultsProps) {
         </div>
       </div>
       {hasErrors && (
-        <div className="bg-destructive/10 max-h-40 overflow-auto rounded-md p-3">
-          <p className="text-destructive mb-1 text-sm font-medium">Erros:</p>
+        <div className="max-h-40 overflow-auto rounded-md bg-destructive/10 p-3">
+          <p className="mb-1 font-medium text-destructive text-sm">Erros:</p>
           <ul className="list-inside list-disc text-sm">
             {progress.errors.slice(0, 20).map((err) => (
               <li

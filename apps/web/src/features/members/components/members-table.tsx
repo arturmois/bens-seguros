@@ -144,7 +144,7 @@ export function MembersTable({
       <DataTable
         table={table}
         isLoading={isLoading}
-        emptyIcon={<Users className="text-muted-foreground/50 size-10" />}
+        emptyIcon={<Users className="size-10 text-muted-foreground/50" />}
         emptyMessage={emptyMessage}
         emptyDescription={emptyDescription}
         columnVisibility={columnVisibility}
@@ -153,7 +153,7 @@ export function MembersTable({
         data={members}
         keyExtractor={(member) => member.id}
         isLoading={isLoading}
-        emptyIcon={<Users className="text-muted-foreground/50 size-10" />}
+        emptyIcon={<Users className="size-10 text-muted-foreground/50" />}
         emptyMessage={emptyMessage}
         emptyDescription={emptyDescription}
         renderCard={(member) => (

@@ -28,7 +28,7 @@ export function SelectablePlanCard({
       className={cn(
         'flex cursor-pointer gap-3 rounded-lg border p-4 transition-colors',
         selected
-          ? 'border-primary bg-primary/5 ring-primary/30 ring-2'
+          ? 'border-primary bg-primary/5 ring-2 ring-primary/30'
           : 'border-border hover:border-primary/40 hover:bg-accent/40'
       )}
     >
@@ -39,18 +39,18 @@ export function SelectablePlanCard({
       />
       <div className="flex-1">
         <div className="flex items-baseline justify-between gap-3">
-          <span className="text-foreground font-semibold">{plan.name}</span>
-          <span className="text-foreground font-semibold tabular-nums">
+          <span className="font-semibold text-foreground">{plan.name}</span>
+          <span className="font-semibold text-foreground tabular-nums">
             {price.amount}
             {price.suffix !== null && (
-              <span className="text-muted-foreground ml-0.5 text-xs font-normal">
+              <span className="ml-0.5 font-normal text-muted-foreground text-xs">
                 {price.suffix}
               </span>
             )}
           </span>
         </div>
         {plan.description !== null && (
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="mt-1 text-muted-foreground text-sm">
             {plan.description}
           </p>
         )}
@@ -58,9 +58,9 @@ export function SelectablePlanCard({
           {highlights.map((highlight) => (
             <li
               key={highlight}
-              className="text-muted-foreground flex items-start gap-2 text-sm"
+              className="flex items-start gap-2 text-muted-foreground text-sm"
             >
-              <Check className="text-primary mt-0.5 size-4 shrink-0" />
+              <Check className="mt-0.5 size-4 shrink-0 text-primary" />
               <span>{highlight}</span>
             </li>
           ))}

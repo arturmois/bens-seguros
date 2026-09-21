@@ -11,7 +11,7 @@ export function Toolbar({
   return (
     <ToolbarPrimitive.Root
       className={cn(
-        'bg-card not-dark:bg-clip-padding text-card-foreground relative flex gap-2 rounded-xl border p-1',
+        'relative flex gap-2 rounded-xl border bg-card not-dark:bg-clip-padding p-1 text-card-foreground',
         className
       )}
       data-slot="toolbar"
@@ -79,7 +79,7 @@ export function ToolbarSeparator({
   return (
     <ToolbarPrimitive.Separator
       className={cn(
-        "bg-border data-[orientation=vertical]:not-[[class^='h-']]:not-[[class*='_h-']]:self-stretch shrink-0 data-[orientation=horizontal]:my-0.5 data-[orientation=vertical]:my-1.5 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-px",
+        "shrink-0 bg-border data-[orientation=horizontal]:my-0.5 data-[orientation=vertical]:my-1.5 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-px data-[orientation=vertical]:not-[[class^='h-']]:not-[[class*='_h-']]:self-stretch",
         className
       )}
       data-slot="toolbar-separator"

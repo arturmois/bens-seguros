@@ -20,8 +20,8 @@ export function QuotaMeter({ label, value, limit, unit }: QuotaMeterProps) {
   if (limit === null) {
     return (
       <div className="space-y-1">
-        <span className="text-foreground text-sm font-medium">{label}</span>
-        <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
+        <span className="font-medium text-foreground text-sm">{label}</span>
+        <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
           <InfinityIcon className="size-4" />
           <span>Ilimitado</span>
         </div>
@@ -40,7 +40,7 @@ export function QuotaMeter({ label, value, limit, unit }: QuotaMeterProps) {
   return (
     <Meter value={value} min={0} max={limit}>
       <div className="flex items-center justify-between">
-        <span className="text-foreground text-sm font-medium">{label}</span>
+        <span className="font-medium text-foreground text-sm">{label}</span>
         <span
           className="text-foreground text-sm tabular-nums"
           data-slot="quota-meter-value"

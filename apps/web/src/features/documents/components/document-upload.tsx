@@ -157,16 +157,16 @@ export function DocumentUpload({
         {isUploadingWithoutPending ? (
           <>
             <div className="size-8 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            <p className="text-sm font-medium">Enviando documento...</p>
+            <p className="font-medium text-sm">Enviando documento...</p>
           </>
         ) : (
           <>
-            <Upload className="text-muted-foreground size-8" />
+            <Upload className="size-8 text-muted-foreground" />
             <div className="text-center">
-              <p className="text-sm font-medium">
+              <p className="font-medium text-sm">
                 Arraste arquivos ou clique para enviar
               </p>
-              <p className="text-muted-foreground mt-1 text-xs">
+              <p className="mt-1 text-muted-foreground text-xs">
                 Imagens, PDF ou documentos Office. Máximo 10 MB.
               </p>
             </div>

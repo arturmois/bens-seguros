@@ -59,7 +59,7 @@ export function ClientHistoryTab({ clientId }: ClientHistoryTabProps) {
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-        <Clock className="text-muted-foreground/50 size-10" />
+        <Clock className="size-10 text-muted-foreground/50" />
         <p className="text-muted-foreground text-sm">
           Nenhuma alteração registrada
         </p>

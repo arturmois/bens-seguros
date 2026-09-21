@@ -12,15 +12,15 @@ export function InvitationHeader({ invitation }: InvitationHeaderProps) {
   const roleLabel = ROLE_LABELS[invitation.role] ?? invitation.role
   return (
     <div className="mb-6 flex flex-col items-center gap-3 text-center">
-      <div className="bg-primary/10 flex size-12 items-center justify-center rounded-full">
-        <Building2 className="text-primary size-6" />
+      <div className="flex size-12 items-center justify-center rounded-full bg-primary/10">
+        <Building2 className="size-6 text-primary" />
       </div>
       <div>
-        <h2 className="text-xl font-semibold">
+        <h2 className="font-semibold text-xl">
           Você foi convidado para{' '}
           <span className="text-primary">{invitation.organizationName}</span>
         </h2>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <p className="mt-1 text-muted-foreground text-sm">
           {invitation.inviterName} te convidou como
         </p>
       </div>

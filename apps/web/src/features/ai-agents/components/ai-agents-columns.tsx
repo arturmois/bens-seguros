@@ -39,7 +39,7 @@ export function createAiAgentColumns(
       header: ({ column }) => (
         <button
           type="button"
-          className="hover:text-foreground -ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors"
+          className="-ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Nome
@@ -87,7 +87,7 @@ export function createAiAgentColumns(
       header: ({ column }) => (
         <button
           type="button"
-          className="hover:text-foreground -ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors"
+          className="-ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Canais

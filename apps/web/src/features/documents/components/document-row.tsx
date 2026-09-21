@@ -26,9 +26,9 @@ interface DocumentRowProps {
 export function DocumentRow({ document, onDelete }: DocumentRowProps) {
   return (
     <div className="flex items-center gap-3 px-4 py-3">
-      <File className="text-muted-foreground size-5 shrink-0" />
+      <File className="size-5 shrink-0 text-muted-foreground" />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{document.fileName}</p>
+        <p className="truncate font-medium text-sm">{document.fileName}</p>
         <div className="mt-1 flex flex-wrap items-center gap-2">
           <DocumentTypeBadge type={document.type} />
           <span className="text-muted-foreground text-xs">
@@ -54,7 +54,7 @@ export function DocumentRow({ document, onDelete }: DocumentRowProps) {
           onClick={onDelete}
           aria-label={`Excluir ${document.fileName}`}
         >
-          <Trash2 className="text-destructive size-4" />
+          <Trash2 className="size-4 text-destructive" />
         </Button>
       </div>
     </div>

@@ -24,7 +24,7 @@ interface PairProps {
 function Pair({ label, value, dim, fullWidth }: PairProps) {
   return (
     <div className={fullWidth ? 'col-span-2' : undefined}>
-      <dt className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wide">
+      <dt className="font-semibold text-[10px] text-muted-foreground uppercase tracking-wide">
         {label}
       </dt>
       <dd
@@ -38,10 +38,10 @@ function Pair({ label, value, dim, fullWidth }: PairProps) {
 
 export function DatesCard({ proposal }: DatesCardProps) {
   return (
-    <div className="bg-card rounded-xl border p-5 shadow-sm">
+    <div className="rounded-xl border bg-card p-5 shadow-sm">
       <div className="mb-4">
-        <p className="text-muted-foreground inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider">
-          <Calendar className="text-primary size-3.5" /> Datas
+        <p className="inline-flex items-center gap-2 font-bold text-[11px] text-muted-foreground uppercase tracking-wider">
+          <Calendar className="size-3.5 text-primary" /> Datas
         </p>
       </div>
       <dl className="grid grid-cols-2 gap-3 text-sm">

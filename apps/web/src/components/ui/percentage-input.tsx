@@ -85,7 +85,7 @@ export function PercentageInput({
         disabled={disabled}
         className="pr-8"
       />
-      <span className="text-muted-foreground pointer-events-none absolute right-3 top-1/2 z-10 -translate-y-1/2 select-none text-sm">
+      <span className="pointer-events-none absolute top-1/2 right-3 z-10 -translate-y-1/2 select-none text-muted-foreground text-sm">
         %
       </span>
     </div>

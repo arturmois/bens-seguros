@@ -60,7 +60,7 @@ export function ClientProposalsTab({ clientId }: ClientProposalsTabProps) {
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-        <FileText className="text-muted-foreground/50 size-10" />
+        <FileText className="size-10 text-muted-foreground/50" />
         <p className="text-muted-foreground text-sm">
           Nenhuma proposta para este cliente
         </p>
@@ -91,7 +91,7 @@ export function ClientProposalsTab({ clientId }: ClientProposalsTabProps) {
           {items.map((p) => (
             <TableRow
               key={p.id}
-              className="hover:bg-muted/50 cursor-pointer"
+              className="cursor-pointer hover:bg-muted/50"
               onClick={() => router.push(`/proposals/${p.id}`)}
             >
               <TableCell>

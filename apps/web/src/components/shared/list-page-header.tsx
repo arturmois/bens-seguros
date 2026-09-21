@@ -23,7 +23,7 @@ export function ListPageHeader({
       <PageBreadcrumb items={breadcrumb} />
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+          <h1 className="font-semibold text-2xl tracking-tight">{title}</h1>
           {description ? (
             <p className="text-muted-foreground text-sm">{description}</p>
           ) : null}

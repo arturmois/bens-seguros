@@ -24,7 +24,7 @@ export function ClaimDetailHeader({
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-xl font-semibold">{formattedNumber}</h2>
+        <h2 className="font-semibold text-xl">{formattedNumber}</h2>
         <ClaimStatusBadge status={status} />
         <ClaimPriorityBadge priority={priority} />
       </div>

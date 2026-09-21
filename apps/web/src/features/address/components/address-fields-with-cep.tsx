@@ -130,7 +130,7 @@ export function AddressFieldsWithCep<TForm extends FieldValues>({
                   <span className="pointer-events-none absolute inset-y-0 right-3 z-10 flex items-center">
                     <Loader2
                       aria-label="Consultando CEP"
-                      className="text-muted-foreground size-4 animate-spin"
+                      className="size-4 animate-spin text-muted-foreground"
                     />
                   </span>
                 )}

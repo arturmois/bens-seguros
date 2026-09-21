@@ -45,7 +45,7 @@ function BillingSkeleton() {
 function BillingError({ onRetry }: { readonly onRetry: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-12">
-      <AlertCircle className="text-destructive size-8" />
+      <AlertCircle className="size-8 text-destructive" />
       <p className="text-muted-foreground text-sm">
         Erro ao carregar informações do plano.
       </p>
@@ -60,7 +60,7 @@ function ExternallyManagedCard() {
   return (
     <Card>
       <CardHeader>
-        <Building2 className="text-info size-6" />
+        <Building2 className="size-6 text-info" />
         <CardTitle>Plano comercial</CardTitle>
         <CardDescription>
           Sua assinatura é gerenciada externamente por contrato comercial. Para
@@ -82,7 +82,7 @@ function ActiveSubscriptionCard({
     <>
       <Card>
         <CardHeader>
-          <BadgeCheck className="text-primary size-6" />
+          <BadgeCheck className="size-6 text-primary" />
           <CardTitle>{planLabel(subscription.plan.slug)}</CardTitle>
           <CardDescription>
             <Badge variant={STATUS_VARIANT[subscription.status]} size="sm">
@@ -165,7 +165,7 @@ export function BillingPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold tracking-tight">Plano</h2>
+        <h2 className="font-semibold text-lg tracking-tight">Plano</h2>
         <p className="text-muted-foreground text-sm">
           Informações sobre o plano atual da sua organização.
         </p>

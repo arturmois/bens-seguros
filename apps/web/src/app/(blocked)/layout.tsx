@@ -6,7 +6,7 @@ export default function BlockedLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-background flex min-h-dvh flex-col">
+    <div className="flex min-h-dvh flex-col bg-background">
       <header className="border-b px-6 py-4">
         <Logo />
       </header>

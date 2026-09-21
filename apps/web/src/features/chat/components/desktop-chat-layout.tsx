@@ -73,7 +73,7 @@ export function DesktopChatLayout({
 }: DesktopChatLayoutProps) {
   return (
     <div className="hidden w-full md:flex">
-      <div className="border-border w-80 shrink-0 border-r lg:w-96">
+      <div className="w-80 shrink-0 border-border border-r lg:w-96">
         <ConversationList
           conversations={conversations}
           activeConversationId={selectedConversationId}
@@ -108,7 +108,7 @@ export function DesktopChatLayout({
       </div>
       <div
         className={cn(
-          'border-border shrink-0 overflow-hidden border-l transition-[width] duration-300',
+          'shrink-0 overflow-hidden border-border border-l transition-[width] duration-300',
           showProfile ? 'w-80' : 'w-0'
         )}
       >

@@ -15,7 +15,7 @@ export function InvitationWrongAccount({
   const sessionEmail = invitation.currentSession?.email ?? ''
   return (
     <div className="space-y-4">
-      <div className="border-destructive/40 bg-destructive/5 rounded-md border p-3 text-sm">
+      <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm">
         Você está logado como <strong>{sessionEmail}</strong>, mas este convite
         é pra <strong>{invitation.email}</strong>. Saia da sessão atual pra
         continuar.

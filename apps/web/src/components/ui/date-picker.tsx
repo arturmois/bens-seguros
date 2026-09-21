@@ -137,20 +137,20 @@ export function DatePicker({
         aria-label="Abrir calendário"
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="text-muted-foreground hover:text-foreground pointer-events-auto absolute right-2 top-1/2 z-10 -translate-y-1/2 disabled:opacity-50"
+        className="pointer-events-auto absolute top-1/2 right-2 z-10 -translate-y-1/2 text-muted-foreground hover:text-foreground disabled:opacity-50"
       >
         <CalendarIcon className="size-4" />
       </button>
       {localError && (
         <span
           id={`${id ?? 'date'}-error`}
-          className="text-destructive mt-1 block text-xs"
+          className="mt-1 block text-destructive text-xs"
         >
           Data inválida
         </span>
       )}
       {open && (
-        <div className="bg-popover absolute left-0 top-full z-50 mt-1 rounded-xl border p-2 shadow-lg">
+        <div className="absolute top-full left-0 z-50 mt-1 rounded-xl border bg-popover p-2 shadow-lg">
           <Calendar
             mode="single"
             captionLayout="dropdown"

@@ -67,7 +67,7 @@ export function FormDialogShell({
         <DialogPanel>{children}</DialogPanel>
         <DialogFooter className="flex items-center">
           {showKeyboardHint && (
-            <div className="text-muted-foreground mr-auto flex items-center gap-1 text-xs">
+            <div className="mr-auto flex items-center gap-1 text-muted-foreground text-xs">
               <Kbd>↵</Kbd>
               <span>{keyboardHintAction}</span>
               <span className="opacity-50">·</span>

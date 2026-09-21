@@ -164,12 +164,12 @@ export function ClientDetailContent({ clientId }: ClientDetailContentProps) {
       <div className="rounded-lg border p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-4">
-            <Avatar className="size-12 shrink-0 text-lg font-semibold">
+            <Avatar className="size-12 shrink-0 font-semibold text-lg">
               <AvatarFallback>{getInitials(client.legalName)}</AvatarFallback>
             </Avatar>
             <div className="space-y-1">
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-semibold tracking-tight">
+                <h1 className="font-semibold text-2xl tracking-tight">
                   {client.legalName}
                 </h1>
                 <Badge variant={PERSON_TYPE_BADGE_VARIANT[client.personType]}>

@@ -6,7 +6,7 @@ const QRCodeSVG = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="bg-muted size-64 animate-pulse rounded-lg" />
+      <div className="size-64 animate-pulse rounded-lg bg-muted" />
     ),
   }
 )
@@ -18,11 +18,11 @@ interface QrCodeDisplayProps {
 export function QrCodeDisplay({ qrData }: QrCodeDisplayProps) {
   return (
     <>
-      <div className="bg-background rounded-lg border p-4">
+      <div className="rounded-lg border bg-background p-4">
         <QRCodeSVG value={qrData} size={256} />
       </div>
       <div className="flex items-center gap-2 text-sm">
-        <Loader2 className="text-warning size-4 animate-spin" />
+        <Loader2 className="size-4 animate-spin text-warning" />
         <span className="text-muted-foreground">Aguardando scan...</span>
       </div>
     </>
@@ -32,11 +32,11 @@ export function QrCodeDisplay({ qrData }: QrCodeDisplayProps) {
 export function WaitingState() {
   return (
     <>
-      <div className="bg-muted flex size-64 items-center justify-center rounded-lg border">
-        <QrCode className="text-muted-foreground size-16" />
+      <div className="flex size-64 items-center justify-center rounded-lg border bg-muted">
+        <QrCode className="size-16 text-muted-foreground" />
       </div>
       <div className="flex items-center gap-2 text-sm">
-        <Loader2 className="text-muted-foreground size-4 animate-spin" />
+        <Loader2 className="size-4 animate-spin text-muted-foreground" />
         <span className="text-muted-foreground">Gerando QR Code...</span>
       </div>
     </>
@@ -46,10 +46,10 @@ export function WaitingState() {
 export function ConnectedState() {
   return (
     <>
-      <div className="bg-success/10 flex size-64 items-center justify-center rounded-lg border">
-        <CheckCircle2 className="text-success size-16" />
+      <div className="flex size-64 items-center justify-center rounded-lg border bg-success/10">
+        <CheckCircle2 className="size-16 text-success" />
       </div>
-      <span className="text-success text-sm font-medium">Conectado!</span>
+      <span className="font-medium text-sm text-success">Conectado!</span>
     </>
   )
 }

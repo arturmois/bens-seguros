@@ -69,7 +69,7 @@ function AiUsageError({ onRetry }: { readonly onRetry: () => void }) {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col items-center justify-center gap-3 py-8">
-          <AlertCircle className="text-destructive size-8" />
+          <AlertCircle className="size-8 text-destructive" />
           <p className="text-muted-foreground text-sm">
             Erro ao carregar uso de IA.
           </p>
@@ -85,7 +85,7 @@ function AiUsageError({ onRetry }: { readonly onRetry: () => void }) {
 function AiUsageEmpty() {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-      <Sparkles className="text-muted-foreground size-8" />
+      <Sparkles className="size-8 text-muted-foreground" />
       <p className="text-muted-foreground text-sm">
         Sem uso de IA neste período.
       </p>
@@ -101,9 +101,9 @@ function MetricTile({
   readonly value: string
 }) {
   return (
-    <div className="bg-muted/40 rounded-md border p-3">
+    <div className="rounded-md border bg-muted/40 p-3">
       <p className="text-muted-foreground text-xs">{label}</p>
-      <p className="text-foreground mt-1 text-lg font-semibold tabular-nums">
+      <p className="mt-1 font-semibold text-foreground text-lg tabular-nums">
         {value}
       </p>
     </div>
@@ -130,9 +130,9 @@ function AiUsageTooltipContent({
   const item = payload[0]?.payload
   if (!item) return null
   return (
-    <div className="bg-card rounded-md border p-3 text-xs shadow-sm">
-      <p className="text-foreground font-medium">{item.displayDate}</p>
-      <p className="text-muted-foreground mt-1">
+    <div className="rounded-md border bg-card p-3 text-xs shadow-sm">
+      <p className="font-medium text-foreground">{item.displayDate}</p>
+      <p className="mt-1 text-muted-foreground">
         Mensagens:{' '}
         <span className="text-foreground tabular-nums">{item.messages}</span>
       </p>

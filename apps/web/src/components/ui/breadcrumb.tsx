@@ -19,7 +19,7 @@ export function BreadcrumbList({
   return (
     <ol
       className={cn(
-        'wrap-break-word text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm sm:gap-2.5',
+        'wrap-break-word flex flex-wrap items-center gap-1.5 text-muted-foreground text-sm sm:gap-2.5',
         className
       )}
       data-slot="breadcrumb-list"
@@ -64,7 +64,7 @@ export function BreadcrumbPage({
   return (
     <span
       aria-current="page"
-      className={cn('text-foreground font-normal', className)}
+      className={cn('font-normal text-foreground', className)}
       data-slot="breadcrumb-page"
       {...props}
     />

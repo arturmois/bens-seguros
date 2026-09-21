@@ -18,7 +18,7 @@ export default function BillingExpiredPage() {
   return (
     <Card>
       <CardHeader>
-        <AlertOctagon className="text-destructive size-8" />
+        <AlertOctagon className="size-8 text-destructive" />
         <CardTitle>Sua assinatura expirou</CardTitle>
         <CardDescription>
           O acesso à sua organização está suspenso enquanto a assinatura está

@@ -55,10 +55,10 @@ export function FormField({
       <div className="flex items-baseline justify-between">
         <Label htmlFor={id}>
           {label}
-          {required && <span className="text-destructive ml-1">*</span>}
+          {required && <span className="ml-1 text-destructive">*</span>}
         </Label>
         {hint && (
-          <span className="text-success text-xs font-medium">{hint}</span>
+          <span className="font-medium text-success text-xs">{hint}</span>
         )}
       </div>
       {content}

@@ -59,7 +59,7 @@ export function TestimonialsSection(): React.ReactElement {
   return (
     <section
       id="depoimentos"
-      className="bg-linear-to-b relative overflow-hidden from-[#0f172a] to-[#111827] px-6 py-20"
+      className="relative overflow-hidden bg-linear-to-b from-[#0f172a] to-[#111827] px-6 py-20"
     >
       <GoldOrb />
       <div className="relative z-10 mx-auto max-w-6xl">
@@ -74,7 +74,7 @@ export function TestimonialsSection(): React.ReactElement {
 function GoldOrb(): React.ReactElement {
   return (
     <div
-      className="animate-orb-drift bg-accent-500/10 absolute right-0 top-1/2 h-[400px] w-[400px] -translate-y-1/2 rounded-full blur-[60px]"
+      className="absolute top-1/2 right-0 h-[400px] w-[400px] -translate-y-1/2 animate-orb-drift rounded-full bg-accent-500/10 blur-[60px]"
       aria-hidden="true"
     />
   )
@@ -83,10 +83,10 @@ function GoldOrb(): React.ReactElement {
 function SectionHeader(): React.ReactElement {
   return (
     <>
-      <p className="text-accent-500 text-center text-xs font-semibold uppercase tracking-widest">
+      <p className="text-center font-semibold text-accent-500 text-xs uppercase tracking-widest">
         Depoimentos
       </p>
-      <h2 className="mt-4 text-center text-2xl font-bold text-white sm:text-3xl">
+      <h2 className="mt-4 text-center font-bold text-2xl text-white sm:text-3xl">
         Quem usa, recomenda
       </h2>
     </>
@@ -114,24 +114,24 @@ function TestimonialCard({
 }: Testimonial): React.ReactElement {
   return (
     <div
-      className={`bg-white/3 rounded-xl border p-6 backdrop-blur-sm ${
+      className={`rounded-xl border bg-white/3 p-6 backdrop-blur-sm ${
         highlighted ? 'border-accent-500/20' : 'border-white/8'
       }`}
     >
       <Stars />
-      <blockquote className="mt-4 text-sm italic leading-relaxed text-slate-300">
+      <blockquote className="mt-4 text-slate-300 text-sm italic leading-relaxed">
         &ldquo;{quote}&rdquo;
       </blockquote>
       <hr className="my-4 border-white/10" />
       <div className="flex items-center gap-3">
         <div
-          className={`bg-linear-to-br flex size-10 items-center justify-center rounded-full ${initialsGradient} text-xs font-bold text-white`}
+          className={`flex size-10 items-center justify-center rounded-full bg-linear-to-br ${initialsGradient} font-bold text-white text-xs`}
         >
           {initials}
         </div>
         <div>
-          <p className="text-sm font-medium text-white">{name}</p>
-          <p className="text-xs text-slate-400">
+          <p className="font-medium text-sm text-white">{name}</p>
+          <p className="text-slate-400 text-xs">
             {company} &middot; {city}
           </p>
         </div>
@@ -144,7 +144,7 @@ function Stars(): React.ReactElement {
   return (
     <div className="flex gap-1" aria-label="5 de 5 estrelas">
       {Array.from({ length: 5 }).map((_, i) => (
-        <Star key={i} className="fill-accent-500 text-accent-500 size-4" />
+        <Star key={i} className="size-4 fill-accent-500 text-accent-500" />
       ))}
     </div>
   )
@@ -155,10 +155,10 @@ function MetricsBar(): React.ReactElement {
     <div className="mt-16 grid grid-cols-2 gap-6 md:grid-cols-4">
       {METRICS.map((metric) => (
         <div key={metric.label} className="text-center">
-          <p className="text-2xl font-bold text-white sm:text-3xl">
+          <p className="font-bold text-2xl text-white sm:text-3xl">
             {metric.value}
           </p>
-          <p className="mt-1 text-sm text-slate-400">{metric.label}</p>
+          <p className="mt-1 text-slate-400 text-sm">{metric.label}</p>
         </div>
       ))}
     </div>

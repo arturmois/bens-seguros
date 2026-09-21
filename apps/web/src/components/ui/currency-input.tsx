@@ -68,7 +68,7 @@ export function CurrencyInput({
   }, [display])
   return (
     <div className="relative">
-      <span className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 select-none text-sm">
+      <span className="pointer-events-none absolute top-1/2 left-3 z-10 -translate-y-1/2 select-none text-muted-foreground text-sm">
         R$
       </span>
       <Input

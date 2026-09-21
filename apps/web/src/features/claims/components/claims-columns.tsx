@@ -35,7 +35,7 @@ export function createClaimColumns(
       header: ({ column }) => (
         <button
           type="button"
-          className="hover:text-foreground -ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors"
+          className="-ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Sinistro
@@ -53,7 +53,7 @@ export function createClaimColumns(
       accessorKey: 'clientName',
       header: 'Cliente',
       cell: ({ row }) => (
-        <span className="text-muted-foreground truncate">
+        <span className="truncate text-muted-foreground">
           {row.original.clientName ?? row.original.clientId}
         </span>
       ),
@@ -74,7 +74,7 @@ export function createClaimColumns(
       header: ({ column }) => (
         <button
           type="button"
-          className="hover:text-foreground -ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors"
+          className="-ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Status
@@ -89,7 +89,7 @@ export function createClaimColumns(
       header: ({ column }) => (
         <button
           type="button"
-          className="hover:text-foreground -ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors"
+          className="-ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Prioridade
@@ -104,7 +104,7 @@ export function createClaimColumns(
       accessorKey: 'incidentLocation',
       header: 'Local',
       cell: ({ row }) => (
-        <span className="text-muted-foreground max-w-48 truncate">
+        <span className="max-w-48 truncate text-muted-foreground">
           {row.original.incidentLocation ?? '-'}
         </span>
       ),
@@ -115,7 +115,7 @@ export function createClaimColumns(
       header: ({ column }) => (
         <button
           type="button"
-          className="hover:text-foreground -ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors"
+          className="-ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Criado em

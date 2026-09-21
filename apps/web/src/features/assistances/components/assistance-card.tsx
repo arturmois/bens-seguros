@@ -16,7 +16,7 @@ export function AssistanceCard({ assistance }: AssistanceCardProps) {
   const router = useRouter()
   return (
     <div
-      className="bg-card active:bg-muted/50 cursor-pointer space-y-3 rounded-lg border p-4"
+      className="cursor-pointer space-y-3 rounded-lg border bg-card p-4 active:bg-muted/50"
       onClick={() => router.push(`/assistances/${assistance.id}`)}
       role="button"
       tabIndex={0}

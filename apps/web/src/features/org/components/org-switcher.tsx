@@ -38,12 +38,12 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         className={cn(
-          'hover:bg-muted flex w-full items-center gap-3 px-4 py-3 text-left transition-colors',
+          'flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted',
           collapsed && 'justify-center px-0'
         )}
       >
         <div
-          className="flex size-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white"
+          className="flex size-8 shrink-0 items-center justify-center rounded-lg font-bold text-white text-xs"
           style={{ backgroundColor: getOrgColor(activeOrg.id) }}
         >
           {getOrgInitials(activeOrg.name)}
@@ -51,16 +51,16 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
         {!collapsed && (
           <>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-semibold">
+              <div className="truncate font-semibold text-sm">
                 {activeOrg.name}
               </div>
               {activeOrg.role && (
-                <div className="text-muted-foreground truncate text-xs">
+                <div className="truncate text-muted-foreground text-xs">
                   {ROLE_LABELS[activeOrg.role] ?? activeOrg.role}
                 </div>
               )}
             </div>
-            <ChevronsUpDown className="text-muted-foreground size-4 shrink-0" />
+            <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
           </>
         )}
       </PopoverTrigger>
@@ -76,37 +76,37 @@ export function OrgSwitcher({ collapsed }: OrgSwitcherProps) {
               type="button"
               onClick={() => handleSwitch(org.id)}
               className={cn(
-                'hover:bg-muted flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors',
+                'flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-muted',
                 org.id === activeOrg.id && 'bg-muted'
               )}
             >
               <div
-                className="flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white"
+                className="flex size-7 shrink-0 items-center justify-center rounded-md font-bold text-white text-xs"
                 style={{ backgroundColor: getOrgColor(org.id) }}
               >
                 {getOrgInitials(org.name)}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-medium">{org.name}</div>
+                <div className="truncate font-medium text-sm">{org.name}</div>
                 {org.role && (
-                  <div className="text-muted-foreground truncate text-xs">
+                  <div className="truncate text-muted-foreground text-xs">
                     {ROLE_LABELS[org.role] ?? org.role}
                   </div>
                 )}
               </div>
               {org.id === activeOrg.id && (
-                <Check className="text-primary size-4 shrink-0" />
+                <Check className="size-4 shrink-0 text-primary" />
               )}
             </button>
           ))}
         </div>
-        <div className="border-border mt-1 border-t pt-1">
+        <div className="mt-1 border-border border-t pt-1">
           <button
             type="button"
             onClick={handleCreateNew}
-            className="text-primary hover:bg-muted flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors"
+            className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-primary text-sm transition-colors hover:bg-muted"
           >
-            <div className="border-primary flex size-7 shrink-0 items-center justify-center rounded-md border-2 border-dashed">
+            <div className="flex size-7 shrink-0 items-center justify-center rounded-md border-2 border-primary border-dashed">
               <Plus className="size-3.5" />
             </div>
             <span className="font-medium">Criar nova organização</span>

@@ -51,7 +51,7 @@ export function KanbanColumn({
   )
   const itemIds = proposals.map((p) => p.id)
   return (
-    <div className="bg-muted/30 flex h-full w-[280px] shrink-0 flex-col rounded-xl border">
+    <div className="flex h-full w-[280px] shrink-0 flex-col rounded-xl border bg-muted/30">
       <div className="flex items-center gap-2 border-b px-3 py-2.5">
         <span
           className={cn(
@@ -60,7 +60,7 @@ export function KanbanColumn({
           )}
           aria-hidden="true"
         />
-        <span className="truncate text-sm font-medium">
+        <span className="truncate font-medium text-sm">
           {STAGE_LABELS[stage]}
         </span>
         <Badge variant="secondary" size="sm" className="ml-auto tabular-nums">
@@ -68,7 +68,7 @@ export function KanbanColumn({
         </Badge>
       </div>
       {proposals.length > 0 && (
-        <div className="text-muted-foreground border-b px-3 py-1.5 text-xs">
+        <div className="border-b px-3 py-1.5 text-muted-foreground text-xs">
           {formatCurrency(totalPremium)}
         </div>
       )}
@@ -77,11 +77,11 @@ export function KanbanColumn({
           ref={setNodeRef}
           className={cn(
             'flex-1 space-y-2 overflow-y-auto p-2 transition-colors',
-            isOver && 'bg-primary/5 ring-primary/20 ring-2 ring-inset'
+            isOver && 'bg-primary/5 ring-2 ring-primary/20 ring-inset'
           )}
         >
           {proposals.length === 0 && (
-            <p className="text-muted-foreground py-8 text-center text-xs">
+            <p className="py-8 text-center text-muted-foreground text-xs">
               Nenhuma proposta
             </p>
           )}

@@ -28,7 +28,7 @@ interface MessagesErrorProps {
 export function MessagesError({ onRetry }: MessagesErrorProps) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-3">
-      <AlertCircle className="text-destructive h-10 w-10" />
+      <AlertCircle className="h-10 w-10 text-destructive" />
       <p className="text-muted-foreground text-sm">
         Erro ao carregar mensagens
       </p>
@@ -41,15 +41,15 @@ export function MessagesError({ onRetry }: MessagesErrorProps) {
 
 export function EmptyState() {
   return (
-    <div className="bg-(--chat-bg) flex h-full flex-col items-center justify-center">
+    <div className="flex h-full flex-col items-center justify-center bg-(--chat-bg)">
       <div className="text-center">
-        <div className="bg-primary/10 mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full">
-          <Send className="text-primary h-10 w-10" />
+        <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
+          <Send className="h-10 w-10 text-primary" />
         </div>
-        <h2 className="text-foreground mb-2 text-xl font-semibold">
+        <h2 className="mb-2 font-semibold text-foreground text-xl">
           Selecione uma conversa
         </h2>
-        <p className="text-muted-foreground max-w-sm">
+        <p className="max-w-sm text-muted-foreground">
           Escolha uma conversa na lista ao lado para começar a trocar mensagens
         </p>
       </div>

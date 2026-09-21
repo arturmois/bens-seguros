@@ -39,19 +39,19 @@ export function WarningsCard({ data, isLoading }: WarningsCardProps) {
   return (
     <Card>
       <CardPanel className="flex items-start gap-4">
-        <div className="bg-warning/10 text-warning flex size-10 shrink-0 items-center justify-center rounded-lg">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-warning/10 text-warning">
           <AlertTriangle className="size-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-muted-foreground truncate text-sm">Avisos</p>
-          <p className="truncate text-2xl font-semibold tracking-tight">
+          <p className="truncate text-muted-foreground text-sm">Avisos</p>
+          <p className="truncate font-semibold text-2xl tracking-tight">
             {total}
           </p>
           <div className="mt-1 flex flex-col gap-0.5 text-xs">
             {claimsOpen > 0 ? (
               <Link
                 href="/claims?statusGroup=open"
-                className="text-muted-foreground hover:text-primary underline-offset-2 hover:underline"
+                className="text-muted-foreground underline-offset-2 hover:text-primary hover:underline"
                 aria-label={`${claimsOpen} sinistros abertos, ver lista`}
               >
                 {claimsOpen} sinistros
@@ -60,7 +60,7 @@ export function WarningsCard({ data, isLoading }: WarningsCardProps) {
             {assistancesOpen > 0 ? (
               <Link
                 href="/assistances?statusGroup=open"
-                className="text-muted-foreground hover:text-primary underline-offset-2 hover:underline"
+                className="text-muted-foreground underline-offset-2 hover:text-primary hover:underline"
                 aria-label={`${assistancesOpen} assistências abertas, ver lista`}
               >
                 {assistancesOpen} assistências

@@ -24,8 +24,8 @@ function JsonBlock({ label, data }: { label: string; data: unknown }) {
   if (data == null) return null
   return (
     <div>
-      <p className="text-muted-foreground mb-1 text-xs font-medium">{label}</p>
-      <pre className="bg-muted max-h-48 overflow-auto rounded-lg p-3 text-xs">
+      <p className="mb-1 font-medium text-muted-foreground text-xs">{label}</p>
+      <pre className="max-h-48 overflow-auto rounded-lg bg-muted p-3 text-xs">
         {JSON.stringify(data, null, 2)}
       </pre>
     </div>

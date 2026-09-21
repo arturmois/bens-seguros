@@ -85,7 +85,7 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
   return (
     <div ref={containerRef} className="relative">
       <div className="relative">
-        <Search className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           role="combobox"
           aria-autocomplete="list"
@@ -112,7 +112,7 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
           onKeyDown={handleKeyDown}
         />
         {isLoading && enabled && (
-          <Loader2 className="text-muted-foreground absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin" />
+          <Loader2 className="absolute top-1/2 right-3 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
         )}
       </div>
       {hasResults && (
@@ -121,7 +121,7 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
           id={listId}
           role="listbox"
           aria-label="Resultados de apólices"
-          className="bg-popover shadow-lg/5 absolute z-50 mt-1 max-h-56 w-full overflow-auto rounded-lg border p-1"
+          className="absolute z-50 mt-1 max-h-56 w-full overflow-auto rounded-lg border bg-popover p-1 shadow-lg/5"
         >
           {policies.map((policy, idx) => (
             <li
@@ -137,7 +137,7 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{policy.policyNumber}</p>
-                <p className="text-muted-foreground truncate text-xs">
+                <p className="truncate text-muted-foreground text-xs">
                   {policy.clientName ?? 'Sem cliente'}
                 </p>
               </div>
@@ -152,7 +152,7 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
         <div
           role="status"
           aria-live="polite"
-          className="bg-popover shadow-lg/5 absolute z-50 mt-1 w-full rounded-lg border px-3 py-4 text-center"
+          className="absolute z-50 mt-1 w-full rounded-lg border bg-popover px-3 py-4 text-center shadow-lg/5"
         >
           <p className="text-muted-foreground text-sm">
             Nenhuma apólice encontrada.

@@ -15,7 +15,7 @@ export function CommissionCard({ commission }: CommissionCardProps) {
   const router = useRouter()
   return (
     <div
-      className="bg-card active:bg-muted/50 cursor-pointer space-y-3 rounded-lg border p-4"
+      className="cursor-pointer space-y-3 rounded-lg border bg-card p-4 active:bg-muted/50"
       onClick={() => router.push(`/commissions/${commission.id}`)}
       role="button"
       tabIndex={0}

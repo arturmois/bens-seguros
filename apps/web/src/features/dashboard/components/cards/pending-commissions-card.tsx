@@ -29,7 +29,7 @@ export function PendingCommissionsCard({
     <Link
       href="/commissions?filter=pending"
       aria-label={`${formatCurrency(pendingCents)} em comissões pendentes, ver lista`}
-      className="focus-visible:outline-primary block rounded-xl focus-visible:outline-2"
+      className="block rounded-xl focus-visible:outline-2 focus-visible:outline-primary"
     >
       <ComparisonStatCard
         title="Comissões pendentes"

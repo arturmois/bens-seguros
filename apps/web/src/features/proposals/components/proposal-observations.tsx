@@ -39,8 +39,8 @@ export function ProposalObservations({
       className="space-y-2"
     >
       <div className="flex items-center gap-2">
-        <NotebookPen className="text-muted-foreground h-4 w-4" />
-        <h3 id="proposal-observations-label" className="text-sm font-semibold">
+        <NotebookPen className="h-4 w-4 text-muted-foreground" />
+        <h3 id="proposal-observations-label" className="font-semibold text-sm">
           Observações
         </h3>
       </div>

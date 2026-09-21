@@ -115,7 +115,7 @@ export function PolicyContactCard({
           />
           <div className="sm:col-span-2">
             <dt className="text-muted-foreground text-sm">Endereço</dt>
-            <dd className="mt-0.5 text-sm font-medium">
+            <dd className="mt-0.5 font-medium text-sm">
               {clientAddress ? formatAddress(clientAddress) : NOT_INFORMED}
             </dd>
           </div>
@@ -164,7 +164,7 @@ function InfoItem({
   return (
     <div>
       <dt className="text-muted-foreground text-sm">{label}</dt>
-      <dd className="mt-0.5 text-sm font-medium">
+      <dd className="mt-0.5 font-medium text-sm">
         {href ? (
           <Link
             href={href}

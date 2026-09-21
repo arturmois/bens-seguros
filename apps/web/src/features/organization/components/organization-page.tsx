@@ -36,7 +36,7 @@ export function OrganizationPage() {
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12">
-        <AlertCircle className="text-destructive size-8" />
+        <AlertCircle className="size-8 text-destructive" />
         <p className="text-muted-foreground text-sm">
           Erro ao carregar dados da organização.
         </p>
@@ -50,7 +50,7 @@ export function OrganizationPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold tracking-tight">Organização</h2>
+        <h2 className="font-semibold text-lg tracking-tight">Organização</h2>
         <p className="text-muted-foreground text-sm">
           {isReadOnly
             ? 'Visualize as informações da sua organização.'

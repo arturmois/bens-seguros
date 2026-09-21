@@ -35,7 +35,7 @@ export function InvitationAcceptAsCurrent({
   }
   return (
     <div className="space-y-4">
-      <div className="bg-muted/50 rounded-md border p-3 text-sm">
+      <div className="rounded-md border bg-muted/50 p-3 text-sm">
         Você está logado como <strong>{invitation.email}</strong> — basta um
         clique pra aceitar este convite.
       </div>

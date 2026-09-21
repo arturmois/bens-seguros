@@ -122,7 +122,7 @@ export function MobileChatLayout({
       </div>
       <div
         className={cn(
-          'bg-card absolute inset-0 z-30 transition-transform duration-300',
+          'absolute inset-0 z-30 bg-card transition-transform duration-300',
           showProfile && mobileView === 'chat'
             ? 'translate-x-0'
             : 'translate-x-full'

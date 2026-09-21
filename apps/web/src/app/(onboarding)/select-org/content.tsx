@@ -20,10 +20,10 @@ export function SelectOrgContent() {
   }, [isLoading, orgs.length, router])
   if (isLoading || orgs.length <= 1) return null
   return (
-    <div className="bg-card rounded-lg border p-8 shadow-sm">
+    <div className="rounded-lg border bg-card p-8 shadow-sm">
       <div className="mb-6 text-center">
-        <h2 className="text-xl font-semibold">Selecione uma organização</h2>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <h2 className="font-semibold text-xl">Selecione uma organização</h2>
+        <p className="mt-1 text-muted-foreground text-sm">
           Escolha a corretora que deseja acessar
         </p>
       </div>

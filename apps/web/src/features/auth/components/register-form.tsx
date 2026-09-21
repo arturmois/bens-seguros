@@ -131,7 +131,7 @@ export function RegisterForm() {
             type="button"
             variant="ghost"
             size="icon"
-            className="text-(--auth-foreground-muted) absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+            className="absolute top-0 right-0 h-full px-3 text-(--auth-foreground-muted) hover:bg-transparent"
             onClick={() => setShowPassword((prev) => !prev)}
             aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
           >
@@ -171,7 +171,7 @@ export function RegisterForm() {
             type="button"
             variant="ghost"
             size="icon"
-            className="text-(--auth-foreground-muted) absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+            className="absolute top-0 right-0 h-full px-3 text-(--auth-foreground-muted) hover:bg-transparent"
             onClick={() => setShowConfirmPassword((prev) => !prev)}
             aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
           >
@@ -210,7 +210,7 @@ export function RegisterForm() {
             <Link
               href="/terms"
               target="_blank"
-              className="text-accent-400 hover:text-accent-300 underline"
+              className="text-accent-400 underline hover:text-accent-300"
             >
               Termos de Uso
             </Link>{' '}
@@ -218,7 +218,7 @@ export function RegisterForm() {
             <Link
               href="/privacy"
               target="_blank"
-              className="text-accent-400 hover:text-accent-300 underline"
+              className="text-accent-400 underline hover:text-accent-300"
             >
               Política de Privacidade
             </Link>
@@ -241,7 +241,7 @@ export function RegisterForm() {
       )}
       <Button
         type="submit"
-        className="from-accent-500 to-accent-400 hover:from-accent-600 hover:to-accent-500 text-primary-foreground w-full bg-gradient-to-r font-bold"
+        className="w-full bg-gradient-to-r from-accent-500 to-accent-400 font-bold text-primary-foreground hover:from-accent-600 hover:to-accent-500"
         disabled={
           registerMutation.isPending ||
           (TURNSTILE_SITE_KEY !== undefined && turnstileToken === null)

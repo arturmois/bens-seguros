@@ -32,7 +32,7 @@ export function createMemberColumns(
       header: '',
       cell: ({ row }) => (
         <div
-          className="bg-primary/10 text-primary flex size-8 items-center justify-center rounded-full text-sm font-medium"
+          className="flex size-8 items-center justify-center rounded-full bg-primary/10 font-medium text-primary text-sm"
           aria-hidden="true"
         >
           {getInitials(row.original.name ?? row.original.email)}
@@ -47,7 +47,7 @@ export function createMemberColumns(
       header: ({ column }) => (
         <button
           type="button"
-          className="hover:text-foreground -ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors"
+          className="-ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Nome
@@ -70,7 +70,7 @@ export function createMemberColumns(
       header: ({ column }) => (
         <button
           type="button"
-          className="hover:text-foreground -ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors"
+          className="-ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           E-mail
@@ -109,7 +109,7 @@ export function createMemberColumns(
       header: ({ column }) => (
         <button
           type="button"
-          className="hover:text-foreground -ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors"
+          className="-ms-2 inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Desde

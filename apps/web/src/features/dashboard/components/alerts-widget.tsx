@@ -86,7 +86,7 @@ export function AlertsWidget() {
           </CardTitle>
         </CardHeader>
         <CardPanel className="flex flex-col items-center gap-2 py-6">
-          <AlertTriangle className="text-destructive size-6" />
+          <AlertTriangle className="size-6 text-destructive" />
           <p className="text-muted-foreground text-sm">
             Erro ao carregar alertas.
           </p>
@@ -113,7 +113,7 @@ export function AlertsWidget() {
           </CardTitle>
         </CardHeader>
         <CardPanel className="flex items-center gap-3 py-6">
-          <CheckCircle2 className="text-success size-6" />
+          <CheckCircle2 className="size-6 text-success" />
           <p className="text-muted-foreground text-sm">
             Nenhum alerta ativo. Tudo em dia!
           </p>
@@ -141,7 +141,7 @@ export function AlertsWidget() {
               </span>
               <Link
                 href={row.href}
-                className="text-primary ml-auto text-xs hover:underline"
+                className="ml-auto text-primary text-xs hover:underline"
               >
                 Ver {row.linkLabel}
               </Link>

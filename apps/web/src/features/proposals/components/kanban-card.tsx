@@ -37,13 +37,13 @@ export function KanbanCard({ proposal, onClick }: KanbanCardProps) {
         }
       }}
       className={cn(
-        'bg-card shadow-xs cursor-pointer rounded-lg border p-3 transition-shadow hover:shadow-sm'
+        'cursor-pointer rounded-lg border bg-card p-3 shadow-xs transition-shadow hover:shadow-sm'
       )}
     >
       <div className="min-w-0 space-y-2">
         {isEndorsement ? (
           <>
-            <p className="truncate text-sm font-medium">
+            <p className="truncate font-medium text-sm">
               {proposal.sourcePolicySnapshot?.clientName ??
                 proposal.clientName ??
                 'Cliente'}
@@ -56,7 +56,7 @@ export function KanbanCard({ proposal, onClick }: KanbanCardProps) {
             </p>
           </>
         ) : (
-          <p className="truncate text-sm font-medium">
+          <p className="truncate font-medium text-sm">
             {proposal.clientName ?? 'Cliente'}
           </p>
         )}
@@ -75,7 +75,7 @@ export function KanbanCard({ proposal, onClick }: KanbanCardProps) {
           </span>
           {proposal.salespersonName && (
             <span
-              className="text-muted-foreground max-w-[100px] truncate text-xs"
+              className="max-w-[100px] truncate text-muted-foreground text-xs"
               title={proposal.salespersonName}
             >
               {proposal.salespersonName}

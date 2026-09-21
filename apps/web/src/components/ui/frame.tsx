@@ -8,7 +8,7 @@ export function Frame({
   return (
     <div
       className={cn(
-        'bg-muted/72 relative flex flex-col rounded-2xl p-1',
+        'relative flex flex-col rounded-2xl bg-muted/72 p-1',
         '*:[[data-slot=frame-panel]+[data-slot=frame-panel]]:mt-1',
         className
       )}
@@ -25,7 +25,7 @@ export function FramePanel({
   return (
     <div
       className={cn(
-        'bg-background shadow-xs/5 relative rounded-xl border bg-clip-padding p-5 before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]',
+        'relative rounded-xl border bg-background bg-clip-padding p-5 shadow-xs/5 before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-xl)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]',
         className
       )}
       data-slot="frame-panel"
@@ -53,7 +53,7 @@ export function FrameTitle({
 }: React.ComponentProps<'div'>): React.ReactElement {
   return (
     <div
-      className={cn('text-sm font-semibold', className)}
+      className={cn('font-semibold text-sm', className)}
       data-slot="frame-panel-title"
       {...props}
     />

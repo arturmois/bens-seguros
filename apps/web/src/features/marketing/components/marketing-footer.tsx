@@ -21,7 +21,7 @@ export function MarketingFooter(): React.ReactElement {
               <li key={link.label}>
                 <Link
                   href={link.href}
-                  className="text-sm text-slate-400 transition-colors hover:text-slate-200"
+                  className="text-slate-400 text-sm transition-colors hover:text-slate-200"
                 >
                   {link.label}
                 </Link>
@@ -29,7 +29,7 @@ export function MarketingFooter(): React.ReactElement {
             ))}
           </ul>
         </nav>
-        <p className="text-sm text-slate-500">© {currentYear} Bens Seguros</p>
+        <p className="text-slate-500 text-sm">© {currentYear} Bens Seguros</p>
       </div>
     </footer>
   )

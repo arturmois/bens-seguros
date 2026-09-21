@@ -40,7 +40,7 @@ export function MembersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">
+          <h2 className="font-semibold text-lg tracking-tight">
             Membros da Equipe
           </h2>
           <p className="text-muted-foreground text-sm">

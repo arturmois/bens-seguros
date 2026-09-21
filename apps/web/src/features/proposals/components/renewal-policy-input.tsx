@@ -46,7 +46,7 @@ export function RenewalPolicyInput({
           onChange={(e) => onChange(e.target.value)}
         />
         {isLoading && enabled && (
-          <Loader2 className="text-muted-foreground absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin" />
+          <Loader2 className="absolute top-1/2 right-3 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
         )}
       </div>
       {matchedClient && (

@@ -19,7 +19,7 @@ export function ContactCard({ contact }: ContactCardProps) {
   }
   return (
     <div
-      className="bg-card active:bg-muted/50 cursor-pointer space-y-3 rounded-lg border p-4"
+      className="cursor-pointer space-y-3 rounded-lg border bg-card p-4 active:bg-muted/50"
       onClick={navigate}
       role="button"
       tabIndex={0}
@@ -31,7 +31,7 @@ export function ContactCard({ contact }: ContactCardProps) {
       }}
     >
       <div className="flex items-center gap-2">
-        <div className="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary text-xs">
           {getInitials(contact.name)}
         </div>
         <span className="font-medium">{contact.name}</span>

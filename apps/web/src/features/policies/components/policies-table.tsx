@@ -113,7 +113,7 @@ export function PoliciesTable() {
       <DataTable
         table={table}
         isLoading={isLoading}
-        emptyIcon={<Shield className="text-muted-foreground/50 size-10" />}
+        emptyIcon={<Shield className="size-10 text-muted-foreground/50" />}
         emptyMessage="Nenhuma apólice encontrada."
         emptyDescription="As apólices serão criadas a partir de propostas aprovadas."
         columnVisibility={columnVisibility}
@@ -123,7 +123,7 @@ export function PoliciesTable() {
         data={policies}
         keyExtractor={(p) => p.id}
         isLoading={isLoading}
-        emptyIcon={<Shield className="text-muted-foreground/50 size-10" />}
+        emptyIcon={<Shield className="size-10 text-muted-foreground/50" />}
         emptyMessage="Nenhuma apólice encontrada."
         emptyDescription="As apólices serão criadas a partir de propostas aprovadas."
         renderCard={(policy) => <PolicyCard policy={policy} />}

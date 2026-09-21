@@ -60,7 +60,7 @@ function Chip({ href, label, count, variant, ariaLabel }: ChipProps) {
       href={href}
       aria-label={ariaLabel}
       className={cn(
-        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium transition-colors',
+        'inline-flex items-center rounded-full px-2 py-0.5 font-medium text-xs transition-colors',
         CHIP_STYLES[variant]
       )}
     >
@@ -91,14 +91,14 @@ export function ProposalsPendingCard({
   return (
     <Card>
       <CardPanel className="flex items-start gap-4">
-        <div className="bg-primary/8 text-primary flex size-10 shrink-0 items-center justify-center rounded-lg">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/8 text-primary">
           <Clock className="size-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-muted-foreground truncate text-sm">
+          <p className="truncate text-muted-foreground text-sm">
             Propostas Pendentes
           </p>
-          <p className="truncate text-2xl font-semibold tracking-tight">
+          <p className="truncate font-semibold text-2xl tracking-tight">
             {safe.total}
           </p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">

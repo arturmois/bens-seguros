@@ -172,10 +172,10 @@ export function MetaEmbeddedSignup({
     <div className="flex flex-col items-center gap-6 py-6 text-center">
       <div className="flex flex-col items-center gap-2">
         <ChannelIcon channelType="WHATSAPP" size={40} />
-        <h3 className="text-base font-semibold">
+        <h3 className="font-semibold text-base">
           WhatsApp Business (Cloud API)
         </h3>
-        <p className="text-muted-foreground max-w-xs text-sm">
+        <p className="max-w-xs text-muted-foreground text-sm">
           Conecte seu número comercial verificado pela Meta. Você será
           redirecionado para o fluxo de cadastro do WhatsApp Business.
         </p>

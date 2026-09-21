@@ -65,7 +65,7 @@ export function UnifiedFilterBar({
         {!hideSearch && (
           <InputGroup className="flex-1 md:max-w-[320px] [&_input]:h-8 [&_input]:leading-8">
             <InputGroupAddon>
-              <Search className="text-muted-foreground size-4" />
+              <Search className="size-4 text-muted-foreground" />
             </InputGroupAddon>
             <InputGroupInput
               placeholder={searchPlaceholder}
@@ -99,7 +99,7 @@ export function UnifiedFilterBar({
                 Colunas
               </PopoverTrigger>
               <PopoverPopup side="bottom" align="end" className="min-w-[160px]">
-                <p className="text-muted-foreground px-2 pb-1.5 text-xs font-medium">
+                <p className="px-2 pb-1.5 font-medium text-muted-foreground text-xs">
                   Alternar colunas
                 </p>
                 {hideableColumns.map((col) => {
@@ -111,7 +111,7 @@ export function UnifiedFilterBar({
                       onClick={() =>
                         onColumnVisibilityChange(col.id, !isVisible)
                       }
-                      className="hover:bg-accent hover:text-accent-foreground flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm"
+                      className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
                     >
                       <Check
                         className={`size-3.5 ${isVisible ? 'opacity-100' : 'opacity-0'}`}

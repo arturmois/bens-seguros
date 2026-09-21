@@ -43,15 +43,15 @@ export function ToolsToggleSection({
   }
   return (
     <Collapsible defaultOpen={defaultOpen}>
-      <CollapsibleTrigger className="border-border flex w-full items-center justify-between rounded-lg border p-4">
-        <span className="text-sm font-medium">
+      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg border border-border p-4">
+        <span className="font-medium text-sm">
           Ferramentas ({enabledTools.length}/{availableTools.length})
         </span>
-        <ChevronDown className="text-muted-foreground size-4 transition-transform [[data-panel-open]_&]:rotate-180" />
+        <ChevronDown className="size-4 text-muted-foreground transition-transform [[data-panel-open]_&]:rotate-180" />
       </CollapsibleTrigger>
       <CollapsiblePanel>
         <div className="space-y-1 pt-2">
-          <p className="text-muted-foreground px-1 text-xs">
+          <p className="px-1 text-muted-foreground text-xs">
             Selecione as ferramentas que este agente pode utilizar durante as
             conversas. A transferência para atendente humano está sempre
             disponível.

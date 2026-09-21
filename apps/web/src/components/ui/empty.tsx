@@ -68,14 +68,14 @@ export function EmptyMedia({
             aria-hidden="true"
             className={cn(
               emptyMediaVariants({ className, variant }),
-              '-rotate-10 scale-84 pointer-events-none absolute bottom-px origin-bottom-left -translate-x-0.5 shadow-none'
+              'pointer-events-none absolute bottom-px origin-bottom-left -translate-x-0.5 -rotate-10 scale-84 shadow-none'
             )}
           />
           <div
             aria-hidden="true"
             className={cn(
               emptyMediaVariants({ className, variant }),
-              'rotate-10 scale-84 pointer-events-none absolute bottom-px origin-bottom-right translate-x-0.5 shadow-none'
+              'pointer-events-none absolute bottom-px origin-bottom-right translate-x-0.5 rotate-10 scale-84 shadow-none'
             )}
           />
         </>
@@ -94,7 +94,7 @@ export function EmptyTitle({
 }: React.ComponentProps<'div'>): React.ReactElement {
   return (
     <div
-      className={cn('font-heading text-xl font-semibold', className)}
+      className={cn('font-heading font-semibold text-xl', className)}
       data-slot="empty-title"
       {...props}
     />
@@ -108,7 +108,7 @@ export function EmptyDescription({
   return (
     <div
       className={cn(
-        'text-muted-foreground [&>a:hover]:text-primary text-sm [&>a]:underline [&>a]:underline-offset-4 [[data-slot=empty-title]+&]:mt-1',
+        'text-muted-foreground text-sm [&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4 [[data-slot=empty-title]+&]:mt-1',
         className
       )}
       data-slot="empty-description"

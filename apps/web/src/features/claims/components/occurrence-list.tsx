@@ -48,7 +48,7 @@ export function OccurrenceList({ claimId }: OccurrenceListProps) {
   if (!data || data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-8">
-        <MessageSquare className="text-muted-foreground size-10" />
+        <MessageSquare className="size-10 text-muted-foreground" />
         <p className="text-muted-foreground text-sm">
           Nenhuma ocorrência registrada
         </p>
@@ -60,15 +60,15 @@ export function OccurrenceList({ claimId }: OccurrenceListProps) {
   )
   return (
     <div className="relative space-y-0">
-      <div className="bg-border absolute left-4 top-0 h-full w-px" />
+      <div className="absolute top-0 left-4 h-full w-px bg-border" />
       {sorted.map((occurrence) => (
         <div key={occurrence.id} className="relative flex gap-4 pb-6">
-          <div className="bg-background relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border">
-            <Clock className="text-muted-foreground h-4 w-4" />
+          <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-background">
+            <Clock className="h-4 w-4 text-muted-foreground" />
           </div>
           <div className="flex-1 pt-0.5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="bg-muted rounded px-2 py-0.5 text-xs font-medium">
+              <span className="rounded bg-muted px-2 py-0.5 font-medium text-xs">
                 {OCCURRENCE_TYPE_LABELS[occurrence.type] ?? occurrence.type}
               </span>
               <span className="text-muted-foreground text-xs">

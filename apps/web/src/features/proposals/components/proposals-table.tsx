@@ -42,7 +42,7 @@ export function ProposalsTable() {
       <DataTable
         table={table}
         isLoading={isLoading}
-        emptyIcon={<FileText className="text-muted-foreground/50 size-10" />}
+        emptyIcon={<FileText className="size-10 text-muted-foreground/50" />}
         emptyMessage="Nenhuma proposta encontrada"
         emptyDescription="Ajuste a busca ou os filtros, ou crie uma nova proposta."
         columnVisibility={columnVisibility}
@@ -52,7 +52,7 @@ export function ProposalsTable() {
         data={proposals}
         keyExtractor={(proposal) => proposal.id}
         isLoading={isLoading}
-        emptyIcon={<FileText className="text-muted-foreground/50 size-10" />}
+        emptyIcon={<FileText className="size-10 text-muted-foreground/50" />}
         emptyMessage="Nenhuma proposta encontrada"
         emptyDescription="Ajuste a busca ou os filtros, ou crie uma nova proposta."
         renderCard={(proposal) => (

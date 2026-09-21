@@ -183,7 +183,7 @@ export function FilterChipsBar({
       <button
         type="button"
         onClick={onClearAll}
-        className="text-muted-foreground hover:text-foreground ml-1 text-xs"
+        className="ml-1 text-muted-foreground text-xs hover:text-foreground"
       >
         Limpar todos
       </button>

@@ -70,10 +70,10 @@ export function PricingSection(): React.ReactElement {
   return (
     <section id="precos" className="bg-white px-6 py-20">
       <div className="mx-auto max-w-6xl">
-        <p className="text-accent-700 text-center text-xs font-semibold uppercase tracking-widest">
+        <p className="text-center font-semibold text-accent-700 text-xs uppercase tracking-widest">
           Preços
         </p>
-        <h2 className="mt-4 text-center text-2xl font-bold text-slate-900 sm:text-3xl">
+        <h2 className="mt-4 text-center font-bold text-2xl text-slate-900 sm:text-3xl">
           Planos que cabem no seu bolso
         </h2>
         <PricingToggle billing={billing} onBillingChange={setBilling} />

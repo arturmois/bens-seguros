@@ -71,7 +71,7 @@ function BmiBadge({ control }: { readonly control: Control<FieldValues> }) {
     <div
       role="status"
       aria-live="polite"
-      className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-medium ${range.color}`}
+      className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-medium text-sm ${range.color}`}
     >
       IMC: {bmi.toFixed(1)} — {range.label}
     </div>

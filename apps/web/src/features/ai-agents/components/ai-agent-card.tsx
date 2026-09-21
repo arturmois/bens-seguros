@@ -35,7 +35,7 @@ export function AiAgentCard({
 }: AiAgentCardProps) {
   return (
     <div
-      className="bg-card active:bg-muted/50 cursor-pointer space-y-3 rounded-lg border p-4"
+      className="cursor-pointer space-y-3 rounded-lg border bg-card p-4 active:bg-muted/50"
       onClick={() => onEdit(agent)}
       role="button"
       tabIndex={0}
@@ -51,7 +51,7 @@ export function AiAgentCard({
         <div className="min-w-0">
           <div className="truncate font-medium">{agent.name}</div>
           {agent.description && (
-            <div className="text-muted-foreground truncate text-xs">
+            <div className="truncate text-muted-foreground text-xs">
               {agent.description}
             </div>
           )}

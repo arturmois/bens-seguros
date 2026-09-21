@@ -31,7 +31,7 @@ export function MarketingNav(): React.ReactElement {
   }, [])
   return (
     <header
-      className={`fixed left-0 right-0 top-0 z-50 transition-colors duration-300 ${
+      className={`fixed top-0 right-0 left-0 z-50 transition-colors duration-300 ${
         scrolled
           ? 'border-white/6 border-b bg-[#0a101f]/80 backdrop-blur-xl'
           : 'bg-transparent'
@@ -58,7 +58,7 @@ function DesktopLinks(): React.ReactElement {
         <li key={link.href}>
           <Link
             href={link.href}
-            className="text-sm text-slate-300 transition-colors hover:text-white"
+            className="text-slate-300 text-sm transition-colors hover:text-white"
           >
             {link.label}
           </Link>
@@ -73,13 +73,13 @@ function DesktopActions(): React.ReactElement {
     <div className="hidden items-center gap-3 lg:flex">
       <Link
         href="/login"
-        className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:text-white"
+        className="rounded-lg px-4 py-2 font-medium text-slate-300 text-sm transition-colors hover:text-white"
       >
         Login
       </Link>
       <Link
         href="/register"
-        className="from-accent-500 to-accent-600 shadow-accent-500/20 hover:shadow-accent-500/30 bg-linear-to-r rounded-lg px-5 py-2 text-sm font-semibold text-slate-900 shadow-lg transition-all"
+        className="rounded-lg bg-linear-to-r from-accent-500 to-accent-600 px-5 py-2 font-semibold text-slate-900 text-sm shadow-accent-500/20 shadow-lg transition-all hover:shadow-accent-500/30"
       >
         Começar Grátis
       </Link>
@@ -115,7 +115,7 @@ function MobileMenu({
                 key={link.href}
                 href={link.href}
                 onClick={() => onOpenChange(false)}
-                className="rounded-lg px-3 py-2.5 text-sm text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
+                className="rounded-lg px-3 py-2.5 text-slate-300 text-sm transition-colors hover:bg-white/5 hover:text-white"
               >
                 {link.label}
               </Link>
@@ -124,14 +124,14 @@ function MobileMenu({
             <Link
               href="/login"
               onClick={() => onOpenChange(false)}
-              className="rounded-lg px-3 py-2.5 text-sm text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
+              className="rounded-lg px-3 py-2.5 text-slate-300 text-sm transition-colors hover:bg-white/5 hover:text-white"
             >
               Login
             </Link>
             <Link
               href="/register"
               onClick={() => onOpenChange(false)}
-              className="from-accent-500 to-accent-600 bg-linear-to-r mt-2 rounded-lg px-5 py-2.5 text-center text-sm font-semibold text-slate-900 transition-all"
+              className="mt-2 rounded-lg bg-linear-to-r from-accent-500 to-accent-600 px-5 py-2.5 text-center font-semibold text-slate-900 text-sm transition-all"
             >
               Começar Grátis
             </Link>

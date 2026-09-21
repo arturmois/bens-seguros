@@ -18,15 +18,15 @@ export function EndorsementCard({ proposal }: EndorsementCardProps) {
   const { policyNumber, clientName, insurerName } =
     proposal.sourcePolicySnapshot
   return (
-    <div className="flex items-center gap-4 rounded-xl border-l-4 border-purple-500 bg-purple-50 p-4 dark:bg-purple-950/30">
+    <div className="flex items-center gap-4 rounded-xl border-purple-500 border-l-4 bg-purple-50 p-4 dark:bg-purple-950/30">
       <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-purple-500/90 text-white">
         <GitBranch className="size-5" />
       </div>
       <div className="flex-1">
-        <p className="text-xs font-bold uppercase tracking-wider text-purple-800 dark:text-purple-200">
+        <p className="font-bold text-purple-800 text-xs uppercase tracking-wider dark:text-purple-200">
           Apólice de Origem · {policyNumber}
         </p>
-        <p className="mt-1 text-sm text-purple-900 dark:text-purple-100">
+        <p className="mt-1 text-purple-900 text-sm dark:text-purple-100">
           {clientName} · {insurerName ?? 'Seguradora não informada'}
           {proposal.endorsementType && (
             <>
@@ -36,7 +36,7 @@ export function EndorsementCard({ proposal }: EndorsementCardProps) {
           )}
         </p>
         {proposal.endorsementReason && (
-          <p className="mt-1 text-xs text-purple-800/80 dark:text-purple-200/80">
+          <p className="mt-1 text-purple-800/80 text-xs dark:text-purple-200/80">
             Motivo: {proposal.endorsementReason}
           </p>
         )}

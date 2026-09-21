@@ -66,7 +66,7 @@ export function NotificationItem({
     <button
       type="button"
       className={cn(
-        'hover:bg-muted/50 flex w-full items-start gap-3 px-4 py-3 text-left transition-colors',
+        'flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/50',
         !notification.read && 'bg-primary/5'
       )}
       onClick={() => {
@@ -83,20 +83,20 @@ export function NotificationItem({
             'truncate text-sm',
             notification.read
               ? 'text-muted-foreground'
-              : 'text-foreground font-medium'
+              : 'font-medium text-foreground'
           )}
         >
           {notification.title}
         </p>
-        <p className="text-muted-foreground mt-0.5 truncate text-xs">
+        <p className="mt-0.5 truncate text-muted-foreground text-xs">
           {notification.body}
         </p>
       </div>
-      <span className="text-muted-foreground shrink-0 text-xs">
+      <span className="shrink-0 text-muted-foreground text-xs">
         {formatRelativeTime(notification.createdAt)}
       </span>
       {!notification.read && (
-        <span className="bg-primary mt-1.5 size-2 shrink-0 rounded-full" />
+        <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />
       )}
     </button>
   )

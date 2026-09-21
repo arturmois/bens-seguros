@@ -36,7 +36,7 @@ export function DocumentList({ entityType, entityId }: DocumentListProps) {
   if (!data || data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-8">
-        <File className="text-muted-foreground size-10" />
+        <File className="size-10 text-muted-foreground" />
         <p className="text-muted-foreground text-sm">
           Nenhum documento anexado
         </p>

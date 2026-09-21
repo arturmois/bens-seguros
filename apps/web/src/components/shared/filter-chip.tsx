@@ -19,7 +19,7 @@ export function FilterChip({
   return (
     <span
       className={cn(
-        'border-input bg-accent inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs',
+        'inline-flex items-center gap-1.5 rounded-md border border-input bg-accent px-2 py-1 text-xs',
         'hover:bg-accent/80'
       )}
       data-slot="filter-chip"

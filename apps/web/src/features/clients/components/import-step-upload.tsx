@@ -70,9 +70,9 @@ export function ImportStepUpload({
             : 'border-muted-foreground/25 hover:border-primary/50'
         } ${isUploading ? 'pointer-events-none opacity-50' : ''}`}
       >
-        <Upload className="text-muted-foreground h-10 w-10" />
+        <Upload className="h-10 w-10 text-muted-foreground" />
         <div className="text-center">
-          <p className="text-sm font-medium">Arraste um arquivo CSV aqui</p>
+          <p className="font-medium text-sm">Arraste um arquivo CSV aqui</p>
           <p className="text-muted-foreground text-xs">
             ou clique para selecionar
           </p>
@@ -87,7 +87,7 @@ export function ImportStepUpload({
         />
       </div>
       <div className="flex items-center gap-2">
-        <FileText className="text-muted-foreground h-4 w-4" />
+        <FileText className="h-4 w-4 text-muted-foreground" />
         <a
           href={`${API_URL}/api/v1/clients/import/template`}
           download

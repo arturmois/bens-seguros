@@ -56,7 +56,7 @@ export function InvitationLoginForm({
           type="email"
           value={invitation.email}
           readOnly
-          className="bg-muted cursor-not-allowed"
+          className="cursor-not-allowed bg-muted"
         />
       </div>
       <div className="space-y-1">
@@ -76,8 +76,8 @@ export function InvitationLoginForm({
         {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
         Entrar e aceitar convite
       </Button>
-      <div className="text-muted-foreground pt-1 text-center text-xs">
-        <a href="/reset-password" className="hover:text-foreground underline">
+      <div className="pt-1 text-center text-muted-foreground text-xs">
+        <a href="/reset-password" className="underline hover:text-foreground">
           Esqueci minha senha
         </a>
       </div>

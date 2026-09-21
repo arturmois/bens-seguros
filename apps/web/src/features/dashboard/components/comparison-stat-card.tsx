@@ -43,13 +43,13 @@ export function ComparisonStatCard({
   return (
     <Card>
       <CardPanel className="flex items-center gap-4">
-        <div className="bg-primary/8 text-primary flex size-10 shrink-0 items-center justify-center rounded-lg">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/8 text-primary">
           {icon}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-muted-foreground truncate text-sm">{title}</p>
+          <p className="truncate text-muted-foreground text-sm">{title}</p>
           <p
-            className="truncate text-2xl font-semibold tracking-tight"
+            className="truncate font-semibold text-2xl tracking-tight"
             title={String(value)}
           >
             {value}
@@ -57,13 +57,13 @@ export function ComparisonStatCard({
           {showComparison ? (
             <div className="flex items-center gap-1">
               {isPositive ? (
-                <TrendingUp className="text-success size-3" />
+                <TrendingUp className="size-3 text-success" />
               ) : (
-                <TrendingDown className="text-destructive size-3" />
+                <TrendingDown className="size-3 text-destructive" />
               )}
               <span
                 className={cn(
-                  'text-xs font-medium',
+                  'font-medium text-xs',
                   isPositive ? 'text-success' : 'text-destructive'
                 )}
               >

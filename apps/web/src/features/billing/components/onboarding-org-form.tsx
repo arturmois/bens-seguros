@@ -61,13 +61,13 @@ export function OnboardingOrgForm({ planSlug }: { readonly planSlug: string }) {
   }
 
   return (
-    <div className="bg-card rounded-lg border p-8 shadow-sm">
+    <div className="rounded-lg border bg-card p-8 shadow-sm">
       <div className="mb-6 text-center">
-        <p className="text-primary text-sm font-semibold uppercase tracking-wide">
+        <p className="font-semibold text-primary text-sm uppercase tracking-wide">
           Passo 2 de 2
         </p>
-        <h2 className="mt-1 text-xl font-semibold">Configure sua corretora</h2>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <h2 className="mt-1 font-semibold text-xl">Configure sua corretora</h2>
+        <p className="mt-1 text-muted-foreground text-sm">
           Estas informações podem ser alteradas depois
         </p>
       </div>
@@ -101,7 +101,7 @@ export function OnboardingOrgForm({ planSlug }: { readonly planSlug: string }) {
             'Criar corretora'
           )}
         </Button>
-        <p className="text-muted-foreground text-center text-xs">
+        <p className="text-center text-muted-foreground text-xs">
           Você será o administrador (Owner) desta organização
         </p>
       </form>
@@ -124,10 +124,10 @@ function PlanSummary({
   const price = formatPlanPrice(plan)
 
   return (
-    <div className="bg-muted/50 mb-6 flex items-center justify-between gap-3 rounded-lg border p-4">
+    <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border bg-muted/50 p-4">
       <div>
-        <p className="text-foreground font-semibold">{plan.name}</p>
-        <p className="text-muted-foreground mt-0.5 text-sm">
+        <p className="font-semibold text-foreground">{plan.name}</p>
+        <p className="mt-0.5 text-muted-foreground text-sm">
           <span>
             {price.amount}
             {price.suffix !== null ? ` ${price.suffix}` : ''}
@@ -138,7 +138,7 @@ function PlanSummary({
       </div>
       <Link
         href="/select-plan"
-        className="text-primary text-sm font-medium hover:underline"
+        className="font-medium text-primary text-sm hover:underline"
       >
         Trocar plano
       </Link>

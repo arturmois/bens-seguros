@@ -31,11 +31,11 @@ export function PoliciesExpiring({ count, isLoading }: PoliciesExpiringProps) {
         <CardTitle className="text-sm">Apólices expirando</CardTitle>
       </CardHeader>
       <CardPanel className="flex items-center gap-4">
-        <div className="bg-warning/8 text-warning flex size-10 shrink-0 items-center justify-center rounded-lg">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-warning/8 text-warning">
           <Clock className="size-5" />
         </div>
         <div>
-          <p className="text-3xl font-bold tracking-tight">{expiringCount}</p>
+          <p className="font-bold text-3xl tracking-tight">{expiringCount}</p>
           <p className="text-muted-foreground text-xs">nos próximos 30 dias</p>
         </div>
         {expiringCount > 5 ? (

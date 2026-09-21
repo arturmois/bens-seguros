@@ -33,10 +33,10 @@ export function HowItWorksSection(): React.ReactElement {
   return (
     <section id="como-funciona" className="bg-[#f8fafc] px-6 py-20">
       <div className="mx-auto max-w-6xl">
-        <p className="text-accent-700 text-center text-xs font-semibold uppercase tracking-widest">
+        <p className="text-center font-semibold text-accent-700 text-xs uppercase tracking-widest">
           Como Funciona
         </p>
-        <h2 className="mt-4 text-center text-2xl font-bold text-slate-900 sm:text-3xl">
+        <h2 className="mt-4 text-center font-bold text-2xl text-slate-900 sm:text-3xl">
           Simples de começar, poderoso para escalar
         </h2>
         <div className="relative mt-16">
@@ -55,7 +55,7 @@ export function HowItWorksSection(): React.ReactElement {
 function ConnectingLine(): React.ReactElement {
   return (
     <div
-      className="from-primary-500 via-accent-500 bg-linear-to-r absolute left-0 right-0 top-6 hidden h-0.5 to-emerald-500 md:block"
+      className="absolute top-6 right-0 left-0 hidden h-0.5 bg-linear-to-r from-primary-500 via-accent-500 to-emerald-500 md:block"
       aria-hidden="true"
     />
   )
@@ -70,12 +70,12 @@ function StepCard({
   return (
     <div className="relative flex flex-col items-center text-center">
       <div
-        className={`bg-linear-to-br flex size-12 items-center justify-center rounded-full ${gradient} text-lg font-bold text-white shadow-lg`}
+        className={`flex size-12 items-center justify-center rounded-full bg-linear-to-br ${gradient} font-bold text-lg text-white shadow-lg`}
       >
         {number}
       </div>
-      <h3 className="mt-4 text-lg font-semibold text-slate-900">{title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-slate-600">
+      <h3 className="mt-4 font-semibold text-lg text-slate-900">{title}</h3>
+      <p className="mt-2 text-slate-600 text-sm leading-relaxed">
         {description}
       </p>
     </div>

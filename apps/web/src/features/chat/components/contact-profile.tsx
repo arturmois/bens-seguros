@@ -37,10 +37,10 @@ export function ContactProfile({
   const phone = contact?.whatsappPhone ?? conversation.whatsappPhone
   const sourceChannel = contact?.source ?? conversation.channelType
   return (
-    <div className="bg-card flex h-full flex-col">
+    <div className="flex h-full flex-col bg-card">
       {/* Header */}
-      <div className="border-border flex min-h-[57px] items-center justify-between border-b px-4 py-3">
-        <h2 className="text-foreground font-semibold">Perfil do contato</h2>
+      <div className="flex min-h-[57px] items-center justify-between border-border border-b px-4 py-3">
+        <h2 className="font-semibold text-foreground">Perfil do contato</h2>
         <Button
           variant="ghost"
           size="icon"
@@ -58,7 +58,7 @@ export function ContactProfile({
           <div className="relative mb-4">
             <div
               className={cn(
-                'bg-primary/10 flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border',
+                'flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border bg-primary/10',
                 contact?.profilePicUrl && 'relative'
               )}
             >
@@ -71,13 +71,13 @@ export function ContactProfile({
                   sizes="112px"
                 />
               ) : (
-                <span className="text-primary text-3xl font-semibold">
+                <span className="font-semibold text-3xl text-primary">
                   {displayName.charAt(0).toUpperCase()}
                 </span>
               )}
             </div>
           </div>
-          <h3 className="text-foreground text-xl font-semibold">
+          <h3 className="font-semibold text-foreground text-xl">
             {displayName}
           </h3>
           <div className="mt-2">
@@ -85,7 +85,7 @@ export function ContactProfile({
           </div>
           {conversation.status === 'HUMAN_ACTIVE' &&
             conversation.assignedToName && (
-              <p className="text-muted-foreground mt-1 text-sm">
+              <p className="mt-1 text-muted-foreground text-sm">
                 Atendido por {conversation.assignedToName}
               </p>
             )}
@@ -93,27 +93,27 @@ export function ContactProfile({
         <Separator />
         {/* Contact Info */}
         <div className="space-y-4 px-4 py-4">
-          <h4 className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+          <h4 className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
             Informações de contato
           </h4>
           {phone && (
             <div className="flex items-center gap-3">
-              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
-                <Phone className="text-primary h-5 w-5" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                <Phone className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-foreground text-sm font-medium">{phone}</p>
+                <p className="font-medium text-foreground text-sm">{phone}</p>
                 <p className="text-muted-foreground text-xs">Telefone</p>
               </div>
             </div>
           )}
           {contact?.email && (
             <div className="flex items-center gap-3">
-              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
-                <Mail className="text-primary h-5 w-5" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                <Mail className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-foreground text-sm font-medium">
+                <p className="font-medium text-foreground text-sm">
                   {contact.email}
                 </p>
                 <p className="text-muted-foreground text-xs">E-mail</p>
@@ -122,11 +122,11 @@ export function ContactProfile({
           )}
           {sourceChannel && (
             <div className="flex items-center gap-3">
-              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                 <ChannelIcon channelType={sourceChannel} size={20} />
               </div>
               <div>
-                <p className="text-foreground text-sm font-medium">
+                <p className="font-medium text-foreground text-sm">
                   {CHANNEL_META[sourceChannel].label}
                 </p>
                 <p className="text-muted-foreground text-xs">Canal de origem</p>

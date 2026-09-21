@@ -162,7 +162,7 @@ export function InsurersTable() {
       <DataTable
         table={table}
         isLoading={isLoading}
-        emptyIcon={<Building2 className="text-muted-foreground/50 size-10" />}
+        emptyIcon={<Building2 className="size-10 text-muted-foreground/50" />}
         emptyMessage={emptyMessage}
         emptyDescription={emptyDescription}
         columnVisibility={columnVisibility}
@@ -172,7 +172,7 @@ export function InsurersTable() {
         data={insurers}
         keyExtractor={(insurer) => insurer.id}
         isLoading={isLoading}
-        emptyIcon={<Building2 className="text-muted-foreground/50 size-10" />}
+        emptyIcon={<Building2 className="size-10 text-muted-foreground/50" />}
         emptyMessage={emptyMessage}
         emptyDescription={emptyDescription}
         renderCard={(insurer) => (

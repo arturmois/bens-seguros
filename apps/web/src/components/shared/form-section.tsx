@@ -18,7 +18,7 @@ export function FormSection({
       {title && (
         <header className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-base font-semibold">{title}</h3>
+            <h3 className="font-semibold text-base">{title}</h3>
             {description && (
               <p className="text-muted-foreground text-sm">{description}</p>
             )}

@@ -145,9 +145,9 @@ export function InsuredObjectTab({ proposal }: InsuredObjectTabProps) {
   if (proposal.stage === 'CAPTURE' && !details) {
     return (
       <>
-        <div className="bg-card flex flex-col items-center justify-center gap-3 rounded-xl border p-12 text-center shadow-sm">
-          <p className="text-sm font-semibold">Bem segurado não preenchido</p>
-          <p className="text-muted-foreground max-w-md text-sm">
+        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border bg-card p-12 text-center shadow-sm">
+          <p className="font-semibold text-sm">Bem segurado não preenchido</p>
+          <p className="max-w-md text-muted-foreground text-sm">
             Adicione os dados do objeto segurado para avançar do estágio
             Captação.
           </p>
@@ -167,9 +167,9 @@ export function InsuredObjectTab({ proposal }: InsuredObjectTabProps) {
   return (
     <div className="space-y-4">
       {details?.branch === 'AUTO' && <VehicleBanner details={details} />}
-      <div className="bg-card rounded-xl border p-5 shadow-sm">
+      <div className="rounded-xl border bg-card p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-muted-foreground text-[11px] font-bold uppercase tracking-wider">
+          <p className="font-bold text-[11px] text-muted-foreground uppercase tracking-wider">
             Especificações
           </p>
           <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
@@ -179,7 +179,7 @@ export function InsuredObjectTab({ proposal }: InsuredObjectTabProps) {
         <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {pairs.map((pair) => (
             <div key={pair.label}>
-              <dt className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wide">
+              <dt className="font-semibold text-[10px] text-muted-foreground uppercase tracking-wide">
                 {pair.label}
               </dt>
               <dd

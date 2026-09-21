@@ -149,8 +149,8 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
         onKeyDown={handleKeyDown}
       />
       {isLoading && debouncedSearch.length >= 2 && (
-        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-          <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />
+        <div className="absolute top-1/2 right-3 -translate-y-1/2">
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
         </div>
       )}
       {hasResults && (
@@ -159,7 +159,7 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
           ref={listRef}
           role="listbox"
           aria-label="Resultados de apólices"
-          className="bg-popover absolute z-50 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border shadow-md"
+          className="absolute z-50 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border bg-popover shadow-md"
         >
           {data.map((policy, index) => (
             <li
@@ -192,7 +192,7 @@ export function PolicySearch({ value, onChange }: PolicySearchProps) {
         <div
           role="status"
           aria-live="polite"
-          className="bg-popover absolute z-50 mt-1 w-full rounded-lg border px-3 py-2 shadow-md"
+          className="absolute z-50 mt-1 w-full rounded-lg border bg-popover px-3 py-2 shadow-md"
         >
           <p className="text-muted-foreground text-sm">
             Nenhuma apólice encontrada.

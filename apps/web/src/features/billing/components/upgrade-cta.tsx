@@ -24,7 +24,7 @@ export function UpgradeCta({ feature, description }: UpgradeCtaProps) {
   return (
     <Card>
       <CardHeader>
-        <Sparkles className="text-primary size-6" />
+        <Sparkles className="size-6 text-primary" />
         <CardTitle>{label} indisponível</CardTitle>
         <CardDescription>
           {description ??

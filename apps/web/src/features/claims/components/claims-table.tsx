@@ -155,7 +155,7 @@ export function ClaimsTable() {
       <DataTable
         table={table}
         isLoading={isLoading}
-        emptyIcon={<ShieldAlert className="text-muted-foreground/50 size-10" />}
+        emptyIcon={<ShieldAlert className="size-10 text-muted-foreground/50" />}
         emptyMessage="Nenhum sinistro encontrado."
         emptyDescription="Registre um novo sinistro para começar."
         columnVisibility={columnVisibility}
@@ -165,7 +165,7 @@ export function ClaimsTable() {
         data={claims}
         keyExtractor={(c) => c.id}
         isLoading={isLoading}
-        emptyIcon={<ShieldAlert className="text-muted-foreground/50 size-10" />}
+        emptyIcon={<ShieldAlert className="size-10 text-muted-foreground/50" />}
         emptyMessage="Nenhum sinistro encontrado."
         emptyDescription="Registre um novo sinistro para começar."
         renderCard={(claim) => <ClaimCard claim={claim} />}

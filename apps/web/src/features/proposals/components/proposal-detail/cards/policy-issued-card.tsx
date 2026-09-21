@@ -24,20 +24,20 @@ export function PolicyIssuedCard({
   }
   const policy = data?.data
   return (
-    <div className="border-success bg-success/10 flex items-center gap-4 rounded-xl border-l-4 p-4">
-      <div className="bg-success/90 flex size-9 shrink-0 items-center justify-center rounded-full text-white">
+    <div className="flex items-center gap-4 rounded-xl border-success border-l-4 bg-success/10 p-4">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-success/90 text-white">
         <CheckCircle2 className="size-5" />
       </div>
       <div className="flex-1">
-        <p className="text-success-foreground text-xs font-bold uppercase tracking-wider">
+        <p className="font-bold text-success-foreground text-xs uppercase tracking-wider">
           Apólice Emitida
         </p>
         {isLoading || !policy ? (
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="mt-1 text-muted-foreground text-sm">
             Carregando dados da apólice…
           </p>
         ) : (
-          <p className="text-foreground mt-1 text-sm">
+          <p className="mt-1 text-foreground text-sm">
             <strong>{policy.policyNumber}</strong> · Vigência{' '}
             {formatDate(policy.startDate)} → {formatDate(policy.endDate)}
           </p>

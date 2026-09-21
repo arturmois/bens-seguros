@@ -38,21 +38,21 @@ export function Renewal7dCard({
     <Card>
       <Link
         href="/policies?filter=expiring-7d"
-        className="focus-visible:outline-primary block rounded-xl focus-visible:outline-2"
+        className="block rounded-xl focus-visible:outline-2 focus-visible:outline-primary"
         aria-label={`${safeCount} renovações nos próximos 7 dias, ver lista`}
       >
         <CardPanel className="flex items-center gap-4">
-          <div className="bg-primary/8 text-primary flex size-10 shrink-0 items-center justify-center rounded-lg">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/8 text-primary">
             <RefreshCw className="size-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-muted-foreground truncate text-sm">
+            <p className="truncate text-muted-foreground text-sm">
               Renovação 7 dias
             </p>
-            <p className="truncate text-2xl font-semibold tracking-tight">
+            <p className="truncate font-semibold text-2xl tracking-tight">
               {safeCount}
             </p>
-            <p className="text-muted-foreground truncate text-xs">
+            <p className="truncate text-muted-foreground text-xs">
               {formatCurrency(safePremium)} em prêmio
             </p>
           </div>

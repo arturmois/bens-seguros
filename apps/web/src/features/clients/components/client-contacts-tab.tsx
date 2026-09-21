@@ -59,7 +59,7 @@ export function ClientContactsTab({ clientId }: ClientContactsTabProps) {
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-        <UserCircle className="text-muted-foreground/50 size-10" />
+        <UserCircle className="size-10 text-muted-foreground/50" />
         <p className="text-muted-foreground text-sm">
           Nenhum contato vinculado
         </p>
@@ -91,7 +91,7 @@ export function ClientContactsTab({ clientId }: ClientContactsTabProps) {
           {items.map((c) => (
             <TableRow
               key={c.id}
-              className="hover:bg-muted/50 cursor-pointer"
+              className="cursor-pointer hover:bg-muted/50"
               onClick={() => router.push(`/contacts/${c.id}`)}
             >
               <TableCell className="font-medium">{c.name}</TableCell>

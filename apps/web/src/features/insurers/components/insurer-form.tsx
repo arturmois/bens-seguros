@@ -138,7 +138,7 @@ export function InsurerForm({
               name="active"
               control={form.control}
               render={({ field }) => (
-                <div className="border-border flex items-center justify-between rounded-lg border p-4">
+                <div className="flex items-center justify-between rounded-lg border border-border p-4">
                   <Label htmlFor="insurer-active" className="cursor-pointer">
                     Ativa
                   </Label>

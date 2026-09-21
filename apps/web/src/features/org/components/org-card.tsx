@@ -15,16 +15,16 @@ export function OrgCard({ org, onClick }: OrgCardProps) {
     <button
       type="button"
       onClick={onClick}
-      className="border-border hover:border-primary focus-visible:ring-ring flex w-full items-center gap-4 rounded-lg border bg-white p-4 text-left transition-all hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 dark:bg-transparent"
+      className="flex w-full items-center gap-4 rounded-lg border border-border bg-white p-4 text-left transition-all hover:border-primary hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:bg-transparent"
     >
       <div
-        className="flex size-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white"
+        className="flex size-10 shrink-0 items-center justify-center rounded-lg font-bold text-sm text-white"
         style={{ backgroundColor: getOrgColor(org.id) }}
       >
         {getOrgInitials(org.name)}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-semibold">{org.name}</div>
+        <div className="truncate font-semibold text-sm">{org.name}</div>
         <div className="text-muted-foreground text-xs">{org.slug}</div>
       </div>
       {org.role && (
@@ -32,7 +32,7 @@ export function OrgCard({ org, onClick }: OrgCardProps) {
           {org.role}
         </Badge>
       )}
-      <ChevronRight className="text-muted-foreground size-4 shrink-0" />
+      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
     </button>
   )
 }

@@ -20,7 +20,7 @@ export function ActivePoliciesCard({
     <Link
       href="/policies?status=ACTIVE"
       aria-label={`${count} apólices ativas, ver lista`}
-      className="focus-visible:outline-primary block rounded-xl focus-visible:outline-2"
+      className="block rounded-xl focus-visible:outline-2 focus-visible:outline-primary"
     >
       <ComparisonStatCard
         title="Apólices ativas"

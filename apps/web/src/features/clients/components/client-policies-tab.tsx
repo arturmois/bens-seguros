@@ -50,7 +50,7 @@ export function ClientPoliciesTab({ clientId }: ClientPoliciesTabProps) {
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-        <Shield className="text-muted-foreground/50 size-10" />
+        <Shield className="size-10 text-muted-foreground/50" />
         <p className="text-muted-foreground text-sm">
           Nenhuma apólice emitida ainda
         </p>
@@ -73,7 +73,7 @@ export function ClientPoliciesTab({ clientId }: ClientPoliciesTabProps) {
           {items.map((p) => (
             <TableRow
               key={p.id}
-              className="hover:bg-muted/50 cursor-pointer"
+              className="cursor-pointer hover:bg-muted/50"
               onClick={() => router.push(`/policies/${p.id}`)}
             >
               <TableCell className="font-medium">{p.policyNumber}</TableCell>

@@ -31,7 +31,7 @@ export function ProposalCard({
   const goToDetail = () => router.push(`/proposals/${proposal.id}`)
   return (
     <div
-      className="bg-card active:bg-muted/50 cursor-pointer space-y-3 rounded-lg border p-4"
+      className="cursor-pointer space-y-3 rounded-lg border bg-card p-4 active:bg-muted/50"
       onClick={goToDetail}
       role="button"
       tabIndex={0}

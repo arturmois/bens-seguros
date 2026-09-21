@@ -22,7 +22,7 @@ export function FieldsetLegend({
 }: FieldsetPrimitive.Legend.Props): React.ReactElement {
   return (
     <FieldsetPrimitive.Legend
-      className={cn('text-foreground font-semibold', className)}
+      className={cn('font-semibold text-foreground', className)}
       data-slot="fieldset-legend"
       {...props}
     />

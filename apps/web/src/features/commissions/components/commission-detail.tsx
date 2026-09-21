@@ -92,7 +92,7 @@ export function CommissionDetail({ commissionId }: CommissionDetailProps) {
 function DetailHeader({ commission }: { readonly commission: CommissionData }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <h2 className="text-xl font-semibold">
+      <h2 className="font-semibold text-xl">
         {formatCurrency(commission.commissionValueInCents)}
       </h2>
       <CommissionStatusBadge status={commission.status} />
@@ -152,9 +152,9 @@ function ReversalInfo({
   readonly originalCommissionId: string
 }) {
   return (
-    <div className="bg-muted/40 rounded-md border p-4">
-      <p className="text-sm font-medium">Esta comissão é um estorno</p>
-      <p className="text-muted-foreground mt-1 text-sm">
+    <div className="rounded-md border bg-muted/40 p-4">
+      <p className="font-medium text-sm">Esta comissão é um estorno</p>
+      <p className="mt-1 text-muted-foreground text-sm">
         Comissão original:{' '}
         <Link
           href={`/commissions/${originalCommissionId}`}
@@ -173,15 +173,15 @@ function RejectionInfo({
   readonly commission: CommissionData
 }) {
   return (
-    <div className="border-destructive/20 bg-destructive/[0.08] rounded-md border p-4">
-      <p className="text-destructive-foreground text-sm font-medium">
+    <div className="rounded-md border border-destructive/20 bg-destructive/[0.08] p-4">
+      <p className="font-medium text-destructive-foreground text-sm">
         Comissão rejeitada
       </p>
-      <p className="text-destructive mt-1 text-sm">
+      <p className="mt-1 text-destructive text-sm">
         Motivo: {commission.rejectionReason}
       </p>
       {commission.rejectedAt && (
-        <p className="text-muted-foreground mt-1 text-xs">
+        <p className="mt-1 text-muted-foreground text-xs">
           Rejeitada em {formatDate(commission.rejectedAt)}
         </p>
       )}
@@ -199,7 +199,7 @@ function InfoItem({
   return (
     <div>
       <p className="text-muted-foreground text-xs">{label}</p>
-      <p className="text-sm font-medium">{value}</p>
+      <p className="font-medium text-sm">{value}</p>
     </div>
   )
 }

@@ -55,7 +55,7 @@ export function FaqCtaSection(): React.ReactElement {
 function FaqOrb(): React.ReactElement {
   return (
     <div
-      className="animate-orb-drift bg-accent-500/10 absolute bottom-0 left-1/4 h-[400px] w-[400px] rounded-full blur-[60px]"
+      className="absolute bottom-0 left-1/4 h-[400px] w-[400px] animate-orb-drift rounded-full bg-accent-500/10 blur-[60px]"
       aria-hidden="true"
     />
   )
@@ -64,10 +64,10 @@ function FaqOrb(): React.ReactElement {
 function FaqHeader(): React.ReactElement {
   return (
     <>
-      <p className="text-accent-500 text-center text-xs font-semibold uppercase tracking-widest">
+      <p className="text-center font-semibold text-accent-500 text-xs uppercase tracking-widest">
         FAQ
       </p>
-      <h2 className="mt-4 text-center text-2xl font-bold text-white sm:text-3xl">
+      <h2 className="mt-4 text-center font-bold text-2xl text-white sm:text-3xl">
         Perguntas frequentes
       </h2>
     </>
@@ -80,12 +80,12 @@ function FaqAccordion(): React.ReactElement {
       {FAQ_ITEMS.map((item, index) => (
         <AccordionItem
           key={index}
-          className="data-open:border-accent-500/30 border-white/8 bg-white/3 rounded-xl border px-5"
+          className="rounded-xl border border-white/8 bg-white/3 px-5 data-open:border-accent-500/30"
         >
-          <AccordionTrigger className="hover:text-accent-400 py-5 text-base font-medium text-white">
+          <AccordionTrigger className="py-5 font-medium text-base text-white hover:text-accent-400">
             {item.question}
           </AccordionTrigger>
-          <AccordionContent className="pb-5 text-sm leading-relaxed text-slate-400">
+          <AccordionContent className="pb-5 text-slate-400 text-sm leading-relaxed">
             {item.answer}
           </AccordionContent>
         </AccordionItem>
@@ -98,9 +98,9 @@ function CtaFinal(): React.ReactElement {
   return (
     <div
       id="contato"
-      className="border-accent-500/20 from-accent-500/8 to-primary-500/8 bg-linear-to-r mt-16 rounded-2xl border p-8 text-center sm:p-12"
+      className="mt-16 rounded-2xl border border-accent-500/20 bg-linear-to-r from-accent-500/8 to-primary-500/8 p-8 text-center sm:p-12"
     >
-      <h3 className="text-2xl font-bold text-white sm:text-3xl">
+      <h3 className="font-bold text-2xl text-white sm:text-3xl">
         Pronto para transformar sua corretora?
       </h3>
       <p className="mt-4 text-base text-slate-400">
@@ -108,7 +108,7 @@ function CtaFinal(): React.ReactElement {
       </p>
       <Link
         href="/register"
-        className="from-accent-500 to-accent-600 shadow-accent-500/25 hover:shadow-accent-500/40 bg-linear-to-r mt-8 inline-block rounded-xl px-8 py-3 text-base font-semibold text-slate-900 shadow-lg transition-all"
+        className="mt-8 inline-block rounded-xl bg-linear-to-r from-accent-500 to-accent-600 px-8 py-3 font-semibold text-base text-slate-900 shadow-accent-500/25 shadow-lg transition-all hover:shadow-accent-500/40"
       >
         Começar Grátis
       </Link>

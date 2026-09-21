@@ -58,7 +58,7 @@ export function AlertDescription({
   return (
     <div
       className={cn(
-        'text-muted-foreground flex flex-col gap-2.5 [svg~&]:col-start-2',
+        'flex flex-col gap-2.5 text-muted-foreground [svg~&]:col-start-2',
         className
       )}
       data-slot="alert-description"

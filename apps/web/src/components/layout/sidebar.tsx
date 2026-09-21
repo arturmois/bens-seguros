@@ -47,7 +47,7 @@ export function Sidebar({
         )}
         <aside
           className={cn(
-            'bg-card w-68 fixed inset-y-0 left-0 z-50 flex flex-col border-r transition-transform duration-200',
+            'fixed inset-y-0 left-0 z-50 flex w-68 flex-col border-r bg-card transition-transform duration-200',
             mobileOpen ? 'translate-x-0' : '-translate-x-full'
           )}
         >
@@ -55,7 +55,7 @@ export function Sidebar({
             <OrgSwitcher collapsed={false} />
             <button
               onClick={onMobileClose}
-              className="text-muted-foreground hover:text-foreground rounded-md p-1.5"
+              className="rounded-md p-1.5 text-muted-foreground hover:text-foreground"
               aria-label="Fechar menu"
             >
               <X className="size-5" />
@@ -77,7 +77,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        'bg-card flex h-screen flex-col border-r transition-all',
+        'flex h-screen flex-col border-r bg-card transition-all',
         collapsed ? 'w-16' : 'w-68'
       )}
     >

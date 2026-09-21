@@ -78,7 +78,7 @@ export function SettingsLayout({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Configurações</h1>
+        <h1 className="font-semibold text-2xl tracking-tight">Configurações</h1>
         <p className="text-muted-foreground text-sm">
           Gerencie as configurações da sua organização.
         </p>
@@ -111,7 +111,7 @@ function SettingsNavItem({ section, isActive }: SettingsNavItemProps) {
   const Icon = section.icon
   if (section.disabled) {
     return (
-      <span className="text-muted-foreground/50 flex min-h-10 cursor-not-allowed items-center gap-3 whitespace-nowrap rounded-md px-3 py-2 text-sm lg:whitespace-normal">
+      <span className="flex min-h-10 cursor-not-allowed items-center gap-3 whitespace-nowrap rounded-md px-3 py-2 text-muted-foreground/50 text-sm lg:whitespace-normal">
         <Icon className="size-4 shrink-0" />
         <span>{section.label}</span>
         <span className="text-muted-foreground/50 text-xs">(em breve)</span>

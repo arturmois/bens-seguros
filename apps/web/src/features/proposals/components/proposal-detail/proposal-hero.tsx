@@ -93,15 +93,15 @@ export function ProposalHero({
     <section
       data-testid="proposal-hero"
       data-variant={variant}
-      className="bg-card text-card-foreground shadow-xs relative overflow-hidden rounded-xl border"
+      className="relative overflow-hidden rounded-xl border bg-card text-card-foreground shadow-xs"
     >
       <div className={`h-1 w-full ${VARIANT_ACCENT[variant]}`} aria-hidden />
       <div className="p-4 sm:p-6">
         <div className="mb-4">
-          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
+          <h1 className="font-bold text-xl tracking-tight sm:text-2xl">
             {proposal.clientName ?? 'Cliente'}
             {variant === 'success' && (
-              <span className="text-success ml-2">✓</span>
+              <span className="ml-2 text-success">✓</span>
             )}
           </h1>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
@@ -110,7 +110,7 @@ export function ProposalHero({
               {BOARD_TYPE_LABELS[proposal.boardType]}
             </Badge>
             <span className="text-muted-foreground">·</span>
-            <span className="text-muted-foreground font-mono text-xs">
+            <span className="font-mono text-muted-foreground text-xs">
               {idTag}
             </span>
           </div>
@@ -123,7 +123,7 @@ export function ProposalHero({
               variant={variant}
               hideLabels
             />
-            <p className="text-foreground mt-2 text-xs font-semibold">
+            <p className="mt-2 font-semibold text-foreground text-xs">
               {STAGE_LABELS[proposal.stage]}
             </p>
           </div>
@@ -134,31 +134,31 @@ export function ProposalHero({
 
         <div className="flex flex-wrap items-center gap-3 border-t pt-4 sm:gap-6">
           <div className="flex flex-col">
-            <span className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wider">
+            <span className="font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
               Prêmio
             </span>
-            <span className="text-base font-bold tabular-nums sm:text-lg">
+            <span className="font-bold text-base tabular-nums sm:text-lg">
               {premiumDisplay}
             </span>
           </div>
-          <div className="bg-border hidden h-8 w-px sm:block" />
+          <div className="hidden h-8 w-px bg-border sm:block" />
           <div className="flex flex-col">
-            <span className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wider">
+            <span className="font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
               Comissão
             </span>
-            <span className="text-base font-bold tabular-nums sm:text-lg">
+            <span className="font-bold text-base tabular-nums sm:text-lg">
               {commissionPctDisplay}
-              <span className="text-muted-foreground ml-1.5 text-xs font-normal">
+              <span className="ml-1.5 font-normal text-muted-foreground text-xs">
                 {commissionValue}
               </span>
             </span>
           </div>
-          <div className="bg-border hidden h-8 w-px sm:block" />
+          <div className="hidden h-8 w-px bg-border sm:block" />
           <div className="hidden flex-col sm:flex">
-            <span className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wider">
+            <span className="font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
               Vendedor
             </span>
-            <span className="text-sm font-semibold">
+            <span className="font-semibold text-sm">
               {proposal.salespersonName ?? '—'}
             </span>
           </div>

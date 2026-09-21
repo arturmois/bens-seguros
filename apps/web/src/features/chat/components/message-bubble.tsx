@@ -19,10 +19,10 @@ function MessageStatusIcon({
   readonly status: MessageData['status']
 }) {
   if (status === 'FAILED') {
-    return <AlertCircle className="text-destructive h-3.5 w-3.5" />
+    return <AlertCircle className="h-3.5 w-3.5 text-destructive" />
   }
   if (status === 'READ') {
-    return <CheckCheck className="text-info h-3.5 w-3.5" />
+    return <CheckCheck className="h-3.5 w-3.5 text-info" />
   }
   if (status === 'DELIVERED') {
     return <CheckCheck className="h-3.5 w-3.5" />
@@ -91,8 +91,8 @@ export function MessageBubble({
 }: MessageBubbleProps) {
   if (isSystemMessage(message.senderType)) {
     return (
-      <div className="animate-message-in flex justify-center">
-        <p className="text-muted-foreground max-w-[85%] text-center text-xs italic md:max-w-[60%]">
+      <div className="flex animate-message-in justify-center">
+        <p className="max-w-[85%] text-center text-muted-foreground text-xs italic md:max-w-[60%]">
           {message.text}
         </p>
       </div>
@@ -102,7 +102,7 @@ export function MessageBubble({
   return (
     <div
       className={cn(
-        'animate-message-in flex',
+        'flex animate-message-in',
         isSent ? 'justify-end' : 'justify-start'
       )}
     >
@@ -110,12 +110,12 @@ export function MessageBubble({
         className={cn(
           'max-w-[85%] rounded-2xl px-3 py-2 shadow-sm md:max-w-[70%] md:px-4 md:py-2.5',
           isSent
-            ? 'bg-(--chat-bubble-sent) text-(--chat-bubble-sent-fg) rounded-br-md'
-            : 'bg-(--chat-bubble-received) text-(--chat-bubble-received-fg) rounded-bl-md'
+            ? 'rounded-br-md bg-(--chat-bubble-sent) text-(--chat-bubble-sent-fg)'
+            : 'rounded-bl-md bg-(--chat-bubble-received) text-(--chat-bubble-received-fg)'
         )}
       >
         {!isSent && message.senderName && (
-          <p className="text-primary mb-0.5 text-xs font-medium">
+          <p className="mb-0.5 font-medium text-primary text-xs">
             {message.senderName}
           </p>
         )}

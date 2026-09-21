@@ -38,7 +38,7 @@ export function ImportStepPreview({
           {validationSummary.valid} validos
         </span>
         <span className="flex items-center gap-1">
-          <AlertCircle className="text-destructive h-4 w-4" />
+          <AlertCircle className="h-4 w-4 text-destructive" />
           {validationSummary.invalid} com erros
         </span>
         <span className="text-muted-foreground">
@@ -46,8 +46,8 @@ export function ImportStepPreview({
         </span>
       </div>
       {validationSummary.errors.length > 0 && (
-        <div className="bg-destructive/10 rounded-md p-3">
-          <p className="text-destructive text-sm font-medium">
+        <div className="rounded-md bg-destructive/10 p-3">
+          <p className="font-medium text-destructive text-sm">
             Erros encontrados:
           </p>
           <ul className="mt-1 list-inside list-disc text-sm">

@@ -27,10 +27,10 @@ export function ProblemSection(): React.ReactElement {
   return (
     <section id="problema" className="bg-white px-6 py-20">
       <div className="mx-auto max-w-6xl">
-        <p className="text-accent-700 text-center text-xs font-semibold uppercase tracking-widest">
+        <p className="text-center font-semibold text-accent-700 text-xs uppercase tracking-widest">
           O Problema
         </p>
-        <h2 className="mt-4 text-center text-2xl font-bold text-slate-900 sm:text-3xl">
+        <h2 className="mt-4 text-center font-bold text-2xl text-slate-900 sm:text-3xl">
           Cansado de planilhas e retrabalho?
         </h2>
         <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -47,8 +47,8 @@ function PainCard({ title, description }: PainPoint): React.ReactElement {
   return (
     <div className="rounded-xl border border-red-200 bg-red-50 p-6">
       <XCircle className="size-8 text-red-500" />
-      <h3 className="mt-4 text-lg font-semibold text-slate-900">{title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-slate-600">
+      <h3 className="mt-4 font-semibold text-lg text-slate-900">{title}</h3>
+      <p className="mt-2 text-slate-600 text-sm leading-relaxed">
         {description}
       </p>
     </div>

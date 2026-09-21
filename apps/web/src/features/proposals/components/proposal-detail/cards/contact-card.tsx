@@ -20,27 +20,27 @@ export function ContactCard({ proposal }: ContactCardProps) {
   const email = contact?.email ?? '—'
   const phone = contact?.phone ?? '—'
   return (
-    <div className="bg-card rounded-xl border p-5 shadow-sm">
+    <div className="rounded-xl border bg-card p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-muted-foreground inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider">
-          <User className="text-primary size-3.5" /> Contato
+        <p className="inline-flex items-center gap-2 font-bold text-[11px] text-muted-foreground uppercase tracking-wider">
+          <User className="size-3.5 text-primary" /> Contato
         </p>
         {proposal.contactId && (
           <Link
             href={`/contacts/${proposal.contactId}`}
             aria-label="Abrir contato"
-            className="text-muted-foreground hover:text-primary transition-colors"
+            className="text-muted-foreground transition-colors hover:text-primary"
           >
             <ExternalLink className="size-4" />
           </Link>
         )}
       </div>
       <div className="flex items-center gap-3">
-        <div className="bg-primary text-primary-foreground flex size-10 items-center justify-center rounded-full text-sm font-bold">
+        <div className="flex size-10 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground text-sm">
           {getInitials(name)}
         </div>
         <div>
-          <p className="text-sm font-semibold">{name}</p>
+          <p className="font-semibold text-sm">{name}</p>
           {documentValue && (
             <p className="text-muted-foreground text-xs">
               {documentLabel} {documentValue}
@@ -50,13 +50,13 @@ export function ContactCard({ proposal }: ContactCardProps) {
       </div>
       <dl className="mt-4 space-y-2 text-sm">
         <div>
-          <dt className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wide">
+          <dt className="font-semibold text-[10px] text-muted-foreground uppercase tracking-wide">
             Email
           </dt>
           <dd className="font-medium">{email}</dd>
         </div>
         <div>
-          <dt className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wide">
+          <dt className="font-semibold text-[10px] text-muted-foreground uppercase tracking-wide">
             Telefone
           </dt>
           <dd className="font-medium">{phone}</dd>

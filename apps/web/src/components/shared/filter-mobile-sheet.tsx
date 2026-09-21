@@ -59,7 +59,7 @@ export function FilterMobileSheet({
       <SheetTrigger render={<Button variant="outline" />}>
         <Filter className="size-3.5" />
         {activeCount > 0 && (
-          <span className="bg-primary text-primary-foreground ml-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-medium">
+          <span className="ml-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 font-medium text-[10px] text-primary-foreground">
             {activeCount}
           </span>
         )}
@@ -83,7 +83,7 @@ export function FilterMobileSheet({
                     key={filter.key}
                     type="button"
                     onClick={() => setEditingKey(filter.key)}
-                    className="hover:bg-accent flex w-full items-center justify-between rounded-md px-3 py-2 text-left"
+                    className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left hover:bg-accent"
                   >
                     <span className="text-sm">{filter.label}</span>
                     <span className="text-muted-foreground text-xs">
@@ -100,7 +100,7 @@ export function FilterMobileSheet({
                     filters.find((f) => !f.hiddenInPopover)?.key ?? null
                   )
                 }
-                className="text-primary inline-flex items-center gap-1 text-sm"
+                className="inline-flex items-center gap-1 text-primary text-sm"
               >
                 <Plus className="size-3.5" /> Adicionar filtro
               </button>
@@ -108,7 +108,7 @@ export function FilterMobileSheet({
                 type="button"
                 onClick={onClearAll}
                 disabled={activeCount === 0}
-                className="text-muted-foreground hover:text-foreground text-sm disabled:opacity-50"
+                className="text-muted-foreground text-sm hover:text-foreground disabled:opacity-50"
               >
                 Limpar
               </button>

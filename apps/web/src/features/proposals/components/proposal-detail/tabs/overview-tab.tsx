@@ -24,7 +24,7 @@ export function OverviewTab({ proposal, conditionalsSlot }: OverviewTabProps) {
         proposalId={proposal.id}
         initialValue={proposal.observations}
       />
-      <div className="text-muted-foreground border-t border-dashed pt-3 text-xs">
+      <div className="border-t border-dashed pt-3 text-muted-foreground text-xs">
         <span>
           Criada em{' '}
           <strong className="text-foreground">

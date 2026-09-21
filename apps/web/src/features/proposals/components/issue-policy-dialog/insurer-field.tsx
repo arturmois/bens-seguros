@@ -53,7 +53,7 @@ export function InsurerField({ control, setValue, error }: InsurerFieldProps) {
     <>
       <FormField label="Seguradora" error={error} required>
         {showEmpty ? (
-          <div className="border-border bg-muted/20 space-y-3 rounded-lg border border-dashed p-4">
+          <div className="space-y-3 rounded-lg border border-border border-dashed bg-muted/20 p-4">
             <div>
               <p className="font-medium">Nenhuma seguradora ativa cadastrada</p>
               <p className="text-muted-foreground text-sm">

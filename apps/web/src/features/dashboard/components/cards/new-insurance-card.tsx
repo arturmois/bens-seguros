@@ -57,30 +57,30 @@ export function NewInsuranceCard({
     <Card>
       <Link
         href={buildHref(preset)}
-        className="focus-visible:outline-primary block rounded-xl focus-visible:outline-2"
+        className="block rounded-xl focus-visible:outline-2 focus-visible:outline-primary"
         aria-label={`${current} seguros novos, ver lista`}
       >
         <CardPanel className="flex items-center gap-4">
-          <div className="bg-primary/8 text-primary flex size-10 shrink-0 items-center justify-center rounded-lg">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/8 text-primary">
             <Sparkles className="size-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-muted-foreground truncate text-sm">
+            <p className="truncate text-muted-foreground text-sm">
               Seguro Novo
             </p>
-            <p className="truncate text-2xl font-semibold tracking-tight">
+            <p className="truncate font-semibold text-2xl tracking-tight">
               {current}
             </p>
             {hasHistory && data ? (
               <div className="flex items-center gap-1">
                 {isPositive ? (
-                  <TrendingUp className="text-success size-3" />
+                  <TrendingUp className="size-3 text-success" />
                 ) : (
-                  <TrendingDown className="text-destructive size-3" />
+                  <TrendingDown className="size-3 text-destructive" />
                 )}
                 <span
                   className={cn(
-                    'text-xs font-medium',
+                    'font-medium text-xs',
                     isPositive ? 'text-success' : 'text-destructive'
                   )}
                 >

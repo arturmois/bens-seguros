@@ -52,7 +52,7 @@ export function MobileCardList<T>({
   }
   if (data.length === 0) {
     return (
-      <div className="text-muted-foreground flex flex-col items-center gap-2 py-12 text-center text-sm md:hidden">
+      <div className="flex flex-col items-center gap-2 py-12 text-center text-muted-foreground text-sm md:hidden">
         {emptyIcon}
         <p>{emptyMessage}</p>
         {emptyDescription && (

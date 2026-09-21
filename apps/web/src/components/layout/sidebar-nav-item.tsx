@@ -42,12 +42,12 @@ export function SidebarNavItem({
       <Icon className="size-4 shrink-0" />
       {!collapsed && <span>{label}</span>}
       {badgeCount > 0 && !collapsed && (
-        <span className="bg-destructive text-destructive-foreground ml-auto inline-flex size-5 shrink-0 items-center justify-center rounded-full text-xs font-medium">
+        <span className="ml-auto inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-destructive font-medium text-destructive-foreground text-xs">
           {badgeCount > 99 ? '99+' : badgeCount}
         </span>
       )}
       {badgeCount > 0 && collapsed && (
-        <span className="bg-destructive absolute -right-0.5 -top-0.5 size-2 rounded-full" />
+        <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-destructive" />
       )}
     </Link>
   )

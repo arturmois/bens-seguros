@@ -19,7 +19,7 @@ export function NotificationDropdown() {
   return (
     <div className="w-80">
       <div className="flex items-center justify-between border-b px-4 py-2">
-        <span className="text-sm font-semibold">Notificações</span>
+        <span className="font-semibold text-sm">Notificações</span>
         {hasUnread && (
           <Button
             variant="ghost"
@@ -40,7 +40,7 @@ export function NotificationDropdown() {
           </div>
         )}
         {!isLoading && notifications.length === 0 && (
-          <div className="text-muted-foreground py-8 text-center text-sm">
+          <div className="py-8 text-center text-muted-foreground text-sm">
             Nenhuma notificação
           </div>
         )}

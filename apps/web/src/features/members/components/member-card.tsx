@@ -30,11 +30,11 @@ export function MemberCard({
   onRemove,
 }: MemberCardProps) {
   return (
-    <div className="bg-card space-y-3 rounded-lg border p-4">
+    <div className="space-y-3 rounded-lg border bg-card p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <div
-            className="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-medium"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-medium text-primary text-sm"
             aria-hidden="true"
           >
             {getInitials(member.name ?? member.email)}
@@ -43,7 +43,7 @@ export function MemberCard({
             <div className="truncate font-medium">
               {member.name ?? <span className="text-muted-foreground">—</span>}
             </div>
-            <div className="text-muted-foreground truncate text-xs">
+            <div className="truncate text-muted-foreground text-xs">
               {member.email}
             </div>
           </div>
@@ -52,7 +52,7 @@ export function MemberCard({
           <Button
             variant="ghost"
             size="icon"
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive size-8 shrink-0"
+            className="size-8 shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
             onClick={() => onRemove(member)}
             aria-label={`Remover ${member.name ?? member.email}`}
           >
