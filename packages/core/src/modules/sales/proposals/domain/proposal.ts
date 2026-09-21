@@ -154,6 +154,10 @@ interface CreateProposalInput {
   quoteValidUntil?: Date
 }
 
+export type ProposalJson = Omit<ProposalProps, 'commissionBasisPoints'> & {
+  commissionPercentageInCents: number
+}
+
 export type { ActiveStage, BoardType, Branch, Stage }
 
 export class Proposal {
@@ -366,9 +370,7 @@ export class Proposal {
     )
   }
 
-  toJSON(): Omit<ProposalProps, 'commissionBasisPoints'> & {
-    commissionPercentageInCents: number
-  } {
+  toJSON(): ProposalJson {
     const { commissionBasisPoints, ...rest } = this.props
     return { ...rest, commissionPercentageInCents: commissionBasisPoints }
   }

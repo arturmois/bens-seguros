@@ -44,6 +44,7 @@ export type {
   ActiveStage,
   BoardType,
   Branch,
+  ProposalJson,
   ProposalProps,
   Stage,
 } from './domain/proposal.js'

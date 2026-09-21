@@ -1,6 +1,6 @@
 import React from 'react'
 import { Document, Page, View, Text } from '@react-pdf/renderer'
-import type { ProposalProps } from '@repo/core'
+import type { ProposalJson } from '@repo/core'
 import { maskDocument } from '@repo/shared'
 import { styles } from './pdf-styles.js'
 import { PdfHeader } from './pdf-header.js'
@@ -24,7 +24,7 @@ interface OrganizationData {
 }
 
 interface ProposalQuotePdfProps {
-  readonly proposal: ProposalProps
+  readonly proposal: ProposalJson
   readonly organization: OrganizationData
 }
 
@@ -40,7 +40,7 @@ function formatDate(date: Date | string): string {
   return d.toLocaleDateString('pt-BR')
 }
 
-function ClientSection({ proposal }: { readonly proposal: ProposalProps }) {
+function ClientSection({ proposal }: { readonly proposal: ProposalJson }) {
   const maskedDoc = proposal.clientDocument
     ? maskDocument(proposal.clientDocument)
     : '—'
@@ -61,7 +61,7 @@ function ClientSection({ proposal }: { readonly proposal: ProposalProps }) {
   )
 }
 
-function CoverageSection({ proposal }: { readonly proposal: ProposalProps }) {
+function CoverageSection({ proposal }: { readonly proposal: ProposalJson }) {
   const commissionPercent = (
     proposal.commissionPercentageInCents / 100
   ).toFixed(2)
@@ -107,7 +107,7 @@ function CoverageSection({ proposal }: { readonly proposal: ProposalProps }) {
 function CoverageDatesSection({
   proposal,
 }: {
-  readonly proposal: ProposalProps
+  readonly proposal: ProposalJson
 }) {
   if (!proposal.coverageStartDate && !proposal.coverageEndDate) {
     return null
@@ -137,7 +137,7 @@ function CoverageDatesSection({
   )
 }
 
-function ValiditySection({ proposal }: { readonly proposal: ProposalProps }) {
+function ValiditySection({ proposal }: { readonly proposal: ProposalJson }) {
   const validUntil = proposal.quoteValidUntil
     ? formatDate(proposal.quoteValidUntil)
     : '—'

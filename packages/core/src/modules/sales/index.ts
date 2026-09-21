@@ -92,6 +92,7 @@ export type {
   ActiveStage,
   BoardType,
   Branch,
+  ProposalJson,
   ProposalProps,
   Stage,
   AutoCompleteChecklistInput,

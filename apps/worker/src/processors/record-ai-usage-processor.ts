@@ -12,7 +12,8 @@ const logger = pino({ name: 'record-ai-usage-processor' })
 
 export const QUEUE_NAME = 'erp-record-ai-usage'
 
-export interface RecordAiUsageJobData extends CreateAiUsageRecordInput {
+export interface RecordAiUsageJobData
+  extends Omit<CreateAiUsageRecordInput, 'messageIdHash'> {
   readonly messageIdHash?: string | null
 }
 
