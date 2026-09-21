@@ -166,10 +166,9 @@ test('biome.json javascript formatter pin', () => {
 
 test('biome.json recommended false', () => {
   const config = loadBiomeConfig()
-  assert.equal(
-    config.linter && config.linter.rules && config.linter.rules.recommended,
-    false
-  )
+  const rules = config.linter && config.linter.rules
+  assert.equal(rules && rules.preset, 'none')
+  assert.equal(rules && rules.recommended, undefined)
 })
 
 test('biome.json mapped lint rules', () => {
